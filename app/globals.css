@@ -6,76 +6,76 @@
 
   /* Canvas */
   --background: #ffffff;
-  --foreground: #1E1E2F;
+  --foreground: #1e1e2f;
 
   /* Surfaces */
   --card: #ffffff;
-  --card-foreground: #1E1E2F;
+  --card-foreground: #1e1e2f;
   --popover: #ffffff;
-  --popover-foreground: #1E1E2F;
+  --popover-foreground: #1e1e2f;
   --input: #ffffff;
-  --border: #E5E7EB;
-  --ring: #7C3AED;
+  --border: #e5e7eb;
+  --ring: #7c3aed;
 
   /* Core palette */
-  --primary: #C084FC;             /* Neon Lavender */
+  --primary: #c084fc; /* Neon Lavender */
   --primary-foreground: #ffffff;
 
-  --secondary: #F9A8D4;           /* Blush Pink */
-  --secondary-foreground: #1E1E2F;
+  --secondary: #f9a8d4; /* Blush Pink */
+  --secondary-foreground: #1e1e2f;
 
-  --accent: #7C3AED;              /* Electric Orchid */
+  --accent: #7c3aed; /* Electric Orchid */
   --accent-foreground: #ffffff;
 
   /* Muted & destructive */
-  --muted: #F3F4F6;
-  --muted-foreground: #6B7280;
-  --destructive: #DC2626;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --destructive: #dc2626;
 
   /* Sidebar (if used) */
   --sidebar: #ffffff;
-  --sidebar-foreground: #1E1E2F;
-  --sidebar-primary: #C084FC;
+  --sidebar-foreground: #1e1e2f;
+  --sidebar-primary: #c084fc;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #7C3AED;
+  --sidebar-accent: #7c3aed;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #E5E7EB;
-  --sidebar-ring: #7C3AED;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #7c3aed;
 }
 
 .dark {
-  --background: #1E1E2F;
+  --background: #1e1e2f;
   --foreground: #ffffff;
 
-  --card: #27375D;
+  --card: #27375d;
   --card-foreground: #ffffff;
-  --popover: #27375D;
+  --popover: #27375d;
   --popover-foreground: #ffffff;
-  --input: #2E416F;
-  --border: #3B4A7A;
-  --ring: #7C3AED;
+  --input: #2e416f;
+  --border: #3b4a7a;
+  --ring: #7c3aed;
 
-  --primary: #C084FC;
-  --primary-foreground: #1E1E2F;
+  --primary: #c084fc;
+  --primary-foreground: #1e1e2f;
 
-  --secondary: #F9A8D4;
+  --secondary: #f9a8d4;
   --secondary-foreground: #ffffff;
 
-  --accent: #7C3AED;
+  --accent: #7c3aed;
   --accent-foreground: #ffffff;
 
-  --muted: #2E2E3A;
-  --muted-foreground: #9CA3AF;
-  --destructive: #F87171;
+  --muted: #2e2e3a;
+  --muted-foreground: #9ca3af;
+  --destructive: #f87171;
 
-  --sidebar: #27375D;
+  --sidebar: #27375d;
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #C084FC;
+  --sidebar-primary: #c084fc;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #7C3AED;
+  --sidebar-accent: #7c3aed;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #3B4A7A;
-  --sidebar-ring: #7C3AED;
+  --sidebar-border: #3b4a7a;
+  --sidebar-ring: #7c3aed;
 }
 
 /* Tailwind overrides */
@@ -134,7 +134,37 @@ body {
 }
 
 @keyframes gradientText {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Subscribe card styling */
+.subscribe-card {
+  @apply bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl p-8 mx-auto;
+  animation: slideUp 0.6s ease-out;
+}
+
+/* Button styling */
+.subscribe-button {
+  @apply bg-[var(--accent)] text-white font-semibold rounded-lg px-8 py-3
+         hover:bg-[var(--accent)/90] transition;
+}
+
+/* Entrance animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

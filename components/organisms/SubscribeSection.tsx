@@ -1,5 +1,5 @@
-import { NewsletterForm } from '@/components/molecules/NewsletterForm'
-import { subscribeToNewsletter } from '@/actions/subscribe'
+import { NewsletterForm } from "@/components/molecules/NewsletterForm"
+import { subscribeToNewsletter } from "@/actions/subscribe"
 
 export function SubscribeSection() {
   return (
@@ -8,7 +8,8 @@ export function SubscribeSection() {
         Coming Soon
       </h2>
       <p className="text-lg sm:text-xl text-muted-foreground max-w-xl leading-relaxed mb-6">
-        We’re building something exciting for indie makers and micro‑SaaS founders.
+        We’re building something exciting for indie makers and micro‑SaaS
+        founders.
         <br />
         Follow us and stay updated for launch.
       </p>

@@ -1,42 +1,49 @@
-'use client'
+"use client"
 
-import { useState, useTransition } from 'react'
-import { Input } from '@/components/atoms/input'
-import { Button } from '@/components/atoms/button'
+import { useState, useTransition } from "react"
+import { Input } from "@/components/atoms/input"
+import { Button } from "@/components/atoms/button"
 
 export type NewsletterFormProps = {
+  /** Server action to call */
   action: (formData: FormData) => Promise<{ success: boolean; error?: string }>
+  /** Email input placeholder */
   emailPlaceholder?: string
+  /** Submit button label */
   submitLabel?: string
+  /** Extra hidden inputs */
   hiddenFields?: { name: string; value: string }[]
+  /** Additional classes for the form wrapper */
+  className?: string
+  /** Additional classes for the submit button */
+  buttonClass?: string
 }
 
 export function NewsletterForm({
   action,
-  emailPlaceholder = 'Enter your email',
-  submitLabel = 'Subscribe →',
+  emailPlaceholder = "Enter your email",
+  submitLabel = "Subscribe →",
   hiddenFields = [],
+  className = "",
+  buttonClass = "",
 }: NewsletterFormProps) {
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState("")
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
-      setMessage('')
+      setMessage("")
       const result = await action(formData)
       if (result.success) {
-        setMessage('You’ve been subscribed!')
+        setMessage("You’ve been subscribed!")
       } else {
-        setMessage(result.error ?? 'Something went wrong.')
+        setMessage(result.error ?? "Something went wrong.")
       }
     })
   }
 
   return (
-    <form
-      action={handleSubmit}
-      className="flex gap-2"
-    >
+    <form action={handleSubmit} className={`flex gap-2 ${className}`}>
       {hiddenFields.map((field) => (
         <input
           key={field.name}
@@ -63,7 +70,7 @@ export function NewsletterForm({
       <Button
         type="submit"
         disabled={isPending}
-        className="
+        className={`
           bg-[var(--accent)]
           text-white
           py-2 px-6
@@ -71,9 +78,10 @@ export function NewsletterForm({
           transform transition
           hover:scale-105
           disabled:opacity-50
-        "
+          ${buttonClass}
+        `}
       >
-        {isPending ? 'Subscribing…' : submitLabel}
+        {isPending ? "Subscribing…" : submitLabel}
       </Button>
 
       {message && (
