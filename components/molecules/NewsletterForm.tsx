@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useTransition } from "react"
 import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
+import { toast } from "sonner"
 
 export type NewsletterFormProps = {
   /** Server action to call */
@@ -22,22 +23,22 @@ export type NewsletterFormProps = {
 export function NewsletterForm({
   action,
   emailPlaceholder = "Enter your email",
-  submitLabel = "Subscribe →",
+  submitLabel = "Subscribe →",
   hiddenFields = [],
   className = "",
   buttonClass = "",
 }: NewsletterFormProps) {
-  const [message, setMessage] = useState("")
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
-      setMessage("")
       const result = await action(formData)
       if (result.success) {
-        setMessage("You’ve been subscribed!")
+        toast.success("Subscribed!", {
+          description: "You have been added to our list.",
+        })
       } else {
-        setMessage(result.error ?? "Something went wrong.")
+        toast.error(result.error ?? "Something went wrong.")
       }
     })
   }
@@ -83,12 +84,6 @@ export function NewsletterForm({
       >
         {isPending ? "Subscribing…" : submitLabel}
       </Button>
-
-      {message && (
-        <p className="w-full text-sm text-[var(--destructive)] mt-2">
-          {message}
-        </p>
-      )}
     </form>
   )
 }
