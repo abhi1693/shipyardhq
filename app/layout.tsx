@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { ThemeProvider } from "next-themes"
+import { Toaster } from "@/components/atoms/sonner"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -14,19 +16,27 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "ShipYard",
+  description: "Join our waitlist for the ultimate micro‑SaaS growth toolkit.",
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="
+          min-h-screen antialiased
+          bg-[var(--background)]
+          text-[var(--foreground)]
+        "
       >
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="system">
+          {children}
+          <Toaster position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   )
