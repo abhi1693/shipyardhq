@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/atoms/sonner"
 import { GoogleAnalytics } from '@next/third-parties/google'
 import "./globals.css"
+import {IS_PROD} from "@/lib/constants";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,7 @@ export default function RootLayout({
           <Toaster position="top-right" />
         </ThemeProvider>
       </body>
-    <GoogleAnalytics gaId="G-D1Q2TF5RZM" />
+      {IS_PROD && <GoogleAnalytics gaId="G-D1Q2TF5RZM" />}
     </html>
   )
 }
