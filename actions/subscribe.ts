@@ -27,6 +27,6 @@ export async function subscribeToNewsletter(
     ) {
       return { success: false, error: "This email is already subscribed." }
     }
-    return { success: false, error: "An unexpected error occurred." }
+    return { success: false, error: `An unexpected error occurred: ${error}` }
   }
 }
