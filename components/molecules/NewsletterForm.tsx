@@ -1,0 +1,86 @@
+'use client'
+
+import { useState, useTransition } from 'react'
+import { Input } from '@/components/atoms/input'
+import { Button } from '@/components/atoms/button'
+
+export type NewsletterFormProps = {
+  action: (formData: FormData) => Promise<{ success: boolean; error?: string }>
+  emailPlaceholder?: string
+  submitLabel?: string
+  hiddenFields?: { name: string; value: string }[]
+}
+
+export function NewsletterForm({
+  action,
+  emailPlaceholder = 'Enter your email',
+  submitLabel = 'Subscribe →',
+  hiddenFields = [],
+}: NewsletterFormProps) {
+  const [message, setMessage] = useState('')
+  const [isPending, startTransition] = useTransition()
+
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      setMessage('')
+      const result = await action(formData)
+      if (result.success) {
+        setMessage('You’ve been subscribed!')
+      } else {
+        setMessage(result.error ?? 'Something went wrong.')
+      }
+    })
+  }
+
+  return (
+    <form
+      action={handleSubmit}
+      className="flex gap-2"
+    >
+      {hiddenFields.map((field) => (
+        <input
+          key={field.name}
+          type="hidden"
+          name={field.name}
+          value={field.value}
+        />
+      ))}
+
+      <Input
+        name="email"
+        type="email"
+        placeholder={emailPlaceholder}
+        required
+        className="
+          flex-1
+          border border-gray-300
+          bg-white
+          focus:outline-none
+          focus:ring-2 focus:ring-[var(--accent)]
+        "
+      />
+
+      <Button
+        type="submit"
+        disabled={isPending}
+        className="
+          bg-[var(--accent)]
+          text-white
+          py-2 px-6
+          rounded-lg
+          transform transition
+          hover:scale-105
+          disabled:opacity-50
+        "
+      >
+        {isPending ? 'Subscribing…' : submitLabel}
+      </Button>
+
+      {message && (
+        <p className="w-full text-sm text-[var(--destructive)] mt-2">
+          {message}
+        </p>
+      )}
+    </form>
+  )
+}
