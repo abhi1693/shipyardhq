@@ -1,9 +1,11 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/atoms/sonner"
-import { ClerkProvider } from "@clerk/nextjs"
+import NextTopLoader from "nextjs-toploader"
+import Providers from "@/components/layout/providers"
 import "./globals.css"
+import "./theme.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,9 +17,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
+const META_THEME_COLORS = {
+  light: "#ffffff",
+  dark: "#09090b",
+}
+
 export const metadata: Metadata = {
   title: "ShipYard",
   description: "Join our waitlist for the ultimate micro‑SaaS growth toolkit.",
+}
+
+export const viewport: Viewport = {
+  themeColor: META_THEME_COLORS.light,
 }
 
 export default function RootLayout({
@@ -26,15 +37,22 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-        <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
-          <ThemeProvider attribute="class" defaultTheme="system">
-            {children}
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
+        <NextTopLoader showSpinner={false} />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          enableColorScheme
+        >
+          <Providers>
             <Toaster position="top-right" />
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+            {children}
+          </Providers>
+        </ThemeProvider>
+      </body>
+    </html>
   )
 }
