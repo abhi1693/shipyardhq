@@ -41,16 +41,15 @@ export function UserNav() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
+            <DropdownMenuItem onClick={() => router.push("/admin/profile")}>
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>Billing</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>New Team</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <SignOutButton redirectUrl="/auth/sign-in" />
+            <SignOutButton
+              redirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
+            />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

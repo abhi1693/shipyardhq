@@ -1,5 +1,7 @@
 import { SidebarTrigger } from "@/components/atoms/sidebar"
 import { Separator } from "@/components/atoms/separator"
+import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
+import { UserNav } from "@/components/layout/user-nav"
 
 export default function Header() {
   return (
@@ -7,6 +9,10 @@ export default function Header() {
       <div className="flex items-center gap-2 px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
+        <Breadcrumbs />
+      </div>
+      <div className="flex items-center gap-2 px-4">
+        <UserNav />
       </div>
     </header>
   )
