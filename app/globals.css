@@ -1,26 +1,170 @@
 @import "tailwindcss";
 
+/* Brand theme variables */
 :root {
+  --radius: 0.65rem;
+
+  /* Canvas */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1e1e2f;
+
+  /* Surfaces */
+  --card: #ffffff;
+  --card-foreground: #1e1e2f;
+  --popover: #ffffff;
+  --popover-foreground: #1e1e2f;
+  --input: #ffffff;
+  --border: #e5e7eb;
+  --ring: #7c3aed;
+
+  /* Core palette */
+  --primary: #c084fc; /* Neon Lavender */
+  --primary-foreground: #ffffff;
+
+  --secondary: #f9a8d4; /* Blush Pink */
+  --secondary-foreground: #1e1e2f;
+
+  --accent: #7c3aed; /* Electric Orchid */
+  --accent-foreground: #ffffff;
+
+  /* Muted & destructive */
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --destructive: #dc2626;
+
+  /* Sidebar (if used) */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1e1e2f;
+  --sidebar-primary: #c084fc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #7c3aed;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #7c3aed;
 }
 
+.dark {
+  --background: #1e1e2f;
+  --foreground: #ffffff;
+
+  --card: #27375d;
+  --card-foreground: #ffffff;
+  --popover: #27375d;
+  --popover-foreground: #ffffff;
+  --input: #2e416f;
+  --border: #3b4a7a;
+  --ring: #7c3aed;
+
+  --primary: #c084fc;
+  --primary-foreground: #1e1e2f;
+
+  --secondary: #f9a8d4;
+  --secondary-foreground: #ffffff;
+
+  --accent: #7c3aed;
+  --accent-foreground: #ffffff;
+
+  --muted: #2e2e3a;
+  --muted-foreground: #9ca3af;
+  --destructive: #f87171;
+
+  --sidebar: #27375d;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #c084fc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #7c3aed;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #3b4a7a;
+  --sidebar-ring: #7c3aed;
+}
+
+/* Tailwind overrides */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --primary: var(--primary);
+  --primary-foreground: var(--primary-foreground);
+
+  --secondary: var(--secondary);
+  --secondary-foreground: var(--secondary-foreground);
+
+  --accent: var(--accent);
+  --accent-foreground: var(--accent-foreground);
+
+  --radius: var(--radius);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  /* Hero tinted gradient background */
+  .hero-gradient-bg {
+    @apply absolute inset-0
+      bg-gradient-to-tr
+      from-[var(--primary)/10]
+      via-[var(--accent)/10]
+      to-[var(--secondary)/10];
+  }
+
+  /* Soft white overlay */
+  .hero-overlay {
+    @apply absolute inset-0 bg-white/10;
+  }
+
+  /* Animated gradient‑text heading */
+  .hero-heading {
+    @apply text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-4
+      bg-gradient-to-r
+      from-[var(--primary)]
+      via-[var(--accent)]
+      to-[var(--secondary)]
+      bg-clip-text
+      text-transparent;
+    background-size: 200% 200%;
+    animation: gradientText 6s ease-in-out infinite;
+  }
+}
+
+@keyframes gradientText {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Subscribe card styling */
+.subscribe-card {
+  @apply bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl p-8 mx-auto;
+  animation: slideUp 0.6s ease-out;
+}
+
+/* Button styling */
+.subscribe-button {
+  @apply bg-[var(--accent)] text-white font-semibold rounded-lg px-8 py-3
+         hover:bg-[var(--accent)/90] transition;
+}
+
+/* Entrance animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
