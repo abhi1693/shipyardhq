@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/atoms/button'
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/atoms/button"
 
 export default function NotFound() {
   const router = useRouter()
@@ -25,7 +25,7 @@ export default function NotFound() {
           <Button onClick={() => router.back()} variant="default" size="lg">
             Go Back
           </Button>
-          <Button onClick={() => router.push('/')} variant="ghost" size="lg">
+          <Button onClick={() => router.push("/")} variant="ghost" size="lg">
             Back to Home
           </Button>
         </div>

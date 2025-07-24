@@ -1,8 +1,12 @@
-export default function AdminDashboard() {
-  return (
-    <p>
-      This is the protected admin dashboard restricted to users with the `admin`
-      role.
-    </p>
-  )
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
+
+export default async function Admin() {
+  const { userId } = await auth()
+
+  if (!userId) {
+    return redirect("/")
+  } else {
+    redirect("/admin/overview")
+  }
 }
