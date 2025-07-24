@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/atoms/sonner"
+import { GoogleAnalytics } from '@next/third-parties/google'
 import "./globals.css"
 
 const geistSans = Geist({
@@ -38,6 +39,7 @@ export default function RootLayout({
           <Toaster position="top-right" />
         </ThemeProvider>
       </body>
+    <GoogleAnalytics gaId="G-D1Q2TF5RZM" />
     </html>
   )
 }
