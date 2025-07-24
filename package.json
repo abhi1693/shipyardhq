@@ -12,7 +12,7 @@
     "prisma:migrate:reset": "prisma migrate reset --force",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate": "npm run prisma:init && npm run prisma:migrate:reset && npm run prisma:migrate:dev",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^6.12.0",
