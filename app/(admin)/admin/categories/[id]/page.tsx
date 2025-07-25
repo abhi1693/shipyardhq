@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation"
-import {
-  getCategoryById,
-} from "@/actions/admin/categories/actions"
+import { getCategoryById } from "@/actions/admin/categories/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 
 export default async function ViewCategoryPage({

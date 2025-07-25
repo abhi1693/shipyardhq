@@ -7,8 +7,8 @@ import { format } from "date-fns"
 
 export const columns: ColumnDef<
   Product & {
-    category: { name: string }
-    user: { email: string }
+    category: { id: string; name: string }
+    user: { id: string; email: string }
   }
 >[] = [
   {
@@ -29,12 +29,32 @@ export const columns: ColumnDef<
   {
     accessorKey: "category.name",
     header: "Category",
-    cell: ({ row }) => row.original.category.name,
+    cell: ({ row }) => {
+      const { category } = row.original
+      return (
+        <Link
+          href={`/admin/categories/${category.id}`}
+          className="text-blue-600 hover:underline"
+        >
+          {category.name}
+        </Link>
+      )
+    },
   },
   {
     accessorKey: "user.email",
     header: "Created By",
-    cell: ({ row }) => row.original.user.email,
+    cell: ({ row }) => {
+      const { user } = row.original
+      return (
+        <Link
+          href={`/admin/users/${user.id}`}
+          className="text-blue-600 hover:underline"
+        >
+          {user.email}
+        </Link>
+      )
+    },
   },
   {
     accessorKey: "createdAt",

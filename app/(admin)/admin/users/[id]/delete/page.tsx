@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import {deleteUserAction} from "@/actions/admin/users/actions";
+import { deleteUserAction } from "@/actions/admin/users/actions"
 
 export default async function DeleteUserPage({
   params,
