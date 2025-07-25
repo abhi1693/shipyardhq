@@ -1,40 +1,40 @@
 "use client"
 
-import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
-import { Product } from "@prisma/client"
+import { User } from "@prisma/client"
 import { format } from "date-fns"
+import Link from "next/link"
 
-export const columns: ColumnDef<
-  Product & {
-    category: { name: string }
-    user: { email: string }
-  }
->[] = [
+export const columns: ColumnDef<User>[] = [
   {
-    accessorKey: "name",
-    header: "Name",
+    accessorKey: "email",
+    header: "Email",
     cell: ({ row }) => {
-      const product = row.original
+      const user = row.original
       return (
         <Link
-          href={`/admin/products/${product.id}`}
+          href={`/admin/users/${user.id}`}
           className="text-blue-600 hover:underline font-medium"
         >
-          {product.name}
+          {user.email}
         </Link>
       )
     },
   },
   {
-    accessorKey: "category.name",
-    header: "Category",
-    cell: ({ row }) => row.original.category.name,
+    accessorKey: "firstName",
+    header: "First Name",
+    cell: ({ row }) => row.original.firstName,
   },
   {
-    accessorKey: "user.email",
-    header: "Created By",
-    cell: ({ row }) => row.original.user.email,
+    accessorKey: "lastName",
+    header: "Last Name",
+    cell: ({ row }) => row.original.lastName,
+  },
+  {
+    accessorKey: "role",
+    header: "Role",
+    cell: ({ row }) => row.original.role,
   },
   {
     accessorKey: "createdAt",

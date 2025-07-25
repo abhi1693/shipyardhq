@@ -5,7 +5,7 @@ import { Category } from "@prisma/client"
 import Link from "next/link"
 import { format } from "date-fns"
 
-export const categoryColumns: ColumnDef<Category>[] = [
+export const columns: ColumnDef<Category>[] = [
   {
     accessorKey: "name",
     header: "Name",

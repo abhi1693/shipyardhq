@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
-import { productColumns } from "./columns"
+import { columns } from "./columns"
 import { getProducts } from "@/actions/admin/products/actions"
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export default async function CategoryPage() {
 
   return (
     <ListPageWrapper title="Products" addLink="/admin/products/add">
-      <EntityList columns={productColumns} data={products} />
+      <EntityList columns={columns} data={products} />
     </ListPageWrapper>
   )
 }
