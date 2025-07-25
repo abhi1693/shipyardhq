@@ -1,5 +1,8 @@
-import { ObjectHeading } from "@/components/layout/object-heading"
-import { OverviewCard, OverviewRow } from "@/components/layout/object-overview"
+import { ObjectHeading } from "@/components/layout/object-view/heading"
+import {
+  OverviewCard,
+  OverviewRow,
+} from "@/components/layout/object-view/overview"
 import PageContainer from "@/components/layout/page-container"
 
 interface ObjectPageLayoutProps {

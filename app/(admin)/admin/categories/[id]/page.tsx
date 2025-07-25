@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import { getCategoryById } from "@/controllers/categories"
-import { ObjectPageLayout } from "@/components/layout/object-page-layout"
+import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 
 export const metadata: Metadata = {
   title: "View Category",
