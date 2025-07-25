@@ -1,31 +1,20 @@
 import { Metadata } from "next"
-import { Product } from "@prisma/client"
-import { ColumnDef } from "@tanstack/react-table"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
-import { getProducts } from "@/controllers/products"
+import { productColumns } from "./columns"
+import { getProducts } from "@/actions/admin/products/actions"
 
 export const metadata: Metadata = {
-  title: "Products",
-  description: "Manage products in the admin panel",
+  title: "Categories",
+  description: "Manage categories in the admin panel",
 }
 
-export default async function ProductPage() {
+export default async function CategoryPage() {
   const products = await getProducts()
 
-  const columns: ColumnDef<Product>[] = [
-    { id: "id", accessorKey: "id" },
-    { id: "name", accessorKey: "name" },
-    { id: "description", accessorKey: "description" },
-    { id: "userId", accessorKey: "userId" },
-    { id: "categoryId", accessorKey: "categoryId" },
-    { id: "createdAt", accessorKey: "createdAt" },
-    { id: "updatedAt", accessorKey: "updatedAt" },
-  ]
-
   return (
-    <ListPageWrapper title="Products">
-      <EntityList columns={columns} data={products} pageCount={10} />
+    <ListPageWrapper title="Products" addLink="/admin/products/add">
+      <EntityList columns={productColumns} data={products} />
     </ListPageWrapper>
   )
 }

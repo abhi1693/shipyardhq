@@ -7,5 +7,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function slugify(text: string): string {
-  return s(text).toLowerCase()
+  return s(text, {
+    lower: true,
+    strict: true,
+  })
 }
