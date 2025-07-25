@@ -40,10 +40,10 @@ const productFormSchema = z.object({
   logo: z.string().min(1, "Logo URL is required"),
   categoryId: z.string().min(1, "Category is required"),
   userId: z.string().min(1, "User is required"),
-  githubUrl: z.url().optional(),
-  twitterUrl: z.url().optional(),
-  demoUrl: z.url().optional(),
-  contactEmail: z.email().optional(),
+  githubUrl: z.url().or(z.literal("")).optional(),
+  twitterUrl: z.url().or(z.literal("")).optional(),
+  demoUrl: z.url().or(z.literal("")).optional(),
+  contactEmail: z.email().or(z.literal("")).optional(),
 })
 
 type ProductFormInput = z.infer<typeof productFormSchema>
