@@ -29,6 +29,9 @@ export async function getProductById(id: string) {
       include: {
         category: true,
         user: true,
+        metadata: true,
+        analytics: true,
+        verification: true,
       },
     })
   } catch (error) {
