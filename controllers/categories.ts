@@ -23,7 +23,7 @@ export async function isExist(name: string, slug: string) {
 
 export async function createCategory(data: { name: string }) {
   const name = data.name.trim()
-  const slug = slugify(name)
+  const slug = slugify(name).toLowerCase()
 
   const exists = await isExist(name, slug)
   if (exists) {
@@ -48,5 +48,16 @@ export async function getCategoryById(id: string) {
   } catch (error) {
     console.error("Error fetching category by ID:", error)
     throw new Error("Failed to fetch category")
+  }
+}
+
+export async function deleteCategory(id: string) {
+  try {
+    return await prisma.category.delete({
+      where: { id },
+    })
+  } catch (error) {
+    console.error("Error deleting category:", error)
+    return { error: "Failed to delete category" }
   }
 }

@@ -29,6 +29,7 @@ export default async function ViewCategoryPage({
         { label: "Name", value: category.name },
         { label: "Slug", value: category.slug },
       ]}
+      deletable
     />
   )
 }

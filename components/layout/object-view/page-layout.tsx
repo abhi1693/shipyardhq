@@ -1,9 +1,9 @@
-import { ObjectHeading } from "@/components/layout/object-view/heading"
+import PageContainer from "@/components/layout/page-container"
 import {
   OverviewCard,
   OverviewRow,
 } from "@/components/layout/object-view/overview"
-import PageContainer from "@/components/layout/page-container"
+import { ClientObjectHeading } from "./client-object-heading"
 
 interface ObjectPageLayoutProps {
   heading: {
@@ -14,18 +14,17 @@ interface ObjectPageLayoutProps {
     slug?: string | null
   }
   overview: { label: string; value: React.ReactNode }[]
+  deletable?: boolean
 }
 
-export function ObjectPageLayout({ heading, overview }: ObjectPageLayoutProps) {
+export function ObjectPageLayout({
+  heading,
+  overview,
+  deletable = false,
+}: ObjectPageLayoutProps) {
   return (
     <PageContainer>
-      <ObjectHeading
-        id={heading.id}
-        title={heading.title}
-        createdAt={heading.createdAt}
-        updatedAt={heading.updatedAt}
-        slug={heading.slug}
-      />
+      <ClientObjectHeading {...heading} deletable={deletable} />
 
       <div className="w-full bg-muted py-6">
         <div className="mx-auto w-full max-w-6xl px-4 md:px-6">

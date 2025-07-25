@@ -1,4 +1,7 @@
 import { format } from "date-fns"
+import { Button } from "@/components/atoms/button"
+import { Trash2 } from "lucide-react"
+import { AlertModal } from "@/components/atoms/alert-modal"
 
 interface ObjectHeadingProps {
   id: string
@@ -6,6 +9,7 @@ interface ObjectHeadingProps {
   createdAt: Date | string
   updatedAt: Date | string
   slug?: string | null
+  onDelete?: () => void
 }
 
 export function ObjectHeading({
@@ -14,6 +18,7 @@ export function ObjectHeading({
   createdAt,
   updatedAt,
   slug,
+  onDelete,
 }: ObjectHeadingProps) {
   return (
     <div className="mb-6 w-full border-b pb-4">
@@ -28,13 +33,32 @@ export function ObjectHeading({
           </p>
         </div>
 
-        <div className="mt-2 text-sm font-mono text-muted-foreground sm:mt-0 sm:text-right">
-          {slug ? (
-            <>
-              {id} <span className="text-black">({slug})</span>
-            </>
-          ) : (
-            <>{id}</>
+        <div className="mt-4 flex flex-col items-start gap-2 text-sm sm:mt-0 sm:items-end sm:text-right">
+          <div className="font-mono text-muted-foreground">
+            {slug ? (
+              <>
+                {id} <span className="text-black">({slug})</span>
+              </>
+            ) : (
+              <>{id}</>
+            )}
+          </div>
+
+          {onDelete && (
+            <AlertModal
+              onConfirm={onDelete}
+              trigger={(open) => (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={open}
+                  className="mt-1"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </Button>
+              )}
+            />
           )}
         </div>
       </div>
