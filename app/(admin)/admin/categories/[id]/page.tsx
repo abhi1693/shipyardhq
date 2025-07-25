@@ -3,7 +3,12 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import { getCategoryById } from "@/controllers/categories"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import PageContainer from "@/components/layout/page-container"
 
 export const metadata: Metadata = {
@@ -11,7 +16,11 @@ export const metadata: Metadata = {
   description: "View category details",
 }
 
-export default async function ViewCategoryPage({ params }: { params: { id: string } }) {
+export default async function ViewCategoryPage({
+  params,
+}: {
+  params: { id: string }
+}) {
   const category = await getCategoryById(params.id)
 
   if (!category) return notFound()
@@ -33,10 +42,12 @@ export default async function ViewCategoryPage({ params }: { params: { id: strin
             <strong>Slug:</strong> {category.slug}
           </div>
           <div>
-            <strong>Created At:</strong> {new Date(category.createdAt).toLocaleString()}
+            <strong>Created At:</strong>{" "}
+            {new Date(category.createdAt).toLocaleString()}
           </div>
           <div>
-            <strong>Updated At:</strong> {new Date(category.updatedAt).toLocaleString()}
+            <strong>Updated At:</strong>{" "}
+            {new Date(category.updatedAt).toLocaleString()}
           </div>
         </CardContent>
       </Card>

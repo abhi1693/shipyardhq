@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 import slugify from "slugify"
 
-export async function getCategories(args= {}) {
+export async function getCategories(args = {}) {
   try {
     return await prisma.category.findMany({
       orderBy: { createdAt: "desc" },

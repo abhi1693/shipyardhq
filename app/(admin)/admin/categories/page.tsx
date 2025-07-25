@@ -1,8 +1,8 @@
-import {Metadata} from "next"
+import { Metadata } from "next"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
-import {EntityList} from "@/components/pages/admin/shared/EntityList"
-import {getCategories} from "@/controllers/categories"
-import {categoryColumns} from "./columns"
+import { EntityList } from "@/components/pages/admin/shared/EntityList"
+import { getCategories } from "@/controllers/categories"
+import { categoryColumns } from "./columns"
 
 export const metadata: Metadata = {
   title: "Categories",
