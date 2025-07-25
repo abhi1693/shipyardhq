@@ -2,6 +2,10 @@
 
 import prisma from "@/lib/prisma"
 
+function generateVerificationTxt(): string {
+  return `prod-verif-shipyard-${Math.random().toString(36).slice(2, 10)}`
+}
+
 export async function getProducts(args = {}) {
   try {
     return await prisma.product.findMany({
@@ -34,27 +38,46 @@ export async function getProductById(id: string) {
 }
 
 export async function createProductAction(formData: FormData) {
-  const name = formData.get("name")
-  const categoryId = formData.get("categoryId")
-  const userId = formData.get("userId")
+  const name = formData.get("name")!.toString().trim()
+  const tagline = formData.get("tagline")!.toString().trim()
+  const websiteUrl = formData.get("websiteUrl")!.toString().trim()
+  const logo = formData.get("logo")!.toString().trim()
+  const categoryId = formData.get("categoryId")!.toString()
+  const userId = formData.get("userId")!.toString()
 
-  if (
-    typeof name !== "string" ||
-    typeof categoryId !== "string" ||
-    typeof userId !== "string" ||
-    name.trim() === ""
-  ) {
-    return { error: "Name, Category and User are required" }
-  }
+  const githubUrl = formData.get("githubUrl")?.toString().trim()
+  const twitterUrl = formData.get("twitterUrl")?.toString().trim()
+  const demoUrl = formData.get("demoUrl")?.toString().trim()
+  const contactEmail = formData.get("contactEmail")?.toString().trim()
 
   try {
     await prisma.product.create({
       data: {
-        name: name.trim(),
+        name,
+        tagline,
+        websiteUrl,
+        logo,
         categoryId,
         userId,
+        metadata: {
+          create: {
+            githubUrl,
+            twitterUrl,
+            demoUrl,
+            contactEmail,
+          },
+        },
+        analytics: {
+          create: {},
+        },
+        verification: {
+          create: {
+            verificationTxt: generateVerificationTxt(),
+          },
+        },
       },
     })
+
     return { success: true }
   } catch (error) {
     console.error("Error creating product:", error)

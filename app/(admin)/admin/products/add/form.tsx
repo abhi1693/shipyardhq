@@ -1,5 +1,3 @@
-// app/admin/products/add/form.tsx
-
 "use client"
 
 import { useRouter } from "next/navigation"
@@ -10,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
@@ -22,7 +21,6 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import { Textarea } from "@/components/atoms/textarea"
 import {
   Select,
   SelectContent,
@@ -33,11 +31,19 @@ import {
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
 import { createProductAction } from "@/actions/admin/products/actions"
+import { Separator } from "@/components/atoms/separator"
 
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  tagline: z.string().min(1, "Tagline is required"),
+  websiteUrl: z.url("Valid URL required"),
+  logo: z.string().min(1, "Logo URL is required"),
   categoryId: z.string().min(1, "Category is required"),
   userId: z.string().min(1, "User is required"),
+  githubUrl: z.url().optional(),
+  twitterUrl: z.url().optional(),
+  demoUrl: z.url().optional(),
+  contactEmail: z.email().optional(),
 })
 
 type ProductFormInput = z.infer<typeof productFormSchema>
@@ -55,16 +61,23 @@ export default function AddProductForm({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       name: "",
+      tagline: "",
+      websiteUrl: "",
+      logo: "",
       categoryId: "",
       userId: "",
+      githubUrl: "",
+      twitterUrl: "",
+      demoUrl: "",
+      contactEmail: "",
     },
   })
 
   async function onSubmit(values: ProductFormInput) {
     const formData = new FormData()
-    formData.append("name", values.name)
-    formData.append("categoryId", values.categoryId)
-    formData.append("userId", values.userId)
+    for (const [key, value] of Object.entries(values)) {
+      if (value) formData.append(key, value)
+    }
 
     const result = await createProductAction(formData)
 
@@ -81,79 +94,211 @@ export default function AddProductForm({
 
   return (
     <PageContainer>
-      <Card className="mx-auto w-full max-w-md">
+      <Card className="mx-auto w-full max-w-4xl">
         <CardHeader>
           <CardTitle className="text-left text-2xl font-bold">
             Add Product
           </CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Fill in the required and optional metadata to list your product.
+          </CardDescription>
         </CardHeader>
+
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Two-column Grid for Required Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  name="name"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter product name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  name="tagline"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tagline</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Short tagline" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  name="websiteUrl"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Website URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  name="logo"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Logo URL</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="https://example.com/logo.png"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  name="categoryId"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  name="userId"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>User</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select user" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {users.map((u) => (
+                            <SelectItem key={u.id} value={u.id}>
+                              {u.email}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Divider for optional metadata */}
+              <Separator className="my-4" />
+
+              {/* Optional Fields */}
               <FormField
+                name="githubUrl"
                 control={form.control}
-                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>GitHub URL</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter product name" {...field} />
+                      <Input
+                        placeholder="https://github.com/org/repo"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
+                name="twitterUrl"
                 control={form.control}
-                name="categoryId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Twitter URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://twitter.com/yourapp"
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
+                name="demoUrl"
                 control={form.control}
-                name="userId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>User</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select user" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {users.map((u) => (
-                          <SelectItem key={u.id} value={u.id}>
-                            {u.email}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Demo URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://demo.example.com"
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                Create Product
-              </Button>
+
+              <FormField
+                name="contactEmail"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="support@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="pt-2">
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  Create Product
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>

@@ -5,8 +5,8 @@ import { columns } from "./columns"
 import { getProducts } from "@/actions/admin/products/actions"
 
 export const metadata: Metadata = {
-  title: "Categories",
-  description: "Manage categories in the admin panel",
+  title: "Products",
+  description: "Manage products in the admin panel",
 }
 
 export default async function CategoryPage() {

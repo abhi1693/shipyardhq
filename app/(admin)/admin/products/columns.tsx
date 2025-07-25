@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { ColumnDef } from "@tanstack/react-table"
 import { Product } from "@prisma/client"
 import { format } from "date-fns"
@@ -12,19 +13,51 @@ export const columns: ColumnDef<
   }
 >[] = [
   {
+    id: "logo",
+    header: "Logo",
+    cell: ({ row }) => (
+      <Image
+        src={row.original.logo}
+        alt={row.original.name}
+        width={32}
+        height={32}
+        className="rounded"
+      />
+    ),
+  },
+  {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
       const product = row.original
       return (
-        <Link
-          href={`/admin/products/${product.id}`}
-          className="text-blue-600 hover:underline font-medium"
-        >
-          {product.name}
-        </Link>
+        <div className="flex flex-col">
+          <Link
+            href={`/admin/products/${product.id}`}
+            className="text-blue-600 hover:underline font-medium"
+          >
+            {product.name}
+          </Link>
+          <span className="text-muted-foreground text-sm">
+            {product.tagline}
+          </span>
+        </div>
       )
     },
+  },
+  {
+    accessorKey: "websiteUrl",
+    header: "Website",
+    cell: ({ row }) => (
+      <a
+        href={row.original.websiteUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-blue-600 hover:underline"
+      >
+        {new URL(row.original.websiteUrl).hostname}
+      </a>
+    ),
   },
   {
     accessorKey: "category.name",

@@ -7,7 +7,8 @@ export default async function ViewProductPage({
 }: {
   params: { id: string }
 }) {
-  const product = await getProductById(params.id)
+  const { id } = await params
+  const product = await getProductById(id)
   if (!product) return notFound()
 
   return (

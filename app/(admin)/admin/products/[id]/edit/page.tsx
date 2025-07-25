@@ -9,7 +9,8 @@ export default async function EditProductPage({
 }: {
   params: { id: string }
 }) {
-  const product = await getProductById(params.id)
+  const { id } = await params
+  const product = await getProductById(id)
   if (!product) return notFound()
 
   const categories = await getCategories({ select: { id: true, name: true } })
