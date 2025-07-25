@@ -42,8 +42,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/atoms/dropdown-menu"
 import { UserAvatarProfile } from "@/components/molecules/UserAvatarProfile"
+import { NavItem } from "@/types"
 
-const navItems = [
+const navItems: NavItem[] = [
   {
     title: "Dashboard",
     url: "/admin/dashboard",

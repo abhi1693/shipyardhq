@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/atoms/sonner"
-import { GoogleAnalytics } from '@next/third-parties/google'
+import { GoogleAnalytics } from "@next/third-parties/google"
 import NextTopLoader from "nextjs-toploader"
 import Providers from "@/components/layout/providers"
 import "./globals.css"
-import {IS_PROD} from "@/lib/constants";
+import { IS_PROD } from "@/lib/constants"
 import "./theme.css"
 
 const geistSans = Geist({
