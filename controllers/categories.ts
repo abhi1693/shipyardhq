@@ -39,3 +39,14 @@ export async function createCategory(data: { name: string }) {
     return { error: "Failed to create category" }
   }
 }
+
+export async function getCategoryById(id: string) {
+  try {
+    return await prisma.category.findUnique({
+      where: { id },
+    })
+  } catch (error) {
+    console.error("Error fetching category by ID:", error)
+    throw new Error("Failed to fetch category")
+  }
+}
