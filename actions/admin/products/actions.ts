@@ -35,7 +35,6 @@ export async function getProductById(id: string) {
 
 export async function createProductAction(formData: FormData) {
   const name = formData.get("name")
-  const description = formData.get("description")
   const categoryId = formData.get("categoryId")
   const userId = formData.get("userId")
 
@@ -52,8 +51,6 @@ export async function createProductAction(formData: FormData) {
     await prisma.product.create({
       data: {
         name: name.trim(),
-        description:
-          typeof description === "string" ? description.trim() : null,
         categoryId,
         userId,
       },
@@ -69,19 +66,17 @@ export async function updateProductAction(
   id: string,
   data: {
     name: string
-    description?: string | null
     categoryId: string
     userId: string
   },
 ) {
-  const { name, description, categoryId, userId } = data
+  const { name, categoryId, userId } = data
 
   try {
     return await prisma.product.update({
       where: { id },
       data: {
         name: name.trim(),
-        description: description?.trim() || null,
         categoryId,
         userId,
       },

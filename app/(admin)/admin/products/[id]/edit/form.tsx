@@ -25,7 +25,6 @@ import {
 import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
-import { Textarea } from "@/components/atoms/textarea"
 import {
   Select,
   SelectContent,
@@ -36,7 +35,6 @@ import {
 
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
   categoryId: z.string().min(1, "Category is required"),
   userId: z.string().min(1, "User is required"),
 })
@@ -61,7 +59,6 @@ export default function EditProductForm({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       name: product.name,
-      description: product.description || "",
       categoryId: product.categoryId,
       userId: product.userId,
     },
@@ -100,19 +97,6 @@ export default function EditProductForm({
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter product name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Enter description" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

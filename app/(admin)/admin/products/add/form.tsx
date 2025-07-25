@@ -36,7 +36,6 @@ import { createProductAction } from "@/actions/admin/products/actions"
 
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
   categoryId: z.string().min(1, "Category is required"),
   userId: z.string().min(1, "User is required"),
 })
@@ -56,7 +55,6 @@ export default function AddProductForm({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       name: "",
-      description: "",
       categoryId: "",
       userId: "",
     },
@@ -65,7 +63,6 @@ export default function AddProductForm({
   async function onSubmit(values: ProductFormInput) {
     const formData = new FormData()
     formData.append("name", values.name)
-    formData.append("description", values.description || "")
     formData.append("categoryId", values.categoryId)
     formData.append("userId", values.userId)
 
@@ -101,19 +98,6 @@ export default function AddProductForm({
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter product name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Optional description" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

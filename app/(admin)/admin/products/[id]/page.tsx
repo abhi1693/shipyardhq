@@ -20,7 +20,6 @@ export default async function ViewProductPage({
       }}
       overview={[
         { label: "Name", value: product.name },
-        { label: "Description", value: product.description || "—" },
         {
           label: "Category",
           value: (

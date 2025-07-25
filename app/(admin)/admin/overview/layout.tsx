@@ -1,14 +1,4 @@
 import PageContainer from "@/components/layout/page-container"
-import { Badge } from "@/components/atoms/badge"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardAction,
-  CardFooter,
-} from "@/components/atoms/card"
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
 import React from "react"
 
 export default function OverviewLayout() {
