@@ -17,7 +17,6 @@ export default async function ViewProductPage({
         title: product.name,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
-        slug: product.category.name,
       }}
       overview={[
         { label: "Name", value: product.name },
