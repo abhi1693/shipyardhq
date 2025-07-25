@@ -22,7 +22,7 @@ export default async function CategoryPage() {
   ]
 
   return (
-    <ListPageWrapper title="Categories">
+    <ListPageWrapper title="Categories" addLink="/admin/categories/add">
       <EntityList columns={columns} data={categories} pageCount={10} />
     </ListPageWrapper>
   )
