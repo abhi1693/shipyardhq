@@ -52,6 +52,11 @@ const navItems: NavItem[] = [
     isActive: false,
   },
   {
+    title: "Users",
+    url: "/admin/users",
+    icon: "user",
+  },
+  {
     title: "Account",
     url: "#",
     icon: "billing",
