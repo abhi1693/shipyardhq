@@ -1,31 +1,35 @@
+import { ColumnDef } from "@tanstack/react-table"
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
+import DataTable from "./DataTable"
 
-export function Relationship({
+export function Relationship<T>({
   title,
-  children,
-  emptyMessage = "No items found.",
+  rows,
+  columns,
+  emptyMessage = "No related records found.",
 }: {
   title: string
-  children: React.ReactNode
+  rows: T[]
+  columns: ColumnDef<T>[]
   emptyMessage?: string
 }) {
-  const isEmpty = Array.isArray(children) && children.length === 0
-
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-base">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        {isEmpty ? (
-          <p className="text-muted-foreground text-sm italic">{emptyMessage}</p>
+        {rows.length === 0 ? (
+          <div className="text-muted-foreground text-sm italic">
+            {emptyMessage}
+          </div>
         ) : (
-          <div className="space-y-3">{children}</div>
+          <DataTable columns={columns} data={rows} pageCount={rows.length} />
         )}
       </CardContent>
     </Card>
