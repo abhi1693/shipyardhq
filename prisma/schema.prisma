@@ -18,3 +18,14 @@ model Newsletter {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  firstName String
+  lastName  String
+  role      String   @default("member")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
