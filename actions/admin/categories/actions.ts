@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { slugify } from "@/lib/utils"
+import { Prisma } from "@prisma/client"
 
 export async function getCategories(args = {}) {
   try {
@@ -15,10 +16,14 @@ export async function getCategories(args = {}) {
   }
 }
 
-export async function getCategoryById(id: string) {
+export async function getCategoryById(
+  id: string,
+  args: Omit<Prisma.CategoryFindUniqueArgs, "where"> = {},
+) {
   try {
     return await prisma.category.findUnique({
       where: { id },
+      ...args,
     })
   } catch (error) {
     console.error("Error fetching category by ID:", error)

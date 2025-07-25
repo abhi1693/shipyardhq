@@ -17,6 +17,7 @@ interface ObjectPageLayoutProps {
   basePath: string
   deletable?: boolean
   editable?: boolean
+  relationships?: React.ReactNode
 }
 
 export function ObjectPageLayout({
@@ -25,6 +26,7 @@ export function ObjectPageLayout({
   basePath,
   deletable = false,
   editable = false,
+  relationships = null,
 }: ObjectPageLayoutProps) {
   return (
     <PageContainer>
@@ -46,6 +48,9 @@ export function ObjectPageLayout({
               />
             ))}
           </OverviewCard>
+          {relationships && (
+            <div className="mt-6 space-y-6">{relationships}</div>
+          )}
         </div>
       </div>
     </PageContainer>
