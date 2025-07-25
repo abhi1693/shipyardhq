@@ -56,6 +56,11 @@ const navItems: NavItem[] = [
     url: "/admin/users",
     icon: "user",
   },
+    {
+    title: "Categories",
+    url: "/admin/categories",
+    icon: "user",
+  },
   {
     title: "Account",
     url: "#",
