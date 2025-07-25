@@ -13,7 +13,8 @@ export default async function ViewUserPage({
 }: {
   params: { id: string }
 }) {
-  const user = await getUserById(params.id)
+  const { id } = await params
+  const user = await getUserById(id)
   if (!user) return notFound()
 
   return (
@@ -32,6 +33,7 @@ export default async function ViewUserPage({
         { label: "Role", value: user.role },
         { label: "Clerk ID", value: user.clerkId },
       ]}
+      basePath="users"
       editable
       deletable
     />

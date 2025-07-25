@@ -14,6 +14,7 @@ interface ObjectPageLayoutProps {
     slug?: string | null
   }
   overview: { label: string; value: React.ReactNode }[]
+  basePath: string
   deletable?: boolean
   editable?: boolean
 }
@@ -21,6 +22,7 @@ interface ObjectPageLayoutProps {
 export function ObjectPageLayout({
   heading,
   overview,
+  basePath,
   deletable = false,
   editable = false,
 }: ObjectPageLayoutProps) {
@@ -28,6 +30,7 @@ export function ObjectPageLayout({
     <PageContainer>
       <ClientObjectHeading
         {...heading}
+        basePath={basePath}
         deletable={deletable}
         editable={editable}
       />

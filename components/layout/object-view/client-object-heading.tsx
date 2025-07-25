@@ -2,11 +2,8 @@
 
 import { ObjectHeading } from "@/components/layout/object-view/heading"
 import { useRouter } from "next/navigation"
-import { useTransition } from "react"
-import { toast } from "sonner"
-import { deleteCategoryAction } from "@/actions/admin/categories/actions"
 
-interface ClientObjectHeadingProps {
+export interface ClientObjectHeadingProps {
   id: string
   title: string
   createdAt: Date | string
@@ -14,6 +11,7 @@ interface ClientObjectHeadingProps {
   slug?: string | null
   deletable?: boolean
   editable?: boolean
+  basePath: string
 }
 
 export function ClientObjectHeading({
@@ -24,24 +22,16 @@ export function ClientObjectHeading({
   slug,
   deletable,
   editable,
+  basePath,
 }: ClientObjectHeadingProps) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
 
   const handleDelete = () => {
-    startTransition(async () => {
-      const result = await deleteCategoryAction(id)
-      if ("error" in result) {
-        toast.error(result.error)
-      } else {
-        toast.success("Category deleted")
-        router.push("/admin/categories")
-      }
-    })
+    router.push(`/admin/${basePath}/${id}/delete`)
   }
 
   const handleEdit = () => {
-    router.push(`/admin/categories/${id}/edit`)
+    router.push(`/admin/${basePath}/${id}/edit`)
   }
 
   return (

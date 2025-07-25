@@ -77,9 +77,19 @@ export async function updateCategoryAction(id: string, data: { name: string }) {
 
 export async function deleteCategoryAction(id: string) {
   try {
-    return await prisma.category.delete({
+    const category = await prisma.category.findUnique({
       where: { id },
     })
+
+    if (!category) {
+      return { error: "Category not found" }
+    }
+
+    await prisma.category.delete({
+      where: { id },
+    })
+
+    return { success: true }
   } catch (error) {
     console.error("Error deleting category:", error)
     return { error: "Failed to delete category" }
