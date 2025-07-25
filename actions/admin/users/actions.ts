@@ -1,6 +1,7 @@
 "use server"
 
 import prisma from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 
 export async function getUsers(args = {}) {
   try {
@@ -14,10 +15,14 @@ export async function getUsers(args = {}) {
   }
 }
 
-export async function getUserById(id: string) {
+export async function getUserById(
+  id: string,
+  args: Omit<Prisma.UserFindUniqueArgs, "where"> = {},
+) {
   try {
     return await prisma.user.findUnique({
       where: { id },
+      ...args,
     })
   } catch (error) {
     console.error("Error fetching user by ID:", error)

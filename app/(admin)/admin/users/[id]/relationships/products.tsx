@@ -3,18 +3,18 @@
 import { Relationship } from "@/components/molecules/Relationship"
 import { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
-import { Product } from "@prisma/client"
+import { Product, Category } from "@prisma/client"
 
-type ProductWithUser = Product & {
-  user: { id: string; email: string }
+type ProductWithCategory = Product & {
+  category: Category
 }
 
-export function CategoryProductRelationship({
+export function UserProductRelationship({
   rows,
 }: {
-  rows: ProductWithUser[]
+  rows: ProductWithCategory[]
 }) {
-  const columns: ColumnDef<ProductWithUser>[] = [
+  const columns: ColumnDef<ProductWithCategory>[] = [
     {
       accessorKey: "name",
       header: "Name",
@@ -28,14 +28,14 @@ export function CategoryProductRelationship({
       ),
     },
     {
-      accessorKey: "user.email",
-      header: "Created By",
+      accessorKey: "category.name",
+      header: "Category",
       cell: ({ row }) => (
         <Link
-          href={`/admin/users/${row.original.user.id}`}
+          href={`/admin/categories/${row.original.category.id}`}
           className="text-blue-600 hover:underline"
         >
-          {row.original.user.email}
+          {row.original.category.name}
         </Link>
       ),
     },

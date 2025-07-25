@@ -1,12 +1,8 @@
 import { notFound } from "next/navigation"
-import { Metadata } from "next"
-import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { getUserById } from "@/actions/admin/users/actions"
-
-export const metadata: Metadata = {
-  title: "View User",
-  description: "View user details",
-}
+import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
+import { UserProductRelationship } from "./relationships/products"
+import { Prisma } from "@prisma/client"
 
 export default async function ViewUserPage({
   params,
@@ -14,7 +10,24 @@ export default async function ViewUserPage({
   params: { id: string }
 }) {
   const { id } = await params
-  const user = await getUserById(id)
+  const user = (await getUserById(id, {
+    include: {
+      products: {
+        include: {
+          category: true,
+        },
+      },
+    },
+  })) as Prisma.UserGetPayload<{
+    include: {
+      products: {
+        include: {
+          category: true
+        }
+      }
+    }
+  }>
+
   if (!user) return notFound()
 
   return (
@@ -31,11 +44,11 @@ export default async function ViewUserPage({
         { label: "First Name", value: user.firstName },
         { label: "Last Name", value: user.lastName },
         { label: "Role", value: user.role },
-        { label: "Clerk ID", value: user.clerkId },
       ]}
       basePath="users"
-      editable
       deletable
+      editable
+      relationships={<UserProductRelationship rows={user.products} />}
     />
   )
 }
