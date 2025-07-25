@@ -15,16 +15,22 @@ interface ObjectPageLayoutProps {
   }
   overview: { label: string; value: React.ReactNode }[]
   deletable?: boolean
+  editable?: boolean
 }
 
 export function ObjectPageLayout({
   heading,
   overview,
   deletable = false,
+  editable = false,
 }: ObjectPageLayoutProps) {
   return (
     <PageContainer>
-      <ClientObjectHeading {...heading} deletable={deletable} />
+      <ClientObjectHeading
+        {...heading}
+        deletable={deletable}
+        editable={editable}
+      />
 
       <div className="w-full bg-muted py-6">
         <div className="mx-auto w-full max-w-6xl px-4 md:px-6">

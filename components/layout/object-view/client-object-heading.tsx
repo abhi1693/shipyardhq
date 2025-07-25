@@ -1,18 +1,19 @@
 "use client"
 
-import { useTransition } from "react"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
 import { ObjectHeading } from "@/components/layout/object-view/heading"
+import { useRouter } from "next/navigation"
+import { useTransition } from "react"
+import { toast } from "sonner"
 import { deleteCategoryAction } from "@/actions/admin/categories/delete/actions"
 
-interface Props {
+interface ClientObjectHeadingProps {
   id: string
   title: string
   createdAt: Date | string
   updatedAt: Date | string
   slug?: string | null
   deletable?: boolean
+  editable?: boolean
 }
 
 export function ClientObjectHeading({
@@ -22,7 +23,8 @@ export function ClientObjectHeading({
   updatedAt,
   slug,
   deletable,
-}: Props) {
+  editable,
+}: ClientObjectHeadingProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -38,6 +40,10 @@ export function ClientObjectHeading({
     })
   }
 
+  const handleEdit = () => {
+    router.push(`/admin/categories/${id}/edit`)
+  }
+
   return (
     <ObjectHeading
       id={id}
@@ -46,6 +52,7 @@ export function ClientObjectHeading({
       updatedAt={updatedAt}
       slug={slug}
       onDelete={deletable ? handleDelete : undefined}
+      onEdit={editable ? handleEdit : undefined}
     />
   )
 }

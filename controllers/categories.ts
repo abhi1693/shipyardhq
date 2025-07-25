@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import slugify from "slugify"
+import { slugify } from "@/lib/utils"
 
 export async function getCategories(args = {}) {
   try {
@@ -23,7 +23,7 @@ export async function isExist(name: string, slug: string) {
 
 export async function createCategory(data: { name: string }) {
   const name = data.name.trim()
-  const slug = slugify(name).toLowerCase()
+  const slug = slugify(name)
 
   const exists = await isExist(name, slug)
   if (exists) {
