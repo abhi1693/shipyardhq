@@ -3,7 +3,7 @@ import { Category } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
-import {getCategories} from "@/controllers/categories";
+import { getCategories } from "@/controllers/categories"
 
 export const metadata: Metadata = {
   title: "Categories",

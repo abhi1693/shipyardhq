@@ -19,6 +19,19 @@ model Newsletter {
   createdAt DateTime @default(now())
 }
 
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  userId      String
+  categoryId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
 model User {
   id        String   @id @default(cuid())
   clerkId   String   @unique
@@ -28,6 +41,8 @@ model User {
   role      String   @default("member")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  products Product[] // reverse relation
 }
 
 model Category {
@@ -36,4 +51,6 @@ model Category {
   slug      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  products Product[] // reverse relation
 }
