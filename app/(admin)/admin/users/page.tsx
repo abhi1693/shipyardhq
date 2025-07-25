@@ -13,7 +13,7 @@ export default async function UserPage() {
   const users = await getUsers()
 
   return (
-    <ListPageWrapper title="Users">
+    <ListPageWrapper title="Users" addLink="/admin/users/add">
       <EntityList columns={columns} data={users} pageCount={10} />
     </ListPageWrapper>
   )

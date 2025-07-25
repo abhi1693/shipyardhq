@@ -54,16 +54,24 @@ export async function createUserAction(formData: FormData) {
     return { success: true }
   } catch (error: any) {
     console.error("Error creating user:", error)
-    return { error: error?.code === "P2002" ? "User already exists" : "Failed to create user" }
+    return {
+      error:
+        error?.code === "P2002"
+          ? "User already exists"
+          : "Failed to create user",
+    }
   }
 }
 
-export async function updateUserAction(id: string, data: {
-  email: string
-  firstName: string
-  lastName: string
-  role: string
-}) {
+export async function updateUserAction(
+  id: string,
+  data: {
+    email: string
+    firstName: string
+    lastName: string
+    role: string
+  },
+) {
   try {
     return await prisma.user.update({
       where: { id },
