@@ -1,6 +1,7 @@
 import { format } from "date-fns"
 
 interface ObjectHeadingProps {
+  id: string
   title: string
   createdAt: Date | string
   updatedAt: Date | string
@@ -8,6 +9,7 @@ interface ObjectHeadingProps {
 }
 
 export function ObjectHeading({
+  id,
   title,
   createdAt,
   updatedAt,
@@ -26,11 +28,15 @@ export function ObjectHeading({
           </p>
         </div>
 
-        {slug && (
-          <div className="mt-2 text-sm text-right sm:mt-0 sm:text-right">
-            <span className="font-mono">{slug}</span>
-          </div>
-        )}
+        <div className="mt-2 text-sm font-mono text-muted-foreground sm:mt-0 sm:text-right">
+          {slug ? (
+            <>
+              {id} <span className="text-black">({slug})</span>
+            </>
+          ) : (
+            <>{id}</>
+          )}
+        </div>
       </div>
     </div>
   )

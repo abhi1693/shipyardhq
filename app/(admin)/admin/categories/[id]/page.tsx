@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import { getCategoryById } from "@/controllers/categories"
-import PageContainer from "@/components/layout/page-container"
-import { ObjectHeading } from "@/components/layout/object-heading"
+import { ObjectPageLayout } from "@/components/layout/object-page-layout"
 
 export const metadata: Metadata = {
   title: "View Category",
@@ -18,13 +17,18 @@ export default async function ViewCategoryPage({
   if (!category) return notFound()
 
   return (
-    <PageContainer>
-      <ObjectHeading
-        title={category.name}
-        createdAt={category.createdAt}
-        updatedAt={category.updatedAt}
-        slug={category.slug}
-      />
-    </PageContainer>
+    <ObjectPageLayout
+      heading={{
+        id: category.id,
+        title: category.name,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+        slug: category.slug,
+      }}
+      overview={[
+        { label: "Name", value: category.name },
+        { label: "Slug", value: category.slug },
+      ]}
+    />
   )
 }
