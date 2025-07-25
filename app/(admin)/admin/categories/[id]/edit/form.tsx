@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
-import { updateCategoryAction } from "@/actions/admin/categories/edit/actions"
+import { updateCategoryAction } from "@/actions/admin/categories/actions"
 
 const categoryFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),

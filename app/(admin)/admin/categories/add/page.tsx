@@ -5,7 +5,7 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { createCategoryAction } from "@/actions/admin/categories/add/actions"
+import { createCategoryAction } from "@/actions/admin/categories/actions"
 import {
   Card,
   CardContent,

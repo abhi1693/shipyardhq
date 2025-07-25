@@ -4,7 +4,7 @@ import { ObjectHeading } from "@/components/layout/object-view/heading"
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
 import { toast } from "sonner"
-import { deleteCategoryAction } from "@/actions/admin/categories/delete/actions"
+import { deleteCategoryAction } from "@/actions/admin/categories/actions"
 
 interface ClientObjectHeadingProps {
   id: string

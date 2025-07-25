@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
-import { getCategoryById } from "@/controllers/categories"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
+import { getCategoryById } from "@/actions/admin/categories/actions"
 
 export const metadata: Metadata = {
   title: "View Category",
@@ -13,7 +13,8 @@ export default async function ViewCategoryPage({
 }: {
   params: { id: string }
 }) {
-  const category = await getCategoryById(params.id)
+  const { id } = await params
+  const category = await getCategoryById(id)
   if (!category) return notFound()
 
   return (

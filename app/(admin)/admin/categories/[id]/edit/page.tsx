@@ -1,9 +1,7 @@
-// app/admin/categories/[id]/edit/page.tsx
-
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
-import { getCategoryById } from "@/controllers/categories"
 import EditCategoryForm from "./form"
+import { getCategoryById } from "@/actions/admin/categories/actions"
 
 export const metadata: Metadata = {
   title: "Edit Category",
@@ -15,7 +13,8 @@ export default async function EditCategoryPage({
 }: {
   params: { id: string }
 }) {
-  const category = await getCategoryById(params.id)
+  const { id } = await params
+  const category = await getCategoryById(id)
   if (!category) return notFound()
 
   return <EditCategoryForm id={category.id} name={category.name} />
