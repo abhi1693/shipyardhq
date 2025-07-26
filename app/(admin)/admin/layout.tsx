@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
-import AppSidebar from "@/components/layout/app-sidebar"
+import AdminSidebar from "@/components/layout/admin-sidebar"
 import Header from "@/components/layout/header"
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export default async function AdminLayout({
 }) {
   return (
     <SidebarProvider defaultOpen>
-      <AppSidebar />
+      <AdminSidebar />
       <SidebarInset>
         <Header />
         {children}

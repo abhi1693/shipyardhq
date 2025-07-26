@@ -80,7 +80,7 @@ const navItems: NavItem[] = [
   },
 ]
 
-export default function AppSidebar() {
+export default function AdminSidebar() {
   const pathname = usePathname()
   const { user } = useUser()
   const router = useRouter()
