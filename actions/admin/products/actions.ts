@@ -126,6 +126,23 @@ export async function updateProductAction(
     tagline,
   } = data
 
+  // If the website URL changes, we need to update the isVerified status
+  if (websiteUrl) {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { verification: true },
+    })
+    if (product && product.websiteUrl !== websiteUrl) {
+      await prisma.productVerification.update({
+        where: { productId: id },
+        data: {
+          isVerified: false,
+          verifiedAt: null,
+        },
+      })
+    }
+  }
+
   try {
     return await prisma.product.update({
       where: { id },
