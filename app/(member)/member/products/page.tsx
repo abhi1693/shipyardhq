@@ -13,7 +13,7 @@ export default async function CategoryPage() {
   const products = await getUserProducts()
 
   return (
-    <ListPageWrapper title="Products" addLink="/members/products/add">
+    <ListPageWrapper title="Products" addLink="/member/products/add">
       <EntityList columns={columns} data={products} />
     </ListPageWrapper>
   )

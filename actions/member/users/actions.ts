@@ -28,3 +28,20 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
     },
   })
 }
+
+export async function getUserByClerkId(clerkId: string) {
+  if (!clerkId) {
+    throw new Error("Clerk ID is required but missing.")
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { clerkId },
+    select: { id: true },
+  })
+
+  if (!user) {
+    throw new Error(`User with Clerk ID ${clerkId} not found.`)
+  }
+
+  return user
+}
