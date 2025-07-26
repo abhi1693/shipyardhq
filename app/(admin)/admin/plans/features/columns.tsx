@@ -1,8 +1,8 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { PlanFeature, PlanFeatureAssignment, Plan } from "@prisma/client"
-import { linkify, commaSeparated } from "@/lib/ui/formatters"
+import { Plan, PlanFeature, PlanFeatureAssignment } from "@prisma/client"
+import { commaSeparated, formatDate, linkify } from "@/lib/ui/formatters"
 
 type PlanFeatureWithAssignments = PlanFeature & {
   assignments: (PlanFeatureAssignment & {
@@ -17,7 +17,7 @@ export const columns: ColumnDef<PlanFeatureWithAssignments>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.key,
-        href: `/admin/features/${row.original.id}`,
+        href: `/admin/plans/features/${row.original.id}`,
       }),
   },
   {
@@ -45,5 +45,15 @@ export const columns: ColumnDef<PlanFeatureWithAssignments>[] = [
           }),
         ),
       ),
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created At",
+    cell: ({ row }) => formatDate(row.original.createdAt),
+  },
+  {
+    accessorKey: "updatedAt",
+    header: "Updated At",
+    cell: ({ row }) => formatDate(row.original.updatedAt),
   },
 ]

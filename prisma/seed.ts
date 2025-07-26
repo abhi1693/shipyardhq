@@ -33,7 +33,7 @@ async function main() {
     categories.map((data) => prisma.category.create({ data })),
   )
 
-  // Shared features registry (insert only once)
+  // Seed Plan Features
   const allFeatures = [
     {
       key: "analytics.basic",
@@ -101,7 +101,7 @@ async function main() {
     createdFeatures[feature.key] = { id: created.id }
   }
 
-  // Plans to seed
+  // Seed Plans
   const plans = [
     {
       name: "Free",
@@ -170,7 +170,6 @@ async function main() {
       },
     })
 
-    // Assign features to this plan
     for (const featureKey of plan.features) {
       await prisma.planFeatureAssignment.create({
         data: {

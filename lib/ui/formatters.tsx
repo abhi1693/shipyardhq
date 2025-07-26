@@ -38,17 +38,25 @@ export function linkify(item: LinkItem): ReactNode {
   )
 }
 
+export function placeholder() {
+  return <span className="text-sm text-muted-foreground">—</span>
+}
+
 export function commaSeparated(values: ReactNode[]): ReactNode {
-  return (
-    <span className="inline text-sm text-muted-foreground">
-      {values.map((val, i) => (
-        <span key={i} className="inline">
-          {val}
-          {i < values.length - 1 && <>, </>}
-        </span>
-      ))}
-    </span>
-  )
+  if (values.length) {
+    return (
+      <span className="inline text-sm text-muted-foreground">
+        {values.map((val, i) => (
+          <span key={i} className="inline">
+            {val}
+            {i < values.length - 1 && <>, </>}
+          </span>
+        ))}
+      </span>
+    )
+  } else {
+    return placeholder()
+  }
 }
 
 export function formatDate(

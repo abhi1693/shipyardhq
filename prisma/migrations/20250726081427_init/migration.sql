@@ -33,6 +33,8 @@ CREATE TABLE "ProductVerification" (
     "verificationTxt" TEXT NOT NULL,
     "isVerified" BOOLEAN NOT NULL DEFAULT false,
     "verifiedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "ProductVerification_pkey" PRIMARY KEY ("id")
 );
@@ -45,6 +47,8 @@ CREATE TABLE "ProductMetadata" (
     "twitterUrl" TEXT,
     "demoUrl" TEXT,
     "contactEmail" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "ProductMetadata_pkey" PRIMARY KEY ("id")
 );
@@ -56,6 +60,8 @@ CREATE TABLE "ProductAnalytics" (
     "views" INTEGER NOT NULL DEFAULT 0,
     "upvotes" INTEGER NOT NULL DEFAULT 0,
     "clicks" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "ProductAnalytics_pkey" PRIMARY KEY ("id")
 );
@@ -100,6 +106,7 @@ CREATE TABLE "Plan" (
     "trialDays" INTEGER,
     "isDefault" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Plan_pkey" PRIMARY KEY ("id")
 );
@@ -110,6 +117,8 @@ CREATE TABLE "PlanFeature" (
     "name" TEXT NOT NULL,
     "key" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "PlanFeature_pkey" PRIMARY KEY ("id")
 );
@@ -121,6 +130,8 @@ CREATE TABLE "PlanFeatureAssignment" (
     "featureId" TEXT NOT NULL,
     "enabled" BOOLEAN NOT NULL,
     "isExperimental" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "PlanFeatureAssignment_pkey" PRIMARY KEY ("id")
 );

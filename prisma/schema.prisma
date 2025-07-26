@@ -46,6 +46,8 @@ model ProductVerification {
   verificationTxt String
   isVerified      Boolean   @default(false)
   verifiedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
@@ -57,6 +59,8 @@ model ProductMetadata {
   twitterUrl   String?
   demoUrl      String?
   contactEmail String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
@@ -67,6 +71,8 @@ model ProductAnalytics {
   views     Int    @default(0)
   upvotes   Int    @default(0)
   clicks    Int    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
@@ -108,6 +114,7 @@ model Plan {
   trialDays   Int? // optional number of trial days
   isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   products    Product[]
   assignments PlanFeatureAssignment[]
@@ -118,6 +125,8 @@ model PlanFeature {
   name           String
   key            String  @unique
   description    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   assignments PlanFeatureAssignment[]
 }
@@ -128,6 +137,8 @@ model PlanFeatureAssignment {
   featureId      String
   enabled        Boolean
   isExperimental Boolean @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   plan    Plan        @relation(fields: [planId], references: [id])
   feature PlanFeature @relation(fields: [featureId], references: [id])
