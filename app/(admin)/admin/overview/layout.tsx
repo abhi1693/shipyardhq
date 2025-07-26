@@ -1,12 +1,12 @@
 import PageContainer from "@/components/layout/page-container"
-import {currentUser} from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server"
 
 export default async function OverviewLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-    const user = await currentUser()
+  const user = await currentUser()
 
   return (
     <PageContainer>

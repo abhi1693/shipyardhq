@@ -29,6 +29,7 @@ export default function AuthFormPanel({ mode }: AuthFormPanelProps) {
                 card: "shadow-lg border border-zinc-100",
               },
             }}
+            forceRedirectUrl="/member/callback"
           />
         ) : (
           <SignUp
@@ -37,6 +38,7 @@ export default function AuthFormPanel({ mode }: AuthFormPanelProps) {
                 card: "shadow-lg border border-zinc-100",
               },
             }}
+            forceRedirectUrl="/member/callback"
           />
         )}
 

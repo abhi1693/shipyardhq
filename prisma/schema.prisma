@@ -53,8 +53,8 @@ model ProductVerification {
 }
 
 model ProductMetadata {
-  id           String  @id @default(cuid())
-  productId    String  @unique
+  id           String   @id @default(cuid())
+  productId    String   @unique
   githubUrl    String?
   twitterUrl   String?
   demoUrl      String?
@@ -66,28 +66,58 @@ model ProductMetadata {
 }
 
 model ProductAnalytics {
-  id        String @id @default(cuid())
-  productId String @unique
-  views     Int    @default(0)
-  upvotes   Int    @default(0)
-  clicks    Int    @default(0)
+  id        String   @id @default(cuid())
+  productId String   @unique
+  views     Int      @default(0)
+  upvotes   Int      @default(0)
+  clicks    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
+model Organization {
+  id          String                   @id @default(cuid())
+  name        String
+  url         String                   @unique
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+  memberships OrganizationMembership[]
+}
+
+model OrganizationMembership {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  jobTitle       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+}
+
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  email     String   @unique
-  firstName String
-  lastName  String
-  role      String   @default("member")
+  id              String    @id @default(cuid())
+  clerkId         String    @unique
+  email           String    @unique
+  firstName       String
+  lastName        String
+  role            String    @default("member")
+  roleIntent      String? // Why they signed up
+  productInterest String? // What they're interested in
+  heardFrom   String? // How they heard about us
+  acceptedTerms   Boolean   @default(false)
+  termsAcceptedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  products Product[] // reverse relation
+  products    Product[]
+  memberships OrganizationMembership[]
 }
 
 model Category {
@@ -121,22 +151,22 @@ model Plan {
 }
 
 model PlanFeature {
-  id             String  @id @default(cuid())
-  name           String
-  key            String  @unique
-  description    String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  key         String   @unique
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   assignments PlanFeatureAssignment[]
 }
 
 model PlanFeatureAssignment {
-  id             String  @id @default(cuid())
+  id             String   @id @default(cuid())
   planId         String
   featureId      String
   enabled        Boolean
-  isExperimental Boolean @default(false)
+  isExperimental Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

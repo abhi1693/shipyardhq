@@ -2,16 +2,28 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)"])
+const isMemberRoute = createRouteMatcher(["/member(.*)"])
+
+interface CustomPublicMetadata {
+  role?: "admin" | "member"
+  onboardingComplete?: boolean
+}
 
 export default clerkMiddleware(async (auth, req) => {
-  // Protect all routes starting with `/admin`
-  if (
-    isAdminRoute(req) &&
-    (await auth()).sessionClaims?.metadata?.role !== "admin"
-  ) {
-    const url = new URL("/", req.url)
-    return NextResponse.redirect(url)
+  const { sessionClaims } = await auth()
+
+  const metadata = sessionClaims?.publicMetadata as CustomPublicMetadata
+
+  // Admin access control
+  if (isAdminRoute(req) && metadata.role !== "admin") {
+    return NextResponse.redirect(new URL("/", req.url))
   }
+
+  if(isMemberRoute(req)) {
+    await auth.protect()
+  }
+
+  return NextResponse.next()
 })
 
 export const config = {

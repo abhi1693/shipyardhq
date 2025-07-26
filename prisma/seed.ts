@@ -11,6 +11,8 @@ async function main() {
       firstName: "Alice",
       lastName: "Doe",
       role: "member",
+      roleIntent: "Founder",
+      productInterest: "AI tools",
     },
     {
       clerkId: "clerk-002",
@@ -18,11 +20,40 @@ async function main() {
       firstName: "Bob",
       lastName: "Smith",
       role: "member",
+      roleIntent: "Developer",
+      productInterest: "Marketing automation",
     },
   ]
   const createdUsers = await Promise.all(
     users.map((data) => prisma.user.create({ data })),
   )
+
+  // Seed Organizations
+  const orgs = [
+    { name: "OpenStackers Inc", url: "https://openstackers.com" },
+    { name: "DevBoost Labs", url: "https://devboostlabs.io" },
+  ]
+  const createdOrgs = await Promise.all(
+    orgs.map((data) => prisma.organization.create({ data })),
+  )
+
+  // Seed OrganizationMemberships
+  await Promise.all([
+    prisma.organizationMembership.create({
+      data: {
+        userId: createdUsers[0].id,
+        organizationId: createdOrgs[0].id,
+        jobTitle: "Frontend Engineer",
+      },
+    }),
+    prisma.organizationMembership.create({
+      data: {
+        userId: createdUsers[1].id,
+        organizationId: createdOrgs[1].id,
+        jobTitle: "Marketing Lead",
+      },
+    }),
+  ])
 
   // Seed Categories
   const categories: Prisma.CategoryCreateInput[] = [
@@ -222,9 +253,3 @@ async function main() {
 }
 
 main()
-  .then(() => console.log("✅ Seeding complete."))
-  .catch((e) => {
-    console.error("❌ Error seeding database:", e)
-    process.exit(1)
-  })
-  .finally(() => prisma.$disconnect())
