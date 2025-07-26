@@ -67,3 +67,19 @@ export async function createPlanAction(formData: FormData) {
     return { error: "Failed to create plan." }
   }
 }
+
+// Get a single plan by ID
+export async function getPlanById(
+  id: string,
+  args: Omit<Prisma.PlanFindUniqueArgs, "where"> = {},
+) {
+  try {
+    return await prisma.plan.findUnique({
+      where: { id },
+      ...args,
+    })
+  } catch (error) {
+    console.error("Failed to fetch plan by ID:", error)
+    throw new Error("Unable to load plan.")
+  }
+}
