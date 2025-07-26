@@ -16,14 +16,6 @@ export async function getPlans(args: Prisma.PlanFindManyArgs = {}) {
   }
 }
 
-// Check if plan with the given slug already exists
-export async function planSlugExists(slug: string) {
-  return prisma.plan.findUnique({
-    where: { slug },
-    select: { id: true },
-  })
-}
-
 export async function createPlanAction(formData: FormData) {
   const name = formData.get("name")!.toString().trim()
   const slug = formData.get("slug")!.toString().trim()
@@ -96,5 +88,78 @@ export async function deletePlanAction(id: string) {
     return {
       error: "Failed to delete plan. It may be linked to other records.",
     }
+  }
+}
+
+async function otherDefaultPlanExists(currentId: string) {
+  return prisma.plan.findFirst({
+    where: {
+      isDefault: true,
+      NOT: { id: currentId },
+    },
+    select: { id: true },
+  })
+}
+
+async function planSlugExists(slug: string, excludeId?: string) {
+  return prisma.plan.findFirst({
+    where: {
+      slug,
+      NOT: { id: excludeId },
+    },
+    select: { id: true },
+  })
+}
+
+type UpdatePlanInput = {
+  name: string
+  slug: string
+  description?: string | null
+  type: PlanType
+  price: number
+  interval: string
+  frequency: number
+  discount?: number | null
+  trialDays?: number | null
+  isDefault?: boolean
+}
+
+export async function updatePlanAction(id: string, data: UpdatePlanInput) {
+  try {
+    if (data.isDefault) {
+      const existingDefault = await otherDefaultPlanExists(id)
+      if (existingDefault) {
+        return {
+          error:
+            "Another default plan already exists. Only one can be default.",
+        }
+      }
+    }
+
+    const slugTaken = await planSlugExists(data.slug, id)
+    if (slugTaken) {
+      return { error: "Slug already exists. Please use a unique slug." }
+    }
+
+    await prisma.plan.update({
+      where: { id },
+      data: {
+        name: data.name,
+        slug: data.slug,
+        description: data.description ?? null,
+        type: data.type,
+        price: data.price,
+        interval: data.interval,
+        frequency: data.frequency,
+        discount: data.discount ?? null,
+        trialDays: data.trialDays ?? null,
+        isDefault: data.isDefault ?? false,
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error("❌ Failed to update plan:", error)
+    return { error: "Failed to update plan." }
   }
 }
