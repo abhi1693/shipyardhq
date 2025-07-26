@@ -44,68 +44,15 @@ import {
 import { UserAvatarProfile } from "@/components/molecules/UserAvatarProfile"
 import { NavItem } from "@/types"
 
-const navItems: NavItem[] = [
-  {
-    title: "Overview",
-    url: "/admin/overview",
-    icon: "dashboard",
-    isActive: false,
-  },
-  {
-    title: "Users",
-    url: "/admin/users",
-    icon: "user",
-  },
-  {
-    title: "Categories",
-    url: "/admin/categories",
-    icon: "category",
-  },
-  {
-    title: "Products",
-    url: "/admin/products",
-    icon: "product",
-  },
-  {
-    title: "Plans",
-    url: "#",
-    icon: "settings",
-    items: [
-      {
-        title: "Plans",
-        url: "/admin/plans",
-        icon: "product",
-      },
-      {
-        title: "Features",
-        url: "/admin/plans/features",
-        icon: "settings",
-      },
-      {
-        title: "Assignments",
-        url: "/admin/plans/assignments",
-        icon: "link",
-      },
-    ],
-  },
-  {
-    title: "Account",
-    url: "#",
-    icon: "billing",
-    isActive: true,
-    items: [
-      {
-        title: "Profile",
-        url: "/admin/account/profile",
-      },
-    ],
-  },
-]
+interface SidebarProps {
+  navItems?: NavItem[]
+}
 
-export default function AdminSidebar() {
+export default function AppSidebar(props: SidebarProps) {
   const pathname = usePathname()
   const { user } = useUser()
   const router = useRouter()
+  const { navItems = [] } = props
 
   return (
     <Sidebar collapsible="icon">

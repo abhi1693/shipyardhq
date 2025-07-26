@@ -5,69 +5,36 @@ import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
 
 export const metadata: Metadata = {
-  title: "Admin - ShipYardHQ",
-  description: "Admin dashboard for managing ShipYard.",
+  title: "ShipYardHQ",
 }
 
 const navItems: NavItem[] = [
   {
     title: "Overview",
-    url: "/admin/overview",
+    url: "/member/overview",
     icon: "dashboard",
     isActive: false,
   },
   {
-    title: "Users",
-    url: "/admin/users",
-    icon: "user",
-  },
-  {
-    title: "Categories",
-    url: "/admin/categories",
-    icon: "category",
-  },
-  {
     title: "Products",
-    url: "/admin/products",
+    url: "/member/products",
     icon: "product",
-  },
-  {
-    title: "Plans",
-    url: "#",
-    icon: "settings",
-    items: [
-      {
-        title: "Plans",
-        url: "/admin/plans",
-        icon: "product",
-      },
-      {
-        title: "Features",
-        url: "/admin/plans/features",
-        icon: "settings",
-      },
-      {
-        title: "Assignments",
-        url: "/admin/plans/assignments",
-        icon: "link",
-      },
-    ],
   },
   {
     title: "Account",
     url: "#",
     icon: "billing",
-    isActive: true,
     items: [
       {
         title: "Profile",
-        url: "/admin/account/profile",
+        url: "/member/account/profile",
+        icon: "user",
       },
     ],
   },
 ]
 
-export default async function AdminLayout({
+export default async function MemberLayout({
   children,
 }: {
   children: React.ReactNode
