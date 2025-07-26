@@ -104,9 +104,27 @@ export async function updateProductAction(
     name: string
     categoryId: string
     userId: string
+    tagline?: string
+    websiteUrl?: string
+    logo?: string
+    githubUrl?: string | null
+    twitterUrl?: string | null
+    demoUrl?: string | null
+    contactEmail?: string | null
   },
 ) {
-  const { name, categoryId, userId } = data
+  const {
+    name,
+    categoryId,
+    userId,
+    demoUrl,
+    contactEmail,
+    githubUrl,
+    twitterUrl,
+    websiteUrl,
+    logo,
+    tagline,
+  } = data
 
   try {
     return await prisma.product.update({
@@ -115,6 +133,17 @@ export async function updateProductAction(
         name: name.trim(),
         categoryId,
         userId,
+        tagline: tagline?.trim() || undefined,
+        websiteUrl: websiteUrl?.trim() || undefined,
+        logo: logo?.trim() || undefined,
+        metadata: {
+          update: {
+            githubUrl: githubUrl?.trim() || null,
+            twitterUrl: twitterUrl?.trim() || null,
+            demoUrl: demoUrl?.trim() || null,
+            contactEmail: contactEmail?.trim() || null,
+          },
+        },
       },
     })
   } catch (error) {
