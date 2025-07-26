@@ -12,29 +12,32 @@ type AssignmentWithRelations = PlanFeatureAssignment & {
 
 export const columns: ColumnDef<AssignmentWithRelations>[] = [
   {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }) =>
+      linkify({
+        label: row.original.id,
+        href: `/admin/plans/assignments/${row.original.id}`,
+      }),
+  },
+  {
     accessorKey: "feature.name",
     header: "Feature",
     cell: ({ row }) =>
       linkify({
         label: row.original.feature.name,
-        href: `/admin/features/${row.original.feature.id}`,
+        href: `/admin/plans/features/${row.original.feature.id}`,
         subtext: row.original.feature.key,
       }),
   },
   {
     accessorKey: "plan.name",
     header: "Plan",
-    cell: ({ row }) => {
-      const plan = row.original.plan
-      return (
-        <Link
-          href={`/admin/plans/${plan.id}`}
-          className="text-blue-600 hover:underline"
-        >
-          {plan.name}
-        </Link>
-      )
-    },
+    cell: ({ row }) =>
+      linkify({
+        label: row.original.plan.name,
+        href: `/admin/plans/${row.original.plan.id}`,
+      }),
   },
   {
     accessorKey: "enabled",
