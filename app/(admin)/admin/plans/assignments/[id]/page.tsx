@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import prisma from "@/lib/prisma"
-import { formatBoolean } from "@/lib/ui/formatters"
+import { formatBoolean, linkify } from "@/lib/ui/formatters"
 
 export default async function AssignedFeaturePage({
   params,
@@ -30,15 +30,17 @@ export default async function AssignedFeaturePage({
       overview={[
         {
           label: "Feature",
-          value: assignment.feature.name,
-        },
-        {
-          label: "Feature Key",
-          value: assignment.feature.key,
+          value: linkify({
+            href: `/admin/features/${assignment.feature.id}`,
+            label: assignment.feature.name,
+          }),
         },
         {
           label: "Plan",
-          value: assignment.plan.name,
+          value: linkify({
+            href: `/admin/plans/${assignment.plan.id}`,
+            label: assignment.plan.name,
+          }),
         },
         {
           label: "Enabled",
