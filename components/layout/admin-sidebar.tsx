@@ -59,29 +59,32 @@ const navItems: NavItem[] = [
   {
     title: "Categories",
     url: "/admin/categories",
-    icon: "user",
+    icon: "category",
   },
   {
     title: "Products",
     url: "/admin/products",
-    icon: "user",
+    icon: "product",
   },
   {
     title: "Plans",
     url: "#",
-    icon: "bell",
+    icon: "settings",
     items: [
       {
         title: "Plans",
         url: "/admin/plans",
+        icon: "product",
       },
       {
         title: "Features",
         url: "/admin/plans/features",
+        icon: "settings",
       },
       {
         title: "Assignments",
         url: "/admin/plans/assignments",
+        icon: "link",
       },
     ],
   },
@@ -133,18 +136,27 @@ export default function AdminSidebar() {
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>
-                        {item.items?.map((subItem) => (
-                          <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton
-                              asChild
-                              isActive={pathname === subItem.url}
-                            >
-                              <Link href={subItem.url}>
-                                <span>{subItem.title}</span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
+                        {item.items?.map((subItem) => {
+                          const SubIcon = subItem.icon
+                            ? Icons[subItem.icon]
+                            : null
+                          return (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={pathname === subItem.url}
+                              >
+                                <Link
+                                  href={subItem.url}
+                                  className="flex items-center gap-2"
+                                >
+                                  {SubIcon && <SubIcon className="h-4 w-4" />}
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          )
+                        })}
                       </SidebarMenuSub>
                     </CollapsibleContent>
                   </SidebarMenuItem>
