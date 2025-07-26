@@ -33,6 +33,15 @@ export async function getProductById(id: string) {
         metadata: true,
         analytics: true,
         verification: true,
+        plan: {
+          include: {
+            assignments: {
+              include: {
+                feature: true,
+              },
+            },
+          },
+        },
       },
     })
   } catch (error) {
