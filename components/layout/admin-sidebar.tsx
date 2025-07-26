@@ -79,6 +79,10 @@ const navItems: NavItem[] = [
         title: "Features",
         url: "/admin/plans/features",
       },
+      {
+        title: "Assignments",
+        url: "/admin/plans/assignments",
+      },
     ],
   },
   {
