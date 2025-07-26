@@ -23,10 +23,39 @@ export default async function OverviewPage() {
     <>
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Products" value={stats.totalProducts} />
-        <StatCard title="Verified Domains" value={stats.verifiedProducts} />
-        <StatCard title="Unverified Domains" value={stats.unverifiedProducts} />
-        <StatCard title="Total Users" value={stats.totalUsers} />
+        <StatCard
+          title="Total Products"
+          value={stats.totalProducts}
+          badge={`+${stats.productsLast7Days}`}
+          trend="up"
+          subheading="New this week"
+          footnote="Compared to last 7 days"
+        />
+
+        <StatCard
+          title="Verified Domains"
+          value={stats.verifiedProducts}
+          badge={`${stats.verifiedRate}%`}
+          trend="up"
+          subheading={`${stats.verifiedRate}% verified`}
+          footnote="TXT records matched"
+        />
+
+        <StatCard
+          title="Unverified Domains"
+          value={stats.unverifiedProducts}
+          subheading="Remaining to verify"
+          footnote="Auto-check recommended"
+        />
+
+        <StatCard
+          title="Total Users"
+          value={stats.totalUsers}
+          badge={`+${stats.usersLast7Days}`}
+          trend="up"
+          subheading="New this week"
+          footnote="Includes active accounts"
+        />
       </div>
 
       {/* Tables */}
