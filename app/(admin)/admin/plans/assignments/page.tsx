@@ -13,7 +13,10 @@ export default async function AssignedFeaturePage() {
   const assignments = await getAssignedFeatures()
 
   return (
-    <ListPageWrapper title="Assigned Features">
+    <ListPageWrapper
+      title="Assigned Features"
+      addLink="/admin/plans/assignments/add"
+    >
       <EntityList columns={columns} data={assignments} />
     </ListPageWrapper>
   )

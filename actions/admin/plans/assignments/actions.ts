@@ -13,3 +13,41 @@ export async function getAssignedFeatures() {
     },
   })
 }
+
+type Input = {
+  planId: string
+  featureId: string
+  enabled?: boolean
+  isExperimental?: boolean
+}
+
+export async function createPlanFeatureAssignment(data: Input) {
+  try {
+    const exists = await prisma.planFeatureAssignment.findUnique({
+      where: {
+        planId_featureId: {
+          planId: data.planId,
+          featureId: data.featureId,
+        },
+      },
+    })
+
+    if (exists) {
+      return { error: "This feature is already assigned to this plan." }
+    }
+
+    await prisma.planFeatureAssignment.create({
+      data: {
+        planId: data.planId,
+        featureId: data.featureId,
+        enabled: data.enabled ?? false,
+        isExperimental: data.isExperimental ?? false,
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error("❌ Failed to assign feature:", error)
+    return { error: "Failed to assign feature to plan." }
+  }
+}
