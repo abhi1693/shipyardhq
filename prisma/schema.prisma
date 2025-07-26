@@ -27,12 +27,14 @@ model Product {
   logo       String
   userId     String
   categoryId String
+  planId     String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   // Relations
   user         User                 @relation(fields: [userId], references: [id])
   category     Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  plan         Plan?                @relation(fields: [planId], references: [id], onDelete: SetNull)
   metadata     ProductMetadata?
   analytics    ProductAnalytics?
   verification ProductVerification?
@@ -90,4 +92,36 @@ model Category {
   updatedAt DateTime @updatedAt
 
   products Product[] // reverse relation
+}
+
+model Plan {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  type        PlanType
+  price       Int // in cents
+  interval    String // e.g. "month"
+  frequency   Int // e.g. 1 (monthly), 12 (yearly)
+  discount    Int? // optional discount in cents
+  trialDays   Int? // optional number of trial days
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  features PlanFeature[]
+  products Product[]
+}
+
+model PlanFeature {
+  id             String  @id @default(cuid())
+  key            String
+  enabled        Boolean
+  isExperimental Boolean @default(false)
+  planId         String
+
+  plan Plan @relation(fields: [planId], references: [id])
+}
+
+enum PlanType {
+  recurring
 }
