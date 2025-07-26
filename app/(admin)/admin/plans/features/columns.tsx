@@ -37,7 +37,7 @@ export const columns: ColumnDef<PlanFeatureWithAssignments>[] = [
           linkify({
             label: a.plan.name,
             href: `/admin/plans/${a.plan.id}`,
-            suffix: a.isExperimental ? (
+            subtext: a.isExperimental ? (
               <span className="text-yellow-600 text-xs italic">
                 (experimental)
               </span>

@@ -2,34 +2,22 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { User } from "@prisma/client"
-import { format } from "date-fns"
-import Link from "next/link"
+import { formatDate, linkify } from "@/lib/ui/formatters"
 
 export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "email",
     header: "Email",
-    cell: ({ row }) => {
-      const user = row.original
-      return (
-        <Link
-          href={`/admin/users/${user.id}`}
-          className="text-blue-600 hover:underline font-medium"
-        >
-          {user.email}
-        </Link>
-      )
-    },
+    cell: ({ row }) =>
+      linkify({
+        label: row.original.email,
+        href: `/admin/users/${row.original.id}`,
+      }),
   },
   {
-    accessorKey: "firstName",
-    header: "First Name",
-    cell: ({ row }) => row.original.firstName,
-  },
-  {
-    accessorKey: "lastName",
-    header: "Last Name",
-    cell: ({ row }) => row.original.lastName,
+    id: "name",
+    header: "Name",
+    cell: ({ row }) => `${row.original.firstName} ${row.original.lastName}`,
   },
   {
     accessorKey: "role",
@@ -39,13 +27,11 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "createdAt",
     header: "Created At",
-    cell: ({ row }) =>
-      format(new Date(row.original.createdAt), "yyyy-MM-dd HH:mm"),
+    cell: ({ row }) => formatDate(row.original.createdAt),
   },
   {
     accessorKey: "updatedAt",
     header: "Updated At",
-    cell: ({ row }) =>
-      format(new Date(row.original.updatedAt), "yyyy-MM-dd HH:mm"),
+    cell: ({ row }) => formatDate(row.original.updatedAt),
   },
 ]
