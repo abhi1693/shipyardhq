@@ -41,7 +41,9 @@ export default async function ViewUserProductPage({
           value: product.category.name,
         },
       ]}
-      basePath="products"
+      basePath="member/products"
+      deletable
+      editable
       relationships={
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Metadata */}

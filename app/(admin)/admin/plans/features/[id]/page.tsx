@@ -43,7 +43,7 @@ export default async function PlanFeaturePage({
         { label: "Name", value: feature.name },
         { label: "Description", value: feature.description },
       ]}
-      basePath="plans/features"
+      basePath="admin/plans/features"
       deletable
       editable
       relationships={<PlanAssignmentRelationship rows={feature.assignments} />}

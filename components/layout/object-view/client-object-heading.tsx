@@ -27,11 +27,11 @@ export function ClientObjectHeading({
   const router = useRouter()
 
   const handleDelete = () => {
-    router.push(`/admin/${basePath}/${id}/delete`)
+    router.push(`/${basePath}/${id}/delete`)
   }
 
   const handleEdit = () => {
-    router.push(`/admin/${basePath}/${id}/edit`)
+    router.push(`/${basePath}/${id}/edit`)
   }
 
   return (

@@ -43,7 +43,7 @@ export default async function ViewCategoryPage({
         { label: "Name", value: category.name },
         { label: "Slug", value: category.slug },
       ]}
-      basePath="categories"
+      basePath="admin/categories"
       deletable
       editable
       relationships={<CategoryProductRelationship rows={category.products} />}

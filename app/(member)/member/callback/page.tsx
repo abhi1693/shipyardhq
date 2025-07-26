@@ -16,5 +16,5 @@ export default async function CallbackPage() {
 
   await syncUserFromClerk(clerkUser)
 
-  redirect(onboardingComplete ? "/member/dashboard" : "/member/onboarding")
+  redirect(onboardingComplete ? "/member/overview" : "/member/onboarding")
 }

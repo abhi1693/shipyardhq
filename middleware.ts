@@ -15,7 +15,7 @@ export default clerkMiddleware(async (auth, req) => {
   const metadata = sessionClaims?.publicMetadata as CustomPublicMetadata
 
   // Admin access control
-  if (isAdminRoute(req) && metadata.role !== "admin") {
+  if (isAdminRoute(req) && metadata?.role !== "admin") {
     return NextResponse.redirect(new URL("/", req.url))
   }
 

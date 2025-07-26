@@ -51,7 +51,7 @@ export default async function AssignedFeaturePage({
           value: formatBoolean(assignment.isExperimental),
         },
       ]}
-      basePath="plans/assignments"
+      basePath="admin/plans/assignments"
       editable
       deletable
     />

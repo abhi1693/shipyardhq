@@ -62,7 +62,7 @@ export default async function ViewPlanPage({
         { label: "Default", value: formatBoolean(plan.isDefault) },
         { label: "Description", value: plan.description || placeholder() },
       ]}
-      basePath="plans"
+      basePath="admin/plans"
       editable
       deletable
       relationships={<PlanFeatureRelationship rows={plan.assignments} />}

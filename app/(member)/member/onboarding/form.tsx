@@ -94,7 +94,7 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
     const result = await completeOnboarding(formData)
     if ("success" in result) {
       toast.success("Welcome aboard!")
-      router.push("/member/dashboard")
+      router.push("/member/overview")
     } else {
       toast.error(result.error)
     }

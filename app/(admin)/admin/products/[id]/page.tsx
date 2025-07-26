@@ -62,7 +62,7 @@ export default async function ViewProductPage({
             : placeholder(),
         },
       ]}
-      basePath="products"
+      basePath="admin/products"
       deletable
       editable
       relationships={

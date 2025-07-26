@@ -45,7 +45,7 @@ export default async function ViewUserPage({
         { label: "Last Name", value: user.lastName },
         { label: "Role", value: user.role },
       ]}
-      basePath="users"
+      basePath="admin/users"
       deletable
       editable
       relationships={<UserProductRelationship rows={user.products} />}
