@@ -10,47 +10,44 @@ type LinkItem = {
   isExternal?: boolean
 }
 
-export function linkify({
-  label,
-  href,
-  subtext,
-  isExternal = false,
-}: LinkItem): ReactNode {
-  if (isExternal) {
+export function linkify(item: LinkItem): ReactNode {
+  if (item.isExternal) {
     try {
-      label = new URL(href).hostname || label
+      item.label = new URL(item.href).hostname || item.label
     } catch {
-      label = label || href
+      item.label = item.label || item.href
     }
   }
 
   return (
-    <div className="flex flex-col">
-      <span key={href} className="inline-flex items-center gap-1">
-        <Link
-          href={href}
-          className="text-blue-600 hover:underline"
-          target={isExternal ? "_blank" : undefined}
-          rel={isExternal ? "noopener noreferrer" : undefined}
-        >
-          {label}
-        </Link>
-      </span>
-      {subtext && <span>{subtext}</span>}
-    </div>
+    <span key={item.href} className="inline-block align-top">
+      <Link
+        href={item.href}
+        className="text-blue-600 hover:underline"
+        target={item.isExternal ? "_blank" : undefined}
+        rel={item.isExternal ? "noopener noreferrer" : undefined}
+      >
+        {item.label}
+      </Link>
+      {item.subtext && (
+        <div className="text-xs text-muted-foreground leading-snug">
+          {item.subtext}
+        </div>
+      )}
+    </span>
   )
 }
 
 export function commaSeparated(values: ReactNode[]): ReactNode {
   return (
-    <>
+    <span className="inline text-sm text-muted-foreground">
       {values.map((val, i) => (
-        <span key={i}>
+        <span key={i} className="inline">
           {val}
-          {i < values.length - 1 && <span>, </span>}
+          {i < values.length - 1 && <>, </>}
         </span>
       ))}
-    </>
+    </span>
   )
 }
 
