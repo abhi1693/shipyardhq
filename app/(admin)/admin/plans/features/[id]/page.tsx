@@ -23,10 +23,6 @@ export default async function PlanFeaturePage({
       }}
       overview={[
         { label: "Name", value: feature.name },
-        {
-          label: "Key",
-          value: <span className="font-mono">{feature.key}</span>,
-        },
         { label: "Description", value: feature.description },
         {
           label: "Assigned Plans",
@@ -45,9 +41,9 @@ export default async function PlanFeaturePage({
           ),
         },
       ]}
-      basePath="features"
-      deletable={false}
-      editable={false}
+      basePath="plans/features"
+      deletable
+      editable
     />
   )
 }

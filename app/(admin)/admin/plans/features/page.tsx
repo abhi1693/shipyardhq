@@ -13,7 +13,7 @@ export default async function PlanFeatureListPage() {
   const features = await getPlanFeatures()
 
   return (
-    <ListPageWrapper title="Plan Features">
+    <ListPageWrapper title="Plan Features" addLink="/admin/plans/features/add">
       <EntityList columns={columns} data={features} pageCount={10} />
     </ListPageWrapper>
   )

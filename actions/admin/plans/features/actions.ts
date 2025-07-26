@@ -9,47 +9,28 @@ export async function existsPlanFeature(key: string) {
 }
 
 export async function createPlanFeatureAction(formData: FormData) {
-  const key = formData.get("key")?.toString().trim()
-  const name = formData.get("name")?.toString().trim()
-  const description = formData.get("description")?.toString().trim()
-  const planId = formData.get("planId")?.toString().trim()
-  const enabled = formData.get("enabled") === "on"
-  const isExperimental = formData.get("isExperimental") === "on"
-
-  if (!key || !planId || !name || !description) {
-    return { error: "All fields are required." }
-  }
-
-  const existing = await existsPlanFeature(key)
-  let feature
+  const key = formData.get("key")!.toString().trim()
+  const name = formData.get("name")!.toString().trim()
+  const description = formData.get("description")!.toString().trim()
 
   try {
+    const existing = await existsPlanFeature(key)
     if (existing) {
-      feature = existing
-    } else {
-      feature = await prisma.planFeature.create({
-        data: {
-          key,
-          name,
-          description,
-        },
-      })
+      return { error: "Feature key already exists." }
     }
 
-    // Then assign the feature to the plan
-    await prisma.planFeatureAssignment.create({
+    await prisma.planFeature.create({
       data: {
-        planId,
-        featureId: feature.id,
-        enabled,
-        isExperimental,
+        key,
+        name,
+        description,
       },
     })
 
     return { success: true }
   } catch (error) {
-    console.error("Failed to create plan feature assignment:", error)
-    return { error: "Failed to create plan feature or assignment." }
+    console.error("Failed to create plan feature:", error)
+    return { error: "Failed to create plan feature." }
   }
 }
 
