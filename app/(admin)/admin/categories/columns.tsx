@@ -2,56 +2,31 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { Category } from "@prisma/client"
-import Link from "next/link"
-import { format } from "date-fns"
+import { formatDate, slug, linkify } from "@/lib/ui/formatters"
 
 export const columns: ColumnDef<Category>[] = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }) => {
-      const category = row.original
-      return (
-        <Link
-          href={`/admin/categories/${category.id}`}
-          className="text-blue-600 hover:underline font-medium"
-        >
-          {category.name}
-        </Link>
-      )
-    },
+    cell: ({ row }) =>
+      linkify({
+        label: row.original.name,
+        href: `/admin/categories/${row.original.id}`,
+      }),
   },
   {
     accessorKey: "slug",
     header: "Slug",
-    cell: ({ row }) => (
-      <span className="font-mono text-muted-foreground">
-        {row.getValue("slug")}
-      </span>
-    ),
+    cell: ({ row }) => slug(row.original.slug),
   },
   {
     accessorKey: "createdAt",
     header: "Created At",
-    cell: ({ row }) => {
-      const value = row.getValue("createdAt") as string
-      return (
-        <span className="text-muted-foreground text-sm">
-          {format(new Date(value), "yyyy-MM-dd HH:mm")}
-        </span>
-      )
-    },
+    cell: ({ row }) => formatDate(row.original.createdAt),
   },
   {
     accessorKey: "updatedAt",
     header: "Updated At",
-    cell: ({ row }) => {
-      const value = row.getValue("updatedAt") as string
-      return (
-        <span className="text-muted-foreground text-sm">
-          {format(new Date(value), "yyyy-MM-dd HH:mm")}
-        </span>
-      )
-    },
+    cell: ({ row }) => formatDate(row.original.updatedAt),
   },
 ]

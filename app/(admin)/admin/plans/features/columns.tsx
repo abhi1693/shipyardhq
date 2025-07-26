@@ -27,11 +27,6 @@ export const columns: ColumnDef<PlanFeatureWithAssignments>[] = [
   {
     accessorKey: "description",
     header: "Description",
-    cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
-        {row.original.description}
-      </div>
-    ),
   },
   {
     accessorKey: "assignments",
