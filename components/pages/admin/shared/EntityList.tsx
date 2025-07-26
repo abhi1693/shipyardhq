@@ -4,8 +4,8 @@ import { ColumnDef } from "@tanstack/react-table"
 import DataTable from "@/components/molecules/DataTable"
 
 interface EntityListProps<T> {
-  data: T[]
-  columns: ColumnDef<T>[]
+  data: Partial<T>[]
+  columns: ColumnDef<Partial<T>>[]
   pageCount?: number
 }
 

@@ -3,6 +3,7 @@ import { ReactNode } from "react"
 import { format } from "date-fns"
 import Image from "next/image"
 import { Badge } from "@/components/atoms/badge"
+import { formatDistanceToNow as fdn } from "date-fns"
 
 type LinkItem = {
   label?: string
@@ -92,10 +93,11 @@ export function image(src: string, alt: string, width = 32, height = 32) {
 }
 
 export function formatBoolean(
-  value: boolean,
+  value: boolean | undefined,
   trueLabel: string = "Yes",
   falseLabel: string = "No",
 ): ReactNode {
+  if (value === undefined) return placeholder()
   return (
     <Badge variant={value ? "success" : "destructive"}>
       {value ? trueLabel : falseLabel}
@@ -115,4 +117,13 @@ export function formatCurrency(value: number): ReactNode {
       }).format(value / 100)}
     </span>
   )
+}
+
+export function formatDistanceToNow(
+  value: Date | string | undefined,
+): ReactNode {
+  if (!value) return placeholder()
+  const date = typeof value === "string" ? new Date(value) : value
+  const distance = fdn(date, { addSuffix: true })
+  return <span className="text-sm text-muted-foreground">{distance}</span>
 }
