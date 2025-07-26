@@ -96,3 +96,15 @@ export async function updatePlanFeatureAssignmentAction(
     return { error: "Failed to update assignment." }
   }
 }
+
+export async function deletePlanFeatureAssignmentAction(id: string) {
+  try {
+    await prisma.planFeatureAssignment.delete({
+      where: { id },
+    })
+    return { success: true }
+  } catch (error) {
+    console.error("❌ Failed to delete plan-feature assignment:", error)
+    return { error: "Failed to delete assigned feature." }
+  }
+}
