@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
-import { commaSeparated, linkify } from "@/lib/ui/formatters"
 import { getPlanFeatureById } from "@/actions/admin/plans/features/actions"
+import { PlanAssignmentRelationship } from "./relationships/assignments"
+import { Prisma } from "@prisma/client"
 
 export default async function PlanFeaturePage({
   params,
@@ -9,7 +10,24 @@ export default async function PlanFeaturePage({
   params: { id: string }
 }) {
   const { id } = await params
-  const feature = await getPlanFeatureById(id)
+
+  const feature = (await getPlanFeatureById(
+    id,
+  )) as Prisma.PlanFeatureGetPayload<{
+    include: {
+      assignments: {
+        include: {
+          plan: {
+            select: {
+              id: true
+              name: true
+            }
+          }
+        }
+      }
+    }
+  }>
+
   if (!feature) return notFound()
 
   return (
@@ -24,26 +42,11 @@ export default async function PlanFeaturePage({
       overview={[
         { label: "Name", value: feature.name },
         { label: "Description", value: feature.description },
-        {
-          label: "Assigned Plans",
-          value: commaSeparated(
-            feature.assignments.map((a) =>
-              linkify({
-                label: a.plan.name,
-                href: `/admin/plans/${a.plan.id}`,
-                subtext: a.isExperimental ? (
-                  <span className="text-yellow-600 text-xs italic">
-                    (experimental)
-                  </span>
-                ) : undefined,
-              }),
-            ),
-          ),
-        },
       ]}
       basePath="plans/features"
       deletable
       editable
+      relationships={<PlanAssignmentRelationship rows={feature.assignments} />}
     />
   )
 }
