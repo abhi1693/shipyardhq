@@ -98,3 +98,17 @@ export function formatBoolean(value: boolean): ReactNode {
     </Badge>
   )
 }
+
+export function formatCurrency(value: number): ReactNode {
+  if (value === null || value === undefined) {
+    return placeholder()
+  }
+  return (
+    <span className="text-sm text-muted-foreground">
+      {new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(value / 100)}
+    </span>
+  )
+}
