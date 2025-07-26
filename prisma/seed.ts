@@ -205,8 +205,7 @@ async function main() {
       verification: {
         create: {
           verificationTxt: "deploykit-verification=xyz123",
-          isVerified: true,
-          verifiedAt: new Date(),
+          isVerified: false,
         },
       },
       analytics: {
