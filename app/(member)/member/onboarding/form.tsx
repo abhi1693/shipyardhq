@@ -1,9 +1,9 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { useRouter } from "next/navigation"
 import { completeOnboarding } from "@/actions/member/onboarding/actions"
 import { toast } from "sonner"
 
@@ -28,7 +28,7 @@ import {
 import { Checkbox } from "@/components/atoms/checkbox"
 import { Separator } from "@/components/atoms/separator"
 
-// Constants
+// Options
 const roleIntentOptions = [
   { label: "Launch a product", value: "launch-product" },
   { label: "Manage a team", value: "manage-team" },
@@ -46,11 +46,11 @@ const heardFromOptions = [
   { label: "Other", value: "other" },
 ]
 
-// Zod Schema
+// Schema
 const onboardingSchema = z.object({
   roleIntent: z.string().min(1, "Please select your intent"),
   productInterest: z.string().optional(),
-  heardFrom: z.string().min(1, "Please tell us how you heard about us"),
+  heardFrom: z.string().min(1, "Please select an option"),
   jobTitle: z.string().optional(),
   organizationName: z.string().optional(),
   organizationUrl: z.url("Invalid URL format").or(z.literal("")).optional(),
@@ -59,12 +59,12 @@ const onboardingSchema = z.object({
   }),
 })
 
-type OnboardingData = z.infer<typeof onboardingSchema>
+type OnboardingFormInput = z.infer<typeof onboardingSchema>
 
 export function OnboardingForm({ firstName }: { firstName?: string | null }) {
   const router = useRouter()
 
-  const form = useForm<OnboardingData>({
+  const form = useForm<OnboardingFormInput>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
       roleIntent: "",
@@ -82,13 +82,14 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
     register,
     setValue,
     formState: { errors },
+    watch,
   } = form
 
-  const onSubmit = async (values: OnboardingData) => {
+  const onSubmit = async (values: OnboardingFormInput) => {
     const formData = new FormData()
-    for (const [key, value] of Object.entries(values)) {
-      if (value) formData.append(key, value.toString())
-    }
+    Object.entries(values).forEach(([key, val]) => {
+      if (val !== undefined) formData.append(key, val.toString())
+    })
 
     const result = await completeOnboarding(formData)
     if ("success" in result) {
@@ -203,12 +204,12 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
             </div>
           </div>
 
-          <div className="flex items-start space-x-2">
+          <div className="flex items-start space-x-2 pt-2">
             <Checkbox
               id="terms"
-              checked={form.watch("acceptedTerms")}
-              onCheckedChange={(val: boolean) =>
-                setValue("acceptedTerms", val, { shouldValidate: true })
+              checked={watch("acceptedTerms")}
+              onCheckedChange={(checked: boolean) =>
+                setValue("acceptedTerms", checked, { shouldValidate: true })
               }
             />
             <Label htmlFor="terms" className="text-sm leading-relaxed">
@@ -222,9 +223,15 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
           )}
         </CardContent>
 
-        <CardFooter className="flex flex-col items-start gap-4 mt-2">
-          <Button type="submit" className="w-full">
-            Complete Onboarding
+        <CardFooter className="flex flex-col items-start gap-4 mt-4">
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting
+              ? "Submitting..."
+              : "Complete Onboarding"}
           </Button>
         </CardFooter>
       </form>

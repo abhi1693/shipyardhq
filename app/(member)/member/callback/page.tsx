@@ -11,7 +11,8 @@ export default async function CallbackPage() {
 
   const client = await clerkClient()
   const clerkUser = await client.users.getUser(userId)
-  const onboardingComplete = clerkUser.publicMetadata?.onboardingComplete === true
+  const onboardingComplete =
+    clerkUser.publicMetadata?.onboardingComplete === true
 
   await syncUserFromClerk(clerkUser)
 

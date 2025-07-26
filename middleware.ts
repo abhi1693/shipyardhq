@@ -19,7 +19,7 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL("/", req.url))
   }
 
-  if(isMemberRoute(req)) {
+  if (isMemberRoute(req)) {
     await auth.protect()
   }
 
