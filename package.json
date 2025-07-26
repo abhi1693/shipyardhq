@@ -10,9 +10,12 @@
     "format": "prettier --write .",
     "prisma:init": "grep '^DATABASE_URL=' .env.local > .env",
     "prisma:migrate:reset": "prisma migrate reset --force",
-    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:dev": "prisma migrate dev --name init",
     "prisma:migrate": "npm run prisma:init && npm run prisma:migrate:reset && npm run prisma:migrate:dev",
-    "postinstall": "prisma generate --no-engine && prisma migrate deploy"
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:generate": "prisma generate --no-engine",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "postinstall": "npm run prisma:generate && npm run prisma:deploy"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.26.0",
@@ -62,8 +65,5 @@
     "tsx": "^4.20.3",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5.8.3"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

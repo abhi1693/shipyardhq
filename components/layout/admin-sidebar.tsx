@@ -67,6 +67,21 @@ const navItems: NavItem[] = [
     icon: "user",
   },
   {
+    title: "Plans",
+    url: "#",
+    icon: "bell",
+    items: [
+      {
+        title: "Plans",
+        url: "/admin/plans",
+      },
+      {
+        title: "Features",
+        url: "/admin/plans/features",
+      },
+    ],
+  },
+  {
     title: "Account",
     url: "#",
     icon: "billing",

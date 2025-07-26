@@ -88,6 +88,7 @@ CREATE TABLE "Category" (
 -- CreateTable
 CREATE TABLE "Plan" (
     "id" TEXT NOT NULL,
+    "externalId" TEXT,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "description" TEXT,
@@ -106,12 +107,22 @@ CREATE TABLE "Plan" (
 -- CreateTable
 CREATE TABLE "PlanFeature" (
     "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "key" TEXT NOT NULL,
-    "enabled" BOOLEAN NOT NULL,
-    "isExperimental" BOOLEAN NOT NULL DEFAULT false,
-    "planId" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
 
     CONSTRAINT "PlanFeature_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PlanFeatureAssignment" (
+    "id" TEXT NOT NULL,
+    "planId" TEXT NOT NULL,
+    "featureId" TEXT NOT NULL,
+    "enabled" BOOLEAN NOT NULL,
+    "isExperimental" BOOLEAN NOT NULL DEFAULT false,
+
+    CONSTRAINT "PlanFeatureAssignment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -139,7 +150,16 @@ CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
 CREATE UNIQUE INDEX "Category_slug_key" ON "Category"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Plan_externalId_key" ON "Plan"("externalId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Plan_slug_key" ON "Plan"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PlanFeature_key_key" ON "PlanFeature"("key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PlanFeatureAssignment_planId_featureId_key" ON "PlanFeatureAssignment"("planId", "featureId");
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -160,4 +180,7 @@ ALTER TABLE "ProductMetadata" ADD CONSTRAINT "ProductMetadata_productId_fkey" FO
 ALTER TABLE "ProductAnalytics" ADD CONSTRAINT "ProductAnalytics_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PlanFeature" ADD CONSTRAINT "PlanFeature_planId_fkey" FOREIGN KEY ("planId") REFERENCES "Plan"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "PlanFeatureAssignment" ADD CONSTRAINT "PlanFeatureAssignment_planId_fkey" FOREIGN KEY ("planId") REFERENCES "Plan"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PlanFeatureAssignment" ADD CONSTRAINT "PlanFeatureAssignment_featureId_fkey" FOREIGN KEY ("featureId") REFERENCES "PlanFeature"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

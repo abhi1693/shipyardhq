@@ -96,6 +96,7 @@ model Category {
 
 model Plan {
   id          String   @id @default(cuid())
+  externalId  String?  @unique
   name        String
   slug        String   @unique
   description String?
@@ -108,18 +109,30 @@ model Plan {
   isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
 
-  features PlanFeature[]
-  products Product[]
+  products    Product[]
+  assignments PlanFeatureAssignment[]
 }
 
 model PlanFeature {
   id             String  @id @default(cuid())
-  key            String
+  name           String
+  key            String  @unique
+  description    String
+
+  assignments PlanFeatureAssignment[]
+}
+
+model PlanFeatureAssignment {
+  id             String  @id @default(cuid())
+  planId         String
+  featureId      String
   enabled        Boolean
   isExperimental Boolean @default(false)
-  planId         String
 
-  plan Plan @relation(fields: [planId], references: [id])
+  plan    Plan        @relation(fields: [planId], references: [id])
+  feature PlanFeature @relation(fields: [featureId], references: [id])
+
+  @@unique([planId, featureId]) // Prevent duplicate assignments
 }
 
 enum PlanType {

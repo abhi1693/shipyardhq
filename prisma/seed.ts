@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from "@prisma/client"
+import { PrismaClient, Prisma, PlanType } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -20,68 +20,137 @@ async function main() {
       role: "member",
     },
   ]
-  const createdUsers = await Promise.all(users.map((data) => prisma.user.create({ data })))
+  const createdUsers = await Promise.all(
+    users.map((data) => prisma.user.create({ data })),
+  )
 
   // Seed Categories
   const categories: Prisma.CategoryCreateInput[] = [
     { name: "Dev Tools", slug: "dev-tools" },
     { name: "Productivity", slug: "productivity" },
   ]
-  const createdCategories = await Promise.all(categories.map((data) => prisma.category.create({ data })))
+  const createdCategories = await Promise.all(
+    categories.map((data) => prisma.category.create({ data })),
+  )
 
-  // Seed Plans
-  const plans: (Prisma.PlanCreateInput & { features: { key: string; enabled: boolean }[] })[] = [
+  // Shared features registry (insert only once)
+  const allFeatures = [
+    {
+      key: "analytics.basic",
+      name: "Basic Analytics",
+      description: "Shows basic view count",
+    },
+    {
+      key: "analytics.advanced",
+      name: "Advanced Analytics",
+      description: "Shows CTR and traffic sources",
+    },
+    {
+      key: "featured",
+      name: "Featured Badge",
+      description: "Product marked as featured",
+    },
+    {
+      key: "priorityPlacement",
+      name: "Priority Placement",
+      description: "Listed higher in results",
+    },
+    {
+      key: "homepage",
+      name: "Homepage Placement",
+      description: "Visible on homepage",
+    },
+    {
+      key: "stickyBanner",
+      name: "Sticky Banner",
+      description: "Sticky header visibility",
+    },
+    {
+      key: "customCTA",
+      name: "Custom CTA",
+      description: "Add your own button/CTA",
+    },
+    {
+      key: "earlyAccess",
+      name: "Early Access",
+      description: "Access new features early",
+    },
+    {
+      key: "newsletterPromotion",
+      name: "Newsletter Promotion",
+      description: "Promoted in email campaigns",
+    },
+    {
+      key: "backlink",
+      name: "Do-follow Backlink",
+      description: "Enables do-follow link to your site",
+    },
+  ]
+
+  const createdFeatures: Record<string, { id: string }> = {}
+  for (const feature of allFeatures) {
+    const created = await prisma.planFeature.upsert({
+      where: { key: feature.key },
+      update: {},
+      create: {
+        key: feature.key,
+        name: feature.name,
+        description: feature.description,
+      },
+    })
+    createdFeatures[feature.key] = { id: created.id }
+  }
+
+  // Plans to seed
+  const plans = [
     {
       name: "Free",
       slug: "free",
       description: "Basic listing",
-      type: "recurring",
+      type: PlanType.recurring,
       price: 0,
       interval: "month",
       frequency: 1,
       isDefault: true,
-      features: [
-        { key: "analytics.basic", enabled: true },
-        { key: "backlink", enabled: true },
-      ],
+      features: ["analytics.basic", "backlink"],
     },
     {
       name: "Featured",
       slug: "featured",
       description: "Boosted listing",
-      type: "recurring",
+      type: PlanType.recurring,
       price: 1900,
       interval: "month",
       frequency: 1,
       isDefault: false,
       features: [
-        { key: "analytics.basic", enabled: true },
-        { key: "analytics.advanced", enabled: true },
-        { key: "featured", enabled: true },
-        { key: "priorityPlacement", enabled: true },
-        { key: "homepage", enabled: true },
+        "analytics.basic",
+        "analytics.advanced",
+        "featured",
+        "priorityPlacement",
+        "homepage",
       ],
     },
     {
       name: "Pro",
       slug: "pro",
       description: "Maximum visibility",
-      type: "recurring",
+      type: PlanType.recurring,
       price: 4900,
       interval: "month",
       frequency: 1,
       isDefault: false,
       features: [
-        { key: "analytics.basic", enabled: true },
-        { key: "analytics.advanced", enabled: true },
-        { key: "featured", enabled: true },
-        { key: "priorityPlacement", enabled: true },
-        { key: "homepage", enabled: true },
-        { key: "stickyBanner", enabled: true },
-        { key: "customCTA", enabled: true },
-        { key: "earlyAccess", enabled: true },
-        { key: "newsletterPromotion", enabled: true },
-        { key: "backlink", enabled: true },
+        "analytics.basic",
+        "analytics.advanced",
+        "featured",
+        "priorityPlacement",
+        "homepage",
+        "stickyBanner",
+        "customCTA",
+        "earlyAccess",
+        "newsletterPromotion",
+        "backlink",
       ],
     },
   ]
@@ -90,16 +159,29 @@ async function main() {
   for (const plan of plans) {
     const created = await prisma.plan.create({
       data: {
-        ...plan,
-        features: {
-          create: plan.features.map((f) => ({
-            key: f.key,
-            enabled: f.enabled,
-            isExperimental: false,
-          })),
-        },
+        name: plan.name,
+        slug: plan.slug,
+        description: plan.description,
+        type: plan.type,
+        price: plan.price,
+        interval: plan.interval,
+        frequency: plan.frequency,
+        isDefault: plan.isDefault,
       },
     })
+
+    // Assign features to this plan
+    for (const featureKey of plan.features) {
+      await prisma.planFeatureAssignment.create({
+        data: {
+          planId: created.id,
+          featureId: createdFeatures[featureKey].id,
+          enabled: true,
+          isExperimental: false,
+        },
+      })
+    }
+
     createdPlans.push(created)
   }
 
@@ -137,6 +219,7 @@ async function main() {
       },
     },
   ]
+
   await Promise.all(products.map((data) => prisma.product.create({ data })))
 }
 
