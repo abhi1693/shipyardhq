@@ -2,8 +2,8 @@
 
 import { Relationship } from "@/components/molecules/Relationship"
 import { ColumnDef } from "@tanstack/react-table"
-import Link from "next/link"
 import { Product, Category } from "@prisma/client"
+import { linkify, formatDate } from "@/lib/ui/formatters"
 
 type ProductWithCategory = Product & {
   category: Category
@@ -18,31 +18,25 @@ export function UserProductRelationship({
     {
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }) => (
-        <Link
-          href={`/admin/products/${row.original.id}`}
-          className="text-blue-600 hover:underline"
-        >
-          {row.original.name}
-        </Link>
-      ),
+      cell: ({ row }) =>
+        linkify({
+          label: row.original.name,
+          href: `/admin/products/${row.original.id}`,
+        }),
     },
     {
       accessorKey: "category.name",
       header: "Category",
-      cell: ({ row }) => (
-        <Link
-          href={`/admin/categories/${row.original.category.id}`}
-          className="text-blue-600 hover:underline"
-        >
-          {row.original.category.name}
-        </Link>
-      ),
+      cell: ({ row }) =>
+        linkify({
+          label: row.original.category.name,
+          href: `/admin/categories/${row.original.category.id}`,
+        }),
     },
     {
       accessorKey: "createdAt",
       header: "Created At",
-      cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
+      cell: ({ row }) => formatDate(row.original.createdAt),
     },
   ]
 
