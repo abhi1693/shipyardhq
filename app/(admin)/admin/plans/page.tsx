@@ -13,7 +13,7 @@ export default async function PlanPage() {
   const plans = await getPlans()
 
   return (
-    <ListPageWrapper title="Products" addLink="/admin/products/add">
+    <ListPageWrapper title="Plans" addLink="/admin/plans/add">
       <EntityList columns={columns} data={plans} />
     </ListPageWrapper>
   )
