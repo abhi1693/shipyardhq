@@ -7,10 +7,10 @@ import { z } from "zod"
 
 import {
   Card,
+  CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
 } from "@/components/atoms/card"
 import {
   Form,
@@ -21,29 +21,41 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import { Button } from "@/components/atoms/button"
 import { Checkbox } from "@/components/atoms/checkbox"
+import { Button } from "@/components/atoms/button"
+import { Separator } from "@/components/atoms/separator"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/atoms/select"
 import PageContainer from "@/components/layout/page-container"
 import { createPlanAction } from "@/actions/admin/plans/actions"
 
-const planFormSchema = z.object({
-  name: z.string().min(1),
-  slug: z.string().min(1),
-  description: z.string().optional(),
-  type: z.literal("recurring"),
-  price: z.coerce.number(),
-  interval: z.string().min(1),
-  frequency: z.coerce.number(),
-  discount: z
-    .union([z.coerce.number(), z.literal("")])
-    .transform((v) => (v === "" ? undefined : v))
-    .optional(),
-  trialDays: z
-    .union([z.coerce.number(), z.literal("")])
-    .transform((v) => (v === "" ? undefined : v))
-    .optional(),
-  isDefault: z.boolean().optional(),
-})
+const planFormSchema = z
+  .object({
+    name: z.string().min(1),
+    slug: z.string().min(1),
+    description: z.string().optional(),
+    type: z.literal("recurring"),
+    price: z.coerce.number().nonnegative(),
+    interval: z.enum(["month", "year"]),
+    frequency: z.coerce.number().min(1),
+    discount: z.coerce.number().min(0).optional(),
+    trialDays: z.coerce.number().min(0).optional(),
+    isDefault: z.boolean().optional(),
+  })
+  .refine(
+    (data) => {
+      return !(data.discount !== undefined && data.discount >= data.price)
+    },
+    {
+      path: ["discount"],
+      message: "Discount must be less than price",
+    },
+  )
 
 type PlanFormInput = z.infer<typeof planFormSchema>
 
@@ -95,39 +107,43 @@ export default function AddPlanForm() {
             Add Plan
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Fill in the required details for the subscription plan.
+            Fill in the required details for the plan.
           </CardDescription>
         </CardHeader>
 
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                name="name"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Pro" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="slug"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Slug</FormLabel>
-                    <FormControl>
-                      <Input placeholder="pro" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              {/* Section: Basic Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  name="name"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Pro" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="slug"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Slug</FormLabel>
+                      <FormControl>
+                        <Input placeholder="pro" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 name="description"
                 control={form.control}
@@ -135,77 +151,109 @@ export default function AddPlanForm() {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input placeholder="Plan description" {...field} />
+                      <Input placeholder="Optional description" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                name="price"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price (in cents)</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="e.g. 1900" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="interval"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Interval</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. month" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="frequency"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Frequency</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="e.g. 1" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="discount"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Discount (in cents)</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Optional" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="trialDays"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Trial Days</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Optional" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
+              <Separator />
+
+              {/* Section: Pricing */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <FormField
+                  name="price"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price (in cents)</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="interval"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Interval</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select interval" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="month">Month</SelectItem>
+                          <SelectItem value="year">Year</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="frequency"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Frequency</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <Separator />
+
+              {/* Section: Extras */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  name="discount"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Discount (in cents)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Optional"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="trialDays"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Trial Days</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Optional"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 name="isDefault"
                 control={form.control}
@@ -218,9 +266,11 @@ export default function AddPlanForm() {
                       />
                     </FormControl>
                     <FormLabel>Set as default plan</FormLabel>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
+
               <div className="pt-2">
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   Create Plan
