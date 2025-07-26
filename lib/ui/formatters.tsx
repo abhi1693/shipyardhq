@@ -2,6 +2,7 @@ import Link from "next/link"
 import { ReactNode } from "react"
 import { format } from "date-fns"
 import Image from "next/image"
+import { Badge } from "@/components/atoms/badge"
 
 type LinkItem = {
   label?: string
@@ -87,5 +88,13 @@ export function image(src: string, alt: string, width = 32, height = 32) {
       height={height}
       className="rounded bg-white border object-contain"
     />
+  )
+}
+
+export function formatBoolean(value: boolean): ReactNode {
+  return (
+    <Badge variant={value ? "success" : "destructive"}>
+      {value ? "Yes" : "No"}
+    </Badge>
   )
 }

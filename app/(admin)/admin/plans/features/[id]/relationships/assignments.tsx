@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { Relationship } from "@/components/molecules/Relationship"
-import Link from "next/link"
+import { formatBoolean, formatDate, linkify } from "@/lib/ui/formatters"
 
 type AssignmentRow = {
   id: string
@@ -24,29 +24,26 @@ export function PlanAssignmentRelationship({
     {
       accessorKey: "plan.name",
       header: "Plan",
-      cell: ({ row }) => (
-        <Link
-          href={`/admin/plans/${row.original.plan.id}`}
-          className="text-blue-600 hover:underline"
-        >
-          {row.original.plan.name}
-        </Link>
-      ),
+      cell: ({ row }) =>
+        linkify({
+          label: row.original.plan.name,
+          href: `/admin/plans/${row.original.plan.id}`,
+        }),
     },
     {
       accessorKey: "enabled",
       header: "Enabled",
-      cell: ({ row }) => (row.original.enabled ? "Yes" : "No"),
+      cell: ({ row }) => formatBoolean(row.original.enabled),
     },
     {
       accessorKey: "isExperimental",
       header: "Experimental",
-      cell: ({ row }) => (row.original.isExperimental ? "Yes" : "No"),
+      cell: ({ row }) => formatBoolean(row.original.isExperimental),
     },
     {
       accessorKey: "createdAt",
       header: "Assigned At",
-      cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
+      cell: ({ row }) => formatDate(row.original.createdAt),
     },
   ]
 
