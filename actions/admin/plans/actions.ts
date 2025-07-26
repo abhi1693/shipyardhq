@@ -83,3 +83,18 @@ export async function getPlanById(
     throw new Error("Unable to load plan.")
   }
 }
+
+// Delete a plan by ID
+export async function deletePlanAction(id: string) {
+  try {
+    await prisma.plan.delete({
+      where: { id },
+    })
+    return { success: true }
+  } catch (error) {
+    console.error("❌ Failed to delete plan:", error)
+    return {
+      error: "Failed to delete plan. It may be linked to other records.",
+    }
+  }
+}

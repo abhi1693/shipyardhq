@@ -1,0 +1,17 @@
+import { redirect } from "next/navigation"
+import { deletePlanAction } from "@/actions/admin/plans/actions"
+
+export default async function DeletePlanPage({
+  params,
+}: {
+  params: { id: string }
+}) {
+  const result = await deletePlanAction(params.id)
+
+  if ("error" in result) {
+    // Optional: Redirect with error message or show custom UI
+    throw new Error(result.error)
+  }
+
+  redirect("/admin/plans")
+}
