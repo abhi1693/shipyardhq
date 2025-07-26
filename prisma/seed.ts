@@ -187,10 +187,10 @@ async function main() {
   // Seed Products
   const products: Prisma.ProductCreateInput[] = [
     {
-      name: "DeployKit",
-      tagline: "One-click deploys for your stack",
-      websiteUrl: "https://deploykit.dev",
-      logo: "https://deploykit.dev/logo.png",
+      name: "ShitPosts",
+      tagline: "Build and share your shitposts",
+      websiteUrl: "https://shitposts.ai",
+      logo: "https://shitposts.ai/brand.png",
       user: { connect: { id: createdUsers[0].id } },
       category: { connect: { id: createdCategories[0].id } },
       plan: { connect: { id: createdPlans[1].id } },

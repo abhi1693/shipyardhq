@@ -10,7 +10,7 @@ import {
   IconCategory,
   IconPackage,
   IconSettings,
-    IconLink
+  IconLink,
 } from "@tabler/icons-react"
 
 export type Icon = React.ComponentType<IconProps>
@@ -26,5 +26,5 @@ export const Icons = {
   category: IconCategory,
   product: IconPackage,
   settings: IconSettings,
-    link: IconLink,
+  link: IconLink,
 }

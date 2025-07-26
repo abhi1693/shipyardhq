@@ -1,5 +1,6 @@
 "use server"
 
+import { Resolver } from "node:dns/promises"
 import prisma from "@/lib/prisma"
 
 function generateVerificationTxt(): string {
@@ -121,5 +122,56 @@ export async function deleteProductAction(id: string) {
   } catch (error) {
     console.error("Error deleting product:", error)
     return { error: "Failed to delete product" }
+  }
+}
+
+export async function verifyProductDomainAction(productId: string) {
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    include: {
+      verification: true,
+    },
+  })
+
+  if (!product || !product.verification || !product.websiteUrl) {
+    return { error: "Invalid product or missing verification info." }
+  }
+
+  try {
+    const url = new URL(product.websiteUrl)
+    const domain = url.hostname
+
+    const resolver = new Resolver()
+    resolver.setServers(["1.1.1.1", "8.8.8.8"])
+
+    const txtRecords = await resolver.resolveTxt(domain)
+    const flattened = txtRecords.flat()
+    const expected = product.verification.verificationTxt
+
+    const matched = flattened.some((txt) => txt.trim() === expected.trim())
+
+    await prisma.productVerification.update({
+      where: { productId },
+      data: {
+        isVerified: matched,
+        verifiedAt: matched ? new Date() : null,
+      },
+    })
+
+    return matched
+      ? { success: true }
+      : { error: "Verification TXT record not found in DNS." }
+  } catch (error: unknown) {
+    console.error("DNS verification failed:", error)
+    await prisma.productVerification.update({
+      where: { productId },
+      data: {
+        isVerified: false,
+        verifiedAt: null,
+      },
+    })
+
+    const code = (error as { code?: string })?.code ?? "UNKNOWN"
+    return { error: `DNS check failed: ${code}` }
   }
 }

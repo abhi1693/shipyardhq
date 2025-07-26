@@ -8,7 +8,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
-import Image from "next/image"
+import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
+import {
+  formatBoolean,
+  formatDate,
+  image,
+  linkify,
+  placeholder,
+} from "@/lib/ui/formatters"
 
 export default async function ViewProductPage({
   params,
@@ -31,25 +38,18 @@ export default async function ViewProductPage({
         { label: "Name", value: product.name },
         {
           label: "Category",
-          value: (
-            <a
-              href={`/admin/categories/${product.category.id}`}
-              className="text-blue-600 underline"
-            >
-              {product.category.name}
-            </a>
-          ),
+          value: linkify({
+            href: `/admin/categories/${product.category.id}`,
+            label: product.category.name,
+          }),
         },
         {
           label: "Created By",
-          value: (
-            <a
-              href={`/admin/users/${product.user.id}`}
-              className="text-blue-600 underline"
-            >
-              {product.user.email}
-            </a>
-          ),
+          value: linkify({
+            href: `/admin/users/${product.user.id}`,
+            label: `${product.user.firstName} ${product.user.lastName}`,
+            subtext: product.user.email,
+          }),
         },
       ]}
       basePath="products"
@@ -65,86 +65,58 @@ export default async function ViewProductPage({
             <CardContent>
               <OverviewRow
                 label="Website URL"
-                value={
-                  <a
-                    href={product.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                  >
-                    {product.websiteUrl}
-                  </a>
-                }
+                value={linkify({
+                  href: product.websiteUrl,
+                  label: product.websiteUrl,
+                  isExternal: true,
+                })}
               />
               <OverviewRow label="Tagline" value={product.tagline} />
               <OverviewRow
                 label="Logo"
-                value={
-                  <Image
-                    src={product.logo}
-                    alt={product.name}
-                    width={64}
-                    height={64}
-                    className="rounded bg-white border object-contain"
-                  />
-                }
+                value={image(product.logo, product.name, 64, 64)}
               />
               {product.metadata && (
                 <>
                   <OverviewRow
                     label="GitHub"
                     value={
-                      product.metadata.githubUrl ? (
-                        <a
-                          href={product.metadata.githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline"
-                        >
-                          {product.metadata.githubUrl}
-                        </a>
-                      ) : (
-                        "—"
-                      )
+                      product.metadata.githubUrl
+                        ? linkify({
+                            href: product.metadata.githubUrl,
+                            label: product.metadata.githubUrl,
+                            isExternal: true,
+                          })
+                        : placeholder()
                     }
                   />
                   <OverviewRow
                     label="Twitter"
                     value={
-                      product.metadata.twitterUrl ? (
-                        <a
-                          href={product.metadata.twitterUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline"
-                        >
-                          {product.metadata.twitterUrl}
-                        </a>
-                      ) : (
-                        "—"
-                      )
+                      product.metadata.twitterUrl
+                        ? linkify({
+                            href: product.metadata.twitterUrl,
+                            label: product.metadata.twitterUrl,
+                            isExternal: true,
+                          })
+                        : placeholder()
                     }
                   />
                   <OverviewRow
                     label="Demo"
                     value={
-                      product.metadata.demoUrl ? (
-                        <a
-                          href={product.metadata.demoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline"
-                        >
-                          {product.metadata.demoUrl}
-                        </a>
-                      ) : (
-                        "—"
-                      )
+                      product.metadata.demoUrl
+                        ? linkify({
+                            href: product.metadata.demoUrl,
+                            label: product.metadata.demoUrl,
+                            isExternal: true,
+                          })
+                        : placeholder()
                     }
                   />
                   <OverviewRow
                     label="Contact Email"
-                    value={product.metadata.contactEmail || "—"}
+                    value={product.metadata.contactEmail || placeholder()}
                   />
                 </>
               )}
@@ -164,23 +136,21 @@ export default async function ViewProductPage({
                 />
                 <OverviewRow
                   label="Verified"
-                  value={
-                    product.verification.isVerified ? (
-                      <span className="text-green-600 font-medium">✅ Yes</span>
-                    ) : (
-                      <span className="text-red-600 font-medium">❌ No</span>
-                    )
-                  }
+                  value={formatBoolean(product.verification.isVerified)}
                 />
                 <OverviewRow
                   label="Verified At"
                   value={
                     product.verification.verifiedAt
-                      ? new Date(
-                          product.verification.verifiedAt,
-                        ).toLocaleString()
-                      : "—"
+                      ? formatDate(product.verification.verifiedAt)
+                      : placeholder()
                   }
+                />
+
+                {/* Verify Button (only if not verified) */}
+                <OverviewRow
+                  label="Verify Domain"
+                  value={<VerifyDomainButton productId={product.id} />}
                 />
               </CardContent>
             </Card>
