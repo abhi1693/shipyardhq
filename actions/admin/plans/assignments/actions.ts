@@ -51,3 +51,48 @@ export async function createPlanFeatureAssignment(data: Input) {
     return { error: "Failed to assign feature to plan." }
   }
 }
+
+type UpdateAssignmentInput = {
+  planId: string
+  featureId: string
+  enabled?: boolean
+  isExperimental?: boolean
+}
+
+export async function updatePlanFeatureAssignmentAction(
+  id: string,
+  input: UpdateAssignmentInput,
+) {
+  try {
+    // Check for duplicate (other than self)
+    const exists = await prisma.planFeatureAssignment.findFirst({
+      where: {
+        planId: input.planId,
+        featureId: input.featureId,
+        NOT: { id },
+      },
+      select: { id: true },
+    })
+
+    if (exists) {
+      return {
+        error: "This feature is already assigned to the selected plan.",
+      }
+    }
+
+    await prisma.planFeatureAssignment.update({
+      where: { id },
+      data: {
+        planId: input.planId,
+        featureId: input.featureId,
+        enabled: input.enabled ?? false,
+        isExperimental: input.isExperimental ?? false,
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error("❌ Failed to update assignment:", error)
+    return { error: "Failed to update assignment." }
+  }
+}
