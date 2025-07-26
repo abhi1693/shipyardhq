@@ -91,10 +91,14 @@ export function image(src: string, alt: string, width = 32, height = 32) {
   )
 }
 
-export function formatBoolean(value: boolean): ReactNode {
+export function formatBoolean(
+  value: boolean,
+  trueLabel: string = "Yes",
+  falseLabel: string = "No",
+): ReactNode {
   return (
     <Badge variant={value ? "success" : "destructive"}>
-      {value ? "Yes" : "No"}
+      {value ? trueLabel : falseLabel}
     </Badge>
   )
 }

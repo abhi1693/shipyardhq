@@ -4,15 +4,18 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
+  CardFooter,
 } from "@/components/atoms/card"
 import Link from "next/link"
-import { formatDate } from "@/lib/ui/formatters"
+import { formatBoolean } from "@/lib/ui/formatters"
 import { StatCard } from "@/components/molecules/StatCard"
 import {
   getDashboardStats,
   getRecentProducts,
   getRecentUsers,
 } from "@/actions/admin/overview/actions"
+import { Badge } from "@/components/atoms/badge"
+import { formatDistanceToNow } from "date-fns"
 
 export default async function OverviewPage() {
   const stats = await getDashboardStats()
@@ -53,8 +56,31 @@ export default async function OverviewPage() {
           value={stats.totalUsers}
           badge={`+${stats.usersLast7Days}`}
           trend="up"
-          subheading="New this week"
-          footnote="Includes active accounts"
+          subheading={`${stats.adminCount} admins, ${stats.memberCount} members`}
+          footnote="All registered users"
+        />
+
+        {stats.mostPopularPlan && (
+          <StatCard
+            title="Most Used Plan"
+            value={stats.mostPopularPlan.name}
+            badge={`${stats.mostPopularPlan.count} products`}
+            subheading="Highest plan adoption"
+            footnote="Based on current usage"
+          />
+        )}
+        <StatCard
+          title="Default Plan Products"
+          value={stats.defaultPlanProductCount}
+          subheading="Auto-assigned on creation"
+          footnote="Changeable per product"
+        />
+
+        <StatCard
+          title="Total Revenue (Est.)"
+          value={`$${(stats.totalRevenue / 100).toFixed(2)}`}
+          subheading="Based on plan pricing"
+          footnote="Without discounts applied"
         />
       </div>
 
@@ -63,45 +89,86 @@ export default async function OverviewPage() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Products</CardTitle>
-            <CardDescription>Latest 10 product submissions</CardDescription>
+            <CardDescription>Latest 10 submissions</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
             {products.map((p) => (
-              <div key={p.id} className="flex justify-between">
-                <Link
-                  href={`/admin/products/${p.id}`}
-                  className="text-blue-600 hover:underline"
-                >
-                  {p.name}
-                </Link>
-                <span className="text-muted-foreground text-sm">
-                  {formatDate(p.createdAt)}
-                </span>
+              <div key={p.id} className="flex flex-col gap-1 border-b pb-3">
+                <div className="flex justify-between items-center">
+                  <Link
+                    href={`/admin/products/${p.id}`}
+                    className="text-blue-600 font-medium"
+                  >
+                    {p.name}
+                  </Link>
+                  <span className="text-muted-foreground text-sm">
+                    {formatDistanceToNow(new Date(p.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                  <span>Plan: {p.plan?.name || "—"}</span>
+                  <span>By: {p.user.email}</span>
+                  {p.verification &&
+                    formatBoolean(
+                      p.verification.isVerified,
+                      "Verified",
+                      "Not Verified",
+                    )}
+                </div>
               </div>
             ))}
           </CardContent>
+          <CardFooter>
+            <Link
+              href="/admin/products"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              View all products →
+            </Link>
+          </CardFooter>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle>Recent Users</CardTitle>
-            <CardDescription>Latest 10 registered users</CardDescription>
+            <CardDescription>Latest 10 registrations</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
             {users.map((u) => (
-              <div key={u.id} className="flex justify-between">
-                <Link
-                  href={`/admin/users/${u.id}`}
-                  className="text-blue-600 hover:underline"
-                >
-                  {u.email}
-                </Link>
-                <span className="text-muted-foreground text-sm">
-                  {formatDate(u.createdAt)}
-                </span>
+              <div key={u.id} className="flex flex-col gap-1 border-b pb-3">
+                <div className="flex justify-between items-center">
+                  <Link
+                    href={`/admin/users/${u.id}`}
+                    className="text-blue-600 font-medium"
+                  >
+                    {u.email}
+                  </Link>
+                  <span className="text-muted-foreground text-sm">
+                    Joined{" "}
+                    {formatDistanceToNow(new Date(u.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                </div>
+                <div className="flex gap-3 text-sm text-muted-foreground">
+                  <span>Products: {u.products.length}</span>
+                  <Badge variant={u.role === "admin" ? "default" : "outline"}>
+                    {u.role === "admin" ? "Admin" : "Member"}
+                  </Badge>
+                </div>
               </div>
             ))}
           </CardContent>
+          <CardFooter>
+            <Link
+              href="/admin/users"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              View all users →
+            </Link>
+          </CardFooter>
         </Card>
       </div>
     </>
