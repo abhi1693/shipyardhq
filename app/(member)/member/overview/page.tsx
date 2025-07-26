@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
-import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { StatCard } from "@/components/molecules/StatCard"
 import {
@@ -15,6 +14,7 @@ import {
   getUserProducts,
 } from "@/actions/member/overview/actions"
 import { EmptyState } from "@/components/molecules/empty-state"
+import { formatBoolean, linkify, placeholder } from "@/lib/ui/formatters"
 
 export default async function OverviewPage() {
   const stats = await getUserDashboardStats()
@@ -68,12 +68,10 @@ export default async function OverviewPage() {
               products.map((p) => (
                 <div key={p.id} className="flex flex-col gap-1 border-b pb-3">
                   <div className="flex justify-between items-center">
-                    <Link
-                      href={`/member/products/${p.id}`}
-                      className="text-blue-600 font-medium"
-                    >
-                      {p.name}
-                    </Link>
+                    {linkify({
+                      label: p.name,
+                      href: `/member/products/${p.id}`,
+                    })}
                     <span className="text-muted-foreground text-sm">
                       {formatDistanceToNow(new Date(p.createdAt), {
                         addSuffix: true,
@@ -86,9 +84,13 @@ export default async function OverviewPage() {
                         p.verification?.isVerified ? "default" : "outline"
                       }
                     >
-                      {p.verification?.isVerified
-                        ? "✅ Verified"
-                        : "❌ Not Verified"}
+                      {p?.verification
+                        ? formatBoolean(
+                            p.verification.isVerified,
+                            "Verified",
+                            "Not Verified",
+                          )
+                        : placeholder()}
                     </Badge>
                     <span>Views: {p.analytics?.views || 0}</span>
                     <span>Upvotes: {p.analytics?.upvotes || 0}</span>
@@ -99,50 +101,14 @@ export default async function OverviewPage() {
           </CardContent>
           {products.length > 0 && (
             <CardFooter>
-              <Link
-                href="/member/products"
-                className="text-sm text-blue-600 hover:underline"
-              >
-                View all your products →
-              </Link>
+              {linkify({
+                label: `View all your products →`,
+                href: "/member/products",
+              })}
             </CardFooter>
           )}
         </Card>
       </div>
-
-      {/* Upsell Card */}
-      {(stats.verifiedDomains === 0 || stats.plan?.price === 0) && (
-        <Card className="mt-10 border border-yellow-300 bg-yellow-50">
-          <CardHeader>
-            <CardTitle>🚀 Maximize Your Visibility</CardTitle>
-            <CardDescription>
-              {stats.verifiedDomains === 0
-                ? "Verify your domain to gain user trust and boost credibility."
-                : "Upgrade your plan to get featured placement and analytics insights."}
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <div className="flex gap-4">
-              {stats.verifiedDomains === 0 && (
-                <Link
-                  href="/member/products"
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  Go to Verification →
-                </Link>
-              )}
-              {stats.plan?.price === 0 && (
-                <Link
-                  href="/plans"
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  View Plans →
-                </Link>
-              )}
-            </div>
-          </CardFooter>
-        </Card>
-      )}
     </>
   )
 }
