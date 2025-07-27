@@ -9,7 +9,7 @@ export default async function ViewCategoryPage({
 }: {
   params: { id: string }
 }) {
-  const { id } = params
+  const { id } = await params
   const category = (await getCategoryById(id, {
     include: {
       products: {

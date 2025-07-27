@@ -22,7 +22,7 @@ export default async function ViewPlanPage({
 }: {
   params: { id: string }
 }) {
-  const { id } = params
+  const { id } = await params
 
   const plan = (await getPlanById(id, {
     include: {
