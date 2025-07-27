@@ -33,6 +33,11 @@ const navItems: NavItem[] = [
       },
     ],
   },
+  {
+    title: "Homepage",
+    url: "/",
+    icon: "dashboard",
+  }
 ]
 
 export default async function MemberLayout({
