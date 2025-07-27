@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
-import Header from "@/components/layout/header"
+import Header from "@/components/layout/private-header"
 import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
 import { auth } from "@clerk/nextjs/server"
@@ -37,7 +37,7 @@ const navItems: NavItem[] = [
     title: "Homepage",
     url: "/",
     icon: "dashboard",
-  }
+  },
 ]
 
 export default async function MemberLayout({
@@ -53,7 +53,9 @@ export default async function MemberLayout({
 
   if (
     role === "admin" &&
-    !items.some((item) => item.title === "Admin" || item.url === "/admin/overview")
+    !items.some(
+      (item) => item.title === "Admin" || item.url === "/admin/overview",
+    )
   ) {
     items.push({
       title: "Admin",
