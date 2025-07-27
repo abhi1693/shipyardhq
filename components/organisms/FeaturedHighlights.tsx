@@ -1,4 +1,4 @@
-import FeaturedProductCard from "@/components/molecules/FeaturedProductCard"
+import { ProductCard } from "@/components/molecules/ProductCard"
 import CTAFeatureYourProductCard from "@/components/molecules/CTAFeatureYourProductCard"
 import { FeaturedProduct } from "@/types"
 
@@ -20,8 +20,29 @@ export function FeaturedHighlights({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <FeaturedProductCard key={product.id} product={product} />
+          {products.map(({ id, product }) => (
+            <ProductCard
+              key={id}
+              product={{
+                id: product.id,
+                name: product.name,
+                logo: product.logo,
+                tagline: product.tagline,
+              }}
+              badges={product.ProductBadge.map((pb) => pb.badge)}
+              upvotes={product.analytics?.upvotes ?? 0}
+              author={
+                product.user
+                  ? {
+                      name: `${product.user.firstName ?? ""} ${
+                        product.user.lastName ?? ""
+                      }`.trim(),
+                      initial: product.user.firstName?.[0] ?? "U",
+                    }
+                  : undefined
+              }
+              category={product.category?.name}
+            />
           ))}
 
           {/* Always show the promo card at the end */}

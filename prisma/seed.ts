@@ -1,4 +1,4 @@
-import {PrismaClient, Prisma, PlanType, Plan} from "@prisma/client"
+import { PrismaClient, Prisma, PlanType, Plan } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -24,14 +24,18 @@ async function main() {
       productInterest: "Marketing automation",
     },
   ]
-  const createdUsers = await Promise.all(users.map((data) => prisma.user.create({ data })))
+  const createdUsers = await Promise.all(
+    users.map((data) => prisma.user.create({ data })),
+  )
 
   // Seed Organizations
   const orgs = [
     { name: "OpenStackers Inc", url: "https://openstackers.com" },
     { name: "DevBoost Labs", url: "https://devboostlabs.io" },
   ]
-  const createdOrgs = await Promise.all(orgs.map((data) => prisma.organization.create({ data })))
+  const createdOrgs = await Promise.all(
+    orgs.map((data) => prisma.organization.create({ data })),
+  )
 
   // Seed Organization Memberships
   await Promise.all([
@@ -56,20 +60,62 @@ async function main() {
     { name: "Dev Tools", slug: "dev-tools" },
     { name: "Productivity", slug: "productivity" },
   ]
-  const createdCategories = await Promise.all(categories.map((data) => prisma.category.create({ data })))
+  const createdCategories = await Promise.all(
+    categories.map((data) => prisma.category.create({ data })),
+  )
 
   // Seed Plan Features
   const features = [
-    { key: "analytics.basic", name: "Basic Analytics", description: "Shows basic view count" },
-    { key: "analytics.advanced", name: "Advanced Analytics", description: "Shows CTR and traffic sources" },
-    { key: "featured", name: "Featured Badge", description: "Product marked as featured" },
-    { key: "priorityPlacement", name: "Priority Placement", description: "Listed higher in results" },
-    { key: "homepage", name: "Homepage Placement", description: "Visible on homepage" },
-    { key: "stickyBanner", name: "Sticky Banner", description: "Sticky header visibility" },
-    { key: "customCTA", name: "Custom CTA", description: "Add your own button/CTA" },
-    { key: "earlyAccess", name: "Early Access", description: "Access new features early" },
-    { key: "newsletterPromotion", name: "Newsletter Promotion", description: "Promoted in email campaigns" },
-    { key: "backlink", name: "Do-follow Backlink", description: "Enables do-follow link to your site" },
+    {
+      key: "analytics.basic",
+      name: "Basic Analytics",
+      description: "Shows basic view count",
+    },
+    {
+      key: "analytics.advanced",
+      name: "Advanced Analytics",
+      description: "Shows CTR and traffic sources",
+    },
+    {
+      key: "featured",
+      name: "Featured Badge",
+      description: "Product marked as featured",
+    },
+    {
+      key: "priorityPlacement",
+      name: "Priority Placement",
+      description: "Listed higher in results",
+    },
+    {
+      key: "homepage",
+      name: "Homepage Placement",
+      description: "Visible on homepage",
+    },
+    {
+      key: "stickyBanner",
+      name: "Sticky Banner",
+      description: "Sticky header visibility",
+    },
+    {
+      key: "customCTA",
+      name: "Custom CTA",
+      description: "Add your own button/CTA",
+    },
+    {
+      key: "earlyAccess",
+      name: "Early Access",
+      description: "Access new features early",
+    },
+    {
+      key: "newsletterPromotion",
+      name: "Newsletter Promotion",
+      description: "Promoted in email campaigns",
+    },
+    {
+      key: "backlink",
+      name: "Do-follow Backlink",
+      description: "Enables do-follow link to your site",
+    },
   ]
 
   const createdFeatures: Record<string, { id: string }> = {}
@@ -104,7 +150,13 @@ async function main() {
       interval: "month",
       frequency: 1,
       isDefault: false,
-      featureKeys: ["analytics.basic", "analytics.advanced", "featured", "priorityPlacement", "homepage"],
+      featureKeys: [
+        "analytics.basic",
+        "analytics.advanced",
+        "featured",
+        "priorityPlacement",
+        "homepage",
+      ],
     },
     {
       name: "Pro",
@@ -116,8 +168,16 @@ async function main() {
       frequency: 1,
       isDefault: false,
       featureKeys: [
-        "analytics.basic", "analytics.advanced", "featured", "priorityPlacement", "homepage",
-        "stickyBanner", "customCTA", "earlyAccess", "newsletterPromotion", "backlink",
+        "analytics.basic",
+        "analytics.advanced",
+        "featured",
+        "priorityPlacement",
+        "homepage",
+        "stickyBanner",
+        "customCTA",
+        "earlyAccess",
+        "newsletterPromotion",
+        "backlink",
       ],
     },
   ]
@@ -177,55 +237,118 @@ async function main() {
 
   // Seed 50 More Products
   const productNames = [
-    "PostPilot", "Launchify", "GrowthForge", "ZapSync", "InsightIQ", "PixelPush", "MetricFlow", "AdNexus",
-    "SaaSify", "ClickPilot", "AutoTweet", "CodePulse", "BugSmasher", "PlanStack", "FormFrenzy", "Promptify",
-    "LeadLoop", "PromptCraft", "AIDeck", "ShareSpark", "QueryNest", "FormJuggler", "MicroStack", "TaskTrove",
-    "CloudCue", "DeployFlow", "SubmitEase", "ByteBoard", "StatHero", "TaskDock", "UIStitch", "GrowthHop",
-    "FunnelBeam", "StackHatch", "LinkDrip", "PromoWiz", "TagPulse", "ViewBooster", "PostTrail", "LaunchDock",
-    "CrowdMagnet", "HypeNest", "PromptForge", "ReactVerse", "BugBoard", "SyncLy", "AutoPromo", "CodeCrest",
-    "ShipJet", "BoostMate",
+    "PostPilot",
+    "Launchify",
+    "GrowthForge",
+    "ZapSync",
+    "InsightIQ",
+    "PixelPush",
+    "MetricFlow",
+    "AdNexus",
+    "SaaSify",
+    "ClickPilot",
+    "AutoTweet",
+    "CodePulse",
+    "BugSmasher",
+    "PlanStack",
+    "FormFrenzy",
+    "Promptify",
+    "LeadLoop",
+    "PromptCraft",
+    "AIDeck",
+    "ShareSpark",
+    "QueryNest",
+    "FormJuggler",
+    "MicroStack",
+    "TaskTrove",
+    "CloudCue",
+    "DeployFlow",
+    "SubmitEase",
+    "ByteBoard",
+    "StatHero",
+    "TaskDock",
+    "UIStitch",
+    "GrowthHop",
+    "FunnelBeam",
+    "StackHatch",
+    "LinkDrip",
+    "PromoWiz",
+    "TagPulse",
+    "ViewBooster",
+    "PostTrail",
+    "LaunchDock",
+    "CrowdMagnet",
+    "HypeNest",
+    "PromptForge",
+    "ReactVerse",
+    "BugBoard",
+    "SyncLy",
+    "AutoPromo",
+    "CodeCrest",
+    "ShipJet",
+    "BoostMate",
   ]
 
   const taglines = [
-    "Streamline your workflow", "Grow your audience fast", "Automate your launches",
-    "Intelligence for your next move", "Beautiful posts, zero hassle",
-    "Get your product discovered", "From idea to launch in minutes",
-    "Build trust with users", "Insights that drive growth", "Tools for SaaS founders",
+    "Streamline your workflow",
+    "Grow your audience fast",
+    "Automate your launches",
+    "Intelligence for your next move",
+    "Beautiful posts, zero hassle",
+    "Get your product discovered",
+    "From idea to launch in minutes",
+    "Build trust with users",
+    "Insights that drive growth",
+    "Tools for SaaS founders",
   ]
 
-  const bulkProducts: Prisma.ProductCreateInput[] = productNames.map((name, i) => {
-    const domain = `https://${name.toLowerCase()}.dev`
-    return {
-      name,
-      tagline: taglines[i % taglines.length],
-      websiteUrl: domain,
-      logo: `${domain}/logo.png`,
-      user: { connect: { id: i % 2 === 0 ? createdUsers[0].id : createdUsers[1].id } },
-      category: { connect: { id: i % 3 === 0 ? createdCategories[0].id : createdCategories[1].id } },
-      plan: { connect: { id: i % 5 === 0 ? createdPlans[1].id : createdPlans[0].id } },
-      metadata: {
-        create: {
-          githubUrl: `https://github.com/${name.toLowerCase()}`,
-          twitterUrl: `https://twitter.com/${name.toLowerCase()}`,
-          demoUrl: `${domain}/demo`,
-          contactEmail: `contact@${domain.replace("https://", "")}`,
+  const bulkProducts: Prisma.ProductCreateInput[] = productNames.map(
+    (name, i) => {
+      const domain = `https://${name.toLowerCase()}.dev`
+      return {
+        name,
+        tagline: taglines[i % taglines.length],
+        websiteUrl: domain,
+        logo: `${domain}/logo.png`,
+        user: {
+          connect: {
+            id: i % 2 === 0 ? createdUsers[0].id : createdUsers[1].id,
+          },
         },
-      },
-      verification: {
-        create: {
-          verificationTxt: `${name.toLowerCase()}-verification=${Math.floor(Math.random() * 9000 + 1000)}`,
-          isVerified: false,
+        category: {
+          connect: {
+            id: i % 3 === 0 ? createdCategories[0].id : createdCategories[1].id,
+          },
         },
-      },
-      analytics: {
-        create: {
-          views: Math.floor(Math.random() * 5000),
-          upvotes: Math.floor(Math.random() * 500),
-          clicks: Math.floor(Math.random() * 2000),
+        plan: {
+          connect: {
+            id: i % 5 === 0 ? createdPlans[1].id : createdPlans[0].id,
+          },
         },
-      },
-    }
-  })
+        metadata: {
+          create: {
+            githubUrl: `https://github.com/${name.toLowerCase()}`,
+            twitterUrl: `https://twitter.com/${name.toLowerCase()}`,
+            demoUrl: `${domain}/demo`,
+            contactEmail: `contact@${domain.replace("https://", "")}`,
+          },
+        },
+        verification: {
+          create: {
+            verificationTxt: `${name.toLowerCase()}-verification=${Math.floor(Math.random() * 9000 + 1000)}`,
+            isVerified: false,
+          },
+        },
+        analytics: {
+          create: {
+            views: Math.floor(Math.random() * 5000),
+            upvotes: Math.floor(Math.random() * 500),
+            clicks: Math.floor(Math.random() * 2000),
+          },
+        },
+      }
+    },
+  )
 
   await Promise.all(bulkProducts.map((data) => prisma.product.create({ data })))
 }
