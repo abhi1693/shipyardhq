@@ -11,7 +11,7 @@ import { FeaturedProduct } from "@/types"
 import { badgeColorMap } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { BADGE_OPTIONS } from "@/lib/constants"
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUp } from "lucide-react"
 import clsx from "clsx"
 
 export default function FeaturedProductCard({
@@ -21,7 +21,8 @@ export default function FeaturedProductCard({
 }) {
   const p = product.product
   const upvotes = p.analytics?.upvotes ?? 0
-  const createdBy = `${p.user?.firstName ?? ""} ${p.user?.lastName ?? ""}`.trim()
+  const createdBy =
+    `${p.user?.firstName ?? ""} ${p.user?.lastName ?? ""}`.trim()
   const now = new Date()
 
   return (
@@ -57,10 +58,15 @@ export default function FeaturedProductCard({
               {p.ProductBadge.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2 pb-1">
                   {p.ProductBadge.map((pb) => {
-                    const badgeDef = BADGE_OPTIONS.find((b) => b.value === pb.badge)
+                    const badgeDef = BADGE_OPTIONS.find(
+                      (b) => b.value === pb.badge,
+                    )
                     if (!badgeDef) return null
-                    const isActive = !pb.expiresAt || new Date(pb.expiresAt) > now
-                    const pulse = ["featured", "trending"].includes(badgeDef.value)
+                    const isActive =
+                      !pb.expiresAt || new Date(pb.expiresAt) > now
+                    const pulse = ["featured", "trending"].includes(
+                      badgeDef.value,
+                    )
                     const colorClass = badgeColorMap[badgeDef.color]
 
                     return (
@@ -71,7 +77,7 @@ export default function FeaturedProductCard({
                           colorClass,
                           pulse &&
                             isActive &&
-                            "animate-pulse-slow border-2 font-medium"
+                            "animate-pulse-slow border-2 font-medium",
                         )}
                       >
                         {badgeDef.icon} {badgeDef.label}
@@ -86,19 +92,14 @@ export default function FeaturedProductCard({
 
         <CardContent className="pt-0 text-sm">
           <div className="flex justify-between items-end mt-6 text-xs text-muted-foreground">
-            <div className="flex flex-col items-start">
-              <div className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 bg-muted/50 shadow-sm">
-                <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
-                <div className="flex flex-col leading-tight">
-                  <span className="font-semibold text-sm text-foreground">
-                    {upvotes}
-                  </span>
-                  <span className="text-xs text-muted-foreground -mt-1">
-                    Upvotes
-                  </span>
-                </div>
-              </div>
+            <div className="flex items-center gap-2 px-2 py-1 bg-muted border rounded-md text-xs font-medium text-foreground">
+              <ArrowUp className="w-3 h-3 text-muted-foreground" />
+              <span className="text-foreground">Upvote</span>
+              <span className="text-foreground font-semibold">
+                {upvotes}
+              </span>
             </div>
+
             {p.user && (
               <div className="flex items-center gap-2 group">
                 <Avatar className="h-5 w-5 border">
