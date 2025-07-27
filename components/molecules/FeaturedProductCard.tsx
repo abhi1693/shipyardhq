@@ -8,7 +8,7 @@ import {
 import Image from "next/image"
 import { Badge } from "@/components/atoms/badge"
 import { FeaturedProduct } from "@/types"
-import { badgeColorMap } from "@/lib/utils"
+import {badgeColorMap, TailwindColor} from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { ArrowUp } from "lucide-react"
@@ -67,7 +67,7 @@ export default function FeaturedProductCard({
                     const pulse = ["featured", "trending"].includes(
                       badgeDef.value,
                     )
-                    const colorClass = badgeColorMap[badgeDef.color]
+                    const colorClass = badgeColorMap[pb.badge as TailwindColor]
 
                     return (
                       <Badge
