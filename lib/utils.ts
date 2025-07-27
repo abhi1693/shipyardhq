@@ -1,4 +1,3 @@
-import * as Icons from "lucide-react"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import s from "slugify"
@@ -12,10 +11,6 @@ export function slugify(text: string): string {
     lower: true,
     strict: true,
   })
-}
-
-export function getLucideIcon(name: string) {
-  return Icons[name as keyof typeof Icons] || null
 }
 
 export const TAILWIND_COLORS = [
