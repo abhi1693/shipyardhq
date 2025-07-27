@@ -1,8 +1,12 @@
-import { Product } from "@prisma/client"
 import FeaturedProductCard from "@/components/molecules/FeaturedProductCard"
 import CTAFeatureYourProductCard from "@/components/molecules/CTAFeatureYourProductCard"
+import { FeaturedProduct } from "@/types"
 
-export function FeaturedHighlights({ products }: { products: Product[] }) {
+export function FeaturedHighlights({
+  products,
+}: {
+  products: FeaturedProduct[]
+}) {
   return (
     <section className="py-16 border-b">
       <div className="max-w-7xl mx-auto px-4 space-y-8">

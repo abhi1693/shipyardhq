@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { ProductBadge, Badge, Product } from "@prisma/client"
 import { formatDate, linkify } from "@/lib/ui/formatters"
-import { Badge as BadgeUI } from "@/components/atoms/badge"
 
 export type ProductBadgeWithDetails = ProductBadge & {
   badge: Badge
@@ -21,24 +20,8 @@ export const columns: ColumnDef<ProductBadgeWithDetails>[] = [
       }),
   },
   {
-    accessorKey: "badge.name",
+    accessorKey: "badge",
     header: "Badge",
-    cell: ({ row }) => {
-      const badge = row.original.badge
-      return (
-        <BadgeUI className={`bg-${badge.color}-100 text-${badge.color}-800`}>
-          {badge.name}
-        </BadgeUI>
-      )
-    },
-  },
-  {
-    accessorKey: "badge.slug",
-    header: "Slug",
-  },
-  {
-    accessorKey: "badge.icon",
-    header: "Icon",
   },
   {
     accessorKey: "product.name",

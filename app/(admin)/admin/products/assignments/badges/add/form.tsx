@@ -30,10 +30,11 @@ import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
 import { assignBadgeToProduct } from "@/actions/admin/badges/actions"
+import { BADGE_OPTIONS } from "@/lib/constants"
 
 const schema = z.object({
   productId: z.string().min(1, "Product is required"),
-  badgeId: z.string().min(1, "Badge is required"),
+  badge: z.string().min(1, "Badge is required"),
   expiresAt: z.string().optional(),
 })
 
@@ -41,17 +42,15 @@ type FormInput = z.infer<typeof schema>
 
 export default function AssignProductBadgeForm({
   products,
-  badges,
 }: {
   products: { id: string; name: string }[]
-  badges: { id: string; name: string }[]
 }) {
   const router = useRouter()
   const form = useForm<FormInput>({
     resolver: zodResolver(schema),
     defaultValues: {
       productId: "",
-      badgeId: "",
+      badge: "",
       expiresAt: "",
     },
   })
@@ -60,12 +59,12 @@ export default function AssignProductBadgeForm({
     try {
       await assignBadgeToProduct({
         productId: values.productId,
-        badgeId: values.badgeId,
+        badge: values.badge,
         expiresAt: values.expiresAt ? new Date(values.expiresAt) : undefined,
       })
       router.push("/admin/products/assignments/badges")
     } catch (error) {
-      form.setError("badgeId", {
+      form.setError("badge", {
         type: "server",
         message: "Failed to assign badge",
       })
@@ -110,8 +109,9 @@ export default function AssignProductBadgeForm({
                   </FormItem>
                 )}
               />
+
               <FormField
-                name="badgeId"
+                name="badge"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -123,9 +123,12 @@ export default function AssignProductBadgeForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {badges.map((badge) => (
-                          <SelectItem key={badge.id} value={badge.id}>
-                            {badge.name}
+                        {BADGE_OPTIONS.map((badge) => (
+                          <SelectItem key={badge.value} value={badge.value}>
+                            <span className="flex items-center gap-2">
+                              <span>{badge.icon}</span>
+                              <span>{badge.label}</span>
+                            </span>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -134,6 +137,7 @@ export default function AssignProductBadgeForm({
                   </FormItem>
                 )}
               />
+
               <FormField
                 name="expiresAt"
                 control={form.control}
@@ -147,6 +151,7 @@ export default function AssignProductBadgeForm({
                   </FormItem>
                 )}
               />
+
               <Button type="submit" disabled={form.formState.isSubmitting}>
                 Assign Badge
               </Button>

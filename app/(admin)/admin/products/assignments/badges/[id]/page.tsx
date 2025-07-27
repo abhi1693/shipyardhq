@@ -19,7 +19,7 @@ export default async function ViewProductBadgeAssignmentPage({
     <ObjectPageLayout
       heading={{
         id: assignment.id,
-        title: badge.name,
+        title: assignment.badge,
         createdAt,
         updatedAt,
       }}
@@ -33,16 +33,8 @@ export default async function ViewProductBadgeAssignmentPage({
         },
         {
           label: "Badge",
-          value: (
-            <UIBadge
-              className={`bg-${badge.color}-100 text-${badge.color}-800`}
-            >
-              {badge.name}
-            </UIBadge>
-          ),
+          value: assignment.badge,
         },
-        { label: "Badge Slug", value: badge.slug },
-        { label: "Icon", value: badge.icon || placeholder() },
         {
           label: "Expires At",
           value: expiresAt ? formatDate(expiresAt) : "Never",

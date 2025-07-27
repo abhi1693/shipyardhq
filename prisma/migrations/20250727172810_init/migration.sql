@@ -165,24 +165,10 @@ CREATE TABLE "PlanFeatureAssignment" (
 );
 
 -- CreateTable
-CREATE TABLE "Badge" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "description" TEXT,
-    "color" TEXT NOT NULL,
-    "icon" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Badge_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "ProductBadge" (
     "id" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
-    "badgeId" TEXT NOT NULL,
+    "badge" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -232,15 +218,6 @@ CREATE UNIQUE INDEX "PlanFeature_key_key" ON "PlanFeature"("key");
 -- CreateIndex
 CREATE UNIQUE INDEX "PlanFeatureAssignment_planId_featureId_key" ON "PlanFeatureAssignment"("planId", "featureId");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Badge_name_key" ON "Badge"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Badge_slug_key" ON "Badge"("slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "ProductBadge_productId_badgeId_key" ON "ProductBadge"("productId", "badgeId");
-
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -273,6 +250,3 @@ ALTER TABLE "PlanFeatureAssignment" ADD CONSTRAINT "PlanFeatureAssignment_featur
 
 -- AddForeignKey
 ALTER TABLE "ProductBadge" ADD CONSTRAINT "ProductBadge_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ProductBadge" ADD CONSTRAINT "ProductBadge_badgeId_fkey" FOREIGN KEY ("badgeId") REFERENCES "Badge"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

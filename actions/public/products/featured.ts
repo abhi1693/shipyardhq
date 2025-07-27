@@ -5,7 +5,7 @@ export async function getFeaturedProducts() {
 
   return prisma.productBadge.findMany({
     where: {
-      badge: { slug: "featured" },
+      badge: "featured",
       OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
     },
     include: {
@@ -14,11 +14,8 @@ export async function getFeaturedProducts() {
           metadata: true,
           category: true,
           analytics: true,
-          ProductBadge: {
-            include: {
-              badge: true,
-            },
-          },
+          user: true,
+          ProductBadge: true,
         },
       },
     },
