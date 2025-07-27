@@ -28,8 +28,20 @@ const navItems: NavItem[] = [
   },
   {
     title: "Products",
-    url: "/admin/products",
+    url: "#",
     icon: "product",
+    items: [
+      {
+        title: "Products",
+        url: "/admin/products",
+        icon: "product",
+      },
+      {
+        title: "Badges",
+        url: "/admin/products/badges",
+        icon: "settings",
+      },
+    ],
   },
   {
     title: "Plans",

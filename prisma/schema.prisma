@@ -38,6 +38,7 @@ model Product {
   metadata     ProductMetadata?
   analytics    ProductAnalytics?
   verification ProductVerification?
+  ProductBadge ProductBadge[]
 }
 
 model ProductVerification {
@@ -109,7 +110,7 @@ model User {
   role            String    @default("member")
   roleIntent      String? // Why they signed up
   productInterest String? // What they're interested in
-  heardFrom   String? // How they heard about us
+  heardFrom       String? // How they heard about us
   acceptedTerms   Boolean   @default(false)
   termsAcceptedAt DateTime?
 
@@ -179,4 +180,30 @@ model PlanFeatureAssignment {
 enum PlanType {
   recurring_price
   one_time_price
+}
+
+model Badge {
+  id          String         @id @default(cuid())
+  name        String         @unique
+  slug        String         @unique
+  description String?
+  color       String
+  icon        String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  ProductBadge ProductBadge[] @relation("BadgeToProductBadge")
+}
+
+model ProductBadge {
+  id         String   @id @default(cuid())
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String
+  badge      Badge    @relation("BadgeToProductBadge", fields: [badgeId], references: [id], onDelete: Restrict)
+  badgeId    String
+  expiresAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([productId, badgeId])
 }

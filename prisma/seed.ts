@@ -64,6 +64,44 @@ async function main() {
     categories.map((data) => prisma.category.create({ data })),
   )
 
+  // Seed Badges
+  const badges = [
+    {
+      name: "Trending Today",
+      slug: "trending",
+      color: "yellow",
+      icon: "flame",
+    },
+    {
+      name: "Editor's Pick",
+      slug: "editors-pick",
+      color: "blue",
+      icon: "star",
+    },
+    { name: "Just Launched", slug: "new", color: "green", icon: "clock" },
+    {
+      name: "Upvote Leader",
+      slug: "most-upvoted",
+      color: "purple",
+      icon: "arrow-up",
+    },
+    {
+      name: "Verified Product",
+      slug: "verified",
+      color: "teal",
+      icon: "check",
+    },
+  ]
+  await Promise.all(
+    badges.map((badge) =>
+      prisma.badge.upsert({
+        where: { slug: badge.slug },
+        update: {},
+        create: badge,
+      }),
+    ),
+  )
+
   // Seed Plan Features
   const allFeatures = [
     {
