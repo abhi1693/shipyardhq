@@ -79,19 +79,13 @@ export default async function OverviewPage() {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                    <Badge
-                      variant={
-                        p.verification?.isVerified ? "default" : "outline"
-                      }
-                    >
-                      {p?.verification
-                        ? formatBoolean(
-                            p.verification.isVerified,
-                            "Verified",
-                            "Not Verified",
-                          )
-                        : placeholder()}
-                    </Badge>
+                    {p?.verification
+                      ? formatBoolean(
+                          p.verification.isVerified,
+                          "Verified",
+                          "Not Verified",
+                        )
+                      : placeholder()}
                     <span>Views: {p.analytics?.views || 0}</span>
                     <span>Upvotes: {p.analytics?.upvotes || 0}</span>
                   </div>
