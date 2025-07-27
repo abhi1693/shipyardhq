@@ -72,7 +72,10 @@ export default function PublicFooter() {
           <div className="text-sm font-semibold text-foreground">Legal</div>
           <ul className="space-y-1">
             <li>
-              <Link href="/legal/privacy" className="hover:text-foreground">
+              <Link
+                href="/legal/privacy-policy"
+                className="hover:text-foreground"
+              >
                 Privacy Policy
               </Link>
             </li>
