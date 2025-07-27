@@ -1,11 +1,11 @@
 import prisma from "@/lib/prisma"
 
-export async function getFeaturedProducts() {
+async function getProducts(badge: string) {
   const now = new Date()
 
   return prisma.productBadge.findMany({
     where: {
-      badge: "featured",
+      badge,
       OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
     },
     include: {
@@ -21,4 +21,12 @@ export async function getFeaturedProducts() {
     },
     orderBy: { createdAt: "desc" },
   })
+}
+
+export async function getFeaturedProducts() {
+  return getProducts("featured")
+}
+
+export async function getLatestLaunches() {
+  return getProducts("new")
 }
