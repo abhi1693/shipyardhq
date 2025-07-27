@@ -1,11 +1,10 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ProductBadge, Badge, Product } from "@prisma/client"
+import { ProductBadge, Product } from "@prisma/client"
 import { formatDate, linkify } from "@/lib/ui/formatters"
 
 export type ProductBadgeWithDetails = ProductBadge & {
-  badge: Badge
   product: Pick<Product, "id" | "name">
 }
 

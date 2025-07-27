@@ -11,6 +11,7 @@ import { FeaturedProduct } from "@/types"
 import { badgeColorMap } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import {BADGE_OPTIONS} from "@/lib/constants";
+import {ArrowUpRight} from "lucide-react";
 
 export default function FeaturedProductCard({
   product,
@@ -24,7 +25,14 @@ export default function FeaturedProductCard({
   return (
     <Link href={`/products/${p.id}`} className="block">
       <Card className="bg-white text-foreground rounded-xl shadow-md hover:shadow-lg transition-shadow border border-muted overflow-hidden">
-        <CardHeader>
+        <CardHeader className="relative">
+          {p.category?.name && (
+            <div className="absolute top-4 right-4">
+              <span className="inline-flex items-center rounded-full border border-muted px-2 py-0.5 text-xs text-muted-foreground font-medium">
+                {p.category.name}
+              </span>
+            </div>
+          )}
           <div className="flex items-start gap-4">
             <Image
               src={p.logo}
@@ -40,13 +48,6 @@ export default function FeaturedProductCard({
               <p className="text-sm text-muted-foreground line-clamp-1">
                 {p.tagline}
               </p>
-
-              {p.category?.name && (
-                <div className="mt-1 text-xs text-muted-foreground">
-                  📁 {p.category.name}
-                </div>
-              )}
-
               {p.ProductBadge.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {p.ProductBadge.map((pb) => {
@@ -70,11 +71,10 @@ export default function FeaturedProductCard({
         </CardHeader>
         <CardContent className="pt-0 text-sm">
           <div className="flex justify-between items-end mt-6 text-xs text-muted-foreground">
-            <div className="inline-flex items-center gap-1">
-              ⬆️{" "}
-              <span className="font-medium text-foreground">
-                {upvotes} upvotes
-              </span>
+            <div className="inline-flex items-center gap-2 rounded-md border px-3 py-1 bg-muted">
+              <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
+              <span className="font-medium text-foreground">{upvotes}</span>
+              <span className="text-muted-foreground">Upvotes</span>
             </div>
             {p.user && (
               <div className="flex items-center gap-2">
