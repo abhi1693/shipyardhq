@@ -7,6 +7,7 @@ import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
 import { Menu } from "lucide-react"
 import clsx from "clsx"
+import { SignInButton, SignOutButton, SignedIn, SignedOut } from "@clerk/nextjs"
 
 const navLinks = [
   { label: "Browse", href: "/browse" },
@@ -52,9 +53,23 @@ export default function PublicHeader() {
               Submit Product
             </Button>
           </Link>
-          <Link href={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}>
-            <Button size="sm">Sign In</Button>
-          </Link>
+
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button size="sm">Sign In</Button>
+            </SignInButton>
+          </SignedOut>
+
+          <SignedIn>
+            <Link href="/member/overview">
+              <Button variant="outline" size="sm">
+                Member Area
+              </Button>
+            </Link>
+            <SignOutButton>
+              <Button size="sm">Sign Out</Button>
+            </SignOutButton>
+          </SignedIn>
         </div>
 
         {/* Mobile Nav Trigger */}
@@ -95,12 +110,26 @@ export default function PublicHeader() {
                       Submit Product
                     </Button>
                   </Link>
-                  <Link
-                    href={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
-                    onClick={() => setOpen(false)}
-                  >
-                    <Button className="w-full">Sign In</Button>
-                  </Link>
+
+                  <SignedOut>
+                    <SignInButton mode="modal">
+                      <Button className="w-full">Sign In</Button>
+                    </SignInButton>
+                  </SignedOut>
+
+                  <SignedIn>
+                    <Link
+                      href="/member/overview"
+                      onClick={() => setOpen(false)}
+                    >
+                      <Button variant="outline" className="w-full">
+                        Member Area
+                      </Button>
+                    </Link>
+                    <SignOutButton>
+                      <Button className="w-full">Sign Out</Button>
+                    </SignOutButton>
+                  </SignedIn>
                 </div>
               </div>
             </SheetContent>
