@@ -1,4 +1,4 @@
-import PublicHeader from "@/components/layout/public-header"
+import PublicHeader from "@/components/layout/headers/public-header"
 
 export default function PublicLayout({
   children,

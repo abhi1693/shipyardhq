@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
-import Header from "@/components/layout/private-header"
+import PrivateHeader from "@/components/layout/headers/private-header"
 import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
 import { auth } from "@clerk/nextjs/server"
@@ -69,7 +69,7 @@ export default async function MemberLayout({
     <SidebarProvider defaultOpen>
       <AppSidebar navItems={items} />
       <SidebarInset>
-        <Header />
+        <PrivateHeader />
         {children}
       </SidebarInset>
     </SidebarProvider>
