@@ -50,30 +50,6 @@ export async function deleteBadge(id: string) {
   return prisma.badge.delete({ where: { id } })
 }
 
-export async function assignBadgeToProduct(data: {
-  productId: string
-  badgeId: string
-  expiresAt?: Date
-}) {
-  return prisma.productBadge.create({
-    data,
-  })
-}
-
-export async function removeBadgeFromProduct(
-  productId: string,
-  badgeId: string,
-) {
-  return prisma.productBadge.delete({
-    where: {
-      productId_badgeId: {
-        productId,
-        badgeId,
-      },
-    },
-  })
-}
-
 export async function badgeSlugExists(slug: string, excludeId?: string) {
   const existing = await prisma.badge.findFirst({
     where: {
@@ -83,4 +59,73 @@ export async function badgeSlugExists(slug: string, excludeId?: string) {
     select: { id: true },
   })
   return !!existing
+}
+
+export async function getAllAssignedBadges() {
+  return prisma.productBadge.findMany({
+    include: {
+      badge: true,
+      product: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  })
+}
+
+export async function assignBadgeToProduct(data: {
+  productId: string
+  badgeId: string
+  expiresAt?: Date
+}) {
+  const { productId, badgeId, expiresAt } = data
+
+  // check if already assigned
+  const existing = await prisma.productBadge.findUnique({
+    where: {
+      productId_badgeId: {
+        productId,
+        badgeId,
+      },
+    },
+  })
+
+  if (existing) {
+    throw new Error("This badge is already assigned to the product.")
+  }
+
+  return prisma.productBadge.create({
+    data: {
+      productId,
+      badgeId,
+      expiresAt,
+    },
+  })
+}
+
+export async function getBadgeAssignmentById(id: string) {
+  return prisma.productBadge.findUnique({
+    where: { id },
+    include: {
+      badge: true,
+      product: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  })
+}
+
+export async function deleteProductBadgeAction(id: string) {
+  try {
+    return prisma.productBadge.delete({ where: { id } })
+  } catch (error) {
+    console.error("Error deleting product badge:", error)
+    return { error: "Failed to delete product badge" }
+  }
 }

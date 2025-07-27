@@ -2,21 +2,21 @@
 
 import { Resolver } from "node:dns/promises"
 import prisma from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 
 function generateVerificationTxt(): string {
   return `prod-verif-shipyard-${Math.random().toString(36).slice(2, 10)}`
 }
 
-export async function getProducts(args = {}) {
+export async function getProducts(args: Prisma.ProductFindManyArgs = {}) {
   try {
-    return await prisma.product.findMany({
+    const query: Prisma.ProductFindManyArgs = {
       orderBy: { createdAt: "desc" },
-      include: {
-        category: true,
-        user: true,
-      },
+      ...(args.select ? {} : { include: { category: true, user: true } }),
       ...args,
-    })
+    }
+
+    return await prisma.product.findMany(query)
   } catch (error) {
     console.error("Error fetching products:", error)
     throw new Error("Failed to fetch products")

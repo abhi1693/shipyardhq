@@ -41,6 +41,11 @@ const navItems: NavItem[] = [
         url: "/admin/products/badges",
         icon: "settings",
       },
+      {
+        title: "Assigned Badges",
+        url: "/admin/products/assignments/badges",
+        icon: "link",
+      },
     ],
   },
   {
