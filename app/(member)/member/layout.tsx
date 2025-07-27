@@ -43,8 +43,14 @@ export default async function MemberLayout({
   const { sessionClaims } = await auth()
   const role = sessionClaims?.metadata.role || "member"
 
-  if (role === "admin") {
-    navItems.push({
+  // Clone the base navItems to avoid mutation on the shared constant
+  const items: NavItem[] = [...navItems]
+
+  if (
+    role === "admin" &&
+    !items.some((item) => item.title === "Admin" || item.url === "/admin/overview")
+  ) {
+    items.push({
       title: "Admin",
       url: "/admin/overview",
       icon: "settings",
@@ -54,7 +60,7 @@ export default async function MemberLayout({
 
   return (
     <SidebarProvider defaultOpen>
-      <AppSidebar navItems={navItems} />
+      <AppSidebar navItems={items} />
       <SidebarInset>
         <Header />
         {children}
