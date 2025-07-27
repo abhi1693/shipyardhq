@@ -6,7 +6,8 @@ export default async function DeleteProductPage({
 }: {
   params: { id: string }
 }) {
-  const result = await deleteProductAction(params.id)
+  const { id } = await params
+  const result = await deleteProductAction(id)
 
   if ("error" in result) {
     // Optional: Redirect with error message or fallback

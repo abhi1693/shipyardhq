@@ -10,7 +10,7 @@ export default function PageContainer({
 }) {
   const content = (
     <div className="w-full px-4 md:px-6">
-      <div className="mx-auto w-full max-w-6xl">{children}</div>
+      <div className="mx-auto w-full">{children}</div>
     </div>
   )
 

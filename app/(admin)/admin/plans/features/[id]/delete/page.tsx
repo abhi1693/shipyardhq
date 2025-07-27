@@ -6,7 +6,8 @@ export default async function DeletePlanFeaturePage({
 }: {
   params: { id: string }
 }) {
-  const result = await deletePlanFeatureAction(params.id)
+  const { id } = await params
+  const result = await deletePlanFeatureAction(id)
 
   if ("error" in result) {
     // Optional: Redirect with error message or fallback

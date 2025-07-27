@@ -38,7 +38,7 @@ export function ObjectPageLayout({
       />
 
       <div className="w-full bg-muted py-6">
-        <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+        <div className="w-full px-4 md:px-6">
           <OverviewCard title="Overview">
             {overview.map((field) => (
               <OverviewRow

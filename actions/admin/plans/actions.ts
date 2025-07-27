@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { Prisma, PlanType } from "@prisma/client"
+import { dodoClient } from "@/lib/dodo"
 
 // Get all plans
 export async function getPlans(args: Prisma.PlanFindManyArgs = {}) {
@@ -53,6 +54,31 @@ export async function createPlanAction(formData: FormData) {
       },
     })
 
+    // Create product on DodoPayments
+    const product = await dodoClient.products.create({
+      price: {
+        currency: "USD",
+        discount: discount ?? 0,
+        price,
+        purchasing_power_parity: true,
+        type: "one_time_price",
+        tax_inclusive: false,
+      },
+      tax_category: "saas",
+      description,
+      name,
+    })
+    console.log("Product created on DodoPayments:", product.product_id)
+
+    // Update the plan with the DodoPayments product ID in externalId field
+    await prisma.plan.update({
+      where: { slug },
+      data: {
+        externalId: product.product_id,
+      },
+    })
+    console.log("Product updated on DodoPayments:", product.product_id)
+
     return { success: true }
   } catch (error) {
     console.error("❌ Failed to create plan:", error)
@@ -79,9 +105,20 @@ export async function getPlanById(
 // Delete a plan by ID
 export async function deletePlanAction(id: string) {
   try {
+    // Delete product on DodoPayments
+    const plan = await prisma.plan.findUnique({
+      where: { id },
+      select: { externalId: true },
+    })
+    if (plan?.externalId) {
+      await dodoClient.products.delete(plan.externalId)
+      console.log("Product deleted on DodoPayments:", plan.externalId)
+    }
+
     await prisma.plan.delete({
       where: { id },
     })
+
     return { success: true }
   } catch (error) {
     console.error("❌ Failed to delete plan:", error)
@@ -156,6 +193,28 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
         isDefault: data.isDefault ?? false,
       },
     })
+
+    // Update product on DodoPayments
+    const plan = await prisma.plan.findUnique({
+      where: { id },
+      select: { externalId: true },
+    })
+    if (plan?.externalId) {
+      await dodoClient.products.update(plan.externalId, {
+        price: {
+          currency: "USD",
+          discount: data.discount ?? 0,
+          price: data.price,
+          purchasing_power_parity: true,
+          type: "one_time_price",
+          tax_inclusive: false,
+        },
+        tax_category: "saas",
+        description: data.description ?? "",
+        name: data.name,
+      })
+      console.log("Product updated on DodoPayments:", plan.externalId)
+    }
 
     return { success: true }
   } catch (error) {

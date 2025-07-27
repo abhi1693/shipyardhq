@@ -3,7 +3,12 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Plan } from "@prisma/client"
 import { Badge } from "@/components/atoms/badge"
-import { linkify, formatBoolean, formatCurrency } from "@/lib/ui/formatters"
+import {
+  linkify,
+  formatBoolean,
+  formatCurrency,
+  placeholder,
+} from "@/lib/ui/formatters"
 
 export const columns: ColumnDef<Plan>[] = [
   {
@@ -35,5 +40,17 @@ export const columns: ColumnDef<Plan>[] = [
     accessorKey: "isDefault",
     header: "Default",
     cell: ({ row }) => formatBoolean(row.original.isDefault),
+  },
+  {
+    accessorKey: "External ID",
+    header: "External ID",
+    cell: ({ row }) =>
+      row.original.externalId
+        ? linkify({
+            label: row.original.externalId,
+            href: `https://app.dodopayments.com/products/edit?id=${row.original.externalId}`,
+            isExternal: true,
+          })
+        : placeholder(),
   },
 ]

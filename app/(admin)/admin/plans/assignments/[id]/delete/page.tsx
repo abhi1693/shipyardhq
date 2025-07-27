@@ -6,7 +6,8 @@ export default async function DeleteAssignedFeaturePage({
 }: {
   params: { id: string }
 }) {
-  const result = await deletePlanFeatureAssignmentAction(params.id)
+  const { id } = await params
+  const result = await deletePlanFeatureAssignmentAction(id)
 
   if ("error" in result) {
     throw new Error(result.error)

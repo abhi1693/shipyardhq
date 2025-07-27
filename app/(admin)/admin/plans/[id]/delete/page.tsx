@@ -6,7 +6,8 @@ export default async function DeletePlanPage({
 }: {
   params: { id: string }
 }) {
-  const result = await deletePlanAction(params.id)
+  const { id } = await params
+  const result = await deletePlanAction(id)
 
   if ("error" in result) {
     // Optional: Redirect with error message or show custom UI

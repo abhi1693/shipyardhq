@@ -12,7 +12,7 @@ interface CustomPublicMetadata {
 export default clerkMiddleware(async (auth, req) => {
   const { sessionClaims } = await auth()
 
-  const metadata = sessionClaims?.publicMetadata as CustomPublicMetadata
+  const metadata = sessionClaims?.metadata as CustomPublicMetadata
 
   // Admin access control
   if (isAdminRoute(req) && metadata?.role !== "admin") {

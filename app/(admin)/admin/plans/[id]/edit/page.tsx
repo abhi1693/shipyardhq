@@ -7,7 +7,8 @@ export default async function EditPlanPage({
 }: {
   params: { id: string }
 }) {
-  const plan = await getPlanById(params.id)
+  const { id } = await params
+  const plan = await getPlanById(id)
 
   if (!plan) return notFound()
 
