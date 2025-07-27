@@ -33,13 +33,14 @@ import {
 } from "@/components/atoms/select"
 import PageContainer from "@/components/layout/page-container"
 import { createPlanAction } from "@/actions/admin/plans/actions"
+import { PlanType } from "@prisma/client"
 
 const planFormSchema = z
   .object({
     name: z.string().min(1),
     slug: z.string().min(1),
     description: z.string().optional(),
-    type: z.literal("recurring"),
+    type: z.enum([PlanType.recurring_price, PlanType.one_time_price]),
     price: z.coerce.number().nonnegative(),
     interval: z.enum(["month", "year"]),
     frequency: z.coerce.number().min(1),
@@ -70,7 +71,7 @@ export default function AddPlanForm() {
       name: "",
       slug: "",
       description: "",
-      type: "recurring",
+      type: PlanType.one_time_price,
       price: 0,
       interval: "month",
       frequency: 1,
@@ -162,6 +163,37 @@ export default function AddPlanForm() {
 
               {/* Section: Pricing */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <FormField
+                  name="type"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem
+                              value={PlanType.recurring_price}
+                              disabled
+                            >
+                              Recurring
+                            </SelectItem>
+                            <SelectItem value={PlanType.one_time_price}>
+                              One-time
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   name="price"
                   control={form.control}

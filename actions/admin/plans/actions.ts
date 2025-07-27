@@ -54,30 +54,32 @@ export async function createPlanAction(formData: FormData) {
       },
     })
 
-    // Create product on DodoPayments
-    const product = await dodoClient.products.create({
-      price: {
-        currency: "USD",
-        discount: discount ?? 0,
-        price,
-        purchasing_power_parity: true,
-        type: "one_time_price",
-        tax_inclusive: false,
-      },
-      tax_category: "saas",
-      description,
-      name,
-    })
-    console.log("Product created on DodoPayments:", product.product_id)
+    if (price !== 0) {
+      // Create product on DodoPayments
+      const product = await dodoClient.products.create({
+        price: {
+          currency: "USD",
+          discount: discount ?? 0,
+          price,
+          purchasing_power_parity: true,
+          type: "one_time_price",
+          tax_inclusive: false,
+        },
+        tax_category: "saas",
+        description,
+        name,
+      })
+      console.log("Product created on DodoPayments:", product.product_id)
 
-    // Update the plan with the DodoPayments product ID in externalId field
-    await prisma.plan.update({
-      where: { slug },
-      data: {
-        externalId: product.product_id,
-      },
-    })
-    console.log("Product updated on DodoPayments:", product.product_id)
+      // Update the plan with the DodoPayments product ID in externalId field
+      await prisma.plan.update({
+        where: { slug },
+        data: {
+          externalId: product.product_id,
+        },
+      })
+      console.log("Product updated on DodoPayments:", product.product_id)
+    }
 
     return { success: true }
   } catch (error) {
@@ -214,6 +216,33 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
         name: data.name,
       })
       console.log("Product updated on DodoPayments:", plan.externalId)
+    } else {
+      if (data.price !== 0) {
+        // Create product on DodoPayments
+        const product = await dodoClient.products.create({
+          price: {
+            currency: "USD",
+            discount: data.discount ?? 0,
+            price: data.price,
+            purchasing_power_parity: true,
+            type: "one_time_price",
+            tax_inclusive: false,
+          },
+          tax_category: "saas",
+          description: data.description,
+          name: data.name,
+        })
+        console.log("Product created on DodoPayments:", product.product_id)
+
+        // Update the plan with the DodoPayments product ID in externalId field
+        await prisma.plan.update({
+          where: { slug: data.slug },
+          data: {
+            externalId: product.product_id,
+          },
+        })
+        console.log("Product updated on DodoPayments:", product.product_id)
+      }
     }
 
     return { success: true }

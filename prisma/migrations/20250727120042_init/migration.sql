@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "PlanType" AS ENUM ('recurring');
+CREATE TYPE "PlanType" AS ENUM ('recurring_price', 'one_time_price');
 
 -- CreateTable
 CREATE TABLE "Newsletter" (

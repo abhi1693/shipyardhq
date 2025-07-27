@@ -33,14 +33,14 @@ import {
 } from "@/components/atoms/select"
 import PageContainer from "@/components/layout/page-container"
 import { updatePlanAction } from "@/actions/admin/plans/actions"
-import { Plan } from "@prisma/client"
+import { Plan, PlanType } from "@prisma/client"
 
 const planFormSchema = z
   .object({
     name: z.string().min(1),
     slug: z.string().min(1),
     description: z.string().optional(),
-    type: z.literal("recurring"),
+    type: z.enum([PlanType.recurring_price, PlanType.one_time_price]),
     price: z.coerce.number().nonnegative(),
     interval: z.enum(["month", "year"]),
     frequency: z.coerce.number().min(1),
@@ -50,10 +50,7 @@ const planFormSchema = z
   })
   .refine(
     (data) => {
-      if (data.discount !== undefined && data.discount >= data.price) {
-        return false
-      }
-      return true
+      return !(data.discount !== undefined && data.discount >= data.price)
     },
     {
       path: ["discount"],

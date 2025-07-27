@@ -177,5 +177,6 @@ model PlanFeatureAssignment {
 }
 
 enum PlanType {
-  recurring
+  recurring_price
+  one_time_price
 }
