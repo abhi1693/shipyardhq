@@ -8,7 +8,7 @@ import {
 import Image from "next/image"
 import { Badge } from "@/components/atoms/badge"
 import { FeaturedProduct } from "@/types"
-import {badgeColorMap, TailwindColor} from "@/lib/utils"
+import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { ArrowUp } from "lucide-react"
@@ -95,9 +95,7 @@ export default function FeaturedProductCard({
             <div className="flex items-center gap-2 px-2 py-1 bg-muted border rounded-md text-xs font-medium text-foreground">
               <ArrowUp className="w-3 h-3 text-muted-foreground" />
               <span className="text-foreground">Upvote</span>
-              <span className="text-foreground font-semibold">
-                {upvotes}
-              </span>
+              <span className="text-foreground font-semibold">{upvotes}</span>
             </div>
 
             {p.user && (
