@@ -12,6 +12,7 @@ import { badgeColorMap } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { ArrowUpRight } from "lucide-react"
+import clsx from "clsx"
 
 export default function FeaturedProductCard({
   product,
@@ -21,10 +22,15 @@ export default function FeaturedProductCard({
   const p = product.product
   const upvotes = p.analytics?.upvotes ?? 0
   const createdBy = `${p.user?.firstName ?? ""} ${p.user?.lastName ?? ""}`.trim()
+  const now = new Date()
 
   return (
-    <Link href={`/products/${p.id}`} className="block">
-      <Card className="bg-white text-foreground rounded-xl shadow-md hover:shadow-lg transition-shadow border border-muted overflow-hidden">
+    <Link
+      href={`/products/${p.id}`}
+      className="block animate-fade-in"
+      style={{ animationDuration: "500ms" }}
+    >
+      <Card className="bg-white text-foreground rounded-xl shadow-md hover:shadow-xl transition-all border border-muted hover:border-primary">
         <CardHeader>
           <div className="flex items-start gap-4">
             <Image
@@ -40,7 +46,7 @@ export default function FeaturedProductCard({
                   {p.name}
                 </CardTitle>
                 {p.category?.name && (
-                  <span className="ml-2 text-xs font-medium rounded-full bg-muted px-2 py-0.5 text-foreground border border-border">
+                  <span className="ml-2 text-xs font-medium rounded-full bg-muted px-2 py-0.5 text-muted-foreground border border-border">
                     {p.category.name}
                   </span>
                 )}
@@ -49,15 +55,24 @@ export default function FeaturedProductCard({
                 {p.tagline}
               </p>
               {p.ProductBadge.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-2 pb-1">
                   {p.ProductBadge.map((pb) => {
                     const badgeDef = BADGE_OPTIONS.find((b) => b.value === pb.badge)
                     if (!badgeDef) return null
+                    const isActive = !pb.expiresAt || new Date(pb.expiresAt) > now
+                    const pulse = ["featured", "trending"].includes(badgeDef.value)
                     const colorClass = badgeColorMap[badgeDef.color]
+
                     return (
                       <Badge
                         key={pb.id}
-                        className={`text-xs rounded-full px-2 py-0.5 border ${colorClass}`}
+                        className={clsx(
+                          "text-xs rounded-full px-2 py-0.5 border transition-all",
+                          colorClass,
+                          pulse &&
+                            isActive &&
+                            "animate-pulse-slow border-2 font-medium"
+                        )}
                       >
                         {badgeDef.icon} {badgeDef.label}
                       </Badge>
@@ -72,7 +87,7 @@ export default function FeaturedProductCard({
         <CardContent className="pt-0 text-sm">
           <div className="flex justify-between items-end mt-6 text-xs text-muted-foreground">
             <div className="flex flex-col items-start">
-              <div className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 bg-muted">
+              <div className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 bg-muted/50 shadow-sm">
                 <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
                 <div className="flex flex-col leading-tight">
                   <span className="font-semibold text-sm text-foreground">
@@ -85,13 +100,13 @@ export default function FeaturedProductCard({
               </div>
             </div>
             {p.user && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 group">
                 <Avatar className="h-5 w-5 border">
                   <AvatarFallback>
                     {p.user.firstName?.charAt(0) ?? "U"}
                   </AvatarFallback>
                 </Avatar>
-                <span>{createdBy}</span>
+                <span className="group-hover:underline">{createdBy}</span>
               </div>
             )}
           </div>
