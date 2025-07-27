@@ -10,8 +10,8 @@ import { Badge } from "@/components/atoms/badge"
 import { FeaturedProduct } from "@/types"
 import { badgeColorMap } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
-import {BADGE_OPTIONS} from "@/lib/constants";
-import {ArrowUpRight} from "lucide-react";
+import { BADGE_OPTIONS } from "@/lib/constants"
+import { ArrowUpRight } from "lucide-react"
 
 export default function FeaturedProductCard({
   product,
@@ -25,14 +25,7 @@ export default function FeaturedProductCard({
   return (
     <Link href={`/products/${p.id}`} className="block">
       <Card className="bg-white text-foreground rounded-xl shadow-md hover:shadow-lg transition-shadow border border-muted overflow-hidden">
-        <CardHeader className="relative">
-          {p.category?.name && (
-            <div className="absolute top-4 right-4">
-              <span className="inline-flex items-center rounded-full border border-muted px-2 py-0.5 text-xs text-muted-foreground font-medium">
-                {p.category.name}
-              </span>
-            </div>
-          )}
+        <CardHeader>
           <div className="flex items-start gap-4">
             <Image
               src={p.logo}
@@ -42,9 +35,16 @@ export default function FeaturedProductCard({
               className="rounded-md object-cover border"
             />
             <div className="flex-1">
-              <CardTitle className="text-lg font-semibold leading-tight">
-                {p.name}
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold leading-tight">
+                  {p.name}
+                </CardTitle>
+                {p.category?.name && (
+                  <span className="ml-2 text-xs font-medium rounded-full bg-muted px-2 py-0.5 text-foreground border border-border">
+                    {p.category.name}
+                  </span>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground line-clamp-1">
                 {p.tagline}
               </p>
@@ -54,7 +54,6 @@ export default function FeaturedProductCard({
                     const badgeDef = BADGE_OPTIONS.find((b) => b.value === pb.badge)
                     if (!badgeDef) return null
                     const colorClass = badgeColorMap[badgeDef.color]
-
                     return (
                       <Badge
                         key={pb.id}
@@ -69,12 +68,21 @@ export default function FeaturedProductCard({
             </div>
           </div>
         </CardHeader>
+
         <CardContent className="pt-0 text-sm">
           <div className="flex justify-between items-end mt-6 text-xs text-muted-foreground">
-            <div className="inline-flex items-center gap-2 rounded-md border px-3 py-1 bg-muted">
-              <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
-              <span className="font-medium text-foreground">{upvotes}</span>
-              <span className="text-muted-foreground">Upvotes</span>
+            <div className="flex flex-col items-start">
+              <div className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 bg-muted">
+                <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
+                <div className="flex flex-col leading-tight">
+                  <span className="font-semibold text-sm text-foreground">
+                    {upvotes}
+                  </span>
+                  <span className="text-xs text-muted-foreground -mt-1">
+                    Upvotes
+                  </span>
+                </div>
+              </div>
             </div>
             {p.user && (
               <div className="flex items-center gap-2">
