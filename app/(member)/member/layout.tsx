@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const navItems: NavItem[] = [
   {
     title: "Overview",
-    url: "/member/overview",
+    url: "/member/callback",
     icon: "dashboard",
     isActive: false,
   },

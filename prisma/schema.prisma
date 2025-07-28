@@ -129,6 +129,7 @@ model Category {
   updatedAt DateTime @updatedAt
 
   products Product[] // reverse relation
+  useCases UseCaseCategory[]
 }
 
 model Plan {
@@ -183,11 +184,31 @@ enum PlanType {
 }
 
 model ProductBadge {
-  id         String   @id @default(cuid())
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId  String
-  badge      String
-  expiresAt  DateTime?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String    @id @default(cuid())
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  badge     String
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model UseCase {
+  id        String   @id @default(cuid())
+  label     String // e.g. "Launch a SaaS"
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categories UseCaseCategory[]
+}
+
+model UseCaseCategory {
+  useCaseId  String
+  categoryId String
+
+  useCase  UseCase  @relation(fields: [useCaseId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([useCaseId, categoryId])
 }

@@ -61,7 +61,7 @@ export default function PublicHeader() {
           </SignedOut>
 
           <SignedIn>
-            <Link href="/member/overview">
+            <Link href="/member/callback">
               <Button variant="outline" size="sm">
                 Member Area
               </Button>
@@ -119,7 +119,7 @@ export default function PublicHeader() {
 
                   <SignedIn>
                     <Link
-                      href="/member/overview"
+                      href="/member/callback"
                       onClick={() => setOpen(false)}
                     >
                       <Button variant="outline" className="w-full">

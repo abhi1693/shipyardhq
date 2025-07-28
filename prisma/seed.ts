@@ -64,6 +64,43 @@ async function main() {
     categories.map((data) => prisma.category.create({ data })),
   )
 
+  // Seed UseCases and connect to Categories
+  const useCases = [
+    {
+      label: "Launch a SaaS",
+      slug: "launch-saas",
+      categorySlugs: ["dev-tools", "productivity"],
+    },
+    {
+      label: "Automate Tasks",
+      slug: "automate-tasks",
+      categorySlugs: ["productivity"],
+    },
+    {
+      label: "Grow Your Audience",
+      slug: "grow-audience",
+      categorySlugs: ["dev-tools"],
+    },
+  ]
+
+  for (const useCase of useCases) {
+    const categoriesToConnect = createdCategories.filter((cat) =>
+      useCase.categorySlugs.includes(cat.slug),
+    )
+
+    await prisma.useCase.create({
+      data: {
+        label: useCase.label,
+        slug: useCase.slug,
+        categories: {
+          create: categoriesToConnect.map((category) => ({
+            category: { connect: { id: category.id } },
+          })),
+        },
+      },
+    })
+  }
+
   // Seed Plan Features
   const features = [
     {

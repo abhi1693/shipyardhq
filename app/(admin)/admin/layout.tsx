@@ -23,8 +23,25 @@ const navItems: NavItem[] = [
   },
   {
     title: "Categories",
-    url: "/admin/categories",
+    url: "#",
     icon: "category",
+    items: [
+      {
+        title: "Categories",
+        url: "/admin/categories",
+        icon: "category",
+      },
+      {
+        title: "Use Cases",
+        url: "/admin/categories/use-cases",
+        icon: "link",
+      },
+      {
+        title: "Assigned Use Cases",
+        url: "/admin/categories/assignments/use-cases",
+        icon: "link",
+      },
+    ],
   },
   {
     title: "Products",

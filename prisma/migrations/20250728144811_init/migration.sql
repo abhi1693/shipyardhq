@@ -176,6 +176,25 @@ CREATE TABLE "ProductBadge" (
     CONSTRAINT "ProductBadge_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "UseCase" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UseCase_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UseCaseCategory" (
+    "useCaseId" TEXT NOT NULL,
+    "categoryId" TEXT NOT NULL,
+
+    CONSTRAINT "UseCaseCategory_pkey" PRIMARY KEY ("useCaseId","categoryId")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Newsletter_email_key" ON "Newsletter"("email");
 
@@ -218,6 +237,9 @@ CREATE UNIQUE INDEX "PlanFeature_key_key" ON "PlanFeature"("key");
 -- CreateIndex
 CREATE UNIQUE INDEX "PlanFeatureAssignment_planId_featureId_key" ON "PlanFeatureAssignment"("planId", "featureId");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "UseCase_slug_key" ON "UseCase"("slug");
+
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -250,3 +272,9 @@ ALTER TABLE "PlanFeatureAssignment" ADD CONSTRAINT "PlanFeatureAssignment_featur
 
 -- AddForeignKey
 ALTER TABLE "ProductBadge" ADD CONSTRAINT "ProductBadge_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UseCaseCategory" ADD CONSTRAINT "UseCaseCategory_useCaseId_fkey" FOREIGN KEY ("useCaseId") REFERENCES "UseCase"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UseCaseCategory" ADD CONSTRAINT "UseCaseCategory_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
