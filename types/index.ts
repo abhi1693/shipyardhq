@@ -1,5 +1,5 @@
 import { Icons } from "@/components/icons"
-import { Prisma } from "@prisma/client"
+import { Category, Prisma, UseCase } from "@prisma/client"
 
 export interface NavItem {
   title: string
@@ -25,3 +25,14 @@ export type FeaturedProduct = Prisma.ProductBadgeGetPayload<{
     }
   }
 }>
+
+export interface BrowseFiltersProps {
+  useCases: UseCase[]
+  categories: Category[]
+  current: {
+    useCase?: string
+    category?: string
+    verified?: boolean
+    sort?: string
+  }
+}

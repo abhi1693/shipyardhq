@@ -10,7 +10,7 @@ export default function GlobalError({
   console.log("Global Error Handler:", error.message, error.stack, error.digest)
 
   return (
-    <html>
+    <html suppressHydrationWarning>
       <body>
         {/* `NextError` is the default Next.js error page component. Its type
         definition requires a `statusCode` prop. However, since the App Router
