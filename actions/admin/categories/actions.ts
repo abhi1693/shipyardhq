@@ -193,3 +193,53 @@ export async function createUseCaseAction(formData: FormData) {
     return { error: "Failed to create use case" }
   }
 }
+
+export async function getUseCaseAssignments() {
+  try {
+    return await prisma.useCaseCategory.findMany({
+      include: {
+        useCase: true,
+        category: true,
+      },
+      orderBy: {
+        useCase: {
+          updatedAt: "desc",
+        },
+      },
+    })
+  } catch (error) {
+    console.error("Error fetching use case assignments:", error)
+    throw new Error("Failed to fetch use case assignments")
+  }
+}
+
+export async function createUseCaseAssignmentAction(data: {
+  useCaseId: string
+  categoryId: string
+}) {
+  const { useCaseId, categoryId } = data
+
+  if (!useCaseId || !categoryId) {
+    return { error: "Use case and category are required" }
+  }
+
+  const existingAssignment = await prisma.useCaseCategory.findFirst({
+    where: {
+      useCaseId,
+      categoryId,
+    },
+  })
+  if (existingAssignment) {
+    return { error: "Use case is already assigned to this category" }
+  }
+
+  try {
+    await prisma.useCaseCategory.create({
+      data: { useCaseId, categoryId },
+    })
+    return { success: true }
+  } catch (error) {
+    console.error("Error creating use case assignment:", error)
+    return { error: "Failed to create use case assignment" }
+  }
+}

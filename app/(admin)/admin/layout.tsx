@@ -38,7 +38,7 @@ const navItems: NavItem[] = [
       },
       {
         title: "Assigned Use Cases",
-        url: "/admin/categories/assignments/use-cases",
+        url: "/admin/categories/use-cases/assignments",
         icon: "link",
       },
     ],
