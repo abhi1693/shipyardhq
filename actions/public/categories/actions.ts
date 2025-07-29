@@ -14,6 +14,7 @@ export async function getCategoriesWithCounts() {
     id: cat.id,
     name: cat.name,
     slug: cat.slug,
+    description: cat.description,
     count: cat._count.products,
   }))
 }
