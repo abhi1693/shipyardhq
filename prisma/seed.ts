@@ -243,7 +243,8 @@ async function main() {
     data: {
       name: "ShitPosts",
       tagline: "Build and share your shitposts",
-      description: "A platform to create, share, and discover the best shitposts.",
+      description:
+        "A platform to create, share, and discover the best shitposts.",
       websiteUrl: "https://shitposts.ai",
       logo: "https://shitposts.ai/brand.png",
       user: { connect: { id: createdUsers[0].id } },

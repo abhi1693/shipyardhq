@@ -1,9 +1,10 @@
 import { Metadata } from "next"
 import { getCategories, getUseCases } from "@/actions/admin/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
-import BrowseFilters from "@/components/molecules/BrowseFilters"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGrid from "@/components/molecules/ProductGrid"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
   title: "Browse Products",
@@ -17,6 +18,13 @@ interface BrowseSearchParams {
   sort?: "new" | "trending" | "votes" | "az"
   page?: string
 }
+
+const sortOptions = [
+  { value: "new", label: "Newest" },
+  { value: "trending", label: "Trending" },
+  { value: "votes", label: "Most Upvoted" },
+  { value: "az", label: "A-Z" },
+]
 
 export default async function BrowsePage({
   searchParams,
@@ -36,7 +44,13 @@ export default async function BrowsePage({
     ...categories,
   ]
 
-  const { useCase, category, verified, sort = "new", page = "1" } = searchParams
+  const {
+    useCase,
+    category,
+    verified,
+    sort = "new",
+    page = "1",
+  } = await searchParams
 
   const { products, hasMore } = await getBrowseProducts({
     useCaseSlug: useCase === "__all__" ? undefined : useCase,
@@ -46,31 +60,135 @@ export default async function BrowsePage({
     page: parseInt(page),
   })
 
+  function buildUrlParam(param: string, value: string) {
+    const params = new URLSearchParams(
+      Object.fromEntries(
+        Object.entries(searchParams).filter(([_, v]) => typeof v === "string"),
+      ),
+    )
+
+    if (value === "__all__") {
+      params.delete(param)
+    } else {
+      params.set(param, value)
+    }
+    return `/browse?${params.toString()}`
+  }
+
   return (
     <div className="min-h-screen w-full px-4 md:px-8 py-10">
-      <h1 className="text-3xl font-bold mb-6">Browse Products</h1>
+      {/* Header */}
+      <div className="mb-8 space-y-2">
+        <h1 className="text-4xl font-bold tracking-tight">
+          Discover the best startups.
+        </h1>
+        <p className="text-muted-foreground max-w-2xl">
+          Browse through a curated collection of SaaS tools, micro-SaaS
+          solutions, and indie side projects built by hackers and makers.
+        </p>
+      </div>
 
-      <BrowseFilters
-        useCases={allUseCases}
-        categories={allCategories}
-        current={{
-          useCase,
-          category,
-          verified: verified === "true",
-          sort,
-        }}
-      />
+      {/* Layout Split */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8">
+        {/* Main content */}
+        <div>
+          {products.length === 0 ? (
+            <EmptyState
+              title="Nothing Found"
+              description="Explore our categories or use cases to find products that suit your needs."
+              actionLabel="Reset Filters"
+              actionHref="/browse"
+            />
+          ) : (
+            <ProductGrid products={products} hasMore={hasMore} />
+          )}
+        </div>
 
-      {products.length === 0 ? (
-        <EmptyState
-          title="Nothing Found"
-          description="Explore our categories or use cases to find products that suit your needs."
-          actionLabel="Reset Filters"
-          actionHref="/browse"
-        />
-      ) : (
-        <ProductGrid products={products} hasMore={hasMore} />
-      )}
+        {/* Sidebar Filters */}
+        <aside className="space-y-6">
+          <div>
+            <h4 className="text-sm font-semibold mb-2">Use Case</h4>
+            <ul className="space-y-1">
+              {allUseCases.map((uc) => (
+                <li key={uc.id}>
+                  <Link
+                    href={buildUrlParam("useCase", uc.slug)}
+                    className={cn(
+                      "block text-sm rounded-md px-3 py-1.5 hover:bg-muted",
+                      useCase === uc.slug || (!useCase && uc.slug === "__all__")
+                        ? "bg-muted font-medium"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {uc.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold mb-2">Category</h4>
+            <ul className="space-y-1">
+              {allCategories.map((cat) => (
+                <li key={cat.id}>
+                  <Link
+                    href={buildUrlParam("category", cat.slug)}
+                    className={cn(
+                      "block text-sm rounded-md px-3 py-1.5 hover:bg-muted",
+                      category === cat.slug ||
+                        (!category && cat.slug === "__all__")
+                        ? "bg-muted font-medium"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold mb-2">Sort By</h4>
+            <ul className="space-y-1">
+              {sortOptions.map((s) => (
+                <li key={s.value}>
+                  <Link
+                    href={buildUrlParam("sort", s.value)}
+                    className={cn(
+                      "block text-sm rounded-md px-3 py-1.5 hover:bg-muted",
+                      sort === s.value
+                        ? "bg-muted font-medium"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {s.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold mb-2">Verified Only</h4>
+            <Link
+              href={buildUrlParam(
+                "verified",
+                verified === "true" ? "false" : "true",
+              )}
+              className={cn(
+                "inline-block text-sm rounded-md px-3 py-1.5 border",
+                verified === "true"
+                  ? "bg-muted border-foreground"
+                  : "border-muted",
+              )}
+            >
+              {verified === "true" ? "✓ Enabled" : "Enable"}
+            </Link>
+          </div>
+        </aside>
+      </div>
     </div>
   )
 }
