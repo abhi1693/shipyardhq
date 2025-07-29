@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Category,
   Product,
@@ -5,7 +7,9 @@ import {
   ProductVerification,
   User,
 } from "@prisma/client"
+import { useState } from "react"
 import { ProductCard } from "./ProductCard"
+import { Button } from "@/components/atoms/button"
 
 type ProductWithMeta = Product & {
   category: Category
@@ -14,34 +18,58 @@ type ProductWithMeta = Product & {
   verification: ProductVerification | null
 }
 
+interface ProductGridProps {
+  initialProducts: ProductWithMeta[]
+  initialHasMore: boolean
+  searchParams: {
+    useCase?: string
+    category?: string
+    verified?: boolean
+    sort?: string
+  }
+}
+
 export default function ProductGrid({
-  products,
-  hasMore,
-}: {
-  products: ProductWithMeta[]
-  hasMore: boolean
-}) {
+  initialProducts,
+  initialHasMore,
+  searchParams,
+}: ProductGridProps) {
+  const [products, setProducts] = useState<ProductWithMeta[]>(initialProducts)
+  const [hasMore, setHasMore] = useState(initialHasMore)
+  const [page, setPage] = useState(2)
+  const [loading, setLoading] = useState(false)
+
+  const loadMore = async () => {
+    setLoading(true)
+
+    const params = new URLSearchParams({
+      page: page.toString(),
+      ...searchParams,
+      verified: searchParams.verified ? "true" : "",
+    })
+
+    const res = await fetch(`/api/browse?${params.toString()}`)
+    const json = await res.json()
+
+    setProducts((prev) => [...prev, ...json.products])
+    setHasMore(json.hasMore)
+    setPage((prev) => prev + 1)
+    setLoading(false)
+  }
+
   return (
     <section className="space-y-10">
-      {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {products.map((product) => (
-          <div
-            key={product.id}
-            className="animate-fadeIn"
-            style={{ animationDelay: "0.05s" }}
-          >
-            <ProductCard product={product} compact />
-          </div>
+          <ProductCard key={product.id} product={product} compact />
         ))}
       </div>
 
-      {/* Pagination Indicator */}
       {hasMore && (
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground">
-            More results available. Refine your filters or scroll for more.
-          </p>
+        <div className="text-center pt-6">
+          <Button onClick={loadMore} disabled={loading}>
+            {loading ? "Loading..." : "Load More"}
+          </Button>
         </div>
       )}
     </section>

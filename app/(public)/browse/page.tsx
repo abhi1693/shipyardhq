@@ -4,6 +4,7 @@ import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGrid from "@/components/molecules/ProductGrid"
 import BrowseFilters from "@/components/molecules/BrowseFilters"
+import ProductGridClient from "@/components/molecules/ProductGridClient"
 
 export const metadata: Metadata = {
   title: "Browse Products",
@@ -26,7 +27,13 @@ export default async function BrowsePage({
   const useCases = await getUseCases()
   const categories = await getCategories()
 
-  const { useCase, category, verified, sort = "new", page = "1" } = await searchParams
+  const {
+    useCase,
+    category,
+    verified,
+    sort = "new",
+    page = "1",
+  } = await searchParams
 
   const { products, hasMore } = await getBrowseProducts({
     useCaseSlug: useCase === "__all__" ? undefined : useCase,
@@ -61,7 +68,17 @@ export default async function BrowsePage({
               actionHref="/browse"
             />
           ) : (
-            <ProductGrid products={products} hasMore={hasMore} />
+            <ProductGridClient
+              initialProducts={products}
+              initialHasMore={hasMore}
+              initialPage={2}
+              searchParams={{
+                useCase: useCase === "__all__" ? undefined : useCase,
+                category: category === "__all__" ? undefined : category,
+                verified: verified === "true",
+                sort,
+              }}
+            />
           )}
         </div>
 
