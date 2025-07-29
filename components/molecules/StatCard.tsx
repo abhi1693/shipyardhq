@@ -30,7 +30,7 @@ export function StatCard({
     trend === "up" ? IconTrendingUp : trend === "down" ? IconTrendingDown : null
 
   return (
-    <Card>
+    <Card className="flex flex-col justify-between">
       <CardHeader>
         <CardDescription>{title}</CardDescription>
         <CardTitle className="text-3xl font-bold tabular-nums @[250px]/card:text-4xl">
@@ -54,8 +54,7 @@ export function StatCard({
           {subheading && (
             <div className="flex items-center gap-2 font-medium">
               {subheading}
-              {trend === "up" && <IconTrendingUp className="size-4" />}
-              {trend === "down" && <IconTrendingDown className="size-4" />}
+              {TrendIcon && <TrendIcon className="size-4" />}
             </div>
           )}
           {footnote && <div className="text-muted-foreground">{footnote}</div>}

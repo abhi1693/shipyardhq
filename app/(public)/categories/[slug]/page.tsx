@@ -8,7 +8,9 @@ interface CategoryPageProps {
   params: { slug: string }
 }
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: CategoryPageProps): Promise<Metadata> {
   const data = await getCategoryWithProducts(params.slug)
   if (!data) return {}
 
@@ -30,9 +32,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">{category.name}</h1>
-        <p className="text-muted-foreground max-w-3xl">{category.description}</p>
+        <p className="text-muted-foreground max-w-3xl">
+          {category.description}
+        </p>
         <div className="flex gap-2">
-          <Badge>{products.length} product{products.length !== 1 && "s"}</Badge>
+          <Badge>
+            {products.length} product{products.length !== 1 && "s"}
+          </Badge>
         </div>
       </div>
 
