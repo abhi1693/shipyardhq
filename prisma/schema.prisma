@@ -20,16 +20,19 @@ model Newsletter {
 }
 
 model Product {
-  id         String   @id @default(cuid())
-  name       String
-  tagline    String
-  websiteUrl String
-  logo       String
-  userId     String
-  categoryId String
-  planId     String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String       @id @default(cuid())
+  name         String
+  tagline      String
+  description  String
+  websiteUrl   String
+  logo         String
+  userId       String
+  categoryId   String
+  planId       String?
+  type         ProductType
+  pricingModel PricingModel
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   // Relations
   user         User                 @relation(fields: [userId], references: [id])
@@ -39,6 +42,36 @@ model Product {
   analytics    ProductAnalytics?
   verification ProductVerification?
   ProductBadge ProductBadge[]
+  ProductMedia ProductMedia[]
+}
+
+enum ProductType {
+  saas
+  browser_extension
+  mobile_app
+  desktop_app
+  api
+  open_source
+  other
+}
+
+enum PricingModel {
+  free
+  freemium
+  subscription
+  one_time
+  custom
+}
+
+model ProductMedia {
+  id        String  @id @default(cuid())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  imageUrl  String
+  altText   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ProductVerification {

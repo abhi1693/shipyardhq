@@ -1,4 +1,10 @@
 -- CreateEnum
+CREATE TYPE "ProductType" AS ENUM ('saas', 'browser_extension', 'mobile_app', 'desktop_app', 'api', 'open_source', 'other');
+
+-- CreateEnum
+CREATE TYPE "PricingModel" AS ENUM ('free', 'freemium', 'subscription', 'one_time', 'custom');
+
+-- CreateEnum
 CREATE TYPE "PlanType" AS ENUM ('recurring_price', 'one_time_price');
 
 -- CreateTable
@@ -15,15 +21,30 @@ CREATE TABLE "Product" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "tagline" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "websiteUrl" TEXT NOT NULL,
     "logo" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
     "planId" TEXT,
+    "type" "ProductType" NOT NULL,
+    "pricingModel" "PricingModel" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductMedia" (
+    "id" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
+    "altText" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ProductMedia_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -248,6 +269,9 @@ ALTER TABLE "Product" ADD CONSTRAINT "Product_categoryId_fkey" FOREIGN KEY ("cat
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_planId_fkey" FOREIGN KEY ("planId") REFERENCES "Plan"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductMedia" ADD CONSTRAINT "ProductMedia_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProductVerification" ADD CONSTRAINT "ProductVerification_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;

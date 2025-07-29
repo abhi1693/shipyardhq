@@ -53,6 +53,14 @@ export default async function ViewProductPage({
           }),
         },
         {
+          label: "Type",
+          value: product.type ?? placeholder(),
+        },
+        {
+          label: "Pricing Model",
+          value: product.pricingModel ?? placeholder(),
+        },
+        {
           label: "Plan",
           value: product.plan
             ? linkify({
@@ -83,6 +91,7 @@ export default async function ViewProductPage({
                   })}
                 />
                 <OverviewRow label="Tagline" value={product.tagline} />
+                <OverviewRow label="Description" value={product.description} />
                 <OverviewRow
                   label="Logo"
                   value={image(product.logo, product.name, 64, 64)}

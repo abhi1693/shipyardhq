@@ -2,7 +2,7 @@
 
 import { Resolver } from "node:dns/promises"
 import prisma from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
+import { ProductType, PricingModel, Prisma } from "@prisma/client"
 
 function generateVerificationTxt(): string {
   return `prod-verif-shipyard-${Math.random().toString(36).slice(2, 10)}`
@@ -53,10 +53,17 @@ export async function getProductById(id: string) {
 export async function createProductAction(formData: FormData) {
   const name = formData.get("name")!.toString().trim()
   const tagline = formData.get("tagline")!.toString().trim()
+  const description = formData.get("description")!.toString().trim()
   const websiteUrl = formData.get("websiteUrl")!.toString().trim()
   const logo = formData.get("logo")!.toString().trim()
   const categoryId = formData.get("categoryId")!.toString()
   const userId = formData.get("userId")!.toString()
+  const type =
+    ProductType[formData.get("type")!.toString() as keyof typeof ProductType]
+  const pricingModel =
+    PricingModel[
+      formData.get("pricingModel")!.toString() as keyof typeof PricingModel
+    ]
 
   const githubUrl = formData.get("githubUrl")?.toString().trim()
   const twitterUrl = formData.get("twitterUrl")?.toString().trim()
@@ -68,10 +75,13 @@ export async function createProductAction(formData: FormData) {
       data: {
         name,
         tagline,
+        description,
         websiteUrl,
         logo,
         categoryId,
         userId,
+        type,
+        pricingModel,
         metadata: {
           create: {
             githubUrl,
@@ -104,9 +114,12 @@ export async function updateProductAction(
     name: string
     categoryId: string
     userId: string
-    tagline?: string
-    websiteUrl?: string
-    logo?: string
+    description: string
+    tagline: string
+    websiteUrl: string
+    logo: string
+    type: Prisma.ProductUpdateInput["type"]
+    pricingModel: Prisma.ProductUpdateInput["pricingModel"]
     githubUrl?: string | null
     twitterUrl?: string | null
     demoUrl?: string | null
@@ -117,6 +130,7 @@ export async function updateProductAction(
     name,
     categoryId,
     userId,
+    description,
     demoUrl,
     contactEmail,
     githubUrl,
@@ -124,9 +138,10 @@ export async function updateProductAction(
     websiteUrl,
     logo,
     tagline,
+    type,
+    pricingModel,
   } = data
 
-  // If the website URL changes, we need to update the isVerified status
   if (websiteUrl) {
     const product = await prisma.product.findUnique({
       where: { id },
@@ -150,9 +165,12 @@ export async function updateProductAction(
         name: name.trim(),
         categoryId,
         userId,
-        tagline: tagline?.trim() || undefined,
-        websiteUrl: websiteUrl?.trim() || undefined,
-        logo: logo?.trim() || undefined,
+        tagline: tagline?.trim(),
+        description: description?.trim(),
+        websiteUrl: websiteUrl?.trim(),
+        logo: logo?.trim(),
+        type,
+        pricingModel,
         metadata: {
           update: {
             githubUrl: githubUrl?.trim() || null,
