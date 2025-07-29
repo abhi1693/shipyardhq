@@ -1,7 +1,7 @@
 import { Metadata } from "next"
-import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { Badge } from "@/components/atoms/badge"
 import Link from "next/link"
+import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -33,7 +33,7 @@ export default async function CategoriesPage() {
         {categories.map((cat) => (
           <Link
             key={cat.id}
-            href={`/browse?category=${cat.slug}`}
+            href={`/categories/${cat.slug}`}
             className="border rounded-xl p-4 bg-background hover:shadow-md transition-all flex flex-col gap-3"
           >
             <h3 className="text-base font-semibold">{cat.name}</h3>

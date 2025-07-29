@@ -18,3 +18,26 @@ export async function getCategoriesWithCounts() {
     count: cat._count.products,
   }))
 }
+
+export async function getCategoryWithProducts(slug: string) {
+  const category = await prisma.category.findUnique({
+    where: { slug },
+  })
+
+  if (!category) return null
+
+  const products = await prisma.product.findMany({
+    where: {
+      category: { slug },
+    },
+    include: {
+      category: true,
+      user: true,
+      analytics: true,
+      verification: true,
+    },
+    orderBy: { createdAt: "desc" },
+  })
+
+  return { category, products }
+}
