@@ -26,13 +26,7 @@ export default async function BrowsePage({
   const useCases = await getUseCases()
   const categories = await getCategories()
 
-  const {
-    useCase,
-    category,
-    verified,
-    sort = "new",
-    page = "1",
-  } = searchParams
+  const { useCase, category, verified, sort = "new", page = "1" } = await searchParams
 
   const { products, hasMore } = await getBrowseProducts({
     useCaseSlug: useCase === "__all__" ? undefined : useCase,

@@ -1,17 +1,18 @@
 import Link from "next/link"
+import Image from "next/image"
+import { ArrowUp } from "lucide-react"
+import clsx from "clsx"
+
 import {
   Card,
-  CardContent,
   CardHeader,
+  CardContent,
   CardTitle,
 } from "@/components/atoms/card"
-import Image from "next/image"
 import { Badge } from "@/components/atoms/badge"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
-import { ArrowUp } from "lucide-react"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
-import clsx from "clsx"
 
 interface ProductCardProps {
   product: {
@@ -27,6 +28,7 @@ interface ProductCardProps {
     initial: string
   }
   category?: string
+  compact?: boolean
 }
 
 export function ProductCard({
@@ -35,42 +37,68 @@ export function ProductCard({
   upvotes = 0,
   author,
   category,
+  compact = false,
 }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.id}`}
-      className="block animate-fade-in"
-      style={{ animationDuration: "500ms" }}
+      className="block transition-transform duration-300 hover:-translate-y-1"
     >
-      <Card className="bg-white text-foreground rounded-xl shadow-md hover:shadow-xl transition-all border border-muted hover:border-primary">
-        <CardHeader>
-          <div className="flex items-start gap-4">
-            <Image
-              src={product.logo}
-              alt={product.name}
-              width={56}
-              height={56}
-              className="rounded-md object-cover border"
-            />
-            <div className="flex-1">
+      <Card
+        className={clsx(
+          "bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all",
+          compact && "p-3",
+        )}
+      >
+        <CardHeader className={clsx("pb-3", compact && "p-0")}>
+          <div className="flex gap-3 items-start">
+            <div
+              className={clsx(
+                "flex-shrink-0 rounded-md border bg-muted overflow-hidden",
+                compact ? "w-10 h-10" : "w-14 h-14",
+              )}
+            >
+              <Image
+                src={product.logo}
+                alt={product.name}
+                width={compact ? 40 : 56}
+                height={compact ? 40 : 56}
+                className="object-cover w-full h-full"
+              />
+            </div>
+
+            <div className="flex-1 space-y-1">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold leading-tight">
+                <CardTitle
+                  className={clsx(
+                    "font-semibold leading-snug",
+                    compact ? "text-sm" : "text-base",
+                  )}
+                >
                   {product.name}
                 </CardTitle>
-                {category && (
-                  <span className="ml-2 text-xs font-medium rounded-full bg-muted px-2 py-0.5 text-muted-foreground border border-border">
+                {category && !compact && (
+                  <span className="ml-2 text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full border">
                     {category}
                   </span>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground line-clamp-1">
+
+              <p
+                className={clsx(
+                  "text-muted-foreground line-clamp-2",
+                  compact ? "text-xs" : "text-sm",
+                )}
+              >
                 {product.tagline}
               </p>
-              {badges.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2 pb-1">
+
+              {!compact && badges.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
                   {badges.map((b, i) => {
                     const badgeDef = BADGE_OPTIONS.find((x) => x.value === b)
                     if (!badgeDef) return null
+
                     const colorClass =
                       badgeColorMap[badgeDef.color as TailwindColor]
 
@@ -78,7 +106,7 @@ export function ProductCard({
                       <Badge
                         key={i}
                         className={clsx(
-                          "text-xs rounded-full px-2 py-0.5 border transition-all",
+                          "text-xs rounded-full px-2 py-0.5 border",
                           colorClass,
                         )}
                       >
@@ -92,14 +120,20 @@ export function ProductCard({
           </div>
         </CardHeader>
 
-        <CardContent className="pt-0 text-sm">
-          <div className="flex justify-between items-end mt-6 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2 px-2 py-1 bg-muted border rounded-md text-xs font-medium text-foreground">
+        <CardContent className={clsx("pt-2", compact && "pt-1")}>
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <div
+              className={clsx(
+                "flex items-center gap-2 border rounded-md px-2 py-1 font-medium text-foreground",
+                compact ? "bg-transparent" : "bg-muted",
+              )}
+            >
               <ArrowUp className="w-3 h-3 text-muted-foreground" />
-              <span className="text-foreground">Upvote</span>
-              <span className="text-foreground font-semibold">{upvotes}</span>
+              <span>Upvote</span>
+              <span className="font-semibold">{upvotes}</span>
             </div>
-            {author && (
+
+            {!compact && author && (
               <div className="flex items-center gap-2 group">
                 <Avatar className="h-5 w-5 border">
                   <AvatarFallback>{author.initial}</AvatarFallback>
