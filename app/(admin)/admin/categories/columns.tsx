@@ -20,6 +20,11 @@ export const columns: ColumnDef<Category>[] = [
     cell: ({ row }) => slug(row.original.slug),
   },
   {
+    accessorKey: "description",
+    header: "Description",
+    cell: ({ row }) => row.original.description,
+  },
+  {
     accessorKey: "createdAt",
     header: "Created At",
     cell: ({ row }) => formatDate(row.original.createdAt),

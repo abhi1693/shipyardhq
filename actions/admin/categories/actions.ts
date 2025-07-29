@@ -41,6 +41,7 @@ async function isExist(name: string, slug: string) {
 
 export async function createCategoryAction(formData: FormData) {
   const name = formData.get("name")
+  const description = formData.get("description")?.toString() || ""
 
   if (typeof name !== "string" || name.trim() === "") {
     return { error: "Name is required" }
@@ -56,7 +57,7 @@ export async function createCategoryAction(formData: FormData) {
 
   try {
     await prisma.category.create({
-      data: { name: cleanName, slug },
+      data: { name: cleanName, slug, description },
     })
     return { success: true }
   } catch (error) {
@@ -65,14 +66,18 @@ export async function createCategoryAction(formData: FormData) {
   }
 }
 
-export async function updateCategoryAction(id: string, data: { name: string }) {
+export async function updateCategoryAction(
+  id: string,
+  data: { name: string; description: string },
+) {
   const name = data.name.trim()
   const slug = slugify(name)
+  const description = data.description?.trim() || ""
 
   try {
     return await prisma.category.update({
       where: { id },
-      data: { name, slug },
+      data: { name, slug, description },
     })
   } catch (error) {
     console.error("Error updating category:", error)

@@ -28,6 +28,7 @@ import { updateCategoryAction } from "@/actions/admin/categories/actions"
 
 const categoryFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
+  description: z.string(),
 })
 
 type CategoryFormInput = z.infer<typeof categoryFormSchema>
@@ -35,16 +36,18 @@ type CategoryFormInput = z.infer<typeof categoryFormSchema>
 export default function EditCategoryForm({
   id,
   name,
+  description,
 }: {
   id: string
   name: string
+  description: string
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   const form = useForm<CategoryFormInput>({
     resolver: zodResolver(categoryFormSchema),
-    defaultValues: { name },
+    defaultValues: { name, description },
   })
 
   async function onSubmit(values: CategoryFormInput) {
@@ -79,6 +82,22 @@ export default function EditCategoryForm({
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter category name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter category description"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

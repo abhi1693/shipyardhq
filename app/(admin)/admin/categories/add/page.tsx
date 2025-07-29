@@ -26,6 +26,7 @@ import PageContainer from "@/components/layout/page-container"
 
 const categoryFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
+  description: z.string(),
 })
 
 type CategoryFormInput = z.infer<typeof categoryFormSchema>
@@ -37,12 +38,14 @@ export default function AddCategoryPage() {
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
       name: "",
+      description: "",
     },
   })
 
   async function onSubmit(values: CategoryFormInput) {
     const formData = new FormData()
     formData.append("name", values.name)
+    formData.append("description", values.description || "")
 
     const result = await createCategoryAction(formData)
 
@@ -76,6 +79,22 @@ export default function AddCategoryPage() {
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter category name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter category description"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
