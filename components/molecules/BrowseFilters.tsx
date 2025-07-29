@@ -1,16 +1,9 @@
 "use client"
 
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useCallback } from "react"
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/atoms/select"
-import { Switch } from "@/components/atoms/switch"
-import { Label } from "@/components/atoms/label"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 interface BrowseFiltersProps {
   useCases: { id: string; slug: string; label: string }[]
@@ -23,101 +16,110 @@ interface BrowseFiltersProps {
   }
 }
 
+const sortOptions = [
+  { value: "new", label: "Newest" },
+  { value: "trending", label: "Trending" },
+  { value: "votes", label: "Most Upvoted" },
+  { value: "az", label: "A–Z" },
+]
+
 export default function BrowseFilters({
   useCases,
   categories,
   current,
 }: BrowseFiltersProps) {
-  const router = useRouter()
   const params = useSearchParams()
 
-  const updateParam = useCallback(
-    (key: string, value: string | boolean | undefined) => {
-      const search = new URLSearchParams(params.toString())
-
-      if (value === undefined || value === false || value === "__all__") {
-        search.delete(key)
-      } else {
-        search.set(key, String(value))
-      }
-
-      search.set("page", "1")
-      router.push(`/browse?${search.toString()}`, { scroll: false })
-    },
-    [params, router],
-  )
+  const buildUrl = useCallback((key: string, value: string | boolean) => {
+    const url = new URLSearchParams(
+      Object.fromEntries([...params.entries()].filter(([_, v]) => typeof v === "string")),
+    )
+    if (value === "__all__" || value === false) {
+      url.delete(key)
+    } else {
+      url.set(key, String(value))
+    }
+    url.set("page", "1")
+    return `/browse?${url.toString()}`
+  }, [params])
 
   return (
-    <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-      {/* Use Case */}
+    <aside className="space-y-6">
       <div>
-        <Label className="mb-1 block">Use Case</Label>
-        <Select
-          value={current.useCase || "__all__"}
-          onValueChange={(val) => updateParam("useCase", val)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="All Use Cases" />
-          </SelectTrigger>
-          <SelectContent>
-            {useCases.map((uc) => (
-              <SelectItem key={uc.id} value={uc.slug}>
+        <h4 className="text-sm font-semibold mb-2">Use Case</h4>
+        <ul className="space-y-1">
+          {[{ id: "__all__", slug: "__all__", label: "All Use Cases" }, ...useCases].map(uc => (
+            <li key={uc.id}>
+              <Link
+                href={buildUrl("useCase", uc.slug)}
+                className={cn(
+                  "block text-sm rounded-md px-3 py-1.5 hover:bg-muted",
+                  current.useCase === uc.slug || (!current.useCase && uc.slug === "__all__")
+                    ? "bg-muted font-medium"
+                    : "text-muted-foreground"
+                )}
+              >
                 {uc.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      {/* Category */}
       <div>
-        <Label className="mb-1 block">Category</Label>
-        <Select
-          value={current.category || "__all__"}
-          onValueChange={(val) => updateParam("category", val)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((cat) => (
-              <SelectItem key={cat.id} value={cat.slug}>
+        <h4 className="text-sm font-semibold mb-2">Category</h4>
+        <ul className="space-y-1">
+          {[{ id: "__all__", slug: "__all__", name: "All Categories" }, ...categories].map(cat => (
+            <li key={cat.id}>
+              <Link
+                href={buildUrl("category", cat.slug)}
+                className={cn(
+                  "block text-sm rounded-md px-3 py-1.5 hover:bg-muted",
+                  current.category === cat.slug || (!current.category && cat.slug === "__all__")
+                    ? "bg-muted font-medium"
+                    : "text-muted-foreground"
+                )}
+              >
                 {cat.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      {/* Sort */}
       <div>
-        <Label className="mb-1 block">Sort By</Label>
-        <Select
-          value={current.sort || "new"}
-          onValueChange={(val) => updateParam("sort", val)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Sort" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="new">Newest</SelectItem>
-            <SelectItem value="trending">Trending</SelectItem>
-            <SelectItem value="votes">Most Upvoted</SelectItem>
-            <SelectItem value="az">A–Z</SelectItem>
-          </SelectContent>
-        </Select>
+        <h4 className="text-sm font-semibold mb-2">Sort By</h4>
+        <ul className="space-y-1">
+          {sortOptions.map(opt => (
+            <li key={opt.value}>
+              <Link
+                href={buildUrl("sort", opt.value)}
+                className={cn(
+                  "block text-sm rounded-md px-3 py-1.5 hover:bg-muted",
+                  current.sort === opt.value
+                    ? "bg-muted font-medium"
+                    : "text-muted-foreground"
+                )}
+              >
+                {opt.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      {/* Verified */}
-      <div className="flex flex-col justify-end gap-2 pt-6">
-        <div className="flex items-center gap-3">
-          <Switch
-            checked={current.verified}
-            onCheckedChange={(val) => updateParam("verified", val)}
-          />
-          <Label>Verified Only</Label>
-        </div>
+      <div>
+        <h4 className="text-sm font-semibold mb-2">Verified Only</h4>
+        <Link
+          href={buildUrl("verified", !(current.verified ?? false))}
+          className={cn(
+            "inline-block text-sm rounded-md px-3 py-1.5 border",
+            current.verified ? "bg-muted border-foreground" : "border-muted"
+          )}
+        >
+          {current.verified ? "✓ Enabled" : "Enable"}
+        </Link>
       </div>
-    </div>
+    </aside>
   )
 }
