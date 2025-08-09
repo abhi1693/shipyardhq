@@ -32,6 +32,10 @@ export async function getLatestLaunches() {
   return getProducts("new")
 }
 
+export async function getEditorsPick() {
+  return getProducts("editor-pick")
+}
+
 export async function getTrendingProducts(limit = 12) {
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
