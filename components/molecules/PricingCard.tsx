@@ -53,7 +53,7 @@ export function PricingCard({
   )
 
   return (
-    <Card className={clsx("h-full min-h-[22rem] flex flex-col items-stretch")}> 
+    <Card className={clsx("h-full min-h-[22rem] flex flex-col")}> 
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold truncate">{name}</CardTitle>
@@ -73,7 +73,9 @@ export function PricingCard({
       </CardHeader>
       <CardContent className="flex-1 flex flex-col">
         <ul className="space-y-2 mb-4">
-          {features.filter((f) => f.enabled).map((f) => (
+          {features
+            .filter((f) => f.enabled)
+            .map((f) => (
             <PricingFeature key={f.id} label={f.name} enabled={true} />
           ))}
         </ul>
