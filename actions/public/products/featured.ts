@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@prisma/client"
 
-async function getProducts(badge: string) {
+export async function getProducts(badge: string) {
   const now = new Date()
 
   return prisma.productBadge.findMany({
@@ -22,18 +22,6 @@ async function getProducts(badge: string) {
     },
     orderBy: { createdAt: "desc" },
   })
-}
-
-export async function getFeaturedProducts() {
-  return getProducts("featured")
-}
-
-export async function getLatestLaunches() {
-  return getProducts("new")
-}
-
-export async function getEditorsPick() {
-  return getProducts("editor-pick")
 }
 
 export async function getTrendingProducts(limit = 12) {

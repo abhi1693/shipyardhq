@@ -1,9 +1,7 @@
 import LandingHero from "@/components/organisms/LandingHero"
 import { FeaturedHighlights } from "@/components/organisms/FeaturedHighlights"
 import {
-  getFeaturedProducts,
-  getEditorsPick,
-  getLatestLaunches,
+  getProducts,
   getTopCategories,
   getTrendingProducts,
 } from "@/actions/public/products/featured"
@@ -13,9 +11,9 @@ import { TopCategories } from "@/components/organisms/TopCategories"
 import { EditorsPick } from "@/components/organisms/EditorsPick"
 
 export default async function HomePage() {
-  const featuredProducts = await getFeaturedProducts()
-  const editorsPick = await getEditorsPick()
-  const latestLaunches = await getLatestLaunches()
+  const featuredProducts = await getProducts("featured")
+  const editorsPick = await getProducts("editor-pick")
+  const latestLaunches = await getProducts("new")
   const trendingProducts = await getTrendingProducts(3)
   const topCategories = await getTopCategories()
 
