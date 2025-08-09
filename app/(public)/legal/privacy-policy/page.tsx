@@ -1,4 +1,6 @@
 import { Metadata } from "next"
+import PublicContainer from "@/components/layout/PublicContainer"
+import { PageHeader } from "@/components/molecules/PageHeader"
 
 export const metadata: Metadata = {
   title: "Privacy Policy - ShipYardHQ",
@@ -8,9 +10,13 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <section className="max-w-3xl mx-auto px-4 py-16 space-y-6">
-      <h1 className="text-4xl font-bold">Privacy Policy</h1>
-      <p className="text-muted-foreground">Last updated: Aug 1, 2025</p>
+    <PublicContainer max="3xl" paddingY="py-16">
+      <PageHeader
+        title="Privacy Policy"
+        subtitle="Learn how ShipYardHQ collects, uses, and protects your personal information."
+      />
+      <div className="space-y-6 mt-6">
+        <p className="text-muted-foreground">Last updated: Aug 1, 2025</p>
 
       <p>
         Welcome to ShipYardHQ! This Privacy Policy explains how we collect, use,
@@ -19,9 +25,7 @@ export default function PrivacyPolicyPage() {
         information in accordance with this policy.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6">
-        What Information We Collect
-      </h2>
+      <h2 className="text-2xl font-semibold mt-6">What Information We Collect</h2>
       <p>We collect information you provide directly to us, such as:</p>
       <ul className="list-disc list-inside space-y-1">
         <li>Name and email address when you create an account</li>
@@ -35,9 +39,7 @@ export default function PrivacyPolicyPage() {
         <li>Cookies for website functionality</li>
       </ul>
 
-      <h2 className="text-2xl font-semibold mt-6">
-        How We Use Your Information
-      </h2>
+      <h2 className="text-2xl font-semibold mt-6">How We Use Your Information</h2>
       <ul className="list-disc list-inside space-y-1">
         <li>Provide and improve our services</li>
         <li>Communicate with you about your account</li>
@@ -88,9 +90,10 @@ export default function PrivacyPolicyPage() {
         </a>
       </p>
 
-      <p className="mt-6">
-        Thank you for reading our privacy policy and using ShipYardHQ!
-      </p>
-    </section>
+        <p className="mt-6">
+          Thank you for reading our privacy policy and using ShipYardHQ!
+        </p>
+      </div>
+    </PublicContainer>
   )
 }

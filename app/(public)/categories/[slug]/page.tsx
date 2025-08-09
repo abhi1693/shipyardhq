@@ -4,6 +4,7 @@ import { getCategoryWithProducts } from "@/actions/public/categories/actions"
 import { Badge } from "@/components/atoms/badge"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
+import PublicContainer from "@/components/layout/PublicContainer"
 import { CategoryProductsClient } from "./client-products"
 
 interface CategoryPageProps {
@@ -30,7 +31,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category, products } = data
 
   return (
-    <div className="min-h-screen px-4 md:px-8 py-10 space-y-10">
+    <PublicContainer max="7xl">
+      <div className="space-y-10">
       {/* Breadcrumbs */}
       <Breadcrumbs />
 
@@ -60,6 +62,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
       {/* Product Grid */}
       <CategoryProductsClient products={products} />
-    </div>
+      </div>
+    </PublicContainer>
   )
 }
