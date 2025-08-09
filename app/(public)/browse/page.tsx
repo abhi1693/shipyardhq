@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+export const dynamic = "force-dynamic"
 import Link from "next/link"
 import { getCategories, getUseCases } from "@/actions/admin/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"

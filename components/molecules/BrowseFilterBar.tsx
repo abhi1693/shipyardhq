@@ -117,14 +117,13 @@ export default function BrowseFilterBar({
             <DropdownMenuSeparator />
             <ScrollArea className="max-h-64">
               <div className="p-1 space-y-1">
-                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); router.push(buildUrl("useCase", "__all__")) }}>
+                <DropdownMenuItem onSelect={() => { router.push(buildUrl("useCase", "__all__")) }}>
                   All Use Cases
                 </DropdownMenuItem>
                 {filteredUseCases.map((uc) => (
                   <DropdownMenuItem
                     key={uc.id}
-                    onSelect={(e) => {
-                      e.preventDefault()
+                    onSelect={() => {
                       router.push(buildUrl("useCase", uc.slug))
                     }}
                   >
@@ -158,14 +157,13 @@ export default function BrowseFilterBar({
             <DropdownMenuSeparator />
             <ScrollArea className="max-h-64">
               <div className="p-1 space-y-1">
-                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); router.push(buildUrl("category", "__all__")) }}>
+                <DropdownMenuItem onSelect={() => { router.push(buildUrl("category", "__all__")) }}>
                   All Categories
                 </DropdownMenuItem>
                 {filteredCategories.map((cat) => (
                   <DropdownMenuItem
                     key={cat.id}
-                    onSelect={(e) => {
-                      e.preventDefault()
+                    onSelect={() => {
                       router.push(buildUrl("category", cat.slug))
                     }}
                   >
@@ -217,4 +215,3 @@ export default function BrowseFilterBar({
     </div>
   )
 }
-

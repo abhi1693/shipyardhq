@@ -33,6 +33,12 @@ export async function getBrowseProducts({
     if (!useCase) return { products: [], hasMore: false }
 
     categoryIds = useCase.categories.map((uc) => uc.categoryId)
+
+    // If a use case is selected but has no assigned categories,
+    // return no results instead of ignoring the filter.
+    if (categoryIds.length === 0) {
+      return { products: [], hasMore: false }
+    }
   }
 
   if (categorySlug) {

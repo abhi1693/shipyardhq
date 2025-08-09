@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { ProductCard } from "./ProductCard"
 import { Button } from "@/components/atoms/button"
 import { Skeleton } from "@/components/atoms/skeleton"
@@ -44,6 +44,12 @@ export default function ProductGridClient({
   const [page, setPage] = useState(initialPage)
   const [isPending, startTransition] = useTransition()
   
+  // Reset state when server-provided props change (filters/sort updated)
+  useEffect(() => {
+    setProducts(initialProducts)
+    setHasMore(initialHasMore)
+    setPage(initialPage)
+  }, [initialProducts, initialHasMore, initialPage])
 
   const loadMore = () => {
     startTransition(async () => {
