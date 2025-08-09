@@ -13,9 +13,10 @@ export default async function EditUseCasePage({
 }: {
   params: { id: string }
 }) {
-  const { id } = params
+  const { id } = await params
   const useCase = await getUseCaseById(id)
   if (!useCase) return notFound()
 
   return <EditUseCaseForm id={useCase.id} label={useCase.label} />
 }
+

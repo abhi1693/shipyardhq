@@ -5,6 +5,7 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
+import { createUseCaseAction } from "@/actions/admin/categories/actions"
 import {
   Card,
   CardContent,
@@ -22,10 +23,9 @@ import {
 import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
-import { createUseCaseAction } from "@/actions/admin/categories/actions"
 
 const useCaseFormSchema = z.object({
-  label: z.string().min(1, "Label is required").max(50, "Label is too long"),
+  label: z.string().min(1, "Label is required").max(100, "Label is too long"),
 })
 
 type UseCaseFormInput = z.infer<typeof useCaseFormSchema>
@@ -35,9 +35,7 @@ export default function AddUseCasePage() {
 
   const form = useForm<UseCaseFormInput>({
     resolver: zodResolver(useCaseFormSchema),
-    defaultValues: {
-      label: "",
-    },
+    defaultValues: { label: "" },
   })
 
   async function onSubmit(values: UseCaseFormInput) {
@@ -45,12 +43,8 @@ export default function AddUseCasePage() {
     formData.append("label", values.label)
 
     const result = await createUseCaseAction(formData)
-
     if (result?.error) {
-      form.setError("label", {
-        type: "server",
-        message: result.error,
-      })
+      form.setError("label", { type: "server", message: result.error })
       return
     }
 
@@ -91,3 +85,4 @@ export default function AddUseCasePage() {
     </PageContainer>
   )
 }
+

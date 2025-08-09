@@ -1,5 +1,5 @@
-import { deleteUseCaseAction } from "@/actions/admin/categories/actions"
 import { redirect } from "next/navigation"
+import { deleteUseCaseAction } from "@/actions/admin/categories/actions"
 
 export default async function DeleteUseCasePage({
   params,
@@ -15,3 +15,4 @@ export default async function DeleteUseCasePage({
 
   redirect("/admin/categories/use-cases")
 }
+

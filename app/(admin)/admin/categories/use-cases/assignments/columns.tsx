@@ -1,15 +1,25 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { UseCaseCategory, Category, UseCase } from "@prisma/client"
-import { formatDate, linkify } from "@/lib/ui/formatters"
+import { UseCaseCategory } from "@prisma/client"
+import { linkify } from "@/lib/ui/formatters"
 
-type AssignmentRow = UseCaseCategory & {
-  category: Category
-  useCase: UseCase
+type AssignmentWithRelations = UseCaseCategory & {
+  useCase: { id: string; label: string; slug: string }
+  category: { id: string; name: string; slug: string }
 }
 
-export const columns: ColumnDef<AssignmentRow>[] = [
+export const columns: ColumnDef<AssignmentWithRelations>[] = [
+  {
+    accessorKey: "useCaseId",
+    header: "Assignment",
+    cell: ({ row }) =>
+      linkify({
+        label: `${row.original.useCase.label} → ${row.original.category.name}`,
+        href: `/admin/categories/use-cases/assignments/${row.original.useCaseId}/${row.original.categoryId}`,
+        subtext: `${row.original.useCase.slug} • ${row.original.category.slug}`,
+      }),
+  },
   {
     accessorKey: "useCase.label",
     header: "Use Case",
@@ -17,6 +27,7 @@ export const columns: ColumnDef<AssignmentRow>[] = [
       linkify({
         label: row.original.useCase.label,
         href: `/admin/categories/use-cases/${row.original.useCase.id}`,
+        subtext: row.original.useCase.slug,
       }),
   },
   {
@@ -26,11 +37,7 @@ export const columns: ColumnDef<AssignmentRow>[] = [
       linkify({
         label: row.original.category.name,
         href: `/admin/categories/${row.original.category.id}`,
+        subtext: row.original.category.slug,
       }),
-  },
-  {
-    accessorKey: "useCase.updatedAt",
-    header: "Updated At",
-    cell: ({ row }) => formatDate(row.original.useCase.updatedAt),
   },
 ]

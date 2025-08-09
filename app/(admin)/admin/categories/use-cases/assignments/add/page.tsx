@@ -1,13 +1,16 @@
-import { getCategories, getUseCases } from "@/actions/admin/categories/actions"
-import AddUseCaseAssignmentForm from "./form"
+import { Metadata } from "next"
+import { getUseCases, getCategories } from "@/actions/admin/categories/actions"
+import AddAssignmentForm from "./form"
+
+export const metadata: Metadata = {
+  title: "Assign Use Case to Category",
+  description: "Create a new use-case assignment",
+}
 
 export default async function AddUseCaseAssignmentPage() {
-  const [categories, useCases] = await Promise.all([
-    getCategories(),
-    getUseCases(),
-  ])
+  const useCases = await getUseCases()
+  const categories = await getCategories()
 
-  return (
-    <AddUseCaseAssignmentForm categories={categories} useCases={useCases} />
-  )
+  return <AddAssignmentForm useCases={useCases} categories={categories} />
 }
+

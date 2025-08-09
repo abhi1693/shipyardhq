@@ -29,7 +29,6 @@ import {
 } from "@/components/atoms/select"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
-import { createUseCaseAssignmentAction } from "@/actions/admin/categories/actions"
 
 const schema = z.object({
   useCaseId: z.string().min(1, "Select a use case"),
@@ -38,22 +37,31 @@ const schema = z.object({
 
 type AssignmentFormInput = z.infer<typeof schema>
 
-export default function AddAssignmentForm({
+export default function EditAssignmentForm({
+  prev,
+  initial,
   useCases,
   categories,
+  onSubmitAction,
 }: {
-  useCases: { id: string; label: string }[]
-  categories: { id: string; name: string }[]
+  prev: { useCaseId: string; categoryId: string }
+  initial: { useCaseId: string; categoryId: string }
+  useCases: { id: string; label: string; slug?: string }[]
+  categories: { id: string; name: string; slug?: string }[]
+  onSubmitAction: (
+    prev: { useCaseId: string; categoryId: string },
+    next: { useCaseId: string; categoryId: string },
+  ) => Promise<{ success?: boolean; error?: string }>
 }) {
   const router = useRouter()
 
   const form = useForm<AssignmentFormInput>({
     resolver: zodResolver(schema),
-    defaultValues: { useCaseId: "", categoryId: "" },
+    defaultValues: initial,
   })
 
   async function onSubmit(values: AssignmentFormInput) {
-    const result = await createUseCaseAssignmentAction(values)
+    const result = await onSubmitAction(prev, values)
     if (result?.error) {
       form.setError("useCaseId", { type: "server", message: result.error })
       return
@@ -66,10 +74,10 @@ export default function AddAssignmentForm({
       <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="text-left text-2xl font-bold">
-            Assign Use Case
+            Edit Assignment
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Link a use case to a category.
+            Change the use case or category.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -124,7 +132,7 @@ export default function AddAssignmentForm({
                 )}
               />
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                Assign Use Case
+                Save Changes
               </Button>
             </form>
           </Form>

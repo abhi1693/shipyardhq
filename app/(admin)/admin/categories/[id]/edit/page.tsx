@@ -17,5 +17,11 @@ export default async function EditCategoryPage({
   const category = await getCategoryById(id)
   if (!category) return notFound()
 
-  return <EditCategoryForm id={category.id} name={category.name} />
+  return (
+    <EditCategoryForm
+      id={category.id}
+      name={category.name}
+      description={category.description}
+    />
+  )
 }

@@ -248,3 +248,64 @@ export async function createUseCaseAssignmentAction(data: {
     return { error: "Failed to create use case assignment" }
   }
 }
+
+export async function deleteUseCaseAssignmentAction(data: {
+  useCaseId: string
+  categoryId: string
+}) {
+  const { useCaseId, categoryId } = data
+
+  try {
+    await prisma.useCaseCategory.delete({
+      where: { useCaseId_categoryId: { useCaseId, categoryId } },
+    })
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting use case assignment:", error)
+    return { error: "Failed to delete use case assignment" }
+  }
+}
+
+export async function updateUseCaseAssignmentAction(
+  prev: { useCaseId: string; categoryId: string },
+  next: { useCaseId: string; categoryId: string },
+) {
+  try {
+    // No changes
+    if (
+      prev.useCaseId === next.useCaseId && prev.categoryId === next.categoryId
+    ) {
+      return { success: true }
+    }
+
+    // Ensure target does not already exist
+    const exists = await prisma.useCaseCategory.findUnique({
+      where: {
+        useCaseId_categoryId: {
+          useCaseId: next.useCaseId,
+          categoryId: next.categoryId,
+        },
+      },
+    })
+    if (exists) {
+      return { error: "Assignment already exists for selection" }
+    }
+
+    await prisma.$transaction([
+      prisma.useCaseCategory.create({ data: next }),
+      prisma.useCaseCategory.delete({
+        where: {
+          useCaseId_categoryId: {
+            useCaseId: prev.useCaseId,
+            categoryId: prev.categoryId,
+          },
+        },
+      }),
+    ])
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating use case assignment:", error)
+    return { error: "Failed to update use case assignment" }
+  }
+}

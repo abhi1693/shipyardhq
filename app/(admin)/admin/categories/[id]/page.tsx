@@ -3,6 +3,7 @@ import { getCategoryById } from "@/actions/admin/categories/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { Prisma } from "@prisma/client"
 import { CategoryProductRelationship } from "@/app/(admin)/admin/categories/[id]/relationships/products"
+import { CategoryUseCaseRelationship } from "@/app/(admin)/admin/categories/[id]/relationships/use-cases"
 
 export default async function ViewCategoryPage({
   params,
@@ -17,12 +18,22 @@ export default async function ViewCategoryPage({
           user: true,
         },
       },
+      useCases: {
+        include: {
+          useCase: true,
+        },
+      },
     },
   })) as Prisma.CategoryGetPayload<{
     include: {
       products: {
         include: {
           user: true
+        }
+      },
+      useCases: {
+        include: {
+          useCase: true
         }
       }
     }
@@ -42,11 +53,17 @@ export default async function ViewCategoryPage({
       overview={[
         { label: "Name", value: category.name },
         { label: "Slug", value: category.slug },
+        { label: "Description", value: category.description },
       ]}
       basePath="admin/categories"
       deletable
       editable
-      relationships={<CategoryProductRelationship rows={category.products} />}
+      relationships={
+        <>
+          <CategoryProductRelationship rows={category.products} />
+          <CategoryUseCaseRelationship rows={category.useCases} />
+        </>
+      }
     />
   )
 }

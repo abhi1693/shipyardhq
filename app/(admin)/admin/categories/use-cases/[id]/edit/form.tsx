@@ -27,7 +27,7 @@ import PageContainer from "@/components/layout/page-container"
 import { updateUseCaseAction } from "@/actions/admin/categories/actions"
 
 const useCaseFormSchema = z.object({
-  label: z.string().min(1, "Label is required").max(50, "Label is too long"),
+  label: z.string().min(1, "Label is required").max(100, "Label is too long"),
 })
 
 type UseCaseFormInput = z.infer<typeof useCaseFormSchema>
@@ -55,7 +55,7 @@ export default function EditUseCaseForm({
         return
       }
 
-      toast.success("Use Case updated")
+      toast.success("Use case updated")
       router.push(`/admin/categories/use-cases/${id}`)
     })
   }
@@ -94,3 +94,4 @@ export default function EditUseCaseForm({
     </PageContainer>
   )
 }
+
