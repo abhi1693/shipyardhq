@@ -30,9 +30,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/atoms/select"
-import {
-  CATEGORY_ICON_OPTIONS
-} from "@/components/molecules/CategoryIcons"
+import { CATEGORY_ICON_OPTIONS } from "@/components/molecules/CategoryIcons"
 
 const categoryFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
