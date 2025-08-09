@@ -2,11 +2,14 @@
 
 import Link from "next/link"
 import { Mail, Twitter } from "lucide-react"
+import { Button } from "@/components/atoms/button"
 
 export default function PublicFooter() {
   const year = new Date().getFullYear()
-  const linkCls =
-    "text-muted-foreground hover:text-foreground transition-colors"
+  const textLinkCls =
+    "relative text-muted-foreground hover:text-foreground transition-colors md:after:absolute md:after:left-0 md:after:-bottom-1 md:after:h-0.5 md:after:w-full md:after:rounded-full md:after:bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] md:after:opacity-0 md:hover:after:opacity-100 md:after:transition-opacity"
+  const iconLinkCls =
+    "text-muted-foreground hover:text-foreground transition-opacity hover:opacity-90"
 
   return (
     <footer className="border-t bg-muted/40 text-sm md:text-[15px]">
@@ -25,10 +28,20 @@ export default function PublicFooter() {
           <p className="text-muted-foreground leading-relaxed max-w-xs">
             Discover, launch, and grow your micro‑SaaS.
           </p>
-          <div className="flex gap-3 pt-2 text-muted-foreground">
+          <div className="pt-3">
+            <Link href="/browse">
+              <Button
+                size="sm"
+                className="text-white shadow-sm bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] hover:opacity-90"
+              >
+                Explore Products
+              </Button>
+            </Link>
+          </div>
+          <div className="flex gap-3 pt-3 text-muted-foreground">
             <Link
               href="mailto:shipyardhq.dev@gmail.com"
-              className={linkCls + " hover:opacity-90"}
+              className={iconLinkCls}
             >
               <Mail className="w-5 h-5 md:w-5 md:h-5" />
             </Link>
@@ -36,7 +49,7 @@ export default function PublicFooter() {
               href="https://x.com/abhi16_93"
               target="_blank"
               rel="noreferrer"
-              className={linkCls + " hover:opacity-90"}
+              className={iconLinkCls}
             >
               <Twitter className="w-5 h-5 md:w-5 md:h-5" />
             </Link>
@@ -50,22 +63,28 @@ export default function PublicFooter() {
           </div>
           <ul className="space-y-2 md:space-y-2.5">
             <li>
-              <Link href="/browse" className={linkCls + " md:font-medium"}>
+              <Link href="/browse" className={textLinkCls + " md:font-medium"}>
                 All Products
               </Link>
             </li>
             <li>
-              <Link href="/categories" className={linkCls + " md:font-medium"}>
+              <Link
+                href="/categories"
+                className={textLinkCls + " md:font-medium"}
+              >
                 Categories
               </Link>
             </li>
             <li>
-              <Link href="/leaderboard" className={linkCls + " md:font-medium"}>
+              <Link
+                href="/leaderboard"
+                className={textLinkCls + " md:font-medium"}
+              >
                 Leaderboard
               </Link>
             </li>
             <li>
-              <Link href="/pricing" className={linkCls + " md:font-medium"}>
+              <Link href="/pricing" className={textLinkCls + " md:font-medium"}>
                 Pricing
               </Link>
             </li>
@@ -81,13 +100,13 @@ export default function PublicFooter() {
             <li>
               <Link
                 href="/member/products/add"
-                className={linkCls + " md:font-medium"}
+                className={textLinkCls + " md:font-medium"}
               >
                 Submit Product
               </Link>
             </li>
             <li>
-              <Link href="/pricing" className={linkCls + " md:font-medium"}>
+              <Link href="/pricing" className={textLinkCls + " md:font-medium"}>
                 Feature Your Product
               </Link>
             </li>
@@ -103,7 +122,7 @@ export default function PublicFooter() {
             <li>
               <Link
                 href="mailto:shipyardhq.dev@gmail.com"
-                className={linkCls + " md:font-medium"}
+                className={textLinkCls + " md:font-medium"}
               >
                 Contact
               </Link>
@@ -113,7 +132,7 @@ export default function PublicFooter() {
                 href="https://x.com/abhi16_93"
                 target="_blank"
                 rel="noreferrer"
-                className={linkCls + " md:font-medium"}
+                className={textLinkCls + " md:font-medium"}
               >
                 Twitter / X
               </Link>
@@ -127,13 +146,16 @@ export default function PublicFooter() {
             <li>
               <Link
                 href="/legal/privacy-policy"
-                className={linkCls + " md:font-medium"}
+                className={textLinkCls + " md:font-medium"}
               >
                 Privacy Policy
               </Link>
             </li>
             <li>
-              <Link href="/legal/terms" className={linkCls + " md:font-medium"}>
+              <Link
+                href="/legal/terms"
+                className={textLinkCls + " md:font-medium"}
+              >
                 Terms of Service
               </Link>
             </li>
