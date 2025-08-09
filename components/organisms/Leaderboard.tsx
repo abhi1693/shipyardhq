@@ -13,8 +13,8 @@ export function Leaderboard({ products }: LeaderboardProps) {
   return (
     <PublicContainer as="section" max="marketing" paddingY="py-16" className="border-b" innerClassName="space-y-8" fillScreen={false}>
       <PageSectionHeader
-        title="Trending Today"
-        subtitle="Most upvoted products in the past 24 hours."
+        title="Trending"
+        subtitle="Most upvoted products."
         action={
           <a
             href="/leaderboard"

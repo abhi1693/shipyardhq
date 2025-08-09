@@ -13,7 +13,7 @@ import { TopCategories } from "@/components/organisms/TopCategories"
 export default async function HomePage() {
   const featuredProducts = await getFeaturedProducts()
   const latestLaunches = await getLatestLaunches()
-  const trendingProducts = await getTrendingProducts()
+  const trendingProducts = await getTrendingProducts(3)
   const topCategories = await getTopCategories()
 
   return (
