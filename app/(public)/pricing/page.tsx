@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function PricingPage() {
   const plans = await getPublicPlans()
   return (
-    <PublicContainer max="7xl" paddingY="py-12" className="space-y-8">
+    <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
       <PageHeader
         title="Simple, fair pricing"
         subtitle="Choose the plan that fits your launch. Upgrade anytime."

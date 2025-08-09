@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState, useTransition, useRef } from "react"
-import { ProductCard } from "./ProductCard"
 import { Check } from "lucide-react"
 import { Button } from "@/components/atoms/button"
 import { Skeleton } from "@/components/atoms/skeleton"
+import ProductList from "@/components/molecules/ProductList"
 
 import {
   Category,
@@ -89,43 +89,31 @@ export default function ProductGridClient({
 
   return (
     <section className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((p, i) => (
-          <ProductCard
-            key={p.id}
-            product={{
-              id: p.id,
-              name: p.name,
-              logo: p.logo,
-              tagline: p.tagline,
-            }}
-            upvotes={p.analytics?.upvotes ?? 0}
-            author={{
-              name: `${p.user.firstName ?? ""} ${p.user.lastName ?? ""}`.trim(),
-              initial: p.user.firstName?.[0] ?? "U",
-            }}
-            category={p.category?.name}
-            topRight={
-              <div className="flex items-center gap-1">
-                {p.verification?.isVerified && (
-                  <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px]">
-                    <Check className="h-3 w-3" />
-                    Verified
-                  </span>
-                )}
-                {p.category?.name && (
-                  <span className="inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px]">
-                    {p.category.name}
-                  </span>
-                )}
-              </div>
-            }
-            imagePriority={i < 4}
-            compact
-          />
-        ))}
-        {isPending &&
-          Array.from({ length: 8 }).map((_, i) => (
+      <ProductList
+        items={products}
+        compact
+        showCategory
+        showVerified={false}
+        columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        topRight={(p) => (
+          <div className="flex items-center gap-1">
+            {p.verification?.isVerified && (
+              <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px]">
+                <Check className="h-3 w-3" /> Verified
+              </span>
+            )}
+            {p.category?.name && (
+              <span className="inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px]">
+                {p.category.name}
+              </span>
+            )}
+          </div>
+        )}
+      />
+
+      {isPending && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
             <div key={`sk-${i}`} className="rounded-lg border p-4">
               <div className="flex items-center gap-3">
                 <Skeleton className="h-10 w-10 rounded-md" />
@@ -141,7 +129,8 @@ export default function ProductGridClient({
               </div>
             </div>
           ))}
-      </div>
+        </div>
+      )}
 
       {hasMore && (
         <div className="text-center pt-6">

@@ -8,9 +8,9 @@ import {
   User,
 } from "@prisma/client"
 import { useState } from "react"
-import { ProductCard } from "./ProductCard"
 import { Check } from "lucide-react"
 import { Button } from "@/components/atoms/button"
+import ProductList from "@/components/molecules/ProductList"
 
 type ProductWithMeta = Product & {
   category: Category
@@ -60,36 +60,22 @@ export default function ProductGrid({
 
   return (
     <section className="space-y-10">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((p, i) => (
-          <ProductCard
-            key={p.id}
-            product={{
-              id: p.id,
-              name: p.name,
-              logo: p.logo,
-              tagline: p.tagline,
-            }}
-            upvotes={p.analytics?.upvotes ?? 0}
-            author={{
-              name: `${p.user.firstName ?? ""} ${p.user.lastName ?? ""}`.trim(),
-              initial: p.user.firstName?.[0] ?? "U",
-            }}
-            category={p.category?.name}
-            topRight={
-              <div className="flex items-center gap-1">
-                {p.verification?.isVerified && (
-                  <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px]">
-                    <Check className="h-3 w-3" />
-                  </span>
-                )}
-              </div>
-            }
-            imagePriority={i < 4}
-            compact
-          />
-        ))}
-      </div>
+      <ProductList
+        items={products}
+        compact
+        showCategory
+        showVerified
+        columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        topRight={(p) => (
+          <div className="flex items-center gap-1">
+            {p.verification?.isVerified && (
+              <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px]">
+                <Check className="h-3 w-3" />
+              </span>
+            )}
+          </div>
+        )}
+      />
 
       {hasMore && (
         <div className="text-center pt-6">

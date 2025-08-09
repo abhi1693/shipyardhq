@@ -17,6 +17,7 @@ import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { LeaderboardFilters } from "./filters"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import ProductList from "@/components/molecules/ProductList"
 
 export const metadata: Metadata = {
   title: "Product Leaderboard",
@@ -37,7 +38,7 @@ export default async function LeaderboardPage({
   const rest = products.slice(3)
 
   return (
-    <PublicContainer max="7xl" className="space-y-10">
+    <PublicContainer max="7xl" innerClassName="space-y-10">
       {/* Header */}
       <PageHeader
         title="🏆 Product Leaderboard"
@@ -123,34 +124,7 @@ export default async function LeaderboardPage({
       </div>
 
       {/* Leaderboard Grid (similar to category page) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-        {rest.map((product, index) => (
-          <div key={product.id}>
-            <ProductCard
-              product={{
-                id: product.id,
-                name: product.name,
-                logo: product.logo,
-                tagline: product.tagline,
-              }}
-              upvotes={product.analytics?.upvotes ?? 0}
-              author={{
-                name: `${product.user.firstName ?? ""} ${
-                  product.user.lastName ?? ""
-                }`.trim(),
-                initial: (product.user.firstName?.[0] ?? "?").toUpperCase(),
-              }}
-              category={product.category.name}
-              compact
-              topRight={
-                <Badge variant="secondary" className="px-2 py-0.5 text-xs">
-                  #{index + 4}
-                </Badge>
-              }
-            />
-          </div>
-        ))}
-      </div>
+      <ProductList items={rest} compact showCategory showRank rankStartAt={3} />
     </PublicContainer>
   )
 }

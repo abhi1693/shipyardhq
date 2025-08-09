@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
-import { ProductCard } from "@/components/molecules/ProductCard"
+import ProductList from "@/components/molecules/ProductList"
 
 type ProductForCard = {
   id: string
@@ -77,32 +77,12 @@ export function CategoryProductsClient({ products }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-        {sorted.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={{
-              id: product.id,
-              name: product.name,
-              logo: product.logo,
-              tagline: product.tagline,
-            }}
-            upvotes={product.analytics?.upvotes || 0}
-            author={
-              product.user
-                ? {
-                    name: `${product.user.firstName ?? ""} ${
-                      product.user.lastName ?? ""
-                    }`.trim(),
-                    initial: (product.user.firstName?.[0] || "").toUpperCase(),
-                  }
-                : undefined
-            }
-            category={product.category?.name || undefined}
-            compact
-          />
-        ))}
-      </div>
+      <ProductList
+        items={sorted}
+        compact
+        showCategory
+        showVerified={false}
+      />
     </div>
   )
 }
