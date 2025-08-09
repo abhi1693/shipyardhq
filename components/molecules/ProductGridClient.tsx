@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { ProductCard } from "./ProductCard"
 import { Button } from "@/components/atoms/button"
-import { getBrowseProducts } from "@/actions/public/browse/actions"
+import { Skeleton } from "@/components/atoms/skeleton"
 
 import {
   Category,
@@ -43,6 +43,7 @@ export default function ProductGridClient({
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [page, setPage] = useState(initialPage)
   const [isPending, startTransition] = useTransition()
+  
 
   const loadMore = () => {
     startTransition(async () => {
@@ -58,11 +59,28 @@ export default function ProductGridClient({
   }
 
   return (
-    <section className="space-y-10">
+    <section className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} compact />
         ))}
+        {isPending &&
+          Array.from({ length: 8 }).map((_, i) => (
+            <div key={`sk-${i}`} className="rounded-lg border p-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-md" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-3 w-1/3" />
+                </div>
+              </div>
+              <Skeleton className="mt-4 h-16 w-full" />
+              <div className="mt-4 flex items-center gap-2">
+                <Skeleton className="h-5 w-16" />
+                <Skeleton className="h-5 w-12" />
+              </div>
+            </div>
+          ))}
       </div>
 
       {hasMore && (

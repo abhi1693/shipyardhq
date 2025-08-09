@@ -2,8 +2,10 @@
 
 import { useSearchParams } from "next/navigation"
 import { useCallback } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { Switch } from "@/components/atoms/switch"
 
 interface BrowseFiltersProps {
   useCases: { id: string; slug: string; label: string }[]
@@ -29,6 +31,7 @@ export default function BrowseFilters({
   current,
 }: BrowseFiltersProps) {
   const params = useSearchParams()
+  const router = useRouter()
 
   const buildUrl = useCallback(
     (key: string, value: string | boolean) => {
@@ -49,9 +52,9 @@ export default function BrowseFilters({
   )
 
   return (
-    <aside className="space-y-6">
+    <aside className="space-y-6 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-auto">
       <div>
-        <h4 className="text-sm font-semibold mb-2">Use Case</h4>
+        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground mb-2">Use Case</h4>
         <ul className="space-y-1">
           {[
             { id: "__all__", slug: "__all__", label: "All Use Cases" },
@@ -76,7 +79,7 @@ export default function BrowseFilters({
       </div>
 
       <div>
-        <h4 className="text-sm font-semibold mb-2">Category</h4>
+        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground mb-2">Category</h4>
         <ul className="space-y-1">
           {[
             { id: "__all__", slug: "__all__", name: "All Categories" },
@@ -101,7 +104,7 @@ export default function BrowseFilters({
       </div>
 
       <div>
-        <h4 className="text-sm font-semibold mb-2">Sort By</h4>
+        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground mb-2">Sort By</h4>
         <ul className="space-y-1">
           {sortOptions.map((opt) => (
             <li key={opt.value}>
@@ -122,16 +125,15 @@ export default function BrowseFilters({
       </div>
 
       <div>
-        <h4 className="text-sm font-semibold mb-2">Verified Only</h4>
-        <Link
-          href={buildUrl("verified", !(current.verified ?? false))}
-          className={cn(
-            "inline-block text-sm rounded-md px-3 py-1.5 border",
-            current.verified ? "bg-muted border-foreground" : "border-muted",
-          )}
-        >
-          {current.verified ? "✓ Enabled" : "Enable"}
-        </Link>
+        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground mb-2">Verified Only</h4>
+        <div className="flex items-center justify-between rounded-md border px-3 py-2">
+          <span className="text-sm">Only show verified</span>
+          <Switch
+            checked={Boolean(current.verified)}
+            onCheckedChange={(checked) => router.push(buildUrl("verified", checked))}
+            aria-label="Toggle verified only"
+          />
+        </div>
       </div>
     </aside>
   )
