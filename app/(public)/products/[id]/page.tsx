@@ -1,48 +1,81 @@
 import { notFound } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
 import { Metadata } from "next"
 import { Badge } from "@/components/atoms/badge"
-import { CheckCircle, ThumbsUp, ExternalLink } from "lucide-react"
-import Link from "next/link"
+import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
+import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
+import { BADGE_OPTIONS } from "@/lib/constants"
+import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import { formatDate } from "@/lib/ui/formatters"
-import { getProductById } from "@/actions/admin/products/actions"
+import { getPublicProduct, getRelatedProductsByCategory } from "@/actions/public/products/actions"
+import { CheckCircle, ExternalLink, Github, Twitter, Mail, Tag } from "lucide-react"
 
-export const metadata: Metadata = {
-  title: "Product Details",
-  description: "Detailed view of a listed product",
+interface ProductPageProps {
+  params: { id: string }
 }
 
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: { id: string }
-}) {
-  const { id } = await params
-  const product = await getProductById(id)
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const product = await getPublicProduct(params.id)
+  if (!product) return {}
+  return {
+    title: `${product.name} | Product`,
+    description: product.tagline || product.description,
+    openGraph: {
+      title: product.name,
+      description: product.tagline || product.description,
+      images: product.logo ? [{ url: product.logo }] : undefined,
+    },
+  }
+}
+
+export default async function ProductDetailPage({ params }: ProductPageProps) {
+  const { id } = params
+  const product = await getPublicProduct(id)
   if (!product) return notFound()
 
   const isVerified = product.verification?.isVerified
   const stats = product.analytics
+  const related = await getRelatedProductsByCategory(product.categoryId, product.id)
+
+  const activeBadgeDefs = (product.badges || [])
+    .map((b) => BADGE_OPTIONS.find((x) => x.value === b))
+    .filter(Boolean) as typeof BADGE_OPTIONS
 
   return (
-    <div className="px-4 md:px-12 py-10 max-w-5xl mx-auto">
+    <div className="min-h-screen py-10">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-8">
+        <Breadcrumbs />
+
+      {/* Header */}
       <div className="flex items-start gap-6">
         <div className="h-16 w-16 rounded-md overflow-hidden border bg-white shrink-0">
-          <img
+          <Image
             src={product.logo}
             alt={product.name}
+            width={64}
+            height={64}
             className="h-full w-full object-cover"
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold">{product.name}</h1>
-          <p className="text-muted-foreground">{product.tagline}</p>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-3xl font-bold truncate">{product.name}</h1>
+          <p className="text-muted-foreground mt-1">{product.tagline}</p>
 
-          <div className="flex flex-wrap items-center gap-2 mt-2">
-            <Badge variant="outline">{product.category.name}</Badge>
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            <Link href={`/categories/${product.category.slug}`}>
+              <Badge variant="secondary">{product.category.name}</Badge>
+            </Link>
+            <Badge variant="outline" className="text-xs">
+              {product.type.replaceAll("_", " ")}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              <Tag size={12} className="mr-1" /> {product.pricingModel}
+            </Badge>
             {isVerified && (
               <Badge className="bg-green-100 text-green-800 flex items-center gap-1 px-2 py-0.5 text-xs">
-                <CheckCircle size={12} /> Verified
+                <CheckCircle size={12} /> Verified domain
               </Badge>
             )}
             {product.plan && (
@@ -50,28 +83,29 @@ export default async function ProductDetailPage({
                 Plan: {product.plan.name}
               </Badge>
             )}
+            {activeBadgeDefs.map((b) => (
+              <Badge
+                key={b.value}
+                className={badgeColorMap[b.color as TailwindColor]}
+              >
+                {b.icon} {b.label}
+              </Badge>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="mt-8 space-y-4">
+      {/* Meta + CTAs */}
+      <div className="space-y-4">
         <div className="flex gap-4 flex-wrap text-sm text-muted-foreground">
-          <span>Created by: {product.user.email}</span>
+          <span>
+            By {product.user.firstName} {product.user.lastName || ""} ({product.user.email})
+          </span>
           <span>Created: {formatDate(product.createdAt)}</span>
-          <span>Last updated: {formatDate(product.updatedAt)}</span>
+          <span>Updated: {formatDate(product.updatedAt)}</span>
         </div>
 
-        <div className="flex gap-6 items-center text-sm pt-2">
-          <div className="flex items-center gap-1">
-            <ThumbsUp size={14} />
-            <span>{stats?.upvotes || 0} Upvotes</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span>{stats?.views || 0} Views</span>
-          </div>
-        </div>
-
-        <div className="flex gap-4 pt-4">
+        <div className="flex flex-wrap gap-3 pt-1">
           <Link href={product.websiteUrl} target="_blank">
             <Badge className="flex items-center gap-1">
               <ExternalLink size={14} /> Website
@@ -82,7 +116,82 @@ export default async function ProductDetailPage({
               <Badge variant="outline">Live Demo</Badge>
             </Link>
           )}
+          {product.metadata?.githubUrl && (
+            <Link href={product.metadata.githubUrl} target="_blank">
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Github size={14} /> GitHub
+              </Badge>
+            </Link>
+          )}
+          {product.metadata?.twitterUrl && (
+            <Link href={product.metadata.twitterUrl} target="_blank">
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Twitter size={14} /> Twitter
+              </Badge>
+            </Link>
+          )}
+          {product.metadata?.contactEmail && (
+            <Link href={`mailto:${product.metadata.contactEmail}`}>
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Mail size={14} /> Contact
+              </Badge>
+            </Link>
+          )}
         </div>
+
+        <div className="flex gap-6 items-center text-sm pt-1">
+          <UpvoteSquare count={stats?.upvotes || 0} title="Total upvotes" />
+          <div className="text-muted-foreground">
+            {stats?.views || 0} views • {stats?.clicks || 0} clicks
+          </div>
+        </div>
+      </div>
+
+      {/* Description */}
+      <div className="text-sm md:text-base leading-relaxed text-foreground/90 whitespace-pre-line">
+        {product.description}
+      </div>
+
+      {/* Media Gallery */}
+      {product.ProductMedia.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Gallery</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {product.ProductMedia.map((m) => (
+              <div key={m.id} className="relative aspect-video overflow-hidden rounded-md border bg-muted">
+                <Image
+                  src={m.imageUrl}
+                  alt={m.altText || product.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Related */}
+      {related.length > 0 && (
+        <div className="pt-2">
+          <h2 className="text-lg font-semibold mb-3">More in {product.category.name}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {related.map((r) => (
+              <Link key={r.id} href={`/products/${r.id}`} className="group border rounded-lg p-4 hover:bg-muted/30 transition-colors">
+                <div className="flex items-start gap-3">
+                  <div className="h-10 w-10 rounded-md overflow-hidden border bg-white">
+                    <Image src={r.logo} alt={r.name} width={40} height={40} className="object-cover w-full h-full" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-medium group-hover:underline truncate">{r.name}</div>
+                    <div className="text-sm text-muted-foreground line-clamp-2">{r.tagline}</div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
       </div>
     </div>
   )
