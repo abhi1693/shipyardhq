@@ -11,6 +11,7 @@ import { useState } from "react"
 import { Check } from "lucide-react"
 import { Button } from "@/components/atoms/button"
 import ProductList from "@/components/molecules/ProductList"
+import { buildQuery } from "@/lib/urlParams"
 
 type ProductWithMeta = Product & {
   category: Category
@@ -43,13 +44,15 @@ export default function ProductGrid({
   const loadMore = async () => {
     setLoading(true)
 
-    const params = new URLSearchParams({
-      page: page.toString(),
-      ...searchParams,
-      verified: searchParams.verified ? "true" : "",
+    const url = buildQuery("/api/browse", "", {
+      page: String(page),
+      useCase: searchParams.useCase,
+      category: searchParams.category,
+      sort: searchParams.sort,
+      verified: searchParams.verified ? "true" : undefined,
     })
 
-    const res = await fetch(`/api/browse?${params.toString()}`)
+    const res = await fetch(url)
     const json = await res.json()
 
     setProducts((prev) => [...prev, ...json.products])

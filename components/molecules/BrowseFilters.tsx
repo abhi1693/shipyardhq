@@ -7,6 +7,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/atoms/switch"
 import { Input } from "@/components/atoms/input"
+import { buildQuery } from "@/lib/urlParams"
 
 interface BrowseFiltersProps {
   useCases: { id: string; slug: string; label: string }[]
@@ -38,22 +39,15 @@ export default function BrowseFilters({
   const [ucExpanded, setUcExpanded] = useState(false)
   const [catExpanded, setCatExpanded] = useState(false)
 
+  const qs = params?.toString() ?? ""
   const buildUrl = useCallback(
     (key: string, value: string | boolean) => {
-      const url = new URLSearchParams(
-        Object.fromEntries(
-          [...params.entries()].filter(([_, v]) => typeof v === "string"),
-        ),
-      )
-      if (value === "__all__" || value === false) {
-        url.delete(key)
-      } else {
-        url.set(key, String(value))
-      }
-      url.set("page", "1")
-      return `/browse?${url.toString()}`
+      return buildQuery("/browse", qs, {
+        [key]: value === "__all__" || value === false ? undefined : String(value),
+        page: "1",
+      })
     },
-    [params],
+    [qs],
   )
 
   const filteredUseCases = useMemo(() => {
@@ -257,7 +251,7 @@ export default function BrowseFilters({
           <Switch
             checked={Boolean(current.verified)}
             onCheckedChange={(checked) =>
-              router.push(buildUrl("verified", checked))
+              router.push(buildQuery("/browse", qs, { verified: checked ? "true" : undefined, page: "1" }))
             }
             aria-label="Toggle verified only"
           />

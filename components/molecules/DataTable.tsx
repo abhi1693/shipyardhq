@@ -17,7 +17,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
-import React, { useCallback, useEffect } from "react"
+import React, { useEffect } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Icons } from "../icons"
 import { ScrollArea, ScrollBar } from "@/components/atoms/scroll-area"
@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { Button } from "@/components/atoms/button"
+import { buildQuery } from "@/lib/urlParams"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -62,29 +63,11 @@ export default function DataTable<TData, TValue>({
     pageSize: fallbackPerPage,
   })
 
-  // Create query string
-  const createQueryString = useCallback(
-    (params: Record<string, string | number | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams?.toString())
-
-      for (const [key, value] of Object.entries(params)) {
-        if (value === null) {
-          newSearchParams.delete(key)
-        } else {
-          newSearchParams.set(key, String(value))
-        }
-      }
-
-      return newSearchParams.toString()
-    },
-    [searchParams],
-  )
-
   useEffect(() => {
-    const url = `${pathname}?${createQueryString({
-      page: pageIndex + 1,
-      limit: pageSize,
-    })}`
+    const url = buildQuery(pathname ?? "", searchParams?.toString() ?? "", {
+      page: String(pageIndex + 1),
+      limit: String(pageSize),
+    })
     router.push(url, {
       scroll: false,
     })
