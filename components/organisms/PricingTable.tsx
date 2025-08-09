@@ -12,7 +12,7 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
   return (
     <section className="py-12">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-center justify-items-center items-stretch">
+        <div className="flex flex-wrap gap-6 justify-center items-stretch">
           {plans.map((p) => (
             <div key={p.id} className="w-full max-w-sm h-full">
               <PricingCard
