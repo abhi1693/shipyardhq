@@ -3,9 +3,8 @@ import Link from "next/link"
 import { getCategories, getUseCases } from "@/actions/admin/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { EmptyState } from "@/components/molecules/empty-state"
-import ProductGrid from "@/components/molecules/ProductGrid"
-import BrowseFilters from "@/components/molecules/BrowseFilters"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
+import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
 
 export const metadata: Metadata = {
   title: "Browse Products",
@@ -87,12 +86,18 @@ export default async function BrowsePage({
           Showing {products.length} result{products.length !== 1 && "s"}
           {" • "}Sort: {sortLabelMap[sort] ?? "Newest"}
         </div>
+
+      {/* Filter Bar */}
+      <div className="mb-4">
+        <BrowseFilterBar
+          useCases={useCases}
+          categories={categories}
+          current={{ useCase, category, sort, verified: verified === "true" }}
+        />
       </div>
 
-      {/* Layout Split */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8">
-        {/* Product Grid */}
-        <div>
+      {/* Product Grid */}
+      <div>
           {/* Active filter chips + clear */}
           {hasActiveFilters && (
             <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -177,13 +182,6 @@ export default async function BrowsePage({
             />
           )}
         </div>
-
-        {/* Sidebar */}
-        <BrowseFilters
-          useCases={useCases}
-          categories={categories}
-          current={{ useCase, category, sort, verified: verified === "true" }}
-        />
       </div>
     </div>
   )
