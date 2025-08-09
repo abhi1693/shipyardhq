@@ -20,6 +20,7 @@ export function StatCard({
   trend,
   icon,
   tooltip,
+  progress,
 }: {
   title: string
   value: number | string
@@ -30,6 +31,7 @@ export function StatCard({
   trend?: "up" | "down"
   icon?: ReactNode
   tooltip?: string
+  progress?: number
 }) {
   const TrendIcon =
     trend === "up" ? IconTrendingUp : trend === "down" ? IconTrendingDown : null
@@ -72,12 +74,22 @@ export function StatCard({
         )}
       </CardHeader>
 
-      {(subheading || footnote) && (
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+      {(subheading || footnote || typeof progress === "number") && (
+        <CardFooter className="flex-col items-start gap-2 text-sm">
           {subheading && (
             <div className="flex items-center gap-2 font-medium">
               {subheading}
               {TrendIcon && <TrendIcon className="size-4" />}
+            </div>
+          )}
+          {typeof progress === "number" && (
+            <div className="w-full">
+              <div className="h-1.5 w-full rounded bg-muted overflow-hidden">
+                <div
+                  className="h-full rounded bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]"
+                  style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
+                />
+              </div>
             </div>
           )}
           {footnote && <div className="text-muted-foreground">{footnote}</div>}
