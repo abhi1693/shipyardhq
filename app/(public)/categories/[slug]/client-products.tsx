@@ -10,15 +10,19 @@ import {
 } from "@/components/atoms/select"
 import { ProductCard } from "@/components/molecules/ProductCard"
 
-type WithAnalytics = {
+type ProductForCard = {
   id: string
   name: string
+  logo: string
+  tagline: string
   createdAt: string | Date
   analytics?: { views: number; upvotes: number; clicks: number } | null
+  user?: { firstName: string | null; lastName: string | null } | null
+  category?: { name: string } | null
 }
 
 type Props = {
-  products: WithAnalytics[]
+  products: ProductForCard[]
 }
 
 type SortKey = "newest" | "upvotes" | "views" | "clicks" | "name"
@@ -75,10 +79,30 @@ export function CategoryProductsClient({ products }: Props) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {sorted.map((product) => (
-          <ProductCard key={product.id} product={product} compact />
+          <ProductCard
+            key={product.id}
+            product={{
+              id: product.id,
+              name: product.name,
+              logo: product.logo,
+              tagline: product.tagline,
+            }}
+            upvotes={product.analytics?.upvotes || 0}
+            author={
+              product.user
+                ? {
+                    name: `${product.user.firstName ?? ""} ${
+                      product.user.lastName ?? ""
+                    }`.trim(),
+                    initial: (product.user.firstName?.[0] || "").toUpperCase(),
+                  }
+                : undefined
+            }
+            category={product.category?.name || undefined}
+            compact
+          />
         ))}
       </div>
     </div>
   )
 }
-
