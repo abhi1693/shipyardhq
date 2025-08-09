@@ -32,15 +32,6 @@ export function FeaturedHighlights({
 
         {/* Grid */}
         <div className="grid grid-cols-1 items-stretch sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-          {products.length === 0 && (
-            <div className="col-span-full rounded-lg border bg-card p-6 text-center text-muted-foreground">
-              No featured products yet. Be the first to{" "}
-              <a className="underline" href="/member/products/add">
-                submit yours
-              </a>
-              .
-            </div>
-          )}
           {products.map(({ id, product }) => (
             <UniformCard key={id} size="normal">
               <ProductCard
