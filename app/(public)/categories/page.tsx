@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import { Badge } from "@/components/atoms/badge"
 import Link from "next/link"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
-import { CategoryIcon } from "@/components/molecules/CategoryIcons"
+import { CategoryCard } from "@/components/molecules/CategoryCard"
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -30,32 +30,16 @@ export default async function CategoriesPage() {
       </div>
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {categories.map((cat) => (
-          <Link
+          <CategoryCard
             key={cat.id}
             href={`/categories/${cat.slug}`}
-            className="border rounded-xl p-4 bg-background hover:shadow-md transition-all flex flex-col gap-3"
-          >
-            <h3 className="text-base font-semibold flex items-center gap-2">
-              <CategoryIcon icon={(cat as any).icon} />
-              {cat.name}
-            </h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {cat.description}
-            </p>
-            <div className="mt-auto">
-              <Badge
-                className={
-                  cat.count === 0
-                    ? "bg-muted text-muted-foreground"
-                    : "bg-primary text-primary-foreground"
-                }
-              >
-                {cat.count} product{cat.count !== 1 && "s"}
-              </Badge>
-            </div>
-          </Link>
+            name={cat.name}
+            icon={cat.icon}
+            description={cat.description}
+            count={cat.count}
+          />
         ))}
       </div>
     </div>
