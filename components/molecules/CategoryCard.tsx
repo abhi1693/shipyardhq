@@ -32,7 +32,7 @@ export function CategoryCard({
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[linear-gradient(90deg,var(--brand-1),var(--brand-3))] text-white shadow-sm">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] text-white shadow-sm">
             <CategoryIcon icon={icon} size={16} className="text-white" />
           </span>
           <span className="font-semibold text-sm md:text-base truncate">
