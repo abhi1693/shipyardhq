@@ -1,7 +1,8 @@
 import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
+import { subDays } from "date-fns"
 
-export async function getUserDashboardStats() {
+export async function getUserDashboardStats(days = 7) {
   const { userId } = await auth()
   if (!userId) throw new Error("Unauthenticated")
 
@@ -12,24 +13,29 @@ export async function getUserDashboardStats() {
 
   if (!user) throw new Error("User not found")
 
-  const [products, productsLast7Days] = await Promise.all([
-    prisma.product.findMany({
-      where: { userId: user.id },
-      include: {
-        verification: { select: { isVerified: true } },
-        analytics: { select: { views: true, upvotes: true } },
-        plan: { select: { id: true, name: true, price: true } },
-      },
-    }),
-    prisma.product.count({
-      where: {
-        userId: user.id,
-        createdAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+  const since = subDays(new Date(), days)
+
+  const [products, productsInRange, draftsCount, unverifiedCount] =
+    await Promise.all([
+      prisma.product.findMany({
+        where: { userId: user.id },
+        include: {
+          verification: { select: { isVerified: true } },
+          analytics: { select: { views: true, upvotes: true } },
+          plan: { select: { id: true, name: true, price: true } },
         },
-      },
-    }),
-  ])
+      }),
+      prisma.product.count({
+        where: {
+          userId: user.id,
+          createdAt: { gte: since },
+        },
+      }),
+      prisma.product.count({ where: { userId: user.id, status: "draft" } }),
+      prisma.product.count({
+        where: { userId: user.id, verification: { isVerified: false } },
+      }),
+    ])
 
   const totalProducts = products.length
   const verifiedDomains = products.filter(
@@ -55,7 +61,9 @@ export async function getUserDashboardStats() {
 
   return {
     totalProducts,
-    productsLast7Days,
+    productsInRange,
+    draftsCount,
+    unverifiedCount,
     verifiedDomains,
     verifiedRate,
     totalViews,
@@ -64,7 +72,7 @@ export async function getUserDashboardStats() {
   }
 }
 
-export async function getUserProducts(limit = 10) {
+export async function getUserProducts(limit = 10, days?: number) {
   const { userId } = await auth()
   if (!userId) throw new Error("Unauthenticated")
 
@@ -75,8 +83,13 @@ export async function getUserProducts(limit = 10) {
 
   if (!user) throw new Error("User not found")
 
+  const where: any = { userId: user.id }
+  if (days) {
+    where.createdAt = { gte: subDays(new Date(), days) }
+  }
+
   return prisma.product.findMany({
-    where: { userId: user.id },
+    where,
     orderBy: { createdAt: "desc" },
     take: limit,
     include: {

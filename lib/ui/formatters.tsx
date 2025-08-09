@@ -25,7 +25,7 @@ export function linkify(item: LinkItem): ReactNode {
     <span key={item.href} className="inline-block align-top">
       <Link
         href={item.href}
-        className="text-blue-600 hover:underline"
+        className="text-primary hover:underline"
         target={item.isExternal ? "_blank" : undefined}
         rel={item.isExternal ? "noopener noreferrer" : undefined}
       >
