@@ -67,8 +67,18 @@ export default function ProductGridClient({
   return (
     <section className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} compact />
+        {products.map((p) => (
+          <ProductCard
+            key={p.id}
+            product={{ id: p.id, name: p.name, logo: p.logo, tagline: p.tagline }}
+            upvotes={p.analytics?.upvotes ?? 0}
+            author={{
+              name: `${p.user.firstName ?? ""} ${p.user.lastName ?? ""}`.trim(),
+              initial: p.user.firstName?.[0] ?? "U",
+            }}
+            category={p.category?.name}
+            compact
+          />
         ))}
         {isPending &&
           Array.from({ length: 8 }).map((_, i) => (
