@@ -3,6 +3,7 @@ import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { CategoryCard } from "@/components/molecules/CategoryCard"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { pluralize } from "@/lib/pluralize"
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -22,7 +23,7 @@ export default async function CategoriesPage() {
           subtitle="Explore our curated categories to discover innovative startups and solutions shaping the future."
           meta={
             <>
-              Showing <strong>{categories.length}</strong> categories
+              Showing <strong>{categories.length}</strong> {pluralize(categories.length, "category")}
             </>
           }
         />

@@ -11,6 +11,7 @@ import ProductGridClient from "@/components/molecules/ProductGridClient"
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { pluralize } from "@/lib/pluralize"
 
 export const metadata: Metadata = {
   title: "Browse Products",
@@ -60,29 +61,7 @@ export default async function BrowsePage({
     verified === "true" ||
     (sort && sort !== "new")
 
-  const buildUrl = (overrides: Partial<BrowseSearchParams>) => {
-    const params = new URLSearchParams()
-    const base: BrowseSearchParams = {
-      useCase,
-      category,
-      verified,
-      sort,
-      page: "1",
-    }
-    const next = { ...base, ...overrides }
-    const uc = Array.isArray(next.useCase) ? next.useCase[0] : next.useCase
-    const cat = Array.isArray(next.category) ? next.category[0] : next.category
-    const ver = Array.isArray(next.verified) ? next.verified[0] : next.verified
-    const srt = Array.isArray(next.sort) ? next.sort[0] : next.sort
-    if (uc && uc !== "__all__") params.set("useCase", uc)
-    if (cat && cat !== "__all__") params.set("category", cat)
-    if (ver === "true") params.set("verified", "true")
-    if (srt && srt !== "new") params.set("sort", srt)
-    // always reset page to 1 on changes
-    params.set("page", "1")
-    const qs = params.toString()
-    return qs ? `/browse?${qs}` : "/browse"
-  }
+  // URL building handled in client components; removed local duplication.
 
   const sortLabelMap: Record<string, string> = {
     new: "Newest",
@@ -101,7 +80,7 @@ export default async function BrowsePage({
           underline
           meta={
             <>
-              Showing {products.length} result{products.length !== 1 && "s"}
+              Showing {products.length} {pluralize(products.length, "result")}
               {" • "}Sort: {sortLabelMap[sort] ?? "Newest"}
             </>
           }
