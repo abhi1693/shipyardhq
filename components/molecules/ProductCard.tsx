@@ -11,7 +11,6 @@ import {
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
 import { ProductAuthor } from "@/components/molecules/ProductAuthor"
 import { Badge } from "@/components/atoms/badge"
-import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
 
@@ -121,16 +120,16 @@ export function ProductCard({
           </div>
         </CardHeader>
 
-        <CardContent className={clsx("pt-2", compact && "pt-1")}> 
+        <CardContent className={clsx("pt-1 px-4", compact && "pt-1 px-4")}>
           <div className="flex items-center justify-between">
-            <UpvoteSquare count={upvotes} compact={compact} className="-ml-6" />
+            <UpvoteSquare count={upvotes} compact={compact} className="-ml-4" />
 
             {author && (
               <ProductAuthor
                 name={author.name}
                 initial={author.initial}
                 compact={compact}
-                className="-mr-6"
+                className="-mr-4"
               />
             )}
           </div>
