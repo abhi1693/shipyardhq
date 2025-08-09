@@ -2,8 +2,9 @@ import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import { getCategoryWithProducts } from "@/actions/public/categories/actions"
 import { Badge } from "@/components/atoms/badge"
-import { ProductCard } from "@/components/molecules/ProductCard"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
+import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
+import { CategoryProductsClient } from "./client-products"
 
 interface CategoryPageProps {
   params: { slug: string }
@@ -30,6 +31,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="min-h-screen px-4 md:px-8 py-10 space-y-10">
+      {/* Breadcrumbs */}
+      <Breadcrumbs />
+
       {/* Header */}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">
@@ -51,14 +55,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       </div>
 
       {/* Product Grid */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Products</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} compact />
-          ))}
-        </div>
-      </div>
+      <CategoryProductsClient products={products} />
     </div>
   )
 }
