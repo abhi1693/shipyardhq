@@ -37,6 +37,7 @@ export default async function ViewProductPage({
       }}
       overview={[
         { label: "Name", value: product.name },
+        { label: "Slug", value: product.slug },
         {
           label: "Category",
           value: linkify({
@@ -53,12 +54,33 @@ export default async function ViewProductPage({
           }),
         },
         {
+          label: "Organization",
+          value: product.organization
+            ? linkify({
+                href: "#",
+                label: product.organization.name,
+              })
+            : placeholder(),
+        },
+        {
           label: "Type",
           value: product.type ?? placeholder(),
         },
         {
           label: "Pricing Model",
           value: product.pricingModel ?? placeholder(),
+        },
+        { label: "Status", value: product.status },
+        {
+          label: "Published At",
+          value: product.publishedAt ? formatDate(product.publishedAt) : placeholder(),
+        },
+        {
+          label: "Starting Price",
+          value:
+            product.startingPriceCents != null
+              ? `${(product.startingPriceCents / 100).toFixed(2)} ${product.currencyCode || "USD"}`
+              : placeholder(),
         },
         {
           label: "Plan",
@@ -82,6 +104,7 @@ export default async function ViewProductPage({
                 <CardTitle className="text-base">Metadata</CardTitle>
               </CardHeader>
               <CardContent>
+                <OverviewRow label="Banner Image" value={product.bannerImage ? image(product.bannerImage, product.name, 128, 40) : placeholder()} />
                 <OverviewRow
                   label="Website URL"
                   value={linkify({
@@ -95,6 +118,24 @@ export default async function ViewProductPage({
                 <OverviewRow
                   label="Logo"
                   value={image(product.logo, product.name, 64, 64)}
+                />
+                <OverviewRow label="Company" value={product.companyName || placeholder()} />
+                <OverviewRow label="CTA Label" value={product.ctaLabel || placeholder()} />
+                <OverviewRow
+                  label="CTA URL"
+                  value={product.ctaUrl ? linkify({ href: product.ctaUrl, label: product.ctaUrl, isExternal: true }) : placeholder()}
+                />
+                <OverviewRow
+                  label="Platforms"
+                  value={
+                    product.platforms && product.platforms.length
+                      ? product.platforms.map((p) => p.replaceAll('_', ' ')).join(', ')
+                      : placeholder()
+                  }
+                />
+                <OverviewRow
+                  label="Tags"
+                  value={product.keywords && product.keywords.length ? product.keywords.join(', ') : placeholder()}
                 />
                 {product.metadata && (
                   <>

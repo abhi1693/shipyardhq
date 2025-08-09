@@ -14,6 +14,7 @@ export async function getPublicProduct(id: string) {
       ProductMedia: { orderBy: { createdAt: "asc" } },
       ProductBadge: true,
       plan: true,
+      organization: true,
     },
   })
 

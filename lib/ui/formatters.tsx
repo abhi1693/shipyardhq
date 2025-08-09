@@ -105,15 +105,22 @@ export function formatBoolean(
   )
 }
 
-export function formatCurrency(value: number): ReactNode {
+export function formatCurrency(
+  value: number,
+  currencyCode: string = "USD",
+): ReactNode {
   if (value === null || value === undefined) {
     return placeholder()
   }
+  let locale = "en-US"
+  // naive locale mapping by currency for nicer defaults
+  if (currencyCode === "EUR") locale = "de-DE"
+  if (currencyCode === "GBP") locale = "en-GB"
   return (
     <span className="text-sm text-muted-foreground">
-      {new Intl.NumberFormat("en-US", {
+      {new Intl.NumberFormat(locale, {
         style: "currency",
-        currency: "USD",
+        currency: currencyCode,
       }).format(value / 100)}
     </span>
   )

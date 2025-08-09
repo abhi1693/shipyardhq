@@ -26,3 +26,36 @@ export const BADGE_OPTIONS = [
     color: "purple",
   },
 ]
+
+export const CURRENCY_CODES = [
+  "USD",
+  "EUR",
+  "GBP",
+  "AUD",
+  "CAD",
+  "JPY",
+  "INR",
+] as const
+
+export const CURRENCIES: { code: (typeof CURRENCY_CODES)[number]; label: string }[] = [
+  { code: "USD", label: "US Dollar ($)" },
+  { code: "EUR", label: "Euro (€)" },
+  { code: "GBP", label: "British Pound (£)" },
+  { code: "AUD", label: "Australian Dollar (A$)" },
+  { code: "CAD", label: "Canadian Dollar (C$)" },
+  { code: "JPY", label: "Japanese Yen (¥)" },
+  { code: "INR", label: "Indian Rupee (₹)" },
+]
+
+export const PLATFORMS = [
+  "web",
+  "ios",
+  "android",
+  "mac",
+  "windows",
+  "linux",
+  "chrome_extension",
+  "firefox_extension",
+] as const
+
+export type PlatformCode = (typeof PLATFORMS)[number]

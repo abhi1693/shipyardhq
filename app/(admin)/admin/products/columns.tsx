@@ -36,6 +36,20 @@ export const columns: ColumnDef<
       }),
   },
   {
+    accessorKey: "status",
+    header: "Status",
+  },
+  {
+    id: "price",
+    header: "Price",
+    cell: ({ row }) => {
+      const p = row.original
+      return p.startingPriceCents != null
+        ? `$${(p.startingPriceCents / 100).toFixed(2)} ${p.currencyCode || "USD"}`
+        : "—"
+    },
+  },
+  {
     accessorKey: "category.name",
     header: "Category",
     cell: ({ row }) =>

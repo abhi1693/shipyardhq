@@ -30,6 +30,7 @@ export async function getProductById(id: string) {
       include: {
         category: true,
         user: true,
+        organization: true,
         metadata: true,
         analytics: true,
         verification: true,
@@ -58,6 +59,16 @@ export async function createProductAction(formData: FormData) {
   const logo = formData.get("logo")!.toString().trim()
   const categoryId = formData.get("categoryId")!.toString()
   const userId = formData.get("userId")!.toString()
+  const organizationId = formData.get("organizationId")?.toString() || undefined
+  const slug = formData.get("slug")?.toString().trim()
+  const status = formData.get("status")?.toString().trim() as
+    | "draft"
+    | "published"
+    | "archived"
+    | undefined
+  const publishedAtRaw = formData.get("publishedAt")?.toString().trim()
+  const publishedAt =
+    status === "published" ? new Date() : publishedAtRaw ? new Date(publishedAtRaw) : null
   const type =
     ProductType[formData.get("type")!.toString() as keyof typeof ProductType]
   const pricingModel =
@@ -70,18 +81,51 @@ export async function createProductAction(formData: FormData) {
   const demoUrl = formData.get("demoUrl")?.toString().trim()
   const contactEmail = formData.get("contactEmail")?.toString().trim()
 
+  const startingPriceCentsRaw = formData.get("startingPriceCents")?.toString()
+  const startingPriceCents = startingPriceCentsRaw
+    ? Number(startingPriceCentsRaw)
+    : undefined
+  const currencyCode = formData.get("currencyCode")?.toString().trim() || undefined
+  const ctaLabel = formData.get("ctaLabel")?.toString().trim() || undefined
+  const ctaUrl = formData.get("ctaUrl")?.toString().trim() || undefined
+  const bannerImage = formData.get("bannerImage")?.toString().trim() || undefined
+  const companyName = formData.get("companyName")?.toString().trim() || undefined
+
+  let keywords: string[] | undefined
+  let platforms: string[] | undefined
+  try {
+    const kw = formData.get("keywords")?.toString()
+    if (kw) keywords = JSON.parse(kw)
+  } catch {}
+  try {
+    const pf = formData.get("platforms")?.toString()
+    if (pf) platforms = JSON.parse(pf)
+  } catch {}
+
   try {
     await prisma.product.create({
       data: {
         name,
+        slug: slug!,
         tagline,
         description,
         websiteUrl,
         logo,
         categoryId,
         userId,
+        organizationId: organizationId && organizationId.length ? organizationId : undefined,
         type,
         pricingModel,
+        status: status ?? "published",
+        publishedAt: (status === "published" ? new Date() : null) ?? publishedAt ?? null,
+        startingPriceCents,
+        currencyCode,
+        ctaLabel,
+        ctaUrl,
+        bannerImage,
+        companyName,
+        keywords,
+        platforms: (platforms as any) ?? undefined,
         metadata: {
           create: {
             githubUrl,
@@ -104,6 +148,10 @@ export async function createProductAction(formData: FormData) {
     return { success: true }
   } catch (error) {
     console.error("Error creating product:", error)
+    const code = (error as any)?.code
+    if (code === "P2002") {
+      return { error: "Duplicate unique field (likely slug). Choose a different slug." }
+    }
     return { error: "Failed to create product" }
   }
 }
@@ -120,6 +168,18 @@ export async function updateProductAction(
     logo: string
     type: Prisma.ProductUpdateInput["type"]
     pricingModel: Prisma.ProductUpdateInput["pricingModel"]
+    organizationId?: string | null
+    slug?: string
+    status?: "draft" | "published" | "archived"
+    publishedAt?: string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    companyName?: string | null
+    keywords?: string[]
+    platforms?: ("web"|"ios"|"android"|"mac"|"windows"|"linux"|"chrome_extension"|"firefox_extension")[]
     githubUrl?: string | null
     twitterUrl?: string | null
     demoUrl?: string | null
@@ -171,14 +231,26 @@ export async function updateProductAction(
         logo: logo?.trim(),
         type,
         pricingModel,
-        metadata: {
-          update: {
-            githubUrl: githubUrl?.trim() || null,
-            twitterUrl: twitterUrl?.trim() || null,
-            demoUrl: demoUrl?.trim() || null,
-            contactEmail: contactEmail?.trim() || null,
-          },
-        },
+    metadata: {
+      update: {
+        githubUrl: githubUrl?.trim() || null,
+        twitterUrl: twitterUrl?.trim() || null,
+        demoUrl: demoUrl?.trim() || null,
+        contactEmail: contactEmail?.trim() || null,
+      },
+    },
+        organizationId: data.organizationId || null,
+        slug: data.slug || undefined,
+        status: (data.status as any) || undefined,
+        publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
+        startingPriceCents: data.startingPriceCents ?? undefined,
+        currencyCode: data.currencyCode ?? undefined,
+        ctaLabel: data.ctaLabel ?? undefined,
+        ctaUrl: data.ctaUrl ?? undefined,
+        bannerImage: data.bannerImage ?? undefined,
+        companyName: data.companyName ?? undefined,
+        keywords: data.keywords as any,
+        platforms: data.platforms as any,
       },
     })
   } catch (error) {

@@ -252,13 +252,25 @@ async function main() {
   await prisma.product.create({
     data: {
       name: "ShitPosts",
+      slug: "shitposts",
       tagline: "Build and share your shitposts",
       description:
         "A platform to create, share, and discover the best shitposts.",
       websiteUrl: "https://shitposts.ai",
       logo: "https://shitposts.ai/brand.png",
+      bannerImage: "https://shitposts.ai/banner.png",
+      status: "published",
+      publishedAt: new Date(),
+      companyName: "ShitPosts Labs",
+      startingPriceCents: 0,
+      currencyCode: "USD",
+      ctaLabel: "Visit Website",
+      ctaUrl: "https://shitposts.ai",
+      keywords: ["memes", "social", "fun"],
+      platforms: ["web"],
       user: { connect: { id: createdUsers[0].id } },
       category: { connect: { id: createdCategories[0].id } },
+      organization: { connect: { id: createdOrgs[0].id } },
       plan: { connect: { id: createdPlans[1].id } },
       type: "saas",
       pricingModel: "freemium",
@@ -356,15 +368,32 @@ async function main() {
   const bulkProducts: Prisma.ProductCreateInput[] = productNames.map(
     (name, i) => {
       const domain = `https://${name.toLowerCase()}.dev`
+      const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
 
       return {
         name,
+        slug,
         tagline: taglines[i % taglines.length],
         websiteUrl: domain,
         logo: `${domain}/logo.png`,
+        bannerImage: `${domain}/banner.png`,
+        status: "published",
+        publishedAt: new Date(),
         description: `${name} helps you ${taglines[i % taglines.length].toLowerCase()}.`,
         type: "saas",
         pricingModel: "subscription",
+        companyName: `${name} Labs`,
+        startingPriceCents: [0, 900, 1900, 2900, 4900][i % 5],
+        currencyCode: "USD",
+        ctaLabel: "Try for free",
+        ctaUrl: domain,
+        keywords: ["saas", "productivity", "launch"],
+        platforms: ["web"],
         user: {
           connect: {
             id: i % 2 === 0 ? createdUsers[0].id : createdUsers[1].id,
@@ -373,6 +402,11 @@ async function main() {
         category: {
           connect: {
             id: i % 3 === 0 ? createdCategories[0].id : createdCategories[1].id,
+          },
+        },
+        organization: {
+          connect: {
+            id: i % 2 === 0 ? createdOrgs[0].id : createdOrgs[1].id,
           },
         },
         plan: {

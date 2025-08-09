@@ -22,6 +22,7 @@ model Newsletter {
 model Product {
   id           String       @id @default(cuid())
   name         String
+  slug         String       @unique
   tagline      String
   description  String
   websiteUrl   String
@@ -31,6 +32,17 @@ model Product {
   planId       String?
   type         ProductType
   pricingModel PricingModel
+  status       ProductStatus @default(published)
+  publishedAt  DateTime?
+  companyName  String?
+  organizationId String?
+  startingPriceCents Int?
+  currencyCode String? // ISO 4217, e.g. "USD"
+  ctaLabel     String?
+  ctaUrl       String?
+  bannerImage  String?
+  keywords     String[]
+  platforms    Platform[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
@@ -38,11 +50,15 @@ model Product {
   user         User                 @relation(fields: [userId], references: [id])
   category     Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   plan         Plan?                @relation(fields: [planId], references: [id], onDelete: SetNull)
+  organization Organization?        @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   metadata     ProductMetadata?
   analytics    ProductAnalytics?
   verification ProductVerification?
   ProductBadge ProductBadge[]
   ProductMedia ProductMedia[]
+
+  @@index([categoryId, createdAt])
+  @@index([status, publishedAt])
 }
 
 enum ProductType {
@@ -61,6 +77,23 @@ enum PricingModel {
   subscription
   one_time
   custom
+}
+
+enum ProductStatus {
+  draft
+  published
+  archived
+}
+
+enum Platform {
+  web
+  ios
+  android
+  mac
+  windows
+  linux
+  chrome_extension
+  firefox_extension
 }
 
 model ProductMedia {
@@ -118,6 +151,8 @@ model Organization {
   createdAt   DateTime                 @default(now())
   updatedAt   DateTime                 @updatedAt
   memberships OrganizationMembership[]
+
+  Product Product[]
 }
 
 model OrganizationMembership {

@@ -22,6 +22,11 @@ const navItems: NavItem[] = [
     icon: "user",
   },
   {
+    title: "Organizations",
+    url: "/admin/organizations",
+    icon: "building",
+  },
+  {
     title: "Categories",
     url: "#",
     icon: "category",

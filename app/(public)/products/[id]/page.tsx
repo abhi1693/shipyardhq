@@ -15,6 +15,7 @@ import {
 import { CheckCircle, ExternalLink, Github, Twitter, Mail, Tag } from "lucide-react"
 import PublicContainer from "@/components/layout/PublicContainer"
 import ExternalBadgeLink from "@/components/molecules/ExternalBadgeLink"
+import { formatCurrency } from "@/lib/ui/formatters"
 
 interface ProductPageProps {
   params: { id: string }
@@ -55,6 +56,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
+        {/* Optional Banner */}
+        {product.bannerImage && (
+          <div className="relative w-full aspect-[3/1] overflow-hidden rounded-lg border bg-muted">
+            <Image
+              src={product.bannerImage}
+              alt={`${product.name} banner`}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
         <Breadcrumbs
           items={[
             { title: "Categories", link: "/categories" },
@@ -132,6 +144,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 <ExternalLink size={14} /> Website
               </span>
             </ExternalBadgeLink>
+            {product.ctaUrl && (
+              <ExternalBadgeLink href={product.ctaUrl} target="_blank">
+                {product.ctaLabel || "Get Started"}
+              </ExternalBadgeLink>
+            )}
             {product.metadata?.demoUrl && (
               <ExternalBadgeLink href={product.metadata.demoUrl} target="_blank" variant="outline">
                 Live Demo
@@ -166,6 +183,44 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               {stats?.views || 0} views • {stats?.clicks || 0} clicks
             </div>
           </div>
+        </div>
+
+        {/* Quick Details */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          {(product.startingPriceCents !== null && product.startingPriceCents !== undefined) && (
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Starting at:</span>
+              {formatCurrency(product.startingPriceCents, product.currencyCode || 'USD')}
+            </div>
+          )}
+          {(product.platforms && product.platforms.length > 0) && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-muted-foreground">Platforms:</span>
+              {product.platforms.map((p) => (
+                <Badge key={p} variant="outline" className="text-xs">
+                  {p.replaceAll('_', ' ')}
+                </Badge>
+              ))}
+            </div>
+          )}
+          {(product.companyName || product.organization) && (
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Company:</span>
+              <span>
+                {product.companyName || product.organization?.name}
+              </span>
+            </div>
+          )}
+          {(product.keywords && product.keywords.length > 0) && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-muted-foreground">Tags:</span>
+              {product.keywords.map((k) => (
+                <Badge key={k} variant="secondary" className="text-xs">
+                  {k}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Description */}
