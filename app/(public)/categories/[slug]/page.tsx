@@ -39,7 +39,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[linear-gradient(90deg,var(--brand-1),var(--brand-3))] text-white shadow-sm">
-              <CategoryIcon icon={category.icon} size={18} className="text-white" />
+              <CategoryIcon
+                icon={category.icon}
+                size={18}
+                className="text-white"
+              />
             </span>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight truncate">
               {category.name}

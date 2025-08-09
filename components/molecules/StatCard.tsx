@@ -40,7 +40,10 @@ export function StatCard({
       : value
 
   return (
-    <Card className="flex flex-col justify-between hover:border-primary/40 transition-colors" title={tooltip}>
+    <Card
+      className="flex flex-col justify-between hover:border-primary/40 transition-colors"
+      title={tooltip}
+    >
       <CardHeader className="flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           {icon && (

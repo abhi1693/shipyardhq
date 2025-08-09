@@ -27,6 +27,7 @@ export function UseCaseCategoryRelationship({
     },
   ]
 
-  return <Relationship title="Related Categories" rows={rows} columns={columns} />
+  return (
+    <Relationship title="Related Categories" rows={rows} columns={columns} />
+  )
 }
-

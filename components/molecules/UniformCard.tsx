@@ -11,7 +11,11 @@ type UniformCardProps = {
 // - Maintains width from the grid.
 // - Locks a minimum height per size and stretches to full height.
 // - Clips overflow so extra content does not change dimensions.
-export function UniformCard({ size = "normal", className, children }: UniformCardProps) {
+export function UniformCard({
+  size = "normal",
+  className,
+  children,
+}: UniformCardProps) {
   const sizeCls = size === "compact" ? "min-h-[10rem]" : "min-h-[12rem]"
 
   return (

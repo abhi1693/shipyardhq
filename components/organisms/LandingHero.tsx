@@ -21,7 +21,8 @@ export default function Hero() {
           Launch faster. Get discovered sooner.
         </h1>
         <p className="mt-5 text-lg text-muted-foreground">
-          Submit your product in minutes and reach a community of real users and builders.
+          Submit your product in minutes and reach a community of real users and
+          builders.
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
@@ -45,7 +46,9 @@ export default function Hero() {
               <Sparkles className="h-4 w-4" />
             </div>
             <div className="mt-3 font-semibold">Featured placement</div>
-            <p className="mt-1 text-sm text-muted-foreground">Get highlighted across categories and feeds.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Get highlighted across categories and feeds.
+            </p>
           </div>
 
           {/* Card 2 */}
@@ -54,7 +57,9 @@ export default function Hero() {
               <Users className="h-4 w-4" />
             </div>
             <div className="mt-3 font-semibold">Real audience</div>
-            <p className="mt-1 text-sm text-muted-foreground">Reach makers, not just algorithms.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Reach makers, not just algorithms.
+            </p>
           </div>
 
           {/* Card 3 */}
@@ -63,7 +68,9 @@ export default function Hero() {
               <Rocket className="h-4 w-4" />
             </div>
             <div className="mt-3 font-semibold">Frictionless launch</div>
-            <p className="mt-1 text-sm text-muted-foreground">Submit in minutes, not weeks.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Submit in minutes, not weeks.
+            </p>
           </div>
         </div>
       </div>

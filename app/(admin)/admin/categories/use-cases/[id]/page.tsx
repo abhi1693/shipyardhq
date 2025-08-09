@@ -37,9 +37,14 @@ export default async function ViewUseCasePage({
       deletable
       editable
       relationships={
-        <UseCaseCategoryRelationship rows={useCase.categories as unknown as (UseCaseCategory & { category: { id: string; name: string; slug: string } })[]} />
+        <UseCaseCategoryRelationship
+          rows={
+            useCase.categories as unknown as (UseCaseCategory & {
+              category: { id: string; name: string; slug: string }
+            })[]
+          }
+        />
       }
     />
   )
 }
-

@@ -20,7 +20,10 @@ export async function getPublicPlans() {
 
   return plans.map((p) => {
     const assigned = new Map(
-      p.assignments.map((a) => [a.featureId, { enabled: a.enabled, isExperimental: a.isExperimental }]),
+      p.assignments.map((a) => [
+        a.featureId,
+        { enabled: a.enabled, isExperimental: a.isExperimental },
+      ]),
     )
 
     const features = allFeatures.map((f) => {

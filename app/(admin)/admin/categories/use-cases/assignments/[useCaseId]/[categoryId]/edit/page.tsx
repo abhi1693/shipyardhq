@@ -1,6 +1,10 @@
 import { Metadata } from "next"
 import prisma from "@/lib/prisma"
-import { getUseCases, getCategories, updateUseCaseAssignmentAction } from "@/actions/admin/categories/actions"
+import {
+  getUseCases,
+  getCategories,
+  updateUseCaseAssignmentAction,
+} from "@/actions/admin/categories/actions"
 import EditAssignmentForm from "./form"
 import { notFound } from "next/navigation"
 
@@ -37,4 +41,3 @@ export default async function EditAssignmentPage({
     />
   )
 }
-

@@ -35,7 +35,9 @@ export function CategoryCard({
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[linear-gradient(90deg,var(--brand-1),var(--brand-3))] text-white shadow-sm">
             <CategoryIcon icon={icon} size={16} className="text-white" />
           </span>
-          <span className="font-semibold text-sm md:text-base truncate">{name}</span>
+          <span className="font-semibold text-sm md:text-base truncate">
+            {name}
+          </span>
         </div>
         {typeof count === "number" && (
           <Badge variant="secondary" className="shrink-0">
@@ -51,4 +53,3 @@ export function CategoryCard({
     </Link>
   )
 }
-

@@ -281,7 +281,8 @@ export async function updateUseCaseAssignmentAction(
   try {
     // No changes
     if (
-      prev.useCaseId === next.useCaseId && prev.categoryId === next.categoryId
+      prev.useCaseId === next.useCaseId &&
+      prev.categoryId === next.categoryId
     ) {
       return { success: true }
     }

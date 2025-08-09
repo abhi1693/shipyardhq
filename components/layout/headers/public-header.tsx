@@ -25,7 +25,11 @@ export default function PublicHeader() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
         {/* Left: Logo + Links (desktop) */}
         <div className="hidden md:flex items-center gap-8">
-          <Link href="/" className="inline-flex items-center gap-2" aria-label="ShipYardHQ home">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2"
+            aria-label="ShipYardHQ home"
+          >
             <span className="inline-block size-5 rounded-md bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))]" />
             <span className="text-xl font-bold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]">
               ShipYardHQ
@@ -79,9 +83,15 @@ export default function PublicHeader() {
 
         {/* Mobile: Logo + Trigger */}
         <div className="md:hidden flex items-center justify-between w-full">
-          <Link href="/" className="inline-flex items-center gap-2" aria-label="ShipYardHQ home">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2"
+            aria-label="ShipYardHQ home"
+          >
             <span className="inline-block size-5 rounded-md bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))]" />
-            <span className="text-base font-semibold tracking-tight">ShipYardHQ</span>
+            <span className="text-base font-semibold tracking-tight">
+              ShipYardHQ
+            </span>
           </Link>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>

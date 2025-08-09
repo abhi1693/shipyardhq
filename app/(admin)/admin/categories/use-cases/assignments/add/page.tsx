@@ -13,4 +13,3 @@ export default async function AddUseCaseAssignmentPage() {
 
   return <AddAssignmentForm useCases={useCases} categories={categories} />
 }
-

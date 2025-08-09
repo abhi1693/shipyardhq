@@ -15,4 +15,3 @@ export default async function DeleteAssignmentPage({
 
   redirect("/admin/categories/use-cases/assignments")
 }
-

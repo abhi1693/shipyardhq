@@ -6,7 +6,12 @@ import { Metadata } from "next"
 
 import { Badge } from "@/components/atoms/badge"
 import { StatCard } from "@/components/molecules/StatCard"
-import { IconPackage, IconThumbUp, IconUsers, IconTrophy } from "@tabler/icons-react"
+import {
+  IconPackage,
+  IconThumbUp,
+  IconUsers,
+  IconTrophy,
+} from "@tabler/icons-react"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { LeaderboardFilters } from "./filters"
@@ -76,7 +81,11 @@ export default async function LeaderboardPage({
       </div>
 
       {/* Filters */}
-      <LeaderboardFilters categories={categories} selected={categorySlug} limit={limit} />
+      <LeaderboardFilters
+        categories={categories}
+        selected={categorySlug}
+        limit={limit}
+      />
 
       {/* Top 3 Featured */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 place-items-center">
@@ -138,7 +147,9 @@ export default async function LeaderboardPage({
               category={product.category.name}
               compact
               topRight={
-                <Badge variant="secondary" className="px-2 py-0.5 text-xs">#{index + 4}</Badge>
+                <Badge variant="secondary" className="px-2 py-0.5 text-xs">
+                  #{index + 4}
+                </Badge>
               }
             />
           </div>

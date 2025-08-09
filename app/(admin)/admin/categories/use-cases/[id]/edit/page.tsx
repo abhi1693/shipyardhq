@@ -19,4 +19,3 @@ export default async function EditUseCasePage({
 
   return <EditUseCaseForm id={useCase.id} label={useCase.label} />
 }
-

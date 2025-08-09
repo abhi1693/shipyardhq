@@ -1,6 +1,11 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { formatCurrency } from "@/lib/ui/formatters"
@@ -49,14 +54,19 @@ export function PricingCard({
     <span className="text-4xl font-extrabold tracking-tight">{priceText}</span>
   )
   const priceSub = isFree ? null : (
-    <span className="text-sm text-muted-foreground">per {frequency} {interval}{frequency > 1 ? "s" : ""}</span>
+    <span className="text-sm text-muted-foreground">
+      per {frequency} {interval}
+      {frequency > 1 ? "s" : ""}
+    </span>
   )
 
   return (
-    <Card className={clsx("h-full min-h-[22rem] flex flex-col")}> 
+    <Card className={clsx("h-full min-h-[22rem] flex flex-col")}>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold truncate">{name}</CardTitle>
+          <CardTitle className="text-lg font-semibold truncate">
+            {name}
+          </CardTitle>
           {isPopular && !isFree && (
             <Badge className="bg-orange-100 text-orange-800 border-orange-300">
               <IconFlame className="h-3.5 w-3.5 mr-1" /> Popular
@@ -68,7 +78,9 @@ export function PricingCard({
           {priceSub}
         </div>
         {description && (
-          <p className="text-base text-foreground/90 leading-snug">{description}</p>
+          <p className="text-base text-foreground/90 leading-snug">
+            {description}
+          </p>
         )}
       </CardHeader>
       <CardContent className="flex-1 flex flex-col">
@@ -76,8 +88,8 @@ export function PricingCard({
           {features
             .filter((f) => f.enabled)
             .map((f) => (
-            <PricingFeature key={f.id} label={f.name} enabled={true} />
-          ))}
+              <PricingFeature key={f.id} label={f.name} enabled={true} />
+            ))}
         </ul>
         <div className="mt-auto">
           <Button asChild className="w-full">

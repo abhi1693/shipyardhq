@@ -27,6 +27,7 @@ export function CategoryUseCaseRelationship({
     },
   ]
 
-  return <Relationship title="Related Use Cases" rows={rows} columns={columns} />
+  return (
+    <Relationship title="Related Use Cases" rows={rows} columns={columns} />
+  )
 }
-

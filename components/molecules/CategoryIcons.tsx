@@ -58,4 +58,3 @@ export function CategoryIcon({
   if (!Comp) return null
   return <Comp size={size} className={cn("text-muted-foreground", className)} />
 }
-

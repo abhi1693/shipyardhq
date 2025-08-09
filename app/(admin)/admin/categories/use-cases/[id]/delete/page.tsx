@@ -15,4 +15,3 @@ export default async function DeleteUseCasePage({
 
   redirect("/admin/categories/use-cases")
 }
-

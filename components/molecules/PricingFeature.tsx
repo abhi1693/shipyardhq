@@ -13,7 +13,12 @@ export function PricingFeature({
   subtle?: boolean
 }) {
   return (
-    <li className={clsx("flex items-start gap-2 text-sm", subtle && "text-muted-foreground")}> 
+    <li
+      className={clsx(
+        "flex items-start gap-2 text-sm",
+        subtle && "text-muted-foreground",
+      )}
+    >
       <span
         className={clsx(
           "mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-sm border",
@@ -22,10 +27,13 @@ export function PricingFeature({
             : "bg-muted text-muted-foreground border-transparent",
         )}
       >
-        {enabled ? <IconCheck className="h-4 w-4" /> : <IconMinus className="h-4 w-4" />}
+        {enabled ? (
+          <IconCheck className="h-4 w-4" />
+        ) : (
+          <IconMinus className="h-4 w-4" />
+        )}
       </span>
       <span className="leading-tight">{label}</span>
     </li>
   )
 }
-

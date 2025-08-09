@@ -1,5 +1,10 @@
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 
 export default function CTAFeatureYourProductCard() {
@@ -15,7 +20,9 @@ export default function CTAFeatureYourProductCard() {
           Boost visibility by getting featured on our homepage.
         </p>
         <Link href="/member/products/add">
-          <Button size="sm" variant="outline">Submit Your Product</Button>
+          <Button size="sm" variant="outline">
+            Submit Your Product
+          </Button>
         </Link>
       </CardContent>
     </Card>

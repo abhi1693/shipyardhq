@@ -22,7 +22,11 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
                 price={p.price}
                 interval={p.interval}
                 frequency={p.frequency}
-                isPopular={p.price > 0 && (p.productCount || 0) === maxCount && maxCount > 0}
+                isPopular={
+                  p.price > 0 &&
+                  (p.productCount || 0) === maxCount &&
+                  maxCount > 0
+                }
                 features={p.features}
               />
             </CardWrapper>
@@ -45,7 +49,9 @@ function CardWrapper({
   useEffect(() => {
     function equalize() {
       const nodes = Array.from(
-        document.querySelectorAll<HTMLDivElement>("[data-pricing-card-wrapper]"),
+        document.querySelectorAll<HTMLDivElement>(
+          "[data-pricing-card-wrapper]",
+        ),
       )
       // Reset heights to natural to measure
       nodes.forEach((n) => (n.style.height = "auto"))
@@ -59,11 +65,7 @@ function CardWrapper({
   }, [])
 
   return (
-    <div
-      ref={ref}
-      data-pricing-card-wrapper
-      className="w-full max-w-sm"
-    >
+    <div ref={ref} data-pricing-card-wrapper className="w-full max-w-sm">
       {children}
     </div>
   )
