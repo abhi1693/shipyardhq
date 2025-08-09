@@ -4,6 +4,7 @@ import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { Prisma } from "@prisma/client"
 import { CategoryProductRelationship } from "@/app/(admin)/admin/categories/[id]/relationships/products"
 import { CategoryUseCaseRelationship } from "@/app/(admin)/admin/categories/[id]/relationships/use-cases"
+import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 
 export default async function ViewCategoryPage({
   params,
@@ -53,6 +54,17 @@ export default async function ViewCategoryPage({
       overview={[
         { label: "Name", value: category.name },
         { label: "Slug", value: category.slug },
+        {
+          label: "Icon",
+          value: (
+            <span className="flex items-center gap-2">
+              <CategoryIcon icon={(category as any).icon} />
+              <span className="text-sm text-muted-foreground">
+                {(category as any).icon || "—"}
+              </span>
+            </span>
+          ),
+        },
         { label: "Description", value: category.description },
       ]}
       basePath="admin/categories"

@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import { Badge } from "@/components/atoms/badge"
 import Link from "next/link"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
+import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -36,7 +37,10 @@ export default async function CategoriesPage() {
             href={`/categories/${cat.slug}`}
             className="border rounded-xl p-4 bg-background hover:shadow-md transition-all flex flex-col gap-3"
           >
-            <h3 className="text-base font-semibold">{cat.name}</h3>
+            <h3 className="text-base font-semibold flex items-center gap-2">
+              <CategoryIcon icon={(cat as any).icon} />
+              {cat.name}
+            </h3>
             <p className="text-sm text-muted-foreground line-clamp-2">
               {cat.description}
             </p>

@@ -3,8 +3,21 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Category } from "@prisma/client"
 import { formatDate, slug, linkify } from "@/lib/ui/formatters"
+import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 
 export const columns: ColumnDef<Category>[] = [
+  {
+    id: "icon",
+    header: "Icon",
+    cell: ({ row }) => (
+      <span className="inline-flex items-center gap-2">
+        <CategoryIcon icon={(row.original as any).icon} />
+        <span className="text-xs text-muted-foreground">
+          {(row.original as any).icon || "—"}
+        </span>
+      </span>
+    ),
+  },
   {
     accessorKey: "name",
     header: "Name",

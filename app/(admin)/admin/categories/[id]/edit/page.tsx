@@ -22,6 +22,7 @@ export default async function EditCategoryPage({
       id={category.id}
       name={category.name}
       description={category.description}
+      icon={(category as any).icon ?? undefined}
     />
   )
 }

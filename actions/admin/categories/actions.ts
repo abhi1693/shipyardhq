@@ -42,9 +42,13 @@ async function isExist(name: string, slug: string) {
 export async function createCategoryAction(formData: FormData) {
   const name = formData.get("name")
   const description = formData.get("description")?.toString() || ""
+  const icon = formData.get("icon")?.toString()
 
   if (typeof name !== "string" || name.trim() === "") {
     return { error: "Name is required" }
+  }
+  if (typeof icon !== "string" || icon.trim() === "") {
+    return { error: "Icon is required" }
   }
 
   const cleanName = name.trim()
@@ -57,7 +61,7 @@ export async function createCategoryAction(formData: FormData) {
 
   try {
     await prisma.category.create({
-      data: { name: cleanName, slug, description },
+      data: { name: cleanName, slug, description, icon },
     })
     return { success: true }
   } catch (error) {
@@ -68,16 +72,20 @@ export async function createCategoryAction(formData: FormData) {
 
 export async function updateCategoryAction(
   id: string,
-  data: { name: string; description: string },
+  data: { name: string; description: string; icon: string },
 ) {
   const name = data.name.trim()
   const slug = slugify(name)
   const description = data.description?.trim() || ""
+  const icon = (data.icon || "").trim()
+  if (!icon) {
+    return { error: "Icon is required" }
+  }
 
   try {
     return await prisma.category.update({
       where: { id },
-      data: { name, slug, description },
+      data: { name, slug, description, icon },
     })
   } catch (error) {
     console.error("Error updating category:", error)

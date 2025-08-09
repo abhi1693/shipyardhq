@@ -57,11 +57,17 @@ async function main() {
 
   // Seed Categories
   const categories: Prisma.CategoryCreateInput[] = [
-    { name: "Dev Tools", slug: "dev-tools", description: "This is a sample" },
+    {
+      name: "Dev Tools",
+      slug: "dev-tools",
+      description: "This is a sample",
+      icon: "tool",
+    },
     {
       name: "Productivity",
       slug: "productivity",
       description: "This is a sample",
+      icon: "bolt",
     },
   ]
   const createdCategories = await Promise.all(

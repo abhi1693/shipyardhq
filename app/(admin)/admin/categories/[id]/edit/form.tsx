@@ -25,10 +25,19 @@ import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
 import { updateCategoryAction } from "@/actions/admin/categories/actions"
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/atoms/select"
+import { CATEGORY_ICON_OPTIONS } from "@/components/molecules/CategoryIcons"
 
 const categoryFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
   description: z.string(),
+  icon: z.string().min(1, "Icon is required"),
 })
 
 type CategoryFormInput = z.infer<typeof categoryFormSchema>
@@ -37,17 +46,19 @@ export default function EditCategoryForm({
   id,
   name,
   description,
+  icon,
 }: {
   id: string
   name: string
   description: string
+  icon?: string
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   const form = useForm<CategoryFormInput>({
     resolver: zodResolver(categoryFormSchema),
-    defaultValues: { name, description },
+    defaultValues: { name, description, icon: icon || undefined },
   })
 
   async function onSubmit(values: CategoryFormInput) {
@@ -83,6 +94,32 @@ export default function EditCategoryForm({
                     <FormControl>
                       <Input placeholder="Enter category name" {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="icon"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Icon</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an icon" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CATEGORY_ICON_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            <span className="flex items-center gap-2">
+                              <opt.Icon size={16} /> {opt.label}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
