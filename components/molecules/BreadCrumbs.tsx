@@ -1,4 +1,5 @@
 "use client"
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,15 +12,40 @@ import { useBreadcrumbs } from "@/hooks/use-breadcrumbs"
 import { IconSlash } from "@tabler/icons-react"
 import { Fragment } from "react"
 
-export function Breadcrumbs() {
-  const items = useBreadcrumbs()
+type Crumb = { title: string; link?: string }
+
+export function Breadcrumbs({
+  items: override,
+  prefixItems,
+  suffixItems,
+  transform,
+}: {
+  items?: Crumb[]
+  prefixItems?: Crumb[]
+  suffixItems?: Crumb[]
+  transform?: (items: Crumb[]) => Crumb[]
+}) {
+  const fallbackItems = useBreadcrumbs()
+
+  let items: Crumb[] = override ?? fallbackItems
+
+  if (prefixItems?.length) items = [...prefixItems, ...items]
+  if (suffixItems?.length) items = [...items, ...suffixItems]
+  if (transform) items = transform(items)
+
+  // Always start with Home
+  const first = items[0]
+  if (!first || (first.link !== "/" && first.title.toLowerCase() !== "home")) {
+    items = [{ title: "Home", link: "/" }, ...items]
+  }
+
   if (items.length === 0) return null
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
         {items.map((item, index) => (
-          <Fragment key={item.title}>
+          <Fragment key={`${item.title}-${index}`}>
             {index !== items.length - 1 && (
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink href={item.link}>{item.title}</BreadcrumbLink>

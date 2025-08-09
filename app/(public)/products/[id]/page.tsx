@@ -55,7 +55,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
-        <Breadcrumbs />
+        <Breadcrumbs
+          items={[
+            { title: "Categories", link: "/categories" },
+            {
+              title: product.category.name,
+              link: `/categories/${product.category.slug}`,
+            },
+            { title: "Products", link: "/browse" },
+            { title: product.name },
+          ]}
+        />
 
         {/* Header */}
         <div className="flex items-start gap-6">
