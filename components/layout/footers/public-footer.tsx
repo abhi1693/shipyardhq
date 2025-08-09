@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Mail, Twitter } from "lucide-react"
 import { Button } from "@/components/atoms/button"
 
@@ -20,7 +21,15 @@ export default function PublicFooter() {
         {/* Brand */}
         <div className="space-y-3">
           <Link href="/" className="inline-flex items-center gap-2">
-            <span className="inline-block size-6 md:size-7 rounded-md bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))]" />
+            <Image
+              src="/brand.png"
+              alt="ShipYardHQ"
+              width={28}
+              height={28}
+              sizes="(min-width: 768px) 28px, 24px"
+              className="h-6 w-6 md:h-7 md:w-7 object-contain"
+              priority
+            />
             <span className="text-lg md:text-xl font-semibold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]">
               ShipYardHQ
             </span>
