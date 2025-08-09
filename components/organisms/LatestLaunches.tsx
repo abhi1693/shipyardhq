@@ -9,12 +9,14 @@ interface LatestLaunchesProps {
 export function LatestLaunches({ products }: LatestLaunchesProps) {
   const now = new Date()
 
+  if (!products || products.length === 0) return null
+
   return (
     <section className="py-16 border-b" id="latest">
       <div className="max-w-[84rem] mx-auto px-4 space-y-8">
-        <div className="text-center">
+        <div className="text-left">
           <h2 className="text-3xl font-bold tracking-tight">Latest Launches</h2>
-          <div className="mx-auto mt-3 h-1.5 w-16 rounded-full bg-[linear-gradient(90deg,var(--brand-2),var(--brand-3),var(--brand-1))]" />
+          <div className="mt-3 h-1.5 w-16 rounded-full bg-[linear-gradient(90deg,var(--brand-2),var(--brand-3),var(--brand-1))]" />
           <p className="text-muted-foreground mt-2">
             Fresh off the launchpad. Explore what’s new.
           </p>
