@@ -1,13 +1,8 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/atoms/select"
+import InlineSelect from "@/components/molecules/InlineSelect"
+import { buildQuery } from "@/lib/urlParams"
 
 export function LeaderboardFilters({
   categories,
@@ -22,52 +17,37 @@ export function LeaderboardFilters({
   const search = useSearchParams()
 
   const updateQuery = (updates: Record<string, string | undefined>) => {
-    const params = new URLSearchParams(search.toString())
-    Object.entries(updates).forEach(([k, v]) => {
-      if (!v) params.delete(k)
-      else params.set(k, v)
-    })
-    router.push(`/leaderboard?${params.toString()}`)
+    router.push(
+      buildQuery("/leaderboard", search?.toString() ?? "", updates),
+    )
   }
 
   return (
     <div className="flex flex-wrap items-center gap-3 py-2">
       <div className="text-sm text-muted-foreground">Filter</div>
-      <Select
+      <InlineSelect
         value={selected || "all"}
         onValueChange={(v) =>
           updateQuery({ category: v === "all" ? undefined : v })
         }
-      >
-        <SelectTrigger className="h-8 w-[200px]">
-          <SelectValue placeholder="All categories" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All categories</SelectItem>
-          {categories.map((c) => (
-            <SelectItem key={c.id} value={c.slug}>
-              {c.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        placeholder="All categories"
+        options={[
+          { value: "all", label: "All categories" },
+          ...categories.map((c) => ({ value: c.slug, label: c.name })),
+        ]}
+        triggerClassName="h-8 w-[200px]"
+      />
 
       <div className="text-sm text-muted-foreground">Show</div>
-      <Select
+      <InlineSelect
         value={String(limit)}
         onValueChange={(v) => updateQuery({ limit: v })}
-      >
-        <SelectTrigger className="h-8 w-[120px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {[10, 25, 50, 100].map((n) => (
-            <SelectItem key={n} value={String(n)}>
-              Top {n}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        options={[10, 25, 50, 100].map((n) => ({
+          value: String(n),
+          label: `Top ${n}`,
+        }))}
+        triggerClassName="h-8 w-[120px]"
+      />
     </div>
   )
 }

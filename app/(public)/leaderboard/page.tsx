@@ -18,6 +18,7 @@ import { LeaderboardFilters } from "./filters"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import ProductList from "@/components/molecules/ProductList"
+import Medal from "@/components/atoms/Medal"
 
 export const metadata: Metadata = {
   title: "Product Leaderboard",
@@ -103,21 +104,7 @@ export default async function LeaderboardPage({
                 initial: (product.user.firstName?.[0] ?? "?").toUpperCase(),
               }}
               category={product.category.name}
-              topRight={
-                index === 0 ? (
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-100 text-yellow-800 border text-sm">
-                    🥇
-                  </span>
-                ) : index === 1 ? (
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-100 text-yellow-800 border text-sm">
-                    🥈
-                  </span>
-                ) : (
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-100 text-yellow-800 border text-sm">
-                    🥉
-                  </span>
-                )
-              }
+              topRight={<Medal rank={(index + 1) as 1 | 2 | 3} />}
             />
           </div>
         ))}

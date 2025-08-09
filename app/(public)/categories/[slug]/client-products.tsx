@@ -1,14 +1,8 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/atoms/select"
 import ProductList from "@/components/molecules/ProductList"
+import InlineSelect from "@/components/molecules/InlineSelect"
 
 type ProductForCard = {
   id: string
@@ -62,18 +56,19 @@ export function CategoryProductsClient({ products }: Props) {
         <h2 className="text-lg font-semibold">Products</h2>
         <div className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">Sort by</span>
-          <Select onValueChange={(v) => setSort(v as SortKey)} value={sort}>
-            <SelectTrigger className="h-8 w-[160px]">
-              <SelectValue placeholder="Select sort" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest</SelectItem>
-              <SelectItem value="upvotes">Most Upvoted</SelectItem>
-              <SelectItem value="views">Most Viewed</SelectItem>
-              <SelectItem value="clicks">Most Clicked</SelectItem>
-              <SelectItem value="name">Name (A–Z)</SelectItem>
-            </SelectContent>
-          </Select>
+          <InlineSelect
+            value={sort}
+            onValueChange={(v) => setSort(v as SortKey)}
+            placeholder="Select sort"
+            options={[
+              { value: "newest", label: "Newest" },
+              { value: "upvotes", label: "Most Upvoted" },
+              { value: "views", label: "Most Viewed" },
+              { value: "clicks", label: "Most Clicked" },
+              { value: "name", label: "Name (A–Z)" },
+            ]}
+            triggerClassName="h-8 w-[160px]"
+          />
         </div>
       </div>
 

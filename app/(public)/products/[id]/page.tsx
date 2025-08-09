@@ -12,15 +12,9 @@ import {
   getPublicProduct,
   getRelatedProductsByCategory,
 } from "@/actions/public/products/actions"
-import {
-  CheckCircle,
-  ExternalLink,
-  Github,
-  Twitter,
-  Mail,
-  Tag,
-} from "lucide-react"
+import { CheckCircle, ExternalLink, Github, Twitter, Mail, Tag } from "lucide-react"
 import PublicContainer from "@/components/layout/PublicContainer"
+import ExternalBadgeLink from "@/components/molecules/ExternalBadgeLink"
 
 interface ProductPageProps {
   params: { id: string }
@@ -124,36 +118,36 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </div>
 
           <div className="flex flex-wrap gap-3 pt-1">
-            <Link href={product.websiteUrl} target="_blank">
-              <Badge className="flex items-center gap-1">
+            <ExternalBadgeLink href={product.websiteUrl} target="_blank">
+              <span className="flex items-center gap-1">
                 <ExternalLink size={14} /> Website
-              </Badge>
-            </Link>
+              </span>
+            </ExternalBadgeLink>
             {product.metadata?.demoUrl && (
-              <Link href={product.metadata.demoUrl} target="_blank">
-                <Badge variant="outline">Live Demo</Badge>
-              </Link>
+              <ExternalBadgeLink href={product.metadata.demoUrl} target="_blank" variant="outline">
+                Live Demo
+              </ExternalBadgeLink>
             )}
             {product.metadata?.githubUrl && (
-              <Link href={product.metadata.githubUrl} target="_blank">
-                <Badge variant="outline" className="flex items-center gap-1">
+              <ExternalBadgeLink href={product.metadata.githubUrl} target="_blank" variant="outline">
+                <span className="flex items-center gap-1">
                   <Github size={14} /> GitHub
-                </Badge>
-              </Link>
+                </span>
+              </ExternalBadgeLink>
             )}
             {product.metadata?.twitterUrl && (
-              <Link href={product.metadata.twitterUrl} target="_blank">
-                <Badge variant="outline" className="flex items-center gap-1">
+              <ExternalBadgeLink href={product.metadata.twitterUrl} target="_blank" variant="outline">
+                <span className="flex items-center gap-1">
                   <Twitter size={14} /> Twitter
-                </Badge>
-              </Link>
+                </span>
+              </ExternalBadgeLink>
             )}
             {product.metadata?.contactEmail && (
-              <Link href={`mailto:${product.metadata.contactEmail}`}>
-                <Badge variant="outline" className="flex items-center gap-1">
+              <ExternalBadgeLink href={`mailto:${product.metadata.contactEmail}`} variant="outline">
+                <span className="flex items-center gap-1">
                   <Mail size={14} /> Contact
-                </Badge>
-              </Link>
+                </span>
+              </ExternalBadgeLink>
             )}
           </div>
 
