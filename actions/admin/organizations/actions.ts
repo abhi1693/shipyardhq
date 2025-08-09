@@ -73,3 +73,34 @@ export async function deleteOrganizationAction(id: string) {
     return { error: "Failed to delete organization" }
   }
 }
+
+export async function createOrganizationMembershipAction(formData: FormData) {
+  const organizationId = formData.get("organizationId")?.toString()
+  const userId = formData.get("userId")?.toString()
+  const jobTitle = formData.get("jobTitle")?.toString() || undefined
+
+  if (!organizationId || !userId) return { error: "Organization and User are required" }
+
+  try {
+    await prisma.organizationMembership.create({
+      data: { organizationId, userId, jobTitle },
+    })
+    return { success: true }
+  } catch (error: any) {
+    console.error("Error creating organization membership:", error)
+    if (error?.code === "P2002") {
+      return { error: "User is already a member of this organization" }
+    }
+    return { error: "Failed to add member" }
+  }
+}
+
+export async function deleteOrganizationMembershipAction(id: string) {
+  try {
+    await prisma.organizationMembership.delete({ where: { id } })
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting organization membership:", error)
+    return { error: "Failed to remove member" }
+  }
+}

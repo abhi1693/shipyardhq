@@ -12,16 +12,21 @@ export function Relationship<T>({
   rows,
   columns,
   emptyMessage = "No related records found.",
+  action,
 }: {
   title: string
   rows: T[]
   columns: ColumnDef<T>[]
   emptyMessage?: string
+  action?: React.ReactNode
 }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">{title}</CardTitle>
+          {action ? <div className="shrink-0">{action}</div> : null}
+        </div>
       </CardHeader>
       <CardContent>
         {rows.length === 0 ? (

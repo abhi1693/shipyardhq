@@ -28,7 +28,12 @@ export default async function ViewOrganizationPage({ params }: { params: { id: s
       basePath="admin/organizations"
       deletable
       editable
-      relationships={<OrganizationMembersRelationship rows={org.memberships as any} />}
+      relationships={
+        <OrganizationMembersRelationship
+          rows={org.memberships as any}
+          organizationId={org.id}
+        />
+      }
     />
   )
 }
