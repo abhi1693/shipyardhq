@@ -20,9 +20,16 @@ export async function getLeaderboardStats() {
   }
 }
 
-export async function getTopRankedProducts(limit = 50) {
+export async function getTopRankedProducts(args?: {
+  limit?: number
+  categorySlug?: string
+}) {
+  const limit = args?.limit ?? 50
+  const categorySlug = args?.categorySlug
+
   return prisma.product.findMany({
     take: limit,
+    where: categorySlug ? { category: { slug: categorySlug } } : undefined,
     orderBy: {
       analytics: {
         upvotes: "desc",

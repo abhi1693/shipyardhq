@@ -4,21 +4,27 @@ import {
 } from "@/actions/public/leaderboard/actions"
 import { Metadata } from "next"
 
-import { Card } from "@/components/atoms/card"
-import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { Badge } from "@/components/atoms/badge"
-import { ThumbsUp } from "lucide-react"
 import { StatCard } from "@/components/molecules/StatCard"
-import Link from "next/link"
+import { ProductCard } from "@/components/molecules/ProductCard"
+import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
+import { LeaderboardFilters } from "./filters"
 
 export const metadata: Metadata = {
   title: "Product Leaderboard",
   description: "See the most upvoted products across the platform.",
 }
 
-export default async function LeaderboardPage() {
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: { category?: string; limit?: string }
+}) {
   const stats = await getLeaderboardStats()
-  const products = await getTopRankedProducts()
+  const categories = await getCategoriesWithCounts()
+  const limit = Number(searchParams?.limit || 50)
+  const categorySlug = searchParams?.category || undefined
+  const products = await getTopRankedProducts({ limit, categorySlug })
 
   return (
     <div className="min-h-screen w-full px-4 md:px-8 py-10 space-y-10">
@@ -58,58 +64,40 @@ export default async function LeaderboardPage() {
         />
       </div>
 
-      {/* Leaderboard List */}
-      <div className="space-y-4">
+      {/* Filters */}
+      <LeaderboardFilters categories={categories} selected={categorySlug} limit={limit} />
+
+      {/* Leaderboard Grid (similar to category page) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {products.map((product, index) => (
-          <Link
-            key={product.id}
-            href={`/products/${product.id}`}
-            className="block"
-          >
-            <Card className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 gap-4 shadow-sm border hover:shadow-md transition cursor-pointer">
-              {/* Left: Rank + Product Info */}
-              <div className="flex items-start gap-4">
-                <Badge
-                  variant="secondary"
-                  className="text-xs font-medium px-2 py-1 rounded-full mt-1"
-                >
-                  #{index + 1}
-                </Badge>
-
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-base font-semibold leading-snug">
-                      {product.name}
-                    </h3>
-                    <Badge variant="outline" className="text-xs">
-                      {product.category.name}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-tight line-clamp-1">
-                    {product.tagline}
-                  </p>
-                </div>
-              </div>
-
-              {/* Right: Upvotes + Author */}
-              <div className="flex items-center gap-4 mt-2 sm:mt-0 sm:ml-auto text-sm shrink-0">
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <ThumbsUp className="w-4 h-4" />
-                  <span>{product.analytics?.upvotes ?? 0}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback>
-                      {product.user.firstName?.[0] ?? "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm">
-                    {product.user.firstName} {product.user.lastName}
+          <div key={product.id}>
+            <ProductCard
+              product={{
+                id: product.id,
+                name: product.name,
+                logo: product.logo,
+                tagline: product.tagline,
+              }}
+              upvotes={product.analytics?.upvotes ?? 0}
+              author={{
+                name: `${product.user.firstName ?? ""} ${
+                  product.user.lastName ?? ""
+                }`.trim(),
+                initial: (product.user.firstName?.[0] ?? "?").toUpperCase(),
+              }}
+              category={product.category.name}
+              compact
+              topRight={
+                index < 3 ? (
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-100 text-yellow-800 border text-sm">
+                    {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"}
                   </span>
-                </div>
-              </div>
-            </Card>
-          </Link>
+                ) : (
+                  <Badge variant="secondary" className="px-2 py-0.5 text-xs">#{index + 1}</Badge>
+                )
+              }
+            />
+          </div>
         ))}
       </div>
     </div>

@@ -29,6 +29,7 @@ interface ProductCardProps {
   }
   category?: string
   compact?: boolean
+  topRight?: React.ReactNode
 }
 
 export function ProductCard({
@@ -38,6 +39,7 @@ export function ProductCard({
   author,
   category,
   compact = false,
+  topRight,
 }: ProductCardProps) {
   return (
     <Link
@@ -46,10 +48,13 @@ export function ProductCard({
     >
       <Card
         className={clsx(
-          "h-full bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all",
+          "relative h-full bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all",
           compact && "p-3",
         )}
       >
+        {topRight && (
+          <div className="absolute top-2 right-2 z-10">{topRight}</div>
+        )}
         <CardHeader className={clsx("pb-3", compact && "p-0")}>
           <div className="flex gap-3 items-start">
             <div
