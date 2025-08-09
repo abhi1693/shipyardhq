@@ -1,9 +1,8 @@
-import { ProductCard } from "@/components/molecules/ProductCard"
 import CTAFeatureYourProductCard from "@/components/molecules/CTAFeatureYourProductCard"
 import { FeaturedProduct } from "@/types"
-import UniformCard from "@/components/molecules/UniformCard"
 import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
 import PublicContainer from "@/components/layout/PublicContainer"
+import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 
 export function FeaturedHighlights({
   products,
@@ -25,39 +24,11 @@ export function FeaturedHighlights({
         }
       />
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 items-stretch sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-5">
-        {products.map(({ id, product }) => (
-          <UniformCard key={id} size="normal">
-            <ProductCard
-              product={{
-                id: product.id,
-                name: product.name,
-                logo: product.logo,
-                tagline: product.tagline,
-              }}
-              badges={product.ProductBadge.map((pb) => pb.badge)}
-              upvotes={product.analytics?.upvotes ?? 0}
-              author={
-                product.user
-                  ? {
-                      name: `${product.user.firstName ?? ""} ${
-                        product.user.lastName ?? ""
-                      }`.trim(),
-                      initial: product.user.firstName?.[0] ?? "U",
-                    }
-                  : undefined
-              }
-              category={product.category?.name}
-            />
-          </UniformCard>
-        ))}
-
-        {/* Always show the promo card at the end */}
-        <UniformCard size="normal">
-          <CTAFeatureYourProductCard />
-        </UniformCard>
-      </div>
+      <FeaturedProductGrid
+        items={products}
+        filterExpiredBadges={false}
+        extra={<CTAFeatureYourProductCard />}
+      />
     </PublicContainer>
   )
 }
