@@ -96,6 +96,8 @@ export async function getTopCategories(limit = 10) {
       id: true,
       name: true,
       slug: true,
+      description: true,
+      icon: true,
       _count: {
         select: {
           products: true,

@@ -1,9 +1,13 @@
 import Link from "next/link"
+import { Badge } from "@/components/atoms/badge"
+import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 
 interface CategoryWithCount {
   id: string
   name: string
   slug: string
+  description: string
+  icon: string
   _count: {
     products: number
   }
@@ -30,12 +34,25 @@ export function TopCategories({ categories }: TopCategoriesProps) {
             <Link
               key={cat.id}
               href={`/categories/${cat.slug}`}
-              className="block p-4 rounded-lg border hover:border-primary transition-all bg-card text-card-foreground shadow-sm"
+              className="group block h-full rounded-lg border bg-card p-4 text-card-foreground shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
             >
-              <div className="font-semibold text-base">{cat.name}</div>
-              <div className="text-sm text-muted-foreground mt-1">
-                {cat._count.products} product{cat._count.products !== 1 && "s"}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[linear-gradient(90deg,var(--brand-1),var(--brand-3))] text-white shadow-sm">
+                    <CategoryIcon icon={cat.icon} size={16} className="text-white" />
+                  </span>
+                  <div className="font-semibold text-sm md:text-base truncate">
+                    {cat.name}
+                  </div>
+                </div>
+                <Badge variant="secondary" className="shrink-0">
+                  {cat._count.products} product
+                  {cat._count.products !== 1 && "s"}
+                </Badge>
               </div>
+              <p className="mt-2 text-xs md:text-sm text-muted-foreground line-clamp-2">
+                {cat.description}
+              </p>
             </Link>
           ))}
         </div>
