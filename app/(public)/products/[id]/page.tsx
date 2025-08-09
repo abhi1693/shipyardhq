@@ -20,6 +20,7 @@ import {
   Mail,
   Tag,
 } from "lucide-react"
+import PublicContainer from "@/components/layout/PublicContainer"
 
 interface ProductPageProps {
   params: { id: string }
@@ -59,8 +60,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     .filter(Boolean) as typeof BADGE_OPTIONS
 
   return (
-    <div className="min-h-screen py-10">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-8">
+    <PublicContainer max="7xl">
+      <div className="space-y-8">
         <Breadcrumbs />
 
         {/* Header */}
@@ -229,6 +230,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </div>
         )}
       </div>
-    </div>
+    </PublicContainer>
   )
 }

@@ -9,6 +9,8 @@ import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
+import PublicContainer from "@/components/layout/PublicContainer"
+import { PageHeader } from "@/components/molecules/PageHeader"
 
 export const metadata: Metadata = {
   title: "Browse Products",
@@ -90,22 +92,21 @@ export default async function BrowsePage({
   }
 
   return (
-    <div className="min-h-screen w-full px-4 md:px-8 py-10 max-w-7xl mx-auto">
+    <PublicContainer max="7xl">
       {/* Header */}
       <div className="mb-6 space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">
-          Discover the best startups.
-        </h1>
-        <div className="mt-1 h-1.5 w-16 rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]" />
-        <p className="text-muted-foreground max-w-2xl">
-          Browse through a curated collection of SaaS tools, micro-SaaS
-          solutions, and indie side projects built by hackers and makers.
-        </p>
-        <div className="text-sm text-muted-foreground">
-          Showing {products.length} result{products.length !== 1 && "s"}
-          {" • "}Sort: {sortLabelMap[sort] ?? "Newest"}
-        </div>
-
+        <PageHeader
+          title="Discover the best startups."
+          subtitle="Browse through a curated collection of SaaS tools, micro-SaaS solutions, and indie side projects built by hackers and makers."
+          underline
+          meta={
+            <>
+              Showing {products.length} result{products.length !== 1 && "s"}
+              {" • "}Sort: {sortLabelMap[sort] ?? "Newest"}
+            </>
+          }
+        />
+        
         {/* Filter Bar */}
         <div className="mb-4">
           <BrowseFilterBar
@@ -155,6 +156,6 @@ export default async function BrowsePage({
           )}
         </div>
       </div>
-    </div>
+    </PublicContainer>
   )
 }

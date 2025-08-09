@@ -1,8 +1,8 @@
 import { Metadata } from "next"
-import { Badge } from "@/components/atoms/badge"
-import Link from "next/link"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { CategoryCard } from "@/components/molecules/CategoryCard"
+import PublicContainer from "@/components/layout/PublicContainer"
+import { PageHeader } from "@/components/molecules/PageHeader"
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -14,19 +14,18 @@ export default async function CategoriesPage() {
   const categories = await getCategoriesWithCounts()
 
   return (
-    <div className="min-h-screen w-full px-4 md:px-8 py-10">
+    <PublicContainer max="7xl">
       {/* Header */}
-      <div className="mb-8 space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">
-          Discover Top Startup Categories
-        </h1>
-        <p className="text-muted-foreground max-w-3xl">
-          Explore our curated categories to discover innovative startups and
-          solutions shaping the future.
-        </p>
-        <p className="text-sm text-muted-foreground mt-1">
-          Showing <strong>{categories.length}</strong> categories
-        </p>
+      <div className="mb-8">
+        <PageHeader
+          title="Discover Top Startup Categories"
+          subtitle="Explore our curated categories to discover innovative startups and solutions shaping the future."
+          meta={
+            <>
+              Showing <strong>{categories.length}</strong> categories
+            </>
+          }
+        />
       </div>
 
       {/* Categories Grid */}
@@ -42,6 +41,6 @@ export default async function CategoriesPage() {
           />
         ))}
       </div>
-    </div>
+    </PublicContainer>
   )
 }

@@ -15,6 +15,8 @@ import {
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { LeaderboardFilters } from "./filters"
+import PublicContainer from "@/components/layout/PublicContainer"
+import { PageHeader } from "@/components/molecules/PageHeader"
 
 export const metadata: Metadata = {
   title: "Product Leaderboard",
@@ -35,18 +37,12 @@ export default async function LeaderboardPage({
   const rest = products.slice(3)
 
   return (
-    <div className="min-h-screen w-full px-4 md:px-8 py-10 space-y-10">
+    <PublicContainer max="7xl" className="space-y-10">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight flex items-center gap-2">
-          🏆 Product Leaderboard
-        </h1>
-        <p className="text-muted-foreground max-w-3xl">
-          Discover the most popular products ranked by community upvotes. See
-          which innovations are leading the way and getting the most love from
-          our community.
-        </p>
-      </div>
+      <PageHeader
+        title="🏆 Product Leaderboard"
+        subtitle="Discover the most popular products ranked by community upvotes. See which innovations are leading the way and getting the most love from our community."
+      />
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -155,6 +151,6 @@ export default async function LeaderboardPage({
           </div>
         ))}
       </div>
-    </div>
+    </PublicContainer>
   )
 }
