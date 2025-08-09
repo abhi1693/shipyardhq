@@ -1,10 +1,13 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/atoms/sonner"
-import { GoogleAnalytics } from '@next/third-parties/google'
+import { GoogleAnalytics } from "@next/third-parties/google"
+import NextTopLoader from "nextjs-toploader"
+import Providers from "@/components/layout/providers"
 import "./globals.css"
-import {IS_PROD} from "@/lib/constants";
+import { IS_PROD } from "@/lib/constants"
+import "./theme.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,9 +19,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
+const META_THEME_COLORS = {
+  light: "#ffffff",
+  dark: "#09090b",
+}
+
 export const metadata: Metadata = {
   title: "ShipYard",
   description: "Join our waitlist for the ultimate micro‑SaaS growth toolkit.",
+  icons: {
+    icon: "/brand.png",
+    shortcut: "/brand.png",
+    apple: "/brand.png",
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: META_THEME_COLORS.light,
 }
 
 export default function RootLayout({
@@ -28,16 +45,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body
-        className="
-          min-h-screen antialiased
-          bg-[var(--background)]
-          text-[var(--foreground)]
-        "
-      >
-        <ThemeProvider attribute="class" defaultTheme="system">
-          {children}
-          <Toaster position="top-right" />
+      <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
+        <NextTopLoader showSpinner={false} />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          enableColorScheme
+        >
+          <Providers>
+            <Toaster position="top-right" />
+            {children}
+          </Providers>
         </ThemeProvider>
       </body>
       {IS_PROD && <GoogleAnalytics gaId="G-D1Q2TF5RZM" />}

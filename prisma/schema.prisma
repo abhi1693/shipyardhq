@@ -18,3 +18,267 @@ model Newsletter {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
+model Product {
+  id           String       @id @default(cuid())
+  name         String
+  slug         String       @unique
+  tagline      String
+  description  String
+  websiteUrl   String
+  logo         String
+  userId       String
+  categoryId   String
+  planId       String?
+  type         ProductType
+  pricingModel PricingModel
+  status       ProductStatus @default(published)
+  publishedAt  DateTime?
+  companyName  String?
+  organizationId String?
+  startingPriceCents Int?
+  currencyCode String? // ISO 4217, e.g. "USD"
+  ctaLabel     String?
+  ctaUrl       String?
+  bannerImage  String?
+  keywords     String[]
+  platforms    Platform[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Relations
+  user         User                 @relation(fields: [userId], references: [id])
+  category     Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  plan         Plan?                @relation(fields: [planId], references: [id], onDelete: SetNull)
+  organization Organization?        @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  metadata     ProductMetadata?
+  analytics    ProductAnalytics?
+  verification ProductVerification?
+  ProductBadge ProductBadge[]
+  ProductMedia ProductMedia[]
+
+  @@index([categoryId, createdAt])
+  @@index([status, publishedAt])
+}
+
+enum ProductType {
+  saas
+  browser_extension
+  mobile_app
+  desktop_app
+  api
+  open_source
+  other
+}
+
+enum PricingModel {
+  free
+  freemium
+  subscription
+  one_time
+  custom
+}
+
+enum ProductStatus {
+  draft
+  published
+  archived
+}
+
+enum Platform {
+  web
+  ios
+  android
+  mac
+  windows
+  linux
+  chrome_extension
+  firefox_extension
+}
+
+model ProductMedia {
+  id        String  @id @default(cuid())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  imageUrl  String
+  altText   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductVerification {
+  id              String    @id @default(cuid())
+  productId       String    @unique
+  verificationTxt String
+  isVerified      Boolean   @default(false)
+  verifiedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductMetadata {
+  id           String   @id @default(cuid())
+  productId    String   @unique
+  githubUrl    String?
+  twitterUrl   String?
+  demoUrl      String?
+  contactEmail String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductAnalytics {
+  id        String   @id @default(cuid())
+  productId String   @unique
+  views     Int      @default(0)
+  upvotes   Int      @default(0)
+  clicks    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Organization {
+  id          String                   @id @default(cuid())
+  name        String
+  url         String                   @unique
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+  memberships OrganizationMembership[]
+
+  Product Product[]
+}
+
+model OrganizationMembership {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  jobTitle       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+}
+
+model User {
+  id              String    @id @default(cuid())
+  clerkId         String    @unique
+  email           String    @unique
+  firstName       String
+  lastName        String
+  role            String    @default("member")
+  roleIntent      String? // Why they signed up
+  productInterest String? // What they're interested in
+  heardFrom       String? // How they heard about us
+  acceptedTerms   Boolean   @default(false)
+  termsAcceptedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products    Product[]
+  memberships OrganizationMembership[]
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  icon        String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[] // reverse relation
+  useCases UseCaseCategory[]
+}
+
+model Plan {
+  id          String   @id @default(cuid())
+  externalId  String?  @unique
+  name        String
+  slug        String   @unique
+  description String?
+  type        PlanType
+  price       Int // in cents
+  interval    String // e.g. "month"
+  frequency   Int // e.g. 1 (monthly), 12 (yearly)
+  discount    Int? // optional discount in cents
+  trialDays   Int? // optional number of trial days
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products    Product[]
+  assignments PlanFeatureAssignment[]
+}
+
+model PlanFeature {
+  id          String   @id @default(cuid())
+  name        String
+  key         String   @unique
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assignments PlanFeatureAssignment[]
+}
+
+model PlanFeatureAssignment {
+  id             String   @id @default(cuid())
+  planId         String
+  featureId      String
+  enabled        Boolean
+  isExperimental Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  plan    Plan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+  feature PlanFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, featureId]) // Prevent duplicate assignments
+}
+
+enum PlanType {
+  recurring_price
+  one_time_price
+}
+
+model ProductBadge {
+  id        String    @id @default(cuid())
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  badge     String
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model UseCase {
+  id        String   @id @default(cuid())
+  label     String // e.g. "Launch a SaaS"
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categories UseCaseCategory[]
+}
+
+model UseCaseCategory {
+  useCaseId  String
+  categoryId String
+
+  useCase  UseCase  @relation(fields: [useCaseId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([useCaseId, categoryId])
+}

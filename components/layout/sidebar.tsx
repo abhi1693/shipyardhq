@@ -1,0 +1,282 @@
+"use client"
+
+import { usePathname, useRouter } from "next/navigation"
+import { useMemo, useState } from "react"
+import Image from "next/image"
+import { SignOutButton, useUser } from "@clerk/nextjs"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarRail,
+  SidebarInput,
+  SidebarSeparator,
+  SidebarTrigger,
+} from "@/components/atoms/sidebar"
+import { Icons } from "../icons"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/atoms/collapsible"
+import {
+  IconBell,
+  IconChevronRight,
+  IconChevronsDown,
+  IconCreditCard,
+  IconLogout,
+  IconUserCircle,
+} from "@tabler/icons-react"
+import Link from "next/link"
+import { DropdownMenu } from "@radix-ui/react-dropdown-menu"
+import {
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/atoms/dropdown-menu"
+import { UserAvatarProfile } from "@/components/molecules/UserAvatarProfile"
+import { NavItem } from "@/types"
+
+interface SidebarProps {
+  navItems?: NavItem[]
+}
+
+export default function AppSidebar(props: SidebarProps) {
+  const pathname = usePathname()
+  const { user } = useUser()
+  const router = useRouter()
+  const { navItems = [] } = props
+
+  const [query, setQuery] = useState("")
+
+  const isActivePath = (url?: string) => {
+    if (!url || url === "#") return false
+    // Ensure trailing slash consistency and startsWith matching within admin
+    try {
+      const normalized = url.endsWith("/") ? url.slice(0, -1) : url
+      const current = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname
+      return current === normalized || current.startsWith(`${normalized}/`)
+    } catch {
+      return pathname === url
+    }
+  }
+
+  const itemActive = (item: NavItem): boolean => {
+    if (isActivePath(item.url)) return true
+    if (item.items?.length) return item.items.some((i) => isActivePath(i.url))
+    return false
+  }
+
+  const filteredNav = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return navItems
+    return navItems
+      .map((item) => {
+        const titleMatch = item.title.toLowerCase().includes(q)
+        const sub = (item.items || []).filter((s) =>
+          `${s.title} ${s.label ?? ""}`.toLowerCase().includes(q),
+        )
+        if (titleMatch) return { ...item }
+        if (sub.length) return { ...item, items: sub }
+        return null
+      })
+      .filter(Boolean) as NavItem[]
+  }, [navItems, query])
+
+  return (
+    <Sidebar
+      collapsible="icon"
+    >
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-1">
+          <SidebarTrigger className="md:hidden" />
+          <Link
+            href="/admin/overview"
+            className="inline-flex items-center gap-2"
+            aria-label="ShipYardHQ admin overview"
+          >
+            <Image
+              src="/brand.png"
+              alt="ShipYardHQ"
+              width={28}
+              height={28}
+              className="h-7 w-7 object-contain rounded-sm"
+              priority
+            />
+            <span className="text-base md:text-lg font-bold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none">
+              ShipYardHQ
+            </span>
+          </Link>
+        </div>
+        <div className="px-1">
+          <SidebarInput
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search navigation…"
+            aria-label="Search admin navigation"
+          />
+        </div>
+        <div className="mx-1 mt-1 h-px rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] opacity-70" />
+      </SidebarHeader>
+      <SidebarContent className="overflow-x-hidden">
+        <SidebarGroup>
+          <SidebarGroupLabel>Admin</SidebarGroupLabel>
+          <SidebarMenu>
+            {filteredNav.map((item) => {
+              const Icon = item.icon ? Icons[item.icon] : Icons.logo
+              const active = itemActive(item)
+              const hasChildren = !!(item.items && item.items.length > 0)
+              return hasChildren ? (
+                <Collapsible
+                  key={item.title}
+                  asChild
+                  defaultOpen={active}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton
+                        tooltip={item.title}
+                        isActive={active}
+                      >
+                        {item.icon && <Icon />}
+                        <span>{item.title}</span>
+                        <IconChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {item.items?.map((subItem) => {
+                          const SubIcon = subItem.icon
+                            ? Icons[subItem.icon]
+                            : null
+                          const subActive = isActivePath(subItem.url)
+                          return (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={subActive}
+                              >
+                                <Link
+                                  href={subItem.url}
+                                  className="flex items-center gap-2"
+                                  aria-current={subActive ? "page" : undefined}
+                                >
+                                  {SubIcon && <SubIcon className="h-4 w-4" />}
+                                  <span className="flex-1 truncate">{subItem.title}</span>
+                                  {subItem.label && (
+                                    <span className="text-xs text-muted-foreground">{subItem.label}</span>
+                                  )}
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          )
+                        })}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              ) : (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    isActive={isActivePath(item.url)}
+                  >
+                    <Link href={item.url} aria-current={isActivePath(item.url) ? "page" : undefined}>
+                      <Icon />
+                      <span className="flex-1 truncate">{item.title}</span>
+                      {item.label && (
+                        <span className="text-xs text-muted-foreground">{item.label}</span>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarSeparator />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  {user && (
+                    <UserAvatarProfile
+                      className="h-8 w-8 rounded-lg"
+                      showInfo
+                      user={user}
+                    />
+                  )}
+                  <IconChevronsDown className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                side="bottom"
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="px-1 py-1.5">
+                    {user && (
+                      <UserAvatarProfile
+                        className="h-8 w-8 rounded-lg"
+                        showInfo
+                        user={user}
+                      />
+                    )}
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/dashboard/profile")}
+                  >
+                    <IconUserCircle className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <IconCreditCard className="mr-2 h-4 w-4" />
+                    Billing
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <IconBell className="mr-2 h-4 w-4" />
+                    Notifications
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <IconLogout className="mr-2 h-4 w-4" />
+                  <SignOutButton
+                    redirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
+                  />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  )
+}
