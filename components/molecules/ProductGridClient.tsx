@@ -44,8 +44,11 @@ export default function ProductGridClient({
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [page, setPage] = useState(initialPage)
   const [isPending, startTransition] = useTransition()
-  const prefetchedRef = useRef<null | { products: ProductWithMeta[]; hasMore: boolean }>(null)
-  
+  const prefetchedRef = useRef<null | {
+    products: ProductWithMeta[]
+    hasMore: boolean
+  }>(null)
+
   // Reset state when server-provided props change (filters/sort updated)
   useEffect(() => {
     setProducts(initialProducts)
@@ -90,7 +93,12 @@ export default function ProductGridClient({
         {products.map((p, i) => (
           <ProductCard
             key={p.id}
-            product={{ id: p.id, name: p.name, logo: p.logo, tagline: p.tagline }}
+            product={{
+              id: p.id,
+              name: p.name,
+              logo: p.logo,
+              tagline: p.tagline,
+            }}
             upvotes={p.analytics?.upvotes ?? 0}
             author={{
               name: `${p.user.firstName ?? ""} ${p.user.lastName ?? ""}`.trim(),

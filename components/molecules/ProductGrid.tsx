@@ -64,7 +64,12 @@ export default function ProductGrid({
         {products.map((p, i) => (
           <ProductCard
             key={p.id}
-            product={{ id: p.id, name: p.name, logo: p.logo, tagline: p.tagline }}
+            product={{
+              id: p.id,
+              name: p.name,
+              logo: p.logo,
+              tagline: p.tagline,
+            }}
             upvotes={p.analytics?.upvotes ?? 0}
             author={{
               name: `${p.user.firstName ?? ""} ${p.user.lastName ?? ""}`.trim(),

@@ -58,27 +58,27 @@ export default function BrowseFilters({
 
   const filteredUseCases = useMemo(() => {
     const q = ucQuery.trim().toLowerCase()
-    const items = useCases.filter((u) =>
-      u.label.toLowerCase().includes(q),
-    )
+    const items = useCases.filter((u) => u.label.toLowerCase().includes(q))
     return items
   }, [useCases, ucQuery])
 
   const filteredCategories = useMemo(() => {
     const q = catQuery.trim().toLowerCase()
-    const items = categories.filter((c) =>
-      c.name.toLowerCase().includes(q),
-    )
+    const items = categories.filter((c) => c.name.toLowerCase().includes(q))
     return items
   }, [categories, catQuery])
 
   const ucVisible = ucExpanded ? filteredUseCases : filteredUseCases.slice(0, 8)
-  const catVisible = catExpanded ? filteredCategories : filteredCategories.slice(0, 8)
+  const catVisible = catExpanded
+    ? filteredCategories
+    : filteredCategories.slice(0, 8)
 
   return (
     <aside className="space-y-4 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-auto">
       <div className="rounded-lg border bg-card p-4 shadow-sm">
-        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground">Use Case</h4>
+        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground">
+          Use Case
+        </h4>
         <div className="mt-3">
           <Input
             placeholder="Search use cases"
@@ -93,7 +93,9 @@ export default function BrowseFilters({
               href={buildUrl("useCase", "__all__")}
               className={cn(
                 "flex items-center gap-2 text-sm rounded-md px-3 py-1.5 hover:bg-muted",
-                !current.useCase ? "bg-muted font-medium" : "text-muted-foreground",
+                !current.useCase
+                  ? "bg-muted font-medium"
+                  : "text-muted-foreground",
               )}
             >
               <span
@@ -137,13 +139,17 @@ export default function BrowseFilters({
             onClick={() => setUcExpanded((v) => !v)}
             className="mt-2 text-xs text-muted-foreground hover:text-foreground"
           >
-            {ucExpanded ? "Show less" : `Show more (${filteredUseCases.length - 8})`}
+            {ucExpanded
+              ? "Show less"
+              : `Show more (${filteredUseCases.length - 8})`}
           </button>
         )}
       </div>
 
       <div className="rounded-lg border bg-card p-4 shadow-sm">
-        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground">Category</h4>
+        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground">
+          Category
+        </h4>
         <div className="mt-3">
           <Input
             placeholder="Search categories"
@@ -158,7 +164,9 @@ export default function BrowseFilters({
               href={buildUrl("category", "__all__")}
               className={cn(
                 "flex items-center gap-2 text-sm rounded-md px-3 py-1.5 hover:bg-muted",
-                !current.category ? "bg-muted font-medium" : "text-muted-foreground",
+                !current.category
+                  ? "bg-muted font-medium"
+                  : "text-muted-foreground",
               )}
             >
               <span
@@ -202,13 +210,17 @@ export default function BrowseFilters({
             onClick={() => setCatExpanded((v) => !v)}
             className="mt-2 text-xs text-muted-foreground hover:text-foreground"
           >
-            {catExpanded ? "Show less" : `Show more (${filteredCategories.length - 8})`}
+            {catExpanded
+              ? "Show less"
+              : `Show more (${filteredCategories.length - 8})`}
           </button>
         )}
       </div>
 
       <div className="rounded-lg border bg-card p-4 shadow-sm">
-        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground">Sort By</h4>
+        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground">
+          Sort By
+        </h4>
         <ul className="mt-3 space-y-1">
           {sortOptions.map((opt) => (
             <li key={opt.value}>
@@ -237,12 +249,16 @@ export default function BrowseFilters({
       </div>
 
       <div className="rounded-lg border bg-card p-4 shadow-sm">
-        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground">Verified Only</h4>
+        <h4 className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground">
+          Verified Only
+        </h4>
         <div className="mt-3 flex items-center justify-between rounded-md border px-3 py-2">
           <span className="text-sm">Only show verified</span>
           <Switch
             checked={Boolean(current.verified)}
-            onCheckedChange={(checked) => router.push(buildUrl("verified", checked))}
+            onCheckedChange={(checked) =>
+              router.push(buildUrl("verified", checked))
+            }
             aria-label="Toggle verified only"
           />
         </div>

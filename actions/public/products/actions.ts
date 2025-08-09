@@ -5,7 +5,9 @@ export async function getPublicProduct(id: string) {
     where: { id },
     include: {
       category: true,
-      user: { select: { id: true, firstName: true, lastName: true, email: true } },
+      user: {
+        select: { id: true, firstName: true, lastName: true, email: true },
+      },
       metadata: true,
       analytics: true,
       verification: true,
@@ -25,7 +27,10 @@ export async function getPublicProduct(id: string) {
   return { ...product, badges: activeBadges }
 }
 
-export async function getRelatedProductsByCategory(categoryId: string, excludeId: string) {
+export async function getRelatedProductsByCategory(
+  categoryId: string,
+  excludeId: string,
+) {
   return prisma.product.findMany({
     where: { categoryId, NOT: { id: excludeId } },
     orderBy: { createdAt: "desc" },
@@ -33,4 +38,3 @@ export async function getRelatedProductsByCategory(categoryId: string, excludeId
     include: { analytics: true },
   })
 }
-

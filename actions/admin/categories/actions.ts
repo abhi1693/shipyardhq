@@ -138,7 +138,9 @@ export async function getUseCasesWithCounts() {
       useCases.map(async (uc) => {
         const categoryIds = uc.categories.map((c) => c.categoryId)
         const productCount = categoryIds.length
-          ? await prisma.product.count({ where: { categoryId: { in: categoryIds } } })
+          ? await prisma.product.count({
+              where: { categoryId: { in: categoryIds } },
+            })
           : 0
         return {
           id: uc.id,

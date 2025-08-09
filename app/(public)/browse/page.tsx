@@ -1,7 +1,10 @@
 import { Metadata } from "next"
 export const dynamic = "force-dynamic"
 import Link from "next/link"
-import { getCategories, getUseCasesWithCounts } from "@/actions/admin/categories/actions"
+import {
+  getCategories,
+  getUseCasesWithCounts,
+} from "@/actions/admin/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
@@ -37,7 +40,8 @@ export default async function BrowsePage({
   const useCase = pick(params.useCase)
   const category = pick(params.category)
   const verified = pick(params.verified)
-  const sort = (pick(params.sort) as "new" | "trending" | "votes" | "az") ?? "new"
+  const sort =
+    (pick(params.sort) as "new" | "trending" | "votes" | "az") ?? "new"
   const page = pick(params.page) ?? "1"
 
   const { products, hasMore } = await getBrowseProducts({
@@ -56,7 +60,13 @@ export default async function BrowsePage({
 
   const buildUrl = (overrides: Partial<BrowseSearchParams>) => {
     const params = new URLSearchParams()
-    const base: BrowseSearchParams = { useCase, category, verified, sort, page: "1" }
+    const base: BrowseSearchParams = {
+      useCase,
+      category,
+      verified,
+      sort,
+      page: "1",
+    }
     const next = { ...base, ...overrides }
     const uc = Array.isArray(next.useCase) ? next.useCase[0] : next.useCase
     const cat = Array.isArray(next.category) ? next.category[0] : next.category
@@ -96,17 +106,17 @@ export default async function BrowsePage({
           {" • "}Sort: {sortLabelMap[sort] ?? "Newest"}
         </div>
 
-      {/* Filter Bar */}
-      <div className="mb-4">
-        <BrowseFilterBar
-          useCases={useCases}
-          categories={categories}
-          current={{ useCase, category, sort, verified: verified === "true" }}
-        />
-      </div>
+        {/* Filter Bar */}
+        <div className="mb-4">
+          <BrowseFilterBar
+            useCases={useCases}
+            categories={categories}
+            current={{ useCase, category, sort, verified: verified === "true" }}
+          />
+        </div>
 
-      {/* Product Grid */}
-      <div>
+        {/* Product Grid */}
+        <div>
           {products.length === 0 ? (
             <div>
               <EmptyState

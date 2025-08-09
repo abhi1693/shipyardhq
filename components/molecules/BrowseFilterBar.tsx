@@ -22,8 +22,18 @@ import {
 } from "@/components/atoms/select"
 import { ScrollArea } from "@/components/atoms/scroll-area"
 
-type UseCase = { id: string; slug: string; label: string; productCount?: number }
-type Category = { id: string; slug: string; name: string; _count?: { products: number } }
+type UseCase = {
+  id: string
+  slug: string
+  label: string
+  productCount?: number
+}
+type Category = {
+  id: string
+  slug: string
+  name: string
+  _count?: { products: number }
+}
 
 interface BrowseFilterBarProps {
   useCases: UseCase[]
@@ -72,13 +82,20 @@ export default function BrowseFilterBar({
   )
 
   const buildUrlMulti = useCallback(
-    (overrides: Partial<{ useCase: string | boolean | undefined; category: string | boolean | undefined; sort: string | undefined; verified: boolean | undefined }>) => {
+    (
+      overrides: Partial<{
+        useCase: string | boolean | undefined
+        category: string | boolean | undefined
+        sort: string | undefined
+        verified: boolean | undefined
+      }>,
+    ) => {
       const url = new URLSearchParams(
         Object.fromEntries(
           [...params.entries()].filter(([_, v]) => typeof v === "string"),
         ),
       )
-      const setOrDel = (k: string, v: string|boolean|undefined) => {
+      const setOrDel = (k: string, v: string | boolean | undefined) => {
         if (v === undefined || v === "__all__" || v === false) url.delete(k)
         else url.set(k, String(v))
       }
@@ -98,11 +115,18 @@ export default function BrowseFilterBar({
     !!current.verified ||
     (current.sort && current.sort !== "new")
 
-
-  const currentUseCaseLabel = useCases.find((u) => u.slug === current.useCase)?.label
-  const currentCategoryLabel = categories.find((c) => c.slug === current.category)?.name
-  const hasUseCaseActive = Boolean(current.useCase && current.useCase !== "__all__")
-  const hasCategoryActive = Boolean(current.category && current.category !== "__all__")
+  const currentUseCaseLabel = useCases.find(
+    (u) => u.slug === current.useCase,
+  )?.label
+  const currentCategoryLabel = categories.find(
+    (c) => c.slug === current.category,
+  )?.name
+  const hasUseCaseActive = Boolean(
+    current.useCase && current.useCase !== "__all__",
+  )
+  const hasCategoryActive = Boolean(
+    current.category && current.category !== "__all__",
+  )
 
   return (
     <div className="sticky top-24 z-20 rounded-lg border bg-card/80 backdrop-blur px-3 py-2 md:px-4 md:py-3 shadow-sm">
@@ -115,7 +139,11 @@ export default function BrowseFilterBar({
               size="sm"
               className="min-w-[9rem] justify-between"
               disabled={hasCategoryActive}
-              title={hasCategoryActive ? "Use Case disabled when Category is selected" : undefined}
+              title={
+                hasCategoryActive
+                  ? "Use Case disabled when Category is selected"
+                  : undefined
+              }
             >
               <span className="truncate">
                 {currentUseCaseLabel ?? "Use Case"}
@@ -134,10 +162,17 @@ export default function BrowseFilterBar({
                 </DropdownMenuItem>
                 {useCases.map((uc) => (
                   <DropdownMenuItem key={uc.id} asChild>
-                    <Link href={buildUrlMulti({ useCase: uc.slug, category: "__all__" })}>
+                    <Link
+                      href={buildUrlMulti({
+                        useCase: uc.slug,
+                        category: "__all__",
+                      })}
+                    >
                       {uc.label}
                       {typeof uc.productCount === "number" && (
-                        <span className="ml-1 text-muted-foreground">({uc.productCount})</span>
+                        <span className="ml-1 text-muted-foreground">
+                          ({uc.productCount})
+                        </span>
                       )}
                     </Link>
                   </DropdownMenuItem>
@@ -155,7 +190,11 @@ export default function BrowseFilterBar({
               size="sm"
               className="min-w-[9rem] justify-between"
               disabled={hasUseCaseActive}
-              title={hasUseCaseActive ? "Category disabled when Use Case is selected" : undefined}
+              title={
+                hasUseCaseActive
+                  ? "Category disabled when Use Case is selected"
+                  : undefined
+              }
             >
               <span className="truncate">
                 {currentCategoryLabel ?? "Category"}
@@ -174,10 +213,17 @@ export default function BrowseFilterBar({
                 </DropdownMenuItem>
                 {categories.map((cat) => (
                   <DropdownMenuItem key={cat.id} asChild>
-                    <Link href={buildUrlMulti({ category: cat.slug, useCase: "__all__" })}>
+                    <Link
+                      href={buildUrlMulti({
+                        category: cat.slug,
+                        useCase: "__all__",
+                      })}
+                    >
                       {cat.name}
                       {typeof cat._count?.products === "number" && (
-                        <span className="ml-1 text-muted-foreground">({cat._count.products})</span>
+                        <span className="ml-1 text-muted-foreground">
+                          ({cat._count.products})
+                        </span>
                       )}
                     </Link>
                   </DropdownMenuItem>
@@ -209,7 +255,9 @@ export default function BrowseFilterBar({
           <span className="text-xs md:text-sm">Verified only</span>
           <Switch
             checked={Boolean(current.verified)}
-            onCheckedChange={(checked) => router.push(buildUrl("verified", checked))}
+            onCheckedChange={(checked) =>
+              router.push(buildUrl("verified", checked))
+            }
           />
         </div>
 
