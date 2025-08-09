@@ -102,7 +102,7 @@ export function ProductCard({
                 {product.tagline}
               </p>
 
-              {!compact && badges.length > 0 && (
+              {badges.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-2">
                   {badges.map((b, i) => {
                     const badgeDef = BADGE_OPTIONS.find((x) => x.value === b)
@@ -115,11 +115,17 @@ export function ProductCard({
                       <Badge
                         key={i}
                         className={clsx(
-                          "text-xs rounded-full px-2 py-0.5 border",
+                          "rounded-full border",
+                          compact
+                            ? "px-1.5 py-0.5 text-[10px]"
+                            : "px-2 py-0.5 text-xs",
                           colorClass,
                         )}
                       >
-                        {badgeDef.icon} {badgeDef.label}
+                        {badgeDef.icon}
+                        {!compact && (
+                          <span className="ml-1">{badgeDef.label}</span>
+                        )}
                       </Badge>
                     )
                   })}

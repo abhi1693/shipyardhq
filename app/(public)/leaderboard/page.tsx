@@ -111,7 +111,16 @@ export default async function LeaderboardPage({
       </div>
 
       {/* Leaderboard Grid (similar to category page) */}
-      <ProductList items={rest} compact showCategory showRank rankStartAt={3} />
+      <ProductList
+        items={rest.map((p) => ({
+          ...p,
+          badges: p.ProductBadge?.map((pb) => pb.badge),
+        }))}
+        compact
+        showCategory
+        showRank
+        rankStartAt={3}
+      />
     </PublicContainer>
   )
 }

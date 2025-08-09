@@ -9,6 +9,7 @@ type ProductListItem = {
   name: string
   logo: string
   tagline: string
+  badges?: string[]
   analytics?: { upvotes?: number | null } | null
   user?: { firstName?: string | null; lastName?: string | null } | null
   category?: { name?: string | null } | null
@@ -46,6 +47,7 @@ export default function ProductList<T extends ProductListItem>({
         <ProductCard
           key={p.id}
           product={{ id: p.id, name: p.name, logo: p.logo, tagline: p.tagline }}
+          badges={p.badges}
           upvotes={p.analytics?.upvotes ?? 0}
           author={
             p.user

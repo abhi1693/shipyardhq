@@ -6,13 +6,7 @@ import { Button } from "@/components/atoms/button"
 import { Skeleton } from "@/components/atoms/skeleton"
 import ProductList from "@/components/molecules/ProductList"
 
-import {
-  Category,
-  Product,
-  ProductAnalytics,
-  ProductVerification,
-  User,
-} from "@prisma/client"
+import { Category, Product, ProductAnalytics, ProductVerification, User } from "@prisma/client"
 import { loadMoreProducts } from "@/actions/public/browse/loadMore"
 
 type ProductWithMeta = Product & {
@@ -20,6 +14,7 @@ type ProductWithMeta = Product & {
   user: User
   analytics: ProductAnalytics | null
   verification: ProductVerification | null
+  ProductBadge?: { badge: string }[]
 }
 
 interface ProductGridClientProps {
@@ -90,7 +85,10 @@ export default function ProductGridClient({
   return (
     <section className="space-y-6">
       <ProductList
-        items={products}
+        items={products.map((p) => ({
+          ...p,
+          badges: p.ProductBadge?.map((pb) => pb.badge),
+        }))}
         compact
         showCategory
         showVerified={false}

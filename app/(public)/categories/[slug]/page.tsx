@@ -60,7 +60,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       </div>
 
       {/* Product Grid */}
-      <CategoryProductsClient products={products} />
+      <CategoryProductsClient
+        products={products.map((p) => ({
+          ...p,
+          badges: p.ProductBadge?.map((pb) => pb.badge),
+        }))}
+      />
     </PublicContainer>
   )
 }

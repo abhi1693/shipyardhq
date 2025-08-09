@@ -36,6 +36,7 @@ export async function getCategoryWithProducts(slug: string) {
       user: true,
       analytics: true,
       verification: true,
+      ProductBadge: true,
     },
     orderBy: { createdAt: "desc" },
   })

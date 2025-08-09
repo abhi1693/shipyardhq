@@ -39,6 +39,7 @@ export async function getTopRankedProducts(args?: {
       category: true,
       user: true,
       analytics: true,
+      ProductBadge: true,
     },
   })
 }

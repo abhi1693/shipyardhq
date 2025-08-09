@@ -10,6 +10,7 @@ type ProductForCard = {
   logo: string
   tagline: string
   createdAt: string | Date
+  badges?: string[]
   analytics?: { views: number; upvotes: number; clicks: number } | null
   user?: { firstName: string | null; lastName: string | null } | null
   category?: { name: string } | null

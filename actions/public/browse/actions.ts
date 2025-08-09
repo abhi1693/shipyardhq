@@ -73,6 +73,7 @@ export async function getBrowseProducts({
       user: true,
       verification: true,
       analytics: true,
+      ProductBadge: true,
     },
   })
 

@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  Category,
-  Product,
-  ProductAnalytics,
-  ProductVerification,
-  User,
-} from "@prisma/client"
+import { Category, Product, ProductAnalytics, ProductVerification, User } from "@prisma/client"
 import { useState } from "react"
 import { Check } from "lucide-react"
 import { Button } from "@/components/atoms/button"
@@ -18,6 +12,7 @@ type ProductWithMeta = Product & {
   user: User
   analytics: ProductAnalytics | null
   verification: ProductVerification | null
+  ProductBadge?: { badge: string }[]
 }
 
 interface ProductGridProps {
@@ -64,7 +59,10 @@ export default function ProductGrid({
   return (
     <section className="space-y-10">
       <ProductList
-        items={products}
+        items={products.map((p) => ({
+          ...p,
+          badges: p.ProductBadge?.map((pb) => pb.badge),
+        }))}
         compact
         showCategory
         showVerified
