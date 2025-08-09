@@ -16,7 +16,8 @@ interface ProductPageProps {
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const product = await getPublicProduct(params.id)
+  const { id } = await params
+  const product = await getPublicProduct(id)
   if (!product) return {}
   return {
     title: `${product.name} | Product`,
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const { id } = params
+  const { id } = await params
   const product = await getPublicProduct(id)
   if (!product) return notFound()
 
