@@ -3,8 +3,8 @@
 import { useMemo, useState, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/atoms/button"
+import Link from "next/link"
 import { Switch } from "@/components/atoms/switch"
-import { Input } from "@/components/atoms/input"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { ScrollArea } from "@/components/atoms/scroll-area"
-import { cn } from "@/lib/utils"
 
 type UseCase = { id: string; slug: string; label: string }
 type Category = { id: string; slug: string; name: string }
@@ -52,18 +51,7 @@ export default function BrowseFilterBar({
   const router = useRouter()
   const params = useSearchParams()
 
-  const [ucQuery, setUcQuery] = useState("")
-  const [catQuery, setCatQuery] = useState("")
-
-  const filteredUseCases = useMemo(() => {
-    const q = ucQuery.trim().toLowerCase()
-    return useCases.filter((u) => u.label.toLowerCase().includes(q))
-  }, [useCases, ucQuery])
-
-  const filteredCategories = useMemo(() => {
-    const q = catQuery.trim().toLowerCase()
-    return categories.filter((c) => c.name.toLowerCase().includes(q))
-  }, [categories, catQuery])
+  // Simple lists (search removed for now)
 
   const buildUrl = useCallback(
     (key: string, value: string | boolean | undefined) => {
@@ -83,14 +71,38 @@ export default function BrowseFilterBar({
     [params],
   )
 
+  const buildUrlMulti = useCallback(
+    (overrides: Partial<{ useCase: string | boolean | undefined; category: string | boolean | undefined; sort: string | undefined; verified: boolean | undefined }>) => {
+      const url = new URLSearchParams(
+        Object.fromEntries(
+          [...params.entries()].filter(([_, v]) => typeof v === "string"),
+        ),
+      )
+      const setOrDel = (k: string, v: any) => {
+        if (v === undefined || v === "__all__" || v === false) url.delete(k)
+        else url.set(k, String(v))
+      }
+      if ("useCase" in overrides) setOrDel("useCase", overrides.useCase)
+      if ("category" in overrides) setOrDel("category", overrides.category)
+      if ("sort" in overrides) setOrDel("sort", overrides.sort)
+      if ("verified" in overrides) setOrDel("verified", overrides.verified)
+      url.set("page", "1")
+      return `/browse?${url.toString()}`
+    },
+    [params],
+  )
+
   const hasActiveFilters =
     (!!current.useCase && current.useCase !== "__all__") ||
     (!!current.category && current.category !== "__all__") ||
     !!current.verified ||
     (current.sort && current.sort !== "new")
 
+
   const currentUseCaseLabel = useCases.find((u) => u.slug === current.useCase)?.label
   const currentCategoryLabel = categories.find((c) => c.slug === current.category)?.name
+  const hasUseCaseActive = Boolean(current.useCase && current.useCase !== "__all__")
+  const hasCategoryActive = Boolean(current.category && current.category !== "__all__")
 
   return (
     <div className="sticky top-24 z-20 rounded-lg border bg-card/80 backdrop-blur px-3 py-2 md:px-4 md:py-3 shadow-sm">
@@ -98,7 +110,13 @@ export default function BrowseFilterBar({
         {/* Use Case */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="min-w-[9rem] justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              className="min-w-[9rem] justify-between"
+              disabled={hasCategoryActive}
+              title={hasCategoryActive ? "Use Case disabled when Category is selected" : undefined}
+            >
               <span className="truncate">
                 {currentUseCaseLabel ?? "Use Case"}
               </span>
@@ -106,28 +124,19 @@ export default function BrowseFilterBar({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-64 p-2">
             <DropdownMenuLabel>Use Case</DropdownMenuLabel>
-            <div className="px-1 pb-2">
-              <Input
-                placeholder="Search use cases"
-                value={ucQuery}
-                onChange={(e) => setUcQuery(e.target.value)}
-                className="h-8"
-              />
-            </div>
             <DropdownMenuSeparator />
             <ScrollArea className="max-h-64">
               <div className="p-1 space-y-1">
-                <DropdownMenuItem onSelect={() => { router.push(buildUrl("useCase", "__all__")) }}>
-                  All Use Cases
+                <DropdownMenuItem asChild>
+                  <Link href={buildUrlMulti({ useCase: "__all__" })}>
+                    All Use Cases
+                  </Link>
                 </DropdownMenuItem>
-                {filteredUseCases.map((uc) => (
-                  <DropdownMenuItem
-                    key={uc.id}
-                    onSelect={() => {
-                      router.push(buildUrl("useCase", uc.slug))
-                    }}
-                  >
-                    {uc.label}
+                {useCases.map((uc) => (
+                  <DropdownMenuItem key={uc.id} asChild>
+                    <Link href={buildUrlMulti({ useCase: uc.slug, category: "__all__" })}>
+                      {uc.label}
+                    </Link>
                   </DropdownMenuItem>
                 ))}
               </div>
@@ -138,7 +147,13 @@ export default function BrowseFilterBar({
         {/* Category */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="min-w-[9rem] justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              className="min-w-[9rem] justify-between"
+              disabled={hasUseCaseActive}
+              title={hasUseCaseActive ? "Category disabled when Use Case is selected" : undefined}
+            >
               <span className="truncate">
                 {currentCategoryLabel ?? "Category"}
               </span>
@@ -146,28 +161,19 @@ export default function BrowseFilterBar({
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-64 p-2">
             <DropdownMenuLabel>Category</DropdownMenuLabel>
-            <div className="px-1 pb-2">
-              <Input
-                placeholder="Search categories"
-                value={catQuery}
-                onChange={(e) => setCatQuery(e.target.value)}
-                className="h-8"
-              />
-            </div>
             <DropdownMenuSeparator />
             <ScrollArea className="max-h-64">
               <div className="p-1 space-y-1">
-                <DropdownMenuItem onSelect={() => { router.push(buildUrl("category", "__all__")) }}>
-                  All Categories
+                <DropdownMenuItem asChild>
+                  <Link href={buildUrlMulti({ category: "__all__" })}>
+                    All Categories
+                  </Link>
                 </DropdownMenuItem>
-                {filteredCategories.map((cat) => (
-                  <DropdownMenuItem
-                    key={cat.id}
-                    onSelect={() => {
-                      router.push(buildUrl("category", cat.slug))
-                    }}
-                  >
-                    {cat.name}
+                {categories.map((cat) => (
+                  <DropdownMenuItem key={cat.id} asChild>
+                    <Link href={buildUrlMulti({ category: cat.slug, useCase: "__all__" })}>
+                      {cat.name}
+                    </Link>
                   </DropdownMenuItem>
                 ))}
               </div>
@@ -193,7 +199,7 @@ export default function BrowseFilterBar({
         </Select>
 
         {/* Verified */}
-        <div className="ml-auto md:ml-0 inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5">
+        <div className="inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5">
           <span className="text-xs md:text-sm">Verified only</span>
           <Switch
             checked={Boolean(current.verified)}

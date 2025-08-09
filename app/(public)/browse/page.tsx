@@ -12,12 +12,13 @@ export const metadata: Metadata = {
   description: "Discover tools, startups, and products by use case or category",
 }
 
+type StrOrArr = string | string[] | undefined
 interface BrowseSearchParams {
-  useCase?: string
-  category?: string
-  verified?: string
-  sort?: "new" | "trending" | "votes" | "az"
-  page?: string
+  useCase?: StrOrArr
+  category?: StrOrArr
+  verified?: StrOrArr
+  sort?: StrOrArr
+  page?: StrOrArr
 }
 
 export default async function BrowsePage({
@@ -28,13 +29,13 @@ export default async function BrowsePage({
   const useCases = await getUseCases()
   const categories = await getCategories()
 
-  const {
-    useCase,
-    category,
-    verified,
-    sort = "new",
-    page = "1",
-  } = await searchParams
+  const params = await searchParams
+  const pick = (v: StrOrArr) => (Array.isArray(v) ? v[0] : v)
+  const useCase = pick(params.useCase)
+  const category = pick(params.category)
+  const verified = pick(params.verified)
+  const sort = (pick(params.sort) as "new" | "trending" | "votes" | "az") ?? "new"
+  const page = pick(params.page) ?? "1"
 
   const { products, hasMore } = await getBrowseProducts({
     useCaseSlug: useCase === "__all__" ? undefined : useCase,
@@ -54,10 +55,14 @@ export default async function BrowsePage({
     const params = new URLSearchParams()
     const base: BrowseSearchParams = { useCase, category, verified, sort, page: "1" }
     const next = { ...base, ...overrides }
-    if (next.useCase && next.useCase !== "__all__") params.set("useCase", next.useCase)
-    if (next.category && next.category !== "__all__") params.set("category", next.category)
-    if (next.verified === "true") params.set("verified", "true")
-    if (next.sort && next.sort !== "new") params.set("sort", next.sort)
+    const uc = Array.isArray(next.useCase) ? next.useCase[0] : next.useCase
+    const cat = Array.isArray(next.category) ? next.category[0] : next.category
+    const ver = Array.isArray(next.verified) ? next.verified[0] : next.verified
+    const srt = Array.isArray(next.sort) ? next.sort[0] : next.sort
+    if (uc && uc !== "__all__") params.set("useCase", uc)
+    if (cat && cat !== "__all__") params.set("category", cat)
+    if (ver === "true") params.set("verified", "true")
+    if (srt && srt !== "new") params.set("sort", srt)
     // always reset page to 1 on changes
     params.set("page", "1")
     const qs = params.toString()
@@ -99,53 +104,6 @@ export default async function BrowsePage({
 
       {/* Product Grid */}
       <div>
-          {/* Active filter chips + clear */}
-          {hasActiveFilters && (
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              {useCase && useCase !== "__all__" && (
-                <Link
-                  href={buildUrl({ useCase: "__all__" })}
-                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs hover:bg-accent"
-                >
-                  Use Case: {useCases.find((u) => u.slug === useCase)?.label ?? useCase}
-                  <span aria-hidden>×</span>
-                </Link>
-              )}
-              {category && category !== "__all__" && (
-                <Link
-                  href={buildUrl({ category: "__all__" })}
-                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs hover:bg-accent"
-                >
-                  Category: {categories.find((c) => c.slug === category)?.name ?? category}
-                  <span aria-hidden>×</span>
-                </Link>
-              )}
-              {verified === "true" && (
-                <Link
-                  href={buildUrl({ verified: undefined })}
-                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs hover:bg-accent"
-                >
-                  Verified Only
-                  <span aria-hidden>×</span>
-                </Link>
-              )}
-              {sort !== "new" && (
-                <Link
-                  href={buildUrl({ sort: "new" })}
-                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs hover:bg-accent"
-                >
-                  Sort: {sortLabelMap[sort] ?? sort}
-                  <span aria-hidden>×</span>
-                </Link>
-              )}
-              <Link
-                href="/browse"
-                className="ml-auto inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs text-muted-foreground hover:bg-accent"
-              >
-                Clear all
-              </Link>
-            </div>
-          )}
           {products.length === 0 ? (
             <div>
               <EmptyState
