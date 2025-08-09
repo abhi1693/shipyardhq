@@ -42,11 +42,11 @@ export function ProductCard({
   return (
     <Link
       href={`/products/${product.id}`}
-      className="block transition-transform duration-300 hover:-translate-y-1"
+      className="block h-full transition-transform duration-300 hover:-translate-y-1"
     >
       <Card
         className={clsx(
-          "bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all",
+          "h-full bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all",
           compact && "p-3",
         )}
       >
