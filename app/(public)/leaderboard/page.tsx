@@ -6,6 +6,7 @@ import { Metadata } from "next"
 
 import { Badge } from "@/components/atoms/badge"
 import { StatCard } from "@/components/molecules/StatCard"
+import { IconPackage, IconThumbUp, IconUsers, IconTrophy } from "@tabler/icons-react"
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { LeaderboardFilters } from "./filters"
@@ -46,21 +47,29 @@ export default async function LeaderboardPage({
           title="Total Products"
           value={stats.totalProducts}
           subheading="Products competing"
+          icon={<IconPackage className="size-5" />}
+          tooltip="Total number of products listed"
         />
         <StatCard
           title="Total Upvotes"
           value={stats.totalUpvotes}
           subheading="Community votes"
+          icon={<IconThumbUp className="size-5" />}
+          tooltip="All-time upvotes from the community"
         />
         <StatCard
           title="Creators"
           value={stats.totalCreators}
           subheading="Active builders"
+          icon={<IconUsers className="size-5" />}
+          tooltip="Unique user accounts"
         />
         <StatCard
           title="Top Score"
           value={stats.topScore}
           subheading="Highest upvotes"
+          icon={<IconTrophy className="size-5" />}
+          tooltip="Highest upvotes on a single product"
         />
       </div>
 
