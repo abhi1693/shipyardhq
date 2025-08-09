@@ -27,6 +27,11 @@ const META_THEME_COLORS = {
 export const metadata: Metadata = {
   title: "ShipYard",
   description: "Join our waitlist for the ultimate micro‑SaaS growth toolkit.",
+  icons: {
+    icon: "/brand.png",
+    shortcut: "/brand.png",
+    apple: "/brand.png",
+  },
 }
 
 export const viewport: Viewport = {

@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { usePathname } from "next/navigation"
+import Image from "next/image"
 import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
 import { Menu } from "lucide-react"
@@ -30,7 +31,15 @@ export default function PublicHeader() {
             className="inline-flex items-center gap-2"
             aria-label="ShipYardHQ home"
           >
-            <span className="inline-block size-5 rounded-md bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))]" />
+            <Image
+              src="/brand.png"
+              alt="ShipYardHQ"
+              width={32}
+              height={32}
+              sizes="(max-width: 768px) 24px, 32px"
+              className="h-8 w-8 object-contain"
+              priority
+            />
             <span className="text-xl font-bold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]">
               ShipYardHQ
             </span>
@@ -88,7 +97,15 @@ export default function PublicHeader() {
             className="inline-flex items-center gap-2"
             aria-label="ShipYardHQ home"
           >
-            <span className="inline-block size-5 rounded-md bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))]" />
+            <Image
+              src="/brand.png"
+              alt="ShipYardHQ"
+              width={24}
+              height={24}
+              sizes="24px"
+              className="h-6 w-6 object-contain"
+              priority
+            />
             <span className="text-base font-semibold tracking-tight">
               ShipYardHQ
             </span>
