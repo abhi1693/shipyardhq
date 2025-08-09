@@ -34,7 +34,7 @@ export default function ProductList<T extends ProductListItem>({
   compact = true,
   showCategory = true,
   showVerified = true,
-  columns = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6",
+  columns = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-4",
   className,
   topRight,
   imagePriorityFirstN = 4,
