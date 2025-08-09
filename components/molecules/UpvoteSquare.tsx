@@ -18,7 +18,7 @@ export function UpvoteSquare({
     <div
       className={clsx(
         "inline-flex items-center justify-center rounded-md text-foreground transition-colors px-2",
-        compact ? "w-14 h-14 bg-transparent" : "w-16 h-16 bg-muted",
+        compact ? "w-14 h-14 bg-transparent" : "w-16 h-16 bg-transparent",
         className,
       )}
       aria-label="Upvotes"

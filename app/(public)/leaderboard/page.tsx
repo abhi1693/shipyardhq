@@ -26,6 +26,8 @@ export default async function LeaderboardPage({
   const limit = Number(searchParams?.limit || 50)
   const categorySlug = searchParams?.category || undefined
   const products = await getTopRankedProducts({ limit, categorySlug })
+  const topThree = products.slice(0, 3)
+  const rest = products.slice(3)
 
   return (
     <div className="min-h-screen w-full px-4 md:px-8 py-10 space-y-10">
@@ -76,9 +78,48 @@ export default async function LeaderboardPage({
       {/* Filters */}
       <LeaderboardFilters categories={categories} selected={categorySlug} limit={limit} />
 
+      {/* Top 3 Featured */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 place-items-center">
+        {topThree.map((product, index) => (
+          <div key={product.id} className="w-full max-w-sm">
+            <ProductCard
+              product={{
+                id: product.id,
+                name: product.name,
+                logo: product.logo,
+                tagline: product.tagline,
+              }}
+              upvotes={product.analytics?.upvotes ?? 0}
+              author={{
+                name: `${product.user.firstName ?? ""} ${
+                  product.user.lastName ?? ""
+                }`.trim(),
+                initial: (product.user.firstName?.[0] ?? "?").toUpperCase(),
+              }}
+              category={product.category.name}
+              topRight={
+                index === 0 ? (
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-100 text-yellow-800 border text-sm">
+                    🥇
+                  </span>
+                ) : index === 1 ? (
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-100 text-yellow-800 border text-sm">
+                    🥈
+                  </span>
+                ) : (
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-100 text-yellow-800 border text-sm">
+                    🥉
+                  </span>
+                )
+              }
+            />
+          </div>
+        ))}
+      </div>
+
       {/* Leaderboard Grid (similar to category page) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-        {products.map((product, index) => (
+        {rest.map((product, index) => (
           <div key={product.id}>
             <ProductCard
               product={{
@@ -97,13 +138,7 @@ export default async function LeaderboardPage({
               category={product.category.name}
               compact
               topRight={
-                index < 3 ? (
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-yellow-100 text-yellow-800 border text-sm">
-                    {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"}
-                  </span>
-                ) : (
-                  <Badge variant="secondary" className="px-2 py-0.5 text-xs">#{index + 1}</Badge>
-                )
+                <Badge variant="secondary" className="px-2 py-0.5 text-xs">#{index + 4}</Badge>
               }
             />
           </div>

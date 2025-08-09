@@ -55,7 +55,7 @@ export function ProductCard({
         {topRight && (
           <div className="absolute top-2 right-2 z-10">{topRight}</div>
         )}
-        <CardHeader className={clsx("pb-3", compact && "p-0")}>
+        <CardHeader className={clsx("pb-3", compact && "p-0")}> 
           <div className="flex gap-3 items-start">
             <div
               className={clsx(
@@ -125,16 +125,19 @@ export function ProductCard({
           </div>
         </CardHeader>
 
-        <CardContent className={clsx("pt-1 px-4", compact && "pt-1 px-4")}>
+        <CardContent className={clsx("pt-1 px-4", compact && "pt-1 px-4")}> 
           <div className="flex items-center justify-between">
-            <UpvoteSquare count={upvotes} compact={compact} className="-ml-4" />
+            <UpvoteSquare
+              count={upvotes}
+              compact={compact}
+              className={compact ? "-ml-4" : "ml-2"}
+            />
 
             {author && (
               <ProductAuthor
                 name={author.name}
                 initial={author.initial}
                 compact={compact}
-                className="-mr-4"
               />
             )}
           </div>
