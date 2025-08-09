@@ -13,14 +13,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/atoms/dropdown-menu"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/atoms/select"
+import InlineSelect from "@/components/molecules/InlineSelect"
 import { ScrollArea } from "@/components/atoms/scroll-area"
+import { buildQuery } from "@/lib/urlParams"
 
 type UseCase = {
   id: string
@@ -63,22 +58,17 @@ export default function BrowseFilterBar({
 
   // Simple lists (search removed for now)
 
+  const qs = params?.toString() ?? ""
   const buildUrl = useCallback(
     (key: string, value: string | boolean | undefined) => {
-      const url = new URLSearchParams(
-        Object.fromEntries(
-          [...params.entries()].filter(([_, v]) => typeof v === "string"),
-        ),
-      )
-      if (value === undefined || value === "__all__" || value === false) {
-        url.delete(key)
-      } else {
-        url.set(key, String(value))
-      }
-      url.set("page", "1")
-      return `/browse?${url.toString()}`
+      return buildQuery("/browse", qs, {
+        [key]: value === undefined || value === "__all__" || value === false
+          ? undefined
+          : String(value),
+        page: "1",
+      })
     },
-    [params],
+    [qs],
   )
 
   const buildUrlMulti = useCallback(
@@ -90,23 +80,25 @@ export default function BrowseFilterBar({
         verified: boolean | undefined
       }>,
     ) => {
-      const url = new URLSearchParams(
-        Object.fromEntries(
-          [...params.entries()].filter(([_, v]) => typeof v === "string"),
-        ),
-      )
-      const setOrDel = (k: string, v: string | boolean | undefined) => {
-        if (v === undefined || v === "__all__" || v === false) url.delete(k)
-        else url.set(k, String(v))
+      const updates: Record<string, string | undefined> = { page: "1" }
+      if ("useCase" in overrides) {
+        const v = overrides.useCase
+        updates.useCase = v === undefined || v === "__all__" || v === false ? undefined : String(v)
       }
-      if ("useCase" in overrides) setOrDel("useCase", overrides.useCase)
-      if ("category" in overrides) setOrDel("category", overrides.category)
-      if ("sort" in overrides) setOrDel("sort", overrides.sort)
-      if ("verified" in overrides) setOrDel("verified", overrides.verified)
-      url.set("page", "1")
-      return `/browse?${url.toString()}`
+      if ("category" in overrides) {
+        const v = overrides.category
+        updates.category = v === undefined || v === "__all__" || v === false ? undefined : String(v)
+      }
+      if ("sort" in overrides) {
+        updates.sort = overrides.sort ?? undefined
+      }
+      if ("verified" in overrides) {
+        const v = overrides.verified
+        updates.verified = v ? "true" : undefined
+      }
+      return buildQuery("/browse", qs, updates)
     },
-    [params],
+    [qs],
   )
 
   const hasActiveFilters =
@@ -234,21 +226,13 @@ export default function BrowseFilterBar({
         </DropdownMenu>
 
         {/* Sort */}
-        <Select
+        <InlineSelect
           value={current.sort ?? "new"}
           onValueChange={(val) => router.push(buildUrl("sort", val))}
-        >
-          <SelectTrigger size="sm" className="min-w-[9rem]">
-            <SelectValue placeholder="Sort" />
-          </SelectTrigger>
-          <SelectContent>
-            {sortOptions.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          placeholder="Sort"
+          options={sortOptions}
+          triggerClassName="h-8 min-w-[9rem]"
+        />
 
         {/* Verified */}
         <div className="inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5">
@@ -256,7 +240,7 @@ export default function BrowseFilterBar({
           <Switch
             checked={Boolean(current.verified)}
             onCheckedChange={(checked) =>
-              router.push(buildUrl("verified", checked))
+              router.push(buildQuery("/browse", qs, { verified: checked ? "true" : undefined, page: "1" }))
             }
           />
         </div>
