@@ -102,34 +102,56 @@ export function ProductCard({
                 {product.tagline}
               </p>
 
-              {badges.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {badges.map((b, i) => {
+              {compact ? (
+                // Reserved space for badges in compact mode to keep card heights consistent
+                <div className="pt-1 h-5 flex items-center gap-1">
+                  {badges.slice(0, 3).map((b, i) => {
                     const badgeDef = BADGE_OPTIONS.find((x) => x.value === b)
                     if (!badgeDef) return null
-
                     const colorClass =
                       badgeColorMap[badgeDef.color as TailwindColor]
-
                     return (
                       <Badge
                         key={i}
                         className={clsx(
-                          "rounded-full border",
-                          compact
-                            ? "px-1.5 py-0.5 text-[10px]"
-                            : "px-2 py-0.5 text-xs",
+                          "rounded-full border px-1.5 py-0.5 text-[12px] leading-none inline-flex items-center justify-center",
                           colorClass,
                         )}
+                        title={badgeDef.label}
                       >
-                        {badgeDef.icon}
-                        {!compact && (
-                          <span className="ml-1">{badgeDef.label}</span>
-                        )}
+                        <span className="leading-none align-middle">{badgeDef.icon}</span>
                       </Badge>
                     )
                   })}
+                  {badges.length > 3 && (
+                    <span className="text-[10px] text-muted-foreground">+{badges.length - 3}</span>
+                  )}
                 </div>
+              ) : (
+                badges.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {badges.map((b, i) => {
+                      const badgeDef = BADGE_OPTIONS.find((x) => x.value === b)
+                      if (!badgeDef) return null
+
+                      const colorClass =
+                        badgeColorMap[badgeDef.color as TailwindColor]
+
+                      return (
+                        <Badge
+                          key={i}
+                          className={clsx(
+                            "rounded-full border px-2 py-0.5 text-xs",
+                            colorClass,
+                          )}
+                        >
+                          {badgeDef.icon}
+                          <span className="ml-1">{badgeDef.label}</span>
+                        </Badge>
+                      )
+                    })}
+                  </div>
+                )
               )}
             </div>
           </div>
