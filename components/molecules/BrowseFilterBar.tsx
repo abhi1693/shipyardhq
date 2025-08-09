@@ -22,8 +22,8 @@ import {
 } from "@/components/atoms/select"
 import { ScrollArea } from "@/components/atoms/scroll-area"
 
-type UseCase = { id: string; slug: string; label: string }
-type Category = { id: string; slug: string; name: string }
+type UseCase = { id: string; slug: string; label: string; productCount?: number }
+type Category = { id: string; slug: string; name: string; _count?: { products: number } }
 
 interface BrowseFilterBarProps {
   useCases: UseCase[]
@@ -78,7 +78,7 @@ export default function BrowseFilterBar({
           [...params.entries()].filter(([_, v]) => typeof v === "string"),
         ),
       )
-      const setOrDel = (k: string, v: any) => {
+      const setOrDel = (k: string, v: string|boolean|undefined) => {
         if (v === undefined || v === "__all__" || v === false) url.delete(k)
         else url.set(k, String(v))
       }
@@ -136,6 +136,9 @@ export default function BrowseFilterBar({
                   <DropdownMenuItem key={uc.id} asChild>
                     <Link href={buildUrlMulti({ useCase: uc.slug, category: "__all__" })}>
                       {uc.label}
+                      {typeof uc.productCount === "number" && (
+                        <span className="ml-1 text-muted-foreground">({uc.productCount})</span>
+                      )}
                     </Link>
                   </DropdownMenuItem>
                 ))}
@@ -173,6 +176,9 @@ export default function BrowseFilterBar({
                   <DropdownMenuItem key={cat.id} asChild>
                     <Link href={buildUrlMulti({ category: cat.slug, useCase: "__all__" })}>
                       {cat.name}
+                      {typeof cat._count?.products === "number" && (
+                        <span className="ml-1 text-muted-foreground">({cat._count.products})</span>
+                      )}
                     </Link>
                   </DropdownMenuItem>
                 ))}

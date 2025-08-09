@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useState, useTransition, useRef } from "react"
 import { ProductCard } from "./ProductCard"
+import { Check } from "lucide-react"
 import { Button } from "@/components/atoms/button"
 import { Skeleton } from "@/components/atoms/skeleton"
 
@@ -43,6 +44,7 @@ export default function ProductGridClient({
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [page, setPage] = useState(initialPage)
   const [isPending, startTransition] = useTransition()
+  const prefetchedRef = useRef<null | { products: ProductWithMeta[]; hasMore: boolean }>(null)
   
   // Reset state when server-provided props change (filters/sort updated)
   useEffect(() => {
@@ -53,21 +55,39 @@ export default function ProductGridClient({
 
   const loadMore = () => {
     startTransition(async () => {
-      const result = await loadMoreProducts({
-        ...searchParams,
-        page,
-      })
-
-      setProducts((prev) => [...prev, ...result.products])
-      setHasMore(result.hasMore)
-      setPage((prev) => prev + 1)
+      if (prefetchedRef.current) {
+        const result = prefetchedRef.current
+        prefetchedRef.current = null
+        setProducts((prev) => [...prev, ...result.products])
+        setHasMore(result.hasMore)
+        setPage((prev) => prev + 1)
+      } else {
+        const result = await loadMoreProducts({
+          ...searchParams,
+          page,
+        })
+        setProducts((prev) => [...prev, ...result.products])
+        setHasMore(result.hasMore)
+        setPage((prev) => prev + 1)
+      }
     })
   }
+
+  // Prefetch next page on mount and when search params change
+  useEffect(() => {
+    prefetchedRef.current = null
+    ;(async () => {
+      try {
+        const result = await loadMoreProducts({ ...searchParams, page })
+        prefetchedRef.current = result
+      } catch {}
+    })()
+  }, [page, searchParams])
 
   return (
     <section className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((p) => (
+        {products.map((p, i) => (
           <ProductCard
             key={p.id}
             product={{ id: p.id, name: p.name, logo: p.logo, tagline: p.tagline }}
@@ -77,6 +97,22 @@ export default function ProductGridClient({
               initial: p.user.firstName?.[0] ?? "U",
             }}
             category={p.category?.name}
+            topRight={
+              <div className="flex items-center gap-1">
+                {p.verification?.isVerified && (
+                  <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px]">
+                    <Check className="h-3 w-3" />
+                    Verified
+                  </span>
+                )}
+                {p.category?.name && (
+                  <span className="inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px]">
+                    {p.category.name}
+                  </span>
+                )}
+              </div>
+            }
+            imagePriority={i < 4}
             compact
           />
         ))}

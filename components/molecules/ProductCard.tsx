@@ -30,6 +30,7 @@ interface ProductCardProps {
   category?: string
   compact?: boolean
   topRight?: React.ReactNode
+  imagePriority?: boolean
 }
 
 export function ProductCard({
@@ -40,6 +41,7 @@ export function ProductCard({
   category,
   compact = false,
   topRight,
+  imagePriority = false,
 }: ProductCardProps) {
   return (
     <Link
@@ -69,6 +71,8 @@ export function ProductCard({
                 width={compact ? 40 : 56}
                 height={compact ? 40 : 56}
                 className="object-cover w-full h-full"
+                loading={imagePriority ? "eager" : "lazy"}
+                priority={imagePriority}
               />
             </div>
 

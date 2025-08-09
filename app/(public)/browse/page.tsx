@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 export const dynamic = "force-dynamic"
 import Link from "next/link"
-import { getCategories, getUseCases } from "@/actions/admin/categories/actions"
+import { getCategories, getUseCasesWithCounts } from "@/actions/admin/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
@@ -26,8 +26,11 @@ export default async function BrowsePage({
 }: {
   searchParams: BrowseSearchParams
 }) {
-  const useCases = await getUseCases()
-  const categories = await getCategories()
+  const useCases = await getUseCasesWithCounts()
+  const categories = await getCategories({
+    include: { _count: { select: { products: true } } },
+    orderBy: { createdAt: "desc" },
+  })
 
   const params = await searchParams
   const pick = (v: StrOrArr) => (Array.isArray(v) ? v[0] : v)

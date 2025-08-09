@@ -125,6 +125,37 @@ export async function getUseCases() {
   }
 }
 
+export async function getUseCasesWithCounts() {
+  try {
+    const useCases = await prisma.useCase.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        categories: { select: { categoryId: true } },
+      },
+    })
+
+    const results = await Promise.all(
+      useCases.map(async (uc) => {
+        const categoryIds = uc.categories.map((c) => c.categoryId)
+        const productCount = categoryIds.length
+          ? await prisma.product.count({ where: { categoryId: { in: categoryIds } } })
+          : 0
+        return {
+          id: uc.id,
+          slug: uc.slug,
+          label: uc.label,
+          productCount,
+        }
+      }),
+    )
+
+    return results
+  } catch (error) {
+    console.error("Error fetching use cases with counts:", error)
+    throw new Error("Failed to fetch use cases with counts")
+  }
+}
+
 export async function getUseCaseById(
   id: string,
   args: Omit<Prisma.UseCaseFindUniqueArgs, "where"> = {},
