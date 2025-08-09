@@ -1,6 +1,5 @@
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowUp } from "lucide-react"
 import clsx from "clsx"
 
 import {
@@ -9,6 +8,8 @@ import {
   CardContent,
   CardTitle,
 } from "@/components/atoms/card"
+import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
+import { ProductAuthor } from "@/components/molecules/ProductAuthor"
 import { Badge } from "@/components/atoms/badge"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
@@ -120,26 +121,17 @@ export function ProductCard({
           </div>
         </CardHeader>
 
-        <CardContent className={clsx("pt-2", compact && "pt-1")}>
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <div
-              className={clsx(
-                "flex items-center gap-2 border rounded-md px-2 py-1 font-medium text-foreground",
-                compact ? "bg-transparent" : "bg-muted",
-              )}
-            >
-              <ArrowUp className="w-3 h-3 text-muted-foreground" />
-              <span>Upvote</span>
-              <span className="font-semibold">{upvotes}</span>
-            </div>
+        <CardContent className={clsx("pt-2", compact && "pt-1")}> 
+          <div className="flex items-center justify-between">
+            <UpvoteSquare count={upvotes} compact={compact} className="-ml-6" />
 
-            {!compact && author && (
-              <div className="flex items-center gap-2 group">
-                <Avatar className="h-5 w-5 border">
-                  <AvatarFallback>{author.initial}</AvatarFallback>
-                </Avatar>
-                <span className="group-hover:underline">{author.name}</span>
-              </div>
+            {author && (
+              <ProductAuthor
+                name={author.name}
+                initial={author.initial}
+                compact={compact}
+                className="-mr-6"
+              />
             )}
           </div>
         </CardContent>
