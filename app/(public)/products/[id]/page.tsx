@@ -54,8 +54,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     .filter(Boolean) as typeof BADGE_OPTIONS
 
   return (
-    <PublicContainer max="7xl">
-      <div className="space-y-8">
+    <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
         <Breadcrumbs />
 
         {/* Header */}
@@ -223,7 +222,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </div>
           </div>
         )}
-      </div>
     </PublicContainer>
   )
 }

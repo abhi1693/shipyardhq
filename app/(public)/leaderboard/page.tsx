@@ -39,7 +39,7 @@ export default async function LeaderboardPage({
   const rest = products.slice(3)
 
   return (
-    <PublicContainer max="7xl" innerClassName="space-y-10">
+    <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-10">
       {/* Header */}
       <PageHeader
         title="🏆 Product Leaderboard"

@@ -17,12 +17,12 @@ export default async function HomePage() {
   const topCategories = await getTopCategories()
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <>
       <LandingHero />
       <FeaturedHighlights products={featuredProducts} />
       <LatestLaunches products={latestLaunches} />
       <Leaderboard products={trendingProducts} />
       <TopCategories categories={topCategories} />
-    </main>
+    </>
   )
 }

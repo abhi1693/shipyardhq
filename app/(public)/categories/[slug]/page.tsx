@@ -31,8 +31,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category, products } = data
 
   return (
-    <PublicContainer max="7xl">
-      <div className="space-y-10">
+    <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-10">
       {/* Breadcrumbs */}
       <Breadcrumbs />
 
@@ -62,7 +61,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
       {/* Product Grid */}
       <CategoryProductsClient products={products} />
-      </div>
     </PublicContainer>
   )
 }

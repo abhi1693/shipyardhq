@@ -20,6 +20,8 @@ interface PublicContainerProps {
   className?: string
   innerClassName?: string
   paddingY?: string // e.g. `py-10`, `py-12`
+  as?: "div" | "section"
+  fillScreen?: boolean // include min-h-screen for page layouts
 }
 
 export default function PublicContainer({
@@ -28,13 +30,15 @@ export default function PublicContainer({
   className,
   innerClassName,
   paddingY = "py-10",
+  as = "div",
+  fillScreen = true,
 }: PublicContainerProps) {
+  const Tag = as === "section" ? "section" : "div"
   return (
-    <div className={cn("min-h-screen", paddingY, className)}>
+    <Tag className={cn(fillScreen && "min-h-screen", paddingY, className)}>
       <div className={cn(maxClassMap[max], "mx-auto px-4 md:px-8", innerClassName)}>
         {children}
       </div>
-    </div>
+    </Tag>
   )
 }
-

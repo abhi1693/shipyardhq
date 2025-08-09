@@ -71,69 +71,64 @@ export default async function BrowsePage({
   }
 
   return (
-    <PublicContainer max="7xl">
-      {/* Header */}
-      <div className="mb-6 space-y-2">
-        <PageHeader
-          title="Discover the best startups."
-          subtitle="Browse through a curated collection of SaaS tools, micro-SaaS solutions, and indie side projects built by hackers and makers."
-          underline
-          meta={
-            <>
-              Showing {products.length} {pluralize(products.length, "result")}
-              {" • "}Sort: {sortLabelMap[sort] ?? "Newest"}
-            </>
-          }
-        />
-        
-        {/* Filter Bar */}
-        <div className="mb-4">
-          <BrowseFilterBar
-            useCases={useCases}
-            categories={categories}
-            current={{ useCase, category, sort, verified: verified === "true" }}
-          />
-        </div>
+    <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-6">
+      <PageHeader
+        title="Discover the best startups."
+        subtitle="Browse through a curated collection of SaaS tools, micro-SaaS solutions, and indie side projects built by hackers and makers."
+        underline
+        meta={
+          <>
+            Showing {products.length} {pluralize(products.length, "result")}
+            {" • "}Sort: {sortLabelMap[sort] ?? "Newest"}
+          </>
+        }
+      />
 
-        {/* Product Grid */}
-        <div>
-          {products.length === 0 ? (
-            <div>
-              <EmptyState
-                title="Nothing Found"
-                description="Explore our categories or use cases to find products that suit your needs."
-                actionLabel="Reset Filters"
-                actionHref="/browse"
-              />
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                <Link
-                  href="/browse?sort=trending"
-                  className="inline-flex items-center rounded-md border px-2.5 py-1.5 text-xs hover:bg-accent"
-                >
-                  Try Trending
-                </Link>
-                <Link
-                  href="/browse?verified=true"
-                  className="inline-flex items-center rounded-md border px-2.5 py-1.5 text-xs hover:bg-accent"
-                >
-                  Verified Only
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <ProductGridClient
-              initialProducts={products}
-              initialHasMore={hasMore}
-              initialPage={2}
-              searchParams={{
-                useCase: useCase === "__all__" ? undefined : useCase,
-                category: category === "__all__" ? undefined : category,
-                verified: verified === "true",
-                sort,
-              }}
+      <div>
+        <BrowseFilterBar
+          useCases={useCases}
+          categories={categories}
+          current={{ useCase, category, sort, verified: verified === "true" }}
+        />
+      </div>
+
+      <div>
+        {products.length === 0 ? (
+          <div>
+            <EmptyState
+              title="Nothing Found"
+              description="Explore our categories or use cases to find products that suit your needs."
+              actionLabel="Reset Filters"
+              actionHref="/browse"
             />
-          )}
-        </div>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <Link
+                href="/browse?sort=trending"
+                className="inline-flex items-center rounded-md border px-2.5 py-1.5 text-xs hover:bg-accent"
+              >
+                Try Trending
+              </Link>
+              <Link
+                href="/browse?verified=true"
+                className="inline-flex items-center rounded-md border px-2.5 py-1.5 text-xs hover:bg-accent"
+              >
+                Verified Only
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <ProductGridClient
+            initialProducts={products}
+            initialHasMore={hasMore}
+            initialPage={2}
+            searchParams={{
+              useCase: useCase === "__all__" ? undefined : useCase,
+              category: category === "__all__" ? undefined : category,
+              verified: verified === "true",
+              sort,
+            }}
+          />
+        )}
       </div>
     </PublicContainer>
   )
