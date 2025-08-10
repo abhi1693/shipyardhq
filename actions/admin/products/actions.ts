@@ -150,6 +150,21 @@ export async function createProductAction(formData: FormData) {
     )
 
     const verificationTxt = generateVerificationTxtFromWebsite(websiteUrl)
+    // Attempt live DNS check so new products can start verified if TXT already set
+    let initialVerified = false
+    try {
+      const url = new URL(websiteUrl)
+      const domain = url.hostname
+      const resolver = new Resolver()
+      resolver.setServers(["1.1.1.1", "8.8.8.8"])
+      const txtRecords = await resolver.resolveTxt(domain)
+      const flattened = txtRecords.flat().map((t) => t.trim())
+      initialVerified = flattened.some(
+        (txt) => txt === verificationTxt.trim(),
+      )
+    } catch {
+      // Ignore DNS errors during creation; user can verify later
+    }
 
     const created = await prisma.product.create({
       data: {
@@ -191,6 +206,8 @@ export async function createProductAction(formData: FormData) {
         verification: {
           create: {
             verificationTxt,
+            isVerified: initialVerified,
+            verifiedAt: initialVerified ? new Date() : null,
           },
         },
       },
@@ -272,9 +289,12 @@ export async function updateProductAction(
       include: { verification: true },
     })
     if (product && product.websiteUrl !== websiteUrl) {
+      // Website changed: reset verification state and refresh expected TXT value
+      const newVerificationTxt = generateVerificationTxtFromWebsite(websiteUrl)
       await prisma.productVerification.update({
         where: { productId: id },
         data: {
+          verificationTxt: newVerificationTxt,
           isVerified: false,
           verifiedAt: null,
         },

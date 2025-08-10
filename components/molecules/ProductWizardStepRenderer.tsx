@@ -25,6 +25,7 @@ export function renderStep(
     categories: { id: string; name: string }[]
     organizations: { id: string; name: string }[]
     productId?: string
+    persistOnVerify?: boolean
   },
 ) {
   switch (step) {
@@ -39,7 +40,12 @@ export function renderStep(
     case 2:
       return <Step2 />
     case 3:
-      return <Step3 />
+      return (
+        <Step3
+          productId={args.productId}
+          persistOnVerify={Boolean(args.persistOnVerify)}
+        />
+      )
     case 4:
       return (
         <Step4 organizations={args.organizations} productId={args.productId} />

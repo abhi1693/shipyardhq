@@ -6,9 +6,18 @@ import { Button } from "@/components/atoms/button"
 import { FormItem, FormLabel } from "@/components/atoms/form"
 import { Badge } from "@/components/atoms/badge"
 import { toast } from "sonner"
-import { checkDomainTxtAction } from "@/actions/admin/products/actions"
+import {
+  checkDomainTxtAction,
+  verifyProductDomainAction,
+} from "@/actions/admin/products/actions"
 
-export default function Step3() {
+export default function Step3({
+  productId,
+  persistOnVerify = false,
+}: {
+  productId?: string
+  persistOnVerify?: boolean
+}) {
   const form = useFormContext()
   const website = useWatch({
     control: form.control,
@@ -68,7 +77,20 @@ export default function Step3() {
       form.setValue("verificationChecked", true)
       form.setValue("verificationSuccess", !!res.success)
       if (res.expected) form.setValue("verificationExpectedTxt", res.expected)
-      if (res.success) toast.success("TXT record found. Looks good!")
+      if (res.success) {
+        // Persist verification for existing products (edit flow only)
+        if (persistOnVerify && productId) {
+          const persist = await verifyProductDomainAction(productId)
+          if (persist?.success) {
+            toast.success("Domain verified and saved.")
+          } else if (persist?.error) {
+            // If persistence fails, still show local success but inform user
+            toast.error(`Verified, but save failed: ${persist.error}`)
+          }
+        } else {
+          toast.success("TXT record found. Looks good!")
+        }
+      }
       else toast.error("TXT record not found yet. Please try again later.")
     } finally {
       setVerifying(false)

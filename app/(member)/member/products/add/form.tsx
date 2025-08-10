@@ -102,6 +102,7 @@ export default function AddProductForm({
       categories,
       organizations,
       productId: newProductId,
+      persistOnVerify: false,
     })
   }, [wizard.step, categories, organizations, newProductId])
 
