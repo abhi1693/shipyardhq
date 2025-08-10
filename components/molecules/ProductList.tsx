@@ -49,7 +49,13 @@ export default function ProductList<T extends ProductListItem>({
       {items.map((p, i) => (
         <ProductCard
           key={p.id}
-          product={{ id: p.id, slug: p.slug, name: p.name, logo: p.logo, tagline: p.tagline }}
+          product={{
+            id: p.id,
+            slug: p.slug,
+            name: p.name,
+            logo: p.logo,
+            tagline: p.tagline,
+          }}
           badges={p.badges}
           upvotes={p.analytics?.upvotes ?? 0}
           author={

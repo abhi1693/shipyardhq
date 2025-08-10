@@ -41,27 +41,69 @@ interface ProductPageProps {
   params: { slug: string }
 }
 
-export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: ProductPageProps): Promise<Metadata> {
   const { slug } = await params
   const product = await prisma.product.findUnique({
     where: { slug },
-    select: { name: true, tagline: true, description: true, logo: true },
+    select: {
+      slug: true,
+      name: true,
+      tagline: true,
+      description: true,
+      logo: true,
+      bannerImage: true,
+      keywords: true,
+      status: true,
+      category: { select: { name: true, slug: true } },
+      user: { select: { firstName: true, lastName: true } },
+    },
   })
   if (!product) return {}
+  const relativeUrl = `/products/${product.slug}`
+  const desc = product.tagline || product.description || undefined
+  const images = [product.bannerImage, product.logo].filter(Boolean) as string[]
+  const authorName =
+    [product.user?.firstName || "", product.user?.lastName || ""]
+      .join(" ")
+      .trim() || undefined
+
   return {
     title: `${product.name} | Product`,
-    description: product.tagline || product.description,
+    description: desc,
+    keywords:
+      product.keywords && product.keywords.length
+        ? product.keywords
+        : undefined,
+    alternates: { canonical: relativeUrl },
     openGraph: {
       title: product.name,
-      description: product.tagline || product.description,
-      images: product.logo ? [{ url: product.logo }] : undefined,
+      description: desc,
+      url: relativeUrl,
+      type: "website",
+      images: images.length ? images.map((url) => ({ url })) : undefined,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description: desc,
+      images: images.length ? images : undefined,
+    },
+    robots:
+      product.status === "published"
+        ? { index: true, follow: true }
+        : { index: false, follow: false },
+    authors: authorName ? [{ name: authorName }] : undefined,
   }
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const bySlug = await prisma.product.findUnique({ where: { slug }, select: { id: true } })
+  const bySlug = await prisma.product.findUnique({
+    where: { slug },
+    select: { id: true },
+  })
   const product = bySlug ? await getPublicProduct(bySlug.id) : null
   if (!product) return notFound()
 

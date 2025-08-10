@@ -21,4 +21,3 @@ export function allowOncePerWindow(key: string, windowMs: number): boolean {
   if (++opCount % 1000 === 0) prune(now - windowMs * 10)
   return true
 }
-

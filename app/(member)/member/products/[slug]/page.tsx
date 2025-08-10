@@ -31,7 +31,10 @@ export default async function ViewUserProductPage({
   params: { slug: string }
 }) {
   const { slug } = await params
-  const found = await prisma.product.findUnique({ where: { slug }, select: { id: true } })
+  const found = await prisma.product.findUnique({
+    where: { slug },
+    select: { id: true },
+  })
   const product = found ? await getProductById(found.id) : null
   if (!product) return notFound()
   const { userId: clerkId } = await auth()
