@@ -3,6 +3,7 @@ import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
 import PrivateHeader from "@/components/layout/headers/private-header"
 import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
+import PageContainer from "@/components/layout/page-container"
 
 export const metadata: Metadata = {
   title: "Admin - ShipYardHQ",
@@ -115,7 +116,7 @@ export default async function AdminLayout({
       <AppSidebar navItems={navItems} />
       <SidebarInset>
         <PrivateHeader />
-        {children}
+        <PageContainer>{children}</PageContainer>
       </SidebarInset>
     </SidebarProvider>
   )
