@@ -13,40 +13,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/car
 import { Button } from "@/components/atoms/button"
 import { Separator } from "@/components/atoms/separator"
 
-import Step1 from "./step1"
-import Step2 from "./step2"
-import Step3 from "./step3"
-import Step4 from "./step4"
-import Review from "./review"
-
-const PRODUCT_TYPES = [
-  "saas",
-  "browser_extension",
-  "mobile_app",
-  "desktop_app",
-  "api",
-  "open_source",
-  "other",
-] as const
-
-const PRICING_MODELS = [
-  "free",
-  "freemium",
-  "subscription",
-  "one_time",
-  "custom",
-] as const
-
-const PLATFORMS = [
-  "web",
-  "ios",
-  "android",
-  "mac",
-  "windows",
-  "linux",
-  "chrome_extension",
-  "firefox_extension",
-] as const
+import Step1 from "../../shared/step1"
+import Step2 from "../../shared/step2"
+import Step3 from "../../shared/step3"
+import Step4 from "../../shared/step4"
+import Review from "../../shared/review"
+import WizardStepper from "@/components/molecules/WizardStepper"
+import { PRODUCT_TYPES, PRICING_MODELS, PLATFORMS, STEPS, STEP_FIELDS } from "@/lib/productWizard/constants"
+import { validateExternalResources as validateResources } from "@/lib/productWizard/validate"
 
 const schema = z.object({
   // Basics
@@ -149,40 +123,6 @@ const schema = z.object({
 
 export type ProductWizardInput = z.infer<typeof schema>
 
-const STEP_FIELDS: Record<number, (keyof ProductWizardInput)[]> = {
-  1: [
-    "name",
-    "tagline",
-    "description",
-    "websiteUrl",
-    "logo",
-    "categoryId",
-    "type",
-    "platforms",
-    "keywordsText",
-  ],
-  2: ["pricingModel", "startingPriceCents", "currencyCode"],
-  3: ["websiteUrl"],
-  4: [
-    "organizationId",
-    "ctaLabel",
-    "ctaUrl",
-    "bannerImage",
-    "githubUrl",
-    "twitterUrl",
-    "demoUrl",
-    "contactEmail",
-  ],
-}
-
-const STEPS: { id: number; label: string }[] = [
-  { id: 1, label: "Basics" },
-  { id: 2, label: "Pricing" },
-  { id: 3, label: "Verification" },
-  { id: 4, label: "Details" },
-  { id: 5, label: "Review" },
-]
-
 export default function EditProductForm({
   product,
   categories,
@@ -229,7 +169,7 @@ export default function EditProductForm({
   })
 
   async function next() {
-    const fields = STEP_FIELDS[step]
+    const fields = STEP_FIELDS[step] as any
     const valid = await form.trigger(fields as any, { shouldFocus: true })
     if (!valid) return
     setStep((s) => Math.min(s + 1, 5))
@@ -241,80 +181,7 @@ export default function EditProductForm({
 
   async function validateExternalResources(): Promise<boolean> {
     const v = form.getValues() as any
-    const issues: string[] = []
-    const checks: Record<string, boolean> = {}
-
-    const loadImage = (url: string) =>
-      new Promise<boolean>((resolve) => {
-        try {
-          const img = new Image()
-          const timer = setTimeout(() => resolve(false), 8000)
-          img.onload = () => {
-            clearTimeout(timer)
-            resolve(true)
-          }
-          img.onerror = () => {
-            clearTimeout(timer)
-            resolve(false)
-          }
-          img.src = url
-        } catch {
-          resolve(false)
-        }
-      })
-
-    const checkUrl = async (url?: string) => {
-      if (!url) return true
-      try {
-        const controller = new AbortController()
-        const id = setTimeout(() => controller.abort(), 7000)
-        const res = await fetch(url, { method: "GET", mode: "cors", redirect: "follow", signal: controller.signal })
-        clearTimeout(id)
-        return res.ok
-      } catch {
-        return true
-      }
-    }
-
-    if (typeof v.websiteUrl === "string" && !v.websiteUrl.startsWith("http")) {
-      issues.push("Website URL must start with http/https")
-      checks.websiteOk = false
-    } else {
-      const ok = await checkUrl(v.websiteUrl)
-      checks.websiteOk = ok
-      if (!ok) issues.push("Website URL did not respond OK")
-    }
-
-    if (typeof v.logo === "string" && v.logo.length) {
-      const ok = await loadImage(v.logo)
-      checks.logoOk = ok
-      if (!ok) issues.push("Logo URL is not a valid image")
-    } else {
-      checks.logoOk = false
-      issues.push("Logo URL is required")
-    }
-
-    if (typeof v.bannerImage === "string" && v.bannerImage.length) {
-      const ok = await loadImage(v.bannerImage)
-      checks.bannerOk = ok
-      if (!ok) issues.push("Banner Image URL is not a valid image")
-    }
-
-    const linkPairs: [key: string, label: string, field: string][] = [
-      ["ctaUrl", "CTA URL", "ctaOk"],
-      ["githubUrl", "GitHub URL", "githubOk"],
-      ["twitterUrl", "Twitter URL", "twitterOk"],
-      ["demoUrl", "Demo URL", "demoOk"],
-    ]
-    for (const [k, label, f] of linkPairs) {
-      const url = v[k]
-      if (typeof url === "string" && url.length) {
-        const ok = await checkUrl(url)
-        ;(checks as any)[f] = ok
-        if (!ok) issues.push(`${label} did not respond OK`)
-      }
-    }
-
+    const { issues, checks } = await validateResources(v)
     form.setValue("reviewIssues" as any, issues)
     form.setValue("reviewChecks" as any, checks)
     if (issues.length) {
@@ -412,43 +279,7 @@ export default function EditProductForm({
         </CardHeader>
         <CardContent>
           {/* Stepper */}
-          <div className="mb-6">
-            <ol className="flex items-center justify-between gap-2">
-              {STEPS.map((s, idx) => {
-                const isDone = step > s.id
-                const isCurrent = step === s.id
-                return (
-                  <li key={s.id} className="flex-1 flex items-center">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={
-                          `flex h-7 w-7 items-center justify-center rounded-full border text-xs ` +
-                          (isCurrent
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : isDone
-                              ? "bg-primary/80 text-primary-foreground border-primary/80"
-                              : "bg-muted text-muted-foreground border-muted-foreground/20")
-                        }
-                      >
-                        {s.id}
-                      </div>
-                      <span className={"text-sm " + (isCurrent ? "font-medium" : "text-muted-foreground")}>{s.label}</span>
-                    </div>
-                    {idx < STEPS.length - 1 && (
-                      <div className="mx-2 hidden sm:block h-[2px] flex-1 rounded bg-muted">
-                        <div
-                          className={
-                            "h-[2px] rounded bg-primary transition-all duration-300 " +
-                            (step > s.id ? "w-full" : "w-0")
-                          }
-                        />
-                      </div>
-                    )}
-                  </li>
-                )
-              })}
-            </ol>
-          </div>
+          <WizardStepper steps={STEPS} step={step} />
 
           <FormProvider {...form}>
             <form onSubmit={form.handleSubmit(submitAll)} className="space-y-6">
@@ -498,4 +329,3 @@ export default function EditProductForm({
 }
 
 export type { ProductWizardInput as EditProductValues }
-

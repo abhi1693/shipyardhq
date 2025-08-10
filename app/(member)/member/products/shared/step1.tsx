@@ -254,3 +254,4 @@ export default function Step1({ categories, platforms }: Props) {
     </div>
   )
 }
+

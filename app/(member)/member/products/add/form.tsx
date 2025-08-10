@@ -13,48 +13,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/car
 import { Button } from "@/components/atoms/button"
 import { Separator } from "@/components/atoms/separator"
 
-import Step1 from "./step1"
-import Step2 from "./step2"
-import Step3 from "./step3"
-import Step4 from "./step4"
-import Review from "./review"
-
-const PRODUCT_TYPES = [
-  "saas",
-  "browser_extension",
-  "mobile_app",
-  "desktop_app",
-  "api",
-  "open_source",
-  "other",
-] as const
-
-const PRICING_MODELS = [
-  "free",
-  "freemium",
-  "subscription",
-  "one_time",
-  "custom",
-] as const
-
-const PLATFORMS = [
-  "web",
-  "ios",
-  "android",
-  "mac",
-  "windows",
-  "linux",
-  "chrome_extension",
-  "firefox_extension",
-] as const
-
-const STEPS: { id: number; label: string }[] = [
-  { id: 1, label: "Basics" },
-  { id: 2, label: "Pricing" },
-  { id: 3, label: "Verification" },
-  { id: 4, label: "Details" },
-  { id: 5, label: "Review" },
-]
+import Step1 from "../shared/step1"
+import Step2 from "../shared/step2"
+import Step3 from "../shared/step3"
+import Step4 from "../shared/step4"
+import Review from "../shared/review"
+import WizardStepper from "@/components/molecules/WizardStepper"
+import {
+  PRODUCT_TYPES,
+  PRICING_MODELS,
+  PLATFORMS,
+  STEPS,
+  STEP_FIELDS,
+} from "@/lib/productWizard/constants"
+import { validateExternalResources as validateResources } from "@/lib/productWizard/validate"
 
 const schema = z.object({
   // Basics
@@ -154,23 +126,6 @@ const schema = z.object({
   })
 
 export type ProductWizardInput = z.infer<typeof schema>
-
-const STEP_FIELDS: Record<number, (keyof ProductWizardInput)[]> = {
-  1: [
-    "name",
-    "tagline",
-    "description",
-    "websiteUrl",
-    "logo",
-    "categoryId",
-    "type",
-    "platforms",
-    "keywordsText",
-  ],
-  2: ["pricingModel", "startingPriceCents", "currencyCode"],
-  3: ["websiteUrl"], // verification depends on website
-  4: ["organizationId", "ctaLabel", "ctaUrl", "bannerImage", "githubUrl", "twitterUrl", "demoUrl", "contactEmail"],
-}
 
 export default function AddProductForm({
   categories,
@@ -315,91 +270,9 @@ export default function AddProductForm({
 
   async function validateExternalResources(): Promise<boolean> {
     const v = form.getValues()
-    const issues: string[] = []
-    const checks: Record<string, boolean> = {}
-
-    // Helper: image check via HTMLImageElement (CORS-friendly)
-    const loadImage = (url: string) =>
-      new Promise<boolean>((resolve) => {
-        try {
-          const img = new Image()
-          const timer = setTimeout(() => resolve(false), 8000)
-          img.onload = () => {
-            clearTimeout(timer)
-            resolve(true)
-          }
-          img.onerror = () => {
-            clearTimeout(timer)
-            resolve(false)
-          }
-          img.src = url
-        } catch {
-          resolve(false)
-        }
-      })
-
-    // Helper: URL fetch check (best-effort; CORS may block)
-    const checkUrl = async (url?: string) => {
-      if (!url) return true
-      try {
-        const controller = new AbortController()
-        const id = setTimeout(() => controller.abort(), 7000)
-        const res = await fetch(url, { method: "GET", mode: "cors", redirect: "follow", signal: controller.signal })
-        clearTimeout(id)
-        return res.ok
-      } catch {
-        // Unknown due to CORS/network; don't block publish, but warn
-        return true
-      }
-    }
-
-    // Required: websiteUrl must be https
-    if (typeof v.websiteUrl === "string" && !v.websiteUrl.startsWith("http")) {
-      issues.push("Website URL must start with http/https")
-      checks.websiteOk = false
-    } else {
-      const ok = await checkUrl(v.websiteUrl)
-      checks.websiteOk = ok
-      if (!ok) issues.push("Website URL did not respond OK")
-    }
-
-    // Required image: logo
-    if (typeof v.logo === "string" && v.logo.length) {
-      const ok = await loadImage(v.logo)
-      checks.logoOk = ok
-      if (!ok) issues.push("Logo URL is not a valid image")
-    } else {
-      checks.logoOk = false
-      issues.push("Logo URL is required")
-    }
-
-    // Optional image: bannerImage
-    if (typeof (v as any).bannerImage === "string" && (v as any).bannerImage.length) {
-      const ok = await loadImage((v as any).bannerImage)
-      checks.bannerOk = ok
-      if (!ok) issues.push("Banner Image URL is not a valid image")
-    }
-
-    // Optional links
-    const linkPairs: [key: keyof typeof v, label: string, field: keyof typeof checks][] = [
-      ["ctaUrl" as any, "CTA URL", "ctaOk" as any],
-      ["githubUrl" as any, "GitHub URL", "githubOk" as any],
-      ["twitterUrl" as any, "Twitter URL", "twitterOk" as any],
-      ["demoUrl" as any, "Demo URL", "demoOk" as any],
-    ]
-    for (const [k, label, f] of linkPairs) {
-      const url = (v as any)[k]
-      if (typeof url === "string" && url.length) {
-        const ok = await checkUrl(url)
-        checks[f as any] = ok
-        if (!ok) issues.push(`${label} did not respond OK`)
-      }
-    }
-
-    // Persist in form for Review UI
+    const { issues, checks } = await validateResources(v as any)
     form.setValue("reviewIssues" as any, issues)
     form.setValue("reviewChecks" as any, checks)
-
     if (issues.length) {
       toast.error("Some links/images look invalid. Please review.")
       return false
@@ -416,44 +289,7 @@ export default function AddProductForm({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Stepper */}
-          <div className="mb-6">
-            <ol className="flex items-center justify-between gap-2">
-              {STEPS.map((s, idx) => {
-                const isDone = step > s.id
-                const isCurrent = step === s.id
-                return (
-                  <li key={s.id} className="flex-1 flex items-center">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={
-                          `flex h-7 w-7 items-center justify-center rounded-full border text-xs ` +
-                          (isCurrent
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : isDone
-                              ? "bg-primary/80 text-primary-foreground border-primary/80"
-                              : "bg-muted text-muted-foreground border-muted-foreground/20")
-                        }
-                      >
-                        {s.id}
-                      </div>
-                      <span className={"text-sm " + (isCurrent ? "font-medium" : "text-muted-foreground")}>{s.label}</span>
-                    </div>
-                    {idx < STEPS.length - 1 && (
-                      <div className="mx-2 hidden sm:block h-[2px] flex-1 rounded bg-muted">
-                        <div
-                          className={
-                            "h-[2px] rounded bg-primary transition-all duration-300 " +
-                            (step > s.id ? "w-full" : "w-0")
-                          }
-                        />
-                      </div>
-                    )}
-                  </li>
-                )
-              })}
-            </ol>
-          </div>
+          <WizardStepper steps={STEPS} step={step} />
 
           <FormProvider {...form}>
             <form
