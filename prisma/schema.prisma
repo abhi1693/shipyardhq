@@ -225,7 +225,8 @@ model Plan {
   price       Int // in cents
   interval    String // e.g. "month"
   frequency   Int // e.g. 1 (monthly), 12 (yearly)
-  discount    Int? // optional discount in cents
+  // Discount percentage between 0.0 and 100.0
+  discount    Float? // percentage
   trialDays   Int? // optional number of trial days
   isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())

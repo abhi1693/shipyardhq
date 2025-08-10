@@ -323,18 +323,18 @@ export default async function ViewUserProductPage({
                       {(() => {
                         const nf = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" })
                         const priceText = nf.format(nextPlan.price / 100)
-                        const original = nextPlan.discount
-                          ? nf.format((nextPlan.price + (nextPlan.discount || 0)) / 100)
-                          : null
+                        const pct = (nextPlan.discount || 0)
+                        const baseCents = pct > 0 && pct < 100 ? Math.round(nextPlan.price / (1 - pct / 100)) : nextPlan.price
+                        const original = pct > 0 && pct < 100 ? nf.format(baseCents / 100) : null
                         return (
                           <>
                             {original && (
                               <span className="text-xs text-muted-foreground line-through">{original}</span>
                             )}
                             <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">{priceText}</span>
-                            {nextPlan.discount ? (
+                            {pct > 0 ? (
                               <span className="text-[11px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1.5 py-0.5">
-                                Save {nf.format((nextPlan.discount || 0) / 100)}
+                                Save {new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(pct)}%
                               </span>
                             ) : null}
                             {nextPlan.type === "one_time_price" ? (

@@ -44,19 +44,11 @@ const planFormSchema = z
     price: z.coerce.number().nonnegative(),
     interval: z.enum(["month", "year"]),
     frequency: z.coerce.number().min(1),
-    discount: z.coerce.number().min(0).optional(),
+    discount: z.coerce.number().min(0).max(100).optional(),
     trialDays: z.coerce.number().min(0).optional(),
     isDefault: z.boolean().optional(),
   })
-  .refine(
-    (data) => {
-      return !(data.discount !== undefined && data.discount >= data.price)
-    },
-    {
-      path: ["discount"],
-      message: "Discount must be less than price",
-    },
-  )
+  
 
 type PlanFormInput = z.infer<typeof planFormSchema>
 
@@ -255,10 +247,11 @@ export default function AddPlanForm() {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Discount (in cents)</FormLabel>
+                      <FormLabel>Discount (%)</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
+                          step="0.1"
                           placeholder="Optional"
                           {...field}
                         />

@@ -30,7 +30,7 @@ export async function createPlanAction(formData: FormData) {
   const isDefault =
     formData.get("isDefault") === "true" || formData.get("isDefault") === "on"
 
-  const discount = discountRaw ? parseInt(discountRaw.toString(), 10) : null
+  const discount = discountRaw ? parseFloat(discountRaw.toString()) : null
   const trialDays = trialDaysRaw ? parseInt(trialDaysRaw.toString(), 10) : null
 
   try {
@@ -48,18 +48,20 @@ export async function createPlanAction(formData: FormData) {
         price,
         interval,
         frequency,
-        discount,
+        discount: Math.max(0, Math.min(discount ?? 0, 100)),
         trialDays,
         isDefault,
       },
     })
 
     if (price !== 0) {
+      // DodoPayments expects discount as percentage
+      const pct = Math.max(0, Math.min(discount ?? 0, 100))
       // Create product on DodoPayments
       const product = await dodoClient.products.create({
         price: {
           currency: "USD",
-          discount: discount ?? 0,
+          discount: pct,
           price,
           purchasing_power_parity: true,
           type: "one_time_price",
@@ -190,7 +192,7 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
         price: data.price,
         interval: data.interval,
         frequency: data.frequency,
-        discount: data.discount ?? null,
+        discount: Math.max(0, Math.min(data.discount ?? 0, 100)),
         trialDays: data.trialDays ?? null,
         isDefault: data.isDefault ?? false,
       },
@@ -202,10 +204,11 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
       select: { externalId: true },
     })
     if (plan?.externalId) {
+      const pct = Math.max(0, Math.min(data.discount ?? 0, 100))
       await dodoClient.products.update(plan.externalId, {
         price: {
           currency: "USD",
-          discount: data.discount ?? 0,
+          discount: pct,
           price: data.price,
           purchasing_power_parity: true,
           type: "one_time_price",
@@ -218,11 +221,12 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
       console.log("Product updated on DodoPayments:", plan.externalId)
     } else {
       if (data.price !== 0) {
+        const pct = Math.max(0, Math.min(data.discount ?? 0, 100))
         // Create product on DodoPayments
         const product = await dodoClient.products.create({
           price: {
             currency: "USD",
-            discount: data.discount ?? 0,
+            discount: pct,
             price: data.price,
             purchasing_power_parity: true,
             type: "one_time_price",

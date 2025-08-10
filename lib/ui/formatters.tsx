@@ -126,6 +126,18 @@ export function formatCurrency(
   )
 }
 
+export function formatPercent(
+  value: number | null | undefined,
+  maximumFractionDigits: number = 2,
+): ReactNode {
+  if (value === null || value === undefined) return placeholder()
+  return (
+    <span className="text-sm text-muted-foreground">
+      {new Intl.NumberFormat("en-US", { maximumFractionDigits }).format(value)}%
+    </span>
+  )
+}
+
 export function formatDistanceToNow(
   value: Date | string | undefined,
 ): ReactNode {

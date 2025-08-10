@@ -3,12 +3,7 @@ import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { getPlanById } from "@/actions/admin/plans/actions"
 import { PlanFeatureRelationship } from "./relationships/features"
 import { Prisma } from "@prisma/client"
-import {
-  formatBoolean,
-  formatCurrency,
-  linkify,
-  placeholder,
-} from "@/lib/ui/formatters"
+import { formatBoolean, formatCurrency, linkify, placeholder, formatPercent } from "@/lib/ui/formatters"
 import {
   Card,
   CardContent,
@@ -67,10 +62,7 @@ export default async function ViewPlanPage({
           label: "Trial Days",
           value: plan.trialDays ? `${plan.trialDays} day(s)` : placeholder(),
         },
-        {
-          label: "Discount",
-          value: plan.discount ? formatCurrency(plan.discount) : placeholder(),
-        },
+        { label: "Discount", value: plan.discount ? formatPercent(plan.discount) : placeholder() },
         { label: "Default", value: formatBoolean(plan.isDefault) },
         { label: "Description", value: plan.description || placeholder() },
       ]}
