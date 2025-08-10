@@ -376,7 +376,10 @@ export default async function ViewUserProductPage({
                     )
                   })()}
                 </div>
-                <div className="mt-1 text-[11px] text-muted-foreground">Instant activation after payment. Boost lasts {(nextPlan as any).boostForDays ?? 1} day(s).</div>
+                <div className="mt-1 text-[11px] text-muted-foreground">
+                  Instant activation after payment. Boost lasts{" "}
+                  {(nextPlan as any).boostForDays ?? 1} day(s).
+                </div>
                 {nextPlan.description ? (
                   <div className="mt-1 text-xs text-foreground/90">
                     {nextPlan.description}
