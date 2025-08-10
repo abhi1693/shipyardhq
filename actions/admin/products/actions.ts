@@ -479,3 +479,82 @@ export async function checkDomainTxtAction(websiteUrl: string) {
     return { error: `DNS check failed: ${code}` }
   }
 }
+
+// Update status only (draft/published/archived)
+export async function setProductStatusAction(
+  id: string,
+  status: "draft" | "published" | "archived",
+) {
+  try {
+    return await prisma.product.update({
+      where: { id },
+      data: {
+        status,
+        publishedAt: status === "published" ? new Date() : null,
+      },
+      select: { id: true, status: true, slug: true },
+    })
+  } catch (error) {
+    console.error("Error updating product status:", error)
+    return { error: "Failed to update status" }
+  }
+}
+
+// Duplicate an existing product into a new draft
+export async function duplicateProductAction(id: string) {
+  try {
+    const src = await prisma.product.findUnique({
+      where: { id },
+      include: { metadata: true, verification: true },
+    })
+    if (!src) return { error: "Product not found" }
+
+    const newName = `${src.name} Copy`
+    const newSlug = await generateUniqueSlug(newName)
+    const verificationTxt = generateVerificationTxtFromWebsite(src.websiteUrl)
+
+    const created = await prisma.product.create({
+      data: {
+        name: newName,
+        slug: newSlug,
+        tagline: src.tagline,
+        description: src.description,
+        websiteUrl: src.websiteUrl,
+        logo: src.logo,
+        categoryId: src.categoryId,
+        userId: src.userId,
+        organizationId: src.organizationId,
+        type: src.type,
+        pricingModel: src.pricingModel,
+        status: "draft",
+        publishedAt: null,
+        startingPriceCents: src.startingPriceCents,
+        currencyCode: src.currencyCode,
+        ctaLabel: src.ctaLabel,
+        ctaUrl: src.ctaUrl,
+        bannerImage: src.bannerImage,
+        keywords: src.keywords,
+        platforms: src.platforms,
+        metadata: src.metadata
+          ? {
+              create: {
+                githubUrl: src.metadata.githubUrl,
+                twitterUrl: src.metadata.twitterUrl,
+                demoUrl: src.metadata.demoUrl,
+                contactEmail: src.metadata.contactEmail,
+              },
+            }
+          : undefined,
+        analytics: { create: {} },
+        verification: {
+          create: { verificationTxt, isVerified: false, verifiedAt: null },
+        },
+      },
+      select: { id: true, slug: true },
+    })
+    return { success: true, id: created.id, slug: created.slug }
+  } catch (error) {
+    console.error("Error duplicating product:", error)
+    return { error: "Failed to duplicate product" }
+  }
+}

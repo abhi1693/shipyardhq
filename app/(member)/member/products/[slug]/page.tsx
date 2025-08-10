@@ -24,6 +24,14 @@ import { getProductById } from "@/actions/admin/products/actions"
 import { auth } from "@clerk/nextjs/server"
 import ProductMediaManager from "@/components/molecules/ProductMediaManager"
 import prisma from "@/lib/prisma"
+import ProductStatusActions from "@/components/molecules/ProductStatusActions"
+import CopyButton from "@/components/molecules/CopyButton"
+import DuplicateProductButton from "@/components/molecules/DuplicateProductButton"
+import Link from "next/link"
+import { Badge } from "@/components/atoms/badge"
+import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
+import { getProductActivity, getRecentUpvoters } from "@/actions/member/products/actions"
+import ShareOnX from "@/components/molecules/ShareOnX"
 
 export default async function ViewUserProductPage({
   params,
@@ -39,6 +47,9 @@ export default async function ViewUserProductPage({
   if (!product) return notFound()
   const { userId: clerkId } = await auth()
   const isOwner = Boolean(clerkId && product.user?.clerkId === clerkId)
+  const publicPath = `/products/${product.slug}`
+  const activity = await getProductActivity(product.id, 30, 12).catch(() => [])
+  const upvoters = await getRecentUpvoters(product.id, 5).catch(() => [])
 
   return (
     <ObjectPageLayout
@@ -52,7 +63,13 @@ export default async function ViewUserProductPage({
       overview={[
         { label: "Name", value: product.name },
         { label: "Category", value: product.category.name },
-        { label: "Status", value: product.status },
+        { label: "Status", value: (
+          <ProductStatusActions
+            productId={product.id}
+            slug={product.slug}
+            status={product.status as any}
+          />
+        ) },
         { label: "Type", value: product.type.replace("_", " ") },
       ]}
       basePath="member/products"
@@ -60,6 +77,19 @@ export default async function ViewUserProductPage({
       editable
       relationships={
         <div className="grid grid-cols-12 gap-6">
+          {/* Actions */}
+          <Card className="col-span-12">
+            <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+              <div className="flex items-center gap-2">
+                <Link href={publicPath} target="_blank">
+                  <Badge variant="secondary" className="cursor-pointer">View public page</Badge>
+                </Link>
+                <CopyButton text={publicPath} label="Copy link" resolveAbsolute />
+                <ShareOnX path={publicPath} productName={product.name} />
+              </div>
+              <DuplicateProductButton productId={product.id} />
+            </CardContent>
+          </Card>
           {/* Branding */}
           <Card className="col-span-12 md:col-span-4">
             <CardHeader>
@@ -111,9 +141,17 @@ export default async function ViewUserProductPage({
               <OverviewRow
                 label="Keywords"
                 value={
-                  product.keywords?.length
-                    ? commaSeparated(product.keywords)
-                    : placeholder()
+                  product.keywords?.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {product.keywords.map((k) => (
+                        <Link key={k} href={`/member/products?q=${encodeURIComponent(k)}`}>
+                          <Badge variant="secondary" className="text-xs">{k}</Badge>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    placeholder()
+                  )
                 }
               />
             </CardContent>
@@ -173,6 +211,11 @@ export default async function ViewUserProductPage({
                     : placeholder()
                 }
               />
+              {((product.ctaLabel && !product.ctaUrl) || (!product.ctaLabel && product.ctaUrl)) && (
+                <div className="mt-2 text-xs text-destructive">
+                  Tip: Provide both CTA label and URL for a complete call-to-action.
+                </div>
+              )}
               <OverviewRow
                 label="Organization URL"
                 value={
@@ -233,7 +276,14 @@ export default async function ViewUserProductPage({
               <CardContent>
                 <OverviewRow
                   label="Verification TXT"
-                  value={product.verification.verificationTxt}
+                  value={
+                    <div className="flex items-center gap-2">
+                      <span className="break-all text-sm">
+                        {product.verification.verificationTxt}
+                      </span>
+                      <CopyButton text={product.verification.verificationTxt} label="Copy TXT" />
+                    </div>
+                  }
                 />
                 <OverviewRow
                   label="Verified"
@@ -247,6 +297,9 @@ export default async function ViewUserProductPage({
                       : placeholder()
                   }
                 />
+                <div className="text-xs text-muted-foreground mt-2">
+                  Domain: {(() => { try { return new URL(product.websiteUrl).hostname } catch { return product.websiteUrl } })()}
+                </div>
                 {!product.verification.isVerified && (
                   <OverviewRow
                     label="Verify Domain"
@@ -263,6 +316,18 @@ export default async function ViewUserProductPage({
               <CardTitle className="text-base">Description</CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="flex items-center justify-between mb-2">
+                {(() => {
+                  const len = (product.description || "").trim().length
+                  const good = len >= 200
+                  return (
+                    <div className="text-xs">
+                      Quality: {good ? <span className="text-green-600">Good</span> : <span className="text-yellow-600">Needs work</span>} ({len} chars)
+                    </div>
+                  )
+                })()}
+                <Link href={`/member/products/${product.slug}/edit`} className="text-xs text-primary hover:underline">Improve description</Link>
+              </div>
               <div className="prose prose-sm max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {product.description}
@@ -276,6 +341,32 @@ export default async function ViewUserProductPage({
                     : placeholder()
                 }
               />
+            </CardContent>
+          </Card>
+
+          {/* SEO Preview */}
+          <Card className="col-span-12">
+            <CardHeader>
+              <CardTitle className="text-base">SEO Preview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded border p-4 bg-muted/30">
+                <div className="text-lg font-semibold truncate">{product.name}</div>
+                <div className="text-sm text-muted-foreground truncate">{product.tagline}</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Open Graph image: {product.bannerImage ? 'Banner' : 'Logo'}
+                </div>
+                {!product.bannerImage && (
+                  <div className="text-xs text-yellow-700 mt-1">
+                    Tip: Add a banner image (recommended 1200×628) for rich link previews.
+                  </div>
+                )}
+                {(!product.keywords || product.keywords.length === 0) && (
+                  <div className="text-xs text-yellow-700 mt-1">
+                    Tip: Add keywords to help discovery.
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -352,6 +443,11 @@ export default async function ViewUserProductPage({
               <CardTitle className="text-base">Media Gallery</CardTitle>
             </CardHeader>
             <CardContent>
+              {(product.ProductMedia || []).length < 2 && (
+                <div className="mb-3 text-xs text-muted-foreground">
+                  Tip: Add at least 2 screenshots (suggested 1280×720). Banner works best at 1200×628.
+                </div>
+              )}
               <ProductMediaManager
                 productId={product.id}
                 media={(product.ProductMedia || []).map((m) => ({
@@ -377,9 +473,9 @@ export default async function ViewUserProductPage({
                       className="flex items-center justify-between rounded border px-3 py-2"
                     >
                       <span className="font-medium break-all">{b.badge}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className={`text-xs ${b.expiresAt && (new Date(b.expiresAt).getTime() - Date.now())/(1000*60*60*24) < 7 ? 'text-orange-600' : 'text-muted-foreground'}`}>
                         {b.expiresAt
-                          ? `Expires ${new Date(b.expiresAt).toLocaleDateString()}`
+                          ? (() => { const d = Math.max(0, Math.ceil((new Date(b.expiresAt).getTime() - Date.now())/(1000*60*60*24))); return `${d}d left` })()
                           : "No expiry"}
                       </span>
                     </li>
@@ -413,6 +509,57 @@ export default async function ViewUserProductPage({
               </CardContent>
             </Card>
           )}
+
+          {/* Activity */}
+          <Card className="col-span-12 md:col-span-6">
+            <CardHeader>
+              <CardTitle className="text-base">Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {Array.isArray(activity) && activity.length ? (
+                <ul className="space-y-2 text-sm">
+                  {activity.map((a: any, i: number) => (
+                    <li key={i} className="flex items-center justify-between">
+                      <span className="truncate">
+                        {a.type === 'product_created' && 'Created'}
+                        {a.type === 'product_updated' && 'Updated'}
+                        {a.type === 'domain_verified' && 'Domain verified'}
+                        {a.type === 'badge_assigned' && `Badge “${a.meta?.badge}” assigned`}
+                        {a.type === 'product_upvoted' && 'Upvote received'}
+                      </span>
+                      <span className="text-xs text-muted-foreground ml-2 whitespace-nowrap">
+                        {formatDate(a.ts as any)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="text-sm text-muted-foreground">No recent activity</div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent upvoters */}
+          <Card className="col-span-12 md:col-span-6">
+            <CardHeader>
+              <CardTitle className="text-base">Recent upvoters</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {Array.isArray(upvoters) && upvoters.length ? (
+                <div className="flex -space-x-2">
+                  {upvoters.map((u: any) => (
+                    <Avatar key={u.id} className="ring-2 ring-background" title={`${u.user.firstName} ${u.user.lastName || ''}`}>
+                      <AvatarFallback>
+                        {(u.user.firstName?.[0] || '?')}{(u.user.lastName?.[0] || '')}
+                      </AvatarFallback>
+                    </Avatar>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">No recent upvotes</div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       }
     />
