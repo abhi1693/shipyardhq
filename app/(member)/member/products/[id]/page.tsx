@@ -21,6 +21,8 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
 import { getProductById } from "@/actions/admin/products/actions"
+import { auth } from "@clerk/nextjs/server"
+import ProductMediaManager from "@/components/molecules/ProductMediaManager"
 
 export default async function ViewUserProductPage({
   params,
@@ -30,6 +32,8 @@ export default async function ViewUserProductPage({
   const { id } = await params
   const product = await getProductById(id)
   if (!product) return notFound()
+  const { userId: clerkId } = await auth()
+  const isOwner = Boolean(clerkId && product.user?.clerkId === clerkId)
 
   return (
     <ObjectPageLayout
@@ -342,22 +346,15 @@ export default async function ViewUserProductPage({
               <CardTitle className="text-base">Media Gallery</CardTitle>
             </CardHeader>
             <CardContent>
-              {product.ProductMedia?.length ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {product.ProductMedia.map((m) => (
-                    <img
-                      key={m.id}
-                      src={m.imageUrl}
-                      alt={m.altText || product.name}
-                      className="w-full h-40 object-cover rounded border bg-white"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  No media uploaded
-                </div>
-              )}
+              <ProductMediaManager
+                productId={product.id}
+                media={(product.ProductMedia || []).map((m) => ({
+                  id: m.id,
+                  imageUrl: m.imageUrl,
+                }))}
+                canEdit={isOwner}
+                max={4}
+              />
             </CardContent>
           </Card>
 
