@@ -90,7 +90,138 @@ export default async function ViewUserProductPage({
               <DuplicateProductButton productId={product.id} />
             </CardContent>
           </Card>
-          {/* Branding */}
+          {/* Primary setup: Links + Verification */}
+          <Card className="col-span-12 md:col-span-8">
+            <CardHeader>
+              <CardTitle className="text-base">Links</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OverviewRow
+                label="Website"
+                value={linkify({
+                  href: product.websiteUrl,
+                  label: product.websiteUrl,
+                  isExternal: true,
+                })}
+              />
+              <OverviewRow label="CTA Label" value={product.ctaLabel || placeholder()} />
+              <OverviewRow
+                label="CTA URL"
+                value={
+                  product.ctaUrl
+                    ? linkify({ href: product.ctaUrl, label: product.ctaUrl, isExternal: true })
+                    : placeholder()
+                }
+              />
+              {((product.ctaLabel && !product.ctaUrl) || (!product.ctaLabel && product.ctaUrl)) && (
+                <div className="mt-2 text-xs text-destructive">Tip: Provide both CTA label and URL for a complete call-to-action.</div>
+              )}
+              <OverviewRow
+                label="Organization URL"
+                value={
+                  product.organization?.url
+                    ? linkify({ href: product.organization.url, label: product.organization.url, isExternal: true })
+                    : placeholder()
+                }
+              />
+              {product.metadata?.githubUrl && (
+                <OverviewRow label="GitHub" value={linkify({ href: product.metadata.githubUrl, label: product.metadata.githubUrl, isExternal: true })} />
+              )}
+              {product.metadata?.twitterUrl && (
+                <OverviewRow label="Twitter" value={linkify({ href: product.metadata.twitterUrl, label: product.metadata.twitterUrl, isExternal: true })} />
+              )}
+              {product.metadata?.demoUrl && (
+                <OverviewRow label="Demo" value={linkify({ href: product.metadata.demoUrl, label: product.metadata.demoUrl, isExternal: true })} />
+              )}
+              {product.metadata?.contactEmail && (
+                <OverviewRow label="Contact Email" value={product.metadata.contactEmail} />
+              )}
+            </CardContent>
+          </Card>
+          {product.verification && (
+            <Card className="col-span-12 md:col-span-4">
+              <CardHeader>
+                <CardTitle className="text-base">Verification</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <OverviewRow
+                  label="Verification TXT"
+                  value={
+                    <div className="flex items-center gap-2">
+                      <span className="break-all text-sm">{product.verification.verificationTxt}</span>
+                      <CopyButton text={product.verification.verificationTxt} label="Copy TXT" />
+                    </div>
+                  }
+                />
+                <OverviewRow label="Verified" value={formatBoolean(product.verification.isVerified)} />
+                <OverviewRow
+                  label="Verified At"
+                  value={product.verification.verifiedAt ? formatDate(product.verification.verifiedAt) : placeholder()}
+                />
+                <div className="text-xs text-muted-foreground mt-2">
+                  Domain: {(() => { try { return new URL(product.websiteUrl).hostname } catch { return product.websiteUrl } })()}
+                </div>
+                {!product.verification.isVerified && (
+                  <OverviewRow label="Verify Domain" value={<VerifyDomainButton productId={product.id} />} />
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Performance: Analytics + Upvoters */}
+          {product.analytics && (
+            <Card className="col-span-12 md:col-span-8">
+              <CardHeader>
+                <CardTitle className="text-base">Analytics</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 sm:grid-cols-2 text-center gap-4">
+                <div>
+                  <div className="text-xl font-bold">{product.analytics.upvotes}</div>
+                  <div className="text-sm text-muted-foreground">Upvotes</div>
+                </div>
+                <div>
+                  <div className="text-xl font-bold">{product.analytics.clicks}</div>
+                  <div className="text-sm text-muted-foreground">Clicks</div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          <Card className="col-span-12 md:col-span-4">
+            <CardHeader>
+              <CardTitle className="text-base">Recent upvoters</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {Array.isArray(upvoters) && upvoters.length ? (
+                <div className="flex -space-x-2">
+                  {upvoters.map((u: any) => (
+                    <Avatar key={u.id} className="ring-2 ring-background" title={`${u.user.firstName} ${u.user.lastName || ''}`}>
+                      <AvatarFallback>{(u.user.firstName?.[0] || '?')}{(u.user.lastName?.[0] || '')}</AvatarFallback>
+                    </Avatar>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">No recent upvotes</div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Media */}
+          <Card className="col-span-12">
+            <CardHeader>
+              <CardTitle className="text-base">Media Gallery</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(product.ProductMedia || []).length < 2 && (
+                <div className="mb-3 text-xs text-muted-foreground">Tip: Add at least 2 screenshots (suggested 1280×720). Banner works best at 1200×628.</div>
+              )}
+              <ProductMediaManager
+                productId={product.id}
+                media={(product.ProductMedia || []).map((m) => ({ id: m.id, imageUrl: m.imageUrl }))}
+                canEdit={isOwner}
+              />
+            </CardContent>
+          </Card>
+          {/* Details: Branding, Organization, Pricing */}
           <Card className="col-span-12 md:col-span-4">
             <CardHeader>
               <CardTitle className="text-base">Branding</CardTitle>
@@ -181,134 +312,7 @@ export default async function ViewUserProductPage({
             </CardContent>
           </Card>
 
-          {/* Links */}
-          <Card className="col-span-12 md:col-span-8">
-            <CardHeader>
-              <CardTitle className="text-base">Links</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <OverviewRow
-                label="Website"
-                value={linkify({
-                  href: product.websiteUrl,
-                  label: product.websiteUrl,
-                  isExternal: true,
-                })}
-              />
-              <OverviewRow
-                label="CTA Label"
-                value={product.ctaLabel || placeholder()}
-              />
-              <OverviewRow
-                label="CTA URL"
-                value={
-                  product.ctaUrl
-                    ? linkify({
-                        href: product.ctaUrl,
-                        label: product.ctaUrl,
-                        isExternal: true,
-                      })
-                    : placeholder()
-                }
-              />
-              {((product.ctaLabel && !product.ctaUrl) || (!product.ctaLabel && product.ctaUrl)) && (
-                <div className="mt-2 text-xs text-destructive">
-                  Tip: Provide both CTA label and URL for a complete call-to-action.
-                </div>
-              )}
-              <OverviewRow
-                label="Organization URL"
-                value={
-                  product.organization?.url
-                    ? linkify({
-                        href: product.organization.url,
-                        label: product.organization.url,
-                        isExternal: true,
-                      })
-                    : placeholder()
-                }
-              />
-              {product.metadata?.githubUrl && (
-                <OverviewRow
-                  label="GitHub"
-                  value={linkify({
-                    href: product.metadata.githubUrl,
-                    label: product.metadata.githubUrl,
-                    isExternal: true,
-                  })}
-                />
-              )}
-              {product.metadata?.twitterUrl && (
-                <OverviewRow
-                  label="Twitter"
-                  value={linkify({
-                    href: product.metadata.twitterUrl,
-                    label: product.metadata.twitterUrl,
-                    isExternal: true,
-                  })}
-                />
-              )}
-              {product.metadata?.demoUrl && (
-                <OverviewRow
-                  label="Demo"
-                  value={linkify({
-                    href: product.metadata.demoUrl,
-                    label: product.metadata.demoUrl,
-                    isExternal: true,
-                  })}
-                />
-              )}
-              {product.metadata?.contactEmail && (
-                <OverviewRow
-                  label="Contact Email"
-                  value={product.metadata.contactEmail}
-                />
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Verification */}
-          {product.verification && (
-            <Card className="col-span-12 md:col-span-4">
-              <CardHeader>
-                <CardTitle className="text-base">Verification</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <OverviewRow
-                  label="Verification TXT"
-                  value={
-                    <div className="flex items-center gap-2">
-                      <span className="break-all text-sm">
-                        {product.verification.verificationTxt}
-                      </span>
-                      <CopyButton text={product.verification.verificationTxt} label="Copy TXT" />
-                    </div>
-                  }
-                />
-                <OverviewRow
-                  label="Verified"
-                  value={formatBoolean(product.verification.isVerified)}
-                />
-                <OverviewRow
-                  label="Verified At"
-                  value={
-                    product.verification.verifiedAt
-                      ? formatDate(product.verification.verifiedAt)
-                      : placeholder()
-                  }
-                />
-                <div className="text-xs text-muted-foreground mt-2">
-                  Domain: {(() => { try { return new URL(product.websiteUrl).hostname } catch { return product.websiteUrl } })()}
-                </div>
-                {!product.verification.isVerified && (
-                  <OverviewRow
-                    label="Verify Domain"
-                    value={<VerifyDomainButton productId={product.id} />}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          )}
+          {/* Links and Verification moved above */}
 
           {/* Description */}
           <Card className="col-span-12">
@@ -437,27 +441,7 @@ export default async function ViewUserProductPage({
             </CardContent>
           </Card>
 
-          {/* Media Gallery */}
-          <Card className="col-span-12">
-            <CardHeader>
-              <CardTitle className="text-base">Media Gallery</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {(product.ProductMedia || []).length < 2 && (
-                <div className="mb-3 text-xs text-muted-foreground">
-                  Tip: Add at least 2 screenshots (suggested 1280×720). Banner works best at 1200×628.
-                </div>
-              )}
-              <ProductMediaManager
-                productId={product.id}
-                media={(product.ProductMedia || []).map((m) => ({
-                  id: m.id,
-                  imageUrl: m.imageUrl,
-                }))}
-                canEdit={isOwner}
-              />
-            </CardContent>
-          </Card>
+          {/* Media moved above */}
 
           {/* Badges */}
           <Card className="col-span-12 md:col-span-6">
@@ -487,79 +471,11 @@ export default async function ViewUserProductPage({
             </CardContent>
           </Card>
 
-          {/* Analytics */}
-          {product.analytics && (
-            <Card className="col-span-12">
-              <CardHeader>
-                <CardTitle className="text-base">Analytics</CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 sm:grid-cols-2 text-center gap-4">
-                <div>
-                  <div className="text-xl font-bold">
-                    {product.analytics.upvotes}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Upvotes</div>
-                </div>
-                <div>
-                  <div className="text-xl font-bold">
-                    {product.analytics.clicks}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Clicks</div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Analytics moved above */}
 
-          {/* Activity */}
-          <Card className="col-span-12 md:col-span-6">
-            <CardHeader>
-              <CardTitle className="text-base">Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {Array.isArray(activity) && activity.length ? (
-                <ul className="space-y-2 text-sm">
-                  {activity.map((a: any, i: number) => (
-                    <li key={i} className="flex items-center justify-between">
-                      <span className="truncate">
-                        {a.type === 'product_created' && 'Created'}
-                        {a.type === 'product_updated' && 'Updated'}
-                        {a.type === 'domain_verified' && 'Domain verified'}
-                        {a.type === 'badge_assigned' && `Badge “${a.meta?.badge}” assigned`}
-                        {a.type === 'product_upvoted' && 'Upvote received'}
-                      </span>
-                      <span className="text-xs text-muted-foreground ml-2 whitespace-nowrap">
-                        {formatDate(a.ts as any)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="text-sm text-muted-foreground">No recent activity</div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Activity moved below with Badges */}
 
-          {/* Recent upvoters */}
-          <Card className="col-span-12 md:col-span-6">
-            <CardHeader>
-              <CardTitle className="text-base">Recent upvoters</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {Array.isArray(upvoters) && upvoters.length ? (
-                <div className="flex -space-x-2">
-                  {upvoters.map((u: any) => (
-                    <Avatar key={u.id} className="ring-2 ring-background" title={`${u.user.firstName} ${u.user.lastName || ''}`}>
-                      <AvatarFallback>
-                        {(u.user.firstName?.[0] || '?')}{(u.user.lastName?.[0] || '')}
-                      </AvatarFallback>
-                    </Avatar>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground">No recent upvotes</div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Recent upvoters moved next to Analytics */}
         </div>
       }
     />
