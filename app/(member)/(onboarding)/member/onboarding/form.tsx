@@ -16,15 +16,7 @@ import {
   CardFooter,
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
-import { Input } from "@/components/atoms/input"
 import { Label } from "@/components/atoms/label"
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/atoms/select"
 import { Checkbox } from "@/components/atoms/checkbox"
 import { Separator } from "@/components/atoms/separator"
 
@@ -49,11 +41,7 @@ const heardFromOptions = [
 // Schema
 const onboardingSchema = z.object({
   roleIntent: z.string().min(1, "Please select your intent"),
-  productInterest: z.string().optional(),
   heardFrom: z.string().min(1, "Please select an option"),
-  jobTitle: z.string().optional(),
-  organizationName: z.string().optional(),
-  organizationUrl: z.url("Invalid URL format").or(z.literal("")).optional(),
   acceptedTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms",
   }),
@@ -68,11 +56,7 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
       roleIntent: "",
-      productInterest: "",
       heardFrom: "",
-      jobTitle: "",
-      organizationName: "",
-      organizationUrl: "",
       acceptedTerms: false,
     },
   })
@@ -100,6 +84,14 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
     }
   }
 
+  const sel = {
+    roleIntent: form.watch("roleIntent"),
+    heardFrom: form.watch("heardFrom"),
+    acceptedTerms: form.watch("acceptedTerms"),
+  }
+
+  const canSubmit = Boolean(sel.roleIntent && sel.heardFrom && sel.acceptedTerms)
+
   return (
     <Card className="w-full max-w-2xl border shadow-sm">
       <CardHeader className="text-center space-y-1">
@@ -114,95 +106,53 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-6">
           <div className="grid gap-2">
-            <Label htmlFor="roleIntent">Why are you here?</Label>
-            <Select
-              name="roleIntent"
-              onValueChange={(val) => setValue("roleIntent", val)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select your intent" />
-              </SelectTrigger>
-              <SelectContent>
-                {roleIntentOptions.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
+            <Label>Why are you here?</Label>
+            <input type="hidden" {...register("roleIntent")} />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {roleIntentOptions.map((opt) => {
+                const active = sel.roleIntent === opt.value
+                return (
+                  <Button
+                    key={opt.value}
+                    type="button"
+                    variant={active ? "default" : "outline"}
+                    onClick={() => setValue("roleIntent", opt.value, { shouldValidate: true })}
+                  >
                     {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  </Button>
+                )
+              })}
+            </div>
             {errors.roleIntent && (
-              <p className="text-sm text-red-600">
-                {errors.roleIntent.message}
-              </p>
+              <p className="text-sm text-red-600">{errors.roleIntent.message}</p>
             )}
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="productInterest">What are you interested in?</Label>
-            <Input
-              {...register("productInterest")}
-              placeholder="e.g. Discover, upload, manage"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="heardFrom">Where did you hear about us?</Label>
-            <Select
-              name="heardFrom"
-              onValueChange={(val) => setValue("heardFrom", val)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a source" />
-              </SelectTrigger>
-              <SelectContent>
-                {heardFromOptions.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
+            <Label>Where did you hear about us?</Label>
+            <input type="hidden" {...register("heardFrom")} />
+            <div className="flex flex-wrap gap-2">
+              {heardFromOptions.map((opt) => {
+                const active = sel.heardFrom === opt.value
+                return (
+                  <Button
+                    key={opt.value}
+                    type="button"
+                    size="sm"
+                    variant={active ? "default" : "outline"}
+                    onClick={() => setValue("heardFrom", opt.value, { shouldValidate: true })}
+                  >
                     {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  </Button>
+                )
+              })}
+            </div>
             {errors.heardFrom && (
               <p className="text-sm text-red-600">{errors.heardFrom.message}</p>
             )}
           </div>
 
           <Separator />
-
-          <div className="grid gap-2">
-            <Label htmlFor="jobTitle">Your job title (optional)</Label>
-            <Input
-              {...register("jobTitle")}
-              placeholder="e.g. Product Manager, CTO"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="organizationName">
-                Organization name (optional)
-              </Label>
-              <Input
-                {...register("organizationName")}
-                placeholder="e.g. Acme Inc."
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="organizationUrl">
-                Organization website (optional)
-              </Label>
-              <Input
-                type="url"
-                {...register("organizationUrl")}
-                placeholder="https://yourcompany.com"
-              />
-              {errors.organizationUrl && (
-                <p className="text-sm text-red-600">
-                  {errors.organizationUrl.message}
-                </p>
-              )}
-            </div>
-          </div>
 
           <div className="flex items-start space-x-2 pt-2">
             <Checkbox
@@ -224,14 +174,8 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
         </CardContent>
 
         <CardFooter className="flex flex-col items-start gap-4 mt-4">
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={form.formState.isSubmitting}
-          >
-            {form.formState.isSubmitting
-              ? "Submitting..."
-              : "Complete Onboarding"}
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting || !canSubmit}>
+            {form.formState.isSubmitting ? "Submitting..." : "Complete Onboarding"}
           </Button>
         </CardFooter>
       </form>

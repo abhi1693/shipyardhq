@@ -25,8 +25,7 @@ export default function ListPageWrapper({
     description || `Manage ${title.toLowerCase()} in the admin panel`
 
   return (
-    <PageContainer scrollable={false}>
-      <div className="flex flex-1 flex-col space-y-4">
+    <div className="flex flex-1 flex-col space-y-4">
         <div className="flex items-start justify-between">
           <Heading title={title} description={description} />
           {addLink && (
@@ -48,6 +47,5 @@ export default function ListPageWrapper({
           {children}
         </Suspense>
       </div>
-    </PageContainer>
   )
 }

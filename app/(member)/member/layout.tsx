@@ -4,6 +4,7 @@ import PrivateHeader from "@/components/layout/headers/private-header"
 import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
 import { auth } from "@clerk/nextjs/server"
+import PageContainer from "@/components/layout/page-container"
 
 export const metadata: Metadata = {
   title: "ShipYardHQ",
@@ -48,7 +49,6 @@ export default async function MemberLayout({
   const { sessionClaims } = await auth()
   const role = sessionClaims?.metadata.role || "member"
 
-  // Clone the base navItems to avoid mutation on the shared constant
   const items: NavItem[] = [...navItems]
 
   if (
@@ -70,7 +70,7 @@ export default async function MemberLayout({
       <AppSidebar navItems={items} />
       <SidebarInset>
         <PrivateHeader />
-        {children}
+        <PageContainer>{children}</PageContainer>
       </SidebarInset>
     </SidebarProvider>
   )

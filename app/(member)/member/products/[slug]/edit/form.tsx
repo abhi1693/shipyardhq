@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, FormProvider } from "react-hook-form"
 import { toast } from "sonner"
 
-import PageContainer from "@/components/layout/page-container"
 import { updateProductAction } from "@/actions/admin/products/actions"
 import {
   Card,
@@ -89,8 +88,7 @@ export default function EditProductForm({
   }, [wizard.step, categories, organizations, product.id])
 
   return (
-    <PageContainer>
-      <Card className="mx-auto w-full max-w-4xl">
+    <Card className="mx-auto w-full max-w-4xl">
         <CardHeader>
           <CardTitle className="text-left text-2xl font-bold">
             Edit Product
@@ -122,7 +120,6 @@ export default function EditProductForm({
           </FormProvider>
         </CardContent>
       </Card>
-    </PageContainer>
   )
 }
 

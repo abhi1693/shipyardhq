@@ -48,7 +48,6 @@ export default async function OverviewPage({
 
   return (
     <>
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <h1 className="text-xl font-semibold tracking-tight">Overview</h1>
         <div className="flex items-center gap-2">
@@ -82,7 +81,6 @@ export default async function OverviewPage({
 
       <div className="mx-0 mb-4 h-px rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] opacity-70" />
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Products Created"
@@ -108,7 +106,6 @@ export default async function OverviewPage({
         />
       </div>
 
-      {/* Recent Products */}
       <div className="mt-10">
         <Card>
           <CardHeader>

@@ -190,7 +190,6 @@ model User {
   lastName        String
   role            String    @default("member")
   roleIntent      String? // Why they signed up
-  productInterest String? // What they're interested in
   heardFrom       String? // How they heard about us
   acceptedTerms   Boolean   @default(false)
   termsAcceptedAt DateTime?

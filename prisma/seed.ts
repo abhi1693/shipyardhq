@@ -261,7 +261,6 @@ async function main() {
       bannerImage: "https://shitposts.ai/banner.png",
       status: "published",
       publishedAt: new Date(),
-      companyName: "ShitPosts Labs",
       startingPriceCents: 0,
       currencyCode: "USD",
       ctaLabel: "Visit Website",
