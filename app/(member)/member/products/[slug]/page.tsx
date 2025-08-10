@@ -40,6 +40,7 @@ import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import { ExternalLink, Copy as CopyIcon } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
+import { startPlanCheckoutAction } from "@/actions/member/products/actions"
 
 export default async function ViewUserProductPage({
   params,
@@ -89,8 +90,8 @@ export default async function ViewUserProductPage({
     return undefined
   })()
 
-  const deltaFeatures: { id: string; name: string }[] = (() => {
-    if (!nextPlan) return []
+  const { deltaTop, deltaCount } = (() => {
+    if (!nextPlan) return { deltaTop: [] as { id: string; name: string }[], deltaCount: 0 }
     const currentKeys = new Set(
       (product.plan?.assignments || [])
         .filter((a: any) => a.enabled && a.feature?.key)
@@ -98,7 +99,30 @@ export default async function ViewUserProductPage({
     )
     const nextEnabled = nextPlan.features.filter((f) => f.enabled)
     const delta = nextEnabled.filter((f) => !currentKeys.has(f.key))
-    return delta.slice(0, 3).map((f) => ({ id: f.id, name: f.name }))
+    return {
+      deltaTop: delta.slice(0, 3).map((f) => ({ id: f.id, name: f.name })),
+      deltaCount: delta.length,
+    }
+  })()
+
+  const exclusiveCurrentTop: { id: string; name: string }[] = (() => {
+    if (!currentPlanPublic) return []
+    const cheaper = allPlans
+      .filter((p) => p.price < currentPlanPublic.price)
+      .sort((a, b) => b.price - a.price)
+    const prev = cheaper[0]
+    const currentEnabled = new Set(
+      currentPlanPublic.features.filter((f) => f.enabled).map((f) => f.key),
+    )
+    const prevEnabled = new Set(
+      (prev?.features || []).filter((f) => f.enabled).map((f) => f.key),
+    )
+    const exclusive = Array.from(currentEnabled).filter((k) => !prevEnabled.has(k))
+    // Map back to names using current plan feature list
+    const nameByKey = new Map(
+      currentPlanPublic.features.map((f) => [f.key, f.name] as const),
+    )
+    return exclusive.slice(0, 4).map((key) => ({ id: key, name: nameByKey.get(key) || key }))
   })()
 
   return (
@@ -239,11 +263,17 @@ export default async function ViewUserProductPage({
                   <span className="font-medium text-foreground">{product.plan.name}</span>
                   <span className="text-muted-foreground">•</span>
                   <span>{formatCurrency(product.plan.price) as any}</span>
-                  <span className="text-muted-foreground">•</span>
-                  <span>
-                    every {product.plan.frequency} {product.plan.interval}
-                    {product.plan.frequency > 1 ? "s" : ""}
-                  </span>
+                  {product.plan.type === "one_time_price" ? (
+                    <span className="ml-1 inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wide">One-time</span>
+                  ) : (
+                    <>
+                      <span className="text-muted-foreground">•</span>
+                      <span>
+                        every {product.plan.frequency} {product.plan.interval}
+                        {product.plan.frequency > 1 ? "s" : ""}
+                      </span>
+                    </>
+                  )}
                   {product.plan.trialDays ? (
                     <>
                       <span className="text-muted-foreground">•</span>
@@ -260,6 +290,20 @@ export default async function ViewUserProductPage({
                   </Link>
                 </div>
               </div>
+            ) : null}
+            {product.plan && exclusiveCurrentTop.length ? (
+              <div className="mt-2">
+                <div className="text-xs text-muted-foreground mb-1">
+                  Included only in {product.plan.name}
+                </div>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {exclusiveCurrentTop.map((f) => (
+                    <li key={f.id} className="text-xs text-foreground/90 before:content-['✓'] before:mr-2 before:text-green-600">
+                      {f.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : (
               <div className="flex items-center justify-between gap-2 text-sm">
                 <span className="text-muted-foreground">No plan selected</span>
@@ -274,22 +318,64 @@ export default async function ViewUserProductPage({
                   <div className="text-sm">
                     <span className="font-medium">Unlock more with {nextPlan.name}</span>
                     <span className="mx-2 text-muted-foreground">•</span>
-                    <span className="text-muted-foreground">
-                      {formatCurrency(nextPlan.price) as any} / {nextPlan.frequency} {nextPlan.interval}
+                    <span className="text-muted-foreground inline-flex items-center gap-2">
+                      {(() => {
+                        const price = formatCurrency(nextPlan.price) as any
+                        if (nextPlan.discount) {
+                          const original = nextPlan.price + (nextPlan.discount || 0)
+                          return (
+                            <>
+                              <span className="line-through opacity-70">{formatCurrency(original) as any}</span>
+                              <span>{price}</span>
+                              <span className="text-green-600">Save {formatCurrency(nextPlan.discount) as any}</span>
+                            </>
+                          )
+                        }
+                        return <>{price}</>
+                      })()}
+                      {nextPlan.type === "one_time_price" ? (
+                        <span className="ml-1 inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wide">One-time</span>
+                      ) : (
+                        <span className="ml-1 text-xs">/ {nextPlan.frequency} {nextPlan.interval}{nextPlan.frequency > 1 ? "s" : ""}</span>
+                      )}
                     </span>
                   </div>
-                  <Link href={`/member/products/${product.slug}/plan?highlight=${nextPlan.id}`}>
-                    <Button size="sm">Upgrade to {nextPlan.name}</Button>
-                  </Link>
+                  {(() => {
+                    async function upgradeNow(formData: FormData) {
+                      "use server"
+                      const pid = formData.get("planId")?.toString() || ""
+                      if (!pid) return
+                      // If we can checkout directly, do it; otherwise go to selection page
+                      if (nextPlan.externalId && nextPlan.price > 0) {
+                        const session = await startPlanCheckoutAction(product.id, pid)
+                        if ((session as any)?.paymentLink) {
+                          redirect((session as any).paymentLink)
+                        }
+                      }
+                      redirect(`/member/products/${product.slug}/plan?highlight=${pid}`)
+                    }
+                    return (
+                      <form action={upgradeNow} className="contents">
+                        <input type="hidden" name="planId" value={nextPlan.id} />
+                        <Button size="sm">{nextPlan.type === "one_time_price" ? `Buy ${nextPlan.name}` : `Upgrade to ${nextPlan.name}`}</Button>
+                      </form>
+                    )
+                  })()}
                 </div>
-                {deltaFeatures.length ? (
-                  <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {deltaFeatures.map((f) => (
-                      <li key={f.id} className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600">
-                        {f.name}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="mt-1 text-[11px] text-muted-foreground">Instant activation after payment.</div>
+                {deltaTop.length ? (
+                  <>
+                    <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {deltaTop.map((f) => (
+                        <li key={f.id} className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600">
+                          {f.name}
+                        </li>
+                      ))}
+                    </ul>
+                    {deltaCount > deltaTop.length ? (
+                      <div className="mt-1 text-xs text-muted-foreground">…and {deltaCount - deltaTop.length} more benefits</div>
+                    ) : null}
+                  </>
                 ) : null}
               </div>
             ) : null}

@@ -25,16 +25,22 @@ export default async function ProductPlanPage({
   if (!product || product.user.clerkId !== userId) return notFound()
 
   const plans = await getPublicPlans()
+  const currentPublic = product.plan
+    ? plans.find((p) => p.id === product.plan!.id)
+    : undefined
+  const currentPrice = currentPublic ? currentPublic.price : 0
+  const upgradablePlans = plans.filter((p) => p.price > currentPrice)
 
   async function assignPlan(formData: FormData) {
     "use server"
     const planIdRaw = formData.get("planId")?.toString() || ""
     const planId = planIdRaw.length ? planIdRaw : null
-    if (!planId) {
-      const res = await setProductPlanAction(product.id, null)
+    if (!planId) redirect(`/member/products/${product.slug}`)
+    const selected = plans.find((p) => p.id === planId)
+    if (!selected || selected.price <= currentPrice) {
+      // disallow downgrade or same-tier selection
       redirect(`/member/products/${product.slug}`)
     }
-    const selected = plans.find((p) => p.id === planId)
     if (selected && selected.externalId && selected.price > 0) {
       const session = await startPlanCheckoutAction(product.id, planId)
       if ((session as any)?.paymentLink) {
@@ -68,7 +74,7 @@ export default async function ProductPlanPage({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {plans.map((p) => (
+            {upgradablePlans.map((p) => (
               <form key={p.id} action={assignPlan} className="contents">
                 <input type="hidden" name="planId" value={p.id} />
                 <Card className="h-full">
@@ -85,7 +91,9 @@ export default async function ProductPlanPage({
                       <div className="text-2xl font-bold">
                         {formatCurrency(p.price) as any}
                       </div>
-                      {p.price > 0 && (
+                      {p.type === "one_time_price" ? (
+                        <div className="text-[11px] inline-flex items-center rounded border px-1.5 py-0.5 w-fit mt-1 uppercase tracking-wide">One-time</div>
+                      ) : (
                         <div className="text-xs text-muted-foreground">
                           per {p.frequency} {p.interval}
                           {p.frequency > 1 ? "s" : ""}
@@ -106,29 +114,17 @@ export default async function ProductPlanPage({
                           <PricingFeature key={f.id} label={f.name} enabled={true} />
                         ))}
                     </ul>
-                    <Button type="submit" className="w-full" variant={
-                      product.plan?.id === p.id ? "secondary" : "default"
-                    }>
-                      {product.plan?.id === p.id
-                        ? "Selected"
-                        : p.externalId && p.price > 0
-                          ? "Checkout"
-                          : "Choose plan"}
+                    <Button type="submit" className="w-full">
+                      {p.type === "one_time_price" ? "Buy now" : "Upgrade"}
                     </Button>
                   </CardContent>
                 </Card>
               </form>
             ))}
           </div>
-
-          <div className="mt-6 flex justify-end">
-            {product.plan && (
-              <form action={assignPlan}>
-                <input type="hidden" name="planId" value="" />
-                <Button type="submit" variant="outline">Remove plan</Button>
-              </form>
-            )}
-          </div>
+          {upgradablePlans.length === 0 && (
+            <div className="mt-6 text-sm text-muted-foreground">You’re already on the highest tier.</div>
+          )}
         </CardContent>
       </Card>
     </div>
