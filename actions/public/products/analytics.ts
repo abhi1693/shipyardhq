@@ -3,13 +3,20 @@
 import { redirect } from "next/navigation"
 import { trackProductClicked } from "@/lib/server/analytics/productClicks"
 import "@/lib/server/analytics/productClicks" // ensure listeners are registered
+import { allowOncePerWindow } from "@/lib/server/rateLimit"
+import { getClientIp } from "@/lib/server/ip"
 
 // Tracks a product card click and redirects to the product detail page
 export async function clickProductCardAction(formData: FormData) {
   const productId = String(formData.get("productId") || "")
   if (!productId) return redirect("/")
   try {
-    await trackProductClicked(productId)
+    const ip = await getClientIp()
+    const key = `click:${productId}:${ip}`
+    const WINDOW_MS = 10_000
+    if (allowOncePerWindow(key, WINDOW_MS)) {
+      await trackProductClicked(productId)
+    }
   } catch (err) {
     console.error("click publish failed", err)
   }
@@ -34,7 +41,12 @@ export async function clickExternalProductLinkAction(formData: FormData) {
   }
 
   try {
-    await trackProductClicked(productId)
+    const ip = await getClientIp()
+    const key = `click:${productId}:${ip}`
+    const WINDOW_MS = 10_000
+    if (allowOncePerWindow(key, WINDOW_MS)) {
+      await trackProductClicked(productId)
+    }
   } catch (err) {
     console.error("click publish failed", err)
   }
