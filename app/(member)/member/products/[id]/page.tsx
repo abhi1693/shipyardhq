@@ -44,7 +44,6 @@ export default async function ViewUserProductPage({
         { label: "Category", value: product.category.name },
         { label: "Status", value: product.status },
         { label: "Type", value: product.type.replace("_", " ") },
-        { label: "Pricing", value: product.pricingModel.replace("_", " ") },
       ]}
       basePath="member/products"
       deletable
@@ -118,20 +117,18 @@ export default async function ViewUserProductPage({
                 label="Model"
                 value={product.pricingModel.replace("_", " ")}
               />
-              {(product.pricingModel === "subscription" ||
-                product.pricingModel === "one_time") && (
-                <OverviewRow
-                  label="Starting Price"
-                  value={
-                    product.startingPriceCents && product.currencyCode
-                      ? formatCurrency(
-                          product.startingPriceCents,
-                          product.currencyCode,
-                        )
-                      : placeholder()
-                  }
-                />
-              )}
+              <OverviewRow
+                label="Starting Price"
+                value={
+                  product.startingPriceCents != null && product.currencyCode
+                    ? formatCurrency(
+                        product.startingPriceCents,
+                        product.currencyCode,
+                      )
+                    : placeholder()
+                }
+              />
+              
             </CardContent>
           </Card>
 
