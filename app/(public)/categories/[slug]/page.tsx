@@ -63,9 +63,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       <CategoryProductsClient
         products={products.map((p) => ({
           ...p,
-          badges: p.ProductBadge
-            ?.filter((pb: any) => !pb.expiresAt || new Date(pb.expiresAt) > new Date())
-            .map((pb: any) => pb.badge),
+          badges: p.ProductBadge?.filter(
+            (pb: any) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
+          ).map((pb: any) => pb.badge),
         }))}
       />
     </PublicContainer>

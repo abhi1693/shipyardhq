@@ -90,8 +90,7 @@ export default function Step3({
         } else {
           toast.success("TXT record found. Looks good!")
         }
-      }
-      else toast.error("TXT record not found yet. Please try again later.")
+      } else toast.error("TXT record not found yet. Please try again later.")
     } finally {
       setVerifying(false)
     }

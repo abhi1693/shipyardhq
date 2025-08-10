@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState, useActionState } from "react"
 import { useFormStatus } from "react-dom"
 import { useUser } from "@clerk/nextjs"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
 
 interface Props {

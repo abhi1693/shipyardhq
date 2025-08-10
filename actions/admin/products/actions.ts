@@ -159,9 +159,7 @@ export async function createProductAction(formData: FormData) {
       resolver.setServers(["1.1.1.1", "8.8.8.8"])
       const txtRecords = await resolver.resolveTxt(domain)
       const flattened = txtRecords.flat().map((t) => t.trim())
-      initialVerified = flattened.some(
-        (txt) => txt === verificationTxt.trim(),
-      )
+      initialVerified = flattened.some((txt) => txt === verificationTxt.trim())
     } catch {
       // Ignore DNS errors during creation; user can verify later
     }

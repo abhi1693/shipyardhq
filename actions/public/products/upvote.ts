@@ -36,7 +36,9 @@ export async function upvoteProductAction(
     if (existing) {
       await prisma.$transaction([
         (prisma as any).productUpvote.delete({
-          where: { productId_userId: { productId: product.id, userId: user.id } },
+          where: {
+            productId_userId: { productId: product.id, userId: user.id },
+          },
         }),
         prisma.productAnalytics.upsert({
           where: { productId: product.id },

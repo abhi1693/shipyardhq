@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { clickProductCardAction } from "@/actions/public/products/click"
 import Image from "next/image"
 import clsx from "clsx"
 
@@ -44,141 +44,146 @@ export function ProductCard({
   imagePriority = false,
 }: ProductCardProps) {
   return (
-    <Link
-      href={`/products/${product.id}`}
-      className="block h-full transition-transform duration-300 hover:-translate-y-1"
-    >
-      <Card
-        className={clsx(
-          "relative h-full bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all",
-          compact && "p-3",
-        )}
+    <form action={clickProductCardAction} method="post" className="h-full">
+      <input type="hidden" name="productId" value={product.id} />
+      <button
+        type="submit"
+        className="block h-full w-full text-left transition-transform duration-300 hover:-translate-y-1"
       >
-        {topRight && (
-          <div className="absolute top-2 right-2 z-10">{topRight}</div>
-        )}
-        <CardHeader className={clsx("pb-3", compact && "p-0")}>
-          <div className="flex gap-3 items-start">
-            <div
-              className={clsx(
-                "flex-shrink-0 rounded-md border bg-muted overflow-hidden",
-                compact ? "w-10 h-10" : "w-14 h-14",
-              )}
-            >
-              <Image
-                src={product.logo}
-                alt={product.name}
-                width={compact ? 40 : 56}
-                height={compact ? 40 : 56}
-                className="object-cover w-full h-full"
-                loading={imagePriority ? "eager" : "lazy"}
-                priority={imagePriority}
-              />
-            </div>
-
-            <div className="flex-1 space-y-1">
-              <div className="flex items-center justify-between">
-                <CardTitle
-                  className={clsx(
-                    "font-semibold leading-snug",
-                    compact ? "text-sm" : "text-base",
-                  )}
-                >
-                  {product.name}
-                </CardTitle>
-                {category && !compact && (
-                  <span className="ml-2 text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full border">
-                    {category}
-                  </span>
-                )}
-              </div>
-
-              <p
+        <Card
+          className={clsx(
+            "relative h-full bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all",
+            compact && "p-3",
+          )}
+        >
+          {topRight && (
+            <div className="absolute top-2 right-2 z-10">{topRight}</div>
+          )}
+          <CardHeader className={clsx("pb-3", compact && "p-0")}>
+            <div className="flex gap-3 items-start">
+              <div
                 className={clsx(
-                  "text-muted-foreground line-clamp-2",
-                  compact ? "text-xs" : "text-sm",
+                  "flex-shrink-0 rounded-md border bg-muted overflow-hidden",
+                  compact ? "w-10 h-10" : "w-14 h-14",
                 )}
               >
-                {product.tagline}
-              </p>
+                <Image
+                  src={product.logo}
+                  alt={product.name}
+                  width={compact ? 40 : 56}
+                  height={compact ? 40 : 56}
+                  className="object-cover w-full h-full"
+                  loading={imagePriority ? "eager" : "lazy"}
+                  priority={imagePriority}
+                />
+              </div>
 
-              {compact ? (
-                // Reserved space for badges in compact mode to keep card heights consistent
-                <div className="pt-1 h-5 flex items-center gap-1">
-                  {badges.slice(0, 3).map((b, i) => {
-                    const badgeDef = BADGE_OPTIONS.find((x) => x.value === b)
-                    if (!badgeDef) return null
-                    const colorClass =
-                      badgeColorMap[badgeDef.color as TailwindColor]
-                    return (
-                      <Badge
-                        key={i}
-                        className={clsx(
-                          "rounded-full border px-1.5 py-0.5 text-[12px] leading-none inline-flex items-center justify-center",
-                          colorClass,
-                        )}
-                        title={badgeDef.label}
-                      >
-                        <span className="leading-none align-middle">
-                          {badgeDef.icon}
-                        </span>
-                      </Badge>
-                    )
-                  })}
-                  {badges.length > 3 && (
-                    <span className="text-[10px] text-muted-foreground">
-                      +{badges.length - 3}
+              <div className="flex-1 space-y-1">
+                <div className="flex items-center justify-between">
+                  <CardTitle
+                    className={clsx(
+                      "font-semibold leading-snug",
+                      compact ? "text-sm" : "text-base",
+                    )}
+                  >
+                    {product.name}
+                  </CardTitle>
+                  {category && !compact && (
+                    <span className="ml-2 text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full border">
+                      {category}
                     </span>
                   )}
                 </div>
-              ) : (
-                badges.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {badges.map((b, i) => {
+
+                <p
+                  className={clsx(
+                    "text-muted-foreground line-clamp-2",
+                    compact ? "text-xs" : "text-sm",
+                  )}
+                >
+                  {product.tagline}
+                </p>
+
+                {compact ? (
+                  // Reserved space for badges in compact mode to keep card heights consistent
+                  <div className="pt-1 h-5 flex items-center gap-1">
+                    {badges.slice(0, 3).map((b, i) => {
                       const badgeDef = BADGE_OPTIONS.find((x) => x.value === b)
                       if (!badgeDef) return null
-
                       const colorClass =
                         badgeColorMap[badgeDef.color as TailwindColor]
-
                       return (
                         <Badge
                           key={i}
                           className={clsx(
-                            "rounded-full border px-2 py-0.5 text-xs",
+                            "rounded-full border px-1.5 py-0.5 text-[12px] leading-none inline-flex items-center justify-center",
                             colorClass,
                           )}
+                          title={badgeDef.label}
                         >
-                          {badgeDef.icon}
-                          <span className="ml-1">{badgeDef.label}</span>
+                          <span className="leading-none align-middle">
+                            {badgeDef.icon}
+                          </span>
                         </Badge>
                       )
                     })}
+                    {badges.length > 3 && (
+                      <span className="text-[10px] text-muted-foreground">
+                        +{badges.length - 3}
+                      </span>
+                    )}
                   </div>
-                )
+                ) : (
+                  badges.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {badges.map((b, i) => {
+                        const badgeDef = BADGE_OPTIONS.find(
+                          (x) => x.value === b,
+                        )
+                        if (!badgeDef) return null
+
+                        const colorClass =
+                          badgeColorMap[badgeDef.color as TailwindColor]
+
+                        return (
+                          <Badge
+                            key={i}
+                            className={clsx(
+                              "rounded-full border px-2 py-0.5 text-xs",
+                              colorClass,
+                            )}
+                          >
+                            {badgeDef.icon}
+                            <span className="ml-1">{badgeDef.label}</span>
+                          </Badge>
+                        )
+                      })}
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className={clsx("pt-1 px-4", compact && "pt-1 px-4")}>
+            <div className="flex items-center justify-between">
+              <UpvoteSquare
+                count={upvotes}
+                compact={compact}
+                className={compact ? "-ml-4" : "ml-2"}
+              />
+
+              {author && (
+                <ProductAuthor
+                  name={author.name}
+                  initial={author.initial}
+                  compact={compact}
+                />
               )}
             </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className={clsx("pt-1 px-4", compact && "pt-1 px-4")}>
-          <div className="flex items-center justify-between">
-            <UpvoteSquare
-              count={upvotes}
-              compact={compact}
-              className={compact ? "-ml-4" : "ml-2"}
-            />
-
-            {author && (
-              <ProductAuthor
-                name={author.name}
-                initial={author.initial}
-                compact={compact}
-              />
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+          </CardContent>
+        </Card>
+      </button>
+    </form>
   )
 }

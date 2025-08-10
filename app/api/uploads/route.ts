@@ -29,7 +29,9 @@ export async function POST(req: Request) {
       : `${userId}/${folder}`
     const arrayBuf = await file.arrayBuffer()
     const processed = await toWebpIfPossible(arrayBuf, file.type)
-    const base = sanitizeFilename((file.name || "image").replace(/\.[^.]+$/, ""))
+    const base = sanitizeFilename(
+      (file.name || "image").replace(/\.[^.]+$/, ""),
+    )
     const key = `${prefix}/${Date.now()}-${base}.${processed.extension}`
     const uploaded = await putBlob(key, processed.buffer, {
       access: "public",

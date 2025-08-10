@@ -67,11 +67,9 @@ export default function ProductGrid({
       <ProductList
         items={products.map((p) => ({
           ...p,
-          badges: p.ProductBadge
-            ?.filter(
-              (pb) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
-            )
-            .map((pb) => pb.badge),
+          badges: p.ProductBadge?.filter(
+            (pb) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
+          ).map((pb) => pb.badge),
         }))}
         compact
         showCategory

@@ -114,9 +114,9 @@ export default async function LeaderboardPage({
       <ProductList
         items={rest.map((p) => ({
           ...p,
-          badges: p.ProductBadge
-            ?.filter((pb: any) => !pb.expiresAt || new Date(pb.expiresAt) > new Date())
-            .map((pb: any) => pb.badge),
+          badges: p.ProductBadge?.filter(
+            (pb: any) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
+          ).map((pb: any) => pb.badge),
         }))}
         compact
         showCategory

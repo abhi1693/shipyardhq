@@ -75,7 +75,9 @@ export async function POST(
       files.map(async (file) => {
         const arrayBuf = await file.arrayBuffer()
         const processed = await toWebpIfPossible(arrayBuf, file.type)
-        const base = sanitizeFilename((file.name || "image").replace(/\.[^.]+$/, ""))
+        const base = sanitizeFilename(
+          (file.name || "image").replace(/\.[^.]+$/, ""),
+        )
         const key = `${userId}/products/${product.id}/media/${Date.now()}-${base}.${processed.extension}`
         return await putBlob(key, processed.buffer, {
           access: "public",

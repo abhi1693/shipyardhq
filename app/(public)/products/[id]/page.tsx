@@ -158,7 +158,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </div>
 
           <div className="text-sm text-muted-foreground mt-2">
-            By <Link href={`/users/${product.user.id}`} className="underline">{product.user.firstName} {product.user.lastName || ""}</Link>
+            By{" "}
+            <Link href={`/users/${product.user.id}`} className="underline">
+              {product.user.firstName} {product.user.lastName || ""}
+            </Link>
           </div>
 
           <div className="mt-4 space-y-3">
@@ -189,7 +192,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <div className="flex flex-wrap items-center gap-2">
               {product.platforms && product.platforms.length > 0 && (
                 <>
-                  <span className="text-sm text-muted-foreground">Platforms:</span>
+                  <span className="text-sm text-muted-foreground">
+                    Platforms:
+                  </span>
                   {product.platforms.map((p) => (
                     <Badge key={p} variant="outline" className="text-xs">
                       <span className="flex items-center gap-1">
@@ -216,12 +221,23 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     label: "Contact",
                     icon: <Mail size={14} />,
                   },
-                ].filter(Boolean) as { href: string; label: string; icon: JSX.Element }[]
+                ].filter(Boolean) as {
+                  href: string
+                  label: string
+                  icon: JSX.Element
+                }[]
                 return secondaryLinks.length ? (
                   <>
-                    <span className="mx-1 hidden md:inline text-muted-foreground/50">•</span>
+                    <span className="mx-1 hidden md:inline text-muted-foreground/50">
+                      •
+                    </span>
                     {secondaryLinks.map((l) => (
-                      <ExternalBadgeLink key={l.href} href={l.href} target="_blank" variant="outline">
+                      <ExternalBadgeLink
+                        key={l.href}
+                        href={l.href}
+                        target="_blank"
+                        variant="outline"
+                      >
                         <span className="flex items-center gap-1 text-sm">
                           {l.icon} {l.label}
                         </span>
@@ -248,7 +264,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               {stats?.views || 0} views • {stats?.clicks || 0} clicks
             </div>
             {((product.startingPriceCents !== null &&
-              product.startingPriceCents !== undefined) || product.pricingModel) && (
+              product.startingPriceCents !== undefined) ||
+              product.pricingModel) && (
               <div className="text-right mt-1">
                 {product.startingPriceCents !== null &&
                   product.startingPriceCents !== undefined && (
@@ -263,7 +280,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     </div>
                   )}
                 <div className="mt-1">
-                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                  <Badge
+                    variant="secondary"
+                    className="text-xs flex items-center gap-1"
+                  >
                     <Tag size={12} /> {product.pricingModel}
                   </Badge>
                 </div>
@@ -273,15 +293,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         </div>
       </div>
 
-      
-
       {/* Use Cases (from Category) */}
       {product.category.useCases && product.category.useCases.length > 0 && (
         <div>
           <h2 className="text-lg font-semibold mb-2">Use cases</h2>
           <div className="flex flex-wrap gap-2">
             {product.category.useCases.map((uc) => (
-              <Badge key={`${uc.useCaseId}-${uc.categoryId}`} variant="secondary" className="text-xs">
+              <Badge
+                key={`${uc.useCaseId}-${uc.categoryId}`}
+                variant="secondary"
+                className="text-xs"
+              >
                 <CheckCircle size={12} className="mr-1" /> {uc.useCase.label}
               </Badge>
             ))}
@@ -292,23 +314,27 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       {/* Plan Features removed */}
 
       {/* Team (Organization Members) */}
-      {product.organization && product.organization.memberships && product.organization.memberships.length > 0 && (
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Team</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {product.organization.memberships.map((m) => (
-              <div key={m.id} className="rounded-md border p-3 bg-muted/30">
-                <div className="font-medium">
-                  {m.user.firstName} {m.user.lastName || ""}
+      {product.organization &&
+        product.organization.memberships &&
+        product.organization.memberships.length > 0 && (
+          <div>
+            <h2 className="text-lg font-semibold mb-2">Team</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {product.organization.memberships.map((m) => (
+                <div key={m.id} className="rounded-md border p-3 bg-muted/30">
+                  <div className="font-medium">
+                    {m.user.firstName} {m.user.lastName || ""}
+                  </div>
+                  {m.jobTitle && (
+                    <div className="text-sm text-muted-foreground">
+                      {m.jobTitle}
+                    </div>
+                  )}
                 </div>
-                {m.jobTitle && (
-                  <div className="text-sm text-muted-foreground">{m.jobTitle}</div>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Media (Banner + Gallery) */}
       {(product.bannerImage || product.ProductMedia.length > 0) && (
@@ -325,7 +351,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </div>
           )}
           {product.ProductMedia.length > 0 && (
-            <div className={`grid grid-cols-2 md:grid-cols-3 gap-3 ${product.bannerImage ? 'mt-3' : ''}`}>
+            <div
+              className={`grid grid-cols-2 md:grid-cols-3 gap-3 ${product.bannerImage ? "mt-3" : ""}`}
+            >
               {product.ProductMedia.map((m) => (
                 <div
                   key={m.id}
@@ -359,7 +387,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             ),
             img: ({ node, ...props }) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img {...props} alt={(props as any).alt || ""} className="rounded border" />
+              <img
+                {...props}
+                alt={(props as any).alt || ""}
+                className="rounded border"
+              />
             ),
           }}
         >
@@ -378,7 +410,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           ))}
         </div>
       )}
-
 
       {/* Related */}
       {related.length > 0 && (

@@ -4,6 +4,7 @@
 export type ProductCreatedEvent = { productId: string }
 export type ProductUpdatedEvent = { productId: string }
 export type ProductDeletedEvent = { productId: string }
+export type ProductClickedEvent = { productId: string }
 export type BadgeAssignedEvent = {
   id: string
   productId: string
@@ -16,6 +17,7 @@ type AppEvents = {
   "product.created": ProductCreatedEvent
   "product.updated": ProductUpdatedEvent
   "product.deleted": ProductDeletedEvent
+  "product.clicked": ProductClickedEvent
   "badge.assigned": BadgeAssignedEvent
   "badge.removed": BadgeRemovedEvent
 }

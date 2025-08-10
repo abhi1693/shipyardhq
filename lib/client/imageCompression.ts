@@ -5,21 +5,33 @@
 // - WEBP: return original (Canvas API cannot guarantee lossless re-encode)
 
 export async function compressImageLossless(file: File): Promise<File | Blob> {
-  const type = (file.type || '').toLowerCase()
-  if (!type.startsWith('image/')) return file
+  const type = (file.type || "").toLowerCase()
+  if (!type.startsWith("image/")) return file
 
-  if (type.includes('svg') || type.includes('gif') || type.includes('jpeg') || type.includes('jpg') || type.includes('webp')) {
+  if (
+    type.includes("svg") ||
+    type.includes("gif") ||
+    type.includes("jpeg") ||
+    type.includes("jpg") ||
+    type.includes("webp")
+  ) {
     // Keep original for formats where Canvas cannot guarantee lossless or might break animation.
     return file
   }
 
-  if (type.includes('png')) {
+  if (type.includes("png")) {
     try {
       const img = await fileToImage(file)
-      const { canvas, ctx } = createCanvas(img.naturalWidth || img.width, img.naturalHeight || img.height)
+      const { canvas, ctx } = createCanvas(
+        img.naturalWidth || img.width,
+        img.naturalHeight || img.height,
+      )
       ctx.drawImage(img, 0, 0)
       const blob: Blob = await new Promise((resolve, reject) =>
-        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png'),
+        canvas.toBlob(
+          (b) => (b ? resolve(b) : reject(new Error("toBlob failed"))),
+          "image/png",
+        ),
       )
       // Only use compressed if smaller
       if (blob.size < file.size) return blob
@@ -49,10 +61,9 @@ function fileToImage(file: File): Promise<HTMLImageElement> {
 }
 
 function createCanvas(w: number, h: number) {
-  const canvas = document.createElement('canvas')
+  const canvas = document.createElement("canvas")
   canvas.width = w
   canvas.height = h
-  const ctx = canvas.getContext('2d')!
+  const ctx = canvas.getContext("2d")!
   return { canvas, ctx }
 }
-
