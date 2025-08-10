@@ -13,7 +13,12 @@ import {
   image,
   linkify,
   placeholder,
+  commaSeparated,
+  formatCurrency,
+  slug as slugFmt,
 } from "@/lib/ui/formatters"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
 import { getProductById } from "@/actions/admin/products/actions"
 
@@ -36,34 +41,138 @@ export default async function ViewUserProductPage({
       }}
       overview={[
         { label: "Name", value: product.name },
-        {
-          label: "Category",
-          value: product.category.name,
-        },
+        { label: "Category", value: product.category.name },
+        { label: "Status", value: product.status },
+        { label: "Type", value: product.type.replace("_", " ") },
+        { label: "Pricing", value: product.pricingModel.replace("_", " ") },
       ]}
       basePath="member/products"
       deletable
       editable
       relationships={
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Metadata */}
-          <Card>
+        <div className="grid grid-cols-12 gap-6">
+          {/* Branding */}
+          <Card className="col-span-12 md:col-span-4">
             <CardHeader>
-              <CardTitle className="text-base">Metadata</CardTitle>
+              <CardTitle className="text-base">Branding</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OverviewRow label="Slug" value={slugFmt(product.slug)} />
+              <OverviewRow label="Tagline" value={product.tagline} />
+              <OverviewRow
+                label="Logo"
+                value={image(product.logo, product.name, 64, 64)}
+              />
+              {product.bannerImage && (
+                <OverviewRow
+                  label="Banner"
+                  value={image(
+                    product.bannerImage,
+                    `${product.name} banner`,
+                    480,
+                    160,
+                  )}
+                />
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Organization & Targeting */}
+          <Card className="col-span-12 md:col-span-4">
+            <CardHeader>
+              <CardTitle className="text-base">Organization & Targeting</CardTitle>
             </CardHeader>
             <CardContent>
               <OverviewRow
-                label="Website URL"
+                label="Organization"
+                value={product.organization?.name || placeholder()}
+              />
+              <OverviewRow
+                label="Platforms"
+                value={
+                  product.platforms?.length
+                    ? commaSeparated(
+                        product.platforms.map((p) => p.replace("_", " ")),
+                      )
+                    : placeholder()
+                }
+              />
+              <OverviewRow
+                label="Keywords"
+                value={
+                  product.keywords?.length
+                    ? commaSeparated(product.keywords)
+                    : placeholder()
+                }
+              />
+            </CardContent>
+          </Card>
+
+          {/* Pricing */}
+          <Card className="col-span-12 md:col-span-4">
+            <CardHeader>
+              <CardTitle className="text-base">Pricing</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OverviewRow
+                label="Model"
+                value={product.pricingModel.replace("_", " ")}
+              />
+              {(product.pricingModel === "subscription" ||
+                product.pricingModel === "one_time") && (
+                <OverviewRow
+                  label="Starting Price"
+                  value={
+                    product.startingPriceCents && product.currencyCode
+                      ? formatCurrency(
+                          product.startingPriceCents,
+                          product.currencyCode,
+                        )
+                      : placeholder()
+                  }
+                />
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Links */}
+          <Card className="col-span-12 md:col-span-8">
+            <CardHeader>
+              <CardTitle className="text-base">Links</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OverviewRow
+                label="Website"
                 value={linkify({
                   href: product.websiteUrl,
                   label: product.websiteUrl,
                   isExternal: true,
                 })}
               />
-              <OverviewRow label="Tagline" value={product.tagline} />
+              <OverviewRow label="CTA Label" value={product.ctaLabel || placeholder()} />
               <OverviewRow
-                label="Logo"
-                value={image(product.logo, product.name, 64, 64)}
+                label="CTA URL"
+                value={
+                  product.ctaUrl
+                    ? linkify({
+                        href: product.ctaUrl,
+                        label: product.ctaUrl,
+                        isExternal: true,
+                      })
+                    : placeholder()
+                }
+              />
+              <OverviewRow
+                label="Organization URL"
+                value={
+                  product.organization?.url
+                    ? linkify({
+                        href: product.organization.url,
+                        label: product.organization.url,
+                        isExternal: true,
+                      })
+                    : placeholder()
+                }
               />
               {product.metadata && (
                 <>
@@ -114,7 +223,7 @@ export default async function ViewUserProductPage({
 
           {/* Verification */}
           {product.verification && (
-            <Card>
+            <Card className="col-span-12 md:col-span-4">
               <CardHeader>
                 <CardTitle className="text-base">Verification</CardTitle>
               </CardHeader>
@@ -145,9 +254,131 @@ export default async function ViewUserProductPage({
             </Card>
           )}
 
+          {/* Description */}
+          <Card className="col-span-12">
+            <CardHeader>
+              <CardTitle className="text-base">Description</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="prose prose-sm max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {product.description}
+                </ReactMarkdown>
+              </div>
+              <OverviewRow
+                label="Published At"
+                value={
+                  product.publishedAt ? formatDate(product.publishedAt) : placeholder()
+                }
+              />
+            </CardContent>
+          </Card>
+
+          {/* Plan & Features */}
+          <Card className="col-span-12">
+            <CardHeader>
+              <CardTitle className="text-base">Plan & Features</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {product.plan ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <OverviewRow label="Plan" value={product.plan.name} />
+                    <OverviewRow
+                      label="Type"
+                      value={product.plan.type.replace("_", " ")}
+                    />
+                    <OverviewRow
+                      label="Price"
+                      value={formatCurrency(product.plan.price)}
+                    />
+                    <OverviewRow
+                      label="Interval"
+                      value={`${product.plan.frequency} ${product.plan.interval}`}
+                    />
+                    <OverviewRow
+                      label="Trial Days"
+                      value={product.plan.trialDays ?? placeholder()}
+                    />
+                  </div>
+                  {product.plan.assignments?.length ? (
+                    <div className="pt-3">
+                      <div className="text-muted-foreground mb-2">Features</div>
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                        {product.plan.assignments.map((a) => (
+                          <li key={a.id} className="flex items-center justify-between rounded border px-3 py-2">
+                            <div>
+                              <div className="font-medium">{a.feature.name}</div>
+                              <div className="text-xs text-muted-foreground break-all">
+                                {a.feature.description}
+                              </div>
+                            </div>
+                            {a.enabled ? (
+                              <span className="text-green-600 text-xs">Enabled</span>
+                            ) : (
+                              <span className="text-destructive text-xs">Disabled</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <div className="text-sm text-muted-foreground">No plan assigned</div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Media Gallery */}
+          <Card className="col-span-12">
+            <CardHeader>
+              <CardTitle className="text-base">Media Gallery</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {product.ProductMedia?.length ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {product.ProductMedia.map((m) => (
+                    <img
+                      key={m.id}
+                      src={m.imageUrl}
+                      alt={m.altText || product.name}
+                      className="w-full h-40 object-cover rounded border bg-white"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">No media uploaded</div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Badges */}
+          <Card className="col-span-12 md:col-span-6">
+            <CardHeader>
+              <CardTitle className="text-base">Badges</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {product.ProductBadge?.length ? (
+                <ul className="text-sm grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {product.ProductBadge.map((b) => (
+                    <li key={b.id} className="flex items-center justify-between rounded border px-3 py-2">
+                      <span className="font-medium break-all">{b.badge}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {b.expiresAt ? `Expires ${new Date(b.expiresAt).toLocaleDateString()}` : "No expiry"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="text-sm text-muted-foreground">No badges</div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Analytics */}
           {product.analytics && (
-            <Card className="md:col-span-2">
+            <Card className="col-span-12">
               <CardHeader>
                 <CardTitle className="text-base">Analytics</CardTitle>
               </CardHeader>

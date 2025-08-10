@@ -52,6 +52,8 @@ export async function getProductById(id: string) {
         metadata: true,
         analytics: true,
         verification: true,
+        ProductMedia: true,
+        ProductBadge: true,
         plan: {
           include: {
             assignments: {
