@@ -5,6 +5,7 @@ import { duplicateProductAction } from "@/actions/admin/products/actions"
 import { Button } from "@/components/atoms/button"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { Copy } from "lucide-react"
 
 export default function DuplicateProductButton({ productId }: { productId: string }) {
   const [isPending, start] = useTransition()
@@ -26,8 +27,7 @@ export default function DuplicateProductButton({ productId }: { productId: strin
         })
       }}
     >
-      Duplicate
+      <Copy className="h-4 w-4 mr-2" /> Duplicate
     </Button>
   )
 }
-

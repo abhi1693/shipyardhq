@@ -12,6 +12,7 @@ export interface ClientObjectHeadingProps {
   deletable?: boolean
   editable?: boolean
   basePath: string
+  extraActions?: React.ReactNode
 }
 
 export function ClientObjectHeading({
@@ -23,6 +24,7 @@ export function ClientObjectHeading({
   deletable,
   editable,
   basePath,
+  extraActions,
 }: ClientObjectHeadingProps) {
   const router = useRouter()
 
@@ -43,6 +45,7 @@ export function ClientObjectHeading({
       slug={slug}
       onDelete={deletable ? handleDelete : undefined}
       onEdit={editable ? handleEdit : undefined}
+      extraActions={extraActions}
     />
   )
 }

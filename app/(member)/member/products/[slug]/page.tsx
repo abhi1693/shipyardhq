@@ -29,9 +29,12 @@ import CopyButton from "@/components/molecules/CopyButton"
 import DuplicateProductButton from "@/components/molecules/DuplicateProductButton"
 import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
+import { Button } from "@/components/atoms/button"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import { getProductActivity, getRecentUpvoters } from "@/actions/member/products/actions"
-import ShareOnX from "@/components/molecules/ShareOnX"
+// ShareOnX badge is still available elsewhere; header uses ShareOnXButton
+import ShareOnXButton from "@/components/molecules/ShareOnXButton"
+import { ExternalLink, Copy as CopyIcon } from "lucide-react"
 
 export default async function ViewUserProductPage({
   params,
@@ -75,21 +78,22 @@ export default async function ViewUserProductPage({
       basePath="member/products"
       deletable
       editable
+      headingActionsLeft={
+        <div className="flex items-center gap-2">
+          <Link href={publicPath} target="_blank">
+            <Button size="sm">
+              <ExternalLink className="h-4 w-4 mr-2" /> View public
+            </Button>
+          </Link>
+          <CopyButton text={publicPath} resolveAbsolute size="sm" variant="outline">
+            <><CopyIcon className="h-4 w-4 mr-2" /> Copy link</>
+          </CopyButton>
+          <ShareOnXButton path={publicPath} productName={product.name} />
+          <DuplicateProductButton productId={product.id} />
+        </div>
+      }
       relationships={
         <div className="grid grid-cols-12 gap-6">
-          {/* Actions */}
-          <Card className="col-span-12">
-            <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
-              <div className="flex items-center gap-2">
-                <Link href={publicPath} target="_blank">
-                  <Badge variant="secondary" className="cursor-pointer">View public page</Badge>
-                </Link>
-                <CopyButton text={publicPath} label="Copy link" resolveAbsolute />
-                <ShareOnX path={publicPath} productName={product.name} />
-              </div>
-              <DuplicateProductButton productId={product.id} />
-            </CardContent>
-          </Card>
           {/* Primary setup: Links + Verification */}
           <Card className="col-span-12 md:col-span-8">
             <CardHeader>

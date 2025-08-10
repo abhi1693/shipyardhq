@@ -11,6 +11,7 @@ interface ObjectHeadingProps {
   slug?: string | null
   onDelete?: () => void
   onEdit?: () => void
+  extraActions?: React.ReactNode
 }
 
 export function ObjectHeading({
@@ -21,6 +22,7 @@ export function ObjectHeading({
   slug,
   onDelete,
   onEdit,
+  extraActions,
 }: ObjectHeadingProps) {
   return (
     <div className="mb-6 w-full border-b pb-4">
@@ -47,6 +49,7 @@ export function ObjectHeading({
           </div>
 
           <div className="flex gap-2">
+            {extraActions}
             {onEdit && (
               <Button variant="outline" size="sm" onClick={onEdit}>
                 <Pencil className="mr-2 h-4 w-4" />

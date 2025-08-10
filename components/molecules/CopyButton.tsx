@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import { Button } from "@/components/atoms/button"
 import { toast } from "sonner"
 
@@ -10,12 +10,14 @@ export default function CopyButton({
   size = "xs",
   variant = "outline",
   resolveAbsolute = false,
+  children,
 }: {
   text: string
   label?: string
   size?: "xs" | "sm" | "default"
   variant?: "outline" | "secondary" | "default"
   resolveAbsolute?: boolean
+  children?: ReactNode
 }) {
   const [copied, setCopied] = useState(false)
   return (
@@ -71,7 +73,7 @@ export default function CopyButton({
         }
       }}
     >
-      {copied ? "Copied" : label}
+      {copied ? "Copied" : children ?? label}
     </Button>
   )
 }
