@@ -108,7 +108,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       />
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
         {/* Left column wrapper */}
         <div className="flex-1 min-w-0">
           {/* Top row: icon + name/tagline */}
@@ -179,10 +179,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               )}
             </div>
 
-            {/* Platforms left, secondary links right */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-              {product.platforms && product.platforms.length > 0 ? (
-                <div className="flex items-center gap-2 flex-wrap md:flex-nowrap md:overflow-x-auto md:whitespace-nowrap">
+            {/* Platforms + secondary links inline (no large gap) */}
+            <div className="flex flex-wrap items-center gap-2">
+              {product.platforms && product.platforms.length > 0 && (
+                <>
                   <span className="text-sm text-muted-foreground">Platforms:</span>
                   {product.platforms.map((p) => (
                     <Badge key={p} variant="outline" className="text-xs">
@@ -191,54 +191,45 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       </span>
                     </Badge>
                   ))}
-                </div>
-              ) : (
-                <div />
+                </>
               )}
-              {(product.metadata?.githubUrl ||
-                product.metadata?.twitterUrl ||
-                product.metadata?.contactEmail) && (
-                <div className="flex flex-wrap gap-2 md:justify-end">
-                  {product.metadata?.githubUrl && (
-                    <ExternalBadgeLink
-                      href={product.metadata.githubUrl}
-                      target="_blank"
-                      variant="outline"
-                    >
-                      <span className="flex items-center gap-1 text-sm">
-                        <Github size={14} /> GitHub
-                      </span>
-                    </ExternalBadgeLink>
-                  )}
-                  {product.metadata?.twitterUrl && (
-                    <ExternalBadgeLink
-                      href={product.metadata.twitterUrl}
-                      target="_blank"
-                      variant="outline"
-                    >
-                      <span className="flex items-center gap-1 text-sm">
-                        <Twitter size={14} /> Twitter
-                      </span>
-                    </ExternalBadgeLink>
-                  )}
-                  {product.metadata?.contactEmail && (
-                    <ExternalBadgeLink
-                      href={`mailto:${product.metadata.contactEmail}`}
-                      variant="outline"
-                    >
-                      <span className="flex items-center gap-1 text-sm">
-                        <Mail size={14} /> Contact
-                      </span>
-                    </ExternalBadgeLink>
-                  )}
-                </div>
-              )}
+              {(() => {
+                const secondaryLinks = [
+                  product.metadata?.githubUrl && {
+                    href: product.metadata.githubUrl,
+                    label: "GitHub",
+                    icon: <Github size={14} />,
+                  },
+                  product.metadata?.twitterUrl && {
+                    href: product.metadata.twitterUrl,
+                    label: "Twitter",
+                    icon: <Twitter size={14} />,
+                  },
+                  product.metadata?.contactEmail && {
+                    href: `mailto:${product.metadata.contactEmail}`,
+                    label: "Contact",
+                    icon: <Mail size={14} />,
+                  },
+                ].filter(Boolean) as { href: string; label: string; icon: JSX.Element }[]
+                return secondaryLinks.length ? (
+                  <>
+                    <span className="mx-1 hidden md:inline text-muted-foreground/50">•</span>
+                    {secondaryLinks.map((l) => (
+                      <ExternalBadgeLink key={l.href} href={l.href} target="_blank" variant="outline">
+                        <span className="flex items-center gap-1 text-sm">
+                          {l.icon} {l.label}
+                        </span>
+                      </ExternalBadgeLink>
+                    ))}
+                  </>
+                ) : null
+              })()}
             </div>
           </div>
         </div>
 
         {/* Right column: upvotes/views + pricing */}
-        <div className="shrink-0">
+        <div className="shrink-0 md:self-start self-end md:mt-0 mt-4">
           <div className="flex flex-col items-end gap-3">
             <UpvoteSquare count={stats?.upvotes || 0} title="Total upvotes" />
             <div className="text-sm text-muted-foreground">
