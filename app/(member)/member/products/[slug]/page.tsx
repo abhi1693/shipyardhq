@@ -40,7 +40,6 @@ import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import { ExternalLink, Copy as CopyIcon } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import { PricingFeature } from "@/components/molecules/PricingFeature"
 
 export default async function ViewUserProductPage({
   params,
@@ -228,67 +227,8 @@ export default async function ViewUserProductPage({
         </div>
       }
       topRowExtras={[
-        // Branding next to Overview
-        <Card key="branding">
-          <CardHeader>
-            <CardTitle className="text-base">Branding</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <OverviewRow label="Slug" value={slugFmt(product.slug)} />
-            <OverviewRow label="Tagline" value={product.tagline} />
-            <OverviewRow
-              label="Logo"
-              value={image(product.logo, product.name, 64, 64)}
-            />
-          </CardContent>
-        </Card>,
-        // Organization & Targeting
-        <Card key="org-targeting">
-          <CardHeader>
-            <CardTitle className="text-base">Organization & Targeting</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <OverviewRow
-              label="Organization"
-              value={
-                product.organization
-                  ? (
-                      <div className="flex items-center gap-2">
-                        <span>{product.organization.name}</span>
-                        {product.organization.url
-                          ? linkify({
-                              href: product.organization.url,
-                              label: new URL(product.organization.url).hostname,
-                              isExternal: true,
-                            })
-                          : null}
-                      </div>
-                    )
-                  : placeholder()
-              }
-            />
-            <OverviewRow
-              label="Platforms"
-              value={
-                product.platforms && product.platforms.length
-                  ? commaSeparated(
-                      product.platforms.map((p) => p.replaceAll("_", " ")),
-                    )
-                  : placeholder()
-              }
-            />
-            <OverviewRow
-              label="Tags"
-              value={
-                product.keywords && product.keywords.length
-                  ? commaSeparated(product.keywords)
-                  : placeholder()
-              }
-            />
-          </CardContent>
-        </Card>,
-        // Plan as a single compact row with change action
-        <Card key="plan">
+        // Plan emphasized in top row
+        <Card key="plan-top">
           <CardHeader>
             <CardTitle className="text-base">Plan</CardTitle>
           </CardHeader>
@@ -328,7 +268,6 @@ export default async function ViewUserProductPage({
                 </Link>
               </div>
             )}
-
             {nextPlan ? (
               <div className="mt-3 rounded-md border p-3 bg-muted/30">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -354,36 +293,76 @@ export default async function ViewUserProductPage({
                 ) : null}
               </div>
             ) : null}
-
-            {product.plan && (product.plan.assignments || []).length > 0 ? (
-              <div className="mt-3">
-                <details className="group">
-                  <summary className="cursor-pointer text-sm text-primary hover:underline">
-                    View features ({(product.plan.assignments || []).length})
-                  </summary>
-                  <ul className="mt-2 space-y-2">
-                    {(product.plan.assignments || [])
-                      .slice()
-                      .sort((a: any, b: any) => Number(b.enabled) - Number(a.enabled))
-                      .map((a: any) => (
-                        <PricingFeature
-                          key={a.id}
-                          label={a.feature?.name || "Feature"}
-                          enabled={Boolean(a.enabled)}
-                          subtle={!a.enabled}
-                        />
-                      ))}
-                  </ul>
-                </details>
-              </div>
-            ) : null}
           </CardContent>
         </Card>,
+        
+        
       ]}
       relationships={
         <div className="grid grid-cols-12 gap-6">
+          {/* Branding first */}
+          <Card className="col-span-12 md:col-span-4">
+            <CardHeader>
+              <CardTitle className="text-base">Branding</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OverviewRow label="Slug" value={slugFmt(product.slug)} />
+              <OverviewRow label="Tagline" value={product.tagline} />
+              <OverviewRow
+                label="Logo"
+                value={image(product.logo, product.name, 64, 64)}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Organization & Targeting second */}
+          <Card className="col-span-12 md:col-span-4">
+            <CardHeader>
+              <CardTitle className="text-base">Organization & Targeting</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OverviewRow
+                label="Organization"
+                value={
+                  product.organization
+                    ? (
+                        <div className="flex items-center gap-2">
+                          <span>{product.organization.name}</span>
+                          {product.organization.url
+                            ? linkify({
+                                href: product.organization.url,
+                                label: new URL(product.organization.url).hostname,
+                                isExternal: true,
+                              })
+                            : null}
+                        </div>
+                      )
+                    : placeholder()
+                }
+              />
+              <OverviewRow
+                label="Platforms"
+                value={
+                  product.platforms && product.platforms.length
+                    ? commaSeparated(
+                        product.platforms.map((p) => p.replaceAll("_", " ")),
+                      )
+                    : placeholder()
+                }
+              />
+              <OverviewRow
+                label="Tags"
+                value={
+                  product.keywords && product.keywords.length
+                    ? commaSeparated(product.keywords)
+                    : placeholder()
+                }
+              />
+            </CardContent>
+          </Card>
+
           {/* Primary setup: Links + Performance */}
-          <Card className="col-span-12 md:col-span-8">
+          <Card className="col-span-12 md:col-span-4">
             <CardHeader>
               <CardTitle className="text-base">Links</CardTitle>
             </CardHeader>
@@ -469,8 +448,31 @@ export default async function ViewUserProductPage({
               )}
             </CardContent>
           </Card>
-          {/* Verification moved to top row */}
-
+          {/* Media + Performance in same row (media wider) */}
+          <Card className="col-span-12 md:col-span-8">
+            <CardHeader>
+              <CardTitle className="text-base">Media Gallery</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="text-muted-foreground">
+                  {`Images: ${(product.ProductMedia || []).length}/6`}
+                </div>
+                <div className="text-muted-foreground">
+                  Tips: 3–6 screenshots (1280×720). Banner 1200×628.
+                </div>
+              </div>
+              <ProductMediaManager
+                productId={product.id}
+                media={(product.ProductMedia || []).map((m) => ({
+                  id: m.id,
+                  imageUrl: m.imageUrl,
+                }))}
+                canEdit={isOwner}
+                max={6}
+              />
+            </CardContent>
+          </Card>
           <PerformanceCard
             upvotes={product.analytics?.upvotes ?? 0}
             clicks={product.analytics?.clicks ?? 0}
@@ -482,29 +484,6 @@ export default async function ViewUserProductPage({
             ogImageUrl={product.bannerImage || product.logo}
             editHref={`/member/products/${product.slug}/edit`}
           />
-
-          {/* Media */}
-          <Card className="col-span-12">
-            <CardHeader>
-              <CardTitle className="text-base">Media Gallery</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {(product.ProductMedia || []).length < 2 && (
-                <div className="mb-3 text-xs text-muted-foreground">
-                  Tip: Add at least 2 screenshots (suggested 1280×720). Banner
-                  works best at 1200×628.
-                </div>
-              )}
-              <ProductMediaManager
-                productId={product.id}
-                media={(product.ProductMedia || []).map((m) => ({
-                  id: m.id,
-                  imageUrl: m.imageUrl,
-                }))}
-                canEdit={isOwner}
-              />
-            </CardContent>
-          </Card>
           {/* Organization & Targeting moved to top row */}
 
           {/* Links and Verification moved above */}
