@@ -20,31 +20,30 @@ model Newsletter {
 }
 
 model Product {
-  id           String       @id @default(cuid())
-  name         String
-  slug         String       @unique
-  tagline      String
-  description  String
-  websiteUrl   String
-  logo         String
-  userId       String
-  categoryId   String
-  planId       String?
-  type         ProductType
-  pricingModel PricingModel
-  status       ProductStatus @default(published)
-  publishedAt  DateTime?
-  companyName  String?
-  organizationId String?
+  id                 String        @id @default(cuid())
+  name               String
+  slug               String        @unique
+  tagline            String
+  description        String
+  websiteUrl         String
+  logo               String
+  userId             String
+  categoryId         String
+  planId             String?
+  type               ProductType
+  pricingModel       PricingModel
+  status             ProductStatus @default(published)
+  publishedAt        DateTime?
+  organizationId     String?
   startingPriceCents Int?
-  currencyCode String? // ISO 4217, e.g. "USD"
-  ctaLabel     String?
-  ctaUrl       String?
-  bannerImage  String?
-  keywords     String[]
-  platforms    Platform[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  currencyCode       String? // ISO 4217, e.g. "USD"
+  ctaLabel           String?
+  ctaUrl             String?
+  bannerImage        String?
+  keywords           String[]
+  platforms          Platform[]
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
   // Relations
   user         User                 @relation(fields: [userId], references: [id])
