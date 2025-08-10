@@ -34,7 +34,15 @@ export const columns: ColumnDef<
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <Badge variant={row.original.status === "draft" ? "secondary" : row.original.status === "archived" ? "outline" : "success"}>
+      <Badge
+        variant={
+          row.original.status === "draft"
+            ? "secondary"
+            : row.original.status === "archived"
+              ? "outline"
+              : "success"
+        }
+      >
         {String(row.original.status || "").replace("_", " ")}
       </Badge>
     ),

@@ -89,37 +89,37 @@ export default function EditProductForm({
 
   return (
     <Card className="mx-auto w-full max-w-4xl">
-        <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">
-            Edit Product
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Stepper */}
-          <WizardStepper steps={STEPS} step={wizard.step} />
+      <CardHeader>
+        <CardTitle className="text-left text-2xl font-bold">
+          Edit Product
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {/* Stepper */}
+        <WizardStepper steps={STEPS} step={wizard.step} />
 
-          <FormProvider {...form}>
-            <form
-              onSubmit={form.handleSubmit(wizard.onSubmit as any)}
-              className="space-y-6"
-            >
-              {StepComponent}
+        <FormProvider {...form}>
+          <form
+            onSubmit={form.handleSubmit(wizard.onSubmit as any)}
+            className="space-y-6"
+          >
+            {StepComponent}
 
-              <Separator className="my-4" />
+            <Separator className="my-4" />
 
-              <WizardFooter
-                isReview={wizard.isReview}
-                onBack={wizard.back}
-                onNext={wizard.next}
-                onSaveDraft={() => wizard.submitWithStatus("draft")}
-                onPublish={() => wizard.submitWithStatus("published")}
-                disableBack={wizard.step === 1}
-                isSubmitting={form.formState.isSubmitting}
-              />
-            </form>
-          </FormProvider>
-        </CardContent>
-      </Card>
+            <WizardFooter
+              isReview={wizard.isReview}
+              onBack={wizard.back}
+              onNext={wizard.next}
+              onSaveDraft={() => wizard.submitWithStatus("draft")}
+              onPublish={() => wizard.submitWithStatus("published")}
+              disableBack={wizard.step === 1}
+              isSubmitting={form.formState.isSubmitting}
+            />
+          </form>
+        </FormProvider>
+      </CardContent>
+    </Card>
   )
 }
 

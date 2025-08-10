@@ -190,7 +190,9 @@ export async function getProductsNeedingMedia(min = 2, limit = 5) {
       _count: { select: { ProductMedia: true } },
     },
   })
-  return products.filter((p) => (p as any)._count.ProductMedia < min).slice(0, limit)
+  return products
+    .filter((p) => (p as any)._count.ProductMedia < min)
+    .slice(0, limit)
 }
 
 // New: Recent activity (derived from existing tables)
@@ -321,7 +323,7 @@ export async function getProductHealthSummary(days?: number) {
 
   const perProductIssues: Record<string, string[]> = {}
 
-  function scoreProduct(p: typeof products[number]) {
+  function scoreProduct(p: (typeof products)[number]) {
     let score = 0
     const issues: string[] = []
     // Logo
@@ -365,7 +367,8 @@ export async function getProductHealthSummary(days?: number) {
     }
     // Social/links
     const m = p.metadata
-    if (m?.githubUrl || m?.twitterUrl || m?.demoUrl || m?.contactEmail) score += 10
+    if (m?.githubUrl || m?.twitterUrl || m?.demoUrl || m?.contactEmail)
+      score += 10
 
     perProductIssues[p.id] = issues
     return Math.min(100, score)
@@ -415,7 +418,12 @@ export async function getProductHealthSummary(days?: number) {
     })
 
   const productsNeedingAttention = products
-    .map((p) => ({ id: p.id, name: p.name, slug: p.slug, issues: perProductIssues[p.id] }))
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      issues: perProductIssues[p.id],
+    }))
     .filter((p) => p.issues.length)
     .slice(0, 3)
 

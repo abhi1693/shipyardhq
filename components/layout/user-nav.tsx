@@ -46,10 +46,10 @@ export function UserNav() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <SignOutButton redirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}>
-            <DropdownMenuItem>
-              Sign Out
-            </DropdownMenuItem>
+          <SignOutButton
+            redirectUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL}
+          >
+            <DropdownMenuItem>Sign Out</DropdownMenuItem>
           </SignOutButton>
         </DropdownMenuContent>
       </DropdownMenu>

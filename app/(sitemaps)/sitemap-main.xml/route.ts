@@ -7,7 +7,9 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 }
 
 export async function GET() {
-  const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "")
+  const base = (
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  ).replace(/\/$/, "")
   const now = new Date()
 
   const staticPaths = [
@@ -65,13 +67,14 @@ export async function GET() {
         </url>
       `
     }),
-    ...categories.map((c) =>
-      {
-        const last = c.updatedAt || now
-        const days = Math.floor((now.getTime() - new Date(last).getTime()) / 86400000)
-        const changefreq = days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
-        const priority = days <= 7 ? "0.7" : days <= 60 ? "0.6" : "0.5"
-        return xml`
+    ...categories.map((c) => {
+      const last = c.updatedAt || now
+      const days = Math.floor(
+        (now.getTime() - new Date(last).getTime()) / 86400000,
+      )
+      const changefreq = days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
+      const priority = days <= 7 ? "0.7" : days <= 60 ? "0.6" : "0.5"
+      return xml`
           <url>
             <loc>${base}/categories/${c.slug}</loc>
             <lastmod>${new Date(last).toISOString()}</lastmod>
@@ -79,8 +82,7 @@ export async function GET() {
             <priority>${priority}</priority>
           </url>
         `
-      },
-    ),
+    }),
   ].join("")
 
   const body = xml`

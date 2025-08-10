@@ -9,7 +9,9 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 const CHUNK_SIZE = 50000
 
 export async function GET() {
-  const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "")
+  const base = (
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  ).replace(/\/$/, "")
 
   const [count, latest] = await Promise.all([
     prisma.product.count({ where: { status: "published" as any } }),
@@ -25,8 +27,9 @@ export async function GET() {
   const lastmod = latest?.updatedAt?.toISOString() || nowIso
 
   const sitemaps = Array.from({ length: Math.max(chunks, 1) }, (_, i) => i + 1)
-    .map((n) =>
-      xml`
+    .map(
+      (n) =>
+        xml`
         <sitemap>
           <loc>${base}/sitemap-products-${n}.xml</loc>
           <lastmod>${lastmod}</lastmod>
@@ -46,4 +49,3 @@ export async function GET() {
     headers: { "Content-Type": "application/xml; charset=utf-8" },
   })
 }
-

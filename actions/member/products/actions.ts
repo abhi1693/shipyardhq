@@ -19,7 +19,10 @@ export async function getUserProducts(params?: ListParams) {
   const q = ((params?.q as string) || "").trim()
   const sort = (params?.sort as string) || "new"
   const page = Math.max(1, parseInt((params?.page as string) || "1", 10) || 1)
-  const limit = Math.max(1, parseInt((params?.limit as string) || "10", 10) || 10)
+  const limit = Math.max(
+    1,
+    parseInt((params?.limit as string) || "10", 10) || 10,
+  )
   const skip = (page - 1) * limit
 
   const where: any = { userId: user.id }

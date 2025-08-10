@@ -12,7 +12,9 @@ export async function GET(
   _req: Request,
   { params }: { params: { index: string } },
 ) {
-  const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "")
+  const base = (
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  ).replace(/\/$/, "")
   const page = Number(params.index)
   if (!Number.isFinite(page) || page < 1) {
     return new Response("Invalid index", { status: 400 })
@@ -30,7 +32,9 @@ export async function GET(
   const urls = products
     .map((p) => {
       const last = p.updatedAt || p.publishedAt || new Date()
-      const days = Math.floor((Date.now() - new Date(last).getTime()) / 86400000)
+      const days = Math.floor(
+        (Date.now() - new Date(last).getTime()) / 86400000,
+      )
       const changefreq = days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
       const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
       return xml`

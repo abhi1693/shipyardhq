@@ -50,10 +50,14 @@ export default function MemberProductFilters() {
   // Debounced search push
   useEffect(() => {
     const id = setTimeout(() => {
-      const url = buildQuery(pathname ?? "/member/products", params?.toString() ?? "", {
-        q: q.length ? q : undefined,
-        page: "1",
-      })
+      const url = buildQuery(
+        pathname ?? "/member/products",
+        params?.toString() ?? "",
+        {
+          q: q.length ? q : undefined,
+          page: "1",
+        },
+      )
       router.push(url)
     }, 350)
     return () => clearTimeout(id)
@@ -62,10 +66,14 @@ export default function MemberProductFilters() {
   const onSelect = useCallback(
     (key: "status" | "verification" | "sort", value: string) => {
       const v = value === "__all__" ? undefined : value
-      const url = buildQuery(pathname ?? "/member/products", params?.toString() ?? "", {
-        [key]: v,
-        page: "1",
-      })
+      const url = buildQuery(
+        pathname ?? "/member/products",
+        params?.toString() ?? "",
+        {
+          [key]: v,
+          page: "1",
+        },
+      )
       router.push(url)
     },
     [pathname, params, router],
@@ -121,4 +129,3 @@ export default function MemberProductFilters() {
     </div>
   )
 }
-

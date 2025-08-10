@@ -29,7 +29,7 @@ export function ObjectPageLayout({
   relationships = null,
 }: ObjectPageLayoutProps) {
   return (
-    <PageContainer>
+    <>
       <ClientObjectHeading
         {...heading}
         basePath={basePath}
@@ -53,6 +53,6 @@ export function ObjectPageLayout({
           )}
         </div>
       </div>
-    </PageContainer>
+    </>
   )
 }

@@ -5,7 +5,9 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 }
 
 export async function GET() {
-  const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "")
+  const base = (
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  ).replace(/\/$/, "")
   const now = new Date().toISOString()
   const body = xml`
     <?xml version="1.0" encoding="UTF-8"?>
@@ -25,4 +27,3 @@ export async function GET() {
     headers: { "Content-Type": "application/xml; charset=utf-8" },
   })
 }
-

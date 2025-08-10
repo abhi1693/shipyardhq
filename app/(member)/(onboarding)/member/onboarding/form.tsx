@@ -90,7 +90,9 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
     acceptedTerms: form.watch("acceptedTerms"),
   }
 
-  const canSubmit = Boolean(sel.roleIntent && sel.heardFrom && sel.acceptedTerms)
+  const canSubmit = Boolean(
+    sel.roleIntent && sel.heardFrom && sel.acceptedTerms,
+  )
 
   return (
     <Card className="w-full max-w-2xl border shadow-sm">
@@ -116,7 +118,11 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
                     key={opt.value}
                     type="button"
                     variant={active ? "default" : "outline"}
-                    onClick={() => setValue("roleIntent", opt.value, { shouldValidate: true })}
+                    onClick={() =>
+                      setValue("roleIntent", opt.value, {
+                        shouldValidate: true,
+                      })
+                    }
                   >
                     {opt.label}
                   </Button>
@@ -124,7 +130,9 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
               })}
             </div>
             {errors.roleIntent && (
-              <p className="text-sm text-red-600">{errors.roleIntent.message}</p>
+              <p className="text-sm text-red-600">
+                {errors.roleIntent.message}
+              </p>
             )}
           </div>
 
@@ -140,7 +148,9 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
                     type="button"
                     size="sm"
                     variant={active ? "default" : "outline"}
-                    onClick={() => setValue("heardFrom", opt.value, { shouldValidate: true })}
+                    onClick={() =>
+                      setValue("heardFrom", opt.value, { shouldValidate: true })
+                    }
                   >
                     {opt.label}
                   </Button>
@@ -174,8 +184,14 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
         </CardContent>
 
         <CardFooter className="flex flex-col items-start gap-4 mt-4">
-          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting || !canSubmit}>
-            {form.formState.isSubmitting ? "Submitting..." : "Complete Onboarding"}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={form.formState.isSubmitting || !canSubmit}
+          >
+            {form.formState.isSubmitting
+              ? "Submitting..."
+              : "Complete Onboarding"}
           </Button>
         </CardFooter>
       </form>

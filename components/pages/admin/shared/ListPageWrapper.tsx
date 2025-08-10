@@ -26,26 +26,26 @@ export default function ListPageWrapper({
 
   return (
     <div className="flex flex-1 flex-col space-y-4">
-        <div className="flex items-start justify-between">
-          <Heading title={title} description={description} />
-          {addLink && (
-            <Link
-              href={addLink}
-              className={cn(buttonVariants(), "text-xs md:text-sm")}
-            >
-              <IconPlus className="mr-2 h-4 w-4" />
-              Add New
-            </Link>
-          )}
-        </div>
-        <Separator />
-        <Suspense
-          fallback={
-            <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
-          }
-        >
-          {children}
-        </Suspense>
+      <div className="flex items-start justify-between">
+        <Heading title={title} description={description} />
+        {addLink && (
+          <Link
+            href={addLink}
+            className={cn(buttonVariants(), "text-xs md:text-sm")}
+          >
+            <IconPlus className="mr-2 h-4 w-4" />
+            Add New
+          </Link>
+        )}
       </div>
+      <Separator />
+      <Suspense
+        fallback={
+          <DataTableSkeleton columnCount={5} rowCount={8} filterCount={2} />
+        }
+      >
+        {children}
+      </Suspense>
+    </div>
   )
 }

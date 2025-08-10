@@ -25,9 +25,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/atoms/collapsible"
-import {
-  IconChevronRight,
-} from "@tabler/icons-react"
+import { IconChevronRight } from "@tabler/icons-react"
 import Link from "next/link"
 import { NavItem } from "@/types"
 

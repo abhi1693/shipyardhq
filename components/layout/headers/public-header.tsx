@@ -160,10 +160,7 @@ export default function PublicHeader() {
                   </SignedOut>
 
                   <SignedIn>
-                    <Link
-                      href="/member"
-                      onClick={() => setOpen(false)}
-                    >
+                    <Link href="/member" onClick={() => setOpen(false)}>
                       <Button variant="outline" className="w-full">
                         Member Area
                       </Button>

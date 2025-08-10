@@ -11,10 +11,10 @@ export default async function MemberIndexPage() {
 
   const client = await clerkClient()
   const clerkUser = await client.users.getUser(userId)
-  const onboardingComplete = clerkUser.publicMetadata?.onboardingComplete === true
+  const onboardingComplete =
+    clerkUser.publicMetadata?.onboardingComplete === true
 
   await syncUserFromClerk(clerkUser)
 
   redirect(onboardingComplete ? "/member/overview" : "/member/onboarding")
 }
-
