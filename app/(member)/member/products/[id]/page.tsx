@@ -171,49 +171,26 @@ export default async function ViewUserProductPage({
                     : placeholder()
                 }
               />
-              {product.metadata && (
-                <>
-                  <OverviewRow
-                    label="GitHub"
-                    value={
-                      product.metadata.githubUrl
-                        ? linkify({
-                            href: product.metadata.githubUrl,
-                            label: product.metadata.githubUrl,
-                            isExternal: true,
-                          })
-                        : placeholder()
-                    }
-                  />
-                  <OverviewRow
-                    label="Twitter"
-                    value={
-                      product.metadata.twitterUrl
-                        ? linkify({
-                            href: product.metadata.twitterUrl,
-                            label: product.metadata.twitterUrl,
-                            isExternal: true,
-                          })
-                        : placeholder()
-                    }
-                  />
-                  <OverviewRow
-                    label="Demo"
-                    value={
-                      product.metadata.demoUrl
-                        ? linkify({
-                            href: product.metadata.demoUrl,
-                            label: product.metadata.demoUrl,
-                            isExternal: true,
-                          })
-                        : placeholder()
-                    }
-                  />
-                  <OverviewRow
-                    label="Contact Email"
-                    value={product.metadata.contactEmail || placeholder()}
-                  />
-                </>
+              {product.metadata?.githubUrl && (
+                <OverviewRow
+                  label="GitHub"
+                  value={linkify({ href: product.metadata.githubUrl, label: product.metadata.githubUrl, isExternal: true })}
+                />
+              )}
+              {product.metadata?.twitterUrl && (
+                <OverviewRow
+                  label="Twitter"
+                  value={linkify({ href: product.metadata.twitterUrl, label: product.metadata.twitterUrl, isExternal: true })}
+                />
+              )}
+              {product.metadata?.demoUrl && (
+                <OverviewRow
+                  label="Demo"
+                  value={linkify({ href: product.metadata.demoUrl, label: product.metadata.demoUrl, isExternal: true })}
+                />
+              )}
+              {product.metadata?.contactEmail && (
+                <OverviewRow label="Contact Email" value={product.metadata.contactEmail} />
               )}
             </CardContent>
           </Card>

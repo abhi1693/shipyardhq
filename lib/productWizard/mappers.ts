@@ -1,4 +1,4 @@
-import { parseKeywords, sanitizeTextFields, uppercaseCurrency } from "./transform";
+import { parseKeywords, sanitizeTextFields, uppercaseCurrency, normalizeUrl, coercePricing } from "./transform";
 
 type BaseValues = Record<string, any>;
 
@@ -64,14 +64,15 @@ export function getInitialValuesFromProduct(product: any): BaseValues {
 }
 
 export function toCreateFormData(values: BaseValues, userId: string): FormData {
-  const v = sanitizeTextFields(values);
+  const v0 = sanitizeTextFields(values);
+  const v = coercePricing(v0);
   const fd = new FormData();
   // Basics
   fd.append("name", v.name);
   fd.append("tagline", v.tagline);
   fd.append("description", v.description);
-  fd.append("websiteUrl", v.websiteUrl);
-  fd.append("logo", v.logo);
+  fd.append("websiteUrl", normalizeUrl(v.websiteUrl) || v.websiteUrl);
+  fd.append("logo", normalizeUrl(v.logo) || v.logo);
   fd.append("categoryId", v.categoryId);
   fd.append("type", v.type);
   fd.append("pricingModel", v.pricingModel);
@@ -87,12 +88,12 @@ export function toCreateFormData(values: BaseValues, userId: string): FormData {
   // Optional
   if (v.organizationId) fd.append("organizationId", v.organizationId);
   if (v.ctaLabel) fd.append("ctaLabel", v.ctaLabel);
-  if (v.ctaUrl) fd.append("ctaUrl", v.ctaUrl);
-  if (v.bannerImage) fd.append("bannerImage", v.bannerImage);
+  if (v.ctaUrl) fd.append("ctaUrl", normalizeUrl(v.ctaUrl)!);
+  if (v.bannerImage) fd.append("bannerImage", normalizeUrl(v.bannerImage)!);
 
-  if (v.githubUrl) fd.append("githubUrl", v.githubUrl);
-  if (v.twitterUrl) fd.append("twitterUrl", v.twitterUrl);
-  if (v.demoUrl) fd.append("demoUrl", v.demoUrl);
+  if (v.githubUrl) fd.append("githubUrl", normalizeUrl(v.githubUrl)!);
+  if (v.twitterUrl) fd.append("twitterUrl", normalizeUrl(v.twitterUrl)!);
+  if (v.demoUrl) fd.append("demoUrl", normalizeUrl(v.demoUrl)!);
   if (v.contactEmail) fd.append("contactEmail", v.contactEmail);
 
   fd.append("userId", userId);
@@ -101,7 +102,8 @@ export function toCreateFormData(values: BaseValues, userId: string): FormData {
 }
 
 export function toUpdatePayload(values: BaseValues, product: any) {
-  const v = sanitizeTextFields(values);
+  const v0 = sanitizeTextFields(values);
+  const v = coercePricing(v0) as any;
   const keywords = parseKeywords(v.keywordsText);
   return {
     name: v.name,
@@ -109,8 +111,8 @@ export function toUpdatePayload(values: BaseValues, product: any) {
     userId: product.userId,
     description: v.description,
     tagline: v.tagline,
-    websiteUrl: v.websiteUrl,
-    logo: v.logo,
+    websiteUrl: normalizeUrl(v.websiteUrl) || v.websiteUrl,
+    logo: normalizeUrl(v.logo) || v.logo,
     type: v.type as any,
     pricingModel: v.pricingModel as any,
     organizationId: v.organizationId || null,
@@ -120,15 +122,14 @@ export function toUpdatePayload(values: BaseValues, product: any) {
     startingPriceCents: v.startingPriceCents != null ? Number(v.startingPriceCents) : undefined,
     currencyCode: uppercaseCurrency(v.currencyCode),
     ctaLabel: v.ctaLabel || null,
-    ctaUrl: v.ctaUrl || null,
-    bannerImage: v.bannerImage || null,
+    ctaUrl: v.ctaUrl ? normalizeUrl(v.ctaUrl) : null,
+    bannerImage: v.bannerImage ? normalizeUrl(v.bannerImage) : null,
     companyName: null,
     keywords,
     platforms: v.platforms as any,
-    githubUrl: v.githubUrl || null,
-    twitterUrl: v.twitterUrl || null,
-    demoUrl: v.demoUrl || null,
+    githubUrl: v.githubUrl ? normalizeUrl(v.githubUrl) : null,
+    twitterUrl: v.twitterUrl ? normalizeUrl(v.twitterUrl) : null,
+    demoUrl: v.demoUrl ? normalizeUrl(v.demoUrl) : null,
     contactEmail: v.contactEmail || null,
   };
 }
-

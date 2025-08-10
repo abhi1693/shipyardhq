@@ -11,18 +11,14 @@ import { updateProductAction } from "@/actions/admin/products/actions"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
 import { Separator } from "@/components/atoms/separator"
 
-import Step1 from "../../shared/step1"
-import Step2 from "../../shared/step2"
-import Step3 from "../../shared/step3"
-import Step4 from "../../shared/step4"
-import Review from "../../shared/review"
 import WizardStepper from "@/components/molecules/WizardStepper"
 import WizardFooter from "@/components/molecules/WizardFooter"
-import { PLATFORMS, STEPS, STEP_FIELDS } from "@/lib/productWizard/constants"
+import { STEPS, STEP_FIELDS } from "@/lib/productWizard/constants"
 import { validateExternalResources as validateResources } from "@/lib/productWizard/validate"
 import { makeEditProductSchema, type ProductWizardInputEdit } from "@/lib/productWizard/schema"
 import { getInitialValuesFromProduct, toUpdatePayload } from "@/lib/productWizard/mappers"
 import { useProductWizard } from "@/hooks/useProductWizard"
+import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
 
 const schema = makeEditProductSchema()
 
@@ -73,18 +69,7 @@ export default function EditProductForm({
   })
 
   const StepComponent = useMemo(() => {
-    switch (wizard.step) {
-      case 1:
-        return <Step1 categories={categories} platforms={PLATFORMS as any} />
-      case 2:
-        return <Step2 />
-      case 3:
-        return <Step3 />
-      case 4:
-        return <Step4 organizations={organizations} />
-      default:
-        return <Review categories={categories} organizations={organizations} />
-    }
+    return renderStep(wizard.step, { categories, organizations })
   }, [wizard.step, categories, organizations])
 
   return (
