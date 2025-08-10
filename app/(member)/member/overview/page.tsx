@@ -25,6 +25,17 @@ import { formatBoolean, linkify, placeholder } from "@/lib/ui/formatters"
 import { Button } from "@/components/atoms/button"
 import RangeSelector from "@/components/molecules/RangeSelector"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
+import { Badge } from "@/components/atoms/badge"
+import {
+  IconBolt,
+  IconShieldCheck,
+  IconPencil,
+  IconPhoto,
+  IconTrendingUp,
+  IconThumbUp,
+  IconRocket,
+  IconBadge,
+} from "@tabler/icons-react"
 
 export const revalidate = 60
 
@@ -106,6 +117,19 @@ export default async function OverviewPage({
         </div>
       </div>
 
+      {/* Quick filters */}
+      <div className="flex flex-wrap gap-2 mb-3">
+        <Link href="/member/products?status=draft">
+          <Badge variant="outline" className="cursor-pointer">Drafts</Badge>
+        </Link>
+        <Link href="/member/products?verification=unverified">
+          <Badge variant="outline" className="cursor-pointer">Unverified</Badge>
+        </Link>
+        <Link href="/member/products?status=published">
+          <Badge variant="outline" className="cursor-pointer">Published</Badge>
+        </Link>
+      </div>
+
       <div className="mx-0 mb-4 h-px rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] opacity-70" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -141,12 +165,16 @@ export default async function OverviewPage({
             <CardDescription>Average completeness across your products</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <StatCard
-              title="Average score"
-              value={`${health.averageScore}%`}
-              progress={health.averageScore}
-              subheading={`${health.averageScore}% complete`}
-            />
+            <div className="flex items-end justify-between">
+              <div className="text-sm text-muted-foreground">Average score</div>
+              <div className="text-2xl font-bold">{health.averageScore}%</div>
+            </div>
+            <div className="h-2 w-full rounded bg-muted overflow-hidden">
+              <div
+                className="h-full rounded bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]"
+                style={{ width: `${Math.max(0, Math.min(100, health.averageScore))}%` }}
+              />
+            </div>
             {health.suggestions?.length ? (
               <div className="space-y-2">
                 <div className="text-sm font-medium">Top fixes</div>
@@ -178,8 +206,11 @@ export default async function OverviewPage({
                 <ul className="space-y-2">
                   {topByClicks.map((p) => (
                     <li key={p.id} className="flex items-center justify-between">
-                      {linkify({ label: p.name, href: `/member/products/${p.slug}` })}
-                      <span className="text-sm text-muted-foreground">{p.analytics?.clicks ?? 0}</span>
+                      <span className="flex items-center gap-2 min-w-0">
+                        <IconTrendingUp className="h-4 w-4 text-muted-foreground" />
+                        <span className="truncate">{linkify({ label: p.name, href: `/member/products/${p.slug}` })}</span>
+                      </span>
+                      <Badge variant="secondary">{p.analytics?.clicks ?? 0}</Badge>
                     </li>
                   ))}
                 </ul>
@@ -193,8 +224,11 @@ export default async function OverviewPage({
                 <ul className="space-y-2">
                   {topByUpvotes.map((p) => (
                     <li key={p.id} className="flex items-center justify-between">
-                      {linkify({ label: p.name, href: `/member/products/${p.slug}` })}
-                      <span className="text-sm text-muted-foreground">{p.analytics?.upvotes ?? 0}</span>
+                      <span className="flex items-center gap-2 min-w-0">
+                        <IconThumbUp className="h-4 w-4 text-muted-foreground" />
+                        <span className="truncate">{linkify({ label: p.name, href: `/member/products/${p.slug}` })}</span>
+                      </span>
+                      <Badge variant="secondary">{p.analytics?.upvotes ?? 0}</Badge>
                     </li>
                   ))}
                 </ul>
@@ -283,14 +317,16 @@ export default async function OverviewPage({
             {expiringBadges.length === 0 ? (
               <div className="text-sm text-muted-foreground">None</div>
             ) : (
-              expiringBadges.map((b) => (
-                <div key={b.id} className="flex items-center justify-between text-sm">
-                  <span className="truncate mr-2">{b.product.name} — {b.badge}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(b.expiresAt as any), { addSuffix: true })}
-                  </span>
-                </div>
-              ))
+              expiringBadges.map((b) => {
+                const diffDays = Math.max(0, Math.ceil(((b.expiresAt ? new Date(b.expiresAt as any).getTime() : Date.now()) - Date.now()) / (1000*60*60*24)))
+                const variant = diffDays <= 3 ? "destructive" : diffDays <= 7 ? "secondary" : "outline"
+                return (
+                  <div key={b.id} className="flex items-center justify-between text-sm">
+                    <span className="truncate mr-2">{b.product.name} — {b.badge}</span>
+                    <Badge variant={variant as any}>{diffDays}d</Badge>
+                  </div>
+                )
+              })
             )}
           </CardContent>
         </Card>
@@ -365,22 +401,29 @@ export default async function OverviewPage({
               <ul className="space-y-2 text-sm">
                 {activity.map((a, i) => (
                   <li key={i} className="flex items-center justify-between">
-                    <div className="truncate">
-                      {a.type === "product_created" && (
-                        <span>Created {linkify({ label: a.product.name, href: `/member/products/${a.product.slug}` })}</span>
-                      )}
-                      {a.type === "product_updated" && (
-                        <span>Updated {linkify({ label: a.product.name, href: `/member/products/${a.product.slug}` })}</span>
-                      )}
-                      {a.type === "domain_verified" && (
-                        <span>Verified domain for {linkify({ label: a.product.name, href: `/member/products/${a.product.slug}` })}</span>
-                      )}
-                      {a.meta?.badge && a.type === "badge_assigned" && (
-                        <span>Badge “{a.meta.badge}” added to {linkify({ label: a.product.name, href: `/member/products/${a.product.slug}` })}</span>
-                      )}
-                      {a.type === "product_upvoted" && (
-                        <span>Upvote received on {linkify({ label: a.product.name, href: `/member/products/${a.product.slug}` })}</span>
-                      )}
+                    <div className="flex items-center gap-2 min-w-0">
+                      {a.type === "product_created" && <IconRocket className="h-4 w-4 text-muted-foreground" />}
+                      {a.type === "product_updated" && <IconPencil className="h-4 w-4 text-muted-foreground" />}
+                      {a.type === "domain_verified" && <IconShieldCheck className="h-4 w-4 text-muted-foreground" />}
+                      {a.type === "badge_assigned" && <IconBadge className="h-4 w-4 text-muted-foreground" />}
+                      {a.type === "product_upvoted" && <IconThumbUp className="h-4 w-4 text-muted-foreground" />}
+                      <div className="truncate">
+                        {a.type === "product_created" && (
+                          <span>Created {linkify({ label: a.product.name, href: `/member/products/${a.product.slug}` })}</span>
+                        )}
+                        {a.type === "product_updated" && (
+                          <span>Updated {linkify({ label: a.product.name, href: `/member/products/${a.product.slug}` })}</span>
+                        )}
+                        {a.type === "domain_verified" && (
+                          <span>Verified domain for {linkify({ label: a.product.name, href: `/member/products/${a.product.slug}` })}</span>
+                        )}
+                        {a.meta?.badge && a.type === "badge_assigned" && (
+                          <span>Badge “{a.meta.badge}” added to {linkify({ label: a.product.name, href: `/member/products/${a.product.slug}` })}</span>
+                        )}
+                        {a.type === "product_upvoted" && (
+                          <span>Upvote received on {linkify({ label: a.product.name, href: `/member/products/${a.product.slug}` })}</span>
+                        )}
+                      </div>
                     </div>
                     <span className="text-xs text-muted-foreground ml-2 whitespace-nowrap">
                       {formatDistanceToNow(a.ts)}

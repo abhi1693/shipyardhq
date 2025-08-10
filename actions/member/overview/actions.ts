@@ -186,6 +186,7 @@ export async function getProductsNeedingMedia(min = 2, limit = 5) {
       id: true,
       name: true,
       slug: true,
+      updatedAt: true,
       _count: { select: { ProductMedia: true } },
     },
   })
