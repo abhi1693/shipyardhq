@@ -268,7 +268,7 @@ export default async function ViewUserProductPage({
                     {product.plan.trialDays} days
                   </div>
                 )}
-                <Link href={`/member/products/${product.slug}/edit`}>
+                <Link href={`/member/products/${product.slug}/plan`}>
                   <Button className="w-full">Manage plan</Button>
                 </Link>
               </>
@@ -277,7 +277,7 @@ export default async function ViewUserProductPage({
                 <div className="text-sm text-muted-foreground">
                   No plan selected.
                 </div>
-                <Link href={`/member/products/${product.slug}/edit`}>
+                <Link href={`/member/products/${product.slug}/plan`}>
                   <Button className="w-full">Choose a plan</Button>
                 </Link>
               </>

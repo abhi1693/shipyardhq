@@ -1,3 +1,5 @@
+"use server"
+
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 
@@ -168,4 +170,31 @@ export async function getRecentUpvoters(productId: string, limit = 5) {
       email: r.user.email,
     },
   }))
+}
+
+// Attach or remove a plan from a product owned by the current user
+export async function setProductPlanAction(
+  productId: string,
+  planId: string | null,
+) {
+  const { userId } = await auth()
+  if (!userId) return { error: "Unauthenticated" }
+
+  const product = await prisma.product.findFirst({
+    where: { id: productId, user: { clerkId: userId } },
+    select: { id: true },
+  })
+  if (!product) return { error: "Product not found or not owned by user" }
+
+  if (planId) {
+    const exists = await prisma.plan.findUnique({ where: { id: planId }, select: { id: true } })
+    if (!exists) return { error: "Plan not found" }
+  }
+
+  await prisma.product.update({
+    where: { id: productId },
+    data: { planId: planId ?? null },
+  })
+
+  return { success: true }
 }
