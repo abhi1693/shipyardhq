@@ -9,12 +9,19 @@ export const metadata: Metadata = {
   description: "Manage your products, view analytics, and track performance.",
 }
 
-export default async function CategoryPage() {
-  const products = await getUserProducts()
+export default async function CategoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const params = await searchParams
+  const { products, total, limit } = await getUserProducts(params)
+  const perPage = Math.max(1, parseInt(String(limit || 10), 10) || 10)
+  const pageCount = Math.max(1, Math.ceil(total / perPage))
 
   return (
     <ListPageWrapper title="Products" addLink="/member/products/add">
-      <EntityList columns={columns} data={products} />
+      <EntityList columns={columns} data={products} pageCount={pageCount} />
     </ListPageWrapper>
   )
 }
