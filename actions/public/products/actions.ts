@@ -66,3 +66,16 @@ export async function getRelatedProductsByCategory(
     include: { analytics: true },
   })
 }
+
+export async function hasUserUpvoted(productId: string, clerkId: string) {
+  const user = await prisma.user.findUnique({
+    where: { clerkId },
+    select: { id: true },
+  })
+  if (!user) return false
+  const existing = await (prisma as any).productUpvote.findUnique({
+    where: { productId_userId: { productId, userId: user.id } },
+    select: { id: true },
+  })
+  return !!existing
+}

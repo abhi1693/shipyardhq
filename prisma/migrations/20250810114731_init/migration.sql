@@ -38,7 +38,6 @@ CREATE TABLE "public"."Product" (
     "pricingModel" "public"."PricingModel" NOT NULL,
     "status" "public"."ProductStatus" NOT NULL DEFAULT 'published',
     "publishedAt" TIMESTAMP(3),
-    "companyName" TEXT,
     "organizationId" TEXT,
     "startingPriceCents" INTEGER,
     "currencyCode" TEXT,
@@ -103,6 +102,16 @@ CREATE TABLE "public"."ProductAnalytics" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "ProductAnalytics_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."ProductUpvote" (
+    "id" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ProductUpvote_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -258,6 +267,15 @@ CREATE UNIQUE INDEX "ProductMetadata_productId_key" ON "public"."ProductMetadata
 CREATE UNIQUE INDEX "ProductAnalytics_productId_key" ON "public"."ProductAnalytics"("productId");
 
 -- CreateIndex
+CREATE INDEX "ProductUpvote_productId_idx" ON "public"."ProductUpvote"("productId");
+
+-- CreateIndex
+CREATE INDEX "ProductUpvote_userId_idx" ON "public"."ProductUpvote"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductUpvote_productId_userId_key" ON "public"."ProductUpvote"("productId", "userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Organization_url_key" ON "public"."Organization"("url");
 
 -- CreateIndex
@@ -313,6 +331,12 @@ ALTER TABLE "public"."ProductMetadata" ADD CONSTRAINT "ProductMetadata_productId
 
 -- AddForeignKey
 ALTER TABLE "public"."ProductAnalytics" ADD CONSTRAINT "ProductAnalytics_productId_fkey" FOREIGN KEY ("productId") REFERENCES "public"."Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."ProductUpvote" ADD CONSTRAINT "ProductUpvote_productId_fkey" FOREIGN KEY ("productId") REFERENCES "public"."Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."ProductUpvote" ADD CONSTRAINT "ProductUpvote_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."OrganizationMembership" ADD CONSTRAINT "OrganizationMembership_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

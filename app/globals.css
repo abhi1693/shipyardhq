@@ -214,3 +214,25 @@
 }
 
 /* (removed rocket float/glow helpers) */
+
+/* Subtle pop for upvote icon */
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.animate-pop {
+  animation: pop 180ms ease-out both;
+}
+
+/* Count bump animation */
+@keyframes count-bump {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-count-bump {
+  animation: count-bump 220ms ease-out both;
+}

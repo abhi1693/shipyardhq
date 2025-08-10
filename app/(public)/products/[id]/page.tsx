@@ -3,7 +3,10 @@ import Link from "next/link"
 import Image from "next/image"
 import { Metadata } from "next"
 import { Badge } from "@/components/atoms/badge"
-import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
+import UpvoteSquareButton from "@/components/molecules/UpvoteSquareButton"
+import { upvoteProductAction } from "@/actions/public/products/upvote"
+import { hasUserUpvoted } from "@/actions/public/products/actions"
+import { auth } from "@clerk/nextjs/server"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
@@ -25,13 +28,13 @@ import {
   Laptop,
   Terminal,
   Chrome,
-  Firefox,
 } from "lucide-react"
 import PublicContainer from "@/components/layout/PublicContainer"
 import ExternalBadgeLink from "@/components/molecules/ExternalBadgeLink"
 import { formatCurrency } from "@/lib/ui/formatters"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { IconBrandFirefox } from "@tabler/icons-react"
 
 interface ProductPageProps {
   params: { id: string }
@@ -66,6 +69,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     product.id,
   )
 
+  const { userId } = await auth()
+  const userUpvoted = userId ? await hasUserUpvoted(product.id, userId) : false
+
   const activeBadgeDefs = (product.badges || [])
     .map((b) => BADGE_OPTIONS.find((x) => x.value === b))
     .filter(Boolean) as typeof BADGE_OPTIONS
@@ -87,7 +93,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       case "chrome_extension":
         return <Chrome className="size-3" />
       case "firefox_extension":
-        return <Firefox className="size-3" />
+        return <IconBrandFirefox className="size-3" />
       default:
         return null
     }
@@ -231,7 +237,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         {/* Right column: upvotes/views + pricing */}
         <div className="shrink-0 md:self-start self-end md:mt-0 mt-4">
           <div className="flex flex-col items-end gap-3">
-            <UpvoteSquare count={stats?.upvotes || 0} title="Total upvotes" />
+            <UpvoteSquareButton
+              productId={product.id}
+              initialCount={stats?.upvotes || 0}
+              initialUpvoted={userUpvoted}
+              title="Total upvotes"
+              action={upvoteProductAction}
+            />
             <div className="text-sm text-muted-foreground">
               {stats?.views || 0} views • {stats?.clicks || 0} clicks
             </div>
