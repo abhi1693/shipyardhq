@@ -20,8 +20,10 @@ import {
 
 export default function Step4({
   organizations,
+  productId,
 }: {
   organizations: { id: string; name: string }[]
+  productId?: string
 }) {
   const form = useFormContext()
   return (
@@ -60,7 +62,12 @@ export default function Step4({
           control={form.control}
           render={() => (
             <FormItem>
-              <ImageUploadField name="bannerImage" label="Banner Image" folder="banners" />
+              <ImageUploadField
+                name="bannerImage"
+                label="Banner Image"
+                folder="banners"
+                productId={productId}
+              />
               <FormMessage />
             </FormItem>
           )}

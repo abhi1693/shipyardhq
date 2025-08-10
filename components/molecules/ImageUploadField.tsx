@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useState } from "react"
+import { useFormContext } from "react-hook-form"
 
 type Props = {
   name: string
@@ -9,17 +9,19 @@ type Props = {
   placeholder?: string
   folder?: string
   maxSizeMB?: number
+  productId?: string
 }
 
 export default function ImageUploadField({
   name,
   label,
-  placeholder = 'Select an image or drag & drop',
-  folder = 'assets',
+  placeholder = "Select an image or drag & drop",
+  folder = "assets",
   maxSizeMB = 5,
+  productId,
 }: Props) {
   const { setValue, watch } = useFormContext()
-  const value = (watch(name) as string) || ''
+  const value = (watch(name) as string) || ""
   const [error, setError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
 
@@ -30,14 +32,15 @@ export default function ImageUploadField({
     setUploading(true)
     try {
       const fd = new FormData()
-      fd.append('file', file)
-      fd.append('folder', folder)
-      const res = await fetch('/api/uploads', { method: 'POST', body: fd })
+      fd.append("file", file)
+      fd.append("folder", folder)
+      if (productId) fd.append("productId", productId)
+      const res = await fetch("/api/uploads", { method: "POST", body: fd })
       if (!res.ok) throw new Error(await res.text())
       const data = await res.json()
       setValue(name, data.url, { shouldDirty: true, shouldValidate: true })
     } catch (e: any) {
-      setError(e?.message || 'Upload failed')
+      setError(e?.message || "Upload failed")
     } finally {
       setUploading(false)
     }
@@ -57,7 +60,11 @@ export default function ImageUploadField({
       <div className="text-sm font-medium">{label}</div>
       {value ? (
         <div className="relative rounded border overflow-hidden">
-          <img src={value} alt="" className="w-full h-40 object-contain bg-white" />
+          <img
+            src={value}
+            alt=""
+            className="w-full h-40 object-contain bg-white"
+          />
           <div className="absolute top-2 right-2 flex gap-2">
             <a
               href={value}
@@ -70,7 +77,9 @@ export default function ImageUploadField({
             <button
               type="button"
               className="inline-flex items-center rounded bg-destructive text-destructive-foreground px-2 py-1 text-xs"
-              onClick={() => setValue(name, '', { shouldDirty: true, shouldValidate: true })}
+              onClick={() =>
+                setValue(name, "", { shouldDirty: true, shouldValidate: true })
+              }
               disabled={uploading}
             >
               Remove
@@ -99,7 +108,9 @@ export default function ImageUploadField({
           ) : (
             <div>
               <div className="font-medium mb-1">{placeholder}</div>
-              <div className="text-xs text-muted-foreground">Max {maxSizeMB}MB</div>
+              <div className="text-xs text-muted-foreground">
+                Max {maxSizeMB}MB
+              </div>
             </div>
           )}
         </label>
@@ -108,4 +119,3 @@ export default function ImageUploadField({
     </div>
   )
 }
-

@@ -329,7 +329,11 @@ export async function updateProductAction(
     }
 
     const deletions: Promise<any>[] = []
-    if (prev?.logo && prev.logo !== updated.logo && isVercelBlobUrl(prev.logo)) {
+    if (
+      prev?.logo &&
+      prev.logo !== updated.logo &&
+      isVercelBlobUrl(prev.logo)
+    ) {
       deletions.push(deleteBlob(prev.logo).catch(() => {}))
     }
     if (

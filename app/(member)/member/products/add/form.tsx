@@ -88,7 +88,11 @@ export default function AddProductForm({
   })
 
   const StepComponent = useMemo(() => {
-    return renderStep(wizard.step, { categories, organizations })
+    return renderStep(wizard.step, {
+      categories,
+      organizations,
+      productId: undefined,
+    })
   }, [wizard.step, categories, organizations])
 
   return (

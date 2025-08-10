@@ -26,9 +26,10 @@ import { Checkbox } from "@/components/atoms/checkbox"
 type Props = {
   categories: { id: string; name: string }[]
   platforms: readonly string[]
+  productId?: string
 }
 
-export default function Step1({ categories, platforms }: Props) {
+export default function Step1({ categories, platforms, productId }: Props) {
   const form = useFormContext()
   const [previewDesc, setPreviewDesc] = useState(false)
 
@@ -147,7 +148,12 @@ export default function Step1({ categories, platforms }: Props) {
           control={form.control}
           render={() => (
             <FormItem>
-              <ImageUploadField name="logo" label="Logo" folder="logos" />
+              <ImageUploadField
+                name="logo"
+                label="Logo"
+                folder="logos"
+                productId={productId}
+              />
               <FormMessage />
             </FormItem>
           )}

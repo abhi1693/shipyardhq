@@ -24,17 +24,26 @@ export function renderStep(
   args: {
     categories: { id: string; name: string }[]
     organizations: { id: string; name: string }[]
+    productId?: string
   },
 ) {
   switch (step) {
     case 1:
-      return <Step1 categories={args.categories} platforms={PLATFORMS as any} />
+      return (
+        <Step1
+          categories={args.categories}
+          platforms={PLATFORMS as any}
+          productId={args.productId}
+        />
+      )
     case 2:
       return <Step2 />
     case 3:
       return <Step3 />
     case 4:
-      return <Step4 organizations={args.organizations} />
+      return (
+        <Step4 organizations={args.organizations} productId={args.productId} />
+      )
     default:
       return (
         <Review

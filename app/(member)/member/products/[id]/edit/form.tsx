@@ -80,8 +80,12 @@ export default function EditProductForm({
   })
 
   const StepComponent = useMemo(() => {
-    return renderStep(wizard.step, { categories, organizations })
-  }, [wizard.step, categories, organizations])
+    return renderStep(wizard.step, {
+      categories,
+      organizations,
+      productId: product.id,
+    })
+  }, [wizard.step, categories, organizations, product.id])
 
   return (
     <PageContainer>

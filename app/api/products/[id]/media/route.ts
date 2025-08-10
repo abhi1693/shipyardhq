@@ -1,11 +1,11 @@
-import { auth } from '@clerk/nextjs/server'
-import prisma from '@/lib/prisma'
-import { putBlob } from '@/lib/blob'
+import { auth } from "@clerk/nextjs/server"
+import prisma from "@/lib/prisma"
+import { putBlob } from "@/lib/blob"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 function sanitizeFilename(name: string) {
-  return name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  return name.replace(/[^a-zA-Z0-9._-]/g, "_")
 }
 
 export async function POST(
@@ -15,30 +15,34 @@ export async function POST(
   try {
     const { id } = await params
     const { userId } = await auth()
-    if (!userId) return new Response('Unauthorized', { status: 401 })
+    if (!userId) return new Response("Unauthorized", { status: 401 })
 
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
       select: { id: true },
     })
-    if (!user) return new Response('Unauthorized', { status: 401 })
+    if (!user) return new Response("Unauthorized", { status: 401 })
 
     const product = await prisma.product.findUnique({
       where: { id },
       select: { id: true, userId: true },
     })
-    if (!product) return new Response('Not Found', { status: 404 })
+    if (!product) return new Response("Not Found", { status: 404 })
     if (product.userId !== user.id)
-      return new Response('Forbidden', { status: 403 })
+      return new Response("Forbidden", { status: 403 })
 
     const form = await req.formData()
-    const altText = (form.get('altText') as string | null) || undefined
-    const filesA = form.getAll('file').filter((f) => f instanceof File) as File[]
-    const filesB = form.getAll('files').filter((f) => f instanceof File) as File[]
+    const altText = (form.get("altText") as string | null) || undefined
+    const filesA = form
+      .getAll("file")
+      .filter((f) => f instanceof File) as File[]
+    const filesB = form
+      .getAll("files")
+      .filter((f) => f instanceof File) as File[]
     const files = (filesA.length ? filesA : filesB).filter(Boolean)
 
     if (!files.length) {
-      return Response.json({ error: 'Missing file(s)' }, { status: 400 })
+      return Response.json({ error: "Missing file(s)" }, { status: 400 })
     }
 
     const existingCount = await prisma.productMedia.count({
@@ -47,30 +51,33 @@ export async function POST(
     const remaining = Math.max(0, 4 - existingCount)
     if (files.length > remaining) {
       return Response.json(
-        { error: `Too many files. You can upload ${remaining} more.`, remaining },
+        {
+          error: `Too many files. You can upload ${remaining} more.`,
+          remaining,
+        },
         { status: 400 },
       )
     }
 
     const maxBytes = 5 * 1024 * 1024 // 5MB
     for (const file of files) {
-      if (!file.type?.startsWith('image/'))
-        return Response.json({ error: 'Only images allowed' }, { status: 415 })
+      if (!file.type?.startsWith("image/"))
+        return Response.json({ error: "Only images allowed" }, { status: 415 })
       if (file.size > maxBytes)
         return Response.json(
-          { error: 'File too large (max 5MB)' },
+          { error: "File too large (max 5MB)" },
           { status: 413 },
         )
     }
 
     const uploaded = await Promise.all(
       files.map(async (file) => {
-        const key = `products/${product.id}/${Date.now()}-${sanitizeFilename(
-          file.name || 'image',
+        const key = `user_${user.id}/products/${product.id}/media/${Date.now()}-${sanitizeFilename(
+          file.name || "image",
         )}`
         const arrayBuf = await file.arrayBuffer()
         return await putBlob(key, arrayBuf, {
-          access: 'public',
+          access: "public",
           contentType: file.type,
         })
       }),
@@ -86,8 +93,8 @@ export async function POST(
 
     return Response.json({ media: created })
   } catch (err: any) {
-    const message = err?.message || 'Upload failed'
-    console.error('Upload error:', err)
+    const message = err?.message || "Upload failed"
+    console.error("Upload error:", err)
     return new Response(message, { status: 500 })
   }
 }
