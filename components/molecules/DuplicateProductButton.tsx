@@ -7,7 +7,11 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Copy } from "lucide-react"
 
-export default function DuplicateProductButton({ productId }: { productId: string }) {
+export default function DuplicateProductButton({
+  productId,
+}: {
+  productId: string
+}) {
   const [isPending, start] = useTransition()
   const router = useRouter()
   return (

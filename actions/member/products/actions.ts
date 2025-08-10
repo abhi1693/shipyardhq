@@ -130,9 +130,15 @@ export async function getProductActivity(
     list.push({ type: "domain_verified", ts: v.verifiedAt as Date }),
   )
   badges.forEach((b) =>
-    list.push({ type: "badge_assigned", ts: b.createdAt, meta: { badge: b.badge } }),
+    list.push({
+      type: "badge_assigned",
+      ts: b.createdAt,
+      meta: { badge: b.badge },
+    }),
   )
-  upvotes.forEach((u) => list.push({ type: "product_upvoted", ts: u.createdAt }))
+  upvotes.forEach((u) =>
+    list.push({ type: "product_upvoted", ts: u.createdAt }),
+  )
 
   list.sort((a, b) => b.ts.getTime() - a.ts.getTime())
   return list.slice(0, limit)

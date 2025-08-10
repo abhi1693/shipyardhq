@@ -31,10 +31,14 @@ import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
-import { getProductActivity, getRecentUpvoters } from "@/actions/member/products/actions"
+import {
+  getProductActivity,
+  getRecentUpvoters,
+} from "@/actions/member/products/actions"
 // ShareOnX badge is still available elsewhere; header uses ShareOnXButton
 import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import { ExternalLink, Copy as CopyIcon } from "lucide-react"
+import PerformanceCard from "@/components/molecules/PerformanceCard"
 
 export default async function ViewUserProductPage({
   params,
@@ -66,14 +70,73 @@ export default async function ViewUserProductPage({
       overview={[
         { label: "Name", value: product.name },
         { label: "Category", value: product.category.name },
-        { label: "Status", value: (
-          <ProductStatusActions
-            productId={product.id}
-            slug={product.slug}
-            status={product.status as any}
-          />
-        ) },
+        {
+          label: "Status",
+          value: (
+            <ProductStatusActions
+              productId={product.id}
+              slug={product.slug}
+              status={product.status as any}
+            />
+          ),
+        },
         { label: "Type", value: product.type.replace("_", " ") },
+        {
+          label: "Pricing",
+          value: (
+            <span>
+              {product.pricingModel.replace("_", " ")}
+              {product.startingPriceCents != null && product.currencyCode ? (
+                <>
+                  {" "}
+                  —{" "}
+                  {formatCurrency(
+                    product.startingPriceCents,
+                    product.currencyCode,
+                  )}
+                </>
+              ) : null}
+            </span>
+          ),
+        },
+        ...(product.verification
+          ? [
+              {
+                label: "Verified",
+                value: formatBoolean(product.verification.isVerified),
+              },
+              {
+                label: "Verified At",
+                value: product.verification.verifiedAt
+                  ? formatDate(product.verification.verifiedAt)
+                  : placeholder(),
+              },
+              {
+                label: "Domain",
+                value: (() => {
+                  try {
+                    return new URL(product.websiteUrl).hostname
+                  } catch {
+                    return product.websiteUrl
+                  }
+                })(),
+              },
+              !product.verification.isVerified
+                ? {
+                    label: "Verify Domain",
+                    value: (
+                      <div className="flex items-center gap-2">
+                        <CopyButton
+                          text={product.verification!.verificationTxt}
+                          label="Copy TXT"
+                        />
+                        <VerifyDomainButton productId={product.id} />
+                      </div>
+                    ),
+                  }
+                : null,
+            ].filter(Boolean) as any
+          : []),
       ]}
       basePath="member/products"
       deletable
@@ -85,16 +148,92 @@ export default async function ViewUserProductPage({
               <ExternalLink className="h-4 w-4 mr-2" /> View public
             </Button>
           </Link>
-          <CopyButton text={publicPath} resolveAbsolute size="sm" variant="outline">
-            <><CopyIcon className="h-4 w-4 mr-2" /> Copy link</>
+          <CopyButton
+            text={publicPath}
+            resolveAbsolute
+            size="sm"
+            variant="outline"
+          >
+            <>
+              <CopyIcon className="h-4 w-4 mr-2" /> Copy link
+            </>
           </CopyButton>
           <ShareOnXButton path={publicPath} productName={product.name} />
           <DuplicateProductButton productId={product.id} />
         </div>
       }
+      topRowExtras={[
+        // Branding moved next to Overview
+        <Card key="branding">
+          <CardHeader>
+            <CardTitle className="text-base">Branding</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <OverviewRow label="Slug" value={slugFmt(product.slug)} />
+            <OverviewRow label="Tagline" value={product.tagline} />
+            <OverviewRow
+              label="Logo"
+              value={image(product.logo, product.name, 64, 64)}
+            />
+            {product.bannerImage && (
+              <OverviewRow
+                label="Banner"
+                value={image(
+                  product.bannerImage,
+                  `${product.name} banner`,
+                  480,
+                  160,
+                )}
+              />
+            )}
+          </CardContent>
+        </Card>,
+        // Plan follows after Branding
+        <Card key="plan">
+          <CardHeader>
+            <CardTitle className="text-base">Plan</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {product.plan ? (
+              <>
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Name:</span>{" "}
+                  {product.plan.name}
+                </div>
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Price:</span>{" "}
+                  {formatCurrency(product.plan.price)}
+                </div>
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Interval:</span>{" "}
+                  {product.plan.frequency} {product.plan.interval}
+                </div>
+                {product.plan.trialDays && (
+                  <div className="text-sm">
+                    <span className="text-muted-foreground">Trial:</span>{" "}
+                    {product.plan.trialDays} days
+                  </div>
+                )}
+                <Link href={`/member/products/${product.slug}/edit`}>
+                  <Button className="w-full">Manage plan</Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="text-sm text-muted-foreground">
+                  No plan selected.
+                </div>
+                <Link href={`/member/products/${product.slug}/edit`}>
+                  <Button className="w-full">Choose a plan</Button>
+                </Link>
+              </>
+            )}
+          </CardContent>
+        </Card>,
+      ]}
       relationships={
         <div className="grid grid-cols-12 gap-6">
-          {/* Primary setup: Links + Verification */}
+          {/* Primary setup: Links + Performance */}
           <Card className="col-span-12 md:col-span-8">
             <CardHeader>
               <CardTitle className="text-base">Links</CardTitle>
@@ -108,106 +247,91 @@ export default async function ViewUserProductPage({
                   isExternal: true,
                 })}
               />
-              <OverviewRow label="CTA Label" value={product.ctaLabel || placeholder()} />
+              <OverviewRow
+                label="CTA Label"
+                value={product.ctaLabel || placeholder()}
+              />
               <OverviewRow
                 label="CTA URL"
                 value={
                   product.ctaUrl
-                    ? linkify({ href: product.ctaUrl, label: product.ctaUrl, isExternal: true })
+                    ? linkify({
+                        href: product.ctaUrl,
+                        label: product.ctaUrl,
+                        isExternal: true,
+                      })
                     : placeholder()
                 }
               />
-              {((product.ctaLabel && !product.ctaUrl) || (!product.ctaLabel && product.ctaUrl)) && (
-                <div className="mt-2 text-xs text-destructive">Tip: Provide both CTA label and URL for a complete call-to-action.</div>
+              {((product.ctaLabel && !product.ctaUrl) ||
+                (!product.ctaLabel && product.ctaUrl)) && (
+                <div className="mt-2 text-xs text-destructive">
+                  Tip: Provide both CTA label and URL for a complete
+                  call-to-action.
+                </div>
               )}
               <OverviewRow
                 label="Organization URL"
                 value={
                   product.organization?.url
-                    ? linkify({ href: product.organization.url, label: product.organization.url, isExternal: true })
+                    ? linkify({
+                        href: product.organization.url,
+                        label: product.organization.url,
+                        isExternal: true,
+                      })
                     : placeholder()
                 }
               />
               {product.metadata?.githubUrl && (
-                <OverviewRow label="GitHub" value={linkify({ href: product.metadata.githubUrl, label: product.metadata.githubUrl, isExternal: true })} />
+                <OverviewRow
+                  label="GitHub"
+                  value={linkify({
+                    href: product.metadata.githubUrl,
+                    label: product.metadata.githubUrl,
+                    isExternal: true,
+                  })}
+                />
               )}
               {product.metadata?.twitterUrl && (
-                <OverviewRow label="Twitter" value={linkify({ href: product.metadata.twitterUrl, label: product.metadata.twitterUrl, isExternal: true })} />
+                <OverviewRow
+                  label="Twitter"
+                  value={linkify({
+                    href: product.metadata.twitterUrl,
+                    label: product.metadata.twitterUrl,
+                    isExternal: true,
+                  })}
+                />
               )}
               {product.metadata?.demoUrl && (
-                <OverviewRow label="Demo" value={linkify({ href: product.metadata.demoUrl, label: product.metadata.demoUrl, isExternal: true })} />
+                <OverviewRow
+                  label="Demo"
+                  value={linkify({
+                    href: product.metadata.demoUrl,
+                    label: product.metadata.demoUrl,
+                    isExternal: true,
+                  })}
+                />
               )}
               {product.metadata?.contactEmail && (
-                <OverviewRow label="Contact Email" value={product.metadata.contactEmail} />
+                <OverviewRow
+                  label="Contact Email"
+                  value={product.metadata.contactEmail}
+                />
               )}
             </CardContent>
           </Card>
-          {product.verification && (
-            <Card className="col-span-12 md:col-span-4">
-              <CardHeader>
-                <CardTitle className="text-base">Verification</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <OverviewRow
-                  label="Verification TXT"
-                  value={
-                    <div className="flex items-center gap-2">
-                      <span className="break-all text-sm">{product.verification.verificationTxt}</span>
-                      <CopyButton text={product.verification.verificationTxt} label="Copy TXT" />
-                    </div>
-                  }
-                />
-                <OverviewRow label="Verified" value={formatBoolean(product.verification.isVerified)} />
-                <OverviewRow
-                  label="Verified At"
-                  value={product.verification.verifiedAt ? formatDate(product.verification.verifiedAt) : placeholder()}
-                />
-                <div className="text-xs text-muted-foreground mt-2">
-                  Domain: {(() => { try { return new URL(product.websiteUrl).hostname } catch { return product.websiteUrl } })()}
-                </div>
-                {!product.verification.isVerified && (
-                  <OverviewRow label="Verify Domain" value={<VerifyDomainButton productId={product.id} />} />
-                )}
-              </CardContent>
-            </Card>
-          )}
+          {/* Verification moved to top row */}
 
-          {/* Performance: Analytics + Upvoters */}
-          {product.analytics && (
-            <Card className="col-span-12 md:col-span-8">
-              <CardHeader>
-                <CardTitle className="text-base">Analytics</CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 sm:grid-cols-2 text-center gap-4">
-                <div>
-                  <div className="text-xl font-bold">{product.analytics.upvotes}</div>
-                  <div className="text-sm text-muted-foreground">Upvotes</div>
-                </div>
-                <div>
-                  <div className="text-xl font-bold">{product.analytics.clicks}</div>
-                  <div className="text-sm text-muted-foreground">Clicks</div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-          <Card className="col-span-12 md:col-span-4">
-            <CardHeader>
-              <CardTitle className="text-base">Recent upvoters</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {Array.isArray(upvoters) && upvoters.length ? (
-                <div className="flex -space-x-2">
-                  {upvoters.map((u: any) => (
-                    <Avatar key={u.id} className="ring-2 ring-background" title={`${u.user.firstName} ${u.user.lastName || ''}`}>
-                      <AvatarFallback>{(u.user.firstName?.[0] || '?')}{(u.user.lastName?.[0] || '')}</AvatarFallback>
-                    </Avatar>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground">No recent upvotes</div>
-              )}
-            </CardContent>
-          </Card>
+          <PerformanceCard
+            upvotes={product.analytics?.upvotes ?? 0}
+            clicks={product.analytics?.clicks ?? 0}
+            upvoters={upvoters as any}
+            badges={(product.ProductBadge || []) as any}
+            productName={product.name}
+            tagline={product.tagline}
+            hasBanner={Boolean(product.bannerImage)}
+            editHref={`/member/products/${product.slug}/edit`}
+          />
 
           {/* Media */}
           <Card className="col-span-12">
@@ -216,105 +340,22 @@ export default async function ViewUserProductPage({
             </CardHeader>
             <CardContent>
               {(product.ProductMedia || []).length < 2 && (
-                <div className="mb-3 text-xs text-muted-foreground">Tip: Add at least 2 screenshots (suggested 1280×720). Banner works best at 1200×628.</div>
+                <div className="mb-3 text-xs text-muted-foreground">
+                  Tip: Add at least 2 screenshots (suggested 1280×720). Banner
+                  works best at 1200×628.
+                </div>
               )}
               <ProductMediaManager
                 productId={product.id}
-                media={(product.ProductMedia || []).map((m) => ({ id: m.id, imageUrl: m.imageUrl }))}
+                media={(product.ProductMedia || []).map((m) => ({
+                  id: m.id,
+                  imageUrl: m.imageUrl,
+                }))}
                 canEdit={isOwner}
               />
             </CardContent>
           </Card>
-          {/* Details: Branding, Organization, Pricing */}
-          <Card className="col-span-12 md:col-span-4">
-            <CardHeader>
-              <CardTitle className="text-base">Branding</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <OverviewRow label="Slug" value={slugFmt(product.slug)} />
-              <OverviewRow label="Tagline" value={product.tagline} />
-              <OverviewRow
-                label="Logo"
-                value={image(product.logo, product.name, 64, 64)}
-              />
-              {product.bannerImage && (
-                <OverviewRow
-                  label="Banner"
-                  value={image(
-                    product.bannerImage,
-                    `${product.name} banner`,
-                    480,
-                    160,
-                  )}
-                />
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Organization & Targeting */}
-          <Card className="col-span-12 md:col-span-4">
-            <CardHeader>
-              <CardTitle className="text-base">
-                Organization & Targeting
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <OverviewRow
-                label="Organization"
-                value={product.organization?.name || placeholder()}
-              />
-              <OverviewRow
-                label="Platforms"
-                value={
-                  product.platforms?.length
-                    ? commaSeparated(
-                        product.platforms.map((p) => p.replace("_", " ")),
-                      )
-                    : placeholder()
-                }
-              />
-              <OverviewRow
-                label="Keywords"
-                value={
-                  product.keywords?.length ? (
-                    <div className="flex flex-wrap gap-2">
-                      {product.keywords.map((k) => (
-                        <Link key={k} href={`/member/products?q=${encodeURIComponent(k)}`}>
-                          <Badge variant="secondary" className="text-xs">{k}</Badge>
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    placeholder()
-                  )
-                }
-              />
-            </CardContent>
-          </Card>
-
-          {/* Pricing */}
-          <Card className="col-span-12 md:col-span-4">
-            <CardHeader>
-              <CardTitle className="text-base">Pricing</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <OverviewRow
-                label="Model"
-                value={product.pricingModel.replace("_", " ")}
-              />
-              <OverviewRow
-                label="Starting Price"
-                value={
-                  product.startingPriceCents != null && product.currencyCode
-                    ? formatCurrency(
-                        product.startingPriceCents,
-                        product.currencyCode,
-                      )
-                    : placeholder()
-                }
-              />
-            </CardContent>
-          </Card>
+          {/* Organization & Targeting moved to top row */}
 
           {/* Links and Verification moved above */}
 
@@ -330,11 +371,22 @@ export default async function ViewUserProductPage({
                   const good = len >= 200
                   return (
                     <div className="text-xs">
-                      Quality: {good ? <span className="text-green-600">Good</span> : <span className="text-yellow-600">Needs work</span>} ({len} chars)
+                      Quality:{" "}
+                      {good ? (
+                        <span className="text-green-600">Good</span>
+                      ) : (
+                        <span className="text-yellow-600">Needs work</span>
+                      )}{" "}
+                      ({len} chars)
                     </div>
                   )
                 })()}
-                <Link href={`/member/products/${product.slug}/edit`} className="text-xs text-primary hover:underline">Improve description</Link>
+                <Link
+                  href={`/member/products/${product.slug}/edit`}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Improve description
+                </Link>
               </div>
               <div className="prose prose-sm max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -352,134 +404,9 @@ export default async function ViewUserProductPage({
             </CardContent>
           </Card>
 
-          {/* SEO Preview */}
-          <Card className="col-span-12">
-            <CardHeader>
-              <CardTitle className="text-base">SEO Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded border p-4 bg-muted/30">
-                <div className="text-lg font-semibold truncate">{product.name}</div>
-                <div className="text-sm text-muted-foreground truncate">{product.tagline}</div>
-                <div className="mt-2 text-xs text-muted-foreground">
-                  Open Graph image: {product.bannerImage ? 'Banner' : 'Logo'}
-                </div>
-                {!product.bannerImage && (
-                  <div className="text-xs text-yellow-700 mt-1">
-                    Tip: Add a banner image (recommended 1200×628) for rich link previews.
-                  </div>
-                )}
-                {(!product.keywords || product.keywords.length === 0) && (
-                  <div className="text-xs text-yellow-700 mt-1">
-                    Tip: Add keywords to help discovery.
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Plan & Features */}
-          <Card className="col-span-12">
-            <CardHeader>
-              <CardTitle className="text-base">Plan & Features</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {product.plan ? (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <OverviewRow label="Plan" value={product.plan.name} />
-                    <OverviewRow
-                      label="Type"
-                      value={product.plan.type.replace("_", " ")}
-                    />
-                    <OverviewRow
-                      label="Price"
-                      value={formatCurrency(product.plan.price)}
-                    />
-                    <OverviewRow
-                      label="Interval"
-                      value={`${product.plan.frequency} ${product.plan.interval}`}
-                    />
-                    <OverviewRow
-                      label="Trial Days"
-                      value={product.plan.trialDays ?? placeholder()}
-                    />
-                  </div>
-                  {product.plan.assignments?.length ? (
-                    <div className="pt-3">
-                      <div className="text-muted-foreground mb-2">Features</div>
-                      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-                        {product.plan.assignments.map((a) => (
-                          <li
-                            key={a.id}
-                            className="flex items-center justify-between rounded border px-3 py-2"
-                          >
-                            <div>
-                              <div className="font-medium">
-                                {a.feature.name}
-                              </div>
-                              <div className="text-xs text-muted-foreground break-all">
-                                {a.feature.description}
-                              </div>
-                            </div>
-                            {a.enabled ? (
-                              <span className="text-green-600 text-xs">
-                                Enabled
-                              </span>
-                            ) : (
-                              <span className="text-destructive text-xs">
-                                Disabled
-                              </span>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </>
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  No plan assigned
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Media moved above */}
-
-          {/* Badges */}
-          <Card className="col-span-12 md:col-span-6">
-            <CardHeader>
-              <CardTitle className="text-base">Badges</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {product.ProductBadge?.length ? (
-                <ul className="text-sm grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {product.ProductBadge.map((b) => (
-                    <li
-                      key={b.id}
-                      className="flex items-center justify-between rounded border px-3 py-2"
-                    >
-                      <span className="font-medium break-all">{b.badge}</span>
-                      <span className={`text-xs ${b.expiresAt && (new Date(b.expiresAt).getTime() - Date.now())/(1000*60*60*24) < 7 ? 'text-orange-600' : 'text-muted-foreground'}`}>
-                        {b.expiresAt
-                          ? (() => { const d = Math.max(0, Math.ceil((new Date(b.expiresAt).getTime() - Date.now())/(1000*60*60*24))); return `${d}d left` })()
-                          : "No expiry"}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="text-sm text-muted-foreground">No badges</div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Plan details removed for simplicity; managed via Plan card CTA */}
 
           {/* Analytics moved above */}
-
-          {/* Activity moved below with Badges */}
-
-          {/* Recent upvoters moved next to Analytics */}
         </div>
       }
     />

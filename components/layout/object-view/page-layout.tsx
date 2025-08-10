@@ -2,7 +2,6 @@ import {
   OverviewCard,
   OverviewRow,
 } from "@/components/layout/object-view/overview"
-import { cn } from "@/lib/utils"
 import { ClientObjectHeading } from "./client-object-heading"
 
 interface ObjectPageLayoutProps {
@@ -19,6 +18,7 @@ interface ObjectPageLayoutProps {
   editable?: boolean
   relationships?: React.ReactNode
   sidebar?: React.ReactNode
+  topRowExtras?: React.ReactNode[]
   headingActionsLeft?: React.ReactNode
 }
 
@@ -30,8 +30,14 @@ export function ObjectPageLayout({
   editable = false,
   relationships = null,
   sidebar = null,
+  topRowExtras = undefined,
   headingActionsLeft = null,
 }: ObjectPageLayoutProps) {
+  const extrasList = Array.isArray(topRowExtras)
+    ? topRowExtras
+    : sidebar
+      ? [sidebar]
+      : []
   return (
     <>
       <ClientObjectHeading
@@ -44,24 +50,67 @@ export function ObjectPageLayout({
 
       <div className="w-full bg-muted py-6">
         <div className="w-full px-4 md:px-6">
-          <div className={cn(sidebar ? "grid grid-cols-12 gap-6" : "")}>
-            <div className={cn(sidebar ? "col-span-12 lg:col-span-8" : "")}>
-              <OverviewCard title="Overview">
-                {overview.map((field) => (
-                  <OverviewRow
-                    key={field.label}
-                    label={field.label}
-                    value={field.value}
-                  />
-                ))}
-              </OverviewCard>
-            </div>
-            {sidebar && (
+          {extrasList.length === 0 && (
+            <OverviewCard title="Overview">
+              {overview.map((field) => (
+                <OverviewRow
+                  key={field.label}
+                  label={field.label}
+                  value={field.value}
+                />
+              ))}
+            </OverviewCard>
+          )}
+          {extrasList.length === 1 && (
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-12 lg:col-span-8">
+                <OverviewCard title="Overview">
+                  {overview.map((field) => (
+                    <OverviewRow
+                      key={field.label}
+                      label={field.label}
+                      value={field.value}
+                    />
+                  ))}
+                </OverviewCard>
+              </div>
               <aside className="col-span-12 lg:col-span-4">
-                <div className="space-y-4">{sidebar}</div>
+                <div className="space-y-4">{extrasList[0]}</div>
               </aside>
-            )}
-          </div>
+            </div>
+          )}
+          {extrasList.length >= 2 && (
+            <>
+              <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12 lg:col-span-4">
+                  <OverviewCard title="Overview">
+                    {overview.map((field) => (
+                      <OverviewRow
+                        key={field.label}
+                        label={field.label}
+                        value={field.value}
+                      />
+                    ))}
+                  </OverviewCard>
+                </div>
+                <aside className="col-span-12 lg:col-span-4">
+                  <div className="space-y-4">{extrasList[0]}</div>
+                </aside>
+                <aside className="col-span-12 lg:col-span-4">
+                  <div className="space-y-4">{extrasList[1]}</div>
+                </aside>
+              </div>
+              {extrasList.length > 2 && (
+                <div className="grid grid-cols-12 gap-6 mt-6">
+                  {extrasList.slice(2).map((node, i) => (
+                    <aside key={i} className="col-span-12 lg:col-span-4">
+                      <div className="space-y-4">{node}</div>
+                    </aside>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
           {relationships && (
             <div className="mt-6 space-y-6">{relationships}</div>
           )}

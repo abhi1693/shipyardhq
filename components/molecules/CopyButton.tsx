@@ -27,7 +27,12 @@ export default function CopyButton({
       variant={variant}
       onClick={async () => {
         const toCopy = (() => {
-          if (resolveAbsolute && text && text.startsWith("/") && typeof window !== "undefined") {
+          if (
+            resolveAbsolute &&
+            text &&
+            text.startsWith("/") &&
+            typeof window !== "undefined"
+          ) {
             try {
               const origin = window.location.origin
               return `${origin}${text}`
@@ -39,7 +44,10 @@ export default function CopyButton({
         })()
 
         async function modernCopy(v: string) {
-          if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+          if (
+            typeof navigator !== "undefined" &&
+            navigator.clipboard?.writeText
+          ) {
             await navigator.clipboard.writeText(v)
             return true
           }
@@ -73,7 +81,7 @@ export default function CopyButton({
         }
       }}
     >
-      {copied ? "Copied" : children ?? label}
+      {copied ? "Copied" : (children ?? label)}
     </Button>
   )
 }

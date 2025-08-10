@@ -29,28 +29,51 @@ export default function ProductStatusActions({
   }
 
   const badgeVariant =
-    status === "published" ? "success" : status === "draft" ? "secondary" : "outline"
+    status === "published"
+      ? "success"
+      : status === "draft"
+        ? "secondary"
+        : "outline"
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Badge variant={badgeVariant as any}>{status}</Badge>
       {status !== "published" && (
-        <Button size="sm" onClick={() => updateStatus("published")} disabled={isPending}>
+        <Button
+          size="sm"
+          onClick={() => updateStatus("published")}
+          disabled={isPending}
+        >
           Publish
         </Button>
       )}
       {status === "published" && (
-        <Button size="sm" variant="outline" onClick={() => updateStatus("draft")} disabled={isPending}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => updateStatus("draft")}
+          disabled={isPending}
+        >
           Unpublish
         </Button>
       )}
       {status === "archived" && (
-        <Button size="sm" variant="outline" onClick={() => updateStatus("draft")} disabled={isPending}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => updateStatus("draft")}
+          disabled={isPending}
+        >
           Unarchive
         </Button>
       )}
       {status !== "archived" && (
-        <Button size="sm" variant="destructive" onClick={() => updateStatus("archived")} disabled={isPending}>
+        <Button
+          size="sm"
+          variant="destructive"
+          onClick={() => updateStatus("archived")}
+          disabled={isPending}
+        >
           Archive
         </Button>
       )}
