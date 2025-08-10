@@ -33,6 +33,7 @@ export default function PerformanceCard({
   productName,
   tagline,
   hasBanner,
+  ogImageUrl,
   editHref,
 }: {
   upvotes?: number
@@ -42,6 +43,7 @@ export default function PerformanceCard({
   productName: string
   tagline?: string | null
   hasBanner?: boolean
+  ogImageUrl?: string | null
   editHref: string
 }) {
   const daysLeft = (d: Date | string | null | undefined) => {
@@ -144,7 +146,18 @@ export default function PerformanceCard({
               {tagline}
             </div>
             <div className="mt-1 text-[10px] text-muted-foreground">
-              OG image: {hasBanner ? "Banner" : "Logo"}
+              OG image:{" "}
+              {ogImageUrl ? (
+                <Link
+                  href={ogImageUrl}
+                  target="_blank"
+                  className="underline break-all"
+                >
+                  {hasBanner ? "Banner" : "Logo"}
+                </Link>
+              ) : (
+                <>—</>
+              )}
             </div>
             <div className="mt-2">
               <Link

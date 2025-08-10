@@ -24,13 +24,12 @@ import { getProductById } from "@/actions/admin/products/actions"
 import { auth } from "@clerk/nextjs/server"
 import ProductMediaManager from "@/components/molecules/ProductMediaManager"
 import prisma from "@/lib/prisma"
-import ProductStatusActions from "@/components/molecules/ProductStatusActions"
+import ProductStatusMenu from "@/components/molecules/ProductStatusMenu"
 import CopyButton from "@/components/molecules/CopyButton"
 import DuplicateProductButton from "@/components/molecules/DuplicateProductButton"
 import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
-import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import {
   getProductActivity,
   getRecentUpvoters,
@@ -88,11 +87,17 @@ export default async function ViewUserProductPage({
         {
           label: "Status",
           value: (
-            <ProductStatusActions
-              productId={product.id}
-              slug={product.slug}
-              status={product.status as any}
-            />
+            <Badge
+              variant={
+                (product.status === "published"
+                  ? "success"
+                  : product.status === "draft"
+                    ? "secondary"
+                    : "outline") as any
+              }
+            >
+              {product.status}
+            </Badge>
           ),
         },
         { label: "Type", value: product.type.replace("_", " ") },
@@ -159,6 +164,10 @@ export default async function ViewUserProductPage({
       
       headingActionsLeft={
         <div className="flex items-center gap-2">
+          <ProductStatusMenu
+            productId={product.id}
+            status={product.status as any}
+          />
           <CopyButton
             text={publicPath}
             resolveAbsolute
@@ -186,17 +195,6 @@ export default async function ViewUserProductPage({
               label="Logo"
               value={image(product.logo, product.name, 64, 64)}
             />
-            {product.bannerImage && (
-              <OverviewRow
-                label="Banner"
-                value={image(
-                  product.bannerImage,
-                  `${product.name} banner`,
-                  480,
-                  160,
-                )}
-              />
-            )}
           </CardContent>
         </Card>,
         // Organization & Targeting
@@ -386,6 +384,7 @@ export default async function ViewUserProductPage({
             productName={product.name}
             tagline={product.tagline}
             hasBanner={Boolean(product.bannerImage)}
+            ogImageUrl={product.bannerImage || product.logo}
             editHref={`/member/products/${product.slug}/edit`}
           />
 
