@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { OverviewRow } from "@/components/layout/object-view/overview"
 import {
@@ -33,18 +33,32 @@ import { Button } from "@/components/atoms/button"
 import {
   getProductActivity,
   getRecentUpvoters,
+  validatePaymentAndAttachPlan,
 } from "@/actions/member/products/actions"
 // ShareOnX badge is still available elsewhere; header uses ShareOnXButton
 import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import { ExternalLink, Copy as CopyIcon } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
+import { getPublicPlans } from "@/actions/public/plans/actions"
+import { PricingFeature } from "@/components/molecules/PricingFeature"
 
 export default async function ViewUserProductPage({
   params,
+  searchParams,
 }: {
   params: { slug: string }
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { slug } = await params
+  const sp = (await searchParams) || {}
+  const paymentId = (sp["payment_id"] as string) || ""
+  const status = (sp["status"] as string) || ""
+
+  if (paymentId && status) {
+    await validatePaymentAndAttachPlan(paymentId)
+    // Clean URL params regardless of outcome
+    redirect(`/member/products/${slug}`)
+  }
   const found = await prisma.product.findUnique({
     where: { slug },
     select: { id: true },
@@ -56,6 +70,37 @@ export default async function ViewUserProductPage({
   const publicPath = `/products/${product.slug}`
   const activity = await getProductActivity(product.id, 30, 12).catch(() => [])
   const upvoters = await getRecentUpvoters(product.id, 5).catch(() => [])
+
+  // Upsell: compute next higher plan and feature deltas
+  const allPlans = await getPublicPlans().catch(() => [])
+  const currentPlanPublic = product.plan
+    ? allPlans.find((p) => p.id === product.plan!.id)
+    : undefined
+  const nextPlan = (() => {
+    const baseline = currentPlanPublic ? currentPlanPublic.price : -1
+    const higher = allPlans
+      .filter((p) => p.price > baseline)
+      .sort((a, b) => a.price - b.price)
+    if (higher.length) return higher[0]
+    // If no current plan, suggest the first paid plan; else no upsell
+    if (!currentPlanPublic) {
+      const paid = allPlans.filter((p) => p.price > 0).sort((a, b) => a.price - b.price)
+      return paid[0]
+    }
+    return undefined
+  })()
+
+  const deltaFeatures: { id: string; name: string }[] = (() => {
+    if (!nextPlan) return []
+    const currentKeys = new Set(
+      (product.plan?.assignments || [])
+        .filter((a: any) => a.enabled && a.feature?.key)
+        .map((a: any) => a.feature.key as string),
+    )
+    const nextEnabled = nextPlan.features.filter((f) => f.enabled)
+    const delta = nextEnabled.filter((f) => !currentKeys.has(f.key))
+    return delta.slice(0, 3).map((f) => ({ id: f.id, name: f.name }))
+  })()
 
   return (
     <ObjectPageLayout
@@ -242,46 +287,96 @@ export default async function ViewUserProductPage({
             />
           </CardContent>
         </Card>,
-        // Plan spans below Branding + Organization on large screens
+        // Plan as a single compact row with change action
         <Card key="plan">
           <CardHeader>
             <CardTitle className="text-base">Plan</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent>
             {product.plan ? (
-              <>
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Name:</span>{" "}
-                  {product.plan.name}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                  <span className="font-medium text-foreground">{product.plan.name}</span>
+                  <span className="text-muted-foreground">•</span>
+                  <span>{formatCurrency(product.plan.price) as any}</span>
+                  <span className="text-muted-foreground">•</span>
+                  <span>
+                    every {product.plan.frequency} {product.plan.interval}
+                    {product.plan.frequency > 1 ? "s" : ""}
+                  </span>
+                  {product.plan.trialDays ? (
+                    <>
+                      <span className="text-muted-foreground">•</span>
+                      <span>{product.plan.trialDays} day trial</span>
+                    </>
+                  ) : null}
+                  {product.plan.isDefault ? (
+                    <Badge variant="secondary">Default</Badge>
+                  ) : null}
                 </div>
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Price:</span>{" "}
-                  {formatCurrency(product.plan.price)}
+                <div className="shrink-0">
+                  <Link href={`/member/products/${product.slug}/plan`}>
+                    <Button variant="outline" size="sm">Change plan</Button>
+                  </Link>
                 </div>
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Interval:</span>{" "}
-                  {product.plan.frequency} {product.plan.interval}
-                </div>
-                {product.plan.trialDays && (
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Trial:</span>{" "}
-                    {product.plan.trialDays} days
-                  </div>
-                )}
-                <Link href={`/member/products/${product.slug}/plan`}>
-                  <Button className="w-full">Manage plan</Button>
-                </Link>
-              </>
+              </div>
             ) : (
-              <>
-                <div className="text-sm text-muted-foreground">
-                  No plan selected.
-                </div>
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <span className="text-muted-foreground">No plan selected</span>
                 <Link href={`/member/products/${product.slug}/plan`}>
-                  <Button className="w-full">Choose a plan</Button>
+                  <Button size="sm">Choose a plan</Button>
                 </Link>
-              </>
+              </div>
             )}
+
+            {nextPlan ? (
+              <div className="mt-3 rounded-md border p-3 bg-muted/30">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="text-sm">
+                    <span className="font-medium">Unlock more with {nextPlan.name}</span>
+                    <span className="mx-2 text-muted-foreground">•</span>
+                    <span className="text-muted-foreground">
+                      {formatCurrency(nextPlan.price) as any} / {nextPlan.frequency} {nextPlan.interval}
+                    </span>
+                  </div>
+                  <Link href={`/member/products/${product.slug}/plan?highlight=${nextPlan.id}`}>
+                    <Button size="sm">Upgrade to {nextPlan.name}</Button>
+                  </Link>
+                </div>
+                {deltaFeatures.length ? (
+                  <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {deltaFeatures.map((f) => (
+                      <li key={f.id} className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600">
+                        {f.name}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            ) : null}
+
+            {product.plan && (product.plan.assignments || []).length > 0 ? (
+              <div className="mt-3">
+                <details className="group">
+                  <summary className="cursor-pointer text-sm text-primary hover:underline">
+                    View features ({(product.plan.assignments || []).length})
+                  </summary>
+                  <ul className="mt-2 space-y-2">
+                    {(product.plan.assignments || [])
+                      .slice()
+                      .sort((a: any, b: any) => Number(b.enabled) - Number(a.enabled))
+                      .map((a: any) => (
+                        <PricingFeature
+                          key={a.id}
+                          label={a.feature?.name || "Feature"}
+                          enabled={Boolean(a.enabled)}
+                          subtle={!a.enabled}
+                        />
+                      ))}
+                  </ul>
+                </details>
+              </div>
+            ) : null}
           </CardContent>
         </Card>,
       ]}

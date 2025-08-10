@@ -2,7 +2,7 @@ import { redirect, notFound } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import { setProductPlanAction } from "@/actions/member/products/actions"
+import { setProductPlanAction, startPlanCheckoutAction } from "@/actions/member/products/actions"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import { Badge } from "@/components/atoms/badge"
@@ -30,12 +30,22 @@ export default async function ProductPlanPage({
     "use server"
     const planIdRaw = formData.get("planId")?.toString() || ""
     const planId = planIdRaw.length ? planIdRaw : null
-    const res = await setProductPlanAction(product.id, planId)
-    if ((res as any)?.error) {
-      // Fallback: redirect with no changes; surface error via URL if needed later
+    if (!planId) {
+      const res = await setProductPlanAction(product.id, null)
       redirect(`/member/products/${product.slug}`)
     }
-    redirect(`/member/products/${product.slug}`)
+    const selected = plans.find((p) => p.id === planId)
+    if (selected && selected.externalId && selected.price > 0) {
+      const session = await startPlanCheckoutAction(product.id, planId)
+      if ((session as any)?.paymentLink) {
+        redirect((session as any).paymentLink)
+      }
+      // If checkout fails, just bounce back to product page
+      redirect(`/member/products/${product.slug}`)
+    } else {
+      await setProductPlanAction(product.id, planId)
+      redirect(`/member/products/${product.slug}`)
+    }
   }
 
   return (
@@ -99,7 +109,11 @@ export default async function ProductPlanPage({
                     <Button type="submit" className="w-full" variant={
                       product.plan?.id === p.id ? "secondary" : "default"
                     }>
-                      {product.plan?.id === p.id ? "Selected" : "Choose plan"}
+                      {product.plan?.id === p.id
+                        ? "Selected"
+                        : p.externalId && p.price > 0
+                          ? "Checkout"
+                          : "Choose plan"}
                     </Button>
                   </CardContent>
                 </Card>

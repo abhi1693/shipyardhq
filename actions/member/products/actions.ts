@@ -2,6 +2,9 @@
 
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
+import { dodoClient } from "@/lib/dodo"
+import { PlanType } from "@prisma/client"
+import { headers } from "next/headers"
 
 type ListParams = Record<string, string | string[] | undefined>
 
@@ -197,4 +200,121 @@ export async function setProductPlanAction(
   })
 
   return { success: true }
+}
+
+// Start checkout on DodoPayments when plan has externalId
+export async function startPlanCheckoutAction(
+  productId: string,
+  planId: string,
+) {
+  const { userId } = await auth()
+  if (!userId) return { error: "Unauthenticated" }
+
+  const product = await prisma.product.findFirst({
+    where: { id: productId, user: { clerkId: userId } },
+    select: { id: true, slug: true, user: { select: { id: true, email: true, firstName: true, lastName: true } } },
+  })
+  if (!product) return { error: "Product not found or not owned by user" }
+
+  const plan = await prisma.plan.findUnique({
+    where: { id: planId },
+    select: { id: true, externalId: true, type: true, price: true },
+  })
+  if (!plan) return { error: "Plan not found" }
+  if (!plan.externalId || plan.price === 0) {
+    return { error: "Checkout not required for this plan" }
+  }
+
+  // Build return URL using current host if available
+  let returnUrl: string | undefined
+  try {
+    const hdrs = await headers()
+    const host = hdrs.get("x-forwarded-host") || hdrs.get("host")
+    const proto = (hdrs.get("x-forwarded-proto") || "https").split(",")[0]
+    if (host) returnUrl = `${proto}://${host}/member/products/${product.slug}`
+  } catch {}
+
+  const customer = product.user
+    ? ({
+        email: product.user.email,
+        name: `${product.user.firstName} ${product.user.lastName}`.trim(),
+        create_new_customer: false,
+      } as any)
+    : undefined
+
+  // Minimal placeholder billing; hosted checkout will collect real details
+  const billing = {
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "US",
+  }
+
+  try {
+    if (plan.type === ("recurring_price" as PlanType)) {
+      const session = await dodoClient.subscriptions.create({
+        billing,
+        customer: customer || ({} as any),
+        product_id: plan.externalId,
+        quantity: 1,
+        metadata: { productId, planId },
+        payment_link: true,
+        return_url: returnUrl,
+      } as any)
+      if (session?.payment_link) return { paymentLink: session.payment_link }
+      return { error: "Failed to create subscription checkout" }
+    } else {
+      const session = await dodoClient.payments.create({
+        billing,
+        customer: customer || ({} as any),
+        product_cart: [{ product_id: plan.externalId, quantity: 1 }],
+        metadata: { productId, planId },
+        payment_link: true,
+        return_url: returnUrl,
+      } as any)
+      if (session?.payment_link) return { paymentLink: session.payment_link }
+      return { error: "Failed to create payment checkout" }
+    }
+  } catch (e) {
+    console.error("Failed to start checkout:", e)
+    return { error: "Checkout initialization failed" }
+  }
+}
+
+// Validate payment by ID and attach plan to product using metadata from Dodo
+export async function validatePaymentAndAttachPlan(paymentId: string) {
+  const { userId } = await auth()
+  if (!userId) return { error: "Unauthenticated" }
+
+  try {
+    const payment = await dodoClient.payments.retrieve(paymentId)
+    if (!payment) return { error: "Payment not found" }
+
+    // Only attach on successful payment
+    if (payment.status !== "succeeded") {
+      return { error: `Payment not succeeded: ${payment.status}` }
+    }
+
+    const meta = (payment.metadata || {}) as any
+    const productId = meta.productId as string | undefined
+    const planId = meta.planId as string | undefined
+    if (!productId || !planId) {
+      return { error: "Missing metadata for product/plan" }
+    }
+
+    // Ownership check
+    const product = await prisma.product.findFirst({
+      where: { id: productId, user: { clerkId: userId } },
+      select: { id: true },
+    })
+    if (!product) return { error: "Product not found or not owned" }
+
+    // Attach plan
+    await prisma.product.update({ where: { id: productId }, data: { planId } })
+    return { success: true }
+  } catch (e) {
+    console.error("Payment validation failed:", e)
+    return { error: "Payment validation failed" }
+  }
 }
