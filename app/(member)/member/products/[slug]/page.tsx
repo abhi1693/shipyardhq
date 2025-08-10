@@ -68,7 +68,22 @@ export default async function ViewUserProductPage({
         slug: product.id,
       }}
       overview={[
-        { label: "Name", value: product.name },
+        {
+          label: "Name",
+          value: (
+            <span className="inline-flex items-center gap-2">
+              {product.name}
+              <Link
+                href={publicPath}
+                target="_blank"
+                aria-label="View public page"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Link>
+            </span>
+          ),
+        },
         { label: "Category", value: product.category.name },
         {
           label: "Status",
@@ -141,13 +156,9 @@ export default async function ViewUserProductPage({
       basePath="member/products"
       deletable
       editable
+      
       headingActionsLeft={
         <div className="flex items-center gap-2">
-          <Link href={publicPath} target="_blank">
-            <Button size="sm">
-              <ExternalLink className="h-4 w-4 mr-2" /> View public
-            </Button>
-          </Link>
           <CopyButton
             text={publicPath}
             resolveAbsolute
