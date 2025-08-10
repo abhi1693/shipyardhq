@@ -1,4 +1,4 @@
-import { clickProductCardAction } from "@/actions/public/products/click"
+import { clickProductCardAction } from "@/actions/public/products/analytics"
 import Image from "next/image"
 import clsx from "clsx"
 

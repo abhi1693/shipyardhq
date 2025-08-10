@@ -2,6 +2,11 @@
 
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
+import "@/lib/server/analytics/productVotes"
+import {
+  trackProductUpvoted,
+  trackProductDownvoted,
+} from "@/lib/server/analytics/productVotes"
 
 export type UpvoteState = { upvotes: number; upvoted: boolean; error?: string }
 
@@ -34,29 +39,17 @@ export async function upvoteProductAction(
     })
 
     if (existing) {
-      await prisma.$transaction([
-        (prisma as any).productUpvote.delete({
-          where: {
-            productId_userId: { productId: product.id, userId: user.id },
-          },
-        }),
-        prisma.productAnalytics.upsert({
-          where: { productId: product.id },
-          update: { upvotes: { decrement: 1 } },
-          create: { productId: product.id, upvotes: 0, views: 0, clicks: 0 },
-        }),
-      ])
+      await (prisma as any).productUpvote.delete({
+        where: {
+          productId_userId: { productId: product.id, userId: user.id },
+        },
+      })
+      await trackProductDownvoted(product.id, user.id)
     } else {
-      await prisma.$transaction([
-        (prisma as any).productUpvote.create({
-          data: { productId: product.id, userId: user.id },
-        }),
-        prisma.productAnalytics.upsert({
-          where: { productId: product.id },
-          update: { upvotes: { increment: 1 } },
-          create: { productId: product.id, upvotes: 1, views: 0, clicks: 0 },
-        }),
-      ])
+      await (prisma as any).productUpvote.create({
+        data: { productId: product.id, userId: user.id },
+      })
+      await trackProductUpvoted(product.id, user.id)
     }
 
     const result = await prisma.productAnalytics.findUnique({

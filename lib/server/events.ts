@@ -12,12 +12,16 @@ export type BadgeAssignedEvent = {
   expiresAt?: Date | null
 }
 export type BadgeRemovedEvent = { id: string; productId: string; badge: string }
+export type ProductUpvotedEvent = { productId: string; userId: string }
+export type ProductDownvotedEvent = { productId: string; userId: string }
 
 type AppEvents = {
   "product.created": ProductCreatedEvent
   "product.updated": ProductUpdatedEvent
   "product.deleted": ProductDeletedEvent
   "product.clicked": ProductClickedEvent
+  "product.upvoted": ProductUpvotedEvent
+  "product.downvoted": ProductDownvotedEvent
   "badge.assigned": BadgeAssignedEvent
   "badge.removed": BadgeRemovedEvent
 }
