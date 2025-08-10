@@ -24,31 +24,18 @@ import { Input } from "@/components/atoms/input"
 import { Checkbox } from "@/components/atoms/checkbox"
 import { Button } from "@/components/atoms/button"
 import { Separator } from "@/components/atoms/separator"
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/atoms/select"
+
 import PageContainer from "@/components/layout/page-container"
 import { createPlanAction } from "@/actions/admin/plans/actions"
-import { PlanType } from "@prisma/client"
 
-const planFormSchema = z
-  .object({
-    name: z.string().min(1),
-    slug: z.string().min(1),
-    description: z.string().optional(),
-    type: z.enum([PlanType.recurring_price, PlanType.one_time_price]),
-    price: z.coerce.number().nonnegative(),
-    interval: z.enum(["month", "year"]),
-    frequency: z.coerce.number().min(1),
-    discount: z.coerce.number().min(0).max(100).optional(),
-    trialDays: z.coerce.number().min(0).optional(),
-    isDefault: z.boolean().optional(),
-  })
-  
+const planFormSchema = z.object({
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  description: z.string().optional(),
+  price: z.coerce.number().nonnegative(),
+  discount: z.coerce.number().min(0).max(100).optional(),
+  isDefault: z.boolean().optional(),
+})
 
 type PlanFormInput = z.infer<typeof planFormSchema>
 
@@ -63,12 +50,8 @@ export default function AddPlanForm() {
       name: "",
       slug: "",
       description: "",
-      type: PlanType.one_time_price,
       price: 0,
-      interval: "month",
-      frequency: 1,
       discount: undefined,
-      trialDays: undefined,
       isDefault: false,
     },
   })
@@ -156,79 +139,11 @@ export default function AddPlanForm() {
               {/* Section: Pricing */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormField
-                  name="type"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Type</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem
-                              value={PlanType.recurring_price}
-                              disabled
-                            >
-                              Recurring
-                            </SelectItem>
-                            <SelectItem value={PlanType.one_time_price}>
-                              One-time
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
                   name="price"
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Price (in cents)</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="interval"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Interval</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select interval" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="month">Month</SelectItem>
-                          <SelectItem value="year">Year</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="frequency"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Frequency</FormLabel>
                       <FormControl>
                         <Input type="number" {...field} />
                       </FormControl>
@@ -252,23 +167,6 @@ export default function AddPlanForm() {
                         <Input
                           type="number"
                           step="0.1"
-                          placeholder="Optional"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="trialDays"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Trial Days</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
                           placeholder="Optional"
                           {...field}
                         />

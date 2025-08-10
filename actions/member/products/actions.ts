@@ -3,7 +3,7 @@
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
-import { PlanType } from "@prisma/client"
+
 import { headers } from "next/headers"
 
 type ListParams = Record<string, string | string[] | undefined>
@@ -190,7 +190,10 @@ export async function setProductPlanAction(
   if (!product) return { error: "Product not found or not owned by user" }
 
   if (planId) {
-    const exists = await prisma.plan.findUnique({ where: { id: planId }, select: { id: true } })
+    const exists = await prisma.plan.findUnique({
+      where: { id: planId },
+      select: { id: true },
+    })
     if (!exists) return { error: "Plan not found" }
   }
 
@@ -212,13 +215,19 @@ export async function startPlanCheckoutAction(
 
   const product = await prisma.product.findFirst({
     where: { id: productId, user: { clerkId: userId } },
-    select: { id: true, slug: true, user: { select: { id: true, email: true, firstName: true, lastName: true } } },
+    select: {
+      id: true,
+      slug: true,
+      user: {
+        select: { id: true, email: true, firstName: true, lastName: true },
+      },
+    },
   })
   if (!product) return { error: "Product not found or not owned by user" }
 
   const plan = await prisma.plan.findUnique({
     where: { id: planId },
-    select: { id: true, externalId: true, type: true, price: true },
+    select: { id: true, externalId: true, price: true },
   })
   if (!plan) return { error: "Plan not found" }
   if (!plan.externalId || plan.price === 0) {
@@ -252,30 +261,16 @@ export async function startPlanCheckoutAction(
   }
 
   try {
-    if (plan.type === ("recurring_price" as PlanType)) {
-      const session = await dodoClient.subscriptions.create({
-        billing,
-        customer: customer || ({} as any),
-        product_id: plan.externalId,
-        quantity: 1,
-        metadata: { productId, planId },
-        payment_link: true,
-        return_url: returnUrl,
-      } as any)
-      if (session?.payment_link) return { paymentLink: session.payment_link }
-      return { error: "Failed to create subscription checkout" }
-    } else {
-      const session = await dodoClient.payments.create({
-        billing,
-        customer: customer || ({} as any),
-        product_cart: [{ product_id: plan.externalId, quantity: 1 }],
-        metadata: { productId, planId },
-        payment_link: true,
-        return_url: returnUrl,
-      } as any)
-      if (session?.payment_link) return { paymentLink: session.payment_link }
-      return { error: "Failed to create payment checkout" }
-    }
+    const session = await dodoClient.payments.create({
+      billing,
+      customer: customer || ({} as any),
+      product_cart: [{ product_id: plan.externalId, quantity: 1 }],
+      metadata: { productId, planId },
+      payment_link: true,
+      return_url: returnUrl,
+    } as any)
+    if (session?.payment_link) return { paymentLink: session.payment_link }
+    return { error: "Failed to create payment checkout" }
   } catch (e) {
     console.error("Failed to start checkout:", e)
     return { error: "Checkout initialization failed" }

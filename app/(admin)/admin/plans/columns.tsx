@@ -31,10 +31,12 @@ export const columns: ColumnDef<Plan>[] = [
     cell: ({ row }) => formatCurrency(row.original.price),
   },
   {
-    accessorKey: "interval",
-    header: "Interval",
+    accessorKey: "discount",
+    header: "Discount",
     cell: ({ row }) =>
-      `${row.original.frequency} ${row.original.interval}${row.original.frequency > 1 ? "s" : ""}`,
+      row.original.discount != null
+        ? `${row.original.discount}%`
+        : placeholder(),
   },
   {
     accessorKey: "isDefault",

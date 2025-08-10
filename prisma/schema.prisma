@@ -223,11 +223,7 @@ model Plan {
   description String?
   type        PlanType
   price       Int // in cents
-  interval    String // e.g. "month"
-  frequency   Int // e.g. 1 (monthly), 12 (yearly)
-  // Discount percentage between 0.0 and 100.0
   discount    Float? // percentage
-  trialDays   Int? // optional number of trial days
   isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -263,7 +259,6 @@ model PlanFeatureAssignment {
 }
 
 enum PlanType {
-  recurring_price
   one_time_price
 }
 

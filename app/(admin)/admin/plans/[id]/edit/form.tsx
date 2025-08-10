@@ -24,31 +24,19 @@ import { Input } from "@/components/atoms/input"
 import { Checkbox } from "@/components/atoms/checkbox"
 import { Button } from "@/components/atoms/button"
 import { Separator } from "@/components/atoms/separator"
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/atoms/select"
+
 import PageContainer from "@/components/layout/page-container"
 import { updatePlanAction } from "@/actions/admin/plans/actions"
-import { Plan, PlanType } from "@prisma/client"
+import { Plan } from "@prisma/client"
 
-const planFormSchema = z
-  .object({
-    name: z.string().min(1),
-    slug: z.string().min(1),
-    description: z.string().optional(),
-    type: z.enum([PlanType.recurring_price, PlanType.one_time_price]),
-    price: z.coerce.number().nonnegative(),
-    interval: z.enum(["month", "year"]),
-    frequency: z.coerce.number().min(1),
-    discount: z.coerce.number().min(0).max(100).optional(),
-    trialDays: z.coerce.number().optional(),
-    isDefault: z.boolean().optional(),
-  })
-  
+const planFormSchema = z.object({
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  description: z.string().optional(),
+  price: z.coerce.number().nonnegative(),
+  discount: z.coerce.number().min(0).max(100).optional(),
+  isDefault: z.boolean().optional(),
+})
 
 type PlanFormInput = z.infer<typeof planFormSchema>
 
@@ -63,12 +51,8 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
       name: plan.name,
       slug: plan.slug,
       description: plan.description ?? "",
-      type: plan.type,
       price: plan.price,
-      interval: plan.interval as "month" | "year",
-      frequency: plan.frequency,
       discount: plan.discount ?? undefined,
-      trialDays: plan.trialDays ?? undefined,
       isDefault: plan.isDefault ?? false,
     },
   })
@@ -161,43 +145,6 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  name="interval"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Interval</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select interval" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="month">Month</SelectItem>
-                          <SelectItem value="year">Year</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="frequency"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Frequency</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               <Separator />
@@ -213,23 +160,6 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
                         <Input
                           type="number"
                           step="0.1"
-                          placeholder="Optional"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="trialDays"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Trial Days</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
                           placeholder="Optional"
                           {...field}
                         />

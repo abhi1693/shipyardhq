@@ -120,7 +120,9 @@ export default function PerformanceCard({
                 return (
                   <Tooltip key={b.id}>
                     <TooltipTrigger asChild>
-                      <span className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ${colorCls}`}>
+                      <span
+                        className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ${colorCls}`}
+                      >
                         <span aria-hidden>{def?.icon ?? "🏷️"}</span>
                         <span className="truncate max-w-[8rem]">
                           {def?.label ?? b.badge}

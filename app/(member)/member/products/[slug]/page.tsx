@@ -30,12 +30,18 @@ import DuplicateProductButton from "@/components/molecules/DuplicateProductButto
 import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
-import { getRecentUpvoters, validatePaymentAndAttachPlan } from "@/actions/member/products/actions"
+import {
+  getRecentUpvoters,
+  validatePaymentAndAttachPlan,
+} from "@/actions/member/products/actions"
 import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import { ExternalLink, Copy as CopyIcon } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import { startPlanCheckoutAction, setProductPlanAction } from "@/actions/member/products/actions"
+import {
+  startPlanCheckoutAction,
+  setProductPlanAction,
+} from "@/actions/member/products/actions"
 
 export default async function ViewUserProductPage({
   params,
@@ -76,14 +82,17 @@ export default async function ViewUserProductPage({
       .sort((a, b) => a.price - b.price)
     if (higher.length) return higher[0]
     if (!currentPlanPublic) {
-      const paid = allPlans.filter((p) => p.price > 0).sort((a, b) => a.price - b.price)
+      const paid = allPlans
+        .filter((p) => p.price > 0)
+        .sort((a, b) => a.price - b.price)
       return paid[0]
     }
     return undefined
   })()
 
   const { deltaTop, deltaCount } = (() => {
-    if (!nextPlan) return { deltaTop: [] as { id: string; name: string }[], deltaCount: 0 }
+    if (!nextPlan)
+      return { deltaTop: [] as { id: string; name: string }[], deltaCount: 0 }
     const currentKeys = new Set(
       (product.plan?.assignments || [])
         .filter((a: any) => a.enabled && a.feature?.key)
@@ -109,11 +118,15 @@ export default async function ViewUserProductPage({
     const prevEnabled = new Set(
       (prev?.features || []).filter((f) => f.enabled).map((f) => f.key),
     )
-    const exclusive = Array.from(currentEnabled).filter((k) => !prevEnabled.has(k))
+    const exclusive = Array.from(currentEnabled).filter(
+      (k) => !prevEnabled.has(k),
+    )
     const nameByKey = new Map(
       currentPlanPublic.features.map((f) => [f.key, f.name] as const),
     )
-    return exclusive.slice(0, 4).map((key) => ({ id: key, name: nameByKey.get(key) || key }))
+    return exclusive
+      .slice(0, 4)
+      .map((key) => ({ id: key, name: nameByKey.get(key) || key }))
   })()
 
   return (
@@ -179,7 +192,7 @@ export default async function ViewUserProductPage({
           ),
         },
         ...(product.verification
-          ? [
+          ? ([
               {
                 label: "Verified",
                 value: formatBoolean(product.verification.isVerified),
@@ -214,13 +227,12 @@ export default async function ViewUserProductPage({
                     ),
                   }
                 : null,
-            ].filter(Boolean) as any
+            ].filter(Boolean) as any)
           : []),
       ]}
       basePath="member/products"
       deletable
       editable
-      
       headingActionsLeft={
         <div className="flex items-center gap-2">
           <ProductStatusMenu
@@ -250,24 +262,12 @@ export default async function ViewUserProductPage({
             {product.plan ? (
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                  <span className="font-medium text-foreground">{product.plan.name}</span>
+                  <span className="font-medium text-foreground">
+                    {product.plan.name}
+                  </span>
                   <span className="text-muted-foreground">•</span>
                   <span>{formatCurrency(product.plan.price) as any}</span>
-                  {product.plan.type !== "one_time_price" ? (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span>
-                        every {product.plan.frequency} {product.plan.interval}
-                        {product.plan.frequency > 1 ? "s" : ""}
-                      </span>
-                    </>
-                  ) : null}
-                  {product.plan.trialDays ? (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span>{product.plan.trialDays} day trial</span>
-                    </>
-                  ) : null}
+
                   {product.plan.isDefault ? (
                     <Badge variant="secondary">Default</Badge>
                   ) : null}
@@ -281,7 +281,10 @@ export default async function ViewUserProductPage({
                 </div>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {exclusiveCurrentTop.map((f) => (
-                    <li key={f.id} className="text-xs text-foreground/90 before:content-['✓'] before:mr-2 before:text-green-600">
+                    <li
+                      key={f.id}
+                      className="text-xs text-foreground/90 before:content-['✓'] before:mr-2 before:text-green-600"
+                    >
                       {f.name}
                     </li>
                   ))}
@@ -292,31 +295,45 @@ export default async function ViewUserProductPage({
               <div className="mt-3 rounded-md border p-3 bg-muted/30">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="text-sm">
-                    <span className="font-medium">Unlock more with {nextPlan.name}</span>
+                    <span className="font-medium">
+                      Unlock more with {nextPlan.name}
+                    </span>
                     <div className="mt-1 flex items-baseline gap-2">
                       {(() => {
-                        const nf = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" })
+                        const nf = new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                        })
                         const pctRaw = nextPlan.discount ?? 0
                         const pct = Math.min(Math.max(pctRaw, 0), 100)
                         const originalCents = nextPlan.price
-                        const discountedCents = pct > 0 && pct < 100
-                          ? Math.round(originalCents * (1 - pct / 100))
-                          : originalCents
-                        const original = pct > 0 && pct < 100 ? nf.format(originalCents / 100) : null
+                        const discountedCents =
+                          pct > 0 && pct < 100
+                            ? Math.round(originalCents * (1 - pct / 100))
+                            : originalCents
+                        const original =
+                          pct > 0 && pct < 100
+                            ? nf.format(originalCents / 100)
+                            : null
                         const priceText = nf.format(discountedCents / 100)
                         return (
                           <>
                             {original && (
-                              <span className="text-xs text-muted-foreground line-through">{original}</span>
+                              <span className="text-xs text-muted-foreground line-through">
+                                {original}
+                              </span>
                             )}
-                            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">{priceText}</span>
+                            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                              {priceText}
+                            </span>
                             {pct > 0 ? (
                               <span className="text-[11px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1.5 py-0.5">
-                                Save {new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(pct)}%
+                                Save{" "}
+                                {new Intl.NumberFormat("en-US", {
+                                  maximumFractionDigits: 2,
+                                }).format(pct)}
+                                %
                               </span>
-                            ) : null}
-                            {nextPlan.type !== "one_time_price" ? (
-                              <span className="text-xs text-muted-foreground">/ {nextPlan.frequency} {nextPlan.interval}{nextPlan.frequency > 1 ? "s" : ""}</span>
                             ) : null}
                           </>
                         )
@@ -330,7 +347,10 @@ export default async function ViewUserProductPage({
                       if (!pid) return
                       // If we can checkout directly, do it; otherwise attach directly
                       if (nextPlan.externalId && nextPlan.price > 0) {
-                        const session = await startPlanCheckoutAction(product.id, pid)
+                        const session = await startPlanCheckoutAction(
+                          product.id,
+                          pid,
+                        )
                         if ((session as any)?.paymentLink) {
                           redirect((session as any).paymentLink)
                         }
@@ -341,27 +361,45 @@ export default async function ViewUserProductPage({
                     }
                     return (
                       <form action={upgradeNow} className="contents">
-                        <input type="hidden" name="planId" value={nextPlan.id} />
-                        <Button size="sm" className="transition-transform hover:-translate-y-0.5">{nextPlan.type === "one_time_price" ? `Buy ${nextPlan.name}` : `Upgrade to ${nextPlan.name}`}</Button>
+                        <input
+                          type="hidden"
+                          name="planId"
+                          value={nextPlan.id}
+                        />
+                        <Button
+                          size="sm"
+                          className="transition-transform hover:-translate-y-0.5"
+                        >
+                          Buy now
+                        </Button>
                       </form>
                     )
                   })()}
                 </div>
-                <div className="mt-1 text-[11px] text-muted-foreground">Instant activation after payment.</div>
+                <div className="mt-1 text-[11px] text-muted-foreground">
+                  Instant activation after payment.
+                </div>
                 {nextPlan.description ? (
-                  <div className="mt-1 text-xs text-foreground/90">{nextPlan.description}</div>
+                  <div className="mt-1 text-xs text-foreground/90">
+                    {nextPlan.description}
+                  </div>
                 ) : null}
                 {deltaTop.length ? (
                   <>
                     <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {deltaTop.map((f) => (
-                        <li key={f.id} className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600">
+                        <li
+                          key={f.id}
+                          className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600"
+                        >
                           {f.name}
                         </li>
                       ))}
                     </ul>
                     {deltaCount > deltaTop.length ? (
-                      <div className="mt-1 text-xs text-muted-foreground">…and {deltaCount - deltaTop.length} more benefits</div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        …and {deltaCount - deltaTop.length} more benefits
+                      </div>
                     ) : null}
                   </>
                 ) : null}
@@ -369,8 +407,12 @@ export default async function ViewUserProductPage({
             ) : null}
 
             {(() => {
-              const currentPrice = currentPlanPublic ? currentPlanPublic.price : 0
-              const upgradableAll = allPlans.filter((p) => p.price > currentPrice)
+              const currentPrice = currentPlanPublic
+                ? currentPlanPublic.price
+                : 0
+              const upgradableAll = allPlans.filter(
+                (p) => p.price > currentPrice,
+              )
               const upgradable = nextPlan
                 ? upgradableAll.filter((p) => p.id !== nextPlan.id)
                 : upgradableAll
@@ -384,10 +426,14 @@ export default async function ViewUserProductPage({
                         key={p.id}
                         action={async (formData: FormData) => {
                           "use server"
-                          const chosen = formData.get("planId")?.toString() || ""
+                          const chosen =
+                            formData.get("planId")?.toString() || ""
                           if (!chosen) return
                           if (p.externalId && p.price > 0) {
-                            const session = await startPlanCheckoutAction(product.id, chosen)
+                            const session = await startPlanCheckoutAction(
+                              product.id,
+                              chosen,
+                            )
                             if ((session as any)?.paymentLink) {
                               redirect((session as any).paymentLink)
                             }
@@ -400,40 +446,65 @@ export default async function ViewUserProductPage({
                         <input type="hidden" name="planId" value={p.id} />
                         <div className="rounded-md border p-3 h-full">
                           <div className="flex items-center justify-between">
-                            <div className="text-sm font-semibold truncate">{p.name}</div>
-                            {p.isDefault ? <Badge variant="secondary">Default</Badge> : null}
+                            <div className="text-sm font-semibold truncate">
+                              {p.name}
+                            </div>
+                            {p.isDefault ? (
+                              <Badge variant="secondary">Default</Badge>
+                            ) : null}
                           </div>
                           <div className="mt-1 flex items-baseline gap-2">
                             {(() => {
-                              const nf = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" })
+                              const nf = new Intl.NumberFormat("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                              })
                               const pctRaw = p.discount ?? 0
                               const pct = Math.min(Math.max(pctRaw, 0), 100)
                               const originalCents = p.price
-                              const discountedCents = pct > 0 && pct < 100 ? Math.round(originalCents * (1 - pct / 100)) : originalCents
-                              const original = pct > 0 && pct < 100 ? nf.format(originalCents / 100) : null
+                              const discountedCents =
+                                pct > 0 && pct < 100
+                                  ? Math.round(originalCents * (1 - pct / 100))
+                                  : originalCents
+                              const original =
+                                pct > 0 && pct < 100
+                                  ? nf.format(originalCents / 100)
+                                  : null
                               const priceText = nf.format(discountedCents / 100)
                               return (
                                 <>
-                                  {original && <span className="text-xs text-muted-foreground line-through">{original}</span>}
-                                  <span className="text-2xl font-extrabold tracking-tight">{priceText}</span>
+                                  {original && (
+                                    <span className="text-xs text-muted-foreground line-through">
+                                      {original}
+                                    </span>
+                                  )}
+                                  <span className="text-2xl font-extrabold tracking-tight">
+                                    {priceText}
+                                  </span>
                                   {pct > 0 ? (
                                     <span className="text-[10px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1 py-0.5">
-                                      Save {new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(pct)}%
+                                      Save{" "}
+                                      {new Intl.NumberFormat("en-US", {
+                                        maximumFractionDigits: 2,
+                                      }).format(pct)}
+                                      %
                                     </span>
-                                  ) : null}
-                                  {p.type !== "one_time_price" ? (
-                                    <span className="text-xs text-muted-foreground">/ {p.frequency} {p.interval}{p.frequency > 1 ? "s" : ""}</span>
                                   ) : null}
                                 </>
                               )
                             })()}
                           </div>
                           {p.description ? (
-                            <div className="mt-1 text-xs text-foreground/90 line-clamp-3">{p.description}</div>
+                            <div className="mt-1 text-xs text-foreground/90 line-clamp-3">
+                              {p.description}
+                            </div>
                           ) : null}
                           <div className="mt-3">
-                            <Button size="sm" className="w-full transition-transform hover:-translate-y-0.5">
-                              {p.type === "one_time_price" ? "Buy now" : "Upgrade"}
+                            <Button
+                              size="sm"
+                              className="w-full transition-transform hover:-translate-y-0.5"
+                            >
+                              Buy now
                             </Button>
                           </div>
                         </div>
@@ -445,8 +516,6 @@ export default async function ViewUserProductPage({
             })()}
           </CardContent>
         </Card>,
-        
-        
       ]}
       relationships={
         <div className="grid grid-cols-12 gap-6">
@@ -466,26 +535,28 @@ export default async function ViewUserProductPage({
 
           <Card className="col-span-12 md:col-span-4">
             <CardHeader>
-              <CardTitle className="text-base">Organization & Targeting</CardTitle>
+              <CardTitle className="text-base">
+                Organization & Targeting
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <OverviewRow
                 label="Organization"
                 value={
-                  product.organization
-                    ? (
-                        <div className="flex items-center gap-2">
-                          <span>{product.organization.name}</span>
-                          {product.organization.url
-                            ? linkify({
-                                href: product.organization.url,
-                                label: new URL(product.organization.url).hostname,
-                                isExternal: true,
-                              })
-                            : null}
-                        </div>
-                      )
-                    : placeholder()
+                  product.organization ? (
+                    <div className="flex items-center gap-2">
+                      <span>{product.organization.name}</span>
+                      {product.organization.url
+                        ? linkify({
+                            href: product.organization.url,
+                            label: new URL(product.organization.url).hostname,
+                            isExternal: true,
+                          })
+                        : null}
+                    </div>
+                  ) : (
+                    placeholder()
+                  )
                 }
               />
               <OverviewRow

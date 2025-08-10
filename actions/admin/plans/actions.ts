@@ -21,17 +21,13 @@ export async function createPlanAction(formData: FormData) {
   const name = formData.get("name")!.toString().trim()
   const slug = formData.get("slug")!.toString().trim()
   const description = formData.get("description")?.toString().trim() || null
-  const type = formData.get("type") as PlanType
+  const type = PlanType.one_time_price
   const price = parseInt(formData.get("price")!.toString(), 10)
-  const interval = formData.get("interval")!.toString()
-  const frequency = parseInt(formData.get("frequency")!.toString(), 10)
   const discountRaw = formData.get("discount")
-  const trialDaysRaw = formData.get("trialDays")
   const isDefault =
     formData.get("isDefault") === "true" || formData.get("isDefault") === "on"
 
   const discount = discountRaw ? parseFloat(discountRaw.toString()) : null
-  const trialDays = trialDaysRaw ? parseInt(trialDaysRaw.toString(), 10) : null
 
   try {
     const exists = await planSlugExists(slug)
@@ -46,10 +42,7 @@ export async function createPlanAction(formData: FormData) {
         description,
         type,
         price,
-        interval,
-        frequency,
         discount: Math.max(0, Math.min(discount ?? 0, 100)),
-        trialDays,
         isDefault,
       },
     })
@@ -156,12 +149,8 @@ type UpdatePlanInput = {
   name: string
   slug: string
   description?: string | null
-  type: PlanType
   price: number
-  interval: string
-  frequency: number
   discount?: number | null
-  trialDays?: number | null
   isDefault?: boolean
 }
 
@@ -188,12 +177,8 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
         name: data.name,
         slug: data.slug,
         description: data.description ?? null,
-        type: data.type,
         price: data.price,
-        interval: data.interval,
-        frequency: data.frequency,
         discount: Math.max(0, Math.min(data.discount ?? 0, 100)),
-        trialDays: data.trialDays ?? null,
         isDefault: data.isDefault ?? false,
       },
     })
