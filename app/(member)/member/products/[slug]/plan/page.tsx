@@ -88,8 +88,8 @@ export default async function ProductPlanPage({
                       )}
                     </div>
                     <div className="mt-2 flex flex-col">
-                      <div className="text-2xl font-bold">
-                        {formatCurrency(p.price) as any}
+                      <div className="text-4xl font-extrabold tracking-tight">
+                        {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(p.price / 100)}
                       </div>
                       {p.type === "one_time_price" ? (
                         <div className="text-[11px] inline-flex items-center rounded border px-1.5 py-0.5 w-fit mt-1 uppercase tracking-wide">One-time</div>
@@ -114,7 +114,7 @@ export default async function ProductPlanPage({
                           <PricingFeature key={f.id} label={f.name} enabled={true} />
                         ))}
                     </ul>
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" className="w-full transition-transform hover:-translate-y-0.5">
                       {p.type === "one_time_price" ? "Buy now" : "Upgrade"}
                     </Button>
                   </CardContent>

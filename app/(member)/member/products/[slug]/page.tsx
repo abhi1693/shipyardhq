@@ -284,11 +284,13 @@ export default async function ViewUserProductPage({
                     <Badge variant="secondary">Default</Badge>
                   ) : null}
                 </div>
-                <div className="shrink-0">
-                  <Link href={`/member/products/${product.slug}/plan`}>
-                    <Button variant="outline" size="sm">Change plan</Button>
-                  </Link>
-                </div>
+                {product.plan.isDefault ? (
+                  <div className="shrink-0">
+                    <Link href={`/member/products/${product.slug}/plan`}>
+                      <Button size="sm" variant="outline">Choose a plan</Button>
+                    </Link>
+                  </div>
+                ) : null}
               </div>
             ) : null}
             {product.plan && exclusiveCurrentTop.length ? (
@@ -317,28 +319,33 @@ export default async function ViewUserProductPage({
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="text-sm">
                     <span className="font-medium">Unlock more with {nextPlan.name}</span>
-                    <span className="mx-2 text-muted-foreground">•</span>
-                    <span className="text-muted-foreground inline-flex items-center gap-2">
+                    <div className="mt-1 flex items-baseline gap-2">
                       {(() => {
-                        const price = formatCurrency(nextPlan.price) as any
-                        if (nextPlan.discount) {
-                          const original = nextPlan.price + (nextPlan.discount || 0)
-                          return (
-                            <>
-                              <span className="line-through opacity-70">{formatCurrency(original) as any}</span>
-                              <span>{price}</span>
-                              <span className="text-green-600">Save {formatCurrency(nextPlan.discount) as any}</span>
-                            </>
-                          )
-                        }
-                        return <>{price}</>
+                        const nf = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" })
+                        const priceText = nf.format(nextPlan.price / 100)
+                        const original = nextPlan.discount
+                          ? nf.format((nextPlan.price + (nextPlan.discount || 0)) / 100)
+                          : null
+                        return (
+                          <>
+                            {original && (
+                              <span className="text-xs text-muted-foreground line-through">{original}</span>
+                            )}
+                            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">{priceText}</span>
+                            {nextPlan.discount ? (
+                              <span className="text-[11px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1.5 py-0.5">
+                                Save {nf.format((nextPlan.discount || 0) / 100)}
+                              </span>
+                            ) : null}
+                            {nextPlan.type === "one_time_price" ? (
+                              <span className="text-[10px] inline-flex items-center rounded border px-1.5 py-0.5 uppercase tracking-wide">Pay once</span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">/ {nextPlan.frequency} {nextPlan.interval}{nextPlan.frequency > 1 ? "s" : ""}</span>
+                            )}
+                          </>
+                        )
                       })()}
-                      {nextPlan.type === "one_time_price" ? (
-                        <span className="ml-1 inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wide">One-time</span>
-                      ) : (
-                        <span className="ml-1 text-xs">/ {nextPlan.frequency} {nextPlan.interval}{nextPlan.frequency > 1 ? "s" : ""}</span>
-                      )}
-                    </span>
+                    </div>
                   </div>
                   {(() => {
                     async function upgradeNow(formData: FormData) {
@@ -357,12 +364,15 @@ export default async function ViewUserProductPage({
                     return (
                       <form action={upgradeNow} className="contents">
                         <input type="hidden" name="planId" value={nextPlan.id} />
-                        <Button size="sm">{nextPlan.type === "one_time_price" ? `Buy ${nextPlan.name}` : `Upgrade to ${nextPlan.name}`}</Button>
+                        <Button size="sm" className="transition-transform hover:-translate-y-0.5">{nextPlan.type === "one_time_price" ? `Buy ${nextPlan.name}` : `Upgrade to ${nextPlan.name}`}</Button>
                       </form>
                     )
                   })()}
                 </div>
                 <div className="mt-1 text-[11px] text-muted-foreground">Instant activation after payment.</div>
+                {nextPlan.description ? (
+                  <div className="mt-1 text-xs text-foreground/90">{nextPlan.description}</div>
+                ) : null}
                 {deltaTop.length ? (
                   <>
                     <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
