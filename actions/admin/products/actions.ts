@@ -3,7 +3,7 @@
 import { Resolver } from "node:dns/promises"
 import { createHash } from "crypto"
 import prisma from "@/lib/prisma"
-import { deleteBlob } from "@/lib/blob"
+import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import { ProductType, PricingModel, Prisma } from "@prisma/client"
 import { slugify } from "@/lib/utils"
 
@@ -75,6 +75,7 @@ export async function getProductById(id: string) {
 }
 
 export async function createProductAction(formData: FormData) {
+  const providedId = formData.get("id")?.toString().trim()
   const name = formData.get("name")!.toString().trim()
   const tagline = formData.get("tagline")!.toString().trim()
   const description = formData.get("description")!.toString().trim()
@@ -148,8 +149,9 @@ export async function createProductAction(formData: FormData) {
 
     const verificationTxt = generateVerificationTxtFromWebsite(websiteUrl)
 
-    await prisma.product.create({
+    const created = await prisma.product.create({
       data: {
+        id: providedId || undefined,
         name,
         slug: finalSlug,
         tagline,
@@ -354,44 +356,21 @@ export async function updateProductAction(
 
 export async function deleteProductAction(id: string) {
   try {
-    // Fetch media + image fields to clean up blobs first
+    // Fetch user to compute blob prefix, then delete entire folder
     const product = await prisma.product.findUnique({
       where: { id },
-      select: {
-        id: true,
-        logo: true,
-        bannerImage: true,
-        ProductMedia: { select: { id: true, imageUrl: true } },
-      },
+      select: { id: true, user: { select: { clerkId: true } } },
     })
-
     if (!product) return { error: "Product not found" }
 
-    const urls: string[] = []
-    if (product.logo) urls.push(product.logo)
-    if (product.bannerImage) urls.push(product.bannerImage)
-    for (const m of product.ProductMedia) urls.push(m.imageUrl)
-
-    const isVercelBlobUrl = (u: string) => {
+    const userClerkId = product.user?.clerkId
+    if (userClerkId) {
+      const prefix = `${userClerkId}/products/${product.id}/`
       try {
-        const host = new URL(u).hostname
-        return host.includes("vercel-storage.com")
-      } catch {
-        return false
+        await deleteBlobPrefix(prefix)
+      } catch (e) {
+        console.warn("Failed to delete blob prefix (continuing):", prefix, e)
       }
-    }
-
-    const blobUrls = urls.filter(isVercelBlobUrl)
-    if (blobUrls.length) {
-      await Promise.all(
-        blobUrls.map(async (u) => {
-          try {
-            await deleteBlob(u)
-          } catch (e) {
-            console.warn("Failed to delete blob (continuing):", u, e)
-          }
-        }),
-      )
     }
 
     return await prisma.product.delete({ where: { id } })

@@ -72,7 +72,7 @@ export async function POST(
 
     const uploaded = await Promise.all(
       files.map(async (file) => {
-        const key = `user_${user.id}/products/${product.id}/media/${Date.now()}-${sanitizeFilename(
+        const key = `${userId}/products/${product.id}/media/${Date.now()}-${sanitizeFilename(
           file.name || "image",
         )}`
         const arrayBuf = await file.arrayBuffer()

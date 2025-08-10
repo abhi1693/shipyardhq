@@ -69,11 +69,16 @@ export function getInitialValuesFromProduct(product: any): BaseValues {
   }
 }
 
-export function toCreateFormData(values: BaseValues, userId: string): FormData {
+export function toCreateFormData(
+  values: BaseValues,
+  userId: string,
+  productId?: string,
+): FormData {
   const v0 = sanitizeTextFields(values)
   const v = coercePricing(v0)
   const fd = new FormData()
   // Basics
+  if (productId) fd.append("id", productId)
   fd.append("name", v.name)
   fd.append("tagline", v.tagline)
   fd.append("description", v.description)

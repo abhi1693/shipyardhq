@@ -24,8 +24,8 @@ export async function POST(req: Request) {
       return new Response("File too large (max 5MB)", { status: 413 })
 
     const prefix = productId
-      ? `user_${userId}/products/${productId}/${folder}`
-      : `user_${userId}/${folder}`
+      ? `${userId}/products/${productId}/${folder}`
+      : `${userId}/${folder}`
     const key = `${prefix}/${Date.now()}-${sanitizeFilename(file.name || "image")}`
     const arrayBuf = await file.arrayBuffer()
     const uploaded = await putBlob(key, arrayBuf, {

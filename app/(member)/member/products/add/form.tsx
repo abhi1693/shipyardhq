@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, FormProvider } from "react-hook-form"
@@ -45,6 +45,16 @@ export default function AddProductForm({
   userId: string
 }) {
   const router = useRouter()
+  const [newProductId] = useState(() => {
+    const g: any = typeof globalThis !== "undefined" ? (globalThis as any) : {}
+    const c = g.crypto as Crypto | undefined
+    if (c && typeof (c as any).randomUUID === "function") {
+      return (c as any).randomUUID()
+    }
+    // Fallback: pseudo-uuid
+    const rand = () => Math.random().toString(36).slice(2, 10)
+    return `prod_${Date.now().toString(36)}_${rand()}_${rand()}`
+  })
 
   const form = useForm<ProductWizardInput>({
     resolver: zodResolver(schema),
@@ -56,7 +66,7 @@ export default function AddProductForm({
     values: ProductWizardInput & { status?: "draft" | "published" },
   ) {
     try {
-      const fd = toCreateFormData(values, userId)
+      const fd = toCreateFormData(values, userId, newProductId)
       const result = await createProductAction(fd)
       if ((result as any)?.error) {
         toast.error((result as any).error)
@@ -91,9 +101,9 @@ export default function AddProductForm({
     return renderStep(wizard.step, {
       categories,
       organizations,
-      productId: undefined,
+      productId: newProductId,
     })
-  }, [wizard.step, categories, organizations])
+  }, [wizard.step, categories, organizations, newProductId])
 
   return (
     <PageContainer>

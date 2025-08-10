@@ -64,17 +64,17 @@ export async function validateExternalResources(
   if (typeof v.logo === "string" && v.logo.length) {
     const ok = await loadImage(v.logo)
     checks.logoOk = ok
-    if (!ok) issues.push("Logo URL is not a valid image")
+    if (!ok) issues.push("Logo image failed to load")
   } else {
     checks.logoOk = false
-    issues.push("Logo URL is required")
+    issues.push("Logo is required")
   }
 
   // Optional image: bannerImage
   if (typeof v.bannerImage === "string" && v.bannerImage.length) {
     const ok = await loadImage(v.bannerImage)
     checks.bannerOk = ok
-    if (!ok) issues.push("Banner Image URL is not a valid image")
+    if (!ok) issues.push("Banner image failed to load")
   }
 
   // Optional links

@@ -48,3 +48,21 @@ export async function deleteBlob(pathname: string) {
   if (!mod?.del) throw new Error("Vercel Blob delete not available")
   await mod.del(pathname, { token })
 }
+
+export async function deleteBlobPrefix(prefix: string) {
+  const token = process.env.BLOB_READ_WRITE_TOKEN
+  if (!token) throw new Error("Missing BLOB_READ_WRITE_TOKEN")
+  const mod = (await import("@vercel/blob")) as any
+  if (!mod?.list || !mod?.del)
+    throw new Error("Vercel Blob list/delete not available")
+
+  const norm = prefix.replace(/^\//, "")
+  let cursor: string | undefined
+  const urls: string[] = []
+  do {
+    const res = await mod.list({ prefix: norm, token, cursor })
+    if (res?.blobs?.length) urls.push(...res.blobs.map((b: any) => b.url))
+    cursor = res?.cursor
+  } while (cursor)
+  if (urls.length) await mod.del(urls, { token })
+}
