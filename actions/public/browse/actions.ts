@@ -58,7 +58,7 @@ export async function getBrowseProducts({
     sort === "votes"
       ? { analytics: { upvotes: "desc" } }
       : sort === "trending"
-        ? { analytics: { views: "desc" } }
+        ? { analytics: { clicks: "desc" } }
         : sort === "az"
           ? { name: "asc" }
           : { createdAt: "desc" }

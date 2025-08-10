@@ -7,7 +7,7 @@ on("product.upvoted", async ({ productId }) => {
     await prisma.productAnalytics.upsert({
       where: { productId },
       update: { upvotes: { increment: 1 } },
-      create: { productId, views: 0, upvotes: 1, clicks: 0 },
+      create: { productId, upvotes: 1, clicks: 0 },
     })
   } catch (err) {
     console.error("[analytics] increment upvotes failed:", err)
@@ -19,7 +19,7 @@ on("product.downvoted", async ({ productId }) => {
     await prisma.productAnalytics.upsert({
       where: { productId },
       update: { upvotes: { decrement: 1 } },
-      create: { productId, views: 0, upvotes: 0, clicks: 0 },
+      create: { productId, upvotes: 0, clicks: 0 },
     })
   } catch (err) {
     console.error("[analytics] decrement upvotes failed:", err)

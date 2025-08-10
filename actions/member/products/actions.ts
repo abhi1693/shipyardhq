@@ -17,7 +17,7 @@ export async function getUserProducts() {
     orderBy: { createdAt: "desc" },
     include: {
       verification: { select: { isVerified: true } },
-      analytics: { select: { views: true, upvotes: true } },
+      analytics: { select: { clicks: true, upvotes: true } },
     },
   })
 }

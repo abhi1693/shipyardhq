@@ -135,7 +135,6 @@ model ProductMetadata {
 model ProductAnalytics {
   id        String   @id @default(cuid())
   productId String   @unique
-  views     Int      @default(0)
   upvotes   Int      @default(0)
   clicks    Int      @default(0)
   createdAt DateTime @default(now())

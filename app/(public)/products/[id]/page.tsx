@@ -250,7 +250,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </div>
         </div>
 
-        {/* Right column: upvotes/views + pricing */}
+        {/* Right column: upvotes + pricing */}
         <div className="shrink-0 md:self-start self-end md:mt-0 mt-4">
           <div className="flex flex-col items-end gap-3">
             <UpvoteSquareButton
@@ -261,7 +261,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               action={upvoteProductAction}
             />
             <div className="text-sm text-muted-foreground">
-              {stats?.views || 0} views • {stats?.clicks || 0} clicks
+              {stats?.clicks || 0} clicks
             </div>
             {((product.startingPriceCents !== null &&
               product.startingPriceCents !== undefined) ||

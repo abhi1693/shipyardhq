@@ -290,7 +290,6 @@ async function main() {
       },
       analytics: {
         create: {
-          views: 2500,
           upvotes: 120,
           clicks: 700,
         },
@@ -430,7 +429,6 @@ async function main() {
         },
         analytics: {
           create: {
-            views: Math.floor(Math.random() * 5000),
             upvotes: Math.floor(Math.random() * 500),
             clicks: Math.floor(Math.random() * 2000),
           },

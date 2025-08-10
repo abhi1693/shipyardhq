@@ -97,8 +97,8 @@ export default async function OverviewPage({
           trend="up"
         />
         <StatCard
-          title="Total Views"
-          value={stats.totalViews}
+          title="Total Clicks"
+          value={stats.totalClicks}
           subheading="All-time engagement"
         />
         <StatCard
@@ -145,7 +145,7 @@ export default async function OverviewPage({
                           "Not Verified",
                         )
                       : placeholder()}
-                    <span>Views: {p.analytics?.views || 0}</span>
+                    <span>Clicks: {p.analytics?.clicks || 0}</span>
                     <span>Upvotes: {p.analytics?.upvotes || 0}</span>
                   </div>
                 </div>

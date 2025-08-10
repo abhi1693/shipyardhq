@@ -252,13 +252,7 @@ export default async function ViewProductPage({
                 <CardHeader>
                   <CardTitle className="text-base">Analytics</CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 sm:grid-cols-3 text-center gap-4">
-                  <div>
-                    <div className="text-xl font-bold">
-                      {product.analytics.views}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Views</div>
-                  </div>
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 text-center gap-4">
                   <div>
                     <div className="text-xl font-bold">
                       {product.analytics.upvotes}

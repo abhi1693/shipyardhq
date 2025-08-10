@@ -21,7 +21,7 @@ export async function getUserDashboardStats(days = 7) {
         where: { userId: user.id },
         include: {
           verification: { select: { isVerified: true } },
-          analytics: { select: { views: true, upvotes: true } },
+          analytics: { select: { clicks: true, upvotes: true } },
           plan: { select: { id: true, name: true, price: true } },
         },
       }),
@@ -42,8 +42,8 @@ export async function getUserDashboardStats(days = 7) {
     (p) => p.verification?.isVerified,
   ).length
 
-  const totalViews = products.reduce(
-    (sum, p) => sum + (p.analytics?.views || 0),
+  const totalClicks = products.reduce(
+    (sum, p) => sum + (p.analytics?.clicks || 0),
     0,
   )
 
@@ -66,7 +66,7 @@ export async function getUserDashboardStats(days = 7) {
     unverifiedCount,
     verifiedDomains,
     verifiedRate,
-    totalViews,
+    totalClicks,
     totalUpvotes,
     plan,
   }
@@ -95,7 +95,7 @@ export async function getUserProducts(limit = 10, days?: number) {
     include: {
       plan: { select: { name: true } },
       verification: { select: { isVerified: true } },
-      analytics: { select: { views: true, upvotes: true } },
+      analytics: { select: { clicks: true, upvotes: true } },
     },
   })
 }

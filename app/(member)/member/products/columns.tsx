@@ -40,11 +40,6 @@ export const columns: ColumnDef<
       ),
   },
   {
-    id: "views",
-    header: "Views",
-    cell: ({ row }) => row.original.analytics?.views ?? 0,
-  },
-  {
     id: "upvotes",
     header: "Upvotes",
     cell: ({ row }) => row.original.analytics?.upvotes ?? 0,

@@ -8,7 +8,7 @@ on("product.clicked", async ({ productId }) => {
     await prisma.productAnalytics.upsert({
       where: { productId },
       update: { clicks: { increment: 1 } },
-      create: { productId, views: 0, upvotes: 0, clicks: 1 },
+      create: { productId, upvotes: 0, clicks: 1 },
     })
   } catch (err) {
     console.error("[analytics] increment product clicks failed:", err)
@@ -19,4 +19,3 @@ on("product.clicked", async ({ productId }) => {
 export async function trackProductClicked(productId: string) {
   await publish("product.clicked", { productId })
 }
-

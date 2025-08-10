@@ -11,7 +11,7 @@ type ProductForCard = {
   tagline: string
   createdAt: string | Date
   badges?: string[]
-  analytics?: { views: number; upvotes: number; clicks: number } | null
+  analytics?: { upvotes: number; clicks: number } | null
   user?: { firstName: string | null; lastName: string | null } | null
   category?: { name: string } | null
 }
@@ -20,7 +20,7 @@ type Props = {
   products: ProductForCard[]
 }
 
-type SortKey = "newest" | "upvotes" | "views" | "clicks" | "name"
+type SortKey = "newest" | "upvotes" | "clicks" | "name"
 
 export function CategoryProductsClient({ products }: Props) {
   const [sort, setSort] = useState<SortKey>("newest")
@@ -33,10 +33,6 @@ export function CategoryProductsClient({ products }: Props) {
       case "upvotes":
         return items.sort(
           (a, b) => (b.analytics?.upvotes || 0) - (a.analytics?.upvotes || 0),
-        )
-      case "views":
-        return items.sort(
-          (a, b) => (b.analytics?.views || 0) - (a.analytics?.views || 0),
         )
       case "clicks":
         return items.sort(
@@ -64,7 +60,6 @@ export function CategoryProductsClient({ products }: Props) {
             options={[
               { value: "newest", label: "Newest" },
               { value: "upvotes", label: "Most Upvoted" },
-              { value: "views", label: "Most Viewed" },
               { value: "clicks", label: "Most Clicked" },
               { value: "name", label: "Name (A–Z)" },
             ]}
