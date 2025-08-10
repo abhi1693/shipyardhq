@@ -44,6 +44,11 @@ export default function ProductStatusActions({
           Unpublish
         </Button>
       )}
+      {status === "archived" && (
+        <Button size="sm" variant="outline" onClick={() => updateStatus("draft")} disabled={isPending}>
+          Unarchive
+        </Button>
+      )}
       {status !== "archived" && (
         <Button size="sm" variant="destructive" onClick={() => updateStatus("archived")} disabled={isPending}>
           Archive
@@ -52,4 +57,3 @@ export default function ProductStatusActions({
     </div>
   )
 }
-
