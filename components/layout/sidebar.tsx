@@ -43,10 +43,14 @@ export default function AppSidebar(props: SidebarProps) {
 
   const isActivePath = (url?: string) => {
     if (!url || url === "#") return false
-    // Ensure trailing slash consistency and startsWith matching within admin
     try {
-      const normalized = url.endsWith("/") ? url.slice(0, -1) : url
-      const current = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname
+      const normalize = (p: string) => {
+        if (p === "/") return "/"
+        return p.endsWith("/") ? p.slice(0, -1) : p
+      }
+      const normalized = normalize(url)
+      const current = normalize(pathname)
+      if (normalized === "/") return current === "/"
       return current === normalized || current.startsWith(`${normalized}/`)
     } catch {
       return pathname === url
