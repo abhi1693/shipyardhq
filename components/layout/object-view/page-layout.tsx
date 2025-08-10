@@ -81,28 +81,81 @@ export function ObjectPageLayout({
           )}
           {extrasList.length >= 2 && (
             <>
-              <div className="grid grid-cols-12 gap-6">
-                <div className="col-span-12 lg:col-span-4">
-                  <OverviewCard title="Overview">
-                    {overview.map((field) => (
-                      <OverviewRow
-                        key={field.label}
-                        label={field.label}
-                        value={field.value}
-                      />
-                    ))}
-                  </OverviewCard>
+              {/* When 2 extras, keep simple 4-4-4 layout */}
+              {extrasList.length === 2 && (
+                <div className="grid grid-cols-12 gap-6">
+                  <div className="col-span-12 lg:col-span-4">
+                    <OverviewCard title="Overview">
+                      {overview.map((field) => (
+                        <OverviewRow
+                          key={field.label}
+                          label={field.label}
+                          value={field.value}
+                        />
+                      ))}
+                    </OverviewCard>
+                  </div>
+                  <aside className="col-span-12 lg:col-span-4">
+                    <div className="space-y-4">{extrasList[0]}</div>
+                  </aside>
+                  <aside className="col-span-12 lg:col-span-4">
+                    <div className="space-y-4">{extrasList[1]}</div>
+                  </aside>
                 </div>
-                <aside className="col-span-12 lg:col-span-4">
-                  <div className="space-y-4">{extrasList[0]}</div>
-                </aside>
-                <aside className="col-span-12 lg:col-span-4">
-                  <div className="space-y-4">{extrasList[1]}</div>
-                </aside>
-              </div>
-              {extrasList.length > 2 && (
-                <div className="grid grid-cols-12 gap-6 mt-6">
-                  {extrasList.slice(2).map((node, i) => (
+              )}
+              {/* When 3 extras, nest the right side to avoid overview-induced gaps */}
+              {extrasList.length === 3 && (
+                <div className="grid grid-cols-12 gap-6">
+                  <div className="col-span-12 lg:col-span-4">
+                    <OverviewCard title="Overview">
+                      {overview.map((field) => (
+                        <OverviewRow
+                          key={field.label}
+                          label={field.label}
+                          value={field.value}
+                        />
+                      ))}
+                    </OverviewCard>
+                  </div>
+                  <div className="col-span-12 lg:col-span-8">
+                    <div className="grid grid-cols-12 gap-6">
+                      <aside className="col-span-12 md:col-span-6">
+                        <div className="space-y-4">{extrasList[0]}</div>
+                      </aside>
+                      <aside className="col-span-12 md:col-span-6">
+                        <div className="space-y-4">{extrasList[1]}</div>
+                      </aside>
+                      <aside className="col-span-12">
+                        <div className="space-y-4">{extrasList[2]}</div>
+                      </aside>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Fallback for >3 extras: lay out in additional rows */}
+              {extrasList.length > 3 && (
+                <div className="grid grid-cols-12 gap-6">
+                  <div className="col-span-12 lg:col-span-4">
+                    <OverviewCard title="Overview">
+                      {overview.map((field) => (
+                        <OverviewRow
+                          key={field.label}
+                          label={field.label}
+                          value={field.value}
+                        />
+                      ))}
+                    </OverviewCard>
+                  </div>
+                  <aside className="col-span-12 lg:col-span-4">
+                    <div className="space-y-4">{extrasList[0]}</div>
+                  </aside>
+                  <aside className="col-span-12 lg:col-span-4">
+                    <div className="space-y-4">{extrasList[1]}</div>
+                  </aside>
+                  <aside className="col-span-12 lg:col-span-8 lg:col-start-5">
+                    <div className="space-y-4">{extrasList[2]}</div>
+                  </aside>
+                  {extrasList.slice(3).map((node, i) => (
                     <aside key={i} className="col-span-12 lg:col-span-4">
                       <div className="space-y-4">{node}</div>
                     </aside>

@@ -163,7 +163,7 @@ export default async function ViewUserProductPage({
         </div>
       }
       topRowExtras={[
-        // Branding moved next to Overview
+        // Branding next to Overview
         <Card key="branding">
           <CardHeader>
             <CardTitle className="text-base">Branding</CardTitle>
@@ -188,7 +188,52 @@ export default async function ViewUserProductPage({
             )}
           </CardContent>
         </Card>,
-        // Plan follows after Branding
+        // Organization & Targeting
+        <Card key="org-targeting">
+          <CardHeader>
+            <CardTitle className="text-base">Organization & Targeting</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <OverviewRow
+              label="Organization"
+              value={
+                product.organization
+                  ? (
+                      <div className="flex items-center gap-2">
+                        <span>{product.organization.name}</span>
+                        {product.organization.url
+                          ? linkify({
+                              href: product.organization.url,
+                              label: new URL(product.organization.url).hostname,
+                              isExternal: true,
+                            })
+                          : null}
+                      </div>
+                    )
+                  : placeholder()
+              }
+            />
+            <OverviewRow
+              label="Platforms"
+              value={
+                product.platforms && product.platforms.length
+                  ? commaSeparated(
+                      product.platforms.map((p) => p.replaceAll("_", " ")),
+                    )
+                  : placeholder()
+              }
+            />
+            <OverviewRow
+              label="Tags"
+              value={
+                product.keywords && product.keywords.length
+                  ? commaSeparated(product.keywords)
+                  : placeholder()
+              }
+            />
+          </CardContent>
+        </Card>,
+        // Plan spans below Branding + Organization on large screens
         <Card key="plan">
           <CardHeader>
             <CardTitle className="text-base">Plan</CardTitle>
