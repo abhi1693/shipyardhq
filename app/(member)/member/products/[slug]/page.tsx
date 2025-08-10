@@ -40,7 +40,7 @@ import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import { ExternalLink, Copy as CopyIcon } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import { startPlanCheckoutAction } from "@/actions/member/products/actions"
+import { startPlanCheckoutAction, setProductPlanAction } from "@/actions/member/products/actions"
 
 export default async function ViewUserProductPage({
   params,
@@ -284,13 +284,6 @@ export default async function ViewUserProductPage({
                     <Badge variant="secondary">Default</Badge>
                   ) : null}
                 </div>
-                {product.plan.isDefault ? (
-                  <div className="shrink-0">
-                    <Link href={`/member/products/${product.slug}/plan`}>
-                      <Button size="sm" variant="outline">Choose a plan</Button>
-                    </Link>
-                  </div>
-                ) : null}
               </div>
             ) : null}
             {product.plan && exclusiveCurrentTop.length ? (
@@ -306,14 +299,7 @@ export default async function ViewUserProductPage({
                   ))}
                 </ul>
               </div>
-            ) : (
-              <div className="flex items-center justify-between gap-2 text-sm">
-                <span className="text-muted-foreground">No plan selected</span>
-                <Link href={`/member/products/${product.slug}/plan`}>
-                  <Button size="sm">Choose a plan</Button>
-                </Link>
-              </div>
-            )}
+            ) : null}
             {nextPlan ? (
               <div className="mt-3 rounded-md border p-3 bg-muted/30">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -363,7 +349,9 @@ export default async function ViewUserProductPage({
                           redirect((session as any).paymentLink)
                         }
                       }
-                      redirect(`/member/products/${product.slug}/plan?highlight=${pid}`)
+                      // If checkout isn't required or failed to init, attach directly when possible
+                      await setProductPlanAction(product.id, pid)
+                      redirect(`/member/products/${product.slug}`)
                     }
                     return (
                       <form action={upgradeNow} className="contents">
@@ -393,6 +381,85 @@ export default async function ViewUserProductPage({
                 ) : null}
               </div>
             ) : null}
+
+            {/* List all upgradable plans inline for upsell */}
+            {(() => {
+              const currentPrice = currentPlanPublic ? currentPlanPublic.price : 0
+              const upgradableAll = allPlans.filter((p) => p.price > currentPrice)
+              const upgradable = nextPlan
+                ? upgradableAll.filter((p) => p.id !== nextPlan.id)
+                : upgradableAll
+              if (!upgradable.length) return null
+              return (
+                <div id="plan-upsell" className="mt-4">
+                  <div className="mb-2 text-sm font-medium">Other plans</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {upgradable.map((p) => (
+                      <form
+                        key={p.id}
+                        action={async (formData: FormData) => {
+                          "use server"
+                          const chosen = formData.get("planId")?.toString() || ""
+                          if (!chosen) return
+                          if (p.externalId && p.price > 0) {
+                            const session = await startPlanCheckoutAction(product.id, chosen)
+                            if ((session as any)?.paymentLink) {
+                              redirect((session as any).paymentLink)
+                            }
+                          }
+                          await setProductPlanAction(product.id, chosen)
+                          redirect(`/member/products/${product.slug}`)
+                        }}
+                        className="contents"
+                      >
+                        <input type="hidden" name="planId" value={p.id} />
+                        <div className="rounded-md border p-3 h-full">
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm font-semibold truncate">{p.name}</div>
+                            {p.isDefault ? <Badge variant="secondary">Default</Badge> : null}
+                          </div>
+                          <div className="mt-1 flex items-baseline gap-2">
+                            {(() => {
+                              const nf = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" })
+                              const pctRaw = p.discount ?? 0
+                              const pct = Math.min(Math.max(pctRaw, 0), 100)
+                              const originalCents = p.price
+                              const discountedCents = pct > 0 && pct < 100 ? Math.round(originalCents * (1 - pct / 100)) : originalCents
+                              const original = pct > 0 && pct < 100 ? nf.format(originalCents / 100) : null
+                              const priceText = nf.format(discountedCents / 100)
+                              return (
+                                <>
+                                  {original && <span className="text-xs text-muted-foreground line-through">{original}</span>}
+                                  <span className="text-2xl font-extrabold tracking-tight">{priceText}</span>
+                                  {pct > 0 ? (
+                                    <span className="text-[10px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1 py-0.5">
+                                      Save {new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(pct)}%
+                                    </span>
+                                  ) : null}
+                                  {p.type === "one_time_price" ? (
+                                    <span className="text-[10px] inline-flex items-center rounded border px-1.5 py-0.5 uppercase tracking-wide">One-time</span>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">/ {p.frequency} {p.interval}{p.frequency > 1 ? "s" : ""}</span>
+                                  )}
+                                </>
+                              )
+                            })()}
+                          </div>
+                          {p.description ? (
+                            <div className="mt-1 text-xs text-foreground/90 line-clamp-3">{p.description}</div>
+                          ) : null}
+                          <div className="mt-3">
+                            <Button size="sm" className="w-full transition-transform hover:-translate-y-0.5">
+                              {p.type === "one_time_price" ? "Buy now" : "Upgrade"}
+                            </Button>
+                          </div>
+                        </div>
+                      </form>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
           </CardContent>
         </Card>,
         
@@ -584,10 +651,6 @@ export default async function ViewUserProductPage({
             ogImageUrl={product.bannerImage || product.logo}
             editHref={`/member/products/${product.slug}/edit`}
           />
-          {/* Organization & Targeting moved to top row */}
-
-          {/* Links and Verification moved above */}
-
           {/* Description */}
           <Card className="col-span-12">
             <CardHeader>
@@ -632,10 +695,6 @@ export default async function ViewUserProductPage({
               />
             </CardContent>
           </Card>
-
-          {/* Plan details removed for simplicity; managed via Plan card CTA */}
-
-          {/* Analytics moved above */}
         </div>
       }
     />
