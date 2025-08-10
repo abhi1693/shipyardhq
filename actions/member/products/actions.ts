@@ -16,6 +16,8 @@ export async function getUserProducts(params?: ListParams) {
 
   const verification = (params?.verification as string) || undefined
   const status = (params?.status as string) || undefined
+  const q = ((params?.q as string) || "").trim()
+  const sort = (params?.sort as string) || "new"
   const page = Math.max(1, parseInt((params?.page as string) || "1", 10) || 1)
   const limit = Math.max(1, parseInt((params?.limit as string) || "10", 10) || 10)
   const skip = (page - 1) * limit
@@ -32,10 +34,36 @@ export async function getUserProducts(params?: ListParams) {
     where.status = status
   }
 
+  if (q.length) {
+    where.OR = [
+      { name: { contains: q, mode: "insensitive" } },
+      { slug: { contains: q, mode: "insensitive" } },
+    ]
+  }
+
+  let orderBy: any = { createdAt: "desc" as const }
+  switch (sort) {
+    case "updated":
+      orderBy = { updatedAt: "desc" }
+      break
+    case "az":
+      orderBy = { name: "asc" }
+      break
+    case "clicks":
+      orderBy = { analytics: { clicks: "desc" } }
+      break
+    case "upvotes":
+      orderBy = { analytics: { upvotes: "desc" } }
+      break
+    case "new":
+    default:
+      orderBy = { createdAt: "desc" }
+  }
+
   const [products, total] = await Promise.all([
     prisma.product.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy,
       skip,
       take: limit,
       include: {
