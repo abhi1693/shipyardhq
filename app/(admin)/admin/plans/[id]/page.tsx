@@ -60,6 +60,10 @@ export default async function ViewPlanPage({
           label: "Price",
           value: plan.price === 0 ? "Free" : formatCurrency(plan.price),
         },
+        {
+          label: "Boost For",
+          value: `${(plan as any).boostForDays ?? 1} day(s)`,
+        },
 
         {
           label: "Discount",

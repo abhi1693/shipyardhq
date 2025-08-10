@@ -24,10 +24,14 @@ export async function createPlanAction(formData: FormData) {
   const type = PlanType.one_time_price
   const price = parseInt(formData.get("price")!.toString(), 10)
   const discountRaw = formData.get("discount")
+  const boostForDaysRaw = formData.get("boostForDays")
   const isDefault =
     formData.get("isDefault") === "true" || formData.get("isDefault") === "on"
 
   const discount = discountRaw ? parseFloat(discountRaw.toString()) : null
+  const boostForDays = boostForDaysRaw
+    ? Math.max(1, Math.min(30, parseInt(boostForDaysRaw.toString(), 10) || 1))
+    : 1
 
   try {
     const exists = await planSlugExists(slug)
@@ -43,6 +47,7 @@ export async function createPlanAction(formData: FormData) {
         type,
         price,
         discount: Math.max(0, Math.min(discount ?? 0, 100)),
+        boostForDays,
         isDefault,
       },
     })
@@ -151,6 +156,7 @@ type UpdatePlanInput = {
   description?: string | null
   price: number
   discount?: number | null
+  boostForDays?: number | null
   isDefault?: boolean
 }
 
@@ -179,6 +185,7 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
         description: data.description ?? null,
         price: data.price,
         discount: Math.max(0, Math.min(data.discount ?? 0, 100)),
+        boostForDays: Math.max(1, Math.min(data.boostForDays ?? 1, 30)),
         isDefault: data.isDefault ?? false,
       },
     })

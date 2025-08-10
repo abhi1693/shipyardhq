@@ -35,6 +35,7 @@ const planFormSchema = z.object({
   description: z.string().optional(),
   price: z.coerce.number().nonnegative(),
   discount: z.coerce.number().min(0).max(100).optional(),
+  boostForDays: z.coerce.number().min(1).max(30),
   isDefault: z.boolean().optional(),
 })
 
@@ -53,6 +54,7 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
       description: plan.description ?? "",
       price: plan.price,
       discount: plan.discount ?? undefined,
+      boostForDays: (plan as any).boostForDays ?? 1,
       isDefault: plan.isDefault ?? false,
     },
   })
@@ -163,6 +165,19 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
                           placeholder="Optional"
                           {...field}
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="boostForDays"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Boost For (days)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={1} max={30} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

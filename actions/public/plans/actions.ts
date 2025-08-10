@@ -46,6 +46,7 @@ export async function getPublicPlans() {
       type: p.type,
       price: p.price,
       discount: p.discount,
+      boostForDays: (p as any).boostForDays ?? 1,
       isDefault: p.isDefault,
       externalId: p.externalId,
       productCount: p._count.products,

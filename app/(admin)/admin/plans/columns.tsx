@@ -31,6 +31,11 @@ export const columns: ColumnDef<Plan>[] = [
     cell: ({ row }) => formatCurrency(row.original.price),
   },
   {
+    accessorKey: "boostForDays",
+    header: "Boost For",
+    cell: ({ row }) => `${(row.original as any).boostForDays ?? 1} day(s)`,
+  },
+  {
     accessorKey: "discount",
     header: "Discount",
     cell: ({ row }) =>

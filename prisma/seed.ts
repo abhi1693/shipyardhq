@@ -184,6 +184,7 @@ async function main() {
       type: PlanType.one_time_price,
       price: 0,
       isDefault: true,
+      boostForDays: 1,
       featureKeys: ["analytics.basic", "backlink"],
     },
     {
@@ -193,6 +194,7 @@ async function main() {
       type: PlanType.one_time_price,
       price: 1900,
       isDefault: false,
+      boostForDays: 14,
       featureKeys: [
         "analytics.basic",
         "analytics.advanced",
@@ -208,6 +210,7 @@ async function main() {
       type: PlanType.one_time_price,
       price: 4900,
       isDefault: false,
+      boostForDays: 30,
       featureKeys: [
         "analytics.basic",
         "analytics.advanced",
