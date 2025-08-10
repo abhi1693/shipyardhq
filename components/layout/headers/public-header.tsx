@@ -73,13 +73,17 @@ export default function PublicHeader() {
           </Link>
 
           <SignedOut>
-            <SignInButton mode="modal">
+            <SignInButton
+              mode="modal"
+              forceRedirectUrl="/member"
+              signUpForceRedirectUrl="/member"
+            >
               <Button size="sm">Sign In</Button>
             </SignInButton>
           </SignedOut>
 
           <SignedIn>
-            <Link href="/member/callback">
+            <Link href="/member">
               <Button variant="outline" size="sm">
                 Member Area
               </Button>
@@ -157,7 +161,7 @@ export default function PublicHeader() {
 
                   <SignedIn>
                     <Link
-                      href="/member/callback"
+                      href="/member"
                       onClick={() => setOpen(false)}
                     >
                       <Button variant="outline" className="w-full">
