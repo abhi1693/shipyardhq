@@ -4,7 +4,13 @@ export async function getPublicProduct(id: string) {
   const product = await prisma.product.findUnique({
     where: { id },
     include: {
-      category: true,
+      category: {
+        include: {
+          useCases: {
+            include: { useCase: true },
+          },
+        },
+      },
       user: {
         select: { id: true, firstName: true, lastName: true, email: true },
       },
@@ -13,8 +19,29 @@ export async function getPublicProduct(id: string) {
       verification: true,
       ProductMedia: { orderBy: { createdAt: "asc" } },
       ProductBadge: true,
-      plan: true,
-      organization: true,
+      plan: {
+        include: {
+          assignments: {
+            include: { feature: true },
+          },
+        },
+      },
+      organization: {
+        include: {
+          memberships: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   })
 

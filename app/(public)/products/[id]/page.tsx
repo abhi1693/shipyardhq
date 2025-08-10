@@ -7,7 +7,6 @@ import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
-import { formatDate } from "@/lib/ui/formatters"
 import {
   getPublicProduct,
   getRelatedProductsByCategory,
@@ -19,10 +18,20 @@ import {
   Twitter,
   Mail,
   Tag,
+  Globe,
+  Apple,
+  Smartphone,
+  Monitor,
+  Laptop,
+  Terminal,
+  Chrome,
+  Firefox,
 } from "lucide-react"
 import PublicContainer from "@/components/layout/PublicContainer"
 import ExternalBadgeLink from "@/components/molecules/ExternalBadgeLink"
 import { formatCurrency } from "@/lib/ui/formatters"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface ProductPageProps {
   params: { id: string }
@@ -61,19 +70,31 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     .map((b) => BADGE_OPTIONS.find((x) => x.value === b))
     .filter(Boolean) as typeof BADGE_OPTIONS
 
+  const platformIcon = (p: string) => {
+    switch (p) {
+      case "web":
+        return <Globe className="size-3" />
+      case "ios":
+        return <Apple className="size-3" />
+      case "android":
+        return <Smartphone className="size-3" />
+      case "mac":
+        return <Monitor className="size-3" />
+      case "windows":
+        return <Laptop className="size-3" />
+      case "linux":
+        return <Terminal className="size-3" />
+      case "chrome_extension":
+        return <Chrome className="size-3" />
+      case "firefox_extension":
+        return <Firefox className="size-3" />
+      default:
+        return null
+    }
+  }
+
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
-      {/* Optional Banner */}
-      {product.bannerImage && (
-        <div className="relative w-full aspect-[3/1] overflow-hidden rounded-lg border bg-muted">
-          <Image
-            src={product.bannerImage}
-            alt={`${product.name} banner`}
-            fill
-            className="object-cover"
-          />
-        </div>
-      )}
       <Breadcrumbs
         items={[
           { title: "Categories", link: "/categories" },
@@ -87,21 +108,27 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       />
 
       {/* Header */}
-      <div className="flex items-start gap-6">
-        <div className="h-16 w-16 rounded-md overflow-hidden border bg-white shrink-0">
-          <Image
-            src={product.logo}
-            alt={product.name}
-            width={64}
-            height={64}
-            className="h-full w-full object-cover"
-          />
-        </div>
-
+      <div className="flex items-start justify-between gap-6">
+        {/* Left column wrapper */}
         <div className="flex-1 min-w-0">
-          <h1 className="text-3xl font-bold truncate">{product.name}</h1>
-          <p className="text-muted-foreground mt-1">{product.tagline}</p>
+          {/* Top row: icon + name/tagline */}
+          <div className="flex items-start gap-6">
+            <div className="h-16 w-16 rounded-md overflow-hidden border bg-white shrink-0">
+              <Image
+                src={product.logo}
+                alt={product.name}
+                width={64}
+                height={64}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-3xl font-bold truncate">{product.name}</h1>
+              <p className="text-muted-foreground mt-1">{product.tagline}</p>
+            </div>
+          </div>
 
+          {/* Below icon: badges, author, CTAs, platforms (all left-aligned) */}
           <div className="flex flex-wrap items-center gap-2 mt-3">
             <Link href={`/categories/${product.category.slug}`}>
               <Badge variant="secondary">{product.category.name}</Badge>
@@ -109,17 +136,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <Badge variant="outline" className="text-xs">
               {product.type.replaceAll("_", " ")}
             </Badge>
-            <Badge variant="outline" className="text-xs">
-              <Tag size={12} className="mr-1" /> {product.pricingModel}
-            </Badge>
             {isVerified && (
               <Badge className="bg-green-100 text-green-800 flex items-center gap-1 px-2 py-0.5 text-xs">
                 <CheckCircle size={12} /> Verified domain
-              </Badge>
-            )}
-            {product.plan && (
-              <Badge variant="outline" className="text-xs">
-                Plan: {product.plan.name}
               </Badge>
             )}
             {activeBadgeDefs.map((b) => (
@@ -131,148 +150,232 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               </Badge>
             ))}
           </div>
-        </div>
-      </div>
 
-      {/* Meta + CTAs */}
-      <div className="space-y-4">
-        <div className="flex gap-4 flex-wrap text-sm text-muted-foreground">
-          <span>
-            By {product.user.firstName} {product.user.lastName || ""} (
-            {product.user.email})
-          </span>
-          <span>Created: {formatDate(product.createdAt)}</span>
-          <span>Updated: {formatDate(product.updatedAt)}</span>
-        </div>
-
-        <div className="flex flex-wrap gap-3 pt-1">
-          <ExternalBadgeLink href={product.websiteUrl} target="_blank">
-            <span className="flex items-center gap-1">
-              <ExternalLink size={14} /> Website
-            </span>
-          </ExternalBadgeLink>
-          {product.ctaUrl && (
-            <ExternalBadgeLink href={product.ctaUrl} target="_blank">
-              {product.ctaLabel || "Get Started"}
-            </ExternalBadgeLink>
-          )}
-          {product.metadata?.demoUrl && (
-            <ExternalBadgeLink
-              href={product.metadata.demoUrl}
-              target="_blank"
-              variant="outline"
-            >
-              Live Demo
-            </ExternalBadgeLink>
-          )}
-          {product.metadata?.githubUrl && (
-            <ExternalBadgeLink
-              href={product.metadata.githubUrl}
-              target="_blank"
-              variant="outline"
-            >
-              <span className="flex items-center gap-1">
-                <Github size={14} /> GitHub
-              </span>
-            </ExternalBadgeLink>
-          )}
-          {product.metadata?.twitterUrl && (
-            <ExternalBadgeLink
-              href={product.metadata.twitterUrl}
-              target="_blank"
-              variant="outline"
-            >
-              <span className="flex items-center gap-1">
-                <Twitter size={14} /> Twitter
-              </span>
-            </ExternalBadgeLink>
-          )}
-          {product.metadata?.contactEmail && (
-            <ExternalBadgeLink
-              href={`mailto:${product.metadata.contactEmail}`}
-              variant="outline"
-            >
-              <span className="flex items-center gap-1">
-                <Mail size={14} /> Contact
-              </span>
-            </ExternalBadgeLink>
-          )}
-        </div>
-
-        <div className="flex gap-6 items-center text-sm pt-1">
-          <UpvoteSquare count={stats?.upvotes || 0} title="Total upvotes" />
-          <div className="text-muted-foreground">
-            {stats?.views || 0} views • {stats?.clicks || 0} clicks
+          <div className="text-sm text-muted-foreground mt-2">
+            By <Link href={`/users/${product.user.id}`} className="underline">{product.user.firstName} {product.user.lastName || ""}</Link>
           </div>
-        </div>
-      </div>
 
-      {/* Quick Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        {product.startingPriceCents !== null &&
-          product.startingPriceCents !== undefined && (
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Starting at:</span>
-              {formatCurrency(
-                product.startingPriceCents,
-                product.currencyCode || "USD",
+          <div className="mt-4 space-y-3">
+            {/* Primary CTAs */}
+            <div className="flex flex-wrap gap-2">
+              <ExternalBadgeLink href={product.websiteUrl} target="_blank">
+                <span className="flex items-center gap-1">
+                  <ExternalLink size={14} /> Visit website
+                </span>
+              </ExternalBadgeLink>
+              {product.ctaUrl && (
+                <ExternalBadgeLink href={product.ctaUrl} target="_blank">
+                  {product.ctaLabel || "Get Started"}
+                </ExternalBadgeLink>
+              )}
+              {product.metadata?.demoUrl && (
+                <ExternalBadgeLink
+                  href={product.metadata.demoUrl}
+                  target="_blank"
+                  variant="outline"
+                >
+                  Live demo
+                </ExternalBadgeLink>
               )}
             </div>
-          )}
-        {product.platforms && product.platforms.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-muted-foreground">Platforms:</span>
-            {product.platforms.map((p) => (
-              <Badge key={p} variant="outline" className="text-xs">
-                {p.replaceAll("_", " ")}
-              </Badge>
-            ))}
+
+            {/* Platforms left, secondary links right */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              {product.platforms && product.platforms.length > 0 ? (
+                <div className="flex items-center gap-2 flex-wrap md:flex-nowrap md:overflow-x-auto md:whitespace-nowrap">
+                  <span className="text-sm text-muted-foreground">Platforms:</span>
+                  {product.platforms.map((p) => (
+                    <Badge key={p} variant="outline" className="text-xs">
+                      <span className="flex items-center gap-1">
+                        {platformIcon(p)} {p.replaceAll("_", " ")}
+                      </span>
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <div />
+              )}
+              {(product.metadata?.githubUrl ||
+                product.metadata?.twitterUrl ||
+                product.metadata?.contactEmail) && (
+                <div className="flex flex-wrap gap-2 md:justify-end">
+                  {product.metadata?.githubUrl && (
+                    <ExternalBadgeLink
+                      href={product.metadata.githubUrl}
+                      target="_blank"
+                      variant="outline"
+                    >
+                      <span className="flex items-center gap-1 text-sm">
+                        <Github size={14} /> GitHub
+                      </span>
+                    </ExternalBadgeLink>
+                  )}
+                  {product.metadata?.twitterUrl && (
+                    <ExternalBadgeLink
+                      href={product.metadata.twitterUrl}
+                      target="_blank"
+                      variant="outline"
+                    >
+                      <span className="flex items-center gap-1 text-sm">
+                        <Twitter size={14} /> Twitter
+                      </span>
+                    </ExternalBadgeLink>
+                  )}
+                  {product.metadata?.contactEmail && (
+                    <ExternalBadgeLink
+                      href={`mailto:${product.metadata.contactEmail}`}
+                      variant="outline"
+                    >
+                      <span className="flex items-center gap-1 text-sm">
+                        <Mail size={14} /> Contact
+                      </span>
+                    </ExternalBadgeLink>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        )}
-        {(product.companyName || product.organization) && (
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">Company:</span>
-            <span>{product.companyName || product.organization?.name}</span>
+        </div>
+
+        {/* Right column: upvotes/views + pricing */}
+        <div className="shrink-0">
+          <div className="flex flex-col items-end gap-3">
+            <UpvoteSquare count={stats?.upvotes || 0} title="Total upvotes" />
+            <div className="text-sm text-muted-foreground">
+              {stats?.views || 0} views • {stats?.clicks || 0} clicks
+            </div>
+            {((product.startingPriceCents !== null &&
+              product.startingPriceCents !== undefined) || product.pricingModel) && (
+              <div className="text-right mt-1">
+                {product.startingPriceCents !== null &&
+                  product.startingPriceCents !== undefined && (
+                    <div className="text-2xl font-extrabold">
+                      <span className="text-sm font-normal text-muted-foreground align-baseline mr-1">
+                        Starting at
+                      </span>
+                      {formatCurrency(
+                        product.startingPriceCents,
+                        product.currencyCode || "USD",
+                      )}
+                    </div>
+                  )}
+                <div className="mt-1">
+                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                    <Tag size={12} /> {product.pricingModel}
+                  </Badge>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-        {product.keywords && product.keywords.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-muted-foreground">Tags:</span>
-            {product.keywords.map((k) => (
-              <Badge key={k} variant="secondary" className="text-xs">
-                {k}
-              </Badge>
-            ))}
-          </div>
-        )}
+        </div>
       </div>
 
-      {/* Description */}
-      <div className="text-sm md:text-base leading-relaxed text-foreground/90 whitespace-pre-line">
-        {product.description}
-      </div>
+      
 
-      {/* Media Gallery */}
-      {product.ProductMedia.length > 0 && (
+      {/* Use Cases (from Category) */}
+      {product.category.useCases && product.category.useCases.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold mb-3">Gallery</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {product.ProductMedia.map((m) => (
-              <div
-                key={m.id}
-                className="relative aspect-video overflow-hidden rounded-md border bg-muted"
-              >
-                <Image
-                  src={m.imageUrl}
-                  alt={m.altText || product.name}
-                  fill
-                  className="object-cover"
-                />
+          <h2 className="text-lg font-semibold mb-2">Use cases</h2>
+          <div className="flex flex-wrap gap-2">
+            {product.category.useCases.map((uc) => (
+              <Badge key={`${uc.useCaseId}-${uc.categoryId}`} variant="secondary" className="text-xs">
+                <CheckCircle size={12} className="mr-1" /> {uc.useCase.label}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Plan Features removed */}
+
+      {/* Team (Organization Members) */}
+      {product.organization && product.organization.memberships && product.organization.memberships.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold mb-2">Team</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {product.organization.memberships.map((m) => (
+              <div key={m.id} className="rounded-md border p-3 bg-muted/30">
+                <div className="font-medium">
+                  {m.user.firstName} {m.user.lastName || ""}
+                </div>
+                {m.jobTitle && (
+                  <div className="text-sm text-muted-foreground">{m.jobTitle}</div>
+                )}
               </div>
             ))}
           </div>
         </div>
       )}
+
+      {/* Media (Banner + Gallery) */}
+      {(product.bannerImage || product.ProductMedia.length > 0) && (
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Media</h2>
+          {product.bannerImage && (
+            <div className="relative w-full aspect-[3/1] overflow-hidden rounded-lg border bg-muted">
+              <Image
+                src={product.bannerImage}
+                alt={`${product.name} banner`}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+          {product.ProductMedia.length > 0 && (
+            <div className={`grid grid-cols-2 md:grid-cols-3 gap-3 ${product.bannerImage ? 'mt-3' : ''}`}>
+              {product.ProductMedia.map((m) => (
+                <div
+                  key={m.id}
+                  className="relative aspect-video overflow-hidden rounded-md border bg-muted"
+                >
+                  <Image
+                    src={m.imageUrl}
+                    alt={m.altText || product.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Description (Markdown) */}
+      <div className="prose max-w-none prose-neutral dark:prose-invert">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            a: ({ node, ...props }) => (
+              <a
+                {...props}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              />
+            ),
+            img: ({ node, ...props }) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img {...props} alt={(props as any).alt || ""} className="rounded border" />
+            ),
+          }}
+        >
+          {product.description || ""}
+        </ReactMarkdown>
+      </div>
+
+      {/* Tags */}
+      {product.keywords && product.keywords.length > 0 && (
+        <div className="mt-2 flex items-center gap-2 flex-wrap">
+          <span className="text-sm text-muted-foreground">Tags:</span>
+          {product.keywords.map((k) => (
+            <Badge key={k} variant="secondary" className="text-xs">
+              {k}
+            </Badge>
+          ))}
+        </div>
+      )}
+
 
       {/* Related */}
       {related.length > 0 && (
