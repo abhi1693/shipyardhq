@@ -322,10 +322,14 @@ export default async function ViewUserProductPage({
                     <div className="mt-1 flex items-baseline gap-2">
                       {(() => {
                         const nf = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" })
-                        const priceText = nf.format(nextPlan.price / 100)
-                        const pct = (nextPlan.discount || 0)
-                        const baseCents = pct > 0 && pct < 100 ? Math.round(nextPlan.price / (1 - pct / 100)) : nextPlan.price
-                        const original = pct > 0 && pct < 100 ? nf.format(baseCents / 100) : null
+                        const pctRaw = nextPlan.discount ?? 0
+                        const pct = Math.min(Math.max(pctRaw, 0), 100)
+                        const originalCents = nextPlan.price
+                        const discountedCents = pct > 0 && pct < 100
+                          ? Math.round(originalCents * (1 - pct / 100))
+                          : originalCents
+                        const original = pct > 0 && pct < 100 ? nf.format(originalCents / 100) : null
+                        const priceText = nf.format(discountedCents / 100)
                         return (
                           <>
                             {original && (
@@ -338,7 +342,7 @@ export default async function ViewUserProductPage({
                               </span>
                             ) : null}
                             {nextPlan.type === "one_time_price" ? (
-                              <span className="text-[10px] inline-flex items-center rounded border px-1.5 py-0.5 uppercase tracking-wide">Pay once</span>
+                              <span className="text-[10px] inline-flex items-center rounded border px-1.5 py-0.5 uppercase tracking-wide">One-time</span>
                             ) : (
                               <span className="text-xs text-muted-foreground">/ {nextPlan.frequency} {nextPlan.interval}{nextPlan.frequency > 1 ? "s" : ""}</span>
                             )}
