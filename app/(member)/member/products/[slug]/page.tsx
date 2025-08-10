@@ -30,12 +30,7 @@ import DuplicateProductButton from "@/components/molecules/DuplicateProductButto
 import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
-import {
-  getProductActivity,
-  getRecentUpvoters,
-  validatePaymentAndAttachPlan,
-} from "@/actions/member/products/actions"
-// ShareOnX badge is still available elsewhere; header uses ShareOnXButton
+import { getRecentUpvoters, validatePaymentAndAttachPlan } from "@/actions/member/products/actions"
 import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import { ExternalLink, Copy as CopyIcon } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
@@ -68,10 +63,8 @@ export default async function ViewUserProductPage({
   const { userId: clerkId } = await auth()
   const isOwner = Boolean(clerkId && product.user?.clerkId === clerkId)
   const publicPath = `/products/${product.slug}`
-  const activity = await getProductActivity(product.id, 30, 12).catch(() => [])
   const upvoters = await getRecentUpvoters(product.id, 5).catch(() => [])
 
-  // Upsell: compute next higher plan and feature deltas
   const allPlans = await getPublicPlans().catch(() => [])
   const currentPlanPublic = product.plan
     ? allPlans.find((p) => p.id === product.plan!.id)
@@ -82,7 +75,6 @@ export default async function ViewUserProductPage({
       .filter((p) => p.price > baseline)
       .sort((a, b) => a.price - b.price)
     if (higher.length) return higher[0]
-    // If no current plan, suggest the first paid plan; else no upsell
     if (!currentPlanPublic) {
       const paid = allPlans.filter((p) => p.price > 0).sort((a, b) => a.price - b.price)
       return paid[0]
@@ -118,7 +110,6 @@ export default async function ViewUserProductPage({
       (prev?.features || []).filter((f) => f.enabled).map((f) => f.key),
     )
     const exclusive = Array.from(currentEnabled).filter((k) => !prevEnabled.has(k))
-    // Map back to names using current plan feature list
     const nameByKey = new Map(
       currentPlanPublic.features.map((f) => [f.key, f.name] as const),
     )
@@ -251,7 +242,6 @@ export default async function ViewUserProductPage({
         </div>
       }
       topRowExtras={[
-        // Plan emphasized in top row
         <Card key="plan-top">
           <CardHeader>
             <CardTitle className="text-base">Plan</CardTitle>
@@ -263,9 +253,7 @@ export default async function ViewUserProductPage({
                   <span className="font-medium text-foreground">{product.plan.name}</span>
                   <span className="text-muted-foreground">•</span>
                   <span>{formatCurrency(product.plan.price) as any}</span>
-                  {product.plan.type === "one_time_price" ? (
-                    <span className="ml-1 inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wide">One-time</span>
-                  ) : (
+                  {product.plan.type !== "one_time_price" ? (
                     <>
                       <span className="text-muted-foreground">•</span>
                       <span>
@@ -273,7 +261,7 @@ export default async function ViewUserProductPage({
                         {product.plan.frequency > 1 ? "s" : ""}
                       </span>
                     </>
-                  )}
+                  ) : null}
                   {product.plan.trialDays ? (
                     <>
                       <span className="text-muted-foreground">•</span>
@@ -327,11 +315,9 @@ export default async function ViewUserProductPage({
                                 Save {new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(pct)}%
                               </span>
                             ) : null}
-                            {nextPlan.type === "one_time_price" ? (
-                              <span className="text-[10px] inline-flex items-center rounded border px-1.5 py-0.5 uppercase tracking-wide">One-time</span>
-                            ) : (
+                            {nextPlan.type !== "one_time_price" ? (
                               <span className="text-xs text-muted-foreground">/ {nextPlan.frequency} {nextPlan.interval}{nextPlan.frequency > 1 ? "s" : ""}</span>
-                            )}
+                            ) : null}
                           </>
                         )
                       })()}
@@ -342,7 +328,7 @@ export default async function ViewUserProductPage({
                       "use server"
                       const pid = formData.get("planId")?.toString() || ""
                       if (!pid) return
-                      // If we can checkout directly, do it; otherwise go to selection page
+                      // If we can checkout directly, do it; otherwise attach directly
                       if (nextPlan.externalId && nextPlan.price > 0) {
                         const session = await startPlanCheckoutAction(product.id, pid)
                         if ((session as any)?.paymentLink) {
@@ -382,7 +368,6 @@ export default async function ViewUserProductPage({
               </div>
             ) : null}
 
-            {/* List all upgradable plans inline for upsell */}
             {(() => {
               const currentPrice = currentPlanPublic ? currentPlanPublic.price : 0
               const upgradableAll = allPlans.filter((p) => p.price > currentPrice)
@@ -436,11 +421,9 @@ export default async function ViewUserProductPage({
                                       Save {new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(pct)}%
                                     </span>
                                   ) : null}
-                                  {p.type === "one_time_price" ? (
-                                    <span className="text-[10px] inline-flex items-center rounded border px-1.5 py-0.5 uppercase tracking-wide">One-time</span>
-                                  ) : (
+                                  {p.type !== "one_time_price" ? (
                                     <span className="text-xs text-muted-foreground">/ {p.frequency} {p.interval}{p.frequency > 1 ? "s" : ""}</span>
-                                  )}
+                                  ) : null}
                                 </>
                               )
                             })()}
@@ -467,7 +450,6 @@ export default async function ViewUserProductPage({
       ]}
       relationships={
         <div className="grid grid-cols-12 gap-6">
-          {/* Branding first */}
           <Card className="col-span-12 md:col-span-4">
             <CardHeader>
               <CardTitle className="text-base">Branding</CardTitle>
@@ -482,7 +464,6 @@ export default async function ViewUserProductPage({
             </CardContent>
           </Card>
 
-          {/* Organization & Targeting second */}
           <Card className="col-span-12 md:col-span-4">
             <CardHeader>
               <CardTitle className="text-base">Organization & Targeting</CardTitle>
@@ -528,7 +509,6 @@ export default async function ViewUserProductPage({
             </CardContent>
           </Card>
 
-          {/* Primary setup: Links + Performance */}
           <Card className="col-span-12 md:col-span-4">
             <CardHeader>
               <CardTitle className="text-base">Links</CardTitle>
@@ -615,7 +595,6 @@ export default async function ViewUserProductPage({
               )}
             </CardContent>
           </Card>
-          {/* Media + Performance in same row (media wider) */}
           <Card className="col-span-12 md:col-span-8">
             <CardHeader>
               <CardTitle className="text-base">Media Gallery</CardTitle>
@@ -651,7 +630,6 @@ export default async function ViewUserProductPage({
             ogImageUrl={product.bannerImage || product.logo}
             editHref={`/member/products/${product.slug}/edit`}
           />
-          {/* Description */}
           <Card className="col-span-12">
             <CardHeader>
               <CardTitle className="text-base">Description</CardTitle>
