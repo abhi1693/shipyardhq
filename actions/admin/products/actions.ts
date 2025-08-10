@@ -1,11 +1,29 @@
 "use server"
 
 import { Resolver } from "node:dns/promises"
+import { createHash } from "crypto"
 import prisma from "@/lib/prisma"
 import { ProductType, PricingModel, Prisma } from "@prisma/client"
+import { slugify } from "@/lib/utils"
 
-function generateVerificationTxt(): string {
-  return `prod-verif-shipyard-${Math.random().toString(36).slice(2, 10)}`
+function generateVerificationTxtFromWebsite(websiteUrl: string): string {
+  const norm = websiteUrl.trim().toLowerCase()
+  const hash = createHash("sha256").update(norm).digest("hex").slice(0, 12)
+  return `prod-verif-shipyard-${hash}`
+}
+
+async function generateUniqueSlug(base: string): Promise<string> {
+  const clean = slugify(base)
+  if (!clean) return `product-${Math.random().toString(36).slice(2, 6)}`
+  let candidate = clean
+  let i = 2
+  // Loop until unique
+  // Note: findUnique is faster when exact, but loop is simple here
+  while (true) {
+    const existing = await prisma.product.findUnique({ where: { slug: candidate } })
+    if (!existing) return candidate
+    candidate = `${clean}-${i++}`
+  }
 }
 
 export async function getProducts(args: Prisma.ProductFindManyArgs = {}) {
@@ -103,10 +121,21 @@ export async function createProductAction(formData: FormData) {
   } catch {}
 
   try {
+    // Uniqueness: websiteUrl must be unique
+    const existingWebsite = await prisma.product.findFirst({ where: { websiteUrl } })
+    if (existingWebsite) {
+      return { error: "A product with this website URL already exists." }
+    }
+
+    // Slug: auto-generate if missing, ensure unique
+    const finalSlug = await generateUniqueSlug(slug && slug.length ? slug : name || new URL(websiteUrl).hostname)
+
+    const verificationTxt = generateVerificationTxtFromWebsite(websiteUrl)
+
     await prisma.product.create({
       data: {
         name,
-        slug: slug!,
+        slug: finalSlug,
         tagline,
         description,
         websiteUrl,
@@ -139,7 +168,7 @@ export async function createProductAction(formData: FormData) {
         },
         verification: {
           create: {
-            verificationTxt: generateVerificationTxt(),
+            verificationTxt,
           },
         },
       },
@@ -316,6 +345,27 @@ export async function verifyProductDomainAction(productId: string) {
       },
     })
 
+    const code = (error as { code?: string })?.code ?? "UNKNOWN"
+    return { error: `DNS check failed: ${code}` }
+  }
+}
+
+export async function checkDomainTxtAction(websiteUrl: string) {
+  // Stateless DNS check for add-flow verification
+  if (!websiteUrl) return { error: "Missing website URL" }
+  try {
+    const url = new URL(websiteUrl)
+    const domain = url.hostname
+
+    const resolver = new Resolver()
+    resolver.setServers(["1.1.1.1", "8.8.8.8"])
+
+    const txtRecords = await resolver.resolveTxt(domain)
+    const flattened = txtRecords.flat().map((t) => t.trim())
+    const expected = generateVerificationTxtFromWebsite(websiteUrl)
+    const matched = flattened.some((txt) => txt === expected.trim())
+    return { success: matched, expected }
+  } catch (error: unknown) {
     const code = (error as { code?: string })?.code ?? "UNKNOWN"
     return { error: `DNS check failed: ${code}` }
   }
