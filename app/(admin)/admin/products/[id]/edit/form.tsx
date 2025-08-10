@@ -54,7 +54,7 @@ const productFormSchema = z.object({
   tagline: z.string().min(1, "Tagline is required"),
   description: z.string().min(1, "Description is required"),
   websiteUrl: z.url("Valid URL required"),
-  logo: z.string().min(1, "Logo URL is required"),
+  logo: z.string().min(1, "Logo is required"),
   bannerImage: z.url().or(z.literal("")),
   categoryId: z.string().min(1, "Category is required"),
   userId: z.string().min(1, "User is required"),
@@ -258,7 +258,7 @@ export default function EditProductForm({
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Logo URL</FormLabel>
+                      <FormLabel>Logo</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="https://example.com/logo.png"
@@ -551,7 +551,7 @@ export default function EditProductForm({
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Banner Image URL</FormLabel>
+                      <FormLabel>Banner Image</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="https://example.com/banner.png"
