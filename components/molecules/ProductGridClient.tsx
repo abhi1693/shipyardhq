@@ -20,7 +20,7 @@ type ProductWithMeta = Product & {
   user: User
   analytics: ProductAnalytics | null
   verification: ProductVerification | null
-  ProductBadge?: { badge: string }[]
+  ProductBadge?: { badge: string; expiresAt?: Date | string | null }[]
 }
 
 interface ProductGridClientProps {
@@ -93,7 +93,11 @@ export default function ProductGridClient({
       <ProductList
         items={products.map((p) => ({
           ...p,
-          badges: p.ProductBadge?.map((pb) => pb.badge),
+          badges: p.ProductBadge
+            ?.filter(
+              (pb) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
+            )
+            .map((pb) => pb.badge),
         }))}
         compact
         showCategory

@@ -3,6 +3,8 @@
 import { Resolver } from "node:dns/promises"
 import { createHash } from "crypto"
 import prisma from "@/lib/prisma"
+import { publish } from "@/lib/server/events"
+import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import { ProductType, PricingModel, Prisma } from "@prisma/client"
 import { slugify } from "@/lib/utils"
@@ -193,6 +195,8 @@ export async function createProductAction(formData: FormData) {
         },
       },
     })
+    // Fire domain event for listeners (e.g., auto badges)
+    await publish("product.created", { productId: created.id })
 
     return { success: true }
   } catch (error) {
@@ -319,6 +323,9 @@ export async function updateProductAction(
       },
     })
 
+    // Fire update event (available for future listeners)
+    await publish("product.updated", { productId: id })
+
     // Cleanup old blobs if logo/banner changed and were hosted on Vercel Blob
     const isVercelBlobUrl = (u?: string | null) => {
       if (!u) return false
@@ -373,7 +380,10 @@ export async function deleteProductAction(id: string) {
       }
     }
 
-    return await prisma.product.delete({ where: { id } })
+    const result = await prisma.product.delete({ where: { id } })
+    // Fire delete event (badges are cascaded in DB, but listeners may react)
+    await publish("product.deleted", { productId: id })
+    return result
   } catch (error) {
     console.error("Error deleting product:", error)
     return { error: "Failed to delete product" }
