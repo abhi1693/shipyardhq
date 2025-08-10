@@ -17,7 +17,7 @@ export default function ProductMediaManager({
   productId,
   media,
   canEdit = false,
-  max = 4,
+  max = 3,
 }: Props) {
   const router = useRouter()
   const [busy, setBusy] = useState<null | "upload">(null)

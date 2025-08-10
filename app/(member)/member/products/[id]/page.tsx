@@ -353,7 +353,6 @@ export default async function ViewUserProductPage({
                   imageUrl: m.imageUrl,
                 }))}
                 canEdit={isOwner}
-                max={4}
               />
             </CardContent>
           </Card>
