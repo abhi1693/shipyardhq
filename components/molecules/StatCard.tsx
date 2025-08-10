@@ -60,7 +60,6 @@ export function StatCard({
             </CardTitle>
           </div>
         </div>
-        <CardDescription>{title}</CardDescription>
         {badge && (
           <CardAction>
             <Badge
