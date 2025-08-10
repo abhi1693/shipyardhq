@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
+import ImageUploadField from "@/components/molecules/ImageUploadField"
 import { Textarea } from "@/components/atoms/textarea"
 import {
   Select,
@@ -144,12 +145,9 @@ export default function Step1({ categories, platforms }: Props) {
         <FormField
           name="logo"
           control={form.control}
-          render={({ field }) => (
+          render={() => (
             <FormItem>
-              <FormLabel>Logo URL</FormLabel>
-              <FormControl>
-                <Input placeholder="https://example.com/logo.png" {...field} />
-              </FormControl>
+              <ImageUploadField name="logo" label="Logo" folder="logos" />
               <FormMessage />
             </FormItem>
           )}

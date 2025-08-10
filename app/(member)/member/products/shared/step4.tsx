@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
+import ImageUploadField from "@/components/molecules/ImageUploadField"
 import {
   Select,
   SelectContent,
@@ -57,15 +58,9 @@ export default function Step4({
         <FormField
           name="bannerImage"
           control={form.control}
-          render={({ field }) => (
+          render={() => (
             <FormItem>
-              <FormLabel>Banner Image URL</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="https://example.com/banner.png"
-                  {...field}
-                />
-              </FormControl>
+              <ImageUploadField name="bannerImage" label="Banner Image" folder="banners" />
               <FormMessage />
             </FormItem>
           )}

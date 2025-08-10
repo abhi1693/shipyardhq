@@ -3,6 +3,7 @@
 import { Resolver } from "node:dns/promises"
 import { createHash } from "crypto"
 import prisma from "@/lib/prisma"
+import { deleteBlob } from "@/lib/blob"
 import { ProductType, PricingModel, Prisma } from "@prisma/client"
 import { slugify } from "@/lib/utils"
 
@@ -276,7 +277,12 @@ export async function updateProductAction(
   }
 
   try {
-    return await prisma.product.update({
+    const prev = await prisma.product.findUnique({
+      where: { id },
+      select: { logo: true, bannerImage: true },
+    })
+
+    const updated = await prisma.product.update({
       where: { id },
       data: {
         name: name.trim(),
@@ -310,6 +316,32 @@ export async function updateProductAction(
         platforms: data.platforms as any,
       },
     })
+
+    // Cleanup old blobs if logo/banner changed and were hosted on Vercel Blob
+    const isVercelBlobUrl = (u?: string | null) => {
+      if (!u) return false
+      try {
+        const host = new URL(u).hostname
+        return host.includes("vercel-storage.com")
+      } catch {
+        return false
+      }
+    }
+
+    const deletions: Promise<any>[] = []
+    if (prev?.logo && prev.logo !== updated.logo && isVercelBlobUrl(prev.logo)) {
+      deletions.push(deleteBlob(prev.logo).catch(() => {}))
+    }
+    if (
+      prev?.bannerImage &&
+      prev.bannerImage !== updated.bannerImage &&
+      isVercelBlobUrl(prev.bannerImage)
+    ) {
+      deletions.push(deleteBlob(prev.bannerImage).catch(() => {}))
+    }
+    if (deletions.length) await Promise.all(deletions)
+
+    return updated
   } catch (error) {
     console.error("Error updating product:", error)
     return { error: "Failed to update product" }
@@ -318,9 +350,47 @@ export async function updateProductAction(
 
 export async function deleteProductAction(id: string) {
   try {
-    return await prisma.product.delete({
+    // Fetch media + image fields to clean up blobs first
+    const product = await prisma.product.findUnique({
       where: { id },
+      select: {
+        id: true,
+        logo: true,
+        bannerImage: true,
+        ProductMedia: { select: { id: true, imageUrl: true } },
+      },
     })
+
+    if (!product) return { error: "Product not found" }
+
+    const urls: string[] = []
+    if (product.logo) urls.push(product.logo)
+    if (product.bannerImage) urls.push(product.bannerImage)
+    for (const m of product.ProductMedia) urls.push(m.imageUrl)
+
+    const isVercelBlobUrl = (u: string) => {
+      try {
+        const host = new URL(u).hostname
+        return host.includes("vercel-storage.com")
+      } catch {
+        return false
+      }
+    }
+
+    const blobUrls = urls.filter(isVercelBlobUrl)
+    if (blobUrls.length) {
+      await Promise.all(
+        blobUrls.map(async (u) => {
+          try {
+            await deleteBlob(u)
+          } catch (e) {
+            console.warn("Failed to delete blob (continuing):", u, e)
+          }
+        }),
+      )
+    }
+
+    return await prisma.product.delete({ where: { id } })
   } catch (error) {
     console.error("Error deleting product:", error)
     return { error: "Failed to delete product" }
