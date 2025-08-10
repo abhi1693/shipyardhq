@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
+// Server-side uses Sharp to convert/compress; client pre-processing disabled.
 
 type Media = { id: string; imageUrl: string }
 
@@ -33,9 +34,10 @@ export default function ProductMediaManager({
       setError(null)
       try {
         const fd = new FormData()
-        Array.from(files)
-          .slice(0, remaining)
-          .forEach((f) => fd.append("file", f))
+        const selected = Array.from(files).slice(0, remaining)
+        for (const f of selected) {
+          fd.append("file", f)
+        }
         const res = await fetch(`/api/products/${productId}/media`, {
           method: "POST",
           body: fd,

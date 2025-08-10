@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { putBlob } from "@/lib/blob"
+import { toWebpIfPossible } from "@/lib/server/image"
 
 export const dynamic = "force-dynamic"
 
@@ -72,13 +73,13 @@ export async function POST(
 
     const uploaded = await Promise.all(
       files.map(async (file) => {
-        const key = `${userId}/products/${product.id}/media/${Date.now()}-${sanitizeFilename(
-          file.name || "image",
-        )}`
         const arrayBuf = await file.arrayBuffer()
-        return await putBlob(key, arrayBuf, {
+        const processed = await toWebpIfPossible(arrayBuf, file.type)
+        const base = sanitizeFilename((file.name || "image").replace(/\.[^.]+$/, ""))
+        const key = `${userId}/products/${product.id}/media/${Date.now()}-${base}.${processed.extension}`
+        return await putBlob(key, processed.buffer, {
           access: "public",
-          contentType: file.type,
+          contentType: processed.contentType,
         })
       }),
     )

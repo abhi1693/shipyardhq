@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+// Server-side uses Sharp to convert/compress; client pre-processing disabled.
 import { useFormContext } from "react-hook-form"
 
 type Props = {

@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server"
 import { putBlob } from "@/lib/blob"
+import { toWebpIfPossible } from "@/lib/server/image"
 
 export const dynamic = "force-dynamic"
 
@@ -26,11 +27,13 @@ export async function POST(req: Request) {
     const prefix = productId
       ? `${userId}/products/${productId}/${folder}`
       : `${userId}/${folder}`
-    const key = `${prefix}/${Date.now()}-${sanitizeFilename(file.name || "image")}`
     const arrayBuf = await file.arrayBuffer()
-    const uploaded = await putBlob(key, arrayBuf, {
+    const processed = await toWebpIfPossible(arrayBuf, file.type)
+    const base = sanitizeFilename((file.name || "image").replace(/\.[^.]+$/, ""))
+    const key = `${prefix}/${Date.now()}-${base}.${processed.extension}`
+    const uploaded = await putBlob(key, processed.buffer, {
       access: "public",
-      contentType: file.type,
+      contentType: processed.contentType,
     })
     return Response.json({ url: uploaded.url })
   } catch (err: any) {
