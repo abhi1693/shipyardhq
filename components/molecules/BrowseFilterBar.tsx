@@ -62,9 +62,10 @@ export default function BrowseFilterBar({
   const buildUrl = useCallback(
     (key: string, value: string | boolean | undefined) => {
       return buildQuery("/browse", qs, {
-        [key]: value === undefined || value === "__all__" || value === false
-          ? undefined
-          : String(value),
+        [key]:
+          value === undefined || value === "__all__" || value === false
+            ? undefined
+            : String(value),
         page: "1",
       })
     },
@@ -83,11 +84,17 @@ export default function BrowseFilterBar({
       const updates: Record<string, string | undefined> = { page: "1" }
       if ("useCase" in overrides) {
         const v = overrides.useCase
-        updates.useCase = v === undefined || v === "__all__" || v === false ? undefined : String(v)
+        updates.useCase =
+          v === undefined || v === "__all__" || v === false
+            ? undefined
+            : String(v)
       }
       if ("category" in overrides) {
         const v = overrides.category
-        updates.category = v === undefined || v === "__all__" || v === false ? undefined : String(v)
+        updates.category =
+          v === undefined || v === "__all__" || v === false
+            ? undefined
+            : String(v)
       }
       if ("sort" in overrides) {
         updates.sort = overrides.sort ?? undefined
@@ -240,7 +247,12 @@ export default function BrowseFilterBar({
           <Switch
             checked={Boolean(current.verified)}
             onCheckedChange={(checked) =>
-              router.push(buildQuery("/browse", qs, { verified: checked ? "true" : undefined, page: "1" }))
+              router.push(
+                buildQuery("/browse", qs, {
+                  verified: checked ? "true" : undefined,
+                  page: "1",
+                }),
+              )
             }
           />
         </div>

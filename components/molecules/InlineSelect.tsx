@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 
-type Option = { value: string; label: string };
+type Option = { value: string; label: string }
 
 export function InlineSelect({
   value,
@@ -17,11 +17,11 @@ export function InlineSelect({
   triggerClassName,
   placeholder,
 }: {
-  value: string;
-  onValueChange: (v: string) => void;
-  options: Option[];
-  triggerClassName?: string;
-  placeholder?: string;
+  value: string
+  onValueChange: (v: string) => void
+  options: Option[]
+  triggerClassName?: string
+  placeholder?: string
 }) {
   return (
     <Select value={value} onValueChange={onValueChange}>
@@ -39,5 +39,4 @@ export function InlineSelect({
   )
 }
 
-export default InlineSelect;
-
+export default InlineSelect

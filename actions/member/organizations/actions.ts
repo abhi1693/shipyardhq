@@ -7,7 +7,10 @@ export async function getMyOrganizations() {
   const { userId: clerkId } = await auth()
   if (!clerkId) throw new Error("Unauthenticated")
 
-  const user = await prisma.user.findUnique({ where: { clerkId }, select: { id: true } })
+  const user = await prisma.user.findUnique({
+    where: { clerkId },
+    select: { id: true },
+  })
   if (!user) throw new Error("User not found")
 
   const orgs = await prisma.organization.findMany({
@@ -17,4 +20,3 @@ export async function getMyOrganizations() {
   })
   return orgs
 }
-

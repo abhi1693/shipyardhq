@@ -6,8 +6,20 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { updateOrganizationAction } from "@/actions/admin/organizations/actions"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/atoms/form"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
@@ -20,7 +32,11 @@ const orgSchema = z.object({
 
 type OrgFormInput = z.infer<typeof orgSchema>
 
-export default function EditOrganizationForm({ organization }: { organization: Organization }) {
+export default function EditOrganizationForm({
+  organization,
+}: {
+  organization: Organization
+}) {
   const router = useRouter()
 
   const form = useForm<OrgFormInput>({
@@ -41,7 +57,9 @@ export default function EditOrganizationForm({ organization }: { organization: O
     <PageContainer>
       <Card className="mx-auto w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">Edit Organization</CardTitle>
+          <CardTitle className="text-left text-2xl font-bold">
+            Edit Organization
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -84,4 +102,3 @@ export default function EditOrganizationForm({ organization }: { organization: O
     </PageContainer>
   )
 }
-

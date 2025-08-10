@@ -10,7 +10,14 @@ export function FeaturedHighlights({
   products: FeaturedProduct[]
 }) {
   return (
-    <PublicContainer as="section" max="marketing" paddingY="py-16" className="border-b" innerClassName="space-y-8" fillScreen={false}>
+    <PublicContainer
+      as="section"
+      max="marketing"
+      paddingY="py-16"
+      className="border-b"
+      innerClassName="space-y-8"
+      fillScreen={false}
+    >
       <PageSectionHeader
         title="Featured Highlights"
         subtitle="Curated products making waves right now."

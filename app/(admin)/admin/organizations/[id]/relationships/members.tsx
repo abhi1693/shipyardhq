@@ -23,7 +23,8 @@ export function OrganizationMembersRelationship({
       header: "Member",
       cell: ({ row }) =>
         linkify({
-          label: `${row.original.user.firstName} ${row.original.user.lastName}`.trim(),
+          label:
+            `${row.original.user.firstName} ${row.original.user.lastName}`.trim(),
           href: `/admin/users/${row.original.user.id}`,
           subtext: row.original.user.email,
         }),

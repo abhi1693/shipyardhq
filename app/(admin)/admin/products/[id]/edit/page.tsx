@@ -5,12 +5,18 @@ import { getUsers } from "@/actions/admin/users/actions"
 import { getOrganizations } from "@/actions/admin/organizations/actions"
 import EditProductForm from "./form"
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
+export default async function EditProductPage({
+  params,
+}: {
+  params: { id: string }
+}) {
   const { id } = await params
   const [product, categories, users, organizations] = await Promise.all([
     getProductById(id),
     getCategories({ select: { id: true, name: true } }),
-    getUsers({ select: { id: true, email: true, firstName: true, lastName: true } }),
+    getUsers({
+      select: { id: true, email: true, firstName: true, lastName: true },
+    }),
     getOrganizations({ select: { id: true, name: true } }),
   ])
 
@@ -25,4 +31,3 @@ export default async function EditProductPage({ params }: { params: { id: string
     />
   )
 }
-

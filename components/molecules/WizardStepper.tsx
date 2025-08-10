@@ -1,14 +1,20 @@
-"use client";
+"use client"
 
-type Step = { id: number; label: string };
+type Step = { id: number; label: string }
 
-export default function WizardStepper({ steps, step }: { steps: Step[]; step: number }) {
+export default function WizardStepper({
+  steps,
+  step,
+}: {
+  steps: Step[]
+  step: number
+}) {
   return (
     <div className="mb-6">
       <ol className="flex items-center justify-between gap-2">
         {steps.map((s, idx) => {
-          const isDone = step > s.id;
-          const isCurrent = step === s.id;
+          const isDone = step > s.id
+          const isCurrent = step === s.id
           return (
             <li key={s.id} className="flex-1 flex items-center">
               <div className="flex items-center gap-2">
@@ -24,7 +30,12 @@ export default function WizardStepper({ steps, step }: { steps: Step[]; step: nu
                 >
                   {s.id}
                 </div>
-                <span className={"text-sm " + (isCurrent ? "font-medium" : "text-muted-foreground")}>
+                <span
+                  className={
+                    "text-sm " +
+                    (isCurrent ? "font-medium" : "text-muted-foreground")
+                  }
+                >
                   {s.label}
                 </span>
               </div>
@@ -39,10 +50,9 @@ export default function WizardStepper({ steps, step }: { steps: Step[]; step: nu
                 </div>
               )}
             </li>
-          );
+          )
         })}
       </ol>
     </div>
-  );
+  )
 }
-

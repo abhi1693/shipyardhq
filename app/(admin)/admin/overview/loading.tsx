@@ -1,5 +1,10 @@
 import { Skeleton } from "@/components/atoms/skeleton"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/atoms/card"
 
 export default function Loading() {
   return (
@@ -58,4 +63,3 @@ export default function Loading() {
     </div>
   )
 }
-

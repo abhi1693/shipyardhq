@@ -30,9 +30,7 @@ export function PageSectionHeader({
         {underline && (
           <div className="mt-3 h-1.5 w-16 rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]" />
         )}
-        {subtitle && (
-          <p className="text-muted-foreground mt-2">{subtitle}</p>
-        )}
+        {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
       </div>
       {!isCenter && action ? action : null}
     </div>
@@ -40,4 +38,3 @@ export function PageSectionHeader({
 }
 
 export default PageSectionHeader
-

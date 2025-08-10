@@ -86,7 +86,10 @@ export async function getDashboardStats(days = 7) {
   const dayStarts: Date[] = Array.from({ length: days }, (_, i) =>
     startOfDay(addDays(since, i + 1)),
   )
-  const dayRanges = dayStarts.map((start) => ({ start, end: addDays(start, 1) }))
+  const dayRanges = dayStarts.map((start) => ({
+    start,
+    end: addDays(start, 1),
+  }))
 
   const [dailyProducts, dailyUsers] = await Promise.all([
     Promise.all(
@@ -114,7 +117,11 @@ export async function getDashboardStats(days = 7) {
     const top = grouped[0]
     const plan = await prisma.plan.findUnique({ where: { id: top.planId! } })
     if (plan) {
-      mostPopularPlan = { id: plan.id, name: plan.name, count: top._count.planId }
+      mostPopularPlan = {
+        id: plan.id,
+        name: plan.name,
+        count: top._count.planId,
+      }
     }
   } else if (mostPopularPlanAllTime) {
     // Fallback to all-time if no products in range
@@ -132,7 +139,9 @@ export async function getDashboardStats(days = 7) {
 
   // Previous-period counts for deltas
   const [prevProducts, prevUsers] = await Promise.all([
-    prisma.product.count({ where: { createdAt: { gte: prevSince, lt: since } } }),
+    prisma.product.count({
+      where: { createdAt: { gte: prevSince, lt: since } },
+    }),
     prisma.user.count({ where: { createdAt: { gte: prevSince, lt: since } } }),
   ])
 

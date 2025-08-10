@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 import { withAccelerate } from "@prisma/extension-accelerate"
 import { IS_PROD } from "@/lib/constants"
-import {withOptimize} from "@prisma/extension-optimize";
+import { withOptimize } from "@prisma/extension-optimize"
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
 

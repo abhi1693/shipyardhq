@@ -10,10 +10,22 @@ import { checkDomainTxtAction } from "@/actions/admin/products/actions"
 
 export default function Step3() {
   const form = useFormContext()
-  const website = useWatch({ control: form.control, name: "websiteUrl" }) as string
-  const expected = useWatch({ control: form.control, name: "verificationExpectedTxt" }) as string | undefined
-  const checked = useWatch({ control: form.control, name: "verificationChecked" }) as boolean | undefined
-  const success = useWatch({ control: form.control, name: "verificationSuccess" }) as boolean | undefined
+  const website = useWatch({
+    control: form.control,
+    name: "websiteUrl",
+  }) as string
+  const expected = useWatch({
+    control: form.control,
+    name: "verificationExpectedTxt",
+  }) as string | undefined
+  const checked = useWatch({
+    control: form.control,
+    name: "verificationChecked",
+  }) as boolean | undefined
+  const success = useWatch({
+    control: form.control,
+    name: "verificationSuccess",
+  }) as boolean | undefined
   const [verifying, setVerifying] = useState(false)
   const domain = useMemo(() => {
     try {
@@ -34,7 +46,7 @@ export default function Step3() {
         return
       }
       const res = await checkDomainTxtAction(website)
-      if (active && 'expected' in res && res.expected) {
+      if (active && "expected" in res && res.expected) {
         form.setValue("verificationExpectedTxt", res.expected)
       }
       // Any website change invalidates prior verification result
@@ -73,11 +85,17 @@ export default function Step3() {
             <span className="font-medium"> {domain || "your domain"}</span>.
           </p>
           <div className="rounded border p-3 bg-muted/50">
-            <div><span className="font-medium">Type:</span> TXT</div>
-            <div><span className="font-medium">Host/Name:</span> @</div>
+            <div>
+              <span className="font-medium">Type:</span> TXT
+            </div>
+            <div>
+              <span className="font-medium">Host/Name:</span> @
+            </div>
             <div className="flex gap-1">
               <span className="font-medium">Value:</span>
-              <code className="break-all">{expected || "prod-verif-shipyard-<hash>"}</code>
+              <code className="break-all">
+                {expected || "prod-verif-shipyard-<hash>"}
+              </code>
             </div>
           </div>
           {checked ? (
@@ -91,11 +109,17 @@ export default function Step3() {
             </div>
           ) : null}
           <p>
-            DNS can take time to propagate (up to a few hours). You may verify now to check.
+            DNS can take time to propagate (up to a few hours). You may verify
+            now to check.
           </p>
         </div>
         <div className="pt-2">
-          <Button type="button" variant="secondary" onClick={handleVerify} disabled={verifying}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleVerify}
+            disabled={verifying}
+          >
             Verify Now
           </Button>
         </div>
@@ -103,4 +127,3 @@ export default function Step3() {
     </div>
   )
 }
-

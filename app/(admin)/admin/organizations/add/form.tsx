@@ -6,8 +6,20 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { createOrganizationAction } from "@/actions/admin/organizations/actions"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/atoms/form"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
@@ -43,7 +55,9 @@ export default function AddOrganizationForm() {
     <PageContainer>
       <Card className="mx-auto w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">Add Organization</CardTitle>
+          <CardTitle className="text-left text-2xl font-bold">
+            Add Organization
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -86,4 +100,3 @@ export default function AddOrganizationForm() {
     </PageContainer>
   )
 }
-

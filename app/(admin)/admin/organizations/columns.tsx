@@ -9,12 +9,20 @@ export const columns: ColumnDef<Organization>[] = [
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) =>
-      linkify({ label: row.original.name, href: `/admin/organizations/${row.original.id}` }),
+      linkify({
+        label: row.original.name,
+        href: `/admin/organizations/${row.original.id}`,
+      }),
   },
   {
     accessorKey: "url",
     header: "URL",
-    cell: ({ row }) => linkify({ href: row.original.url, label: row.original.url, isExternal: true }),
+    cell: ({ row }) =>
+      linkify({
+        href: row.original.url,
+        label: row.original.url,
+        isExternal: true,
+      }),
   },
   {
     accessorKey: "createdAt",
@@ -27,4 +35,3 @@ export const columns: ColumnDef<Organization>[] = [
     cell: ({ row }) => formatDate(row.original.updatedAt),
   },
 ]
-

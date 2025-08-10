@@ -61,7 +61,10 @@ export default function Step4({
             <FormItem>
               <FormLabel>Banner Image URL</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com/banner.png" {...field} />
+                <Input
+                  placeholder="https://example.com/banner.png"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -152,4 +155,3 @@ export default function Step4({
     </div>
   )
 }
-

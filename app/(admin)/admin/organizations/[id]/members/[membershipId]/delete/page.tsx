@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation"
 import { deleteOrganizationMembershipAction } from "@/actions/admin/organizations/actions"
 
-export default async function DeleteMembershipPage({ params }: { params: { id: string; membershipId: string } }) {
+export default async function DeleteMembershipPage({
+  params,
+}: {
+  params: { id: string; membershipId: string }
+}) {
   const { id, membershipId } = await params
   const result = await deleteOrganizationMembershipAction(membershipId)
   if ((result as any)?.error) {

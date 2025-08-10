@@ -8,15 +8,26 @@ import { toast } from "sonner"
 
 import PageContainer from "@/components/layout/page-container"
 import { updateProductAction } from "@/actions/admin/products/actions"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Separator } from "@/components/atoms/separator"
 
 import WizardStepper from "@/components/molecules/WizardStepper"
 import WizardFooter from "@/components/molecules/WizardFooter"
 import { STEPS, STEP_FIELDS } from "@/lib/productWizard/constants"
 import { validateExternalResources as validateResources } from "@/lib/productWizard/validate"
-import { makeEditProductSchema, type ProductWizardInputEdit } from "@/lib/productWizard/schema"
-import { getInitialValuesFromProduct, toUpdatePayload } from "@/lib/productWizard/mappers"
+import {
+  makeEditProductSchema,
+  type ProductWizardInputEdit,
+} from "@/lib/productWizard/schema"
+import {
+  getInitialValuesFromProduct,
+  toUpdatePayload,
+} from "@/lib/productWizard/mappers"
 import { useProductWizard } from "@/hooks/useProductWizard"
 import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
 
@@ -76,14 +87,19 @@ export default function EditProductForm({
     <PageContainer>
       <Card className="mx-auto w-full max-w-4xl">
         <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">Edit Product</CardTitle>
+          <CardTitle className="text-left text-2xl font-bold">
+            Edit Product
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {/* Stepper */}
           <WizardStepper steps={STEPS} step={wizard.step} />
 
           <FormProvider {...form}>
-            <form onSubmit={form.handleSubmit(wizard.onSubmit as any)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(wizard.onSubmit as any)}
+              className="space-y-6"
+            >
               {StepComponent}
 
               <Separator className="my-4" />

@@ -32,7 +32,12 @@ import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
 import { createProductAction } from "@/actions/admin/products/actions"
 import { Separator } from "@/components/atoms/separator"
-import { CURRENCIES, CURRENCY_CODES, PLATFORMS, type PlatformCode } from "@/lib/constants"
+import {
+  CURRENCIES,
+  CURRENCY_CODES,
+  PLATFORMS,
+  type PlatformCode,
+} from "@/lib/constants"
 import { Textarea } from "@/components/atoms/textarea"
 
 const productFormSchema = z.object({
@@ -320,7 +325,10 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Organization (optional)</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select organization" />
@@ -415,7 +423,10 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select status" />
@@ -447,7 +458,12 @@ export default function AddProductForm({
                     <FormItem>
                       <FormLabel>Starting Price (cents)</FormLabel>
                       <FormControl>
-                        <Input type="number" min={0} placeholder="e.g. 1900" {...field} />
+                        <Input
+                          type="number"
+                          min={0}
+                          placeholder="e.g. 1900"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -459,7 +475,10 @@ export default function AddProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Currency</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select currency" />
@@ -501,7 +520,10 @@ export default function AddProductForm({
                     <FormItem>
                       <FormLabel>CTA URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://example.com/signup" {...field} />
+                        <Input
+                          placeholder="https://example.com/signup"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -531,7 +553,10 @@ export default function AddProductForm({
                     <FormItem>
                       <FormLabel>Banner Image URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://example.com/banner.png" {...field} />
+                        <Input
+                          placeholder="https://example.com/banner.png"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -549,13 +574,20 @@ export default function AddProductForm({
                       <FormLabel>Platforms</FormLabel>
                       <div className="flex flex-wrap gap-3">
                         {PLATFORMS.map((p: PlatformCode) => (
-                          <label key={p} className="inline-flex items-center gap-2 text-sm">
+                          <label
+                            key={p}
+                            className="inline-flex items-center gap-2 text-sm"
+                          >
                             <input
                               type="checkbox"
                               className="accent-foreground"
-                              checked={((form.getValues("platforms") || []) as PlatformCode[]).includes(p)}
+                              checked={(
+                                (form.getValues("platforms") ||
+                                  []) as PlatformCode[]
+                              ).includes(p)}
                               onChange={(e) => {
-                                const selected = ((form.getValues("platforms") || []) as PlatformCode[])
+                                const selected = (form.getValues("platforms") ||
+                                  []) as PlatformCode[]
                                 const current = new Set<PlatformCode>(selected)
                                 if (e.target.checked) current.add(p)
                                 else current.delete(p)
@@ -577,7 +609,10 @@ export default function AddProductForm({
                     <FormItem>
                       <FormLabel>Tags (comma-separated)</FormLabel>
                       <FormControl>
-                        <Input placeholder="saas, productivity, ai" {...field} />
+                        <Input
+                          placeholder="saas, productivity, ai"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

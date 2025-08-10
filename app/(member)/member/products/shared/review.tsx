@@ -136,7 +136,10 @@ export default function Review({ categories, organizations }: Props) {
       <section className="space-y-2">
         <h3 className="text-lg font-semibold">Pricing</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-          <Info label="Model" value={(v.pricingModel || "").replace("_", " ")} />
+          <Info
+            label="Model"
+            value={(v.pricingModel || "").replace("_", " ")}
+          />
           {v.startingPriceCents != null && v.currencyCode ? (
             <Info
               label="Starting Price"
@@ -170,7 +173,12 @@ export default function Review({ categories, organizations }: Props) {
           {checks.githubOk === false && v.githubUrl ? (
             <div className="flex items-center gap-2">
               <span className="w-40 text-muted-foreground">GitHub</span>
-              <a href={v.githubUrl} target="_blank" rel="noopener noreferrer" className="underline break-all">
+              <a
+                href={v.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline break-all"
+              >
                 {v.githubUrl}
               </a>
               <Badge variant="destructive">Invalid</Badge>
@@ -180,7 +188,12 @@ export default function Review({ categories, organizations }: Props) {
           {checks.twitterOk === false && v.twitterUrl ? (
             <div className="flex items-center gap-2">
               <span className="w-40 text-muted-foreground">Twitter</span>
-              <a href={v.twitterUrl} target="_blank" rel="noopener noreferrer" className="underline break-all">
+              <a
+                href={v.twitterUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline break-all"
+              >
                 {v.twitterUrl}
               </a>
               <Badge variant="destructive">Invalid</Badge>
@@ -190,7 +203,12 @@ export default function Review({ categories, organizations }: Props) {
           {checks.demoOk === false && v.demoUrl ? (
             <div className="flex items-center gap-2">
               <span className="w-40 text-muted-foreground">Demo</span>
-              <a href={v.demoUrl} target="_blank" rel="noopener noreferrer" className="underline break-all">
+              <a
+                href={v.demoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline break-all"
+              >
                 {v.demoUrl}
               </a>
               <Badge variant="destructive">Invalid</Badge>
@@ -204,7 +222,13 @@ export default function Review({ categories, organizations }: Props) {
       <section className="space-y-2">
         <h3 className="text-lg font-semibold">CTA & Organization</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-          <Info label="Organization" value={(organizations.find((o:any)=>o.id===v.organizationId)?.name) || (v.organizationId ? v.organizationId : "Personal")} />
+          <Info
+            label="Organization"
+            value={
+              organizations.find((o: any) => o.id === v.organizationId)?.name ||
+              (v.organizationId ? v.organizationId : "Personal")
+            }
+          />
           <Info label="CTA Label" value={v.ctaLabel} />
           <Info label="CTA URL" value={v.ctaUrl} />
         </div>
@@ -214,12 +238,13 @@ export default function Review({ categories, organizations }: Props) {
 }
 
 function Info({ label, value }: { label: string; value?: string }) {
-  if (!value) return (
-    <div className="flex items-start gap-2">
-      <div className="w-40 text-muted-foreground">{label}</div>
-      <div className="text-muted-foreground">—</div>
-    </div>
-  )
+  if (!value)
+    return (
+      <div className="flex items-start gap-2">
+        <div className="w-40 text-muted-foreground">{label}</div>
+        <div className="text-muted-foreground">—</div>
+      </div>
+    )
   return (
     <div className="flex items-start gap-2">
       <div className="w-40 text-muted-foreground">{label}</div>

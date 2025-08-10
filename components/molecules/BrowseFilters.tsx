@@ -43,7 +43,8 @@ export default function BrowseFilters({
   const buildUrl = useCallback(
     (key: string, value: string | boolean) => {
       return buildQuery("/browse", qs, {
-        [key]: value === "__all__" || value === false ? undefined : String(value),
+        [key]:
+          value === "__all__" || value === false ? undefined : String(value),
         page: "1",
       })
     },
@@ -251,7 +252,12 @@ export default function BrowseFilters({
           <Switch
             checked={Boolean(current.verified)}
             onCheckedChange={(checked) =>
-              router.push(buildQuery("/browse", qs, { verified: checked ? "true" : undefined, page: "1" }))
+              router.push(
+                buildQuery("/browse", qs, {
+                  verified: checked ? "true" : undefined,
+                  page: "1",
+                }),
+              )
             }
             aria-label="Toggle verified only"
           />

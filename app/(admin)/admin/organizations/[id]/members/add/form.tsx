@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useRouter } from "next/navigation"
@@ -7,12 +6,30 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { createOrganizationMembershipAction } from "@/actions/admin/organizations/actions"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/atoms/form"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/atoms/select"
 
 const schema = z.object({
   organizationId: z.string().min(1),
@@ -22,7 +39,18 @@ const schema = z.object({
 
 type InputType = z.infer<typeof schema>
 
-export default function AddOrgMemberForm({ organizationId, users }: { organizationId: string; users: { id: string; email: string; firstName?: string | null; lastName?: string | null }[] }) {
+export default function AddOrgMemberForm({
+  organizationId,
+  users,
+}: {
+  organizationId: string
+  users: {
+    id: string
+    email: string
+    firstName?: string | null
+    lastName?: string | null
+  }[]
+}) {
   const router = useRouter()
   const form = useForm<InputType>({
     resolver: zodResolver(schema),
@@ -36,7 +64,10 @@ export default function AddOrgMemberForm({ organizationId, users }: { organizati
     if (values.jobTitle) fd.append("jobTitle", values.jobTitle)
     const result = await createOrganizationMembershipAction(fd)
     if ((result as any)?.error) {
-      form.setError("userId", { type: "server", message: (result as any).error })
+      form.setError("userId", {
+        type: "server",
+        message: (result as any).error,
+      })
       return
     }
     router.push(`/admin/organizations/${organizationId}`)
@@ -46,7 +77,9 @@ export default function AddOrgMemberForm({ organizationId, users }: { organizati
     <PageContainer>
       <Card className="mx-auto w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">Add Member</CardTitle>
+          <CardTitle className="text-left text-2xl font-bold">
+            Add Member
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -66,7 +99,8 @@ export default function AddOrgMemberForm({ organizationId, users }: { organizati
                       <SelectContent>
                         {users.map((u) => (
                           <SelectItem key={u.id} value={u.id}>
-                            {`${u.firstName ?? ""} ${u.lastName ?? ""}`.trim()} — {u.email}
+                            {`${u.firstName ?? ""} ${u.lastName ?? ""}`.trim()}{" "}
+                            — {u.email}
                           </SelectItem>
                         ))}
                       </SelectContent>

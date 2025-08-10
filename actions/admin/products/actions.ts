@@ -20,7 +20,9 @@ async function generateUniqueSlug(base: string): Promise<string> {
   // Loop until unique
   // Note: findUnique is faster when exact, but loop is simple here
   while (true) {
-    const existing = await prisma.product.findUnique({ where: { slug: candidate } })
+    const existing = await prisma.product.findUnique({
+      where: { slug: candidate },
+    })
     if (!existing) return candidate
     candidate = `${clean}-${i++}`
   }
@@ -88,7 +90,11 @@ export async function createProductAction(formData: FormData) {
     | undefined
   const publishedAtRaw = formData.get("publishedAt")?.toString().trim()
   const publishedAt =
-    status === "published" ? new Date() : publishedAtRaw ? new Date(publishedAtRaw) : null
+    status === "published"
+      ? new Date()
+      : publishedAtRaw
+        ? new Date(publishedAtRaw)
+        : null
   const type =
     ProductType[formData.get("type")!.toString() as keyof typeof ProductType]
   const pricingModel =
@@ -105,11 +111,14 @@ export async function createProductAction(formData: FormData) {
   const startingPriceCents = startingPriceCentsRaw
     ? Number(startingPriceCentsRaw)
     : undefined
-  const currencyCode = formData.get("currencyCode")?.toString().trim() || undefined
+  const currencyCode =
+    formData.get("currencyCode")?.toString().trim() || undefined
   const ctaLabel = formData.get("ctaLabel")?.toString().trim() || undefined
   const ctaUrl = formData.get("ctaUrl")?.toString().trim() || undefined
-  const bannerImage = formData.get("bannerImage")?.toString().trim() || undefined
-  const companyName = formData.get("companyName")?.toString().trim() || undefined
+  const bannerImage =
+    formData.get("bannerImage")?.toString().trim() || undefined
+  const companyName =
+    formData.get("companyName")?.toString().trim() || undefined
 
   let keywords: string[] | undefined
   let platforms: string[] | undefined
@@ -124,13 +133,17 @@ export async function createProductAction(formData: FormData) {
 
   try {
     // Uniqueness: websiteUrl must be unique
-    const existingWebsite = await prisma.product.findFirst({ where: { websiteUrl } })
+    const existingWebsite = await prisma.product.findFirst({
+      where: { websiteUrl },
+    })
     if (existingWebsite) {
       return { error: "A product with this website URL already exists." }
     }
 
     // Slug: auto-generate if missing, ensure unique
-    const finalSlug = await generateUniqueSlug(slug && slug.length ? slug : name || new URL(websiteUrl).hostname)
+    const finalSlug = await generateUniqueSlug(
+      slug && slug.length ? slug : name || new URL(websiteUrl).hostname,
+    )
 
     const verificationTxt = generateVerificationTxtFromWebsite(websiteUrl)
 
@@ -144,11 +157,13 @@ export async function createProductAction(formData: FormData) {
         logo,
         categoryId,
         userId,
-        organizationId: organizationId && organizationId.length ? organizationId : undefined,
+        organizationId:
+          organizationId && organizationId.length ? organizationId : undefined,
         type,
         pricingModel,
         status: status ?? "published",
-        publishedAt: (status === "published" ? new Date() : null) ?? publishedAt ?? null,
+        publishedAt:
+          (status === "published" ? new Date() : null) ?? publishedAt ?? null,
         startingPriceCents,
         currencyCode,
         ctaLabel,
@@ -181,7 +196,9 @@ export async function createProductAction(formData: FormData) {
     console.error("Error creating product:", error)
     const code = (error as any)?.code
     if (code === "P2002") {
-      return { error: "Duplicate unique field (likely slug). Choose a different slug." }
+      return {
+        error: "Duplicate unique field (likely slug). Choose a different slug.",
+      }
     }
     return { error: "Failed to create product" }
   }
@@ -210,7 +227,16 @@ export async function updateProductAction(
     bannerImage?: string | null
     companyName?: string | null
     keywords?: string[]
-    platforms?: ("web"|"ios"|"android"|"mac"|"windows"|"linux"|"chrome_extension"|"firefox_extension")[]
+    platforms?: (
+      | "web"
+      | "ios"
+      | "android"
+      | "mac"
+      | "windows"
+      | "linux"
+      | "chrome_extension"
+      | "firefox_extension"
+    )[]
     githubUrl?: string | null
     twitterUrl?: string | null
     demoUrl?: string | null
@@ -262,14 +288,14 @@ export async function updateProductAction(
         logo: logo?.trim(),
         type,
         pricingModel,
-    metadata: {
-      update: {
-        githubUrl: githubUrl?.trim() || null,
-        twitterUrl: twitterUrl?.trim() || null,
-        demoUrl: demoUrl?.trim() || null,
-        contactEmail: contactEmail?.trim() || null,
-      },
-    },
+        metadata: {
+          update: {
+            githubUrl: githubUrl?.trim() || null,
+            twitterUrl: twitterUrl?.trim() || null,
+            demoUrl: demoUrl?.trim() || null,
+            contactEmail: contactEmail?.trim() || null,
+          },
+        },
         organizationId: data.organizationId || null,
         slug: data.slug || undefined,
         status: (data.status as any) || undefined,

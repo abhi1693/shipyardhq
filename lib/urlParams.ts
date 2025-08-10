@@ -1,8 +1,8 @@
-export type StrOrArr = string | string[] | undefined;
+export type StrOrArr = string | string[] | undefined
 
 export function pickFirst(value: StrOrArr): string | undefined {
-  if (Array.isArray(value)) return value[0];
-  return value ?? undefined;
+  if (Array.isArray(value)) return value[0]
+  return value ?? undefined
 }
 
 export function buildQuery(
@@ -16,12 +16,11 @@ export function buildQuery(
       : currentSearch instanceof URLSearchParams
         ? currentSearch.toString()
         : "",
-  );
+  )
   for (const [k, v] of Object.entries(updates)) {
-    if (!v) params.delete(k);
-    else params.set(k, v);
+    if (!v) params.delete(k)
+    else params.set(k, v)
   }
-  const qs = params.toString();
-  return qs ? `${basePath}?${qs}` : basePath;
+  const qs = params.toString()
+  return qs ? `${basePath}?${qs}` : basePath
 }
-

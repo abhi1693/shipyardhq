@@ -11,7 +11,14 @@ export function Leaderboard({ products }: LeaderboardProps) {
   if (!products || products.length === 0) return null
 
   return (
-    <PublicContainer as="section" max="marketing" paddingY="py-16" className="border-b" innerClassName="space-y-8" fillScreen={false}>
+    <PublicContainer
+      as="section"
+      max="marketing"
+      paddingY="py-16"
+      className="border-b"
+      innerClassName="space-y-8"
+      fillScreen={false}
+    >
       <PageSectionHeader
         title="Trending"
         subtitle="Most upvoted products."

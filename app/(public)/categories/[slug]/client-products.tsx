@@ -73,12 +73,7 @@ export function CategoryProductsClient({ products }: Props) {
         </div>
       </div>
 
-      <ProductList
-        items={sorted}
-        compact
-        showCategory
-        showVerified={false}
-      />
+      <ProductList items={sorted} compact showCategory showVerified={false} />
     </div>
   )
 }

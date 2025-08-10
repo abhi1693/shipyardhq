@@ -21,7 +21,14 @@ export function PageHeader({
   const isCenter = align === "center"
   return (
     <div className={cn("space-y-2", isCenter && "text-center", className)}>
-      <h1 className={cn("text-4xl font-bold tracking-tight", isCenter && "mx-auto")}>{title}</h1>
+      <h1
+        className={cn(
+          "text-4xl font-bold tracking-tight",
+          isCenter && "mx-auto",
+        )}
+      >
+        {title}
+      </h1>
       {underline && (
         <div
           className={cn(
@@ -31,14 +38,22 @@ export function PageHeader({
         />
       )}
       {subtitle && (
-        <p className={cn("text-muted-foreground", isCenter ? "max-w-2xl mx-auto" : "max-w-3xl")}>
+        <p
+          className={cn(
+            "text-muted-foreground",
+            isCenter ? "max-w-2xl mx-auto" : "max-w-3xl",
+          )}
+        >
           {subtitle}
         </p>
       )}
       {meta && (
-        <div className={cn("text-sm text-muted-foreground", isCenter && "mx-auto")}>{meta}</div>
+        <div
+          className={cn("text-sm text-muted-foreground", isCenter && "mx-auto")}
+        >
+          {meta}
+        </div>
       )}
     </div>
   )
 }
-

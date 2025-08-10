@@ -17,9 +17,7 @@ export function LeaderboardFilters({
   const search = useSearchParams()
 
   const updateQuery = (updates: Record<string, string | undefined>) => {
-    router.push(
-      buildQuery("/leaderboard", search?.toString() ?? "", updates),
-    )
+    router.push(buildQuery("/leaderboard", search?.toString() ?? "", updates))
   }
 
   return (

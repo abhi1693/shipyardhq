@@ -53,7 +53,9 @@ export default async function OverviewPage({
       ? (stats as any).productsDelta
       : 0
   const usersDelta =
-    typeof (stats as any).usersDelta === "number" ? (stats as any).usersDelta : 0
+    typeof (stats as any).usersDelta === "number"
+      ? (stats as any).usersDelta
+      : 0
   const productsTrend =
     productsDelta > 0 ? "up" : productsDelta < 0 ? "down" : undefined
   const usersTrend = usersDelta > 0 ? "up" : usersDelta < 0 ? "down" : undefined
@@ -70,10 +72,14 @@ export default async function OverviewPage({
               <Button size="sm">Create Product</Button>
             </Link>
             <Link href="/admin/categories/new">
-              <Button variant="outline" size="sm">Create Category</Button>
+              <Button variant="outline" size="sm">
+                Create Category
+              </Button>
             </Link>
             <Link href="/admin/plans/new">
-              <Button variant="outline" size="sm">Create Plan</Button>
+              <Button variant="outline" size="sm">
+                Create Plan
+              </Button>
             </Link>
           </div>
         </div>
@@ -81,7 +87,10 @@ export default async function OverviewPage({
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Link href="/admin/products" className="group block rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-ring">
+        <Link
+          href="/admin/products"
+          className="group block rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+        >
           <StatCard
             title="Total Products"
             value={stats.totalProducts}
@@ -119,7 +128,10 @@ export default async function OverviewPage({
           />
         </Link>
 
-        <Link href="/admin/users" className="group block rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-ring">
+        <Link
+          href="/admin/users"
+          className="group block rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+        >
           <StatCard
             title="Total Users"
             value={stats.totalUsers}
@@ -201,7 +213,10 @@ export default async function OverviewPage({
             ))}
           </CardContent>
           <CardFooter>
-            <Link href="/admin/products" className="text-sm text-primary hover:underline">
+            <Link
+              href="/admin/products"
+              className="text-sm text-primary hover:underline"
+            >
               View all products →
             </Link>
           </CardFooter>
@@ -222,7 +237,8 @@ export default async function OverviewPage({
                 <div className="flex justify-between items-center">
                   <span className="text-primary font-medium">{u.email}</span>
                   <span className="text-muted-foreground text-sm">
-                    Joined {formatDistanceToNow(new Date(u.createdAt), {
+                    Joined{" "}
+                    {formatDistanceToNow(new Date(u.createdAt), {
                       addSuffix: true,
                     })}
                   </span>
@@ -237,7 +253,10 @@ export default async function OverviewPage({
             ))}
           </CardContent>
           <CardFooter>
-            <Link href="/admin/users" className="text-sm text-primary hover:underline">
+            <Link
+              href="/admin/users"
+              className="text-sm text-primary hover:underline"
+            >
               View all users →
             </Link>
           </CardFooter>

@@ -1,11 +1,7 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 
-type MaxWidth =
-  | "3xl"
-  | "5xl"
-  | "7xl"
-  | "marketing" // ~84rem used on marketing sections
+type MaxWidth = "3xl" | "5xl" | "7xl" | "marketing" // ~84rem used on marketing sections
 
 const maxClassMap: Record<MaxWidth, string> = {
   "3xl": "max-w-3xl",
@@ -36,7 +32,9 @@ export default function PublicContainer({
   const Tag = as === "section" ? "section" : "div"
   return (
     <Tag className={cn(fillScreen && "min-h-screen", paddingY, className)}>
-      <div className={cn(maxClassMap[max], "mx-auto px-4 md:px-8", innerClassName)}>
+      <div
+        className={cn(maxClassMap[max], "mx-auto px-4 md:px-8", innerClassName)}
+      >
         {children}
       </div>
     </Tag>

@@ -6,7 +6,7 @@ export const PRODUCT_TYPES = [
   "api",
   "open_source",
   "other",
-] as const;
+] as const
 
 export const PRICING_MODELS = [
   "free",
@@ -14,7 +14,7 @@ export const PRICING_MODELS = [
   "subscription",
   "one_time",
   "custom",
-] as const;
+] as const
 
 export const PLATFORMS = [
   "web",
@@ -25,7 +25,7 @@ export const PLATFORMS = [
   "linux",
   "chrome_extension",
   "firefox_extension",
-] as const;
+] as const
 
 export const STEPS: { id: number; label: string }[] = [
   { id: 1, label: "Basics" },
@@ -33,7 +33,7 @@ export const STEPS: { id: number; label: string }[] = [
   { id: 3, label: "Verification" },
   { id: 4, label: "Details" },
   { id: 5, label: "Review" },
-];
+]
 
 // Keep this untyped to avoid coupling to zod types; pages cast when needed.
 export const STEP_FIELDS: Record<number, readonly string[]> = {
@@ -60,5 +60,4 @@ export const STEP_FIELDS: Record<number, readonly string[]> = {
     "demoUrl",
     "contactEmail",
   ],
-};
-
+}

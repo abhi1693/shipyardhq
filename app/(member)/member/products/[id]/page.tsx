@@ -79,7 +79,9 @@ export default async function ViewUserProductPage({
           {/* Organization & Targeting */}
           <Card className="col-span-12 md:col-span-4">
             <CardHeader>
-              <CardTitle className="text-base">Organization & Targeting</CardTitle>
+              <CardTitle className="text-base">
+                Organization & Targeting
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <OverviewRow
@@ -128,7 +130,6 @@ export default async function ViewUserProductPage({
                     : placeholder()
                 }
               />
-              
             </CardContent>
           </Card>
 
@@ -146,7 +147,10 @@ export default async function ViewUserProductPage({
                   isExternal: true,
                 })}
               />
-              <OverviewRow label="CTA Label" value={product.ctaLabel || placeholder()} />
+              <OverviewRow
+                label="CTA Label"
+                value={product.ctaLabel || placeholder()}
+              />
               <OverviewRow
                 label="CTA URL"
                 value={
@@ -174,23 +178,38 @@ export default async function ViewUserProductPage({
               {product.metadata?.githubUrl && (
                 <OverviewRow
                   label="GitHub"
-                  value={linkify({ href: product.metadata.githubUrl, label: product.metadata.githubUrl, isExternal: true })}
+                  value={linkify({
+                    href: product.metadata.githubUrl,
+                    label: product.metadata.githubUrl,
+                    isExternal: true,
+                  })}
                 />
               )}
               {product.metadata?.twitterUrl && (
                 <OverviewRow
                   label="Twitter"
-                  value={linkify({ href: product.metadata.twitterUrl, label: product.metadata.twitterUrl, isExternal: true })}
+                  value={linkify({
+                    href: product.metadata.twitterUrl,
+                    label: product.metadata.twitterUrl,
+                    isExternal: true,
+                  })}
                 />
               )}
               {product.metadata?.demoUrl && (
                 <OverviewRow
                   label="Demo"
-                  value={linkify({ href: product.metadata.demoUrl, label: product.metadata.demoUrl, isExternal: true })}
+                  value={linkify({
+                    href: product.metadata.demoUrl,
+                    label: product.metadata.demoUrl,
+                    isExternal: true,
+                  })}
                 />
               )}
               {product.metadata?.contactEmail && (
-                <OverviewRow label="Contact Email" value={product.metadata.contactEmail} />
+                <OverviewRow
+                  label="Contact Email"
+                  value={product.metadata.contactEmail}
+                />
               )}
             </CardContent>
           </Card>
@@ -242,7 +261,9 @@ export default async function ViewUserProductPage({
               <OverviewRow
                 label="Published At"
                 value={
-                  product.publishedAt ? formatDate(product.publishedAt) : placeholder()
+                  product.publishedAt
+                    ? formatDate(product.publishedAt)
+                    : placeholder()
                 }
               />
             </CardContent>
@@ -280,17 +301,26 @@ export default async function ViewUserProductPage({
                       <div className="text-muted-foreground mb-2">Features</div>
                       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                         {product.plan.assignments.map((a) => (
-                          <li key={a.id} className="flex items-center justify-between rounded border px-3 py-2">
+                          <li
+                            key={a.id}
+                            className="flex items-center justify-between rounded border px-3 py-2"
+                          >
                             <div>
-                              <div className="font-medium">{a.feature.name}</div>
+                              <div className="font-medium">
+                                {a.feature.name}
+                              </div>
                               <div className="text-xs text-muted-foreground break-all">
                                 {a.feature.description}
                               </div>
                             </div>
                             {a.enabled ? (
-                              <span className="text-green-600 text-xs">Enabled</span>
+                              <span className="text-green-600 text-xs">
+                                Enabled
+                              </span>
                             ) : (
-                              <span className="text-destructive text-xs">Disabled</span>
+                              <span className="text-destructive text-xs">
+                                Disabled
+                              </span>
                             )}
                           </li>
                         ))}
@@ -299,7 +329,9 @@ export default async function ViewUserProductPage({
                   ) : null}
                 </>
               ) : (
-                <div className="text-sm text-muted-foreground">No plan assigned</div>
+                <div className="text-sm text-muted-foreground">
+                  No plan assigned
+                </div>
               )}
             </CardContent>
           </Card>
@@ -322,7 +354,9 @@ export default async function ViewUserProductPage({
                   ))}
                 </div>
               ) : (
-                <div className="text-sm text-muted-foreground">No media uploaded</div>
+                <div className="text-sm text-muted-foreground">
+                  No media uploaded
+                </div>
               )}
             </CardContent>
           </Card>
@@ -336,10 +370,15 @@ export default async function ViewUserProductPage({
               {product.ProductBadge?.length ? (
                 <ul className="text-sm grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {product.ProductBadge.map((b) => (
-                    <li key={b.id} className="flex items-center justify-between rounded border px-3 py-2">
+                    <li
+                      key={b.id}
+                      className="flex items-center justify-between rounded border px-3 py-2"
+                    >
                       <span className="font-medium break-all">{b.badge}</span>
                       <span className="text-xs text-muted-foreground">
-                        {b.expiresAt ? `Expires ${new Date(b.expiresAt).toLocaleDateString()}` : "No expiry"}
+                        {b.expiresAt
+                          ? `Expires ${new Date(b.expiresAt).toLocaleDateString()}`
+                          : "No expiry"}
                       </span>
                     </li>
                   ))}

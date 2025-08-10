@@ -37,7 +37,10 @@ export const CURRENCY_CODES = [
   "INR",
 ] as const
 
-export const CURRENCIES: { code: (typeof CURRENCY_CODES)[number]; label: string }[] = [
+export const CURRENCIES: {
+  code: (typeof CURRENCY_CODES)[number]
+  label: string
+}[] = [
   { code: "USD", label: "US Dollar ($)" },
   { code: "EUR", label: "Euro (€)" },
   { code: "GBP", label: "British Pound (£)" },

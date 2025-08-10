@@ -1,10 +1,10 @@
-import { z } from "zod";
-import { PRODUCT_TYPES, PRICING_MODELS, PLATFORMS } from "./constants";
+import { z } from "zod"
+import { PRODUCT_TYPES, PRICING_MODELS, PLATFORMS } from "./constants"
 
 export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
   const statusValues = opts.allowArchived
-    ? ["draft", "published", "archived"] as const
-    : ["draft", "published"] as const;
+    ? (["draft", "published", "archived"] as const)
+    : (["draft", "published"] as const)
 
   return z
     .object({
@@ -20,7 +20,9 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       keywordsText: z.string().optional().default(""),
 
       // Pricing
-      pricingModel: z.enum(PRICING_MODELS, { required_error: "Select a pricing model" }),
+      pricingModel: z.enum(PRICING_MODELS, {
+        required_error: "Select a pricing model",
+      }),
       startingPriceCents: z
         .number({ invalid_type_error: "Enter a valid number" })
         .int("Must be an integer")
@@ -67,31 +69,53 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
     })
     .superRefine((val, ctx) => {
       // Pricing dependencies
-      const pm = val.pricingModel;
-      const hasPrice = val.startingPriceCents != null && val.startingPriceCents !== undefined;
-      const hasCurrency = !!val.currencyCode;
+      const pm = val.pricingModel
+      const hasPrice =
+        val.startingPriceCents != null && val.startingPriceCents !== undefined
+      const hasCurrency = !!val.currencyCode
       if (pm === "subscription" || pm === "one_time") {
         if (!hasPrice) {
-          ctx.addIssue({ path: ["startingPriceCents"], code: z.ZodIssueCode.custom, message: "Price required for this model" });
+          ctx.addIssue({
+            path: ["startingPriceCents"],
+            code: z.ZodIssueCode.custom,
+            message: "Price required for this model",
+          })
         }
         if (!hasCurrency) {
-          ctx.addIssue({ path: ["currencyCode"], code: z.ZodIssueCode.custom, message: "Currency required" });
+          ctx.addIssue({
+            path: ["currencyCode"],
+            code: z.ZodIssueCode.custom,
+            message: "Currency required",
+          })
         }
       }
       if (pm === "free" || pm === "custom") {
         if (hasPrice) {
-          ctx.addIssue({ path: ["startingPriceCents"], code: z.ZodIssueCode.custom, message: "Should be empty for free/custom" });
+          ctx.addIssue({
+            path: ["startingPriceCents"],
+            code: z.ZodIssueCode.custom,
+            message: "Should be empty for free/custom",
+          })
         }
         if (hasCurrency) {
-          ctx.addIssue({ path: ["currencyCode"], code: z.ZodIssueCode.custom, message: "Should be empty for free/custom" });
+          ctx.addIssue({
+            path: ["currencyCode"],
+            code: z.ZodIssueCode.custom,
+            message: "Should be empty for free/custom",
+          })
         }
       }
-    });
+    })
 }
 
-export const makeAddProductSchema = () => makeProductSchema({ allowArchived: false });
-export const makeEditProductSchema = () => makeProductSchema({ allowArchived: true });
+export const makeAddProductSchema = () =>
+  makeProductSchema({ allowArchived: false })
+export const makeEditProductSchema = () =>
+  makeProductSchema({ allowArchived: true })
 
-export type ProductWizardInputAdd = z.infer<ReturnType<typeof makeAddProductSchema>>;
-export type ProductWizardInputEdit = z.infer<ReturnType<typeof makeEditProductSchema>>;
-
+export type ProductWizardInputAdd = z.infer<
+  ReturnType<typeof makeAddProductSchema>
+>
+export type ProductWizardInputEdit = z.infer<
+  ReturnType<typeof makeEditProductSchema>
+>

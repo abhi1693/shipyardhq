@@ -20,5 +20,4 @@ export function ExternalBadgeLink({
   )
 }
 
-export default ExternalBadgeLink;
-
+export default ExternalBadgeLink

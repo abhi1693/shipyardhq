@@ -55,7 +55,10 @@ export async function updateOrganizationAction(
   if (!url) return { error: "URL is required" }
 
   try {
-    return await prisma.organization.update({ where: { id }, data: { name, url } })
+    return await prisma.organization.update({
+      where: { id },
+      data: { name, url },
+    })
   } catch (error: any) {
     console.error("Error updating organization:", error)
     if (error?.code === "P2002") {
@@ -79,7 +82,8 @@ export async function createOrganizationMembershipAction(formData: FormData) {
   const userId = formData.get("userId")?.toString()
   const jobTitle = formData.get("jobTitle")?.toString() || undefined
 
-  if (!organizationId || !userId) return { error: "Organization and User are required" }
+  if (!organizationId || !userId)
+    return { error: "Organization and User are required" }
 
   try {
     await prisma.organizationMembership.create({

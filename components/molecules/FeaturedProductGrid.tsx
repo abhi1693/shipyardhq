@@ -60,4 +60,3 @@ export function FeaturedProductGrid({
 }
 
 export default FeaturedProductGrid
-

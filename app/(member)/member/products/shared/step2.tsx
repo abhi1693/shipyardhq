@@ -19,9 +19,13 @@ import {
 
 export default function Step2() {
   const form = useFormContext()
-  const pricingModel = useWatch({ control: form.control, name: "pricingModel" }) as string
+  const pricingModel = useWatch({
+    control: form.control,
+    name: "pricingModel",
+  }) as string
   const disablePrice = pricingModel === "free" || pricingModel === "custom"
-  const requirePrice = pricingModel === "subscription" || pricingModel === "one_time"
+  const requirePrice =
+    pricingModel === "subscription" || pricingModel === "one_time"
 
   return (
     <div className="space-y-6">
@@ -58,13 +62,17 @@ export default function Step2() {
             <FormItem>
               <FormLabel>
                 Starting Price (cents)
-                {requirePrice ? <span className="text-destructive"> *</span> : null}
+                {requirePrice ? (
+                  <span className="text-destructive"> *</span>
+                ) : null}
               </FormLabel>
               <FormControl>
                 <Input
                   type="number"
                   inputMode="numeric"
-                  placeholder={disablePrice ? "Disabled for free/custom" : "e.g. 990"}
+                  placeholder={
+                    disablePrice ? "Disabled for free/custom" : "e.g. 990"
+                  }
                   disabled={disablePrice}
                   value={field.value ?? ""}
                   onChange={(e) =>
@@ -88,7 +96,9 @@ export default function Step2() {
             <FormItem>
               <FormLabel>
                 Currency Code
-                {requirePrice ? <span className="text-destructive"> *</span> : null}
+                {requirePrice ? (
+                  <span className="text-destructive"> *</span>
+                ) : null}
               </FormLabel>
               <Select
                 onValueChange={(v) => field.onChange(v.toUpperCase())}
@@ -96,23 +106,23 @@ export default function Step2() {
               >
                 <FormControl>
                   <SelectTrigger disabled={disablePrice}>
-                    <SelectValue placeholder={disablePrice ? "Disabled for free/custom" : "Select currency"} />
+                    <SelectValue
+                      placeholder={
+                        disablePrice
+                          ? "Disabled for free/custom"
+                          : "Select currency"
+                      }
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {[
-                    "USD",
-                    "EUR",
-                    "GBP",
-                    "CAD",
-                    "AUD",
-                    "INR",
-                    "JPY",
-                  ].map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
+                  {["USD", "EUR", "GBP", "CAD", "AUD", "INR", "JPY"].map(
+                    (c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ),
+                  )}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -123,4 +133,3 @@ export default function Step2() {
     </div>
   )
 }
-

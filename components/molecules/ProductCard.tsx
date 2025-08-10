@@ -119,12 +119,16 @@ export function ProductCard({
                         )}
                         title={badgeDef.label}
                       >
-                        <span className="leading-none align-middle">{badgeDef.icon}</span>
+                        <span className="leading-none align-middle">
+                          {badgeDef.icon}
+                        </span>
                       </Badge>
                     )
                   })}
                   {badges.length > 3 && (
-                    <span className="text-[10px] text-muted-foreground">+{badges.length - 3}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      +{badges.length - 3}
+                    </span>
                   )}
                 </div>
               ) : (

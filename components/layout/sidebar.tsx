@@ -96,9 +96,7 @@ export default function AppSidebar(props: SidebarProps) {
   }, [navItems, query])
 
   return (
-    <Sidebar
-      collapsible="icon"
-    >
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-1">
           <SidebarTrigger className="md:hidden" />
@@ -147,10 +145,7 @@ export default function AppSidebar(props: SidebarProps) {
                 >
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton
-                        tooltip={item.title}
-                        isActive={active}
-                      >
+                      <SidebarMenuButton tooltip={item.title} isActive={active}>
                         {item.icon && <Icon />}
                         <span>{item.title}</span>
                         <IconChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -175,9 +170,13 @@ export default function AppSidebar(props: SidebarProps) {
                                   aria-current={subActive ? "page" : undefined}
                                 >
                                   {SubIcon && <SubIcon className="h-4 w-4" />}
-                                  <span className="flex-1 truncate">{subItem.title}</span>
+                                  <span className="flex-1 truncate">
+                                    {subItem.title}
+                                  </span>
                                   {subItem.label && (
-                                    <span className="text-xs text-muted-foreground">{subItem.label}</span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {subItem.label}
+                                    </span>
                                   )}
                                 </Link>
                               </SidebarMenuSubButton>
@@ -195,11 +194,16 @@ export default function AppSidebar(props: SidebarProps) {
                     tooltip={item.title}
                     isActive={isActivePath(item.url)}
                   >
-                    <Link href={item.url} aria-current={isActivePath(item.url) ? "page" : undefined}>
+                    <Link
+                      href={item.url}
+                      aria-current={isActivePath(item.url) ? "page" : undefined}
+                    >
                       <Icon />
                       <span className="flex-1 truncate">{item.title}</span>
                       {item.label && (
-                        <span className="text-xs text-muted-foreground">{item.label}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {item.label}
+                        </span>
                       )}
                     </Link>
                   </SidebarMenuButton>

@@ -19,7 +19,14 @@ interface TopCategoriesProps {
 
 export function TopCategories({ categories }: TopCategoriesProps) {
   return (
-    <PublicContainer as="section" max="7xl" paddingY="py-16" className="border-b" innerClassName="space-y-8" fillScreen={false}>
+    <PublicContainer
+      as="section"
+      max="7xl"
+      paddingY="py-16"
+      className="border-b"
+      innerClassName="space-y-8"
+      fillScreen={false}
+    >
       <PageSectionHeader
         title="Top Categories"
         subtitle="Browse by product verticals."

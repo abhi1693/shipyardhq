@@ -1,6 +1,12 @@
 "use client"
 
-import { Category, Product, ProductAnalytics, ProductVerification, User } from "@prisma/client"
+import {
+  Category,
+  Product,
+  ProductAnalytics,
+  ProductVerification,
+  User,
+} from "@prisma/client"
 import { useState } from "react"
 import { Check } from "lucide-react"
 import { Button } from "@/components/atoms/button"

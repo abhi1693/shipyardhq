@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/atoms/button";
+import { Button } from "@/components/atoms/button"
 
 export default function WizardFooter({
   isReview,
@@ -11,13 +11,13 @@ export default function WizardFooter({
   disableBack,
   isSubmitting,
 }: {
-  isReview: boolean;
-  onBack: () => void;
-  onNext: () => void;
-  onSaveDraft: () => void;
-  onPublish: () => void;
-  disableBack?: boolean;
-  isSubmitting?: boolean;
+  isReview: boolean
+  onBack: () => void
+  onNext: () => void
+  onSaveDraft: () => void
+  onPublish: () => void
+  disableBack?: boolean
+  isSubmitting?: boolean
 }) {
   return (
     <div className="flex items-center justify-between">
@@ -49,6 +49,5 @@ export default function WizardFooter({
         </Button>
       )}
     </div>
-  );
+  )
 }
-

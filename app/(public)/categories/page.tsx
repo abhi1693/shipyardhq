@@ -21,7 +21,8 @@ export default async function CategoriesPage() {
         subtitle="Explore our curated categories to discover innovative startups and solutions shaping the future."
         meta={
           <>
-            Showing <strong>{categories.length}</strong> {pluralize(categories.length, "category")}
+            Showing <strong>{categories.length}</strong>{" "}
+            {pluralize(categories.length, "category")}
           </>
         }
       />

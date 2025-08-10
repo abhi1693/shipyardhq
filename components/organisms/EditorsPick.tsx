@@ -30,4 +30,3 @@ export function EditorsPick({ products }: EditorsPickProps) {
 }
 
 export default EditorsPick
-

@@ -88,14 +88,20 @@ export default function Step1({ categories, platforms }: Props) {
                 <button
                   type="button"
                   onClick={() => setPreviewDesc(false)}
-                  className={"px-2 py-1 rounded border " + (!previewDesc ? "bg-muted" : "opacity-60")}
+                  className={
+                    "px-2 py-1 rounded border " +
+                    (!previewDesc ? "bg-muted" : "opacity-60")
+                  }
                 >
                   Write
                 </button>
                 <button
                   type="button"
                   onClick={() => setPreviewDesc(true)}
-                  className={"px-2 py-1 rounded border " + (previewDesc ? "bg-muted" : "opacity-60")}
+                  className={
+                    "px-2 py-1 rounded border " +
+                    (previewDesc ? "bg-muted" : "opacity-60")
+                  }
                 >
                   Preview
                 </button>
@@ -234,13 +240,19 @@ export default function Step1({ categories, platforms }: Props) {
               {platforms.map((p) => (
                 <label key={p} className="flex items-center gap-2 text-sm">
                   <Checkbox
-                    checked={(form.getValues("platforms") as string[])?.includes(p)}
+                    checked={(
+                      form.getValues("platforms") as string[]
+                    )?.includes(p)}
                     onCheckedChange={(checked) => {
-                      const current = (form.getValues("platforms") as string[]) || []
+                      const current =
+                        (form.getValues("platforms") as string[]) || []
                       const next = checked
                         ? Array.from(new Set([...current, p]))
                         : current.filter((x) => x !== p)
-                      form.setValue("platforms", next, { shouldDirty: true, shouldValidate: true })
+                      form.setValue("platforms", next, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
                     }}
                   />
                   <span className="capitalize">{p.replace(/_/g, " ")}</span>

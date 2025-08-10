@@ -11,7 +11,14 @@ export function LatestLaunches({ products }: LatestLaunchesProps) {
   if (!products || products.length === 0) return null
 
   return (
-    <PublicContainer as="section" max="marketing" paddingY="py-16" className="border-b" innerClassName="space-y-8" fillScreen={false}>
+    <PublicContainer
+      as="section"
+      max="marketing"
+      paddingY="py-16"
+      className="border-b"
+      innerClassName="space-y-8"
+      fillScreen={false}
+    >
       <PageSectionHeader
         title="Latest Launches"
         subtitle="Fresh off the launchpad. Explore what’s new."

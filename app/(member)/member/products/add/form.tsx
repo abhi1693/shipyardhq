@@ -8,15 +8,26 @@ import { toast } from "sonner"
 
 import PageContainer from "@/components/layout/page-container"
 import { createProductAction } from "@/actions/admin/products/actions"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Separator } from "@/components/atoms/separator"
 
 import WizardStepper from "@/components/molecules/WizardStepper"
 import WizardFooter from "@/components/molecules/WizardFooter"
 import { STEPS, STEP_FIELDS } from "@/lib/productWizard/constants"
 import { validateExternalResources as validateResources } from "@/lib/productWizard/validate"
-import { makeAddProductSchema, type ProductWizardInputAdd } from "@/lib/productWizard/schema"
-import { getInitialValuesForAdd, toCreateFormData } from "@/lib/productWizard/mappers"
+import {
+  makeAddProductSchema,
+  type ProductWizardInputAdd,
+} from "@/lib/productWizard/schema"
+import {
+  getInitialValuesForAdd,
+  toCreateFormData,
+} from "@/lib/productWizard/mappers"
 import { useProductWizard } from "@/hooks/useProductWizard"
 import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
 
@@ -41,7 +52,9 @@ export default function AddProductForm({
     mode: "onBlur",
   })
 
-  async function submitAll(values: ProductWizardInput & { status?: "draft" | "published" }) {
+  async function submitAll(
+    values: ProductWizardInput & { status?: "draft" | "published" },
+  ) {
     try {
       const fd = toCreateFormData(values, userId)
       const result = await createProductAction(fd)

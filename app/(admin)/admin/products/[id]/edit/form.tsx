@@ -33,8 +33,21 @@ import PageContainer from "@/components/layout/page-container"
 import { Separator } from "@/components/atoms/separator"
 import { Textarea } from "@/components/atoms/textarea"
 import { updateProductAction } from "@/actions/admin/products/actions"
-import { CURRENCIES, CURRENCY_CODES, PLATFORMS, type PlatformCode } from "@/lib/constants"
-import type { Product, ProductMetadata, ProductVerification, ProductAnalytics, Category, User, Organization } from "@prisma/client"
+import {
+  CURRENCIES,
+  CURRENCY_CODES,
+  PLATFORMS,
+  type PlatformCode,
+} from "@/lib/constants"
+import type {
+  Product,
+  ProductMetadata,
+  ProductVerification,
+  ProductAnalytics,
+  Category,
+  User,
+  Organization,
+} from "@prisma/client"
 
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -188,7 +201,6 @@ export default function EditProductForm({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Required */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
                 <FormField
                   name="name"
                   control={form.control}
@@ -248,7 +260,10 @@ export default function EditProductForm({
                     <FormItem>
                       <FormLabel>Logo URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://example.com/logo.png" {...field} />
+                        <Input
+                          placeholder="https://example.com/logo.png"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -260,7 +275,10 @@ export default function EditProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select category" />
@@ -284,7 +302,10 @@ export default function EditProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>User</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select user" />
@@ -308,7 +329,10 @@ export default function EditProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Organization (optional)</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select organization" />
@@ -332,14 +356,25 @@ export default function EditProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Product Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {["saas","browser_extension","mobile_app","desktop_app","api","open_source","other"].map((type) => (
+                          {[
+                            "saas",
+                            "browser_extension",
+                            "mobile_app",
+                            "desktop_app",
+                            "api",
+                            "open_source",
+                            "other",
+                          ].map((type) => (
                             <SelectItem key={type} value={type}>
                               {type.replace(/_/g, " ").toUpperCase()}
                             </SelectItem>
@@ -356,14 +391,23 @@ export default function EditProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Pricing Model</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select pricing model" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {["free","freemium","subscription","one_time","custom"].map((model) => (
+                          {[
+                            "free",
+                            "freemium",
+                            "subscription",
+                            "one_time",
+                            "custom",
+                          ].map((model) => (
                             <SelectItem key={model} value={model}>
                               {model.toUpperCase()}
                             </SelectItem>
@@ -380,14 +424,17 @@ export default function EditProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {["draft","published","archived"].map((s) => (
+                          {["draft", "published", "archived"].map((s) => (
                             <SelectItem key={s} value={s}>
                               {s.toUpperCase()}
                             </SelectItem>
@@ -411,7 +458,12 @@ export default function EditProductForm({
                     <FormItem>
                       <FormLabel>Starting Price (cents)</FormLabel>
                       <FormControl>
-                        <Input type="number" min={0} placeholder="e.g. 1900" {...field} />
+                        <Input
+                          type="number"
+                          min={0}
+                          placeholder="e.g. 1900"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -423,7 +475,10 @@ export default function EditProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Currency</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select currency" />
@@ -465,7 +520,10 @@ export default function EditProductForm({
                     <FormItem>
                       <FormLabel>CTA URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://example.com/signup" {...field} />
+                        <Input
+                          placeholder="https://example.com/signup"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -495,7 +553,10 @@ export default function EditProductForm({
                     <FormItem>
                       <FormLabel>Banner Image URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://example.com/banner.png" {...field} />
+                        <Input
+                          placeholder="https://example.com/banner.png"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -513,13 +574,20 @@ export default function EditProductForm({
                       <FormLabel>Platforms</FormLabel>
                       <div className="flex flex-wrap gap-3">
                         {PLATFORMS.map((p: PlatformCode) => (
-                          <label key={p} className="inline-flex items-center gap-2 text-sm">
+                          <label
+                            key={p}
+                            className="inline-flex items-center gap-2 text-sm"
+                          >
                             <input
                               type="checkbox"
                               className="accent-foreground"
-                              checked={((form.getValues("platforms") || []) as PlatformCode[]).includes(p)}
+                              checked={(
+                                (form.getValues("platforms") ||
+                                  []) as PlatformCode[]
+                              ).includes(p)}
                               onChange={(e) => {
-                                const selected = ((form.getValues("platforms") || []) as PlatformCode[])
+                                const selected = (form.getValues("platforms") ||
+                                  []) as PlatformCode[]
                                 const current = new Set<PlatformCode>(selected)
                                 if (e.target.checked) current.add(p)
                                 else current.delete(p)
@@ -541,7 +609,10 @@ export default function EditProductForm({
                     <FormItem>
                       <FormLabel>Tags (comma-separated)</FormLabel>
                       <FormControl>
-                        <Input placeholder="saas, productivity, ai" {...field} />
+                        <Input
+                          placeholder="saas, productivity, ai"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -557,7 +628,10 @@ export default function EditProductForm({
                   <FormItem>
                     <FormLabel>GitHub URL</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://github.com/org/repo" {...field} />
+                      <Input
+                        placeholder="https://github.com/org/repo"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -570,7 +644,10 @@ export default function EditProductForm({
                   <FormItem>
                     <FormLabel>Twitter URL</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://twitter.com/yourapp" {...field} />
+                      <Input
+                        placeholder="https://twitter.com/yourapp"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -583,7 +660,10 @@ export default function EditProductForm({
                   <FormItem>
                     <FormLabel>Demo URL</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://demo.example.com" {...field} />
+                      <Input
+                        placeholder="https://demo.example.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

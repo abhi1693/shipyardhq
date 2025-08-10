@@ -42,7 +42,9 @@ export default function ProductList<T extends ProductListItem>({
   rankStartAt = 0,
 }: ProductListProps<T>) {
   return (
-    <div className={"grid gap-4 " + columns + (className ? ` ${className}` : "") }>
+    <div
+      className={"grid gap-4 " + columns + (className ? ` ${className}` : "")}
+    >
       {items.map((p, i) => (
         <ProductCard
           key={p.id}
@@ -59,21 +61,17 @@ export default function ProductList<T extends ProductListItem>({
           }
           category={showCategory ? (p.category?.name ?? undefined) : undefined}
           topRight={
-            topRight
-              ? topRight(p, i)
-              : showRank
-                ? (
-                    <Badge variant="secondary" className="px-2 py-0.5 text-xs">
-                      #{rankStartAt + i + 1}
-                    </Badge>
-                  )
-                : showVerified && p.verification?.isVerified
-                  ? (
-                      <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px]">
-                        Verified
-                      </span>
-                    )
-                  : undefined
+            topRight ? (
+              topRight(p, i)
+            ) : showRank ? (
+              <Badge variant="secondary" className="px-2 py-0.5 text-xs">
+                #{rankStartAt + i + 1}
+              </Badge>
+            ) : showVerified && p.verification?.isVerified ? (
+              <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px]">
+                Verified
+              </span>
+            ) : undefined
           }
           imagePriority={i < imagePriorityFirstN}
           compact={compact}

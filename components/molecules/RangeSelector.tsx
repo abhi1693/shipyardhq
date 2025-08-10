@@ -24,7 +24,12 @@ export default function RangeSelector({ className }: { className?: string }) {
   }
 
   return (
-    <div className={cn("inline-flex items-center gap-1 rounded-md border p-1", className)}>
+    <div
+      className={cn(
+        "inline-flex items-center gap-1 rounded-md border p-1",
+        className,
+      )}
+    >
       {ranges.map((r) => (
         <Button
           key={r.value}
@@ -43,4 +48,3 @@ export default function RangeSelector({ className }: { className?: string }) {
     </div>
   )
 }
-

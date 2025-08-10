@@ -6,7 +6,13 @@ import { Button } from "@/components/atoms/button"
 import { Skeleton } from "@/components/atoms/skeleton"
 import ProductList from "@/components/molecules/ProductList"
 
-import { Category, Product, ProductAnalytics, ProductVerification, User } from "@prisma/client"
+import {
+  Category,
+  Product,
+  ProductAnalytics,
+  ProductVerification,
+  User,
+} from "@prisma/client"
 import { loadMoreProducts } from "@/actions/public/browse/loadMore"
 
 type ProductWithMeta = Product & {
