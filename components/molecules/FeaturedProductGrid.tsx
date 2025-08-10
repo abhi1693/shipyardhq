@@ -33,6 +33,7 @@ export function FeaturedProductGrid({
             <ProductCard
               product={{
                 id: p.id,
+                slug: p.slug,
                 name: p.name,
                 logo: p.logo,
                 tagline: p.tagline,

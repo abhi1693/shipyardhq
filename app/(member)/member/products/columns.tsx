@@ -21,7 +21,7 @@ export const columns: ColumnDef<
     cell: ({ row }) =>
       linkify({
         label: row.original.name,
-        href: `/member/products/${row.original.id}`,
+        href: `/member/products/${row.original.slug}`,
       }),
   },
   {

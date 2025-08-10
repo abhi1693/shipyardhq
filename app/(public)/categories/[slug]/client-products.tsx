@@ -6,6 +6,7 @@ import InlineSelect from "@/components/molecules/InlineSelect"
 
 type ProductForCard = {
   id: string
+  slug: string
   name: string
   logo: string
   tagline: string

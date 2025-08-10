@@ -14,6 +14,7 @@ import {
   getPublicProduct,
   getRelatedProductsByCategory,
 } from "@/actions/public/products/actions"
+import prisma from "@/lib/prisma"
 import {
   CheckCircle,
   ExternalLink,
@@ -37,14 +38,15 @@ import remarkGfm from "remark-gfm"
 import { IconBrandFirefox } from "@tabler/icons-react"
 
 interface ProductPageProps {
-  params: { id: string }
+  params: { slug: string }
 }
 
-export async function generateMetadata({
-  params,
-}: ProductPageProps): Promise<Metadata> {
-  const { id } = await params
-  const product = await getPublicProduct(id)
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    select: { name: true, tagline: true, description: true, logo: true },
+  })
   if (!product) return {}
   return {
     title: `${product.name} | Product`,
@@ -58,8 +60,9 @@ export async function generateMetadata({
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const { id } = await params
-  const product = await getPublicProduct(id)
+  const { slug } = await params
+  const bySlug = await prisma.product.findUnique({ where: { slug }, select: { id: true } })
+  const product = bySlug ? await getPublicProduct(bySlug.id) : null
   if (!product) return notFound()
 
   const isVerified = product.verification?.isVerified
@@ -421,7 +424,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             {related.map((r) => (
               <Link
                 key={r.id}
-                href={`/products/${r.id}`}
+                href={`/products/${r.slug}`}
                 className="group border rounded-lg p-4 hover:bg-muted/30 transition-colors"
               >
                 <div className="flex items-start gap-3">

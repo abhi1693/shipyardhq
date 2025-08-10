@@ -92,6 +92,7 @@ export default async function LeaderboardPage({
             <ProductCard
               product={{
                 id: product.id,
+                slug: product.slug,
                 name: product.name,
                 logo: product.logo,
                 tagline: product.tagline,

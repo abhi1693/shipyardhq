@@ -17,6 +17,7 @@ import { BADGE_OPTIONS } from "@/lib/constants"
 interface ProductCardProps {
   product: {
     id: string
+    slug: string
     name: string
     logo: string
     tagline: string
@@ -46,6 +47,7 @@ export function ProductCard({
   return (
     <form action={clickProductCardAction} method="post" className="h-full">
       <input type="hidden" name="productId" value={product.id} />
+      <input type="hidden" name="productSlug" value={product.slug} />
       <button
         type="submit"
         className="block h-full w-full text-left transition-transform duration-300 hover:-translate-y-1"

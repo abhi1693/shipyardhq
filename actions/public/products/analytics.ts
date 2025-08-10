@@ -9,6 +9,7 @@ import { getClientIp } from "@/lib/server/ip"
 // Tracks a product card click and redirects to the product detail page
 export async function clickProductCardAction(formData: FormData) {
   const productId = String(formData.get("productId") || "")
+  const productSlug = String(formData.get("productSlug") || "")
   if (!productId) return redirect("/")
   try {
     const ip = await getClientIp()
@@ -20,7 +21,7 @@ export async function clickProductCardAction(formData: FormData) {
   } catch (err) {
     console.error("click publish failed", err)
   }
-  redirect(`/products/${productId}`)
+  redirect(`/products/${productSlug}`)
 }
 
 // For future use: track outbound link clicks distinctly if needed

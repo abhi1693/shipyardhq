@@ -129,7 +129,7 @@ export default async function OverviewPage({
                   <div className="flex justify-between items-center">
                     {linkify({
                       label: p.name,
-                      href: `/member/products/${p.id}`,
+                      href: `/member/products/${p.slug}`,
                     })}
                     <span className="text-muted-foreground text-sm">
                       {formatDistanceToNow(new Date(p.createdAt), {

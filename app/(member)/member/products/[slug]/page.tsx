@@ -23,14 +23,16 @@ import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
 import { getProductById } from "@/actions/admin/products/actions"
 import { auth } from "@clerk/nextjs/server"
 import ProductMediaManager from "@/components/molecules/ProductMediaManager"
+import prisma from "@/lib/prisma"
 
 export default async function ViewUserProductPage({
   params,
 }: {
-  params: { id: string }
+  params: { slug: string }
 }) {
-  const { id } = await params
-  const product = await getProductById(id)
+  const { slug } = await params
+  const found = await prisma.product.findUnique({ where: { slug }, select: { id: true } })
+  const product = found ? await getProductById(found.id) : null
   if (!product) return notFound()
   const { userId: clerkId } = await auth()
   const isOwner = Boolean(clerkId && product.user?.clerkId === clerkId)
@@ -38,10 +40,11 @@ export default async function ViewUserProductPage({
   return (
     <ObjectPageLayout
       heading={{
-        id: product.id,
+        id: product.slug,
         title: product.name,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
+        slug: product.id,
       }}
       overview={[
         { label: "Name", value: product.name },

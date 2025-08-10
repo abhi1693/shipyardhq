@@ -75,7 +75,7 @@ export default function EditProductForm({
         return
       }
       toast.success("Product updated successfully")
-      router.push(`/member/products/${product.id}`)
+      router.push(`/member/products/${product.slug}`)
     },
   })
 

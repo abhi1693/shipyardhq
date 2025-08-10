@@ -6,6 +6,7 @@ import { Badge } from "@/components/atoms/badge"
 
 type ProductListItem = {
   id: string
+  slug: string
   name: string
   logo: string
   tagline: string
@@ -48,7 +49,7 @@ export default function ProductList<T extends ProductListItem>({
       {items.map((p, i) => (
         <ProductCard
           key={p.id}
-          product={{ id: p.id, name: p.name, logo: p.logo, tagline: p.tagline }}
+          product={{ id: p.id, slug: p.slug, name: p.name, logo: p.logo, tagline: p.tagline }}
           badges={p.badges}
           upvotes={p.analytics?.upvotes ?? 0}
           author={
