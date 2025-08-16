@@ -49,5 +49,15 @@ describe('ImageUploadField more branches', () => {
     resolver({ ok: true, json: async () => ({ url: 'u' }) } as any);
     await waitFor(() => expect(container.querySelector('a[href="u"]')).toBeTruthy());
   });
-});
 
+  it('handles drop event when idle by calling handleFiles', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => ({ url: 'dropped' }) } as any);
+    const { container } = render(<Wrapper />);
+    const label = container.querySelector('label[aria-busy="false"], label:not([aria-busy])') as HTMLLabelElement;
+    const evt = new Event('drop', { bubbles: true, cancelable: true }) as any;
+    Object.defineProperty(evt, 'dataTransfer', { value: { files: [new File(['d'], 'd.png', { type: 'image/png' })] } });
+    label.dispatchEvent(new Event('dragover', { bubbles: true }));
+    label.dispatchEvent(evt);
+    await waitFor(() => expect(container.querySelector('a[href="dropped"]')).toBeTruthy());
+  });
+});
