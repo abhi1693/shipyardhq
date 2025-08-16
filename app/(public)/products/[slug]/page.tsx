@@ -36,9 +36,12 @@ import { formatCurrency } from "@/lib/ui/formatters"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { IconBrandFirefox } from "@tabler/icons-react"
+import { addUtmParams } from "@/lib/marketing/utm"
+import { hasPlanFeature } from "@/lib/features"
+import { JSX } from "react"
 
 interface ProductPageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({
@@ -144,6 +147,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     }
   }
 
+  // Helper to append UTM params to outbound CTAs, keeping them do-follow.
+  const withUtm = (url: string, content: string) =>
+    addUtmParams(url, {
+      source: "shipyard",
+      medium: "referral",
+      // Add campaign only if provided by user
+      campaign: product.metadata?.utmCampaign || undefined,
+      content,
+    })
+
+  // Plan features
+  const hasBacklinkFeature = hasPlanFeature(product.plan, "backlink")
+  const hasCustomCtaFeature = hasPlanFeature(product.plan, "customCTA")
+
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
       <Breadcrumbs
@@ -212,20 +229,41 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <div className="mt-4 space-y-3">
             {/* Primary CTAs */}
             <div className="flex flex-wrap gap-2">
-              <ExternalBadgeLink href={product.websiteUrl} target="_blank">
+              <ExternalBadgeLink
+                href={
+                  hasBacklinkFeature
+                    ? withUtm(product.websiteUrl, "visit-website")
+                    : product.websiteUrl
+                }
+                target="_blank"
+                rel={hasBacklinkFeature ? "noopener" : "nofollow noopener"}
+              >
                 <span className="flex items-center gap-1">
                   <ExternalLink size={14} /> Visit website
                 </span>
               </ExternalBadgeLink>
-              {product.ctaUrl && (
-                <ExternalBadgeLink href={product.ctaUrl} target="_blank">
+              {product.ctaUrl && hasCustomCtaFeature && (
+                <ExternalBadgeLink
+                  href={
+                    hasBacklinkFeature
+                      ? withUtm(product.ctaUrl, "cta")
+                      : product.ctaUrl
+                  }
+                  target="_blank"
+                  rel={hasBacklinkFeature ? "noopener" : "nofollow noopener"}
+                >
                   {product.ctaLabel || "Get Started"}
                 </ExternalBadgeLink>
               )}
               {product.metadata?.demoUrl && (
                 <ExternalBadgeLink
-                  href={product.metadata.demoUrl}
+                  href={
+                    hasBacklinkFeature
+                      ? withUtm(product.metadata.demoUrl, "demo")
+                      : product.metadata.demoUrl
+                  }
                   target="_blank"
+                  rel={hasBacklinkFeature ? "noopener" : "nofollow noopener"}
                   variant="outline"
                 >
                   Live demo

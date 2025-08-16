@@ -34,7 +34,7 @@ import {
 } from "@/components/atoms/select"
 
 const userFormSchema = z.object({
-  email: z.string().email("Invalid email"),
+  email: z.email("Invalid email"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   role: z.enum(["admin", "member"]),

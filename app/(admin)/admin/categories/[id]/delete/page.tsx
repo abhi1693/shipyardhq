@@ -4,7 +4,7 @@ import { deleteCategoryAction } from "@/actions/admin/categories/actions"
 export default async function DeleteCategoryPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const result = await deleteCategoryAction(id)

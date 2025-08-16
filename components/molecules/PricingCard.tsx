@@ -16,8 +16,6 @@ export type PricingCardProps = {
   name: string
   description?: string | null
   price: number
-  interval: string
-  frequency: number
   isPopular?: boolean
   features: {
     id: string
@@ -35,8 +33,6 @@ export function PricingCard({
   name,
   description,
   price,
-  interval,
-  frequency,
   isPopular,
   features,
   ctaHref = "/member/overview",
@@ -52,12 +48,7 @@ export function PricingCard({
   ) : (
     <span className="text-4xl font-extrabold tracking-tight">{priceText}</span>
   )
-  const priceSub = isFree ? null : (
-    <span className="text-sm text-muted-foreground">
-      per {frequency} {interval}
-      {frequency > 1 ? "s" : ""}
-    </span>
-  )
+  const priceSub = null
 
   return (
     <Card className={clsx("h-full min-h-[22rem] flex flex-col")}>

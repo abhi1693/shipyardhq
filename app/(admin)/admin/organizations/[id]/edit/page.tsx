@@ -5,7 +5,7 @@ import EditOrganizationForm from "./form"
 export default async function EditOrganizationPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const org = await getOrganizationById(id)

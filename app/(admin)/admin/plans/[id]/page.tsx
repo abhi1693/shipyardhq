@@ -21,7 +21,7 @@ import { OverviewRow } from "@/components/layout/object-view/overview"
 export default async function ViewPlanPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
 

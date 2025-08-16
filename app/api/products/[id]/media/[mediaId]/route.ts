@@ -4,7 +4,7 @@ import { deleteBlob } from "@/lib/blob"
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string; mediaId: string } },
+  { params }: { params: Promise<{ id: string; mediaId: string }> },
 ) {
   try {
     const { id, mediaId } = await params

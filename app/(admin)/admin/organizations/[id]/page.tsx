@@ -2,21 +2,24 @@ import { notFound } from "next/navigation"
 import { getOrganizationById } from "@/actions/admin/organizations/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { linkify, formatDate } from "@/lib/ui/formatters"
+import { Prisma } from "@prisma/client"
 import { OrganizationMembersRelationship } from "./relationships/members"
 
 export default async function ViewOrganizationPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const org = await getOrganizationById(id, {
+  const org = (await getOrganizationById(id, {
     include: {
       memberships: {
         include: { user: true },
       },
     },
-  })
+  })) as Prisma.OrganizationGetPayload<{
+    include: { memberships: { include: { user: true } } }
+  }>
   if (!org) return notFound()
 
   return (

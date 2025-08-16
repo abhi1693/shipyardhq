@@ -6,15 +6,19 @@ import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { CategoryProductsClient } from "./client-products"
+import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
+import CategoryFeatured from "@/components/organisms/CategoryFeatured"
+import { productHasFeature } from "@/lib/features"
 
 interface CategoryPageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
-  const data = await getCategoryWithProducts(params.slug)
+  const { slug } = await params
+  const data = await getCategoryWithProducts(slug)
   if (!data) return {}
 
   return {
@@ -24,11 +28,13 @@ export async function generateMetadata({
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const data = await getCategoryWithProducts(params.slug)
+  const { slug } = await params
+  const data = await getCategoryWithProducts(slug)
 
   if (!data) notFound()
 
   const { category, products } = data
+  const featured = await getFeaturedByCategorySlug(slug, 7)
 
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-10">
@@ -59,10 +65,15 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </p>
       </div>
 
+      {/* Category Featured Spotlight + Banner */}
+      <CategoryFeatured products={featured} categoryName={category.name} />
+
       {/* Product Grid */}
       <CategoryProductsClient
         products={products.map((p) => ({
           ...p,
+          // used by client to pin priority products first
+          priority: productHasFeature(p, "priorityPlacement"),
           badges: p.ProductBadge?.filter(
             (pb: any) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
           ).map((pb: any) => pb.badge),

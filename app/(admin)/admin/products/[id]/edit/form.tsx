@@ -79,17 +79,21 @@ const productFormSchema = z.object({
   startingPriceCents: z
     .string()
     .optional()
-    .transform((v) => (v ? Number(v) : undefined))
-    .refine((v) => v === undefined || v >= 0, "Must be >= 0"),
+    .refine(
+      (v) =>
+        v === undefined || v === "" || (!isNaN(Number(v)) && Number(v) >= 0),
+      "Must be >= 0",
+    ),
   currencyCode: z.enum(CURRENCY_CODES),
   ctaLabel: z.string().optional().or(z.literal("")),
-  ctaUrl: z.string().url().or(z.literal("")),
+  ctaUrl: z.url().or(z.literal("")),
   keywords: z.string().optional().or(z.literal("")),
   platforms: z.array(z.enum(PLATFORMS)).optional(),
   githubUrl: z.string().optional().or(z.literal("")),
   twitterUrl: z.string().optional().or(z.literal("")),
   demoUrl: z.string().optional().or(z.literal("")),
   contactEmail: z.string().optional().or(z.literal("")),
+  utmCampaign: z.string().optional().or(z.literal("")),
 })
 
 type ProductFormInput = z.infer<typeof productFormSchema>
@@ -133,7 +137,11 @@ export default function EditProductForm({
         product.startingPriceCents != null
           ? String(product.startingPriceCents)
           : undefined,
-      currencyCode: product.currencyCode || "USD",
+      currencyCode: (CURRENCY_CODES as readonly string[]).includes(
+        product.currencyCode || "",
+      )
+        ? (product.currencyCode as (typeof CURRENCY_CODES)[number])
+        : ("USD" as (typeof CURRENCY_CODES)[number]),
       ctaLabel: product.ctaLabel || "",
       ctaUrl: product.ctaUrl || "",
       keywords: (product.keywords || []).join(", "),
@@ -142,6 +150,7 @@ export default function EditProductForm({
       twitterUrl: product.metadata?.twitterUrl || "",
       demoUrl: product.metadata?.demoUrl || "",
       contactEmail: product.metadata?.contactEmail || "",
+      utmCampaign: product.metadata?.utmCampaign || "",
     },
   })
 
@@ -163,7 +172,9 @@ export default function EditProductForm({
       pricingModel: values.pricingModel as any,
       organizationId: values.organizationId || null,
       status: values.status,
-      startingPriceCents: values.startingPriceCents ?? null,
+      startingPriceCents: values.startingPriceCents
+        ? Number(values.startingPriceCents)
+        : null,
       currencyCode: values.currencyCode || null,
       ctaLabel: values.ctaLabel || null,
       ctaUrl: values.ctaUrl || null,
@@ -174,6 +185,7 @@ export default function EditProductForm({
       twitterUrl: values.twitterUrl || null,
       demoUrl: values.demoUrl || null,
       contactEmail: values.contactEmail || null,
+      utmCampaign: values.utmCampaign || null,
     })
 
     if ((result as any)?.error) return
@@ -445,6 +457,26 @@ export default function EditProductForm({
               </div>
 
               <Separator className="my-4" />
+
+              {/* Pricing */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  name="utmCampaign"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>UTM Campaign (optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g. product-summer-promo"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               {/* Pricing */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

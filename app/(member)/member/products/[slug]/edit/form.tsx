@@ -46,7 +46,7 @@ export default function EditProductForm({
   const router = useRouter()
 
   const form = useForm<ProductWizardInput>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: getInitialValuesFromProduct(product),
     mode: "onBlur",
   })
@@ -100,7 +100,9 @@ export default function EditProductForm({
 
         <FormProvider {...form}>
           <form
-            onSubmit={form.handleSubmit(wizard.onSubmit as any)}
+            onSubmit={form.handleSubmit(() =>
+              wizard.submitWithStatus("published"),
+            )}
             className="space-y-6"
           >
             {StepComponent}

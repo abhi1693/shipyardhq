@@ -110,6 +110,7 @@ export async function createProductAction(formData: FormData) {
   const twitterUrl = formData.get("twitterUrl")?.toString().trim()
   const demoUrl = formData.get("demoUrl")?.toString().trim()
   const contactEmail = formData.get("contactEmail")?.toString().trim()
+  const utmCampaign = formData.get("utmCampaign")?.toString().trim()
 
   const startingPriceCentsRaw = formData.get("startingPriceCents")?.toString()
   const startingPriceCents = startingPriceCentsRaw
@@ -193,6 +194,7 @@ export async function createProductAction(formData: FormData) {
             twitterUrl,
             demoUrl,
             contactEmail,
+            utmCampaign: utmCampaign || undefined,
           },
         },
         analytics: {
@@ -259,6 +261,7 @@ export async function updateProductAction(
     twitterUrl?: string | null
     demoUrl?: string | null
     contactEmail?: string | null
+    utmCampaign?: string | null
   },
 ) {
   const {
@@ -320,6 +323,7 @@ export async function updateProductAction(
             twitterUrl: twitterUrl?.trim() || null,
             demoUrl: demoUrl?.trim() || null,
             contactEmail: contactEmail?.trim() || null,
+            utmCampaign: (data.utmCampaign || undefined) ?? undefined,
           },
         },
         organizationId: data.organizationId || null,

@@ -20,8 +20,6 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
                 name={p.name}
                 description={p.description}
                 price={p.price}
-                interval={p.interval}
-                frequency={p.frequency}
                 isPopular={
                   p.price > 0 &&
                   (p.productCount || 0) === maxCount &&

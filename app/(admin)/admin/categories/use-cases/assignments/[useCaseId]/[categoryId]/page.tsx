@@ -5,7 +5,7 @@ import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 export default async function ViewAssignmentPage({
   params,
 }: {
-  params: { useCaseId: string; categoryId: string }
+  params: Promise<{ useCaseId: string; categoryId: string }>
 }) {
   const { useCaseId, categoryId } = await params
 

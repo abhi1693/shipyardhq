@@ -7,12 +7,12 @@ import Link from "next/link"
 import { Button } from "@/components/atoms/button"
 import { Eye, Pencil } from "lucide-react"
 
-export const columns: ColumnDef<
-  Product & {
-    category: { id: string; name: string }
-    user: { id: string; email: string }
-  }
->[] = [
+export type AdminProductRow = Product & {
+  category: { id: string; name: string }
+  user: { id: string; email: string }
+}
+
+export const columns: ColumnDef<AdminProductRow>[] = [
   {
     id: "logo",
     header: "Logo",

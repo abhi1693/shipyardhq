@@ -7,7 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/atoms/button"
 import { Eye, Pencil } from "lucide-react"
 
-type PlanFeatureWithAssignments = PlanFeature & {
+export type PlanFeatureWithAssignments = PlanFeature & {
   assignments: (PlanFeatureAssignment & {
     plan: Pick<Plan, "id" | "name">
   })[]

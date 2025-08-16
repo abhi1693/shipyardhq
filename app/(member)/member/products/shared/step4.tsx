@@ -153,6 +153,19 @@ export default function Step4({
             </FormItem>
           )}
         />
+        <FormField
+          name="utmCampaign"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>UTM Campaign (optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. product-summer-promo" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
     </div>
   )

@@ -7,10 +7,11 @@ import { getPlanFeatures } from "@/actions/admin/plans/features/actions"
 export default async function EditAssignmentPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const assignment = await prisma.planFeatureAssignment.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       plan: true,
       feature: true,

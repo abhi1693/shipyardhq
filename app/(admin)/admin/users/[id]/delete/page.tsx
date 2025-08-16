@@ -4,7 +4,7 @@ import { deleteUserAction } from "@/actions/admin/users/actions"
 export default async function DeleteUserPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const result = await deleteUserAction(id)

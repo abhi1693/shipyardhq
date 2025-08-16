@@ -7,14 +7,16 @@ export function ExternalBadgeLink({
   children,
   variant,
   target,
+  rel,
 }: {
   href: string
   children: ReactNode
   variant?: "default" | "secondary" | "outline"
   target?: string
+  rel?: string
 }) {
   return (
-    <Link href={href} target={target}>
+    <Link href={href} target={target} rel={rel}>
       <Badge variant={variant ?? "default"}>{children}</Badge>
     </Link>
   )

@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 
 import { headers } from "next/headers"
+import { redirect } from "next/navigation"
 
 type ListParams = Record<string, string | string[] | undefined>
 
@@ -312,4 +313,31 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     console.error("Payment validation failed:", e)
     return { error: "Payment validation failed" }
   }
+}
+
+// Unified server action to choose/upgrade a plan for a product
+// Usage from a form: const action = choosePlanAction.bind(null, { productId, redirectPath })
+export async function choosePlanAction(
+  ctx: { productId: string; redirectPath: string },
+  formData: FormData,
+) {
+  "use server"
+  const planId = formData.get("planId")?.toString() || ""
+  if (!planId) return
+
+  // Try to start checkout when plan requires payment
+  const plan = await prisma.plan.findUnique({
+    where: { id: planId },
+    select: { id: true, externalId: true, price: true },
+  })
+  if (plan?.externalId && (plan.price || 0) > 0) {
+    const session = await startPlanCheckoutAction(ctx.productId, planId)
+    if ((session as any)?.paymentLink) {
+      redirect((session as any).paymentLink)
+    }
+  }
+
+  // Fallback to direct attach
+  await setProductPlanAction(ctx.productId, planId)
+  redirect(ctx.redirectPath)
 }

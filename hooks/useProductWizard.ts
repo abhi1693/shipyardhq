@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import type { UseFormReturn } from "react-hook-form"
+import type { UseFormReturn, FieldValues } from "react-hook-form"
 
 type ValidateExternal = () => Promise<boolean>
 
-export function useProductWizard<TValues = any>({
+export function useProductWizard<TValues extends FieldValues = any>({
   form,
   steps,
   stepFields,

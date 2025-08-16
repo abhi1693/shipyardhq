@@ -10,12 +10,13 @@ const CHUNK_SIZE = 50000
 
 export async function GET(
   _req: Request,
-  { params }: { params: { index: string } },
+  { params }: { params: Promise<{ index: string }> },
 ) {
   const base = (
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   ).replace(/\/$/, "")
-  const page = Number(params.index)
+  const { index } = await params
+  const page = Number(index)
   if (!Number.isFinite(page) || page < 1) {
     return new Response("Invalid index", { status: 400 })
   }

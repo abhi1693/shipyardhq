@@ -33,21 +33,20 @@ import { Button } from "@/components/atoms/button"
 import {
   getRecentUpvoters,
   validatePaymentAndAttachPlan,
+  choosePlanAction,
 } from "@/actions/member/products/actions"
 import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import { ExternalLink, Copy as CopyIcon } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import {
-  startPlanCheckoutAction,
-  setProductPlanAction,
-} from "@/actions/member/products/actions"
+// startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
+import { hasPlanFeature } from "@/lib/features"
 
 export default async function ViewUserProductPage({
   params,
   searchParams,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
   searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { slug } = await params
@@ -66,10 +65,12 @@ export default async function ViewUserProductPage({
   })
   const product = found ? await getProductById(found.id) : null
   if (!product) return notFound()
+  const productId = product!.id
+  const productSlug = product!.slug
   const { userId: clerkId } = await auth()
   const isOwner = Boolean(clerkId && product.user?.clerkId === clerkId)
-  const publicPath = `/products/${product.slug}`
-  const upvoters = await getRecentUpvoters(product.id, 5).catch(() => [])
+  const publicPath = `/products/${productSlug}`
+  const upvoters = await getRecentUpvoters(productId, 5).catch(() => [])
 
   const allPlans = await getPublicPlans().catch(() => [])
   const currentPlanPublic = product.plan
@@ -93,13 +94,10 @@ export default async function ViewUserProductPage({
   const { deltaTop, deltaCount } = (() => {
     if (!nextPlan)
       return { deltaTop: [] as { id: string; name: string }[], deltaCount: 0 }
-    const currentKeys = new Set(
-      (product.plan?.assignments || [])
-        .filter((a: any) => a.enabled && a.feature?.key)
-        .map((a: any) => a.feature.key as string),
-    )
     const nextEnabled = nextPlan.features.filter((f) => f.enabled)
-    const delta = nextEnabled.filter((f) => !currentKeys.has(f.key))
+    const delta = nextEnabled.filter(
+      (f) => !hasPlanFeature(product.plan ?? null, f.key),
+    )
     return {
       deltaTop: delta.slice(0, 3).map((f) => ({ id: f.id, name: f.name })),
       deltaCount: delta.length,
@@ -128,6 +126,11 @@ export default async function ViewUserProductPage({
       .slice(0, 4)
       .map((key) => ({ id: key, name: nameByKey.get(key) || key }))
   })()
+
+  const choosePlan = choosePlanAction.bind(null, {
+    productId,
+    redirectPath: `/member/products/${productSlug}`,
+  })
 
   return (
     <ObjectPageLayout
@@ -291,121 +294,99 @@ export default async function ViewUserProductPage({
                 </ul>
               </div>
             ) : null}
-            {nextPlan ? (
-              <div className="mt-3 rounded-md border p-3 bg-muted/30">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="text-sm">
-                    <span className="font-medium">
-                      Unlock more with {nextPlan.name}
-                    </span>
-                    <div className="mt-1 flex items-baseline gap-2">
-                      {(() => {
-                        const nf = new Intl.NumberFormat("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                        })
-                        const pctRaw = nextPlan.discount ?? 0
-                        const pct = Math.min(Math.max(pctRaw, 0), 100)
-                        const originalCents = nextPlan.price
-                        const discountedCents =
-                          pct > 0 && pct < 100
-                            ? Math.round(originalCents * (1 - pct / 100))
-                            : originalCents
-                        const original =
-                          pct > 0 && pct < 100
-                            ? nf.format(originalCents / 100)
-                            : null
-                        const priceText = nf.format(discountedCents / 100)
-                        return (
-                          <>
-                            {original && (
-                              <span className="text-xs text-muted-foreground line-through">
-                                {original}
+            {(() => {
+              const np = nextPlan
+              if (!np) return null
+              return (
+                <div className="mt-3 rounded-md border p-3 bg-muted/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div className="text-sm">
+                      <span className="font-medium">
+                        Unlock more with {np!.name}
+                      </span>
+                      <div className="mt-1 flex items-baseline gap-2">
+                        {(() => {
+                          const nf = new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                          })
+                          const pctRaw = np!.discount ?? 0
+                          const pct = Math.min(Math.max(pctRaw, 0), 100)
+                          const originalCents = np!.price
+                          const discountedCents =
+                            pct > 0 && pct < 100
+                              ? Math.round(originalCents * (1 - pct / 100))
+                              : originalCents
+                          const original =
+                            pct > 0 && pct < 100
+                              ? nf.format(originalCents / 100)
+                              : null
+                          const priceText = nf.format(discountedCents / 100)
+                          return (
+                            <>
+                              {original && (
+                                <span className="text-xs text-muted-foreground line-through">
+                                  {original}
+                                </span>
+                              )}
+                              <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                                {priceText}
                               </span>
-                            )}
-                            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-                              {priceText}
-                            </span>
-                            {pct > 0 ? (
-                              <span className="text-[11px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1.5 py-0.5">
-                                Save{" "}
-                                {new Intl.NumberFormat("en-US", {
-                                  maximumFractionDigits: 2,
-                                }).format(pct)}
-                                %
-                              </span>
-                            ) : null}
-                          </>
-                        )
-                      })()}
-                    </div>
-                  </div>
-                  {(() => {
-                    async function upgradeNow(formData: FormData) {
-                      "use server"
-                      const pid = formData.get("planId")?.toString() || ""
-                      if (!pid) return
-                      // If we can checkout directly, do it; otherwise attach directly
-                      if (nextPlan.externalId && nextPlan.price > 0) {
-                        const session = await startPlanCheckoutAction(
-                          product.id,
-                          pid,
-                        )
-                        if ((session as any)?.paymentLink) {
-                          redirect((session as any).paymentLink)
-                        }
-                      }
-                      // If checkout isn't required or failed to init, attach directly when possible
-                      await setProductPlanAction(product.id, pid)
-                      redirect(`/member/products/${product.slug}`)
-                    }
-                    return (
-                      <form action={upgradeNow} className="contents">
-                        <input
-                          type="hidden"
-                          name="planId"
-                          value={nextPlan.id}
-                        />
-                        <Button
-                          size="sm"
-                          className="transition-transform hover:-translate-y-0.5"
-                        >
-                          Buy now
-                        </Button>
-                      </form>
-                    )
-                  })()}
-                </div>
-                <div className="mt-1 text-[11px] text-muted-foreground">
-                  Instant activation after payment. Boost lasts{" "}
-                  {(nextPlan as any).boostForDays ?? 1} day(s).
-                </div>
-                {nextPlan.description ? (
-                  <div className="mt-1 text-xs text-foreground/90">
-                    {nextPlan.description}
-                  </div>
-                ) : null}
-                {deltaTop.length ? (
-                  <>
-                    <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {deltaTop.map((f) => (
-                        <li
-                          key={f.id}
-                          className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600"
-                        >
-                          {f.name}
-                        </li>
-                      ))}
-                    </ul>
-                    {deltaCount > deltaTop.length ? (
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        …and {deltaCount - deltaTop.length} more benefits
+                              {pct > 0 ? (
+                                <span className="text-[11px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1.5 py-0.5">
+                                  Save{" "}
+                                  {new Intl.NumberFormat("en-US", {
+                                    maximumFractionDigits: 2,
+                                  }).format(pct)}
+                                  %
+                                </span>
+                              ) : null}
+                            </>
+                          )
+                        })()}
                       </div>
-                    ) : null}
-                  </>
-                ) : null}
-              </div>
-            ) : null}
+                    </div>
+                    <form action={choosePlan} className="contents">
+                      <input type="hidden" name="planId" value={np!.id} />
+                      <Button
+                        size="sm"
+                        className="transition-transform hover:-translate-y-0.5"
+                      >
+                        Buy now
+                      </Button>
+                    </form>
+                  </div>
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    Instant activation after payment. Boost lasts{" "}
+                    {(np as any).boostForDays ?? 1} day(s).
+                  </div>
+                  {np!.description ? (
+                    <div className="mt-1 text-xs text-foreground/90">
+                      {np!.description}
+                    </div>
+                  ) : null}
+                  {deltaTop.length ? (
+                    <>
+                      <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {deltaTop.map((f) => (
+                          <li
+                            key={f.id}
+                            className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600"
+                          >
+                            {f.name}
+                          </li>
+                        ))}
+                      </ul>
+                      {deltaCount > deltaTop.length ? (
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          …and {deltaCount - deltaTop.length} more benefits
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
+                </div>
+              )
+            })()}
 
             {(() => {
               const currentPrice = currentPlanPublic
@@ -423,27 +404,7 @@ export default async function ViewUserProductPage({
                   <div className="mb-2 text-sm font-medium">Other plans</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {upgradable.map((p) => (
-                      <form
-                        key={p.id}
-                        action={async (formData: FormData) => {
-                          "use server"
-                          const chosen =
-                            formData.get("planId")?.toString() || ""
-                          if (!chosen) return
-                          if (p.externalId && p.price > 0) {
-                            const session = await startPlanCheckoutAction(
-                              product.id,
-                              chosen,
-                            )
-                            if ((session as any)?.paymentLink) {
-                              redirect((session as any).paymentLink)
-                            }
-                          }
-                          await setProductPlanAction(product.id, chosen)
-                          redirect(`/member/products/${product.slug}`)
-                        }}
-                        className="contents"
-                      >
+                      <form key={p.id} action={choosePlan} className="contents">
                         <input type="hidden" name="planId" value={p.id} />
                         <div className="rounded-md border p-3 h-full">
                           <div className="flex items-center justify-between">

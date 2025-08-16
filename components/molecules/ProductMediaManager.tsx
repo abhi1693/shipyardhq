@@ -72,13 +72,13 @@ export default function ProductMediaManager({
     }
   }
 
-  function onDrop(e: React.DragEvent<HTMLDivElement>) {
+  function onDrop(e: React.DragEvent<HTMLLabelElement>) {
     e.preventDefault()
     if (!e.dataTransfer.files?.length) return
     uploadFiles(e.dataTransfer.files)
   }
 
-  function onDragOver(e: React.DragEvent<HTMLDivElement>) {
+  function onDragOver(e: React.DragEvent<HTMLLabelElement>) {
     e.preventDefault()
   }
 

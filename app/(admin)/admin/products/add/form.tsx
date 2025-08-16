@@ -81,6 +81,7 @@ const productFormSchema = z.object({
   twitterUrl: z.url().or(z.literal("")).optional(),
   demoUrl: z.url().or(z.literal("")).optional(),
   contactEmail: z.email().or(z.literal("")).optional(),
+  utmCampaign: z.string().or(z.literal("")).optional(),
 })
 
 type ProductFormInput = z.infer<typeof productFormSchema>
@@ -121,6 +122,7 @@ export default function AddProductForm({
       twitterUrl: "",
       demoUrl: "",
       contactEmail: "",
+      utmCampaign: "",
     },
   })
 
@@ -446,6 +448,26 @@ export default function AddProductForm({
 
               {/* Divider for optional metadata */}
               <Separator className="my-4" />
+
+              {/* Pricing */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  name="utmCampaign"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>UTM Campaign (optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g. product-summer-promo"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               {/* Pricing */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
