@@ -150,3 +150,30 @@ export async function getStickyBannerProducts(limit = 12) {
     take: limit,
   })
 }
+
+// Get products that have the homepage plan feature enabled (for homepage spotlight)
+export async function getHomepageFeatureProducts(limit = 12) {
+  return prisma.product.findMany({
+    where: {
+      status: "published" as any,
+      plan: {
+        is: {
+          assignments: {
+            some: {
+              enabled: true,
+              feature: { is: { key: "homepage" } },
+            },
+          },
+        },
+      },
+    },
+    include: {
+      category: true,
+      user: true,
+      analytics: true,
+      ProductBadge: true,
+    },
+    orderBy: { updatedAt: "desc" },
+    take: limit,
+  })
+}
