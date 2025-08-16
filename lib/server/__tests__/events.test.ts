@@ -27,4 +27,9 @@ describe('events bus', () => {
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
+
+  it('returns early when publishing with no listeners', async () => {
+    // There are currently no listeners for this custom event name
+    await expect(publish('product.deleted', { productId: 'none' })).resolves.toBeUndefined();
+  });
 });

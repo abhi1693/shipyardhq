@@ -97,3 +97,16 @@ describe('badges listeners', () => {
     expect((prisma as any).productBadge.update).toHaveBeenCalled();
   });
 
+  it('respects provided expiresAt and returns early', async () => {
+    (prisma as any).productBadge.update.mockClear();
+    const future = new Date(Date.now() + 1000);
+    await publish('badge.assigned', { id: 'b5', productId: 'p1', badge: 'featured', expiresAt: future });
+    expect((prisma as any).productBadge.update).not.toHaveBeenCalled();
+  });
+
+  it('product.updated returns early when product not found', async () => {
+    (prisma as any).productBadge.create.mockClear();
+    (prisma as any).product.findUnique.mockResolvedValueOnce(null);
+    await publish('product.updated', { productId: 'missing' });
+    expect((prisma as any).productBadge.create).not.toHaveBeenCalled();
+  });

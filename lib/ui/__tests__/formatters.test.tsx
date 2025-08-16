@@ -80,6 +80,12 @@ describe('formatters (UI)', () => {
     expect(link).not.toHaveAttribute('rel');
   });
 
+  it('linkify external with hostname-less scheme falls back to provided label', () => {
+    render(<>{linkify({ href: 'mailto:test@example.com', isExternal: true, label: 'Email' })}</> as any);
+    const link = screen.getByRole('link');
+    expect(link.textContent).toBe('Email');
+  });
+
   
   it('linkify falls back on invalid URL', () => {
     render(<>{linkify({ href: 'nota url', isExternal: true })}</> as any);
