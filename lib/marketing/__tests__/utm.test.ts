@@ -24,5 +24,10 @@ describe('marketing utm', () => {
   it('returns original string when URL is invalid', () => {
     expect(addUtmParams('/relative', { source: 'x' })).toBe('/relative');
   });
-});
 
+  it('ignores unset params and leaves URL unchanged when none provided', () => {
+    const url = 'https://example.com/page?x=1';
+    const out = addUtmParams(url, {});
+    expect(out).toBe(url);
+  });
+});

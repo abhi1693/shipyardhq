@@ -73,15 +73,31 @@ describe('formatters (UI)', () => {
     expect(screen.getByText('sub')).toBeInTheDocument();
   });
 
+  it('linkify internal link sets no target/rel', () => {
+    render(<>{linkify({ href: '/internal', isExternal: false })}</> as any);
+    const link = screen.getByRole('link');
+    expect(link).not.toHaveAttribute('target');
+    expect(link).not.toHaveAttribute('rel');
+  });
+
   
   it('linkify falls back on invalid URL', () => {
     render(<>{linkify({ href: 'nota url', isExternal: true })}</> as any);
     const link = screen.getByRole('link');
     expect(link.textContent).toBe('nota url');
   });
-it('formatDate formats a date string', () => {
+  it('formatDate formats a date string', () => {
     render(<>{formatDate('2024-01-01T00:00:00.000Z', 'yyyy')}</> as any);
     expect(screen.getByText('2024')).toBeInTheDocument();
+  });
+  it('formatDate accepts Date object', () => {
+    const d = new Date('2024-02-01T00:00:00.000Z');
+    render(<>{formatDate(d, 'yyyy')}</> as any);
+    expect(screen.getByText('2024')).toBeInTheDocument();
+  });
+  it('formatDate returns empty string on falsy value', () => {
+    const { container } = render(<>{formatDate(undefined as any)}</> as any);
+    expect(container.textContent).toBe('');
   });
 
   it('slug and image render', () => {
@@ -89,5 +105,16 @@ it('formatDate formats a date string', () => {
     expect(screen.getByText('abc')).toBeInTheDocument();
     render(<>{image('/x.png', 'alt', 1, 1)}</> as any);
     expect(screen.getByAltText('alt')).toBeInTheDocument();
+  });
+
+  it('formatCurrency handles GBP locale', () => {
+    render(formatCurrency(10000, 'GBP') as any);
+    expect(screen.getByText(/£100/)).toBeInTheDocument();
+  });
+
+  it('formatDistanceToNow accepts ISO string input', () => {
+    const iso = new Date().toISOString();
+    render(formatDistanceToNow(iso) as any);
+    expect(screen.getByText(/less than|seconds|minute|hour|day|month|year/)).toBeInTheDocument();
   });
 });

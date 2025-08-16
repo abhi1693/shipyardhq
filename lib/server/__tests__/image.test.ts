@@ -55,5 +55,24 @@ describe('toWebpIfPossible', () => {
     expect(res.extension).toBe('jpg');
   });
 
-});
+  it('sets webp extension when keeping original webp', async () => {
+    (global as any).__webpSize = 200; // force not smaller branch
+    const res = await toWebpIfPossible(new Uint8Array(10).buffer, 'image/webp');
+    expect(res.extension).toBe('webp');
+  });
 
+  it('falls back contentType default when mime empty (not smaller path)', async () => {
+    (global as any).__webpSize = 200;
+    // empty mime triggers default contentType fallback
+    const res = await toWebpIfPossible(new Uint8Array(10).buffer, '');
+    expect(res.contentType).toBe('application/octet-stream');
+  });
+
+  it('falls back contentType default when mime empty (catch path)', async () => {
+    (global as any).__sharpThrow = true;
+    const res = await toWebpIfPossible(new Uint8Array(10).buffer, '');
+    expect(res.contentType).toBe('application/octet-stream');
+    delete (global as any).__sharpThrow;
+  });
+
+});
