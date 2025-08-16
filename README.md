@@ -1,59 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ShipYardHQ
 
-## Getting Started
+Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑SaaS, indie tools, and early‑stage products. Makers submit in minutes; the community discovers, upvotes, and shares what’s worth using.
 
-First, run the development server:
+## What You Can Do
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Discover: Browse by category or use case, see latest launches, and explore what’s trending on the leaderboard.
+- Upvote: Support your favorite products and help them rise.
+- Launch: Submit your product quickly and publish when ready.
+- Feature: Boost visibility with featured placements available on paid plans.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How It Works
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1) Submit your product: Share the basics (name, description, link, category) at `/member/products/add`.
+2) Publish and verify: Go live immediately; optional domain verification adds trust.
+3) Get discovered: Appear across feeds like Featured Highlights, Latest Launches, and Editors’ Picks.
+4) Grow: Collect upvotes, climb the leaderboard, and upgrade to featured for extra reach.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Key Pages
 
-## Learn More
+- Browse: `/browse` — filter by categories, use cases, and verified products.
+- Leaderboard: `/leaderboard` — see the most upvoted products.
+- Categories: `/categories` — explore top verticals.
+- Pricing: `/pricing` — free listing plus optional featured plans.
+- Submit Product: `/member/products/add` — start your launch.
 
-To learn more about Next.js, take a look at the following resources:
+## For Makers
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Free to list. Upgrade anytime for featured placement and priority visibility.
+- Clear guidance during submission; publish as draft or live.
+- Shareable product pages with badges and highlights.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## For Discoverers
 
-## Deploy on Vercel
+- Curated feeds to find quality tools faster.
+- Simple upvoting to signal what’s useful.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contact
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-# shipyardhq
-
-## Plan Features Helper Usage
-
-Use the helpers in `@/lib/features` to check plan features consistently and avoid duplicating assignment scanning logic.
-
-- `hasPlanFeature(plan, key)`: Returns `true` if a plan has an enabled assignment for the given feature `key`.
-- `productHasFeature(product, key)`: Returns `true` if `product.plan` has the feature `key` enabled.
-
-Examples:
-
-```ts
-import { hasPlanFeature, productHasFeature } from "@/lib/features"
-
-// From a product object
-const isPriority = productHasFeature(product, "priorityPlacement")
-
-// From a plan object
-const canBacklink = hasPlanFeature(product.plan, "backlink")
-```
-
-Do not iterate over `plan.assignments` directly in UI/components; prefer these helpers for readability and correctness.
+Questions or feedback? Email `shipyardhq.dev@gmail.com` or say hi on X: https://x.com/abhi16_93
