@@ -12,8 +12,8 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       name: z.string().min(1, "Name is required"),
       tagline: z.string().min(1, "Tagline is required"),
       description: z.string().min(1, "Description is required"),
-      websiteUrl: z.string().url("Valid URL required"),
-      logo: z.string().url("Valid logo URL required"),
+      websiteUrl: z.url("Valid URL required"),
+      logo: z.url("Valid logo URL required"),
       categoryId: z.string().min(1, "Category is required"),
       type: z.enum(PRODUCT_TYPES, { required_error: "Select a product type" }),
       platforms: z.array(z.enum(PLATFORMS)).default([]),
@@ -38,14 +38,14 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       // Optional marketing/org
       organizationId: z.string().optional(),
       ctaLabel: z.string().optional(),
-      ctaUrl: z.string().url().optional().or(z.literal("")),
-      bannerImage: z.string().url().optional().or(z.literal("")),
+      ctaUrl: z.url().optional().or(z.literal("")),
+      bannerImage: z.url().optional().or(z.literal("")),
 
       // Metadata
-      githubUrl: z.string().url().optional().or(z.literal("")),
-      twitterUrl: z.string().url().optional().or(z.literal("")),
-      demoUrl: z.string().url().optional().or(z.literal("")),
-      contactEmail: z.string().email().optional().or(z.literal("")),
+      githubUrl: z.url().optional().or(z.literal("")),
+      twitterUrl: z.url().optional().or(z.literal("")),
+      demoUrl: z.url().optional().or(z.literal("")),
+      contactEmail: z.email().optional().or(z.literal("")),
       utmCampaign: z.string().optional().or(z.literal("")),
       status: z.enum(statusValues).optional(),
 

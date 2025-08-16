@@ -26,7 +26,7 @@ import PageContainer from "@/components/layout/page-container"
 
 const orgSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  url: z.string().url("Valid URL required"),
+  url: z.url("Valid URL required"),
 })
 
 type OrgFormInput = z.infer<typeof orgSchema>

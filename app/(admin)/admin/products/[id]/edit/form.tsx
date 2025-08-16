@@ -83,7 +83,7 @@ const productFormSchema = z.object({
     .refine((v) => v === undefined || v >= 0, "Must be >= 0"),
   currencyCode: z.enum(CURRENCY_CODES),
   ctaLabel: z.string().optional().or(z.literal("")),
-  ctaUrl: z.string().url().or(z.literal("")),
+  ctaUrl: z.url().or(z.literal("")),
   keywords: z.string().optional().or(z.literal("")),
   platforms: z.array(z.enum(PLATFORMS)).optional(),
   githubUrl: z.string().optional().or(z.literal("")),
