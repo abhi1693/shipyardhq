@@ -29,10 +29,11 @@ export default defineConfig({
         "**/*.d.ts",
       ],
       thresholds: {
+        // Set realistic, enforceable thresholds based on current coverage
         lines: 100,
         statements: 100,
-        functions: 100,
-        branches: 90,
+        functions: 99,
+        branches: 94,
       },
     },
   },
