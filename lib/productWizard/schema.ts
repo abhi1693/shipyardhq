@@ -15,16 +15,14 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       websiteUrl: z.url("Valid URL required"),
       logo: z.url("Valid logo URL required"),
       categoryId: z.string().min(1, "Category is required"),
-      type: z.enum(PRODUCT_TYPES, { required_error: "Select a product type" }),
+      type: z.enum(PRODUCT_TYPES, { message: "Select a product type" }),
       platforms: z.array(z.enum(PLATFORMS)).default([]),
       keywordsText: z.string().optional().default(""),
 
       // Pricing
-      pricingModel: z.enum(PRICING_MODELS, {
-        required_error: "Select a pricing model",
-      }),
+      pricingModel: z.enum(PRICING_MODELS, { message: "Select a pricing model" }),
       startingPriceCents: z
-        .number({ invalid_type_error: "Enter a valid number" })
+        .number({ message: "Enter a valid number" })
         .int("Must be an integer")
         .nonnegative("Cannot be negative")
         .nullable()
