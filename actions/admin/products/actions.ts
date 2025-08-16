@@ -121,8 +121,6 @@ export async function createProductAction(formData: FormData) {
   const ctaUrl = formData.get("ctaUrl")?.toString().trim() || undefined
   const bannerImage =
     formData.get("bannerImage")?.toString().trim() || undefined
-  const companyName =
-    formData.get("companyName")?.toString().trim() || undefined
 
   let keywords: string[] | undefined
   let platforms: string[] | undefined
@@ -187,7 +185,6 @@ export async function createProductAction(formData: FormData) {
         ctaLabel,
         ctaUrl,
         bannerImage,
-        companyName,
         keywords,
         platforms: (platforms as any) ?? undefined,
         metadata: {
@@ -247,7 +244,6 @@ export async function updateProductAction(
     ctaLabel?: string | null
     ctaUrl?: string | null
     bannerImage?: string | null
-    companyName?: string | null
     keywords?: string[]
     platforms?: (
       | "web"
@@ -335,7 +331,6 @@ export async function updateProductAction(
         ctaLabel: data.ctaLabel ?? undefined,
         ctaUrl: data.ctaUrl ?? undefined,
         bannerImage: data.bannerImage ?? undefined,
-        companyName: data.companyName ?? undefined,
         keywords: data.keywords as any,
         platforms: data.platforms as any,
       },

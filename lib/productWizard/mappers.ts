@@ -138,7 +138,6 @@ export function toUpdatePayload(values: BaseValues, product: any) {
     ctaLabel: v.ctaLabel || null,
     ctaUrl: v.ctaUrl ? normalizeUrl(v.ctaUrl) : null,
     bannerImage: v.bannerImage ? normalizeUrl(v.bannerImage) : null,
-    companyName: null,
     keywords,
     platforms: v.platforms as any,
     githubUrl: v.githubUrl ? normalizeUrl(v.githubUrl) : null,

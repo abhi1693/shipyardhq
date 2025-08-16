@@ -12,7 +12,6 @@ async function main() {
       lastName: "Doe",
       role: "member",
       roleIntent: "Founder",
-      productInterest: "AI tools",
     },
     {
       clerkId: "clerk-002",
@@ -21,7 +20,6 @@ async function main() {
       lastName: "Smith",
       role: "member",
       roleIntent: "Developer",
-      productInterest: "Marketing automation",
     },
   ]
   const createdUsers = await Promise.all(
@@ -382,7 +380,6 @@ async function main() {
         description: `${name} helps you ${taglines[i % taglines.length].toLowerCase()}.`,
         type: "saas",
         pricingModel: "subscription",
-        companyName: `${name} Labs`,
         startingPriceCents: [0, 900, 1900, 2900, 4900][i % 5],
         currencyCode: "USD",
         ctaLabel: "Try for free",

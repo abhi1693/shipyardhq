@@ -59,7 +59,6 @@ const productFormSchema = z.object({
   categoryId: z.string().min(1, "Category is required"),
   userId: z.string().min(1, "User is required"),
   organizationId: z.string().optional().or(z.literal("")),
-  companyName: z.string().optional().or(z.literal("")),
   type: z.enum([
     "saas",
     "browser_extension",
@@ -127,7 +126,6 @@ export default function EditProductForm({
       categoryId: product.categoryId,
       userId: product.userId,
       organizationId: product.organizationId || "",
-      companyName: product.companyName || "",
       type: product.type,
       pricingModel: product.pricingModel,
       status: (product.status as any) || "published",
@@ -170,7 +168,6 @@ export default function EditProductForm({
       ctaLabel: values.ctaLabel || null,
       ctaUrl: values.ctaUrl || null,
       bannerImage: values.bannerImage || null,
-      companyName: values.companyName || null,
       keywords,
       platforms: (values.platforms || []) as any,
       githubUrl: values.githubUrl || null,
@@ -533,19 +530,6 @@ export default function EditProductForm({
 
               {/* Branding */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  name="companyName"
-                  control={form.control as any}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="ACME Inc." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   name="bannerImage"
                   control={form.control}

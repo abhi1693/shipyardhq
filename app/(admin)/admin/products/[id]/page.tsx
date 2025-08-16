@@ -129,10 +129,6 @@ export default async function ViewProductPage({
                   value={image(product.logo, product.name, 64, 64)}
                 />
                 <OverviewRow
-                  label="Company"
-                  value={product.companyName || placeholder()}
-                />
-                <OverviewRow
                   label="CTA Label"
                   value={product.ctaLabel || placeholder()}
                 />

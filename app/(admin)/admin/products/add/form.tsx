@@ -75,7 +75,6 @@ const productFormSchema = z.object({
   ctaLabel: z.string().optional(),
   ctaUrl: z.url().or(z.literal("")).optional(),
   bannerImage: z.url().or(z.literal("")).optional(),
-  companyName: z.string().optional(),
   keywords: z.string().optional(),
   platforms: z.array(z.enum(PLATFORMS)).optional(),
   githubUrl: z.url().or(z.literal("")).optional(),
@@ -116,7 +115,6 @@ export default function AddProductForm({
       ctaLabel: "",
       ctaUrl: "",
       bannerImage: "",
-      companyName: "",
       keywords: "",
       platforms: [],
       githubUrl: "",
@@ -533,19 +531,6 @@ export default function AddProductForm({
 
               {/* Branding */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  name="companyName"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="ACME Inc." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   name="bannerImage"
                   control={form.control}

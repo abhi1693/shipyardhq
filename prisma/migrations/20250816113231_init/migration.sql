@@ -11,7 +11,7 @@ CREATE TYPE "public"."ProductStatus" AS ENUM ('draft', 'published', 'archived');
 CREATE TYPE "public"."Platform" AS ENUM ('web', 'ios', 'android', 'mac', 'windows', 'linux', 'chrome_extension', 'firefox_extension');
 
 -- CreateEnum
-CREATE TYPE "public"."PlanType" AS ENUM ('recurring_price', 'one_time_price');
+CREATE TYPE "public"."PlanType" AS ENUM ('one_time_price');
 
 -- CreateTable
 CREATE TABLE "public"."Newsletter" (
@@ -95,7 +95,6 @@ CREATE TABLE "public"."ProductMetadata" (
 CREATE TABLE "public"."ProductAnalytics" (
     "id" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
-    "views" INTEGER NOT NULL DEFAULT 0,
     "upvotes" INTEGER NOT NULL DEFAULT 0,
     "clicks" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -146,7 +145,6 @@ CREATE TABLE "public"."User" (
     "lastName" TEXT NOT NULL,
     "role" TEXT NOT NULL DEFAULT 'member',
     "roleIntent" TEXT,
-    "productInterest" TEXT,
     "heardFrom" TEXT,
     "acceptedTerms" BOOLEAN NOT NULL DEFAULT false,
     "termsAcceptedAt" TIMESTAMP(3),
@@ -178,10 +176,8 @@ CREATE TABLE "public"."Plan" (
     "description" TEXT,
     "type" "public"."PlanType" NOT NULL,
     "price" INTEGER NOT NULL,
-    "interval" TEXT NOT NULL,
-    "frequency" INTEGER NOT NULL,
-    "discount" INTEGER,
-    "trialDays" INTEGER,
+    "discount" DOUBLE PRECISION,
+    "boostForDays" INTEGER NOT NULL DEFAULT 1,
     "isDefault" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
