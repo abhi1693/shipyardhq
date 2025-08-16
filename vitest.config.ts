@@ -17,10 +17,11 @@ export default defineConfig({
       provider: 'v8',
       reportsDirectory: './coverage',
       reporter: ['text', 'html', 'lcov'],
-      // Cover library, hooks, and atoms first (we'll expand to more components iteratively)
+      // Cover library, hooks, atoms, and a widened set of molecules
       include: [
         'lib/**/*',
         'hooks/**/*',
+        // Curated atoms set
         'components/atoms/badge.tsx',
         'components/atoms/button.tsx',
         'components/atoms/input.tsx',
@@ -34,11 +35,22 @@ export default defineConfig({
         'components/atoms/separator.tsx',
         'components/atoms/checkbox.tsx',
         'components/atoms/switch.tsx',
+        'components/atoms/scroll-area.tsx',
+        // Widen to additional molecules (keep expanding iteratively)
         'components/molecules/CopyButton.tsx',
-        'components/molecules/SignInCtaButton.tsx',
         'components/molecules/ExternalBadgeLink.tsx',
         'components/molecules/MemberAreaButton.tsx',
+        'components/molecules/SignInCtaButton.tsx',
         'components/molecules/ShareOnXButton.tsx',
+        'components/molecules/ShareOnX.tsx',
+        'components/molecules/AddButton.tsx',
+        'components/molecules/SignOutCtaButton.tsx',
+        'components/molecules/PageHeader.tsx',
+        'components/molecules/PageSectionHeader.tsx',
+        'components/molecules/PricingFeature.tsx',
+        'components/molecules/BreadCrumbs.tsx',
+        'components/molecules/CategoryIcons.tsx',
+        'components/molecules/Relationship.tsx',
       ],
       exclude: [
         'node_modules/**',
@@ -49,6 +61,11 @@ export default defineConfig({
         'tailwind.config.js',
         'eslint.config.mjs',
         '**/*.d.ts',
+        // Exclude some complex client-heavy molecules for now; we will expand later
+        'components/molecules/DataTable.tsx',
+        'components/molecules/ProductMediaManager.tsx',
+        'components/molecules/ProductGridClient.tsx',
+        'components/molecules/ProductWizardStepRenderer.tsx',
       ],
     },
   },
