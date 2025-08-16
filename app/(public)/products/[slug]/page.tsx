@@ -37,6 +37,7 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { IconBrandFirefox } from "@tabler/icons-react"
 import { addUtmParams } from "@/lib/marketing/utm"
+import { hasPlanFeature } from "@/lib/features"
 import {JSX} from "react";
 
 interface ProductPageProps {
@@ -156,10 +157,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       content,
     })
 
-  // Check plan feature: backlink
-  const hasBacklinkFeature = !!product.plan?.assignments?.some(
-    (a) => a.enabled && a.feature?.key === "backlink",
-  )
+  // Plan features
+  const hasBacklinkFeature = hasPlanFeature(product.plan, "backlink")
+  const hasCustomCtaFeature = hasPlanFeature(product.plan, "customCTA")
 
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
@@ -242,7 +242,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   <ExternalLink size={14} /> Visit website
                 </span>
               </ExternalBadgeLink>
-              {product.ctaUrl && (
+              {product.ctaUrl && hasCustomCtaFeature && (
                 <ExternalBadgeLink
                   href={
                     hasBacklinkFeature

@@ -36,3 +36,24 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 # shipyardhq
+
+## Plan Features Helper Usage
+
+Use the helpers in `@/lib/features` to check plan features consistently and avoid duplicating assignment scanning logic.
+
+- `hasPlanFeature(plan, key)`: Returns `true` if a plan has an enabled assignment for the given feature `key`.
+- `productHasFeature(product, key)`: Returns `true` if `product.plan` has the feature `key` enabled.
+
+Examples:
+
+```ts
+import { hasPlanFeature, productHasFeature } from "@/lib/features"
+
+// From a product object
+const isPriority = productHasFeature(product, "priorityPlacement")
+
+// From a plan object
+const canBacklink = hasPlanFeature(product.plan, "backlink")
+```
+
+Do not iterate over `plan.assignments` directly in UI/components; prefer these helpers for readability and correctness.

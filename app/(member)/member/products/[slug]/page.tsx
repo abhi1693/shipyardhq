@@ -42,6 +42,7 @@ import {
   startPlanCheckoutAction,
   setProductPlanAction,
 } from "@/actions/member/products/actions"
+import { hasPlanFeature } from "@/lib/features"
 
 export default async function ViewUserProductPage({
   params,
@@ -93,13 +94,10 @@ export default async function ViewUserProductPage({
   const { deltaTop, deltaCount } = (() => {
     if (!nextPlan)
       return { deltaTop: [] as { id: string; name: string }[], deltaCount: 0 }
-    const currentKeys = new Set(
-      (product.plan?.assignments || [])
-        .filter((a: any) => a.enabled && a.feature?.key)
-        .map((a: any) => a.feature.key as string),
-    )
     const nextEnabled = nextPlan.features.filter((f) => f.enabled)
-    const delta = nextEnabled.filter((f) => !currentKeys.has(f.key))
+    const delta = nextEnabled.filter(
+      (f) => !hasPlanFeature(product.plan ?? null, f.key),
+    )
     return {
       deltaTop: delta.slice(0, 3).map((f) => ({ id: f.id, name: f.name })),
       deltaCount: delta.length,
