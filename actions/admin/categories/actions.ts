@@ -114,10 +114,11 @@ export async function deleteCategoryAction(id: string) {
   }
 }
 
-export async function getUseCases() {
+export async function getUseCases(args: Prisma.UseCaseFindManyArgs = {}) {
   try {
     return await prisma.useCase.findMany({
       orderBy: { createdAt: "desc" },
+      ...args,
     })
   } catch (error) {
     console.error("Error fetching use cases:", error)

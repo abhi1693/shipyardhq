@@ -11,13 +11,12 @@ import CategoryFeatured from "@/components/organisms/CategoryFeatured"
 import { productHasFeature } from "@/lib/features"
 
 interface CategoryPageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
-export async function generateMetadata({
-  params,
-}: CategoryPageProps): Promise<Metadata> {
-  const data = await getCategoryWithProducts(params.slug)
+export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const data = await getCategoryWithProducts(slug)
   if (!data) return {}
 
   return {
@@ -27,12 +26,13 @@ export async function generateMetadata({
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const data = await getCategoryWithProducts(params.slug)
+  const { slug } = await params
+  const data = await getCategoryWithProducts(slug)
 
   if (!data) notFound()
 
   const { category, products } = data
-  const featured = await getFeaturedByCategorySlug(params.slug, 7)
+  const featured = await getFeaturedByCategorySlug(slug, 7)
 
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-10">

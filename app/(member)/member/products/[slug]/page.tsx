@@ -46,7 +46,7 @@ export default async function ViewUserProductPage({
   params,
   searchParams,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
   searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { slug } = await params

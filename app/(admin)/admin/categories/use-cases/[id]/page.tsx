@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { getUseCaseById } from "@/actions/admin/categories/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
-import { UseCaseCategory } from "@prisma/client"
+import { Prisma, UseCaseCategory } from "@prisma/client"
 import { UseCaseCategoryRelationship } from "@/app/(admin)/admin/categories/use-cases/[id]/relationships/categories"
 
 export default async function ViewUseCasePage({
@@ -10,13 +10,15 @@ export default async function ViewUseCasePage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const useCase = await getUseCaseById(id, {
+  const useCase = (await getUseCaseById(id, {
     include: {
       categories: {
         include: { category: true },
       },
     },
-  })
+  })) as Prisma.UseCaseGetPayload<{
+    include: { categories: { include: { category: true } } }
+  }>
 
   if (!useCase) return notFound()
 

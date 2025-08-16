@@ -28,12 +28,13 @@ export const metadata: Metadata = {
 export default async function LeaderboardPage({
   searchParams,
 }: {
-  searchParams: { category?: string; limit?: string }
+  searchParams: Promise<{ category?: string; limit?: string }>
 }) {
   const stats = await getLeaderboardStats()
   const categories = await getCategoriesWithCounts()
-  const limit = Number(searchParams?.limit || 50)
-  const categorySlug = searchParams?.category || undefined
+  const sp = await searchParams
+  const limit = Number(sp?.limit || 50)
+  const categorySlug = sp?.category || undefined
   const products = await getTopRankedProducts({ limit, categorySlug })
   const topThree = products.slice(0, 3)
   const rest = products.slice(3)

@@ -6,10 +6,11 @@ import { formatBoolean, linkify } from "@/lib/ui/formatters"
 export default async function AssignedFeaturePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const assignment = await prisma.planFeatureAssignment.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       plan: true,
       feature: true,
