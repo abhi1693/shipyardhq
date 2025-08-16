@@ -43,6 +43,7 @@ beforeEach(() => {
 describe("ProductStatusMenu", () => {
   it("shows Publish/Archive for draft and updates to published", async () => {
     ;(actions.setProductStatusAction as any).mockResolvedValueOnce({})
+    ;(actions.setProductStatusAction as any).mockResolvedValueOnce({})
     render(<ProductStatusMenu productId="p1" status="draft" />)
     expect(
       screen.getByRole("button", { name: /set status/i }),
@@ -57,6 +58,14 @@ describe("ProductStatusMenu", () => {
     )
     expect(toast.success).toHaveBeenCalledWith("Status set to published")
     expect(refresh).toHaveBeenCalled()
+
+    // Also verify Archive path from draft
+    await screen.getByText(/Archive/i).click()
+    expect(actions.setProductStatusAction).toHaveBeenNthCalledWith(
+      2,
+      "p1",
+      "archived",
+    )
   })
 
   it("shows Unpublish/Archive for published and handles error", async () => {
@@ -71,10 +80,13 @@ describe("ProductStatusMenu", () => {
     expect(refresh).toHaveBeenCalled()
   })
 
-  it("shows Unarchive when archived and hides Archive", () => {
+  it("shows Unarchive when archived and hides Archive", async () => {
+    ;(actions.setProductStatusAction as any).mockResolvedValueOnce({})
     render(<ProductStatusMenu productId="p3" status="archived" />)
     expect(screen.getByText(/Unarchive/i)).toBeInTheDocument()
     // Ensure Archive button (not Unarchive) absent
     expect(screen.queryByRole("button", { name: /^Archive$/i })).toBeNull()
+    await screen.getByText(/Unarchive/i).click()
+    expect(actions.setProductStatusAction).toHaveBeenCalledWith("p3", "draft")
   })
 })

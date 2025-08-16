@@ -27,4 +27,22 @@ describe("AlertModal", () => {
     await user.click(screen.getByRole("button", { name: /delete/i }))
     expect(onConfirm).toHaveBeenCalledTimes(1)
   })
+
+  it("closes via cancel without calling onConfirm", async () => {
+    const onConfirm = vi.fn()
+    const user = userEvent.setup()
+
+    render(
+      <AlertModal
+        trigger={(open) => <button onClick={open}>Open</button>}
+        onConfirm={onConfirm}
+      />,
+    )
+
+    await user.click(screen.getByRole("button", { name: "Open" }))
+    expect(await screen.findByText(/absolutely sure/i)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: /cancel/i }))
+    // onConfirm should not be called
+    expect(onConfirm).not.toHaveBeenCalled()
+  })
 })

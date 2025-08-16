@@ -24,6 +24,8 @@ export default defineConfig({
         "components/atoms/**/*.tsx",
         "components/molecules/**/*.tsx",
         "components/organisms/**/*.tsx",
+        // Also include top-level icons mapping
+        "components/icons.tsx",
       ],
       exclude: [
         "node_modules/**",
@@ -42,6 +44,12 @@ export default defineConfig({
         // Optionally exclude entire pages layer if present
         "components/pages/**",
       ],
+      thresholds: {
+        lines: 100,
+        statements: 100,
+        functions: 100,
+        branches: 90,
+      },
     },
   },
 })
