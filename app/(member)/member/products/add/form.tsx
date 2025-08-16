@@ -56,7 +56,7 @@ export default function AddProductForm({
   })
 
   const form = useForm<ProductWizardInput>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: getInitialValuesForAdd(),
     mode: "onBlur",
   })
@@ -93,7 +93,7 @@ export default function AddProductForm({
       }
       return true
     },
-    onSubmit: submitAll,
+    onSubmit: submitAll as any,
   })
 
   const StepComponent = useMemo(() => {
@@ -117,7 +117,7 @@ export default function AddProductForm({
 
         <FormProvider {...form}>
           <form
-            onSubmit={form.handleSubmit(wizard.onSubmit as any)}
+            onSubmit={form.handleSubmit(() => wizard.submitWithStatus("published"))}
             className="space-y-6"
           >
             {/* Steps */}
