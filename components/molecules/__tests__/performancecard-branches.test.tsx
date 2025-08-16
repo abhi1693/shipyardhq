@@ -46,4 +46,25 @@ describe('PerformanceCard branches', () => {
     const avatars = container.querySelectorAll('[title^="U"]');
     expect(avatars.length).toBeLessThanOrEqual(8);
   });
+  it('handles unknown badge color + expiry with days left and no OG image', () => {
+    const future = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+    const badges = [ { id: 'x', badge: 'unknown_badge', expiresAt: future } ];
+    render(
+      <PerformanceCard
+        upvotes={1}
+        clicks={2}
+        badges={badges as any}
+        productName="X"
+        tagline="T"
+        hasBanner={false}
+        ogImageUrl={null}
+        editHref="/e"
+      />
+    );
+    // Renders fallback icon/label and shows em dash for missing OG image
+    expect(screen.getByText(/—/)).toBeInTheDocument();
+    // Unknown badge renders label from badge value
+    expect(screen.getByText('unknown_badge')).toBeInTheDocument();
+  });
+
 });
