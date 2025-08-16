@@ -33,4 +33,14 @@ describe('Breadcrumbs additional branches', () => {
     expect(links[1]).toHaveTextContent('Org');
     expect(links[2]).toHaveTextContent('Team');
   });
+
+  it('uses useBreadcrumbs fallback when no items are provided', () => {
+    render(<Breadcrumbs />);
+    // With mocked pathname '/x/y' we expect Home, X, and current page Y
+    const links = screen.getAllByRole('link');
+    expect(links[0]).toHaveTextContent('Home');
+    expect(links[1]).toHaveTextContent('X');
+    const page = document.querySelector('[data-slot="breadcrumb-page"]');
+    expect(page?.textContent).toBe('Y');
+  });
 });
