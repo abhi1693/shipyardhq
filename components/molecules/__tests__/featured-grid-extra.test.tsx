@@ -13,6 +13,13 @@ describe('FeaturedProductGrid extra slot', () => {
           ProductBadge: [], analytics: { upvotes: 0 }, user: { firstName: 'U', lastName: 'S' }, category: { name: 'Cat' },
         },
       },
+      {
+        id: 'fb2',
+        product: {
+          id: 'p2', slug: 'b', name: 'B', logo: '/b.png', tagline: 't',
+          ProductBadge: [], analytics: { upvotes: 1 }, user: undefined as any, category: { name: 'Cat' },
+        },
+      },
     ];
     render(
       <FeaturedProductGrid items={items as any} extra={<div data-testid="extra">X</div>} />,
@@ -20,4 +27,3 @@ describe('FeaturedProductGrid extra slot', () => {
     expect(screen.getByTestId('extra')).toBeInTheDocument();
   });
 });
-
