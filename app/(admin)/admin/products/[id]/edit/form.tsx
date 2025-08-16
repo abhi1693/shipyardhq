@@ -79,8 +79,10 @@ const productFormSchema = z.object({
   startingPriceCents: z
     .string()
     .optional()
-    .transform((v) => (v ? Number(v) : undefined))
-    .refine((v) => v === undefined || v >= 0, "Must be >= 0"),
+    .refine(
+      (v) => v === undefined || v === "" || (!isNaN(Number(v)) && Number(v) >= 0),
+      "Must be >= 0",
+    ),
   currencyCode: z.enum(CURRENCY_CODES),
   ctaLabel: z.string().optional().or(z.literal("")),
   ctaUrl: z.url().or(z.literal("")),
@@ -134,7 +136,11 @@ export default function EditProductForm({
         product.startingPriceCents != null
           ? String(product.startingPriceCents)
           : undefined,
-      currencyCode: product.currencyCode || "USD",
+      currencyCode: ((CURRENCY_CODES as readonly string[]).includes(
+        product.currencyCode || "",
+      )
+        ? (product.currencyCode as (typeof CURRENCY_CODES)[number])
+        : ("USD" as (typeof CURRENCY_CODES)[number])),
       ctaLabel: product.ctaLabel || "",
       ctaUrl: product.ctaUrl || "",
       keywords: (product.keywords || []).join(", "),
@@ -165,7 +171,9 @@ export default function EditProductForm({
       pricingModel: values.pricingModel as any,
       organizationId: values.organizationId || null,
       status: values.status,
-      startingPriceCents: values.startingPriceCents ?? null,
+      startingPriceCents: values.startingPriceCents
+        ? Number(values.startingPriceCents)
+        : null,
       currencyCode: values.currencyCode || null,
       ctaLabel: values.ctaLabel || null,
       ctaUrl: values.ctaUrl || null,
