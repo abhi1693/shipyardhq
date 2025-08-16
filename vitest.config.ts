@@ -17,15 +17,10 @@ export default defineConfig({
       provider: "v8",
       reportsDirectory: "./coverage",
       reporter: ["text", "html", "lcov"],
-      // Widen to cover all atoms/molecules/organisms by default
       include: [
         "lib/**/*",
         "hooks/**/*",
-        "components/atoms/**/*.tsx",
-        "components/molecules/**/*.tsx",
-        "components/organisms/**/*.tsx",
-        // Also include top-level icons mapping
-        "components/icons.tsx",
+        "components/**/*",
       ],
       exclude: [
         "node_modules/**",
@@ -36,13 +31,6 @@ export default defineConfig({
         "tailwind.config.js",
         "eslint.config.mjs",
         "**/*.d.ts",
-        // Exclude some complex client-heavy molecules for now; we will expand later
-        "components/molecules/DataTable.tsx",
-        "components/molecules/ProductMediaManager.tsx",
-        "components/molecules/ProductGridClient.tsx",
-        "components/molecules/ProductWizardStepRenderer.tsx",
-        // Optionally exclude entire pages layer if present
-        "components/pages/**",
       ],
       thresholds: {
         lines: 100,
