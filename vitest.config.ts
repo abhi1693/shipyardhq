@@ -17,11 +17,7 @@ export default defineConfig({
       provider: "v8",
       reportsDirectory: "./coverage",
       reporter: ["text", "html", "lcov"],
-      include: [
-        "lib/**/*",
-        "hooks/**/*",
-        "components/**/*",
-      ],
+      include: ["lib/**/*", "hooks/**/*", "components/**/*"],
       exclude: [
         "node_modules/**",
         ".next/**",

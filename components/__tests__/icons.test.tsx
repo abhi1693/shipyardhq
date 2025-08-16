@@ -26,7 +26,9 @@ describe("Icons mapping", () => {
 
   it("renders each icon component as an SVG without crashing", () => {
     for (const [name, Cmp] of Object.entries(Icons)) {
-      const { container, unmount } = render(<Cmp data-testid={`icon-${name}`} />)
+      const { container, unmount } = render(
+        <Cmp data-testid={`icon-${name}`} />,
+      )
       // Tabler icons render as <svg> elements
       const svg = container.querySelector("svg")
       expect(svg).toBeTruthy()
@@ -34,4 +36,3 @@ describe("Icons mapping", () => {
     }
   })
 })
-

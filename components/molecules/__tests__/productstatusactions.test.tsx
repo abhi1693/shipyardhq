@@ -37,7 +37,6 @@ describe("ProductStatusActions", () => {
     // success toast and refresh called
     expect(toast.success).toHaveBeenCalledWith("Status set to published")
     expect(refresh).toHaveBeenCalled()
-
   })
 
   it("archives from draft when Archive is clicked", async () => {

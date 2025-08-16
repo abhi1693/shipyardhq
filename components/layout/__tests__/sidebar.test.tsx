@@ -1,12 +1,12 @@
-import { render, screen } from "@testing-library/react";
-import AppSidebar from "@/components/layout/sidebar";
-import { SidebarProvider } from "@/components/atoms/sidebar";
-import { vi } from "vitest";
-import type { NavItem } from "@/types";
+import { render, screen } from "@testing-library/react"
+import AppSidebar from "@/components/layout/sidebar"
+import { SidebarProvider } from "@/components/atoms/sidebar"
+import { vi } from "vitest"
+import type { NavItem } from "@/types"
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/admin/overview",
-}));
+}))
 
 // Mock Icons map to minimal components
 vi.mock("@/components/icons", () => ({
@@ -14,9 +14,9 @@ vi.mock("@/components/icons", () => ({
     {},
     {
       get: () => (props: any) => <svg data-testid="icon" {...props} />,
-    }
+    },
   ),
-}));
+}))
 
 describe("AppSidebar", () => {
   it("renders admin nav items and search input", () => {
@@ -33,7 +33,7 @@ describe("AppSidebar", () => {
         removeEventListener: vi.fn(),
         dispatchEvent: vi.fn(),
       })),
-    });
+    })
     const nav: NavItem[] = [
       { title: "Overview", url: "/admin/overview", icon: "logo" as any },
       {
@@ -44,18 +44,20 @@ describe("AppSidebar", () => {
           { title: "Invites", url: "/admin/invites" },
         ],
       },
-    ];
+    ]
 
     render(
       <SidebarProvider>
         <AppSidebar navItems={nav} />
-      </SidebarProvider>
-    );
+      </SidebarProvider>,
+    )
 
-    expect(screen.getByText("Admin")).toBeInTheDocument();
-    expect(screen.getAllByText("Overview")[0]).toBeInTheDocument();
-    expect(screen.getAllByText("Users")[0]).toBeInTheDocument();
+    expect(screen.getByText("Admin")).toBeInTheDocument()
+    expect(screen.getAllByText("Overview")[0]).toBeInTheDocument()
+    expect(screen.getAllByText("Users")[0]).toBeInTheDocument()
     // Search input
-    expect(screen.getByPlaceholderText(/Search navigation/i)).toBeInTheDocument();
-  });
-});
+    expect(
+      screen.getByPlaceholderText(/Search navigation/i),
+    ).toBeInTheDocument()
+  })
+})

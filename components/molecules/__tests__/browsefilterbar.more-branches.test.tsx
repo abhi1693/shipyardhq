@@ -45,4 +45,3 @@ describe("BrowseFilterBar buildUrl undefined branch", () => {
     expect(url).toContain("page=1")
   })
 })
-

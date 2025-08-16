@@ -1,5 +1,5 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
+import React from "react"
+import { render, screen } from "@testing-library/react"
 import {
   SidebarProvider,
   Sidebar,
@@ -23,11 +23,11 @@ import {
   SidebarInset,
   SidebarTrigger,
   SidebarRail,
-} from "@/components/atoms/sidebar";
-import { vi } from "vitest";
+} from "@/components/atoms/sidebar"
+import { vi } from "vitest"
 
 // Force desktop path (isMobile=false)
-vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => false }));
+vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => false }))
 
 describe("Sidebar suite coverage", () => {
   it("renders desktop sidebar and toggles via trigger and rail", () => {
@@ -64,18 +64,22 @@ describe("Sidebar suite coverage", () => {
           <SidebarTrigger aria-label="Toggle Sidebar" />
           <SidebarRail />
         </div>
-      </SidebarProvider>
-    );
+      </SidebarProvider>,
+    )
 
     // Trigger and rail exist
-    expect(screen.getAllByLabelText(/Toggle Sidebar/i).length).toBeGreaterThan(0);
-    expect(container.querySelector('[data-slot="sidebar-rail"]')).toBeTruthy();
+    expect(screen.getAllByLabelText(/Toggle Sidebar/i).length).toBeGreaterThan(
+      0,
+    )
+    expect(container.querySelector('[data-slot="sidebar-rail"]')).toBeTruthy()
     // Cookie write occurs on initial render when toggled later; we just simulate clicks
-    screen.getAllByLabelText(/Toggle Sidebar/i)[0].click();
-    (container.querySelector('[data-slot="sidebar-rail"]') as HTMLElement).click();
+    screen.getAllByLabelText(/Toggle Sidebar/i)[0].click()
+    ;(
+      container.querySelector('[data-slot="sidebar-rail"]') as HTMLElement
+    ).click()
     // Basic content visible
-    expect(screen.getByText(/Header/)).toBeInTheDocument();
-    expect(screen.getByText(/Group content/)).toBeInTheDocument();
-    expect(screen.getByText(/Footer/)).toBeInTheDocument();
-  });
-});
+    expect(screen.getByText(/Header/)).toBeInTheDocument()
+    expect(screen.getByText(/Group content/)).toBeInTheDocument()
+    expect(screen.getByText(/Footer/)).toBeInTheDocument()
+  })
+})
