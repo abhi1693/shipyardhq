@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import DeleteButton from "@/components/molecules/DeleteButton"
 import { ExternalLink } from "lucide-react"
 // Server-side uses Sharp to convert/compress; client pre-processing disabled.
@@ -62,12 +63,8 @@ export default function ImageUploadField({
     <div className="space-y-2">
       <div className="text-sm font-medium">{label}</div>
       {value ? (
-        <div className="relative rounded border overflow-hidden">
-          <img
-            src={value}
-            alt=""
-            className="w-full h-40 object-contain bg-white"
-          />
+        <div className="relative h-40 rounded border overflow-hidden bg-white">
+          <Image src={value} alt="" fill className="object-contain" />
           <div className="absolute top-2 right-2 flex gap-2">
             <a
               href={value}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import Image from "next/image"
 import DeleteButton from "@/components/molecules/DeleteButton"
 import { useRouter } from "next/navigation"
 // Server-side uses Sharp to convert/compress; client pre-processing disabled.
@@ -132,13 +133,9 @@ export default function ProductMediaManager({
           {media.map((m) => (
             <div
               key={m.id}
-              className="relative overflow-hidden rounded border bg-background"
+              className="relative overflow-hidden rounded border bg-background aspect-video"
             >
-              <img
-                src={m.imageUrl}
-                alt=""
-                className="w-full h-full object-cover aspect-video"
-              />
+              <Image src={m.imageUrl} alt="" fill className="object-cover" />
               {deletingId === m.id ? (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
                   <div className="flex items-center gap-2 text-xs">

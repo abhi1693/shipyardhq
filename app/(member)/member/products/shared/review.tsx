@@ -2,6 +2,7 @@
 
 import { useFormContext } from "react-hook-form"
 import { Badge } from "@/components/atoms/badge"
+import Image from "next/image"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
@@ -102,10 +103,12 @@ export default function Review({ categories, organizations }: Props) {
           {v.logo ? (
             <div>
               <div className="text-sm font-medium mb-1">Logo</div>
-              <img
+              <Image
                 src={v.logo}
                 alt="Logo preview"
-                className="h-20 w-20 object-contain rounded border"
+                width={80}
+                height={80}
+                className="object-contain rounded border"
               />
               {checks.logoOk === false ? (
                 <div className="mt-1">
@@ -117,11 +120,14 @@ export default function Review({ categories, organizations }: Props) {
           {v.bannerImage ? (
             <div>
               <div className="text-sm font-medium mb-1">Banner</div>
-              <img
-                src={v.bannerImage}
-                alt="Banner preview"
-                className="h-32 w-full max-w-md object-cover rounded border"
-              />
+              <div className="relative h-32 w-full max-w-md rounded border overflow-hidden">
+                <Image
+                  src={v.bannerImage}
+                  alt="Banner preview"
+                  fill
+                  className="object-cover"
+                />
+              </div>
               {checks.bannerOk === false ? (
                 <div className="mt-1">
                   <Badge variant="destructive">Invalid</Badge>
