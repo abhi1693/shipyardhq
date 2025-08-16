@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/atoms/accordion';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/atoms/dialog';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/atoms/dropdown-menu';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/atoms/dialog';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuPortal } from '@/components/atoms/dropdown-menu';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/atoms/select';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/atoms/tooltip';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/atoms/avatar';
@@ -36,6 +36,7 @@ describe('radix-based atoms render', () => {
             <DialogDescription>Desc</DialogDescription>
           </DialogHeader>
           <DialogFooter>Foot</DialogFooter>
+          <DialogClose>Close</DialogClose>
         </DialogContent>
       </Dialog>
     );
@@ -47,6 +48,7 @@ describe('radix-based atoms render', () => {
     render(
       <DropdownMenu open>
         <DropdownMenuTrigger>Trig</DropdownMenuTrigger>
+        <DropdownMenuPortal />
         <DropdownMenuContent>
           <DropdownMenuLabel>Label</DropdownMenuLabel>
           <DropdownMenuSeparator />

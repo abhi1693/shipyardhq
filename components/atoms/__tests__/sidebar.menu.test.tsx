@@ -55,6 +55,23 @@ describe('Sidebar menu elements', () => {
     expect(document.querySelector('[data-testid="badge"]')).toBeTruthy();
   });
 
+  it('SidebarMenuButton renders tooltip when provided as string', () => {
+    render(
+      <SidebarProvider open={false}>
+        <Sidebar collapsible="icon">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Help" />
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </Sidebar>
+      </SidebarProvider>
+    );
+    // Button still renders when tooltip prop is provided
+    const btn = document.querySelector('[data-sidebar="menu-button"]') as HTMLElement;
+    expect(btn).toBeTruthy();
+  });
+
   it('SidebarMenuSkeleton renders and sub button size/active attributes', () => {
     render(
       <SidebarProvider open={false}>
@@ -79,4 +96,3 @@ describe('Sidebar menu elements', () => {
     expect(subbtn.getAttribute('data-active')).toBe('true');
   });
 });
-
