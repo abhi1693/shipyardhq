@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ '**' ]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20.x, 22.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Install dependencies (no postinstall)
+        run: npm ci --ignore-scripts
+
+      - name: Generate Prisma Client (no engine)
+        run: npx prisma generate --no-engine
+
+      - name: Prettier check
+        run: npx prettier --check .
+
+      - name: ESLint
+        run: npm run lint
+
+  tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: quality
+    strategy:
+      matrix:
+        node: [20.x, 22.x]
+    env:
+      # Provide dummy env vars so imports using process.env don’t crash
+      DATABASE_URL: file:./dev.db
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: test_pk
+      CLERK_SECRET_KEY: test_sk
+      DODO_API_KEY: test_key
+      NODE_ENV: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Install dependencies (no postinstall)
+        run: npm ci --ignore-scripts
+
+      - name: Generate Prisma Client (no engine)
+        run: npx prisma generate --no-engine
+
+      - name: Run tests (vitest)
+        run: npm run test
+

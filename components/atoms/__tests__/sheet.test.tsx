@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/atoms/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from '@/components/atoms/sheet';
 
 describe('Sheet atoms', () => {
   it('renders overlay, content and header when open', () => {
@@ -12,6 +12,7 @@ describe('Sheet atoms', () => {
             <SheetTitle>Title</SheetTitle>
             <SheetDescription>Desc</SheetDescription>
           </SheetHeader>
+          <SheetClose>Close</SheetClose>
         </SheetContent>
       </Sheet>
     );
@@ -20,6 +21,7 @@ describe('Sheet atoms', () => {
     expect(document.querySelector('[data-slot="sheet-content"]')).toBeTruthy();
     expect(screen.getByText('Title')).toBeInTheDocument();
     expect(screen.getByText('Desc')).toBeInTheDocument();
+    expect(document.querySelector('[data-slot="sheet-close"]')).toBeTruthy();
   });
 });
 

@@ -32,4 +32,25 @@ describe('Sidebar desktop', () => {
     const newState = wrapper.getAttribute('data-state');
     expect(newState).not.toBe(initialState);
   });
+
+  it('supports floating/right variants and controlled open via onOpenChange', () => {
+    const onOpenChange = vi.fn();
+    render(
+      <SidebarProvider open onOpenChange={onOpenChange}>
+        <Sidebar variant="floating" side="right" collapsible="icon">
+          <SidebarHeader>Head</SidebarHeader>
+          <SidebarContent>Content</SidebarContent>
+        </Sidebar>
+        <SidebarTrigger />
+      </SidebarProvider>
+    );
+    const gap = document.querySelector('[data-slot="sidebar-gap"]') as HTMLElement;
+    expect(gap.className).toContain('group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]');
+    const container = document.querySelector('[data-slot="sidebar-container"]') as HTMLElement;
+    expect(container.className).toContain('right-0');
+    expect(container.className).toContain('p-2');
+    // Toggle should call onOpenChange (controlled branch)
+    fireEvent.click(screen.getByRole('button', { name: /toggle sidebar/i }));
+    expect(onOpenChange).toHaveBeenCalled();
+  });
 });
