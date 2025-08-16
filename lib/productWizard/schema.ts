@@ -46,6 +46,7 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       twitterUrl: z.string().url().optional().or(z.literal("")),
       demoUrl: z.string().url().optional().or(z.literal("")),
       contactEmail: z.string().email().optional().or(z.literal("")),
+      utmCampaign: z.string().optional().or(z.literal("")),
       status: z.enum(statusValues).optional(),
 
       // Verification (client-side check state)

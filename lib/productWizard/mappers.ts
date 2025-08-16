@@ -30,6 +30,7 @@ export function getInitialValuesForAdd(): BaseValues {
     twitterUrl: "",
     demoUrl: "",
     contactEmail: "",
+    utmCampaign: "",
     verificationExpectedTxt: "",
     verificationChecked: false,
     verificationSuccess: false,
@@ -60,6 +61,7 @@ export function getInitialValuesFromProduct(product: any): BaseValues {
     twitterUrl: product.metadata?.twitterUrl ?? "",
     demoUrl: product.metadata?.demoUrl ?? "",
     contactEmail: product.metadata?.contactEmail ?? "",
+    utmCampaign: product.metadata?.utmCampaign ?? "",
     status: product.status,
     verificationExpectedTxt: "",
     verificationChecked: false,
@@ -108,6 +110,7 @@ export function toCreateFormData(
   if (v.twitterUrl) fd.append("twitterUrl", normalizeUrl(v.twitterUrl)!)
   if (v.demoUrl) fd.append("demoUrl", normalizeUrl(v.demoUrl)!)
   if (v.contactEmail) fd.append("contactEmail", v.contactEmail)
+  if (v.utmCampaign) fd.append("utmCampaign", v.utmCampaign)
 
   fd.append("userId", userId)
   if (v.status) fd.append("status", v.status)
@@ -144,5 +147,6 @@ export function toUpdatePayload(values: BaseValues, product: any) {
     twitterUrl: v.twitterUrl ? normalizeUrl(v.twitterUrl) : null,
     demoUrl: v.demoUrl ? normalizeUrl(v.demoUrl) : null,
     contactEmail: v.contactEmail || null,
+    utmCampaign: v.utmCampaign || null,
   }
 }

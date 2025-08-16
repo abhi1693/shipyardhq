@@ -126,6 +126,7 @@ model ProductMetadata {
   twitterUrl   String?
   demoUrl      String?
   contactEmail String?
+  utmCampaign  String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
