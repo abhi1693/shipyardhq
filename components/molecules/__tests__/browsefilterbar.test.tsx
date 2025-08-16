@@ -39,6 +39,9 @@ describe('BrowseFilterBar', () => {
 
     // Clear all button appears when filters are active
     expect(screen.getByRole('button', { name: /clear all/i })).toBeInTheDocument();
+    (push as any).mockClear();
+    await user.click(screen.getByRole('button', { name: /clear all/i }));
+    expect(push).toHaveBeenCalledWith('/browse');
   });
 });
 

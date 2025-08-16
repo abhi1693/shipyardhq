@@ -58,5 +58,21 @@ describe('ImageUploadField', () => {
     // After clearing, the label placeholder reappears
     expect(screen.getByText(/Select an image or drag/i)).toBeInTheDocument();
   });
+  it('shows uploading spinner while request is in flight', async () => {
+    let resolveFn: any;
+    mockFetch.mockImplementationOnce(() => new Promise((resolve) => { resolveFn = resolve; }));
+    render(<Wrapper />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['xx'], 'spin.png', { type: 'image/png' });
+    const user = userEvent.setup();
+    await user.upload(input, file);
+    // Spinner text and aria-busy state appear
+    expect(screen.getByText(/Uploading…/)).toBeInTheDocument();
+    const label = document.querySelector('label[aria-busy="true"]');
+    expect(label).toBeTruthy();
+    // Resolve fetch to let component settle
+    resolveFn({ ok: true, json: async () => ({ url: 'https://cdn.example.com/spin.png' }) } as any);
+  });
+
 });
 
