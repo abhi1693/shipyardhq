@@ -54,7 +54,7 @@ export function ProductCard({
       >
         <Card
           className={clsx(
-            "relative h-full bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all",
+            "relative h-full bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer",
             compact && "p-3",
           )}
         >
