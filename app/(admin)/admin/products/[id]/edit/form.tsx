@@ -80,7 +80,8 @@ const productFormSchema = z.object({
     .string()
     .optional()
     .refine(
-      (v) => v === undefined || v === "" || (!isNaN(Number(v)) && Number(v) >= 0),
+      (v) =>
+        v === undefined || v === "" || (!isNaN(Number(v)) && Number(v) >= 0),
       "Must be >= 0",
     ),
   currencyCode: z.enum(CURRENCY_CODES),
@@ -136,11 +137,11 @@ export default function EditProductForm({
         product.startingPriceCents != null
           ? String(product.startingPriceCents)
           : undefined,
-      currencyCode: ((CURRENCY_CODES as readonly string[]).includes(
+      currencyCode: (CURRENCY_CODES as readonly string[]).includes(
         product.currencyCode || "",
       )
         ? (product.currencyCode as (typeof CURRENCY_CODES)[number])
-        : ("USD" as (typeof CURRENCY_CODES)[number])),
+        : ("USD" as (typeof CURRENCY_CODES)[number]),
       ctaLabel: product.ctaLabel || "",
       ctaUrl: product.ctaUrl || "",
       keywords: (product.keywords || []).join(", "),

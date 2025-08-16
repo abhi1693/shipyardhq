@@ -8,14 +8,12 @@ import {
 } from "@/lib/ui/formatters"
 import { Badge } from "@/components/atoms/badge"
 
-export const columns: ColumnDef<
-  Partial<
-    Product & {
-      verification?: Partial<ProductVerification> | null
-      analytics?: Partial<ProductAnalytics> | null
-    }
-  >
->[] = [
+export type MemberProductRow = Product & {
+  verification: ProductVerification | null
+  analytics: ProductAnalytics | null
+}
+
+export const columns: ColumnDef<MemberProductRow>[] = [
   {
     accessorKey: "name",
     header: "Product",

@@ -11,10 +11,10 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 
 ## How It Works
 
-1) Submit your product: Share the basics (name, description, link, category) at `/member/products/add`.
-2) Publish and verify: Go live immediately; optional domain verification adds trust.
-3) Get discovered: Appear across feeds like Featured Highlights, Latest Launches, and Editors’ Picks.
-4) Grow: Collect upvotes, climb the leaderboard, and upgrade to featured for extra reach.
+1. Submit your product: Share the basics (name, description, link, category) at `/member/products/add`.
+2. Publish and verify: Go live immediately; optional domain verification adds trust.
+3. Get discovered: Appear across feeds like Featured Highlights, Latest Launches, and Editors’ Picks.
+4. Grow: Collect upvotes, climb the leaderboard, and upgrade to featured for extra reach.
 
 ## Key Pages
 

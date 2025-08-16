@@ -14,7 +14,9 @@ interface CategoryPageProps {
   params: Promise<{ slug: string }>
 }
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params
   const data = await getCategoryWithProducts(slug)
   if (!data) return {}

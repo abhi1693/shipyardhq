@@ -13,10 +13,6 @@ export default function AdminAccountProfile() {
             variables: {
               colorPrimary: "oklch(0.52 0.24 262)",
               colorBackground: "var(--color-card)",
-              colorText: "var(--color-foreground)",
-              colorInputBackground: "var(--color-input)",
-              colorInputText: "var(--color-foreground)",
-              colorAlphaShade: "var(--color-muted)",
               borderRadius: "var(--radius-md)",
             },
           }}

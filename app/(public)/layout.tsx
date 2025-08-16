@@ -10,7 +10,11 @@ export default async function PublicLayout({
   children: React.ReactNode
 }) {
   const sticky = await getStickyBannerProducts(12)
-  const tickerItems = sticky.map((p) => ({ slug: p.slug, name: p.name, logo: p.logo }))
+  const tickerItems = sticky.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    logo: p.logo,
+  }))
   return (
     <div className="min-h-screen flex flex-col">
       <PublicHeader />

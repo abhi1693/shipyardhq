@@ -100,7 +100,9 @@ export default function EditProductForm({
 
         <FormProvider {...form}>
           <form
-            onSubmit={form.handleSubmit(() => wizard.submitWithStatus("published"))}
+            onSubmit={form.handleSubmit(() =>
+              wizard.submitWithStatus("published"),
+            )}
             className="space-y-6"
           >
             {StepComponent}

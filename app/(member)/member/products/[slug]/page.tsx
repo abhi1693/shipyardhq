@@ -298,93 +298,93 @@ export default async function ViewUserProductPage({
               const np = nextPlan
               if (!np) return null
               return (
-              <div className="mt-3 rounded-md border p-3 bg-muted/30">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="text-sm">
-                    <span className="font-medium">
-                      Unlock more with {np!.name}
-                    </span>
-                    <div className="mt-1 flex items-baseline gap-2">
-                      {(() => {
-                        const nf = new Intl.NumberFormat("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                        })
-                        const pctRaw = np!.discount ?? 0
-                        const pct = Math.min(Math.max(pctRaw, 0), 100)
-                        const originalCents = np!.price
-                        const discountedCents =
-                          pct > 0 && pct < 100
-                            ? Math.round(originalCents * (1 - pct / 100))
-                            : originalCents
-                        const original =
-                          pct > 0 && pct < 100
-                            ? nf.format(originalCents / 100)
-                            : null
-                        const priceText = nf.format(discountedCents / 100)
-                        return (
-                          <>
-                            {original && (
-                              <span className="text-xs text-muted-foreground line-through">
-                                {original}
+                <div className="mt-3 rounded-md border p-3 bg-muted/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div className="text-sm">
+                      <span className="font-medium">
+                        Unlock more with {np!.name}
+                      </span>
+                      <div className="mt-1 flex items-baseline gap-2">
+                        {(() => {
+                          const nf = new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                          })
+                          const pctRaw = np!.discount ?? 0
+                          const pct = Math.min(Math.max(pctRaw, 0), 100)
+                          const originalCents = np!.price
+                          const discountedCents =
+                            pct > 0 && pct < 100
+                              ? Math.round(originalCents * (1 - pct / 100))
+                              : originalCents
+                          const original =
+                            pct > 0 && pct < 100
+                              ? nf.format(originalCents / 100)
+                              : null
+                          const priceText = nf.format(discountedCents / 100)
+                          return (
+                            <>
+                              {original && (
+                                <span className="text-xs text-muted-foreground line-through">
+                                  {original}
+                                </span>
+                              )}
+                              <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                                {priceText}
                               </span>
-                            )}
-                            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-                              {priceText}
-                            </span>
-                            {pct > 0 ? (
-                              <span className="text-[11px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1.5 py-0.5">
-                                Save{" "}
-                                {new Intl.NumberFormat("en-US", {
-                                  maximumFractionDigits: 2,
-                                }).format(pct)}
-                                %
-                              </span>
-                            ) : null}
-                          </>
-                        )
-                      })()}
-                    </div>
-                  </div>
-                  <form action={choosePlan} className="contents">
-                    <input type="hidden" name="planId" value={np!.id} />
-                    <Button
-                      size="sm"
-                      className="transition-transform hover:-translate-y-0.5"
-                    >
-                      Buy now
-                    </Button>
-                  </form>
-                </div>
-                <div className="mt-1 text-[11px] text-muted-foreground">
-                  Instant activation after payment. Boost lasts{" "}
-                  {(np as any).boostForDays ?? 1} day(s).
-                </div>
-                {np!.description ? (
-                  <div className="mt-1 text-xs text-foreground/90">
-                    {np!.description}
-                  </div>
-                ) : null}
-                {deltaTop.length ? (
-                  <>
-                    <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {deltaTop.map((f) => (
-                        <li
-                          key={f.id}
-                          className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600"
-                        >
-                          {f.name}
-                        </li>
-                      ))}
-                    </ul>
-                    {deltaCount > deltaTop.length ? (
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        …and {deltaCount - deltaTop.length} more benefits
+                              {pct > 0 ? (
+                                <span className="text-[11px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1.5 py-0.5">
+                                  Save{" "}
+                                  {new Intl.NumberFormat("en-US", {
+                                    maximumFractionDigits: 2,
+                                  }).format(pct)}
+                                  %
+                                </span>
+                              ) : null}
+                            </>
+                          )
+                        })()}
                       </div>
-                    ) : null}
-                  </>
-                ) : null}
-              </div>
+                    </div>
+                    <form action={choosePlan} className="contents">
+                      <input type="hidden" name="planId" value={np!.id} />
+                      <Button
+                        size="sm"
+                        className="transition-transform hover:-translate-y-0.5"
+                      >
+                        Buy now
+                      </Button>
+                    </form>
+                  </div>
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    Instant activation after payment. Boost lasts{" "}
+                    {(np as any).boostForDays ?? 1} day(s).
+                  </div>
+                  {np!.description ? (
+                    <div className="mt-1 text-xs text-foreground/90">
+                      {np!.description}
+                    </div>
+                  ) : null}
+                  {deltaTop.length ? (
+                    <>
+                      <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {deltaTop.map((f) => (
+                          <li
+                            key={f.id}
+                            className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600"
+                          >
+                            {f.name}
+                          </li>
+                        ))}
+                      </ul>
+                      {deltaCount > deltaTop.length ? (
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          …and {deltaCount - deltaTop.length} more benefits
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
+                </div>
               )
             })()}
 

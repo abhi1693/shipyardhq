@@ -36,7 +36,9 @@ export default function FeaturedBanner({
         )}
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
         <div className="absolute left-4 bottom-4 text-white">
-          <div className="text-xs uppercase tracking-wide opacity-90">Featured</div>
+          <div className="text-xs uppercase tracking-wide opacity-90">
+            Featured
+          </div>
           <div className="text-xl font-semibold leading-tight">{p.name}</div>
           <div className="text-sm opacity-90 line-clamp-1">{p.tagline}</div>
         </div>
@@ -44,4 +46,3 @@ export default function FeaturedBanner({
     </Link>
   )
 }
-

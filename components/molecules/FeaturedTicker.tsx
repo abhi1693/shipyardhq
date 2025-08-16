@@ -38,11 +38,14 @@ export default function FeaturedTicker({ items }: { items: Item[] }) {
       </div>
       <style jsx>{`
         @keyframes ticker {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
       `}</style>
     </div>
   )
 }
-

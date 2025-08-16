@@ -33,4 +33,3 @@ export function addUtmParams(rawUrl: string, params: UtmParams = {}): string {
     return rawUrl
   }
 }
-

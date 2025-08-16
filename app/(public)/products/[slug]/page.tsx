@@ -38,7 +38,7 @@ import remarkGfm from "remark-gfm"
 import { IconBrandFirefox } from "@tabler/icons-react"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
-import {JSX} from "react";
+import { JSX } from "react"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>

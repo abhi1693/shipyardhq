@@ -28,10 +28,7 @@ export default function CategoryFeatured({
       {/* Banner */}
       <FeaturedBanner item={first} />
       {/* Remaining featured */}
-      {rest.length > 0 && (
-        <FeaturedProductGrid items={rest} />
-      )}
+      {rest.length > 0 && <FeaturedProductGrid items={rest} />}
     </PublicContainer>
   )
 }
-

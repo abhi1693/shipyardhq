@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
-import { columns } from "./columns"
+import { columns, type MemberProductRow } from "./columns"
 import { getUserProducts } from "@/actions/member/products/actions"
 import MemberProductFilters from "@/components/molecules/MemberProductFilters"
 
@@ -23,7 +23,11 @@ export default async function CategoryPage({
   return (
     <ListPageWrapper title="Products" addLink="/member/products/add">
       <MemberProductFilters />
-      <EntityList columns={columns} data={products} pageCount={pageCount} />
+      <EntityList
+        columns={columns}
+        data={products as unknown as MemberProductRow[]}
+        pageCount={pageCount}
+      />
     </ListPageWrapper>
   )
 }

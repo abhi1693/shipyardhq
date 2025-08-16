@@ -1,7 +1,9 @@
 // Lightweight helpers to check plan features on a product/plan
 
 export type PlanWithFeatures = {
-  assignments?: { enabled: boolean; feature?: { key?: string | null } | null }[] | null
+  assignments?:
+    | { enabled: boolean; feature?: { key?: string | null } | null }[]
+    | null
 } | null
 
 export function hasPlanFeature(plan: PlanWithFeatures, key: string): boolean {
@@ -14,4 +16,3 @@ export function productHasFeature(
 ): boolean {
   return hasPlanFeature(product?.plan ?? null, key)
 }
-

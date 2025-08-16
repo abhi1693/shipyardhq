@@ -20,7 +20,9 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       keywordsText: z.string().optional().default(""),
 
       // Pricing
-      pricingModel: z.enum(PRICING_MODELS, { message: "Select a pricing model" }),
+      pricingModel: z.enum(PRICING_MODELS, {
+        message: "Select a pricing model",
+      }),
       startingPriceCents: z
         .number({ message: "Enter a valid number" })
         .int("Must be an integer")
