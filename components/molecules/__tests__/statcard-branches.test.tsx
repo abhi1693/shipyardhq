@@ -47,4 +47,9 @@ describe('StatCard branch coverage', () => {
     const zeroBar = container.querySelector('[style*="width: 0%"]');
     expect(zeroBar).toBeTruthy();
   });
+
+  it('renders string value without compact formatting', () => {
+    render(<StatCard title="T" value="OK" />);
+    expect(screen.getByText('OK')).toBeInTheDocument();
+  });
 });

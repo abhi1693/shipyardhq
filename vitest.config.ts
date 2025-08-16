@@ -67,6 +67,13 @@ export default defineConfig({
         'components/molecules/ProductCard.tsx',
         'components/molecules/PerformanceCard.tsx',
         'components/molecules/PricingCard.tsx',
+        // Organisms (lightweight sections)
+        'components/organisms/HomepageSpotlight.tsx',
+        'components/organisms/LatestLaunches.tsx',
+        'components/organisms/PricingTable.tsx',
+        'components/organisms/CategoryFeatured.tsx',
+        'components/organisms/FeaturedHighlights.tsx',
+        'components/organisms/LandingHero.tsx',
         'components/molecules/CTAFeatureYourProductCard.tsx',
         'components/molecules/UpvoteSquare.tsx',
         'components/molecules/InlineSelect.tsx',

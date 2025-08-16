@@ -25,6 +25,9 @@ describe('PricingCard, PerformanceCard, ProductList', () => {
     // Paid
     rerender(<PricingCard name="Pro" price={12345} features={features} />);
     expect(screen.getByText(/\$123\.45/)).toBeInTheDocument();
+    // Popular badge when paid and isPopular
+    rerender(<PricingCard name="Pro" price={12345} isPopular features={features} />);
+    expect(screen.getByText(/Popular/)).toBeInTheDocument();
   });
 
   it('PerformanceCard renders KPIs, upvoters empty and badges empty, SEO snippet, edit link', () => {
@@ -44,7 +47,10 @@ describe('PricingCard, PerformanceCard, ProductList', () => {
         upvotes={1}
         clicks={2}
         upvoters={[{ id: 'u1', user: { firstName: 'A', lastName: 'B' } }]}
-        badges={[{ id: 'b1', badge: 'featured', expiresAt: new Date(Date.now() + 86400000).toISOString() }]}
+        badges={[
+          { id: 'b1', badge: 'featured', expiresAt: new Date(Date.now() + 86400000).toISOString() },
+          { id: 'b2', badge: 'unknown', expiresAt: null },
+        ]}
         productName="Prod"
         tagline={null}
         hasBanner
@@ -56,6 +62,8 @@ describe('PricingCard, PerformanceCard, ProductList', () => {
     expect(screen.queryByText('No recent upvotes')).not.toBeInTheDocument();
     // Badge pill rendered with text from BADGE_OPTIONS
     expect(screen.getByText('Featured')).toBeInTheDocument();
+    // Unknown badge falls back to raw badge string
+    expect(screen.getByText('unknown')).toBeInTheDocument();
   });
 
   it('ProductList renders items with rank, verified, category and upvotes', () => {
@@ -67,16 +75,30 @@ describe('PricingCard, PerformanceCard, ProductList', () => {
       },
       {
         id: '2', slug: 'two', name: 'Two', logo: '/logo2.png', tagline: 'Second',
-        badges: [], analytics: { upvotes: 7 }, user: null, category: { name: 'Dev' }, verification: { isVerified: false },
+        badges: [], analytics: null, user: null, category: { name: 'Dev' }, verification: { isVerified: false },
+      },
+      {
+        id: '3', slug: 'three', name: 'Three', logo: '/logo3.png', tagline: 'Third',
+        badges: [], analytics: { upvotes: 9 }, user: { firstName: null, lastName: null }, category: null, verification: null,
       },
     ];
     const { rerender } = render(
-      <ProductList items={items} compact={false} showCategory showVerified columns="grid-cols-2" showRank={false} />,
+      <ProductList items={items} compact={false} showCategory showVerified columns="grid-cols-2" className="extra" showRank={false} imagePriorityFirstN={0} />,
     );
     expect(screen.getByText('One')).toBeInTheDocument();
     expect(screen.getByText('First')).toBeInTheDocument();
     // Verified pill appears for first
     expect(screen.getByText('Verified')).toBeInTheDocument();
+    // imagePriorityFirstN=0 -> images load lazily
+    const imgs = screen.getAllByRole('img');
+    expect(imgs[0]).toHaveAttribute('loading', 'lazy');
+    // boundary: first image eager when imagePriorityFirstN=1
+    rerender(
+      <ProductList items={items} compact={false} showCategory showVerified columns="grid-cols-2" showRank={false} imagePriorityFirstN={1} />,
+    );
+    const imgs2 = screen.getAllByRole('img');
+    expect(imgs2[0]).toHaveAttribute('loading', 'eager');
+    expect(imgs2[1]).toHaveAttribute('loading', 'lazy');
 
     // Rerender with rank
     rerender(
