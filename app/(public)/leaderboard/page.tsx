@@ -18,6 +18,7 @@ import PublicContainer from "@/components/layout/PublicContainer"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import ProductList from "@/components/molecules/ProductList"
 import Medal from "@/components/atoms/Medal"
+ 
 
 export const metadata: Metadata = {
   title: "Product Leaderboard",

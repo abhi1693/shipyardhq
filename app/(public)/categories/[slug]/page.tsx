@@ -6,6 +6,8 @@ import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { CategoryProductsClient } from "./client-products"
+import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
+import CategoryFeatured from "@/components/organisms/CategoryFeatured"
 
 interface CategoryPageProps {
   params: { slug: string }
@@ -29,6 +31,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   if (!data) notFound()
 
   const { category, products } = data
+  const featured = await getFeaturedByCategorySlug(params.slug, 7)
 
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-10">
@@ -58,6 +61,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           {category.description}
         </p>
       </div>
+
+      {/* Category Featured Spotlight + Banner */}
+      <CategoryFeatured products={featured} categoryName={category.name} />
 
       {/* Product Grid */}
       <CategoryProductsClient

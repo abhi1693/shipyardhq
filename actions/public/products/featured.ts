@@ -98,3 +98,55 @@ export async function getTopCategories(limit = 10) {
     },
   })
 }
+
+// Get featured products filtered by category slug
+export async function getFeaturedByCategorySlug(slug: string, limit = 6) {
+  const now = new Date()
+  return prisma.productBadge.findMany({
+    where: {
+      badge: "featured",
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      product: { category: { slug } },
+    },
+    include: {
+      product: {
+        include: {
+          metadata: true,
+          category: true,
+          analytics: true,
+          user: true,
+          ProductBadge: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  })
+}
+
+// Get products that have the stickyBanner plan feature enabled
+export async function getStickyBannerProducts(limit = 12) {
+  return prisma.product.findMany({
+    where: {
+      status: "published" as any,
+      plan: {
+        is: {
+          assignments: {
+            some: {
+              enabled: true,
+              feature: { is: { key: "stickyBanner" } },
+            },
+          },
+        },
+      },
+    },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      logo: true,
+    },
+    orderBy: { updatedAt: "desc" },
+    take: limit,
+  })
+}
