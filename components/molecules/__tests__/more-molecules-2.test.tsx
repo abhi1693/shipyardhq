@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import CreateButton from '@/components/molecules/CreateButton';
 import DeleteButton from '@/components/molecules/DeleteButton';
@@ -121,11 +122,12 @@ describe('additional molecules (set 2)', () => {
     const mod = await import('@/actions/admin/products/actions');
     (mod.verifyProductDomainAction as any).mockResolvedValueOnce({ success: true });
     render(<VerifyDomainButton productId="p1" />);
-    await screen.getByRole('button', { name: /verify domain/i }).click();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: /verify domain/i }));
     await waitFor(() => expect(toast.success).toHaveBeenCalled());
 
     (mod.verifyProductDomainAction as any).mockResolvedValueOnce({ success: false, error: 'Nope' });
-    await screen.getByRole('button', { name: /verify domain/i }).click();
+    await user.click(screen.getByRole('button', { name: /verify domain/i }));
     await waitFor(() => expect(toast.error).toHaveBeenCalled());
     // Restore location
     Object.defineProperty(window, 'location', { value: originalLocation, writable: true });

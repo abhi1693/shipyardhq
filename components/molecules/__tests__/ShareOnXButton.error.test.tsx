@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ShareOnXButton from '@/components/molecules/ShareOnXButton';
 
 describe('ShareOnXButton error branch', () => {
@@ -11,7 +12,8 @@ describe('ShareOnXButton error branch', () => {
     // @ts-expect-error override
     window.location = undefined;
     render(<ShareOnXButton path="/p/abc" productName="Cool" />);
-    await screen.getByRole('button', { name: /share on x/i }).click();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: /share on x/i }));
     expect(openSpy).not.toHaveBeenCalled();
     // restore
     // @ts-expect-error restore
@@ -19,4 +21,3 @@ describe('ShareOnXButton error branch', () => {
     openSpy.mockRestore();
   });
 });
-
