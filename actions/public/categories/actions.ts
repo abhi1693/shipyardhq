@@ -37,6 +37,14 @@ export async function getCategoryWithProducts(slug: string) {
       analytics: true,
       verification: true,
       ProductBadge: true,
+      // Include plan assignments to detect priority placement
+      plan: {
+        include: {
+          assignments: {
+            include: { feature: true },
+          },
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   })

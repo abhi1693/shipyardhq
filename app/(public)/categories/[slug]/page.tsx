@@ -61,12 +61,19 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
       {/* Product Grid */}
       <CategoryProductsClient
-        products={products.map((p) => ({
-          ...p,
-          badges: p.ProductBadge?.filter(
-            (pb: any) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
-          ).map((pb: any) => pb.badge),
-        }))}
+        products={products.map((p) => {
+          const priority = !!p.plan?.assignments?.some(
+            (a: any) => a.enabled && a.feature?.key === "priorityPlacement",
+          )
+          return {
+            ...p,
+            // used by client to pin priority products first
+            priority,
+            badges: p.ProductBadge?.filter(
+              (pb: any) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
+            ).map((pb: any) => pb.badge),
+          }
+        })}
       />
     </PublicContainer>
   )

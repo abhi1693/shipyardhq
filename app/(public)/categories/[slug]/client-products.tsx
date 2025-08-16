@@ -11,6 +11,8 @@ type ProductForCard = {
   logo: string
   tagline: string
   createdAt: string | Date
+  // whether product should be pinned first based on plan feature
+  priority?: boolean
   badges?: string[]
   analytics?: { upvotes: number; clicks: number } | null
   user?: { firstName: string | null; lastName: string | null } | null
@@ -28,24 +30,31 @@ export function CategoryProductsClient({ products }: Props) {
 
   const sorted = useMemo(() => {
     const items = [...products]
-    switch (sort) {
-      case "name":
-        return items.sort((a, b) => a.name.localeCompare(b.name))
-      case "upvotes":
-        return items.sort(
-          (a, b) => (b.analytics?.upvotes || 0) - (a.analytics?.upvotes || 0),
-        )
-      case "clicks":
-        return items.sort(
-          (a, b) => (b.analytics?.clicks || 0) - (a.analytics?.clicks || 0),
-        )
-      case "newest":
-      default:
-        return items.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        )
+
+    // Split into priority vs regular; priority always shown first
+    const priority = items.filter((p) => p.priority)
+    const regular = items.filter((p) => !p.priority)
+
+    const sortFn = (a: ProductForCard, b: ProductForCard) => {
+      switch (sort) {
+        case "name":
+          return a.name.localeCompare(b.name)
+        case "upvotes":
+          return (b.analytics?.upvotes || 0) - (a.analytics?.upvotes || 0)
+        case "clicks":
+          return (b.analytics?.clicks || 0) - (a.analytics?.clicks || 0)
+        case "newest":
+        default:
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+      }
     }
+
+    priority.sort(sortFn)
+    regular.sort(sortFn)
+
+    return [...priority, ...regular]
   }, [products, sort])
 
   return (
