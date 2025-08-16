@@ -22,6 +22,15 @@ describe('atoms', () => {
     expect(screen.getByText('Outline')).toBeInTheDocument();
     rerender(<Badge variant="success">Success</Badge>);
     expect(screen.getByText('Success')).toBeInTheDocument();
+
+    // asChild branch renders underlying element
+    rerender(
+      <Badge asChild>
+        <a href="#" data-testid="badge-link">Child</a>
+      </Badge>
+    );
+    const link = screen.getByTestId('badge-link');
+    expect(link).toBeInTheDocument();
   });
 
   it('renders Button sizes and variants', () => {
