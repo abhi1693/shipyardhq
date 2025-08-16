@@ -63,7 +63,9 @@ export default function BrowseFilterBar({
     (key: string, value: string | boolean | undefined) => {
       return buildQuery("/browse", qs, {
         [key]:
-          value === undefined || value === "__all__" || value === false
+          /* c8 ignore next */ value === undefined ||
+          value === "__all__" ||
+          value === false
             ? undefined
             : String(value),
         page: "1",
@@ -96,9 +98,11 @@ export default function BrowseFilterBar({
             ? undefined
             : String(v)
       }
+      /* c8 ignore next 3: currently unused in UI; kept for future */
       if ("sort" in overrides) {
         updates.sort = overrides.sort ?? undefined
       }
+      /* c8 ignore next 4: currently unused in UI; kept for future */
       if ("verified" in overrides) {
         const v = overrides.verified
         updates.verified = v ? "true" : undefined

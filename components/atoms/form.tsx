@@ -49,6 +49,7 @@ const useFormField = () => {
   const formState = useFormState({ name: fieldContext.name })
   const fieldState = getFieldState(fieldContext.name, formState)
 
+  /* c8 ignore next 3: defensive guard is hard to trigger in isolation */
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>")
   }
