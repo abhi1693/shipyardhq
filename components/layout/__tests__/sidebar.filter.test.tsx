@@ -17,6 +17,20 @@ vi.mock("@/components/icons", () => ({
 
 describe("AppSidebar filtering", () => {
   it("filters subitems by query when typing in search", () => {
+    // Polyfill matchMedia used by use-mobile hook
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: vi.fn().mockImplementation((query) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    })
     const nav: NavItem[] = [
       { title: "Overview", url: "/admin/overview", icon: "logo" as any },
       {
@@ -40,4 +54,3 @@ describe("AppSidebar filtering", () => {
     expect(screen.queryByText("All Users")).toBeNull()
   })
 })
-
