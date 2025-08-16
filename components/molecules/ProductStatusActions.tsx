@@ -1,7 +1,6 @@
 "use client"
 
 import { useTransition } from "react"
-import { Button } from "@/components/atoms/button"
 import { Badge } from "@/components/atoms/badge"
 import { setProductStatusAction } from "@/actions/admin/products/actions"
 import { toast } from "sonner"
@@ -13,11 +12,9 @@ import ArchiveButton from "@/components/molecules/ArchiveButton"
 
 export default function ProductStatusActions({
   productId,
-  slug,
   status,
 }: {
   productId: string
-  slug: string
   status: "draft" | "published" | "archived"
 }) {
   const [isPending, start] = useTransition()

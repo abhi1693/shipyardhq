@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
-import { Badge } from "@/components/atoms/badge"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import Link from "next/link"
 import { MousePointerClick, ThumbsUp, Sparkles } from "lucide-react"

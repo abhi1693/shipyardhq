@@ -4,7 +4,6 @@ import {
 } from "@/actions/public/leaderboard/actions"
 import { Metadata } from "next"
 
-import { Badge } from "@/components/atoms/badge"
 import { StatCard } from "@/components/molecules/StatCard"
 import {
   IconPackage,

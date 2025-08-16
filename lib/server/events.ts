@@ -30,18 +30,20 @@ type Handler<K extends keyof AppEvents> = (
   payload: AppEvents[K],
 ) => void | Promise<void>
 
+type Listener = (payload: unknown) => void | Promise<void>
+
 // Internal listener registry
-const listeners: Map<string, Set<Function>> = new Map()
+const listeners: Map<string, Set<Listener>> = new Map()
 
 export function on<K extends keyof AppEvents>(
   event: K,
   handler: Handler<K>,
 ): () => void {
   const key = String(event)
-  const set = listeners.get(key) ?? new Set()
-  set.add(handler as any)
+  const set = listeners.get(key) ?? new Set<Listener>()
+  set.add(handler as unknown as Listener)
   listeners.set(key, set)
-  return () => set.delete(handler as any)
+  return () => set.delete(handler as unknown as Listener)
 }
 
 export async function publish<K extends keyof AppEvents>(
@@ -53,7 +55,7 @@ export async function publish<K extends keyof AppEvents>(
   if (!set || set.size === 0) return
   const calls = Array.from(set).map(async (fn) => {
     try {
-      await (fn as Handler<K>)(payload)
+      await (fn as unknown as Handler<K>)(payload)
     } catch (err) {
       console.error(`[events] handler error for ${key}:`, err)
     }

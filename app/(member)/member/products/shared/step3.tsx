@@ -66,7 +66,7 @@ export default function Step3({
     return () => {
       active = false
     }
-  }, [website])
+  }, [website, form])
 
   async function handleVerify() {
     if (!website) return toast.error("Enter a valid Website URL first")

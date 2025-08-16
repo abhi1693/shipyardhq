@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import { getProductById } from "@/actions/admin/products/actions"
 import { getCategories } from "@/actions/admin/categories/actions"
 import { getUsers } from "@/actions/admin/users/actions"

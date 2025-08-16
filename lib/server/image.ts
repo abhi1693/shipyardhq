@@ -47,7 +47,7 @@ export async function toWebpIfPossible(
       contentType: originalMime || "application/octet-stream",
       extension: guessExtFromMime(originalMime),
     }
-  } catch (e) {
+  } catch {
     // Fallback if sharp is unavailable in the environment
     return {
       buffer: Buffer.from(input),

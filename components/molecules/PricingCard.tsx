@@ -8,7 +8,6 @@ import {
 } from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
-import { formatCurrency } from "@/lib/ui/formatters"
 import clsx from "clsx"
 import { IconFlame } from "@tabler/icons-react"
 import { PricingFeature } from "@/components/molecules/PricingFeature"

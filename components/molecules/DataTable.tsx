@@ -19,7 +19,6 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import React, { useEffect } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Icons } from "../icons"
 import { ScrollArea, ScrollBar } from "@/components/atoms/scroll-area"
 import {
   Select,
@@ -71,7 +70,7 @@ export default function DataTable<TData, TValue>({
     router.push(url, {
       scroll: false,
     })
-  }, [pageIndex, pageSize])
+  }, [pageIndex, pageSize, pathname, router, searchParams])
 
   const table = useReactTable({
     data,

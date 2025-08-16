@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
-import { placeholder, formatDate, linkify } from "@/lib/ui/formatters"
-import { Badge as UIBadge } from "@/components/atoms/badge"
+import { formatDate, linkify } from "@/lib/ui/formatters"
 import { getBadgeAssignmentById } from "@/actions/admin/badges/actions"
 
 export default async function ViewProductBadgeAssignmentPage({
@@ -13,7 +12,7 @@ export default async function ViewProductBadgeAssignmentPage({
   const assignment = await getBadgeAssignmentById(id)
   if (!assignment) return notFound()
 
-  const { product, badge, expiresAt, createdAt, updatedAt } = assignment
+  const { product, expiresAt, createdAt, updatedAt } = assignment
 
   return (
     <ObjectPageLayout

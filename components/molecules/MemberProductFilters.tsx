@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState, useEffect } from "react"
+import { useCallback, useState, useEffect } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/atoms/input"
 import InlineSelect from "@/components/molecules/InlineSelect"
@@ -44,7 +44,6 @@ export default function MemberProductFilters() {
 
   useEffect(() => {
     setQ(current.q)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current.q])
 
   // Debounced search push
@@ -61,7 +60,7 @@ export default function MemberProductFilters() {
       router.push(url)
     }, 350)
     return () => clearTimeout(id)
-  }, [q])
+  }, [q, pathname, params, router])
 
   const onSelect = useCallback(
     (key: "status" | "verification" | "sort", value: string) => {

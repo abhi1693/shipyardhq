@@ -14,8 +14,8 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
     <section className="py-12">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-wrap gap-6 justify-center items-stretch">
-          {plans.map((p, i) => (
-            <CardWrapper key={p.id} index={i}>
+          {plans.map((p) => (
+            <CardWrapper key={p.id}>
               <PricingCard
                 name={p.name}
                 description={p.description}
@@ -37,13 +37,7 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
   )
 }
 
-function CardWrapper({
-  children,
-  index,
-}: {
-  children: React.ReactNode
-  index: number
-}) {
+function CardWrapper({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {

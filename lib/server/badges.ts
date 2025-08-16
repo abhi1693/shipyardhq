@@ -32,7 +32,7 @@ on("product.created", async ({ productId }) => {
 })
 
 // Default behavior for manual badge assignments
-on("badge.assigned", async ({ id, productId, badge, expiresAt }) => {
+on("badge.assigned", async ({ id, badge, expiresAt }) => {
   try {
     // If an expiry was provided, respect it.
     if (expiresAt) return
@@ -96,6 +96,6 @@ on("product.updated", async ({ productId }) => {
   }
 })
 
-on("product.deleted", async ({ productId }) => {
+on("product.deleted", async () => {
   // Badges cascade delete with Prisma relation, but we could log/metrics here.
 })

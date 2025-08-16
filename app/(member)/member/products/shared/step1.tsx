@@ -115,7 +115,7 @@ export default function Step1({ categories, platforms, productId }: Props) {
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                      a: ({ node, ...props }) => (
+                      a: (props) => (
                         <a
                           {...props}
                           target="_blank"

@@ -63,7 +63,7 @@ export default function AssignProductBadgeForm({
         expiresAt: values.expiresAt ? new Date(values.expiresAt) : undefined,
       })
       router.push("/admin/products/assignments/badges")
-    } catch (error) {
+    } catch {
       form.setError("badge", {
         type: "server",
         message: "Failed to assign badge",

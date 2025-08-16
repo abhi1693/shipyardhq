@@ -55,12 +55,6 @@ export default async function BrowsePage({
     page: parseInt(page),
   })
 
-  const hasActiveFilters =
-    (useCase && useCase !== "__all__") ||
-    (category && category !== "__all__") ||
-    verified === "true" ||
-    (sort && sort !== "new")
-
   // URL building handled in client components; removed local duplication.
 
   const sortLabelMap: Record<string, string> = {

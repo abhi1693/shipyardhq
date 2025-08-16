@@ -32,7 +32,6 @@ import {
   IconThumbUp,
   IconRocket,
   IconBadge,
-  IconPlus,
   IconPencil,
   IconShieldCheck,
 } from "@tabler/icons-react"

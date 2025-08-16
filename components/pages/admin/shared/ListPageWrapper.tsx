@@ -1,6 +1,5 @@
 import { Heading } from "@/components/atoms/heading"
 import { Separator } from "@/components/atoms/separator"
-import PageContainer from "@/components/layout/page-container"
 import AddButton from "@/components/molecules/AddButton"
 import Link from "next/link"
 import { Suspense, ReactNode } from "react"

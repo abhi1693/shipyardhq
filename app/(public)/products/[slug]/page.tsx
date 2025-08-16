@@ -422,7 +422,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
-            a: ({ node, ...props }) => (
+            a: (props) => (
               <a
                 {...props}
                 target="_blank"
@@ -430,7 +430,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 className="underline"
               />
             ),
-            img: ({ node, ...props }) => (
+            img: (props) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 {...props}

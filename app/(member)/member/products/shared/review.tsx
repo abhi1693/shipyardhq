@@ -79,7 +79,7 @@ export default function Review({ categories, organizations }: Props) {
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                a: ({ node, ...props }) => (
+                a: (props) => (
                   <a
                     {...props}
                     target="_blank"
