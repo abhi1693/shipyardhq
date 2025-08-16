@@ -12,15 +12,14 @@ class MockImage {
 
 describe("validateExternalResources", () => {
   beforeEach(() => {
-    // @ts-ignore
     global.Image = MockImage as any
     vi.useFakeTimers()
   })
   afterEach(() => {
     vi.useRealTimers()
-    // @ts-ignore
+    // @ts-expect-error test: cleanup Image
     delete global.Image
-    // @ts-ignore
+    // @ts-expect-error test: cleanup fetch
     delete global.fetch
   })
 
@@ -42,7 +41,7 @@ describe("validateExternalResources", () => {
   it("passes when fetch ok and images load", async () => {
     vi.useRealTimers()
     // Mock fetch to return ok
-    // @ts-ignore
+    // @ts-expect-error test: override fetch
     global.fetch = vi.fn(async () => ({ ok: true }))
     const vals = {
       websiteUrl: "https://example.com",
@@ -57,7 +56,6 @@ describe("validateExternalResources", () => {
   })
 
   it("handles image load error and fetch errors gracefully", async () => {
-    // @ts-ignore
     global.fetch = vi.fn(async () => {
       throw new Error("cors")
     })
@@ -68,7 +66,6 @@ describe("validateExternalResources", () => {
         setTimeout(() => this.onerror && this.onerror(new Error("x")), 0)
       }
     }
-    // @ts-ignore
     global.Image = ErrImage as any
     const vals = {
       websiteUrl: "https://example.com",
@@ -88,7 +85,6 @@ describe("validateExternalResources", () => {
   })
 
   it("resolves false when Image constructor throws", async () => {
-    // @ts-ignore
     global.Image = class BadImage {
       constructor() {
         throw new Error("ctor")

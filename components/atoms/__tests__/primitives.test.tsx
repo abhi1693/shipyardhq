@@ -49,7 +49,7 @@ import {
   CardFooter,
   CardAction,
 } from "@/components/atoms/card"
-import { ScrollArea, ScrollBar } from "@/components/atoms/scroll-area"
+import { ScrollArea } from "@/components/atoms/scroll-area"
 import {
   Sheet,
   SheetTrigger,

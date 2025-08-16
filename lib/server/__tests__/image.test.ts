@@ -7,7 +7,7 @@ beforeEach(() => {
 
 vi.mock("sharp", () => ({
   default: (buf: Buffer) => ({
-    webp: (_opts: any) => ({
+    webp: () => ({
       toBuffer: async () => {
         const size = (global as any).__webpSize ?? Math.floor(buf.length / 2)
         if ((global as any).__sharpThrow) throw new Error("boom")

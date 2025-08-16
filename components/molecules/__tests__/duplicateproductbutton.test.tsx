@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event"
 
 // Mock action and router
 vi.mock("@/actions/admin/products/actions", () => ({
-  duplicateProductAction: vi.fn(async (_id: string) => ({ slug: "new-slug" })),
+  duplicateProductAction: vi.fn(async () => ({ slug: "new-slug" })),
 }))
 const push = vi.fn()
 vi.mock("next/navigation", () => ({

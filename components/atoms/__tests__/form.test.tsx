@@ -18,7 +18,7 @@ function DemoForm() {
   // Set an error so FormMessage renders after mount
   React.useEffect(() => {
     form.setError("name", { type: "required", message: "Name required" })
-  }, [])
+  }, [form])
   return (
     <Form {...form}>
       <form>

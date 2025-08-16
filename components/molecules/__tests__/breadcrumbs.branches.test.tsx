@@ -59,7 +59,7 @@ describe("Breadcrumbs branches", () => {
   })
 
   it("applies transform function to items", () => {
-    const { rerender } = render(
+    render(
       <Breadcrumbs
         items={[{ title: "x", link: "/x" }, { title: "y" }]}
         transform={(items) =>

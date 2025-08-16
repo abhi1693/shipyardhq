@@ -10,7 +10,6 @@ vi.mock("next/navigation", () => ({
 }))
 
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
-import { useRouter } from "next/navigation"
 
 describe("BrowseFilterBar", () => {
   const useCases = [{ id: "u1", slug: "scoring", label: "Scoring" }]

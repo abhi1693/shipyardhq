@@ -12,7 +12,7 @@ vi.mock("sonner", () => ({
 }))
 
 describe("CopyButton branch coverage", () => {
-  const origNavigator = global.navigator
+  // placeholder to keep globals consistent in some environments
   const origExec = (document as any).execCommand
   let restoreLocation: any
 
@@ -80,7 +80,6 @@ describe("CopyButton branch coverage", () => {
     const { toast } = await import("sonner")
     render(<CopyButton text="/p/err" resolveAbsolute label="Copy" />)
     // Make DOM operations throw inside fallbackCopy (after initial render)
-    // @ts-expect-error override for test
     document.createElement = vi.fn(() => {
       throw new Error("nope")
     }) as any

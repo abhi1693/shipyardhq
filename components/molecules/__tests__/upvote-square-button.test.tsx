@@ -3,12 +3,10 @@ import React from "react"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 
 describe("UpvoteSquareButton", () => {
-  const action = vi.fn(
-    async (prev: { upvotes: number; upvoted: boolean }, _fd: FormData) => ({
-      upvotes: prev.upvotes + (prev.upvoted ? -1 : 1),
-      upvoted: !prev.upvoted,
-    }),
-  )
+  const action = vi.fn(async (prev: { upvotes: number; upvoted: boolean }) => ({
+    upvotes: prev.upvotes + (prev.upvoted ? -1 : 1),
+    upvoted: !prev.upvoted,
+  }))
 
   it("wraps with tooltip and disables when signed out", async () => {
     vi.resetModules()

@@ -69,9 +69,7 @@ describe("ImageUploadField", () => {
     await waitFor(() => expect(screen.getByText(/bad/)).toBeInTheDocument())
 
     // Re-render with an initial value and verify delete clears
-    const { rerender } = render(
-      <Wrapper initial={"https://cdn.example.com/y.png"} />,
-    )
+    render(<Wrapper initial={"https://cdn.example.com/y.png"} />)
     await waitFor(() =>
       expect(screen.getByRole("link", { name: "Open" })).toBeInTheDocument(),
     )

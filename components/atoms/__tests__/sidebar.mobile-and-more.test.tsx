@@ -6,13 +6,11 @@ import {
   Sidebar,
   SidebarTrigger,
   SidebarContent,
-  SidebarHeader,
   SidebarRail,
 } from "@/components/atoms/sidebar"
 
 beforeEach(() => {
   // reset cookie before each test
-  // @ts-ignore
   document.cookie = ""
 })
 

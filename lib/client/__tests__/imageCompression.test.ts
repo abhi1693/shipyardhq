@@ -15,10 +15,9 @@ class FakeImage {
 }
 
 beforeEach(() => {
-  // @ts-ignore
+  // @ts-expect-error test: override Image constructor
   global.Image = FakeImage
   // stub URL
-  // @ts-ignore
   global.URL = {
     createObjectURL: vi.fn(() => "blob:x"),
     revokeObjectURL: vi.fn(),
@@ -26,9 +25,8 @@ beforeEach(() => {
 })
 afterEach(() => {
   document.createElement = origCreate
-  // @ts-ignore
+  // @ts-expect-error test: remove Image override
   delete global.Image
-  // @ts-ignore
   global.URL = OLD_URL
 })
 
@@ -114,7 +112,6 @@ describe("compressImageLossless", () => {
         setTimeout(() => this.onerror && this.onerror(new Error("x")), 0)
       }
     }
-    // @ts-ignore
     global.Image = ErrImage as any
     document.createElement = vi.fn(() => ({
       width: 0,

@@ -21,7 +21,7 @@ import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
 
 // Mocks
 vi.mock("@/actions/admin/products/actions", () => ({
-  verifyProductDomainAction: vi.fn(async (_id: string) => ({ success: true })),
+  verifyProductDomainAction: vi.fn(async () => ({ success: true })),
 }))
 
 describe("additional molecules (set 2)", () => {
@@ -144,7 +144,6 @@ describe("additional molecules (set 2)", () => {
     const user = userEvent.setup()
     await user.click(screen.getByRole("button", { name: /verify domain/i }))
     await waitFor(() => expect(toast.success).toHaveBeenCalled())
-
     ;(mod.verifyProductDomainAction as any).mockResolvedValueOnce({
       success: false,
       error: "Nope",

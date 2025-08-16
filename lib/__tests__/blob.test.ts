@@ -22,7 +22,7 @@ describe("blob client wrappers", () => {
   it("putBlob uses @vercel/blob.put when available", async () => {
     process.env.BLOB_READ_WRITE_TOKEN = "t"
     vi.mock("@vercel/blob", () => {
-      const put = vi.fn(async (_k: string, _d: any, _o: any) => ({
+      const put = vi.fn(async () => ({
         url: "http://x",
         pathname: "foo",
         size: 0,

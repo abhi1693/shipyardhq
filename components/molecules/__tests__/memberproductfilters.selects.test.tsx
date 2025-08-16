@@ -3,7 +3,7 @@ import React from "react"
 import { render, screen } from "@testing-library/react"
 
 const push = vi.fn()
-let qs = ""
+const qs = ""
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
   usePathname: () => "/member/products",

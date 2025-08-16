@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import React from "react"
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import CopyButton from "@/components/molecules/CopyButton"
 
@@ -19,7 +19,6 @@ describe("CopyButton copy paths", () => {
 
   beforeEach(() => {
     // Ensure no modern clipboard API so we hit fallback path
-    // @ts-expect-error test override
     global.navigator = { ...originalNavigator, clipboard: undefined } as any
     Object.defineProperty(window, "location", {
       value: { origin: "https://example.com" },
@@ -29,7 +28,6 @@ describe("CopyButton copy paths", () => {
 
   afterEach(() => {
     // Restore globals
-    // @ts-expect-error test restore
     global.navigator = originalNavigator as any
     ;(document as any).execCommand = originalExec
     // @ts-expect-error test restore
