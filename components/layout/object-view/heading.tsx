@@ -61,9 +61,7 @@ export function ObjectHeading({
             {onDelete && (
               <AlertModal
                 onConfirm={onDelete}
-                trigger={(open) => (
-                  <DeleteButton size="sm" onClick={open} />
-                )}
+                trigger={(open) => <DeleteButton size="sm" onClick={open} />}
               />
             )}
           </div>

@@ -32,7 +32,11 @@ export default function WizardFooter({
       </Button>
       {isReview ? (
         <div className="flex gap-2">
-          <SaveButton type="button" disabled={!!isSubmitting} onClick={onSaveDraft}>
+          <SaveButton
+            type="button"
+            disabled={!!isSubmitting}
+            onClick={onSaveDraft}
+          >
             Save as Draft
           </SaveButton>
           <Button type="button" disabled={!!isSubmitting} onClick={onPublish}>

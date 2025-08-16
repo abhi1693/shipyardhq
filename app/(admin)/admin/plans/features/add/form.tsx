@@ -122,7 +122,11 @@ export default function AddPlanFeatureForm() {
               />
 
               <div className="pt-2">
-                <CreateButton type="submit" disabled={form.formState.isSubmitting} label="Create Feature" />
+                <CreateButton
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  label="Create Feature"
+                />
               </div>
             </form>
           </Form>

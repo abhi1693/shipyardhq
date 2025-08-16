@@ -89,7 +89,11 @@ export default function AddOrganizationForm() {
                 )}
               />
               <div className="pt-2">
-                <CreateButton type="submit" disabled={form.formState.isSubmitting} label="Create Organization" />
+                <CreateButton
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  label="Create Organization"
+                />
               </div>
             </form>
           </Form>

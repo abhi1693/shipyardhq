@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Users | ShipYardHQ",
-  description: "Discover makers and explore their published products on ShipYardHQ.",
+  description:
+    "Discover makers and explore their published products on ShipYardHQ.",
   alternates: { canonical: "/users" },
   openGraph: {
     title: "Users | ShipYardHQ",
@@ -55,8 +56,8 @@ export default async function UsersIndexPage() {
         ) : (
           <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {users.map((u) => {
-              const fullName = `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() ||
-                "User"
+              const fullName =
+                `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || "User"
               const count = u.products.length
               return (
                 <li key={u.id} className="border rounded-lg p-4 bg-background">

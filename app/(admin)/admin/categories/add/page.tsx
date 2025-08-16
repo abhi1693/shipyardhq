@@ -140,7 +140,11 @@ export default function AddCategoryPage() {
                   </FormItem>
                 )}
               />
-              <CreateButton type="submit" disabled={form.formState.isSubmitting} label="Create Category" />
+              <CreateButton
+                type="submit"
+                disabled={form.formState.isSubmitting}
+                label="Create Category"
+              />
             </form>
           </Form>
         </CardContent>

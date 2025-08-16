@@ -28,7 +28,11 @@ export default function Hero() {
 
         <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
           <Link href="/member/products/add">
-            <SubmitProductButton size="lg" className="shadow-sm" label="Submit Your Product" />
+            <SubmitProductButton
+              size="lg"
+              className="shadow-sm"
+              label="Submit Your Product"
+            />
           </Link>
           <Link href="/browse">
             <Button size="lg" variant="outline" className="">

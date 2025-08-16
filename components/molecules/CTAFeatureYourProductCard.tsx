@@ -20,7 +20,11 @@ export default function CTAFeatureYourProductCard() {
           Boost visibility by getting featured on our homepage.
         </p>
         <Link href="/member/products/add">
-          <SubmitProductButton size="sm" variant="outline" label="Submit Your Product" />
+          <SubmitProductButton
+            size="sm"
+            variant="outline"
+            label="Submit Your Product"
+          />
         </Link>
       </CardContent>
     </Card>

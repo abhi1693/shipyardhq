@@ -165,7 +165,11 @@ export default function AddUserForm() {
                 )}
               />
 
-              <CreateButton type="submit" disabled={form.formState.isSubmitting} label="Create User" />
+              <CreateButton
+                type="submit"
+                disabled={form.formState.isSubmitting}
+                label="Create User"
+              />
             </form>
           </Form>
         </CardContent>

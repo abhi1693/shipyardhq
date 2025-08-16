@@ -203,9 +203,12 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
               />
 
               <div className="pt-2">
-              <SaveButton type="submit" disabled={form.formState.isSubmitting}>
-                Save Changes
-              </SaveButton>
+                <SaveButton
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                >
+                  Save Changes
+                </SaveButton>
               </div>
             </form>
           </Form>

@@ -72,7 +72,11 @@ export default async function OverviewPage({
               <CreateButton size="sm" label="Create Product" />
             </Link>
             <Link href="/admin/categories/new">
-              <CreateButton variant="outline" size="sm" label="Create Category" />
+              <CreateButton
+                variant="outline"
+                size="sm"
+                label="Create Category"
+              />
             </Link>
             <Link href="/admin/plans/new">
               <CreateButton variant="outline" size="sm" label="Create Plan" />

@@ -22,4 +22,3 @@ export default function SubmitProductButton({
     </Button>
   )
 }
-

@@ -125,7 +125,11 @@ export default function AddOrgMemberForm({
               />
 
               <div className="pt-2">
-                <AddButton type="submit" disabled={form.formState.isSubmitting} label="Add Member" />
+                <AddButton
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  label="Add Member"
+                />
               </div>
             </form>
           </Form>

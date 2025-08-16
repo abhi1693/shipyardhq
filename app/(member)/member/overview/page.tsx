@@ -96,14 +96,16 @@ export default async function OverviewPage({
             {stats.draftsCount > 0 && (
               <Link href="/member/products?status=draft">
                 <Button variant="outline" size="sm">
-                  <IconPencil className="h-4 w-4" /> Finish Drafts ({stats.draftsCount})
+                  <IconPencil className="h-4 w-4" /> Finish Drafts (
+                  {stats.draftsCount})
                 </Button>
               </Link>
             )}
             {stats.unverifiedCount > 0 && (
               <Link href="/member/products?verification=unverified">
                 <Button variant="outline" size="sm">
-                  <IconShieldCheck className="h-4 w-4" /> Verify Domain ({stats.unverifiedCount})
+                  <IconShieldCheck className="h-4 w-4" /> Verify Domain (
+                  {stats.unverifiedCount})
                 </Button>
               </Link>
             )}
@@ -362,8 +364,7 @@ export default async function OverviewPage({
                     href={`/member/products/${p.slug}`}
                     className="text-primary hover:underline text-xs"
                   >
-                    {/* simple arrow icon for clarity */}
-                    ↗ Open
+                    {/* simple arrow icon for clarity */}↗ Open
                   </Link>
                 </div>
               ))

@@ -40,16 +40,32 @@ export default function ProductStatusActions({
     <div className="flex flex-wrap items-center gap-2">
       <Badge variant={badgeVariant as any}>{status}</Badge>
       {status !== "published" && (
-        <PublishButton size="sm" onClick={() => updateStatus("published")} disabled={isPending} />
+        <PublishButton
+          size="sm"
+          onClick={() => updateStatus("published")}
+          disabled={isPending}
+        />
       )}
       {status === "published" && (
-        <UnpublishButton size="sm" onClick={() => updateStatus("draft")} disabled={isPending} />
+        <UnpublishButton
+          size="sm"
+          onClick={() => updateStatus("draft")}
+          disabled={isPending}
+        />
       )}
       {status === "archived" && (
-        <UnarchiveButton size="sm" onClick={() => updateStatus("draft")} disabled={isPending} />
+        <UnarchiveButton
+          size="sm"
+          onClick={() => updateStatus("draft")}
+          disabled={isPending}
+        />
       )}
       {status !== "archived" && (
-        <ArchiveButton size="sm" onClick={() => updateStatus("archived")} disabled={isPending} />
+        <ArchiveButton
+          size="sm"
+          onClick={() => updateStatus("archived")}
+          disabled={isPending}
+        />
       )}
     </div>
   )

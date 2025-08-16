@@ -12,15 +12,17 @@ interface PageProps {
 
 export const dynamic = "force-dynamic"
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { id } = await params
   const user = await prisma.user.findUnique({
     where: { id },
     select: { firstName: true, lastName: true },
   })
   if (!user) return {}
-  const fullName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() ||
-    "User"
+  const fullName =
+    `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"
   const relativeUrl = `/users/${id}`
   const desc = `${fullName}'s published products on ShipYardHQ.`
   return {
@@ -66,8 +68,8 @@ export default async function PublicUserPage({ params }: PageProps) {
 
   if (!user) return notFound()
 
-  const fullName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() ||
-    "User"
+  const fullName =
+    `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"
 
   const items = (user.products || []).map((p) => ({
     id: p.id,
@@ -84,7 +86,9 @@ export default async function PublicUserPage({ params }: PageProps) {
       .map((b) => b.badge),
   }))
 
-  const base = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "")
+  const base = (
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  ).replace(/\/$/, "")
   const profileUrl = `${base}/users/${user.id}`
   const ldPerson = {
     "@context": "https://schema.org",
@@ -130,7 +134,9 @@ export default async function PublicUserPage({ params }: PageProps) {
 
   return (
     <PublicContainer paddingY="py-10" max="7xl" innerClassName="space-y-8">
-      <Breadcrumbs items={[{ title: "Users", link: "/users" }, { title: fullName }]} />
+      <Breadcrumbs
+        items={[{ title: "Users", link: "/users" }, { title: fullName }]}
+      />
       <script
         type="application/ld+json"
         suppressHydrationWarning

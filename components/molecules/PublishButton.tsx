@@ -22,4 +22,3 @@ export default function PublishButton({
     </Button>
   )
 }
-

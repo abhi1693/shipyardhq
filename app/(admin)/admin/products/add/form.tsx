@@ -672,7 +672,11 @@ export default function AddProductForm({
               />
 
               <div className="pt-2">
-                <CreateButton type="submit" disabled={form.formState.isSubmitting} label="Create Product" />
+                <CreateButton
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  label="Create Product"
+                />
               </div>
             </form>
           </Form>
