@@ -1,5 +1,8 @@
 # Repository Guidelines
 
+## Quick Orientation
+- Need a fast overview of what the app does and key user flows? Read `README.md` first. It explains the product (who it’s for, what you can do, key pages) before technical details.
+
 ## Project Structure & Module Organization
 - `app/`: Next.js App Router pages, layouts, and API routes.
 - `components/`: Atomic Design UI — `atoms/`, `molecules/`, `organisms/`, `pages/`, `layout/` (PascalCase files). Dependencies flow up only (atoms → molecules → organisms → pages).
@@ -36,4 +39,3 @@
 ## Security & Configuration
 - Required env vars: `DATABASE_URL`, Clerk keys (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`), `DODO_API_KEY`.
 - Do not commit secrets. Use `.env.local` for development. Initialize DB with `npm run prisma:init`, then run migrations.
-
