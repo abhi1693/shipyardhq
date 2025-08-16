@@ -5,7 +5,7 @@ import EditPlanForm from "./form"
 export default async function EditPlanPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const plan = await getPlanById(id)

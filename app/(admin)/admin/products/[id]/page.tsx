@@ -21,7 +21,7 @@ import { AssignedFeatureOfPlanRelationship } from "@/app/(admin)/admin/products/
 export default async function ViewProductPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const product = await getProductById(id)

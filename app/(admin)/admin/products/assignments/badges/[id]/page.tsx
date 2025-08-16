@@ -6,7 +6,7 @@ import { getBadgeAssignmentById } from "@/actions/admin/badges/actions"
 export default async function ViewProductBadgeAssignmentPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const assignment = await getBadgeAssignmentById(id)

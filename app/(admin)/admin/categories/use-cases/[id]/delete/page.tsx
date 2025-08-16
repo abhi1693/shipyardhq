@@ -4,7 +4,7 @@ import { deleteUseCaseAction } from "@/actions/admin/categories/actions"
 export default async function DeleteUseCasePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const result = await deleteUseCaseAction(id)

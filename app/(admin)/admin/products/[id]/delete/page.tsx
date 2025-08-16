@@ -4,7 +4,7 @@ import { deleteProductAction } from "@/actions/admin/products/actions"
 export default async function DeleteProductPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const result = await deleteProductAction(id)

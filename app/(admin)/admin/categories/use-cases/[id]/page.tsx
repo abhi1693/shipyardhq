@@ -7,7 +7,7 @@ import { UseCaseCategoryRelationship } from "@/app/(admin)/admin/categories/use-
 export default async function ViewUseCasePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const useCase = await getUseCaseById(id, {

@@ -4,7 +4,7 @@ import { deleteProductBadgeAction } from "@/actions/admin/badges/actions"
 export default async function DeleteProductBadgePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const result = await deleteProductBadgeAction(id)

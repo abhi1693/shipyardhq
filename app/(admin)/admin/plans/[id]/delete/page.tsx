@@ -4,7 +4,7 @@ import { deletePlanAction } from "@/actions/admin/plans/actions"
 export default async function DeletePlanPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const result = await deletePlanAction(id)

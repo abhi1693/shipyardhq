@@ -8,7 +8,7 @@ import EditProductForm from "./form"
 export default async function EditProductPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const [product, categories, users, organizations] = await Promise.all([

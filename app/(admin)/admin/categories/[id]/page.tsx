@@ -9,7 +9,7 @@ import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 export default async function ViewCategoryPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const category = (await getCategoryById(id, {

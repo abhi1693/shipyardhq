@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default async function EditUserPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const user = await getUserById(id)
