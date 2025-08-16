@@ -6,7 +6,7 @@ import AddOrgMemberForm from "./form"
 export default async function AddOrgMemberPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const [org, users] = await Promise.all([

@@ -41,7 +41,7 @@ import { hasPlanFeature } from "@/lib/features"
 import {JSX} from "react";
 
 interface ProductPageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({

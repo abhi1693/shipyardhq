@@ -7,7 +7,7 @@ import ProductList from "@/components/molecules/ProductList"
 import { EmptyState } from "@/components/molecules/empty-state"
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export const dynamic = "force-dynamic"

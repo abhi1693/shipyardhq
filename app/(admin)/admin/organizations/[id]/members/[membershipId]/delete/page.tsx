@@ -4,7 +4,7 @@ import { deleteOrganizationMembershipAction } from "@/actions/admin/organization
 export default async function DeleteMembershipPage({
   params,
 }: {
-  params: { id: string; membershipId: string }
+  params: Promise<{ id: string; membershipId: string }>
 }) {
   const { id, membershipId } = await params
   const result = await deleteOrganizationMembershipAction(membershipId)

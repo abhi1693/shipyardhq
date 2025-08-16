@@ -7,7 +7,7 @@ import { OrganizationMembersRelationship } from "./relationships/members"
 export default async function ViewOrganizationPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const org = await getOrganizationById(id, {

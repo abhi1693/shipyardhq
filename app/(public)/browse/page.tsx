@@ -32,7 +32,7 @@ interface BrowseSearchParams {
 export default async function BrowsePage({
   searchParams,
 }: {
-  searchParams: BrowseSearchParams
+  searchParams: Promise<BrowseSearchParams>
 }) {
   const featured = await getProducts("featured")
   const useCases = await getUseCasesWithCounts()

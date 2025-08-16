@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma"
 export default async function DeleteProductPage({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
   const found = await prisma.product.findUnique({

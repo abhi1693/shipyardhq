@@ -7,7 +7,7 @@ import { Prisma } from "@prisma/client"
 export default async function PlanFeaturePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
 

@@ -4,7 +4,7 @@ import { deletePlanFeatureAssignmentAction } from "@/actions/admin/plans/assignm
 export default async function DeleteAssignedFeaturePage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { id } = await params
   const result = await deletePlanFeatureAssignmentAction(id)

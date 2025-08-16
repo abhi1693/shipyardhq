@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default async function EditAssignmentPage({
   params,
 }: {
-  params: { useCaseId: string; categoryId: string }
+  params: Promise<{ useCaseId: string; categoryId: string }>
 }) {
   const { useCaseId, categoryId } = await params
 

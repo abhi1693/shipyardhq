@@ -4,7 +4,7 @@ import { deleteUseCaseAssignmentAction } from "@/actions/admin/categories/action
 export default async function DeleteAssignmentPage({
   params,
 }: {
-  params: { useCaseId: string; categoryId: string }
+  params: Promise<{ useCaseId: string; categoryId: string }>
 }) {
   const { useCaseId, categoryId } = await params
   const result = await deleteUseCaseAssignmentAction({ useCaseId, categoryId })
