@@ -1,10 +1,18 @@
-import { describe, it, expect } from 'vitest';
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from '@/components/atoms/sheet';
+import { describe, it, expect } from "vitest"
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+  SheetClose,
+} from "@/components/atoms/sheet"
 
-describe('Sheet atoms', () => {
-  it('renders overlay, content and header when open', () => {
+describe("Sheet atoms", () => {
+  it("renders overlay, content and header when open", () => {
     render(
       <Sheet open>
         <SheetContent side="left">
@@ -14,22 +22,19 @@ describe('Sheet atoms', () => {
           </SheetHeader>
           <SheetClose>Close</SheetClose>
         </SheetContent>
-      </Sheet>
-    );
+      </Sheet>,
+    )
     // Overlay and content rendered via portal
-    expect(document.querySelector('[data-slot="sheet-overlay"]')).toBeTruthy();
-    expect(document.querySelector('[data-slot="sheet-content"]')).toBeTruthy();
-    expect(screen.getByText('Title')).toBeInTheDocument();
-    expect(screen.getByText('Desc')).toBeInTheDocument();
-    expect(document.querySelector('[data-slot="sheet-close"]')).toBeTruthy();
-  });
-});
+    expect(document.querySelector('[data-slot="sheet-overlay"]')).toBeTruthy()
+    expect(document.querySelector('[data-slot="sheet-content"]')).toBeTruthy()
+    expect(screen.getByText("Title")).toBeInTheDocument()
+    expect(screen.getByText("Desc")).toBeInTheDocument()
+    expect(document.querySelector('[data-slot="sheet-close"]')).toBeTruthy()
+  })
+})
 
-
-
-
-describe('Sheet atoms sides', () => {
-  it('applies side classes for top/bottom/default and renders footer', () => {
+describe("Sheet atoms sides", () => {
+  it("applies side classes for top/bottom/default and renders footer", () => {
     const { rerender } = render(
       <Sheet open>
         <SheetContent side="top">
@@ -38,11 +43,15 @@ describe('Sheet atoms sides', () => {
           </SheetHeader>
           <SheetFooter>Ftr</SheetFooter>
         </SheetContent>
-      </Sheet>
-    );
-    const content = document.querySelector('[data-slot="sheet-content"]') as HTMLElement;
-    expect(content.className).toContain('slide-in-from-top');
-    expect(document.querySelector('[data-slot="sheet-footer"]').textContent).toContain('Ftr');
+      </Sheet>,
+    )
+    const content = document.querySelector(
+      '[data-slot="sheet-content"]',
+    ) as HTMLElement
+    expect(content.className).toContain("slide-in-from-top")
+    expect(
+      document.querySelector('[data-slot="sheet-footer"]').textContent,
+    ).toContain("Ftr")
 
     rerender(
       <Sheet open>
@@ -51,10 +60,12 @@ describe('Sheet atoms sides', () => {
             <SheetTitle>Bottom</SheetTitle>
           </SheetHeader>
         </SheetContent>
-      </Sheet>
-    );
-    const content2 = document.querySelector('[data-slot="sheet-content"]') as HTMLElement;
-    expect(content2.className).toContain('slide-in-from-bottom');
+      </Sheet>,
+    )
+    const content2 = document.querySelector(
+      '[data-slot="sheet-content"]',
+    ) as HTMLElement
+    expect(content2.className).toContain("slide-in-from-bottom")
 
     // default side is right
     rerender(
@@ -64,9 +75,11 @@ describe('Sheet atoms sides', () => {
             <SheetTitle>Right</SheetTitle>
           </SheetHeader>
         </SheetContent>
-      </Sheet>
-    );
-    const content3 = document.querySelector('[data-slot="sheet-content"]') as HTMLElement;
-    expect(content3.className).toContain('slide-in-from-right');
-  });
-});
+      </Sheet>,
+    )
+    const content3 = document.querySelector(
+      '[data-slot="sheet-content"]',
+    ) as HTMLElement
+    expect(content3.className).toContain("slide-in-from-right")
+  })
+})

@@ -1,10 +1,19 @@
-import { describe, it, expect } from 'vitest';
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableCaption, TableFooter } from '@/components/atoms/table';
+import { describe, it, expect } from "vitest"
+import React from "react"
+import { render, screen } from "@testing-library/react"
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableCaption,
+  TableFooter,
+} from "@/components/atoms/table"
 
-describe('Table atoms', () => {
-  it('renders table structure and slots', () => {
+describe("Table atoms", () => {
+  it("renders table structure and slots", () => {
     const { container } = render(
       <Table className="tbl">
         <TableCaption>Cap</TableCaption>
@@ -26,13 +35,12 @@ describe('Table atoms', () => {
             <TableCell>F2</TableCell>
           </TableRow>
         </TableFooter>
-      </Table>
-    );
-    expect(screen.getByText('Cap')).toBeInTheDocument();
-    expect(screen.getByText('H1')).toBeInTheDocument();
-    expect(screen.getByText('C2')).toBeInTheDocument();
+      </Table>,
+    )
+    expect(screen.getByText("Cap")).toBeInTheDocument()
+    expect(screen.getByText("H1")).toBeInTheDocument()
+    expect(screen.getByText("C2")).toBeInTheDocument()
     // container has table data-slot
-    expect(container.querySelector('[data-slot="table"]')).toBeTruthy();
-  });
-});
-
+    expect(container.querySelector('[data-slot="table"]')).toBeTruthy()
+  })
+})

@@ -63,7 +63,9 @@ export default function BrowseFilterBar({
     (key: string, value: string | boolean | undefined) => {
       return buildQuery("/browse", qs, {
         [key]:
-          /* c8 ignore next */ value === undefined || value === "__all__" || value === false
+          /* c8 ignore next */ value === undefined ||
+          value === "__all__" ||
+          value === false
             ? undefined
             : String(value),
         page: "1",

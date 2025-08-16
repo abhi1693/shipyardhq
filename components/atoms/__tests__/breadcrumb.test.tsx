@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from "vitest"
+import React from "react"
+import { render, screen } from "@testing-library/react"
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -9,10 +9,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
-} from '@/components/atoms/breadcrumb';
+} from "@/components/atoms/breadcrumb"
 
-describe('Breadcrumb atoms', () => {
-  it('renders list with link, separator (default), and page', () => {
+describe("Breadcrumb atoms", () => {
+  it("renders list with link, separator (default), and page", () => {
     render(
       <Breadcrumb>
         <BreadcrumbList>
@@ -24,19 +24,26 @@ describe('Breadcrumb atoms', () => {
             <BreadcrumbPage>Current</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
-      </Breadcrumb>
-    );
+      </Breadcrumb>,
+    )
 
-    expect(screen.getByRole('navigation', { name: 'breadcrumb' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/home');
+    expect(
+      screen.getByRole("navigation", { name: "breadcrumb" }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute(
+      "href",
+      "/home",
+    )
     // Default separator uses an SVG chevron
-    const sep = document.querySelector('[data-slot="breadcrumb-separator"]') as HTMLElement;
-    expect(sep.querySelector('svg')).toBeTruthy();
+    const sep = document.querySelector(
+      '[data-slot="breadcrumb-separator"]',
+    ) as HTMLElement
+    expect(sep.querySelector("svg")).toBeTruthy()
     // Page has aria-current
-    expect(screen.getByText('Current')).toHaveAttribute('aria-current', 'page');
-  });
+    expect(screen.getByText("Current")).toHaveAttribute("aria-current", "page")
+  })
 
-  it('renders ellipsis and custom separator content', () => {
+  it("renders ellipsis and custom separator content", () => {
     render(
       <Breadcrumb>
         <BreadcrumbList>
@@ -46,14 +53,17 @@ describe('Breadcrumb atoms', () => {
             <BreadcrumbEllipsis />
           </BreadcrumbItem>
         </BreadcrumbList>
-      </Breadcrumb>
-    );
+      </Breadcrumb>,
+    )
     // Custom separator content present
-    const customSep = document.querySelector('[data-slot="breadcrumb-separator"]') as HTMLElement;
-    expect(customSep).toHaveTextContent('-');
+    const customSep = document.querySelector(
+      '[data-slot="breadcrumb-separator"]',
+    ) as HTMLElement
+    expect(customSep).toHaveTextContent("-")
     // Ellipsis has hidden label More
-    const ellipsis = document.querySelector('[data-slot="breadcrumb-ellipsis"]') as HTMLElement;
-    expect(ellipsis.textContent).toContain('More');
-  });
-});
-
+    const ellipsis = document.querySelector(
+      '[data-slot="breadcrumb-ellipsis"]',
+    ) as HTMLElement
+    expect(ellipsis.textContent).toContain("More")
+  })
+})

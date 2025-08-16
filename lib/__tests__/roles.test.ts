@@ -1,15 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from "vitest"
 
-vi.mock('@clerk/nextjs/server', () => ({
-  auth: async () => ({ sessionClaims: { metadata: { role: 'admin' } } }),
-}));
+vi.mock("@clerk/nextjs/server", () => ({
+  auth: async () => ({ sessionClaims: { metadata: { role: "admin" } } }),
+}))
 
-import { checkRole } from '@/lib/roles';
+import { checkRole } from "@/lib/roles"
 
-describe('roles.checkRole', () => {
-  it('compares role from session claims', async () => {
-    await expect(checkRole('admin' as any)).resolves.toBe(true);
-    await expect(checkRole('member' as any)).resolves.toBe(false);
-  });
-});
-
+describe("roles.checkRole", () => {
+  it("compares role from session claims", async () => {
+    await expect(checkRole("admin" as any)).resolves.toBe(true)
+    await expect(checkRole("member" as any)).resolves.toBe(false)
+  })
+})
