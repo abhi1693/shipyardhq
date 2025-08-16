@@ -8,14 +8,7 @@ vi.mock("next/navigation", () => ({
 
 describe("ProductMediaManager dragover", () => {
   it("handles dragover over the drop zone", () => {
-    render(
-      <ProductMediaManager
-        productId="p1"
-        canEdit
-        max={3}
-        media={[]}
-      />,
-    )
+    render(<ProductMediaManager productId="p1" canEdit max={3} media={[]} />)
     const label = screen.getByText(/Drag & drop images/i).closest("label")!
     // Trigger dragOver; handler calls preventDefault internally. No assertion needed.
     fireEvent.dragOver(label)

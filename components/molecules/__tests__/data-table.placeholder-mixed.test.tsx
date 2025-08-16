@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, vi } from "vitest"
 import React from "react"
 import { render } from "@testing-library/react"
 import DataTable from "@/components/molecules/DataTable"
@@ -18,16 +18,26 @@ const columns: ColumnDef<Row>[] = [
     id: "group",
     header: () => "Group",
     columns: [
-      { accessorKey: "name", header: "Name", cell: (ctx) => ctx.getValue() as string },
-      { accessorKey: "age", header: "Age", cell: (ctx) => String(ctx.getValue() as number) },
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: (ctx) => ctx.getValue() as string,
+      },
+      {
+        accessorKey: "age",
+        header: "Age",
+        cell: (ctx) => String(ctx.getValue() as number),
+      },
     ],
   },
-  { accessorKey: "other", header: "Other", cell: (ctx) => ctx.getValue() as string },
+  {
+    accessorKey: "other",
+    header: "Other",
+    cell: (ctx) => ctx.getValue() as string,
+  },
 ]
 
-const rows: Row[] = [
-  { id: "1", name: "Ada", age: 30, other: "X" },
-]
+const rows: Row[] = [{ id: "1", name: "Ada", age: 30, other: "X" }]
 
 describe("DataTable header placeholder (mixed)", () => {
   it("renders with mixed grouped/ungrouped columns to trigger placeholder headers", () => {
@@ -35,4 +45,3 @@ describe("DataTable header placeholder (mixed)", () => {
     // No strict assertions needed; render should exercise header.isPlaceholder branches
   })
 })
-

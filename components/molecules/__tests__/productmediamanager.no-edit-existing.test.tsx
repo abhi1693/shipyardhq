@@ -22,4 +22,3 @@ describe("ProductMediaManager no-edit existing media", () => {
     expect(screen.queryByRole("button", { name: /Remove image/i })).toBeNull()
   })
 })
-

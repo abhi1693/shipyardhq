@@ -20,15 +20,21 @@ const columns: ColumnDef<Row>[] = [
     id: "group",
     header: () => "Group",
     columns: [
-      { accessorKey: "name", header: "Name", cell: (ctx) => ctx.getValue() as string },
-      { accessorKey: "age", header: "Age", cell: (ctx) => String(ctx.getValue() as number) },
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: (ctx) => ctx.getValue() as string,
+      },
+      {
+        accessorKey: "age",
+        header: "Age",
+        cell: (ctx) => String(ctx.getValue() as number),
+      },
     ],
   },
 ]
 
-const rows: Row[] = [
-  { id: "1", name: "Ada", age: 30 },
-]
+const rows: Row[] = [{ id: "1", name: "Ada", age: 30 }]
 
 describe("DataTable header placeholders", () => {
   it("renders grouped header and evaluates placeholder branch", () => {
@@ -42,4 +48,3 @@ describe("DataTable header placeholders", () => {
     expect(screen.getByText("Ada")).toBeInTheDocument()
   })
 })
-

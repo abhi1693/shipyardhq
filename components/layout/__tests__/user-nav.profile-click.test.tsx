@@ -38,4 +38,3 @@ describe("UserNav profile click", () => {
     expect(push).toHaveBeenCalledWith("/admin/profile")
   })
 })
-

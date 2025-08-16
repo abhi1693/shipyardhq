@@ -15,9 +15,16 @@ vi.mock("next/navigation", () => ({
 
 type Row = { id: string; name: string }
 const columns: ColumnDef<Row>[] = [
-  { accessorKey: "name", header: "Name", cell: (ctx) => ctx.getValue() as string },
+  {
+    accessorKey: "name",
+    header: "Name",
+    cell: (ctx) => ctx.getValue() as string,
+  },
 ]
-const data: Row[] = Array.from({ length: 3 }, (_, i) => ({ id: String(i + 1), name: `R${i+1}` }))
+const data: Row[] = Array.from({ length: 3 }, (_, i) => ({
+  id: String(i + 1),
+  name: `R${i + 1}`,
+}))
 
 beforeEach(() => push.mockReset())
 
@@ -41,4 +48,3 @@ describe("DataTable prev/last clicks", () => {
     expect(u.searchParams.get("page")).toBe("5")
   })
 })
-
