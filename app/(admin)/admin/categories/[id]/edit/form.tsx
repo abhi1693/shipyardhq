@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import { Button } from "@/components/atoms/button"
+import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 import { updateCategoryAction } from "@/actions/admin/categories/actions"
 import {
@@ -143,9 +143,9 @@ export default function EditCategoryForm({
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isPending}>
+              <SaveButton type="submit" disabled={isPending}>
                 Save Changes
-              </Button>
+              </SaveButton>
             </form>
           </Form>
         </CardContent>

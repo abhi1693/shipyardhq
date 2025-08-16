@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import { Button } from "@/components/atoms/button"
+import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 import {
   Select,
@@ -144,9 +144,9 @@ export default function EditUserForm({ user }: { user: User }) {
                 )}
               />
 
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <SaveButton type="submit" disabled={form.formState.isSubmitting}>
                 Save Changes
-              </Button>
+              </SaveButton>
             </form>
           </Form>
         </CardContent>

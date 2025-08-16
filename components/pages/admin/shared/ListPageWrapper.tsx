@@ -1,9 +1,7 @@
-import { buttonVariants } from "@/components/atoms/button"
 import { Heading } from "@/components/atoms/heading"
 import { Separator } from "@/components/atoms/separator"
 import PageContainer from "@/components/layout/page-container"
-import { cn } from "@/lib/utils"
-import { IconPlus } from "@tabler/icons-react"
+import AddButton from "@/components/molecules/AddButton"
 import Link from "next/link"
 import { Suspense, ReactNode } from "react"
 import { DataTableSkeleton } from "@/components/atoms/table/data-table-skeleton"
@@ -29,12 +27,8 @@ export default function ListPageWrapper({
       <div className="flex items-start justify-between">
         <Heading title={title} description={description} />
         {addLink && (
-          <Link
-            href={addLink}
-            className={cn(buttonVariants(), "text-xs md:text-sm")}
-          >
-            <IconPlus className="mr-2 h-4 w-4" />
-            Add New
+          <Link href={addLink}>
+            <AddButton className="text-xs md:text-sm" label="Add New" />
           </Link>
         )}
       </div>

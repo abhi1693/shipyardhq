@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
-import { Button } from "@/components/atoms/button"
+import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 import { Separator } from "@/components/atoms/separator"
 import { Textarea } from "@/components/atoms/textarea"
@@ -668,9 +668,9 @@ export default function EditProductForm({
               />
 
               <div className="pt-2">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  Save Changes
-                </Button>
+              <SaveButton type="submit" disabled={form.formState.isSubmitting}>
+                Save Changes
+              </SaveButton>
               </div>
             </form>
           </Form>

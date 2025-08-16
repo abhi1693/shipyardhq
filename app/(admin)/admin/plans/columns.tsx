@@ -9,6 +9,9 @@ import {
   formatCurrency,
   placeholder,
 } from "@/lib/ui/formatters"
+import Link from "next/link"
+import { Button } from "@/components/atoms/button"
+import { Eye, Pencil } from "lucide-react"
 
 export const columns: ColumnDef<Plan>[] = [
   {
@@ -59,5 +62,23 @@ export const columns: ColumnDef<Plan>[] = [
             isExternal: true,
           })
         : placeholder(),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <Link href={`/admin/plans/${row.original.id}`}>
+          <Button size="sm" variant="outline">
+            <Eye className="h-4 w-4" /> View
+          </Button>
+        </Link>
+        <Link href={`/admin/plans/${row.original.id}/edit`}>
+          <Button size="sm" variant="outline">
+            <Pencil className="h-4 w-4" /> Edit
+          </Button>
+        </Link>
+      </div>
+    ),
   },
 ]

@@ -22,7 +22,7 @@ import {
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
 import { Checkbox } from "@/components/atoms/checkbox"
-import { Button } from "@/components/atoms/button"
+import SaveButton from "@/components/molecules/SaveButton"
 import { Separator } from "@/components/atoms/separator"
 
 import PageContainer from "@/components/layout/page-container"
@@ -203,9 +203,9 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
               />
 
               <div className="pt-2">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  Save Changes
-                </Button>
+              <SaveButton type="submit" disabled={form.formState.isSubmitting}>
+                Save Changes
+              </SaveButton>
               </div>
             </form>
           </Form>

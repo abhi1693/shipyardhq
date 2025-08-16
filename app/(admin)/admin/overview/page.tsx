@@ -17,6 +17,7 @@ import {
 import { Badge } from "@/components/atoms/badge"
 import { formatDistanceToNow } from "date-fns"
 import { Button } from "@/components/atoms/button"
+import CreateButton from "@/components/molecules/CreateButton"
 import RangeSelector from "@/components/molecules/RangeSelector"
 
 export const revalidate = 60
@@ -69,17 +70,13 @@ export default async function OverviewPage({
           <RangeSelector />
           <div className="hidden sm:flex items-center gap-2">
             <Link href="/admin/products/new">
-              <Button size="sm">Create Product</Button>
+              <CreateButton size="sm" label="Create Product" />
             </Link>
             <Link href="/admin/categories/new">
-              <Button variant="outline" size="sm">
-                Create Category
-              </Button>
+              <CreateButton variant="outline" size="sm" label="Create Category" />
             </Link>
             <Link href="/admin/plans/new">
-              <Button variant="outline" size="sm">
-                Create Plan
-              </Button>
+              <CreateButton variant="outline" size="sm" label="Create Plan" />
             </Link>
           </div>
         </div>
@@ -217,7 +214,7 @@ export default async function OverviewPage({
               href="/admin/products"
               className="text-sm text-primary hover:underline"
             >
-              View all products →
+              ↗ View all products
             </Link>
           </CardFooter>
         </Card>
@@ -257,7 +254,7 @@ export default async function OverviewPage({
               href="/admin/users"
               className="text-sm text-primary hover:underline"
             >
-              View all users →
+              ↗ View all users
             </Link>
           </CardFooter>
         </Card>

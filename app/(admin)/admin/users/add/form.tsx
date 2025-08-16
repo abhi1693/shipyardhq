@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import { Button } from "@/components/atoms/button"
+import CreateButton from "@/components/molecules/CreateButton"
 import PageContainer from "@/components/layout/page-container"
 import {
   Select,
@@ -165,9 +165,7 @@ export default function AddUserForm() {
                 )}
               />
 
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                Create User
-              </Button>
+              <CreateButton type="submit" disabled={form.formState.isSubmitting} label="Create User" />
             </form>
           </Form>
         </CardContent>

@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import { Button } from "@/components/atoms/button"
+import CreateButton from "@/components/molecules/CreateButton"
 import PageContainer from "@/components/layout/page-container"
 
 const orgSchema = z.object({
@@ -89,9 +89,7 @@ export default function AddOrganizationForm() {
                 )}
               />
               <div className="pt-2">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  Create Organization
-                </Button>
+                <CreateButton type="submit" disabled={form.formState.isSubmitting} label="Create Organization" />
               </div>
             </form>
           </Form>

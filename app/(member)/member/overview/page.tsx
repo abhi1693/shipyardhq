@@ -23,18 +23,18 @@ import {
 import { EmptyState } from "@/components/molecules/empty-state"
 import { formatBoolean, linkify, placeholder } from "@/lib/ui/formatters"
 import { Button } from "@/components/atoms/button"
+import AddButton from "@/components/molecules/AddButton"
 import RangeSelector from "@/components/molecules/RangeSelector"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
 import { Badge } from "@/components/atoms/badge"
 import {
-  IconBolt,
-  IconShieldCheck,
-  IconPencil,
-  IconPhoto,
   IconTrendingUp,
   IconThumbUp,
   IconRocket,
   IconBadge,
+  IconPlus,
+  IconPencil,
+  IconShieldCheck,
 } from "@tabler/icons-react"
 
 export const revalidate = 60
@@ -92,24 +92,19 @@ export default async function OverviewPage({
           <RangeSelector />
           <div className="hidden sm:flex items-center gap-2">
             <Link href="/member/products/add">
-              <Button
-                size="sm"
-                className="text-white shadow-sm bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] hover:opacity-90"
-              >
-                Add Product
-              </Button>
+              <AddButton size="sm" label="Add Product" />
             </Link>
             {stats.draftsCount > 0 && (
               <Link href="/member/products?status=draft">
                 <Button variant="outline" size="sm">
-                  Finish Drafts ({stats.draftsCount})
+                  <IconPencil className="h-4 w-4" /> Finish Drafts ({stats.draftsCount})
                 </Button>
               </Link>
             )}
             {stats.unverifiedCount > 0 && (
               <Link href="/member/products?verification=unverified">
                 <Button variant="outline" size="sm">
-                  Verify Domain ({stats.unverifiedCount})
+                  <IconShieldCheck className="h-4 w-4" /> Verify Domain ({stats.unverifiedCount})
                 </Button>
               </Link>
             )}
@@ -368,7 +363,8 @@ export default async function OverviewPage({
                     href={`/member/products/${p.slug}`}
                     className="text-primary hover:underline text-xs"
                   >
-                    Open
+                    {/* simple arrow icon for clarity */}
+                    ↗ Open
                   </Link>
                 </div>
               ))
@@ -462,7 +458,7 @@ export default async function OverviewPage({
                       href={`/member/products/${p.slug}/edit`}
                       className="text-primary hover:underline"
                     >
-                      Edit
+                      <IconPencil className="inline h-3.5 w-3.5" /> Edit
                     </Link>
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/atoms/button"
+import SaveButton from "@/components/molecules/SaveButton"
 
 export default function WizardFooter({
   isReview,
@@ -31,14 +32,9 @@ export default function WizardFooter({
       </Button>
       {isReview ? (
         <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={!!isSubmitting}
-            onClick={onSaveDraft}
-          >
+          <SaveButton type="button" disabled={!!isSubmitting} onClick={onSaveDraft}>
             Save as Draft
-          </Button>
+          </SaveButton>
           <Button type="button" disabled={!!isSubmitting} onClick={onPublish}>
             Publish
           </Button>

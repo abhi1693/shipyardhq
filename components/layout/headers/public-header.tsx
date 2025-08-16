@@ -7,8 +7,11 @@ import Image from "next/image"
 import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
 import { Menu } from "lucide-react"
+import SignOutCtaButton from "@/components/molecules/SignOutCtaButton"
+import MemberAreaButton from "@/components/molecules/MemberAreaButton"
+import SignInCtaButton from "@/components/molecules/SignInCtaButton"
 import clsx from "clsx"
-import { SignInButton, SignOutButton, SignedIn, SignedOut } from "@clerk/nextjs"
+import { SignOutButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs"
 
 const navLinks = [
   { label: "Browse", href: "/browse" },
@@ -63,33 +66,21 @@ export default function PublicHeader() {
 
         {/* Right: CTAs (desktop) */}
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/member/products/add">
-            <Button
-              size="sm"
-              className="text-white shadow-sm bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] hover:opacity-90"
-            >
-              Submit Product
-            </Button>
-          </Link>
-
           <SignedOut>
             <SignInButton
               mode="modal"
               forceRedirectUrl="/member"
               signUpForceRedirectUrl="/member"
             >
-              <Button size="sm">Sign In</Button>
+              <SignInCtaButton size="sm" />
             </SignInButton>
           </SignedOut>
-
           <SignedIn>
             <Link href="/member">
-              <Button variant="outline" size="sm">
-                Member Area
-              </Button>
+              <MemberAreaButton variant="outline" size="sm" />
             </Link>
             <SignOutButton>
-              <Button size="sm">Sign Out</Button>
+              <SignOutCtaButton size="sm" />
             </SignOutButton>
           </SignedIn>
         </div>
@@ -144,29 +135,17 @@ export default function PublicHeader() {
                 </div>
 
                 <div className="pt-6 border-t mt-4 space-y-3">
-                  <Link
-                    href="/member/products/add"
-                    onClick={() => setOpen(false)}
-                  >
-                    <Button className="w-full text-white bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] hover:opacity-90">
-                      Submit Product
-                    </Button>
-                  </Link>
-
                   <SignedOut>
                     <SignInButton mode="modal">
-                      <Button className="w-full">Sign In</Button>
+                      <SignInCtaButton className="w-full" />
                     </SignInButton>
                   </SignedOut>
-
                   <SignedIn>
                     <Link href="/member" onClick={() => setOpen(false)}>
-                      <Button variant="outline" className="w-full">
-                        Member Area
-                      </Button>
+                      <MemberAreaButton variant="outline" className="w-full" />
                     </Link>
                     <SignOutButton>
-                      <Button className="w-full">Sign Out</Button>
+                      <SignOutCtaButton className="w-full" />
                     </SignOutButton>
                   </SignedIn>
                 </div>

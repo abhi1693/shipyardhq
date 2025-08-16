@@ -3,6 +3,9 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { UseCaseCategory } from "@prisma/client"
 import { linkify } from "@/lib/ui/formatters"
+import Link from "next/link"
+import { Button } from "@/components/atoms/button"
+import { Eye, Pencil } from "lucide-react"
 
 type AssignmentWithRelations = UseCaseCategory & {
   useCase: { id: string; label: string; slug: string }
@@ -39,5 +42,27 @@ export const columns: ColumnDef<AssignmentWithRelations>[] = [
         href: `/admin/categories/${row.original.category.id}`,
         subtext: row.original.category.slug,
       }),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <Link
+          href={`/admin/categories/use-cases/assignments/${row.original.useCaseId}/${row.original.categoryId}`}
+        >
+          <Button size="sm" variant="outline">
+            <Eye className="h-4 w-4" /> View
+          </Button>
+        </Link>
+        <Link
+          href={`/admin/categories/use-cases/assignments/${row.original.useCaseId}/${row.original.categoryId}/edit`}
+        >
+          <Button size="sm" variant="outline">
+            <Pencil className="h-4 w-4" /> Edit
+          </Button>
+        </Link>
+      </div>
+    ),
   },
 ]

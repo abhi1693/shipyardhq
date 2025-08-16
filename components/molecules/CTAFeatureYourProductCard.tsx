@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
-import { Button } from "@/components/atoms/button"
+import SubmitProductButton from "@/components/molecules/SubmitProductButton"
 
 export default function CTAFeatureYourProductCard() {
   return (
@@ -20,9 +20,7 @@ export default function CTAFeatureYourProductCard() {
           Boost visibility by getting featured on our homepage.
         </p>
         <Link href="/member/products/add">
-          <Button size="sm" variant="outline">
-            Submit Your Product
-          </Button>
+          <SubmitProductButton size="sm" variant="outline" label="Submit Your Product" />
         </Link>
       </CardContent>
     </Card>

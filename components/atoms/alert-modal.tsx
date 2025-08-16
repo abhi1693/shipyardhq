@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/atoms/dialog"
 import { Button } from "@/components/atoms/button"
+import { Trash2 } from "lucide-react"
 import { useState } from "react"
 
 interface AlertModalProps {
@@ -55,7 +56,7 @@ export function AlertModal({
             onClick={handleConfirm}
             disabled={loading}
           >
-            {confirmText}
+            <Trash2 className="h-4 w-4" /> {confirmText}
           </Button>
         </DialogFooter>
       </DialogContent>

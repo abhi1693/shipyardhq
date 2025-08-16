@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { Checkbox } from "@/components/atoms/checkbox"
-import { Button } from "@/components/atoms/button"
+import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 import { updatePlanFeatureAssignmentAction } from "@/actions/admin/plans/assignments/actions"
 import { PlanFeatureAssignment, Plan, PlanFeature } from "@prisma/client"
@@ -177,9 +177,9 @@ export default function EditAssignmentForm({
                 )}
               />
 
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <SaveButton type="submit" disabled={form.formState.isSubmitting}>
                 Save Changes
-              </Button>
+              </SaveButton>
             </form>
           </Form>
         </CardContent>

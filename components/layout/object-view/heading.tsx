@@ -1,6 +1,7 @@
 import { format } from "date-fns"
 import { Button } from "@/components/atoms/button"
-import { Trash2, Pencil } from "lucide-react"
+import DeleteButton from "@/components/molecules/DeleteButton"
+import { Pencil } from "lucide-react"
 import { AlertModal } from "@/components/atoms/alert-modal"
 
 interface ObjectHeadingProps {
@@ -61,10 +62,7 @@ export function ObjectHeading({
               <AlertModal
                 onConfirm={onDelete}
                 trigger={(open) => (
-                  <Button variant="destructive" size="sm" onClick={open}>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </Button>
+                  <DeleteButton size="sm" onClick={open} />
                 )}
               />
             )}

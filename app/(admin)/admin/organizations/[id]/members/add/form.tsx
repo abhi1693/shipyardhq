@@ -22,6 +22,7 @@ import {
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
+import AddButton from "@/components/molecules/AddButton"
 import PageContainer from "@/components/layout/page-container"
 import {
   Select,
@@ -125,9 +126,7 @@ export default function AddOrgMemberForm({
               />
 
               <div className="pt-2">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  Add Member
-                </Button>
+                <AddButton type="submit" disabled={form.formState.isSubmitting} label="Add Member" />
               </div>
             </form>
           </Form>

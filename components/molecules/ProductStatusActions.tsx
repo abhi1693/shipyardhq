@@ -6,6 +6,10 @@ import { Badge } from "@/components/atoms/badge"
 import { setProductStatusAction } from "@/actions/admin/products/actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import PublishButton from "@/components/molecules/PublishButton"
+import UnpublishButton from "@/components/molecules/UnpublishButton"
+import UnarchiveButton from "@/components/molecules/UnarchiveButton"
+import ArchiveButton from "@/components/molecules/ArchiveButton"
 
 export default function ProductStatusActions({
   productId,
@@ -39,43 +43,16 @@ export default function ProductStatusActions({
     <div className="flex flex-wrap items-center gap-2">
       <Badge variant={badgeVariant as any}>{status}</Badge>
       {status !== "published" && (
-        <Button
-          size="sm"
-          onClick={() => updateStatus("published")}
-          disabled={isPending}
-        >
-          Publish
-        </Button>
+        <PublishButton size="sm" onClick={() => updateStatus("published")} disabled={isPending} />
       )}
       {status === "published" && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => updateStatus("draft")}
-          disabled={isPending}
-        >
-          Unpublish
-        </Button>
+        <UnpublishButton size="sm" onClick={() => updateStatus("draft")} disabled={isPending} />
       )}
       {status === "archived" && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => updateStatus("draft")}
-          disabled={isPending}
-        >
-          Unarchive
-        </Button>
+        <UnarchiveButton size="sm" onClick={() => updateStatus("draft")} disabled={isPending} />
       )}
       {status !== "archived" && (
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => updateStatus("archived")}
-          disabled={isPending}
-        >
-          Archive
-        </Button>
+        <ArchiveButton size="sm" onClick={() => updateStatus("archived")} disabled={isPending} />
       )}
     </div>
   )

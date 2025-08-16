@@ -4,8 +4,15 @@ import { useTransition } from "react"
 import { verifyProductDomainAction } from "@/actions/admin/products/actions"
 import { Button } from "@/components/atoms/button"
 import { toast } from "sonner"
+import { CheckCircle2 } from "lucide-react"
 
-export function VerifyDomainButton({ productId }: { productId: string }) {
+export function VerifyDomainButton({
+  productId,
+  label = "Verify Domain",
+}: {
+  productId: string
+  label?: string
+}) {
   const [isPending, startTransition] = useTransition()
 
   return (
@@ -25,7 +32,7 @@ export function VerifyDomainButton({ productId }: { productId: string }) {
         })
       }}
     >
-      Verify Domain
+      <CheckCircle2 className="h-4 w-4" /> {label}
     </Button>
   )
 }

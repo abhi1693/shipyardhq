@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import DeleteButton from "@/components/molecules/DeleteButton"
+import { ExternalLink } from "lucide-react"
 // Server-side uses Sharp to convert/compress; client pre-processing disabled.
 import { useFormContext } from "react-hook-form"
 
@@ -73,18 +75,16 @@ export default function ImageUploadField({
               rel="noopener noreferrer"
               className="inline-flex items-center rounded bg-secondary px-2 py-1 text-xs"
             >
-              Open
+              <ExternalLink className="h-3.5 w-3.5" /> Open
             </a>
-            <button
-              type="button"
-              className="inline-flex items-center rounded bg-destructive text-destructive-foreground px-2 py-1 text-xs"
+            <DeleteButton
+              label="Remove"
+              size="sm"
               onClick={() =>
                 setValue(name, "", { shouldDirty: true, shouldValidate: true })
               }
               disabled={uploading}
-            >
-              Remove
-            </button>
+            />
           </div>
         </div>
       ) : (

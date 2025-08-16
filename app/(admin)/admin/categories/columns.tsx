@@ -3,6 +3,9 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Category } from "@prisma/client"
 import { formatDate, slug, linkify } from "@/lib/ui/formatters"
+import Link from "next/link"
+import { Button } from "@/components/atoms/button"
+import { Eye, Pencil } from "lucide-react"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 
 export const columns: ColumnDef<Category>[] = [
@@ -46,5 +49,23 @@ export const columns: ColumnDef<Category>[] = [
     accessorKey: "updatedAt",
     header: "Updated At",
     cell: ({ row }) => formatDate(row.original.updatedAt),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <Link href={`/admin/categories/${row.original.id}`}>
+          <Button size="sm" variant="outline">
+            <Eye className="h-4 w-4" /> View
+          </Button>
+        </Link>
+        <Link href={`/admin/categories/${row.original.id}/edit`}>
+          <Button size="sm" variant="outline">
+            <Pencil className="h-4 w-4" /> Edit
+          </Button>
+        </Link>
+      </div>
+    ),
   },
 ]

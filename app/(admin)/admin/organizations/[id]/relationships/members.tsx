@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import type { OrganizationMembership, User } from "@prisma/client"
 import { linkify, formatDate } from "@/lib/ui/formatters"
 import Link from "next/link"
+import AddButton from "@/components/molecules/AddButton"
 
 type MembershipWithUser = OrganizationMembership & {
   user: User
@@ -59,11 +60,8 @@ export function OrganizationMembersRelationship({
       rows={rows}
       columns={columns}
       action={
-        <Link
-          href={`/admin/organizations/${organizationId}/members/add`}
-          className="inline-flex items-center rounded-md border px-2 py-1 text-xs hover:bg-accent"
-        >
-          Add Member
+        <Link href={`/admin/organizations/${organizationId}/members/add`}>
+          <AddButton size="sm" label="Add Member" />
         </Link>
       }
     />

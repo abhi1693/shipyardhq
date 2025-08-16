@@ -27,7 +27,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/atoms/select"
-import { Button } from "@/components/atoms/button"
+import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 
 const schema = z.object({
@@ -131,9 +131,9 @@ export default function EditAssignmentForm({
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <SaveButton type="submit" disabled={form.formState.isSubmitting}>
                 Save Changes
-              </Button>
+              </SaveButton>
             </form>
           </Form>
         </CardContent>

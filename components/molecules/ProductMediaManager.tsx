@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import DeleteButton from "@/components/molecules/DeleteButton"
 import { useRouter } from "next/navigation"
 // Server-side uses Sharp to convert/compress; client pre-processing disabled.
 
@@ -147,15 +148,16 @@ export default function ProductMediaManager({
                 </div>
               ) : null}
               {canEdit ? (
-                <button
-                  onClick={() => onRemove(m.id)}
-                  disabled={deletingId === m.id || isUploading}
-                  className="absolute top-2 right-2 inline-flex items-center rounded bg-destructive/90 text-destructive-foreground px-2 py-1 text-xs hover:bg-destructive"
-                  aria-label="Remove image"
-                  title="Remove image"
-                >
-                  Remove
-                </button>
+                <div className="absolute top-2 right-2">
+                  <DeleteButton
+                    label="Remove"
+                    size="sm"
+                    onClick={() => onRemove(m.id)}
+                    disabled={deletingId === m.id || isUploading}
+                    aria-label="Remove image"
+                    title="Remove image"
+                  />
+                </div>
               ) : null}
             </div>
           ))}

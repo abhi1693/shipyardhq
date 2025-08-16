@@ -39,12 +39,7 @@ export default function PublicFooter() {
           </p>
           <div className="pt-3">
             <Link href="/browse">
-              <Button
-                size="sm"
-                className="text-white shadow-sm bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] hover:opacity-90"
-              >
-                Explore Products
-              </Button>
+              <Button size="sm">Explore Products</Button>
             </Link>
           </div>
           <div className="flex gap-3 pt-3 text-muted-foreground">

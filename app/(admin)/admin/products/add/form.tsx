@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
-import { Button } from "@/components/atoms/button"
+import CreateButton from "@/components/molecules/CreateButton"
 import PageContainer from "@/components/layout/page-container"
 import { createProductAction } from "@/actions/admin/products/actions"
 import { Separator } from "@/components/atoms/separator"
@@ -672,9 +672,7 @@ export default function AddProductForm({
               />
 
               <div className="pt-2">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  Create Product
-                </Button>
+                <CreateButton type="submit" disabled={form.formState.isSubmitting} label="Create Product" />
               </div>
             </form>
           </Form>

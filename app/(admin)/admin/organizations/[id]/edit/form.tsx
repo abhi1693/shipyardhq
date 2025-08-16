@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import { Button } from "@/components/atoms/button"
+import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 import type { Organization } from "@prisma/client"
 
@@ -91,9 +91,9 @@ export default function EditOrganizationForm({
                 )}
               />
               <div className="pt-2">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  Save Changes
-                </Button>
+              <SaveButton type="submit" disabled={form.formState.isSubmitting}>
+                Save Changes
+              </SaveButton>
               </div>
             </form>
           </Form>

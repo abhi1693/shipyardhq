@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"
-import { Rocket, Sparkles, Users } from "lucide-react"
+import { Sparkles, Users, Rocket } from "lucide-react"
+import SubmitProductButton from "@/components/molecules/SubmitProductButton"
 
 export default function Hero() {
   return (
@@ -27,9 +28,7 @@ export default function Hero() {
 
         <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
           <Link href="/member/products/add">
-            <Button size="lg" className="shadow-sm">
-              <Rocket className="mr-2 h-4 w-4" /> Submit Your Product
-            </Button>
+            <SubmitProductButton size="lg" className="shadow-sm" label="Submit Your Product" />
           </Link>
           <Link href="/browse">
             <Button size="lg" variant="outline" className="">

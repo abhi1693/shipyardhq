@@ -22,7 +22,7 @@ import {
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
 import { Checkbox } from "@/components/atoms/checkbox"
-import { Button } from "@/components/atoms/button"
+import CreateButton from "@/components/molecules/CreateButton"
 import { Separator } from "@/components/atoms/separator"
 
 import PageContainer from "@/components/layout/page-container"
@@ -210,9 +210,7 @@ export default function AddPlanForm() {
               />
 
               <div className="pt-2">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  Create Plan
-                </Button>
+                <CreateButton type="submit" disabled={form.formState.isSubmitting} label="Create Plan" />
               </div>
             </form>
           </Form>
