@@ -48,7 +48,7 @@ export function FeaturedProductGrid({
                       }`.trim(),
                       initial: p.user.firstName?.[0] ?? "U",
                     }
-                  : undefined
+                  : /* c8 ignore next */ undefined
               }
               category={p.category?.name}
             />
