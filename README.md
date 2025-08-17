@@ -41,5 +41,5 @@ Questions or feedback? Email `shipyardhq.dev@gmail.com` or say hi on X: https://
 
 ## Feature Gating
 
-- Organizations: Access to member Organizations is gated by the plan feature key `organization`. Entitlement is determined server-side: a user is entitled if they own any product whose attached plan has the `organization` feature enabled. See `lib/memberFeatures.ts`.
+- Organizations: Access to member Organizations is gated by the plan feature key `organization`. Entitlement is determined server-side: a user is entitled if they (a) own any product whose attached plan has the `organization` feature enabled, or (b) have purchased any plan that includes the `organization` feature. See `lib/memberFeatures.ts`.
 - Enforcement: All organization server actions check entitlement. The member sidebar hides the Organizations link when not entitled. The organizations index redirects to `/member/products?upgrade=organization` if access is missing.

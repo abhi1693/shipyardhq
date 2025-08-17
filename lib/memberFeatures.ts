@@ -29,10 +29,10 @@ export async function memberHasFeature(key: PlanFeatureKey): Promise<boolean> {
 
     if (ownedProductWithFeature) return true
 
-    // 2) Any organization the user belongs to whose org-level plan grants this feature
-    const orgWithFeature = await prisma.organization.findFirst({
+    // 2) Any plan the user has purchased that grants this feature
+    const userPurchaseWithFeature = await prisma.userPlanPurchase.findFirst({
       where: {
-        memberships: { some: { userId: user.id } },
+        userId: user.id,
         plan: {
           assignments: {
             some: { enabled: true, feature: { key } },
@@ -42,7 +42,7 @@ export async function memberHasFeature(key: PlanFeatureKey): Promise<boolean> {
       select: { id: true },
     })
 
-    return !!orgWithFeature
+    return !!userPurchaseWithFeature
   } catch {
     return false
   }

@@ -26,24 +26,14 @@ export async function startOrgCheckoutAction(formData: FormData) {
   })
   if (!plan) return
 
-  // If plan is free or missing externalId, just grant access by creating org with plan
+  // If plan is free or missing externalId, just grant access by creating a purchase record
   if (!plan.externalId || (plan.price || 0) === 0) {
-    // Create a starter org if none exists
-    const existing = await prisma.organization.findFirst({
-      where: { ownerUserId: user.id },
-      select: { id: true },
+    // Upsert a free purchase record so entitlement is granted
+    await prisma.userPlanPurchase.upsert({
+      where: { userId_planId: { userId: user.id, planId: plan.id } },
+      update: {},
+      create: { userId: user.id, planId: plan.id },
     })
-    if (!existing) {
-      await prisma.organization.create({
-        data: {
-          name: `${user.firstName || "My"} Organization`.trim(),
-          url: `${(user.firstName || "my").toLowerCase()}-${user.id.slice(0, 6)}`,
-          ownerUserId: user.id,
-          memberships: { create: { userId: user.id } },
-          planId: plan.id,
-        },
-      })
-    }
     redirect("/member/organizations?upgraded=1")
   }
 
@@ -121,32 +111,12 @@ export async function validateOrgPaymentAction(paymentId: string) {
     const u = await prisma.user.findUnique({ where: { clerkId: userId }, select: { id: true, firstName: true } })
     if (!u) return { error: "User not found" }
 
-    // Ensure the user has an organization with this plan; create a starter org if none
-    const hasOrgWithPlan = await prisma.organization.findFirst({
-      where: { ownerUserId: u.id, planId },
-      select: { id: true },
+    // Record the successful purchase for entitlement
+    await prisma.userPlanPurchase.upsert({
+      where: { userId_planId: { userId: u.id, planId } },
+      update: { externalId: paymentId },
+      create: { userId: u.id, planId, externalId: paymentId },
     })
-    if (!hasOrgWithPlan) {
-      // If user has any org, attach plan to the first; otherwise create a new one
-      const existingOrg = await prisma.organization.findFirst({
-        where: { ownerUserId: u.id },
-        select: { id: true, url: true },
-        orderBy: { createdAt: "asc" },
-      })
-      if (existingOrg) {
-        await prisma.organization.update({ where: { id: existingOrg.id }, data: { planId } })
-      } else {
-        await prisma.organization.create({
-          data: {
-            name: `${u.firstName || "My"} Organization`.trim(),
-            url: `org-${u.id.slice(0, 8)}`,
-            ownerUserId: u.id,
-            memberships: { create: { userId: u.id } },
-            planId,
-          },
-        })
-      }
-    }
     return { success: true }
   } catch (e) {
     console.error("validateOrgPaymentAction failed", e)
@@ -189,32 +159,12 @@ export async function validateOrgSubscriptionAction(
     })
     if (!u) return { error: "User not found" }
 
-    // Attach the plan to an existing org owned by the user, or create a starter org.
-    const existingOrg = await prisma.organization.findFirst({
-      where: { ownerUserId: u.id },
-      select: { id: true },
-      orderBy: { createdAt: "asc" },
+    // Record the active subscription as a purchase for entitlement
+    await prisma.userPlanPurchase.upsert({
+      where: { userId_planId: { userId: u.id, planId: plan.id } },
+      update: { externalId: subscriptionId },
+      create: { userId: u.id, planId: plan.id, externalId: subscriptionId },
     })
-
-    if (existingOrg) {
-      await prisma.organization.update({
-        where: { id: existingOrg.id },
-        data: { planId: plan.id },
-      })
-    } else {
-      await prisma.organization.create({
-        data: {
-          name: `${u.firstName || "My"} Organization`.trim(),
-          url: `org-${u.id.slice(0, 8)}`,
-          ownerUserId: u.id,
-          memberships: { create: { userId: u.id } },
-          planId: plan.id,
-        },
-      })
-    }
-
-    // Note: We currently do not persist external subscription identifiers.
-    // If needed later, add a field on Organization or a new Subscription model.
     return { success: true }
   } catch (e) {
     console.error("validateOrgSubscriptionAction failed", e)

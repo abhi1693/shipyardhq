@@ -161,10 +161,6 @@ model Organization {
   createdAt   DateTime                 @default(now())
   updatedAt   DateTime                 @updatedAt
   memberships OrganizationMembership[]
-  planId      String?
-
-  // Organization-level subscription plan (optional)
-  plan Plan? @relation(fields: [planId], references: [id], onDelete: SetNull)
 
   Product Product[]
 
@@ -204,6 +200,7 @@ model User {
   memberships   OrganizationMembership[]
   ProductUpvote ProductUpvote[]
   Organization  Organization[]
+  purchases     UserPlanPurchase[]
 }
 
 model Category {
@@ -238,9 +235,9 @@ model Plan {
   createdAt                  DateTime      @default(now())
   updatedAt                  DateTime      @updatedAt
 
-  products     Product[]
-  assignments  PlanFeatureAssignment[]
-  Organization Organization[]
+  products    Product[]
+  assignments PlanFeatureAssignment[]
+  purchases   UserPlanPurchase[]
 }
 
 model PlanFeature {
@@ -280,6 +277,21 @@ enum TimeInterval {
   week
   month
   year
+}
+
+model UserPlanPurchase {
+  id         String   @id @default(cuid())
+  userId     String
+  planId     String
+  // External transaction/subscription identifier from the payment provider
+  externalId String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, planId])
 }
 
 model ProductBadge {
