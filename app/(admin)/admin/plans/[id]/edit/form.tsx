@@ -22,6 +22,13 @@ import {
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
 import { Checkbox } from "@/components/atoms/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/atoms/select"
 import SaveButton from "@/components/molecules/SaveButton"
 import { Separator } from "@/components/atoms/separator"
 
@@ -29,15 +36,55 @@ import PageContainer from "@/components/layout/page-container"
 import { updatePlanAction } from "@/actions/admin/plans/actions"
 import { Plan } from "@/lib/vendor/prisma/client"
 
-const planFormSchema = z.object({
-  name: z.string().min(1),
-  slug: z.string().min(1),
-  description: z.string().optional(),
-  price: z.coerce.number().nonnegative(),
-  discount: z.coerce.number().min(0).max(100).optional(),
-  boostForDays: z.coerce.number().min(1).max(30),
-  isDefault: z.boolean().optional(),
-})
+const planFormSchema = z
+  .object({
+    name: z.string().min(1),
+    slug: z.string().min(1),
+    description: z.string().optional(),
+    type: z
+      .enum(["one_time_price", "recurring_price"]) 
+      .default("one_time_price"),
+    price: z.coerce.number().nonnegative(),
+    discount: z.coerce.number().min(0).max(100).optional(),
+    boostForDays: z.coerce.number().min(1).max(30),
+    isDefault: z.boolean().optional(),
+    paymentFrequencyCount: z.coerce
+      .number()
+      .int()
+      .positive()
+      .optional(),
+    paymentFrequencyInterval: z
+      .enum(["day", "week", "month", "year"]) as unknown as z.ZodType<
+      "day" | "week" | "month" | "year" | undefined
+    >,
+    subscriptionPeriodCount: z.coerce
+      .number()
+      .int()
+      .positive()
+      .optional(),
+    subscriptionPeriodInterval: z
+      .enum(["day", "week", "month", "year"]) as unknown as z.ZodType<
+      "day" | "week" | "month" | "year" | undefined
+    >,
+  })
+  .superRefine((val, ctx) => {
+    if (val.type === "recurring_price") {
+      if (val.paymentFrequencyCount == null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Payment frequency count is required for recurring plans",
+          path: ["paymentFrequencyCount"],
+        })
+      }
+      if (val.subscriptionPeriodCount == null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Subscription period count is required for recurring plans",
+          path: ["subscriptionPeriodCount"],
+        })
+      }
+    }
+  })
 
 type PlanFormInput = z.infer<typeof planFormSchema>
 
@@ -52,15 +99,20 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
       name: plan.name,
       slug: plan.slug,
       description: plan.description ?? "",
+      type: plan.type as any,
       price: plan.price,
       discount: plan.discount ?? undefined,
       boostForDays: (plan as any).boostForDays ?? 1,
       isDefault: plan.isDefault ?? false,
+      paymentFrequencyCount: (plan as any).paymentFrequencyCount ?? undefined,
+      paymentFrequencyInterval: (plan as any).paymentFrequencyInterval ?? undefined,
+      subscriptionPeriodCount: (plan as any).subscriptionPeriodCount ?? undefined,
+      subscriptionPeriodInterval: (plan as any).subscriptionPeriodInterval ?? undefined,
     },
   })
 
   async function onSubmit(values: PlanFormInput) {
-    const result = await updatePlanAction(plan.id, values)
+    const result = await updatePlanAction(plan.id, values as any)
 
     if (result?.error) {
       form.setError("name", {
@@ -135,6 +187,28 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FormField
+                  name="type"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) => field.onChange(v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="one_time_price">One-time</SelectItem>
+                          <SelectItem value="recurring_price">Recurring</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
                   name="price"
                   control={form.control}
                   render={({ field }) => (
@@ -148,6 +222,85 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
                   )}
                 />
               </div>
+
+              {form.watch("type") === "recurring_price" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    name="paymentFrequencyCount"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Payment Frequency Count</FormLabel>
+                        <FormControl>
+                          <Input type="number" min={1} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    name="paymentFrequencyInterval"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Payment Frequency Interval</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={(v) => field.onChange(v)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select interval" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="day">Day</SelectItem>
+                            <SelectItem value="week">Week</SelectItem>
+                            <SelectItem value="month">Month</SelectItem>
+                            <SelectItem value="year">Year</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    name="subscriptionPeriodCount"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subscription Period Count</FormLabel>
+                        <FormControl>
+                          <Input type="number" min={1} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    name="subscriptionPeriodInterval"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subscription Period Interval</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={(v) => field.onChange(v)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select interval" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="day">Day</SelectItem>
+                            <SelectItem value="week">Week</SelectItem>
+                            <SelectItem value="month">Month</SelectItem>
+                            <SelectItem value="year">Year</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
 
               <Separator />
 

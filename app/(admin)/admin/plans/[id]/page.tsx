@@ -54,24 +54,70 @@ export default async function ViewPlanPage({
         createdAt: plan.createdAt,
         updatedAt: plan.updatedAt,
       }}
-      overview={[
-        { label: "Type", value: plan.type },
-        {
-          label: "Price",
-          value: plan.price === 0 ? "Free" : formatCurrency(plan.price),
-        },
-        {
-          label: "Boost For",
-          value: `${(plan as any).boostForDays ?? 1} day(s)`,
-        },
+      overview={(() => {
+        const p: any = plan
+        const parts = [
+          { label: "Type", value: plan.type },
+          {
+            label: "Price",
+            value:
+              plan.price === 0 ? (
+                "Free"
+              ) : (
+                (() => {
+                  const base = formatCurrency(plan.price)
+                  if (
+                    p.type === "recurring_price" &&
+                    p.paymentFrequencyInterval
+                  ) {
+                    const c = p.paymentFrequencyCount ?? 1
+                    const i = String(p.paymentFrequencyInterval)
+                    const human = c === 1 ? i : `${c} ${i}s`
+                    return (
+                      <span className="text-sm text-muted-foreground">
+                        {base} <span>/ {human}</span>
+                      </span>
+                    )
+                  }
+                  return base
+                })()
+              ),
+          },
+          {
+            label: "Boost For",
+            value: `${(p as any).boostForDays ?? 1} day(s)`,
+          },
+          {
+            label: "Discount",
+            value: plan.discount ? formatPercent(plan.discount) : placeholder(),
+          },
+          { label: "Default", value: formatBoolean(plan.isDefault) },
+          { label: "Description", value: plan.description || placeholder() },
+        ]
 
-        {
-          label: "Discount",
-          value: plan.discount ? formatPercent(plan.discount) : placeholder(),
-        },
-        { label: "Default", value: formatBoolean(plan.isDefault) },
-        { label: "Description", value: plan.description || placeholder() },
-      ]}
+        if (p.type === "recurring_price") {
+          parts.push(
+            {
+              label: "Payment Frequency",
+              value: p.paymentFrequencyInterval
+                ? `${p.paymentFrequencyCount ?? 1} ${String(p.paymentFrequencyInterval)}${
+                    (p.paymentFrequencyCount ?? 1) > 1 ? "s" : ""
+                  }`
+                : placeholder(),
+            },
+            {
+              label: "Subscription Period",
+              value: p.subscriptionPeriodInterval
+                ? `${p.subscriptionPeriodCount ?? 1} ${String(p.subscriptionPeriodInterval)}${
+                    (p.subscriptionPeriodCount ?? 1) > 1 ? "s" : ""
+                  }`
+                : placeholder(),
+            },
+          )
+        }
+
+        return parts
+      })()}
       basePath="admin/plans"
       editable
       deletable

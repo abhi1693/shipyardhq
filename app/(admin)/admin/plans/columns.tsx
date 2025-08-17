@@ -31,7 +31,21 @@ export const columns: ColumnDef<Plan>[] = [
   {
     accessorKey: "price",
     header: "Price",
-    cell: ({ row }) => formatCurrency(row.original.price),
+    cell: ({ row }) => {
+      const p = row.original as any
+      const base = formatCurrency(p.price)
+      if (p.type === "recurring_price" && p.paymentFrequencyInterval) {
+        const count = p.paymentFrequencyCount ?? 1
+        const interval = String(p.paymentFrequencyInterval)
+        const human = count === 1 ? interval : `${count} ${interval}s`
+        return (
+          <span className="text-sm text-muted-foreground">
+            {base} <span>/ {human}</span>
+          </span>
+        )
+      }
+      return base
+    },
   },
   {
     accessorKey: "boostForDays",

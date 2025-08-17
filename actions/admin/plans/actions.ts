@@ -1,8 +1,24 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { Prisma, PlanType } from "@/lib/vendor/prisma/client"
+import { Prisma, PlanType, TimeInterval } from "@/lib/vendor/prisma/client"
 import { dodoClient } from "@/lib/dodo"
+
+// Map interval to Dodo's expected enum casing
+const toDodoInterval = (iv: TimeInterval | string | null | undefined) => {
+  switch ((iv || "").toString().toLowerCase()) {
+    case "day":
+      return "Day"
+    case "week":
+      return "Week"
+    case "month":
+      return "Month"
+    case "year":
+      return "Year"
+    default:
+      return undefined
+  }
+}
 
 // Get all plans
 export async function getPlans(args: Prisma.PlanFindManyArgs = {}) {
@@ -21,17 +37,47 @@ export async function createPlanAction(formData: FormData) {
   const name = formData.get("name")!.toString().trim()
   const slug = formData.get("slug")!.toString().trim()
   const description = formData.get("description")?.toString().trim() || null
-  const type = PlanType.one_time_price
+  const typeRaw = formData.get("type")?.toString() || PlanType.one_time_price
+  const type = (Object.values(PlanType) as string[]).includes(typeRaw)
+    ? (typeRaw as PlanType)
+    : PlanType.one_time_price
   const price = parseInt(formData.get("price")!.toString(), 10)
   const discountRaw = formData.get("discount")
   const boostForDaysRaw = formData.get("boostForDays")
   const isDefault =
     formData.get("isDefault") === "true" || formData.get("isDefault") === "on"
 
+  const paymentFrequencyCountRaw = formData.get("paymentFrequencyCount")
+  const paymentFrequencyIntervalRaw = formData.get(
+    "paymentFrequencyInterval",
+  )?.toString()
+  const subscriptionPeriodCountRaw = formData.get("subscriptionPeriodCount")
+  const subscriptionPeriodIntervalRaw = formData.get(
+    "subscriptionPeriodInterval",
+  )?.toString()
+
   const discount = discountRaw ? parseFloat(discountRaw.toString()) : null
   const boostForDays = boostForDaysRaw
     ? Math.max(1, Math.min(30, parseInt(boostForDaysRaw.toString(), 10) || 1))
     : 1
+  const paymentFrequencyCount = paymentFrequencyCountRaw
+    ? parseInt(paymentFrequencyCountRaw.toString(), 10)
+    : null
+  const paymentFrequencyInterval = paymentFrequencyIntervalRaw &&
+    (Object.values(TimeInterval) as string[]).includes(
+      paymentFrequencyIntervalRaw,
+    )
+      ? (paymentFrequencyIntervalRaw as TimeInterval)
+      : null
+  const subscriptionPeriodCount = subscriptionPeriodCountRaw
+    ? parseInt(subscriptionPeriodCountRaw.toString(), 10)
+    : null
+  const subscriptionPeriodInterval = subscriptionPeriodIntervalRaw &&
+    (Object.values(TimeInterval) as string[]).includes(
+      subscriptionPeriodIntervalRaw,
+    )
+      ? (subscriptionPeriodIntervalRaw as TimeInterval)
+      : null
 
   try {
     const exists = await planSlugExists(slug)
@@ -49,22 +95,37 @@ export async function createPlanAction(formData: FormData) {
         discount: Math.max(0, Math.min(discount ?? 0, 100)),
         boostForDays,
         isDefault,
+        paymentFrequencyCount,
+        paymentFrequencyInterval,
+        subscriptionPeriodCount,
+        subscriptionPeriodInterval,
       },
     })
 
     if (price !== 0) {
-      // DodoPayments expects discount as percentage
       const pct = Math.max(0, Math.min(discount ?? 0, 100))
-      // Create product on DodoPayments
+      const pricePayload: any = {
+        currency: "USD",
+        discount: pct,
+        price,
+        purchasing_power_parity: true,
+        type: type === PlanType.recurring_price ? "recurring_price" : "one_time_price",
+        tax_inclusive: false,
+      }
+      if (type === PlanType.recurring_price) {
+        pricePayload.payment_frequency_count = paymentFrequencyCount ?? 1
+        pricePayload.payment_frequency_interval =
+          toDodoInterval(paymentFrequencyInterval) || "Month"
+        pricePayload.subscription_period_count =
+          subscriptionPeriodCount ?? paymentFrequencyCount ?? 1
+        pricePayload.subscription_period_interval =
+          toDodoInterval(subscriptionPeriodInterval) ||
+          toDodoInterval(paymentFrequencyInterval) ||
+          "Month"
+      }
+
       const product = await dodoClient.products.create({
-        price: {
-          currency: "USD",
-          discount: pct,
-          price,
-          purchasing_power_parity: true,
-          type: "one_time_price",
-          tax_inclusive: false,
-        },
+        price: pricePayload,
         tax_category: "saas",
         description,
         name,
@@ -158,6 +219,11 @@ type UpdatePlanInput = {
   discount?: number | null
   boostForDays?: number | null
   isDefault?: boolean
+  type?: PlanType
+  paymentFrequencyCount?: number | null
+  paymentFrequencyInterval?: TimeInterval | null
+  subscriptionPeriodCount?: number | null
+  subscriptionPeriodInterval?: TimeInterval | null
 }
 
 export async function updatePlanAction(id: string, data: UpdatePlanInput) {
@@ -187,6 +253,11 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
         discount: Math.max(0, Math.min(data.discount ?? 0, 100)),
         boostForDays: Math.max(1, Math.min(data.boostForDays ?? 1, 30)),
         isDefault: data.isDefault ?? false,
+        type: data.type ?? PlanType.one_time_price,
+        paymentFrequencyCount: data.paymentFrequencyCount ?? null,
+        paymentFrequencyInterval: data.paymentFrequencyInterval ?? null,
+        subscriptionPeriodCount: data.subscriptionPeriodCount ?? null,
+        subscriptionPeriodInterval: data.subscriptionPeriodInterval ?? null,
       },
     })
 
@@ -197,15 +268,31 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
     })
     if (plan?.externalId) {
       const pct = Math.max(0, Math.min(data.discount ?? 0, 100))
+      const pricePayload: any = {
+        currency: "USD",
+        discount: pct,
+        price: data.price,
+        purchasing_power_parity: true,
+        type:
+          (data.type ?? PlanType.one_time_price) === PlanType.recurring_price
+            ? "recurring_price"
+            : "one_time_price",
+        tax_inclusive: false,
+      }
+      if ((data.type ?? PlanType.one_time_price) === PlanType.recurring_price) {
+        pricePayload.payment_frequency_count = data.paymentFrequencyCount ?? 1
+        pricePayload.payment_frequency_interval =
+          toDodoInterval(data.paymentFrequencyInterval as any) || "Month"
+        pricePayload.subscription_period_count =
+          data.subscriptionPeriodCount ?? data.paymentFrequencyCount ?? 1
+        pricePayload.subscription_period_interval =
+          toDodoInterval(data.subscriptionPeriodInterval as any) ||
+          toDodoInterval(data.paymentFrequencyInterval as any) ||
+          "Month"
+      }
+
       await dodoClient.products.update(plan.externalId, {
-        price: {
-          currency: "USD",
-          discount: pct,
-          price: data.price,
-          purchasing_power_parity: true,
-          type: "one_time_price",
-          tax_inclusive: false,
-        },
+        price: pricePayload,
         tax_category: "saas",
         description: data.description ?? "",
         name: data.name,
@@ -214,16 +301,32 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
     } else {
       if (data.price !== 0) {
         const pct = Math.max(0, Math.min(data.discount ?? 0, 100))
+        const pricePayload: any = {
+          currency: "USD",
+          discount: pct,
+          price: data.price,
+          purchasing_power_parity: true,
+          type:
+            (data.type ?? PlanType.one_time_price) === PlanType.recurring_price
+              ? "recurring_price"
+              : "one_time_price",
+          tax_inclusive: false,
+        }
+        if ((data.type ?? PlanType.one_time_price) === PlanType.recurring_price) {
+          pricePayload.payment_frequency_count = data.paymentFrequencyCount ?? 1
+          pricePayload.payment_frequency_interval =
+            toDodoInterval(data.paymentFrequencyInterval as any) || "Month"
+          pricePayload.subscription_period_count =
+            data.subscriptionPeriodCount ?? data.paymentFrequencyCount ?? 1
+          pricePayload.subscription_period_interval =
+            toDodoInterval(data.subscriptionPeriodInterval as any) ||
+            toDodoInterval(data.paymentFrequencyInterval as any) ||
+            "Month"
+        }
+
         // Create product on DodoPayments
         const product = await dodoClient.products.create({
-          price: {
-            currency: "USD",
-            discount: pct,
-            price: data.price,
-            purchasing_power_parity: true,
-            type: "one_time_price",
-            tax_inclusive: false,
-          },
+          price: pricePayload,
           tax_category: "saas",
           description: data.description,
           name: data.name,

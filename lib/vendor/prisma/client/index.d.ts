@@ -146,10 +146,21 @@ export type Platform = (typeof Platform)[keyof typeof Platform]
 
 
 export const PlanType: {
-  one_time_price: 'one_time_price'
+  one_time_price: 'one_time_price',
+  recurring_price: 'recurring_price'
 };
 
 export type PlanType = (typeof PlanType)[keyof typeof PlanType]
+
+
+export const TimeInterval: {
+  day: 'day',
+  week: 'week',
+  month: 'month',
+  year: 'year'
+};
+
+export type TimeInterval = (typeof TimeInterval)[keyof typeof TimeInterval]
 
 }
 
@@ -172,6 +183,10 @@ export const Platform: typeof $Enums.Platform
 export type PlanType = $Enums.PlanType
 
 export const PlanType: typeof $Enums.PlanType
+
+export type TimeInterval = $Enums.TimeInterval
+
+export const TimeInterval: typeof $Enums.TimeInterval
 
 /**
  * ##  Prisma Client ʲˢ
@@ -14201,12 +14216,16 @@ export namespace Prisma {
     price: number | null
     discount: number | null
     boostForDays: number | null
+    paymentFrequencyCount: number | null
+    subscriptionPeriodCount: number | null
   }
 
   export type PlanSumAggregateOutputType = {
     price: number | null
     discount: number | null
     boostForDays: number | null
+    paymentFrequencyCount: number | null
+    subscriptionPeriodCount: number | null
   }
 
   export type PlanMinAggregateOutputType = {
@@ -14220,6 +14239,10 @@ export namespace Prisma {
     discount: number | null
     boostForDays: number | null
     isDefault: boolean | null
+    paymentFrequencyCount: number | null
+    paymentFrequencyInterval: $Enums.TimeInterval | null
+    subscriptionPeriodCount: number | null
+    subscriptionPeriodInterval: $Enums.TimeInterval | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -14235,6 +14258,10 @@ export namespace Prisma {
     discount: number | null
     boostForDays: number | null
     isDefault: boolean | null
+    paymentFrequencyCount: number | null
+    paymentFrequencyInterval: $Enums.TimeInterval | null
+    subscriptionPeriodCount: number | null
+    subscriptionPeriodInterval: $Enums.TimeInterval | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -14250,6 +14277,10 @@ export namespace Prisma {
     discount: number
     boostForDays: number
     isDefault: number
+    paymentFrequencyCount: number
+    paymentFrequencyInterval: number
+    subscriptionPeriodCount: number
+    subscriptionPeriodInterval: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -14260,12 +14291,16 @@ export namespace Prisma {
     price?: true
     discount?: true
     boostForDays?: true
+    paymentFrequencyCount?: true
+    subscriptionPeriodCount?: true
   }
 
   export type PlanSumAggregateInputType = {
     price?: true
     discount?: true
     boostForDays?: true
+    paymentFrequencyCount?: true
+    subscriptionPeriodCount?: true
   }
 
   export type PlanMinAggregateInputType = {
@@ -14279,6 +14314,10 @@ export namespace Prisma {
     discount?: true
     boostForDays?: true
     isDefault?: true
+    paymentFrequencyCount?: true
+    paymentFrequencyInterval?: true
+    subscriptionPeriodCount?: true
+    subscriptionPeriodInterval?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -14294,6 +14333,10 @@ export namespace Prisma {
     discount?: true
     boostForDays?: true
     isDefault?: true
+    paymentFrequencyCount?: true
+    paymentFrequencyInterval?: true
+    subscriptionPeriodCount?: true
+    subscriptionPeriodInterval?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -14309,6 +14352,10 @@ export namespace Prisma {
     discount?: true
     boostForDays?: true
     isDefault?: true
+    paymentFrequencyCount?: true
+    paymentFrequencyInterval?: true
+    subscriptionPeriodCount?: true
+    subscriptionPeriodInterval?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -14411,6 +14458,10 @@ export namespace Prisma {
     discount: number | null
     boostForDays: number
     isDefault: boolean
+    paymentFrequencyCount: number | null
+    paymentFrequencyInterval: $Enums.TimeInterval | null
+    subscriptionPeriodCount: number | null
+    subscriptionPeriodInterval: $Enums.TimeInterval | null
     createdAt: Date
     updatedAt: Date
     _count: PlanCountAggregateOutputType | null
@@ -14445,6 +14496,10 @@ export namespace Prisma {
     discount?: boolean
     boostForDays?: boolean
     isDefault?: boolean
+    paymentFrequencyCount?: boolean
+    paymentFrequencyInterval?: boolean
+    subscriptionPeriodCount?: boolean
+    subscriptionPeriodInterval?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     products?: boolean | Plan$productsArgs<ExtArgs>
@@ -14463,6 +14518,10 @@ export namespace Prisma {
     discount?: boolean
     boostForDays?: boolean
     isDefault?: boolean
+    paymentFrequencyCount?: boolean
+    paymentFrequencyInterval?: boolean
+    subscriptionPeriodCount?: boolean
+    subscriptionPeriodInterval?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["plan"]>
@@ -14478,6 +14537,10 @@ export namespace Prisma {
     discount?: boolean
     boostForDays?: boolean
     isDefault?: boolean
+    paymentFrequencyCount?: boolean
+    paymentFrequencyInterval?: boolean
+    subscriptionPeriodCount?: boolean
+    subscriptionPeriodInterval?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["plan"]>
@@ -14493,11 +14556,15 @@ export namespace Prisma {
     discount?: boolean
     boostForDays?: boolean
     isDefault?: boolean
+    paymentFrequencyCount?: boolean
+    paymentFrequencyInterval?: boolean
+    subscriptionPeriodCount?: boolean
+    subscriptionPeriodInterval?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PlanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "externalId" | "name" | "slug" | "description" | "type" | "price" | "discount" | "boostForDays" | "isDefault" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
+  export type PlanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "externalId" | "name" | "slug" | "description" | "type" | "price" | "discount" | "boostForDays" | "isDefault" | "paymentFrequencyCount" | "paymentFrequencyInterval" | "subscriptionPeriodCount" | "subscriptionPeriodInterval" | "createdAt" | "updatedAt", ExtArgs["result"]["plan"]>
   export type PlanInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     products?: boolean | Plan$productsArgs<ExtArgs>
     assignments?: boolean | Plan$assignmentsArgs<ExtArgs>
@@ -14523,6 +14590,10 @@ export namespace Prisma {
       discount: number | null
       boostForDays: number
       isDefault: boolean
+      paymentFrequencyCount: number | null
+      paymentFrequencyInterval: $Enums.TimeInterval | null
+      subscriptionPeriodCount: number | null
+      subscriptionPeriodInterval: $Enums.TimeInterval | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["plan"]>
@@ -14960,6 +15031,10 @@ export namespace Prisma {
     readonly discount: FieldRef<"Plan", 'Float'>
     readonly boostForDays: FieldRef<"Plan", 'Int'>
     readonly isDefault: FieldRef<"Plan", 'Boolean'>
+    readonly paymentFrequencyCount: FieldRef<"Plan", 'Int'>
+    readonly paymentFrequencyInterval: FieldRef<"Plan", 'TimeInterval'>
+    readonly subscriptionPeriodCount: FieldRef<"Plan", 'Int'>
+    readonly subscriptionPeriodInterval: FieldRef<"Plan", 'TimeInterval'>
     readonly createdAt: FieldRef<"Plan", 'DateTime'>
     readonly updatedAt: FieldRef<"Plan", 'DateTime'>
   }
@@ -20931,6 +21006,10 @@ export namespace Prisma {
     discount: 'discount',
     boostForDays: 'boostForDays',
     isDefault: 'isDefault',
+    paymentFrequencyCount: 'paymentFrequencyCount',
+    paymentFrequencyInterval: 'paymentFrequencyInterval',
+    subscriptionPeriodCount: 'subscriptionPeriodCount',
+    subscriptionPeriodInterval: 'subscriptionPeriodInterval',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -21153,6 +21232,20 @@ export namespace Prisma {
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'TimeInterval'
+   */
+  export type EnumTimeIntervalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TimeInterval'>
+    
+
+
+  /**
+   * Reference to a field of type 'TimeInterval[]'
+   */
+  export type ListEnumTimeIntervalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TimeInterval[]'>
     
   /**
    * Deep Input Types
@@ -21965,6 +22058,10 @@ export namespace Prisma {
     discount?: FloatNullableFilter<"Plan"> | number | null
     boostForDays?: IntFilter<"Plan"> | number
     isDefault?: BoolFilter<"Plan"> | boolean
+    paymentFrequencyCount?: IntNullableFilter<"Plan"> | number | null
+    paymentFrequencyInterval?: EnumTimeIntervalNullableFilter<"Plan"> | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: IntNullableFilter<"Plan"> | number | null
+    subscriptionPeriodInterval?: EnumTimeIntervalNullableFilter<"Plan"> | $Enums.TimeInterval | null
     createdAt?: DateTimeFilter<"Plan"> | Date | string
     updatedAt?: DateTimeFilter<"Plan"> | Date | string
     products?: ProductListRelationFilter
@@ -21982,6 +22079,10 @@ export namespace Prisma {
     discount?: SortOrderInput | SortOrder
     boostForDays?: SortOrder
     isDefault?: SortOrder
+    paymentFrequencyCount?: SortOrderInput | SortOrder
+    paymentFrequencyInterval?: SortOrderInput | SortOrder
+    subscriptionPeriodCount?: SortOrderInput | SortOrder
+    subscriptionPeriodInterval?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     products?: ProductOrderByRelationAggregateInput
@@ -22002,6 +22103,10 @@ export namespace Prisma {
     discount?: FloatNullableFilter<"Plan"> | number | null
     boostForDays?: IntFilter<"Plan"> | number
     isDefault?: BoolFilter<"Plan"> | boolean
+    paymentFrequencyCount?: IntNullableFilter<"Plan"> | number | null
+    paymentFrequencyInterval?: EnumTimeIntervalNullableFilter<"Plan"> | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: IntNullableFilter<"Plan"> | number | null
+    subscriptionPeriodInterval?: EnumTimeIntervalNullableFilter<"Plan"> | $Enums.TimeInterval | null
     createdAt?: DateTimeFilter<"Plan"> | Date | string
     updatedAt?: DateTimeFilter<"Plan"> | Date | string
     products?: ProductListRelationFilter
@@ -22019,6 +22124,10 @@ export namespace Prisma {
     discount?: SortOrderInput | SortOrder
     boostForDays?: SortOrder
     isDefault?: SortOrder
+    paymentFrequencyCount?: SortOrderInput | SortOrder
+    paymentFrequencyInterval?: SortOrderInput | SortOrder
+    subscriptionPeriodCount?: SortOrderInput | SortOrder
+    subscriptionPeriodInterval?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: PlanCountOrderByAggregateInput
@@ -22042,6 +22151,10 @@ export namespace Prisma {
     discount?: FloatNullableWithAggregatesFilter<"Plan"> | number | null
     boostForDays?: IntWithAggregatesFilter<"Plan"> | number
     isDefault?: BoolWithAggregatesFilter<"Plan"> | boolean
+    paymentFrequencyCount?: IntNullableWithAggregatesFilter<"Plan"> | number | null
+    paymentFrequencyInterval?: EnumTimeIntervalNullableWithAggregatesFilter<"Plan"> | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: IntNullableWithAggregatesFilter<"Plan"> | number | null
+    subscriptionPeriodInterval?: EnumTimeIntervalNullableWithAggregatesFilter<"Plan"> | $Enums.TimeInterval | null
     createdAt?: DateTimeWithAggregatesFilter<"Plan"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Plan"> | Date | string
   }
@@ -23207,6 +23320,10 @@ export namespace Prisma {
     discount?: number | null
     boostForDays?: number
     isDefault?: boolean
+    paymentFrequencyCount?: number | null
+    paymentFrequencyInterval?: $Enums.TimeInterval | null
+    subscriptionPeriodCount?: number | null
+    subscriptionPeriodInterval?: $Enums.TimeInterval | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutPlanInput
@@ -23224,6 +23341,10 @@ export namespace Prisma {
     discount?: number | null
     boostForDays?: number
     isDefault?: boolean
+    paymentFrequencyCount?: number | null
+    paymentFrequencyInterval?: $Enums.TimeInterval | null
+    subscriptionPeriodCount?: number | null
+    subscriptionPeriodInterval?: $Enums.TimeInterval | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutPlanInput
@@ -23241,6 +23362,10 @@ export namespace Prisma {
     discount?: NullableFloatFieldUpdateOperationsInput | number | null
     boostForDays?: IntFieldUpdateOperationsInput | number
     isDefault?: BoolFieldUpdateOperationsInput | boolean
+    paymentFrequencyCount?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentFrequencyInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: NullableIntFieldUpdateOperationsInput | number | null
+    subscriptionPeriodInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutPlanNestedInput
@@ -23258,6 +23383,10 @@ export namespace Prisma {
     discount?: NullableFloatFieldUpdateOperationsInput | number | null
     boostForDays?: IntFieldUpdateOperationsInput | number
     isDefault?: BoolFieldUpdateOperationsInput | boolean
+    paymentFrequencyCount?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentFrequencyInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: NullableIntFieldUpdateOperationsInput | number | null
+    subscriptionPeriodInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutPlanNestedInput
@@ -23275,6 +23404,10 @@ export namespace Prisma {
     discount?: number | null
     boostForDays?: number
     isDefault?: boolean
+    paymentFrequencyCount?: number | null
+    paymentFrequencyInterval?: $Enums.TimeInterval | null
+    subscriptionPeriodCount?: number | null
+    subscriptionPeriodInterval?: $Enums.TimeInterval | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -23290,6 +23423,10 @@ export namespace Prisma {
     discount?: NullableFloatFieldUpdateOperationsInput | number | null
     boostForDays?: IntFieldUpdateOperationsInput | number
     isDefault?: BoolFieldUpdateOperationsInput | boolean
+    paymentFrequencyCount?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentFrequencyInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: NullableIntFieldUpdateOperationsInput | number | null
+    subscriptionPeriodInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23305,6 +23442,10 @@ export namespace Prisma {
     discount?: NullableFloatFieldUpdateOperationsInput | number | null
     boostForDays?: IntFieldUpdateOperationsInput | number
     isDefault?: BoolFieldUpdateOperationsInput | boolean
+    paymentFrequencyCount?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentFrequencyInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: NullableIntFieldUpdateOperationsInput | number | null
+    subscriptionPeriodInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -24368,6 +24509,13 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type EnumTimeIntervalNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeInterval | EnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TimeInterval[] | ListEnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TimeInterval[] | ListEnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTimeIntervalNullableFilter<$PrismaModel> | $Enums.TimeInterval | null
+  }
+
   export type PlanFeatureAssignmentListRelationFilter = {
     every?: PlanFeatureAssignmentWhereInput
     some?: PlanFeatureAssignmentWhereInput
@@ -24389,6 +24537,10 @@ export namespace Prisma {
     discount?: SortOrder
     boostForDays?: SortOrder
     isDefault?: SortOrder
+    paymentFrequencyCount?: SortOrder
+    paymentFrequencyInterval?: SortOrder
+    subscriptionPeriodCount?: SortOrder
+    subscriptionPeriodInterval?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24397,6 +24549,8 @@ export namespace Prisma {
     price?: SortOrder
     discount?: SortOrder
     boostForDays?: SortOrder
+    paymentFrequencyCount?: SortOrder
+    subscriptionPeriodCount?: SortOrder
   }
 
   export type PlanMaxOrderByAggregateInput = {
@@ -24410,6 +24564,10 @@ export namespace Prisma {
     discount?: SortOrder
     boostForDays?: SortOrder
     isDefault?: SortOrder
+    paymentFrequencyCount?: SortOrder
+    paymentFrequencyInterval?: SortOrder
+    subscriptionPeriodCount?: SortOrder
+    subscriptionPeriodInterval?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24425,6 +24583,10 @@ export namespace Prisma {
     discount?: SortOrder
     boostForDays?: SortOrder
     isDefault?: SortOrder
+    paymentFrequencyCount?: SortOrder
+    paymentFrequencyInterval?: SortOrder
+    subscriptionPeriodCount?: SortOrder
+    subscriptionPeriodInterval?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24433,6 +24595,8 @@ export namespace Prisma {
     price?: SortOrder
     discount?: SortOrder
     boostForDays?: SortOrder
+    paymentFrequencyCount?: SortOrder
+    subscriptionPeriodCount?: SortOrder
   }
 
   export type EnumPlanTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -24459,6 +24623,16 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type EnumTimeIntervalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeInterval | EnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TimeInterval[] | ListEnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TimeInterval[] | ListEnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTimeIntervalNullableWithAggregatesFilter<$PrismaModel> | $Enums.TimeInterval | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumTimeIntervalNullableFilter<$PrismaModel>
+    _max?: NestedEnumTimeIntervalNullableFilter<$PrismaModel>
   }
 
   export type PlanFeatureCountOrderByAggregateInput = {
@@ -25461,6 +25635,10 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type NullableEnumTimeIntervalFieldUpdateOperationsInput = {
+    set?: $Enums.TimeInterval | null
+  }
+
   export type ProductUpdateManyWithoutPlanNestedInput = {
     create?: XOR<ProductCreateWithoutPlanInput, ProductUncheckedCreateWithoutPlanInput> | ProductCreateWithoutPlanInput[] | ProductUncheckedCreateWithoutPlanInput[]
     connectOrCreate?: ProductCreateOrConnectWithoutPlanInput | ProductCreateOrConnectWithoutPlanInput[]
@@ -25930,6 +26108,13 @@ export namespace Prisma {
     not?: NestedEnumPlanTypeFilter<$PrismaModel> | $Enums.PlanType
   }
 
+  export type NestedEnumTimeIntervalNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeInterval | EnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TimeInterval[] | ListEnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TimeInterval[] | ListEnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTimeIntervalNullableFilter<$PrismaModel> | $Enums.TimeInterval | null
+  }
+
   export type NestedEnumPlanTypeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.PlanType | EnumPlanTypeFieldRefInput<$PrismaModel>
     in?: $Enums.PlanType[] | ListEnumPlanTypeFieldRefInput<$PrismaModel>
@@ -25954,6 +26139,16 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTimeIntervalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TimeInterval | EnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TimeInterval[] | ListEnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TimeInterval[] | ListEnumTimeIntervalFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTimeIntervalNullableWithAggregatesFilter<$PrismaModel> | $Enums.TimeInterval | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumTimeIntervalNullableFilter<$PrismaModel>
+    _max?: NestedEnumTimeIntervalNullableFilter<$PrismaModel>
   }
 
   export type UserCreateWithoutProductsInput = {
@@ -26035,6 +26230,10 @@ export namespace Prisma {
     discount?: number | null
     boostForDays?: number
     isDefault?: boolean
+    paymentFrequencyCount?: number | null
+    paymentFrequencyInterval?: $Enums.TimeInterval | null
+    subscriptionPeriodCount?: number | null
+    subscriptionPeriodInterval?: $Enums.TimeInterval | null
     createdAt?: Date | string
     updatedAt?: Date | string
     assignments?: PlanFeatureAssignmentCreateNestedManyWithoutPlanInput
@@ -26051,6 +26250,10 @@ export namespace Prisma {
     discount?: number | null
     boostForDays?: number
     isDefault?: boolean
+    paymentFrequencyCount?: number | null
+    paymentFrequencyInterval?: $Enums.TimeInterval | null
+    subscriptionPeriodCount?: number | null
+    subscriptionPeriodInterval?: $Enums.TimeInterval | null
     createdAt?: Date | string
     updatedAt?: Date | string
     assignments?: PlanFeatureAssignmentUncheckedCreateNestedManyWithoutPlanInput
@@ -26333,6 +26536,10 @@ export namespace Prisma {
     discount?: NullableFloatFieldUpdateOperationsInput | number | null
     boostForDays?: IntFieldUpdateOperationsInput | number
     isDefault?: BoolFieldUpdateOperationsInput | boolean
+    paymentFrequencyCount?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentFrequencyInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: NullableIntFieldUpdateOperationsInput | number | null
+    subscriptionPeriodInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignments?: PlanFeatureAssignmentUpdateManyWithoutPlanNestedInput
@@ -26349,6 +26556,10 @@ export namespace Prisma {
     discount?: NullableFloatFieldUpdateOperationsInput | number | null
     boostForDays?: IntFieldUpdateOperationsInput | number
     isDefault?: BoolFieldUpdateOperationsInput | boolean
+    paymentFrequencyCount?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentFrequencyInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: NullableIntFieldUpdateOperationsInput | number | null
+    subscriptionPeriodInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignments?: PlanFeatureAssignmentUncheckedUpdateManyWithoutPlanNestedInput
@@ -28332,6 +28543,10 @@ export namespace Prisma {
     discount?: number | null
     boostForDays?: number
     isDefault?: boolean
+    paymentFrequencyCount?: number | null
+    paymentFrequencyInterval?: $Enums.TimeInterval | null
+    subscriptionPeriodCount?: number | null
+    subscriptionPeriodInterval?: $Enums.TimeInterval | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutPlanInput
@@ -28348,6 +28563,10 @@ export namespace Prisma {
     discount?: number | null
     boostForDays?: number
     isDefault?: boolean
+    paymentFrequencyCount?: number | null
+    paymentFrequencyInterval?: $Enums.TimeInterval | null
+    subscriptionPeriodCount?: number | null
+    subscriptionPeriodInterval?: $Enums.TimeInterval | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutPlanInput
@@ -28403,6 +28622,10 @@ export namespace Prisma {
     discount?: NullableFloatFieldUpdateOperationsInput | number | null
     boostForDays?: IntFieldUpdateOperationsInput | number
     isDefault?: BoolFieldUpdateOperationsInput | boolean
+    paymentFrequencyCount?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentFrequencyInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: NullableIntFieldUpdateOperationsInput | number | null
+    subscriptionPeriodInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutPlanNestedInput
@@ -28419,6 +28642,10 @@ export namespace Prisma {
     discount?: NullableFloatFieldUpdateOperationsInput | number | null
     boostForDays?: IntFieldUpdateOperationsInput | number
     isDefault?: BoolFieldUpdateOperationsInput | boolean
+    paymentFrequencyCount?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentFrequencyInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: NullableIntFieldUpdateOperationsInput | number | null
+    subscriptionPeriodInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutPlanNestedInput
