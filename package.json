@@ -10,12 +10,10 @@
     "format": "prettier --write .",
     "prisma:init": "grep '^DATABASE_URL=' .env.local > .env && grep '^OPTIMIZE_API_KEY=' .env.local >> .env",
     "prisma:migrate:reset": "prisma migrate reset --force",
-    "prisma:migrate:dev": "prisma migrate dev --name init",
-    "prisma:migrate": "npm run prisma:init && npm run prisma:migrate:reset && npm run prisma:migrate:dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate --no-engine",
     "prisma:seed": "tsx prisma/seed.ts",
-    "postinstall": "npm run prisma:generate && npm run prisma:deploy",
+    "postinstall": "npm run prisma:deploy",
     "test": "vitest run --reporter=verbose",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage"

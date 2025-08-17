@@ -17,7 +17,7 @@
 - `npm start`: Serve the compiled app.
 - `npm run lint`: Lint with ESLint/Next.
 - `npm run format`: Format with Prettier.
-- Prisma: `npm run prisma:init` (copy `DATABASE_URL`), `npm run prisma:migrate` (reset/apply dev migrations), `npm run prisma:deploy` (prod), `npm run prisma:generate` (client), `npm run prisma:seed` (seed local).
+- Prisma: `npm run prisma:init` (copy `DATABASE_URL`), `npm run prisma:deploy` (apply existing migrations), `npm run prisma:generate` (client), `npm run prisma:seed` (seed local). For creating new migrations, do NOT use npm scripts — run Prisma CLI explicitly: `npx prisma migrate dev --name <name>`.
 
 ## Coding Style & Naming Conventions
 
@@ -42,4 +42,4 @@
 ## Security & Configuration
 
 - Required env vars: `DATABASE_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `DODO_API_KEY`.
-- Do not commit secrets. Use `.env.local` for development. Initialize DB with `npm run prisma:init`, then run `npm run prisma:migrate`.
+- Do not commit secrets. Use `.env.local` for development. Initialize DB with `npm run prisma:init`, then apply existing migrations with `npx prisma migrate reset --force`. To create a new migration, run `npx prisma migrate dev --name <name>` explicitly.
