@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
-    "prisma:init": "grep '^DATABASE_URL=' .env.local > .env && grep '^OPTIMIZE_API_KEY=' .env.local >> .env",
+    "prisma:init": "grep '^DATABASE_URL=' .env.local > .env",
     "prisma:migrate:reset": "prisma migrate reset --force",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate --no-engine",
