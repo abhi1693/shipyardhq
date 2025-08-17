@@ -147,7 +147,6 @@ export default function ProductMediaManager({
               {canEdit ? (
                 <div className="absolute top-2 right-2">
                   <DeleteButton
-                    label="Remove"
                     size="sm"
                     onClick={() => onRemove(m.id)}
                     disabled={deletingId === m.id || isUploading}

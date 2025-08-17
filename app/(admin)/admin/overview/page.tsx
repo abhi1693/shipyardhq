@@ -68,17 +68,17 @@ export default async function OverviewPage({
         <div className="flex items-center gap-2">
           <RangeSelector />
           <div className="hidden sm:flex items-center gap-2">
-            <Link href="/admin/products/new">
+            <Link href="/admin/products/add">
               <CreateButton size="sm" label="Create Product" />
             </Link>
-            <Link href="/admin/categories/new">
+            <Link href="/admin/categories/add">
               <CreateButton
                 variant="outline"
                 size="sm"
                 label="Create Category"
               />
             </Link>
-            <Link href="/admin/plans/new">
+            <Link href="/admin/plans/add">
               <CreateButton variant="outline" size="sm" label="Create Plan" />
             </Link>
           </div>
@@ -86,10 +86,10 @@ export default async function OverviewPage({
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
         <Link
           href="/admin/products"
-          className="group block rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+          className="group block h-full rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
         >
           <StatCard
             title="Total Products"
@@ -106,7 +106,7 @@ export default async function OverviewPage({
           />
         </Link>
 
-        <Link href="/admin/products" className="group">
+        <Link href="/admin/products" className="group block h-full">
           <StatCard
             title="Verified Domains"
             value={stats.verifiedProducts}
@@ -118,7 +118,7 @@ export default async function OverviewPage({
           />
         </Link>
 
-        <Link href="/admin/products" className="group">
+        <Link href="/admin/products" className="group block h-full">
           <StatCard
             title="Unverified Domains"
             value={stats.unverifiedProducts}
@@ -130,7 +130,7 @@ export default async function OverviewPage({
 
         <Link
           href="/admin/users"
-          className="group block rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+          className="group block h-full rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
         >
           <StatCard
             title="Total Users"
@@ -148,7 +148,7 @@ export default async function OverviewPage({
         </Link>
 
         {stats.mostPopularPlan && (
-          <Link href="/admin/plans" className="group">
+          <Link href="/admin/plans" className="group block h-full">
             <StatCard
               title="Most Used Plan"
               value={stats.mostPopularPlan.name}
@@ -158,7 +158,7 @@ export default async function OverviewPage({
             />
           </Link>
         )}
-        <Link href="/admin/plans" className="group">
+        <Link href="/admin/plans" className="group block h-full">
           <StatCard
             title="Default Plan Products"
             value={stats.defaultPlanProductCount}
@@ -167,7 +167,7 @@ export default async function OverviewPage({
           />
         </Link>
 
-        <Link href="/admin/plans" className="group">
+        <Link href="/admin/plans" className="group block h-full">
           <StatCard
             title="Total Revenue (Est.)"
             value={`$${(stats.totalRevenue / 100).toFixed(2)}`}

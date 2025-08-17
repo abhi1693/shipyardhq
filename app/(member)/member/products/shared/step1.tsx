@@ -71,7 +71,21 @@ export default function Step1({ categories, platforms, productId }: Props) {
             <FormItem>
               <FormLabel>Website URL</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com" {...field} />
+                <Input
+                  placeholder="https://example.com"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={(e) => {
+                    const sanitized = (e.target.value ?? "").replace(/^\/+/, "")
+                    if (sanitized !== e.target.value) {
+                      form.setValue("websiteUrl", sanitized, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                    field.onBlur()
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -2418,12 +2418,14 @@ export namespace Prisma {
     products: number
     memberships: number
     ProductUpvote: number
+    Organization: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     products?: boolean | UserCountOutputTypeCountProductsArgs
     memberships?: boolean | UserCountOutputTypeCountMembershipsArgs
     ProductUpvote?: boolean | UserCountOutputTypeCountProductUpvoteArgs
+    Organization?: boolean | UserCountOutputTypeCountOrganizationArgs
   }
 
   // Custom InputTypes
@@ -2456,6 +2458,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountProductUpvoteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProductUpvoteWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountOrganizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrganizationWhereInput
   }
 
 
@@ -9594,6 +9603,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     url: string | null
+    ownerUserId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9602,6 +9612,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     url: string | null
+    ownerUserId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9610,6 +9621,7 @@ export namespace Prisma {
     id: number
     name: number
     url: number
+    ownerUserId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -9620,6 +9632,7 @@ export namespace Prisma {
     id?: true
     name?: true
     url?: true
+    ownerUserId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9628,6 +9641,7 @@ export namespace Prisma {
     id?: true
     name?: true
     url?: true
+    ownerUserId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9636,6 +9650,7 @@ export namespace Prisma {
     id?: true
     name?: true
     url?: true
+    ownerUserId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -9717,6 +9732,7 @@ export namespace Prisma {
     id: string
     name: string
     url: string
+    ownerUserId: string | null
     createdAt: Date
     updatedAt: Date
     _count: OrganizationCountAggregateOutputType | null
@@ -9742,10 +9758,12 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     url?: boolean
+    ownerUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     memberships?: boolean | Organization$membershipsArgs<ExtArgs>
     Product?: boolean | Organization$ProductArgs<ExtArgs>
+    owner?: boolean | Organization$ownerArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organization"]>
 
@@ -9753,45 +9771,57 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     url?: boolean
+    ownerUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    owner?: boolean | Organization$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["organization"]>
 
   export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
     url?: boolean
+    ownerUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    owner?: boolean | Organization$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["organization"]>
 
   export type OrganizationSelectScalar = {
     id?: boolean
     name?: boolean
     url?: boolean
+    ownerUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type OrganizationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+  export type OrganizationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "ownerUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
   export type OrganizationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     memberships?: boolean | Organization$membershipsArgs<ExtArgs>
     Product?: boolean | Organization$ProductArgs<ExtArgs>
+    owner?: boolean | Organization$ownerArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type OrganizationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | Organization$ownerArgs<ExtArgs>
+  }
+  export type OrganizationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | Organization$ownerArgs<ExtArgs>
+  }
 
   export type $OrganizationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Organization"
     objects: {
       memberships: Prisma.$OrganizationMembershipPayload<ExtArgs>[]
       Product: Prisma.$ProductPayload<ExtArgs>[]
+      owner: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
       url: string
+      ownerUserId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["organization"]>
@@ -10190,6 +10220,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     memberships<T extends Organization$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     Product<T extends Organization$ProductArgs<ExtArgs> = {}>(args?: Subset<T, Organization$ProductArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    owner<T extends Organization$ownerArgs<ExtArgs> = {}>(args?: Subset<T, Organization$ownerArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10222,6 +10253,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Organization", 'String'>
     readonly name: FieldRef<"Organization", 'String'>
     readonly url: FieldRef<"Organization", 'String'>
+    readonly ownerUserId: FieldRef<"Organization", 'String'>
     readonly createdAt: FieldRef<"Organization", 'DateTime'>
     readonly updatedAt: FieldRef<"Organization", 'DateTime'>
   }
@@ -10473,6 +10505,10 @@ export namespace Prisma {
      */
     data: OrganizationCreateManyInput | OrganizationCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -10543,6 +10579,10 @@ export namespace Prisma {
      * Limit how many Organizations to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -10657,6 +10697,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProductScalarFieldEnum | ProductScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.owner
+   */
+  export type Organization$ownerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -11980,6 +12039,7 @@ export namespace Prisma {
     products?: boolean | User$productsArgs<ExtArgs>
     memberships?: boolean | User$membershipsArgs<ExtArgs>
     ProductUpvote?: boolean | User$ProductUpvoteArgs<ExtArgs>
+    Organization?: boolean | User$OrganizationArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -12033,6 +12093,7 @@ export namespace Prisma {
     products?: boolean | User$productsArgs<ExtArgs>
     memberships?: boolean | User$membershipsArgs<ExtArgs>
     ProductUpvote?: boolean | User$ProductUpvoteArgs<ExtArgs>
+    Organization?: boolean | User$OrganizationArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -12044,6 +12105,7 @@ export namespace Prisma {
       products: Prisma.$ProductPayload<ExtArgs>[]
       memberships: Prisma.$OrganizationMembershipPayload<ExtArgs>[]
       ProductUpvote: Prisma.$ProductUpvotePayload<ExtArgs>[]
+      Organization: Prisma.$OrganizationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12455,6 +12517,7 @@ export namespace Prisma {
     products<T extends User$productsArgs<ExtArgs> = {}>(args?: Subset<T, User$productsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     memberships<T extends User$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductUpvote<T extends User$ProductUpvoteArgs<ExtArgs> = {}>(args?: Subset<T, User$ProductUpvoteArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductUpvotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    Organization<T extends User$OrganizationArgs<ExtArgs> = {}>(args?: Subset<T, User$OrganizationArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12953,6 +13016,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProductUpvoteScalarFieldEnum | ProductUpvoteScalarFieldEnum[]
+  }
+
+  /**
+   * User.Organization
+   */
+  export type User$OrganizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Organization
+     */
+    omit?: OrganizationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    where?: OrganizationWhereInput
+    orderBy?: OrganizationOrderByWithRelationInput | OrganizationOrderByWithRelationInput[]
+    cursor?: OrganizationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OrganizationScalarFieldEnum | OrganizationScalarFieldEnum[]
   }
 
   /**
@@ -20782,6 +20869,7 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     url: 'url',
+    ownerUserId: 'ownerUserId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -21573,20 +21661,24 @@ export namespace Prisma {
     id?: StringFilter<"Organization"> | string
     name?: StringFilter<"Organization"> | string
     url?: StringFilter<"Organization"> | string
+    ownerUserId?: StringNullableFilter<"Organization"> | string | null
     createdAt?: DateTimeFilter<"Organization"> | Date | string
     updatedAt?: DateTimeFilter<"Organization"> | Date | string
     memberships?: OrganizationMembershipListRelationFilter
     Product?: ProductListRelationFilter
+    owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type OrganizationOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
     url?: SortOrder
+    ownerUserId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     memberships?: OrganizationMembershipOrderByRelationAggregateInput
     Product?: ProductOrderByRelationAggregateInput
+    owner?: UserOrderByWithRelationInput
   }
 
   export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -21596,16 +21688,19 @@ export namespace Prisma {
     OR?: OrganizationWhereInput[]
     NOT?: OrganizationWhereInput | OrganizationWhereInput[]
     name?: StringFilter<"Organization"> | string
+    ownerUserId?: StringNullableFilter<"Organization"> | string | null
     createdAt?: DateTimeFilter<"Organization"> | Date | string
     updatedAt?: DateTimeFilter<"Organization"> | Date | string
     memberships?: OrganizationMembershipListRelationFilter
     Product?: ProductListRelationFilter
+    owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "url">
 
   export type OrganizationOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     url?: SortOrder
+    ownerUserId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: OrganizationCountOrderByAggregateInput
@@ -21620,6 +21715,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Organization"> | string
     name?: StringWithAggregatesFilter<"Organization"> | string
     url?: StringWithAggregatesFilter<"Organization"> | string
+    ownerUserId?: StringNullableWithAggregatesFilter<"Organization"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
   }
@@ -21707,6 +21803,7 @@ export namespace Prisma {
     products?: ProductListRelationFilter
     memberships?: OrganizationMembershipListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
+    Organization?: OrganizationListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -21725,6 +21822,7 @@ export namespace Prisma {
     products?: ProductOrderByRelationAggregateInput
     memberships?: OrganizationMembershipOrderByRelationAggregateInput
     ProductUpvote?: ProductUpvoteOrderByRelationAggregateInput
+    Organization?: OrganizationOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -21746,6 +21844,7 @@ export namespace Prisma {
     products?: ProductListRelationFilter
     memberships?: OrganizationMembershipListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
+    Organization?: OrganizationListRelationFilter
   }, "id" | "clerkId" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -22775,12 +22874,14 @@ export namespace Prisma {
     updatedAt?: Date | string
     memberships?: OrganizationMembershipCreateNestedManyWithoutOrganizationInput
     Product?: ProductCreateNestedManyWithoutOrganizationInput
+    owner?: UserCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateInput = {
     id?: string
     name: string
     url: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutOrganizationInput
@@ -22795,12 +22896,14 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUpdateManyWithoutOrganizationNestedInput
     Product?: ProductUpdateManyWithoutOrganizationNestedInput
+    owner?: UserUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -22811,6 +22914,7 @@ export namespace Prisma {
     id?: string
     name: string
     url: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -22827,6 +22931,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22908,6 +23013,7 @@ export namespace Prisma {
     products?: ProductCreateNestedManyWithoutUserInput
     memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutUserInput
+    Organization?: OrganizationCreateNestedManyWithoutOwnerInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -22926,6 +23032,7 @@ export namespace Prisma {
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
+    Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
   }
 
   export type UserUpdateInput = {
@@ -22944,6 +23051,7 @@ export namespace Prisma {
     products?: ProductUpdateManyWithoutUserNestedInput
     memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutUserNestedInput
+    Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -22962,6 +23070,7 @@ export namespace Prisma {
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
+    Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -24069,6 +24178,11 @@ export namespace Prisma {
     none?: ProductWhereInput
   }
 
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
   export type OrganizationMembershipOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -24081,6 +24195,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     url?: SortOrder
+    ownerUserId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24089,6 +24204,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     url?: SortOrder
+    ownerUserId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24097,6 +24213,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     url?: SortOrder
+    ownerUserId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24136,6 +24253,16 @@ export namespace Prisma {
     jobTitle?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type OrganizationListRelationFilter = {
+    every?: OrganizationWhereInput
+    some?: OrganizationWhereInput
+    none?: OrganizationWhereInput
+  }
+
+  export type OrganizationOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type UserCountOrderByAggregateInput = {
@@ -24928,6 +25055,12 @@ export namespace Prisma {
     connect?: ProductWhereUniqueInput | ProductWhereUniqueInput[]
   }
 
+  export type UserCreateNestedOneWithoutOrganizationInput = {
+    create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput>
+    connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type OrganizationMembershipUncheckedCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<OrganizationMembershipCreateWithoutOrganizationInput, OrganizationMembershipUncheckedCreateWithoutOrganizationInput> | OrganizationMembershipCreateWithoutOrganizationInput[] | OrganizationMembershipUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: OrganizationMembershipCreateOrConnectWithoutOrganizationInput | OrganizationMembershipCreateOrConnectWithoutOrganizationInput[]
@@ -24968,6 +25101,16 @@ export namespace Prisma {
     update?: ProductUpdateWithWhereUniqueWithoutOrganizationInput | ProductUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: ProductUpdateManyWithWhereWithoutOrganizationInput | ProductUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: ProductScalarWhereInput | ProductScalarWhereInput[]
+  }
+
+  export type UserUpdateOneWithoutOrganizationNestedInput = {
+    create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput>
+    connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput
+    upsert?: UserUpsertWithoutOrganizationInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutOrganizationInput, UserUpdateWithoutOrganizationInput>, UserUncheckedUpdateWithoutOrganizationInput>
   }
 
   export type OrganizationMembershipUncheckedUpdateManyWithoutOrganizationNestedInput = {
@@ -25047,6 +25190,13 @@ export namespace Prisma {
     connect?: ProductUpvoteWhereUniqueInput | ProductUpvoteWhereUniqueInput[]
   }
 
+  export type OrganizationCreateNestedManyWithoutOwnerInput = {
+    create?: XOR<OrganizationCreateWithoutOwnerInput, OrganizationUncheckedCreateWithoutOwnerInput> | OrganizationCreateWithoutOwnerInput[] | OrganizationUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: OrganizationCreateOrConnectWithoutOwnerInput | OrganizationCreateOrConnectWithoutOwnerInput[]
+    createMany?: OrganizationCreateManyOwnerInputEnvelope
+    connect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+  }
+
   export type ProductUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<ProductCreateWithoutUserInput, ProductUncheckedCreateWithoutUserInput> | ProductCreateWithoutUserInput[] | ProductUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ProductCreateOrConnectWithoutUserInput | ProductCreateOrConnectWithoutUserInput[]
@@ -25066,6 +25216,13 @@ export namespace Prisma {
     connectOrCreate?: ProductUpvoteCreateOrConnectWithoutUserInput | ProductUpvoteCreateOrConnectWithoutUserInput[]
     createMany?: ProductUpvoteCreateManyUserInputEnvelope
     connect?: ProductUpvoteWhereUniqueInput | ProductUpvoteWhereUniqueInput[]
+  }
+
+  export type OrganizationUncheckedCreateNestedManyWithoutOwnerInput = {
+    create?: XOR<OrganizationCreateWithoutOwnerInput, OrganizationUncheckedCreateWithoutOwnerInput> | OrganizationCreateWithoutOwnerInput[] | OrganizationUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: OrganizationCreateOrConnectWithoutOwnerInput | OrganizationCreateOrConnectWithoutOwnerInput[]
+    createMany?: OrganizationCreateManyOwnerInputEnvelope
+    connect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
   }
 
   export type ProductUpdateManyWithoutUserNestedInput = {
@@ -25110,6 +25267,20 @@ export namespace Prisma {
     deleteMany?: ProductUpvoteScalarWhereInput | ProductUpvoteScalarWhereInput[]
   }
 
+  export type OrganizationUpdateManyWithoutOwnerNestedInput = {
+    create?: XOR<OrganizationCreateWithoutOwnerInput, OrganizationUncheckedCreateWithoutOwnerInput> | OrganizationCreateWithoutOwnerInput[] | OrganizationUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: OrganizationCreateOrConnectWithoutOwnerInput | OrganizationCreateOrConnectWithoutOwnerInput[]
+    upsert?: OrganizationUpsertWithWhereUniqueWithoutOwnerInput | OrganizationUpsertWithWhereUniqueWithoutOwnerInput[]
+    createMany?: OrganizationCreateManyOwnerInputEnvelope
+    set?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    disconnect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    delete?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    connect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    update?: OrganizationUpdateWithWhereUniqueWithoutOwnerInput | OrganizationUpdateWithWhereUniqueWithoutOwnerInput[]
+    updateMany?: OrganizationUpdateManyWithWhereWithoutOwnerInput | OrganizationUpdateManyWithWhereWithoutOwnerInput[]
+    deleteMany?: OrganizationScalarWhereInput | OrganizationScalarWhereInput[]
+  }
+
   export type ProductUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<ProductCreateWithoutUserInput, ProductUncheckedCreateWithoutUserInput> | ProductCreateWithoutUserInput[] | ProductUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ProductCreateOrConnectWithoutUserInput | ProductCreateOrConnectWithoutUserInput[]
@@ -25150,6 +25321,20 @@ export namespace Prisma {
     update?: ProductUpvoteUpdateWithWhereUniqueWithoutUserInput | ProductUpvoteUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: ProductUpvoteUpdateManyWithWhereWithoutUserInput | ProductUpvoteUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: ProductUpvoteScalarWhereInput | ProductUpvoteScalarWhereInput[]
+  }
+
+  export type OrganizationUncheckedUpdateManyWithoutOwnerNestedInput = {
+    create?: XOR<OrganizationCreateWithoutOwnerInput, OrganizationUncheckedCreateWithoutOwnerInput> | OrganizationCreateWithoutOwnerInput[] | OrganizationUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: OrganizationCreateOrConnectWithoutOwnerInput | OrganizationCreateOrConnectWithoutOwnerInput[]
+    upsert?: OrganizationUpsertWithWhereUniqueWithoutOwnerInput | OrganizationUpsertWithWhereUniqueWithoutOwnerInput[]
+    createMany?: OrganizationCreateManyOwnerInputEnvelope
+    set?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    disconnect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    delete?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    connect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    update?: OrganizationUpdateWithWhereUniqueWithoutOwnerInput | OrganizationUpdateWithWhereUniqueWithoutOwnerInput[]
+    updateMany?: OrganizationUpdateManyWithWhereWithoutOwnerInput | OrganizationUpdateManyWithWhereWithoutOwnerInput[]
+    deleteMany?: OrganizationScalarWhereInput | OrganizationScalarWhereInput[]
   }
 
   export type ProductCreateNestedManyWithoutCategoryInput = {
@@ -25786,6 +25971,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutUserInput
+    Organization?: OrganizationCreateNestedManyWithoutOwnerInput
   }
 
   export type UserUncheckedCreateWithoutProductsInput = {
@@ -25803,6 +25989,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
+    Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
   }
 
   export type UserCreateOrConnectWithoutProductsInput = {
@@ -25881,12 +26068,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     memberships?: OrganizationMembershipCreateNestedManyWithoutOrganizationInput
+    owner?: UserCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutProductInput = {
     id?: string
     name: string
     url: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutOrganizationInput
@@ -26068,6 +26257,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutUserNestedInput
+    Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProductsInput = {
@@ -26085,6 +26275,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
+    Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
   }
 
   export type CategoryUpsertWithoutProductsInput = {
@@ -26181,12 +26372,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUpdateManyWithoutOrganizationNestedInput
+    owner?: UserUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -27023,6 +27216,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutUserInput
     memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
+    Organization?: OrganizationCreateNestedManyWithoutOwnerInput
   }
 
   export type UserUncheckedCreateWithoutProductUpvoteInput = {
@@ -27040,6 +27234,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
+    Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
   }
 
   export type UserCreateOrConnectWithoutProductUpvoteInput = {
@@ -27148,6 +27343,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutUserNestedInput
     memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
+    Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProductUpvoteInput = {
@@ -27165,6 +27361,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
+    Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
   }
 
   export type OrganizationMembershipCreateWithoutOrganizationInput = {
@@ -27267,6 +27464,47 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserCreateWithoutOrganizationInput = {
+    id?: string
+    clerkId: string
+    email: string
+    firstName: string
+    lastName: string
+    role?: string
+    roleIntent?: string | null
+    heardFrom?: string | null
+    acceptedTerms?: boolean
+    termsAcceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    products?: ProductCreateNestedManyWithoutUserInput
+    memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
+    ProductUpvote?: ProductUpvoteCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    clerkId: string
+    email: string
+    firstName: string
+    lastName: string
+    role?: string
+    roleIntent?: string | null
+    heardFrom?: string | null
+    acceptedTerms?: boolean
+    termsAcceptedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    products?: ProductUncheckedCreateNestedManyWithoutUserInput
+    memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
+    ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutOrganizationInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput>
+  }
+
   export type OrganizationMembershipUpsertWithWhereUniqueWithoutOrganizationInput = {
     where: OrganizationMembershipWhereUniqueInput
     update: XOR<OrganizationMembershipUpdateWithoutOrganizationInput, OrganizationMembershipUncheckedUpdateWithoutOrganizationInput>
@@ -27341,6 +27579,53 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Product"> | Date | string
   }
 
+  export type UserUpsertWithoutOrganizationInput = {
+    update: XOR<UserUpdateWithoutOrganizationInput, UserUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutOrganizationInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutOrganizationInput, UserUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type UserUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clerkId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
+    heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
+    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    products?: ProductUpdateManyWithoutUserNestedInput
+    memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
+    ProductUpvote?: ProductUpvoteUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clerkId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
+    heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
+    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    products?: ProductUncheckedUpdateManyWithoutUserNestedInput
+    memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
+    ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type UserCreateWithoutMembershipsInput = {
     id?: string
     clerkId: string
@@ -27356,6 +27641,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutUserInput
+    Organization?: OrganizationCreateNestedManyWithoutOwnerInput
   }
 
   export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -27373,6 +27659,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
+    Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
   }
 
   export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -27387,12 +27674,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     Product?: ProductCreateNestedManyWithoutOrganizationInput
+    owner?: UserCreateNestedOneWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutMembershipsInput = {
     id?: string
     name: string
     url: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     Product?: ProductUncheckedCreateNestedManyWithoutOrganizationInput
@@ -27429,6 +27718,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutUserNestedInput
+    Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -27446,6 +27736,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
+    Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
   }
 
   export type OrganizationUpsertWithoutMembershipsInput = {
@@ -27466,12 +27757,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     Product?: ProductUpdateManyWithoutOrganizationNestedInput
+    owner?: UserUpdateOneWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutMembershipsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     Product?: ProductUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -27599,6 +27892,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type OrganizationCreateWithoutOwnerInput = {
+    id?: string
+    name: string
+    url: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: OrganizationMembershipCreateNestedManyWithoutOrganizationInput
+    Product?: ProductCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutOwnerInput = {
+    id?: string
+    name: string
+    url: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutOrganizationInput
+    Product?: ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutOwnerInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutOwnerInput, OrganizationUncheckedCreateWithoutOwnerInput>
+  }
+
+  export type OrganizationCreateManyOwnerInputEnvelope = {
+    data: OrganizationCreateManyOwnerInput | OrganizationCreateManyOwnerInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ProductUpsertWithWhereUniqueWithoutUserInput = {
     where: ProductWhereUniqueInput
     update: XOR<ProductUpdateWithoutUserInput, ProductUncheckedUpdateWithoutUserInput>
@@ -27645,6 +27968,34 @@ export namespace Prisma {
   export type ProductUpvoteUpdateManyWithWhereWithoutUserInput = {
     where: ProductUpvoteScalarWhereInput
     data: XOR<ProductUpvoteUpdateManyMutationInput, ProductUpvoteUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type OrganizationUpsertWithWhereUniqueWithoutOwnerInput = {
+    where: OrganizationWhereUniqueInput
+    update: XOR<OrganizationUpdateWithoutOwnerInput, OrganizationUncheckedUpdateWithoutOwnerInput>
+    create: XOR<OrganizationCreateWithoutOwnerInput, OrganizationUncheckedCreateWithoutOwnerInput>
+  }
+
+  export type OrganizationUpdateWithWhereUniqueWithoutOwnerInput = {
+    where: OrganizationWhereUniqueInput
+    data: XOR<OrganizationUpdateWithoutOwnerInput, OrganizationUncheckedUpdateWithoutOwnerInput>
+  }
+
+  export type OrganizationUpdateManyWithWhereWithoutOwnerInput = {
+    where: OrganizationScalarWhereInput
+    data: XOR<OrganizationUpdateManyMutationInput, OrganizationUncheckedUpdateManyWithoutOwnerInput>
+  }
+
+  export type OrganizationScalarWhereInput = {
+    AND?: OrganizationScalarWhereInput | OrganizationScalarWhereInput[]
+    OR?: OrganizationScalarWhereInput[]
+    NOT?: OrganizationScalarWhereInput | OrganizationScalarWhereInput[]
+    id?: StringFilter<"Organization"> | string
+    name?: StringFilter<"Organization"> | string
+    url?: StringFilter<"Organization"> | string
+    ownerUserId?: StringNullableFilter<"Organization"> | string | null
+    createdAt?: DateTimeFilter<"Organization"> | Date | string
+    updatedAt?: DateTimeFilter<"Organization"> | Date | string
   }
 
   export type ProductCreateWithoutCategoryInput = {
@@ -28664,6 +29015,14 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type OrganizationCreateManyOwnerInput = {
+    id?: string
+    name: string
+    url: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type ProductUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -28794,6 +29153,34 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationUpdateWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: OrganizationMembershipUpdateManyWithoutOrganizationNestedInput
+    Product?: ProductUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: OrganizationMembershipUncheckedUpdateManyWithoutOrganizationNestedInput
+    Product?: ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateManyWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductCreateManyCategoryInput = {

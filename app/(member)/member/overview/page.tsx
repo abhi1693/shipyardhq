@@ -149,7 +149,7 @@ export default async function OverviewPage({
 
       <div className="mx-0 mb-4 h-px rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] opacity-70" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
         <StatCard
           title="Products Created"
           value={stats.totalProducts}

@@ -12,7 +12,13 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       name: z.string().min(1, "Name is required"),
       tagline: z.string().min(1, "Tagline is required"),
       description: z.string().min(1, "Description is required"),
-      websiteUrl: z.url("Valid URL required"),
+      websiteUrl: z
+        .preprocess(
+          (v) => (typeof v === "string" ? v.replace(/^\/+/, "").trim() : v),
+          z.string(),
+        )
+        .transform((s) => s as string)
+        .pipe(z.url("Valid URL required")),
       logo: z.url("Valid logo URL required"),
       categoryId: z.string().min(1, "Category is required"),
       type: z.enum(PRODUCT_TYPES, { message: "Select a product type" }),
@@ -69,6 +75,22 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
         .optional(),
     })
     .superRefine((val, ctx) => {
+      // Website URL must be root domain (no path/query/hash)
+      if (val.websiteUrl) {
+        try {
+          const u = new URL(val.websiteUrl)
+          if ((u.pathname && u.pathname !== "/") || u.search || u.hash) {
+            ctx.addIssue({
+              path: ["websiteUrl"],
+              code: z.ZodIssueCode.custom,
+              message: "Use a root domain without any path",
+            })
+          }
+        } catch {
+          // handled by z.url above
+        }
+      }
+
       // Pricing dependencies
       const pm = val.pricingModel
       const hasPrice =

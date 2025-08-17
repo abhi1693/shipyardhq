@@ -46,6 +46,14 @@ export default function Step3({
 
   useEffect(() => {
     let active = true
+
+    async function sha256Hex(input: string): Promise<string> {
+      const enc = new TextEncoder().encode(input)
+      const buf = await crypto.subtle.digest("SHA-256", enc)
+      const bytes = Array.from(new Uint8Array(buf))
+      return bytes.map((b) => b.toString(16).padStart(2, "0")).join("")
+    }
+
     async function load() {
       if (!website) {
         form.setValue("verificationExpectedTxt", "")
@@ -54,14 +62,28 @@ export default function Step3({
         form.setValue("verificationSuccess", false)
         return
       }
-      const res = await checkDomainTxtAction(website)
-      if (active && "expected" in res && res.expected) {
-        form.setValue("verificationExpectedTxt", res.expected)
-      }
+
+      // Compute expected locally to avoid placeholder flicker
+      try {
+        const norm = website.trim().toLowerCase()
+        const hex = await sha256Hex(norm)
+        const localExpected = `prod-verif-shipyard-${hex.slice(0, 12)}`
+        if (active) form.setValue("verificationExpectedTxt", localExpected)
+      } catch {}
+
+      // Also attempt DNS check (best effort) and keep expected in sync
+      try {
+        const res = await checkDomainTxtAction(website)
+        if (active && "expected" in res && res.expected) {
+          form.setValue("verificationExpectedTxt", res.expected)
+        }
+      } catch {}
+
       // Any website change invalidates prior verification result
       form.setValue("verificationChecked", false)
       form.setValue("verificationSuccess", false)
     }
+
     load()
     return () => {
       active = false

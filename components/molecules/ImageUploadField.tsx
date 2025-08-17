@@ -28,6 +28,7 @@ export default function ImageUploadField({
   const value = (watch(name) as string) || ""
   const [error, setError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   async function handleFiles(files: FileList | null) {
     if (!files?.length) return
@@ -75,12 +76,39 @@ export default function ImageUploadField({
               <ExternalLink className="h-3.5 w-3.5" /> Open
             </a>
             <DeleteButton
-              label="Remove"
               size="sm"
-              onClick={() =>
-                setValue(name, "", { shouldDirty: true, shouldValidate: true })
-              }
-              disabled={uploading}
+              onClick={async () => {
+                if (!value) {
+                  setValue(name, "", {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                  return
+                }
+                setDeleting(true)
+                setError(null)
+                try {
+                  const res = await fetch(
+                    `/api/uploads?url=${encodeURIComponent(value)}`,
+                    {
+                      method: "DELETE",
+                    },
+                  )
+                  if (!res.ok && res.status !== 204) {
+                    // Non-blocking: still clear the field
+                    console.warn("Failed to delete blob for", value)
+                  }
+                } catch (e: any) {
+                  console.warn("Delete request failed", e)
+                } finally {
+                  setDeleting(false)
+                  setValue(name, "", {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              }}
+              disabled={uploading || deleting}
             />
           </div>
         </div>
@@ -102,6 +130,11 @@ export default function ImageUploadField({
             <div className="flex items-center gap-2 text-muted-foreground">
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
               Uploading…
+            </div>
+          ) : deleting ? (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+              Removing…
             </div>
           ) : (
             <div>

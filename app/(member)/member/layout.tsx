@@ -23,6 +23,11 @@ const navItems: NavItem[] = [
     icon: "product",
   },
   {
+    title: "Organizations",
+    url: "/member/organizations",
+    icon: "team",
+  },
+  {
     title: "Account",
     url: "#",
     icon: "billing",

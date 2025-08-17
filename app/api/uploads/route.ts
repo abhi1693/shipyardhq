@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server"
-import { putBlob } from "@/lib/blob"
+import { putBlob, deleteBlob } from "@/lib/blob"
 import { toWebpIfPossible } from "@/lib/server/image"
 
 export const dynamic = "force-dynamic"
@@ -41,5 +41,48 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.error("Generic upload error:", err)
     return new Response(err?.message || "Upload failed", { status: 500 })
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { userId } = await auth()
+    if (!userId) return new Response("Unauthorized", { status: 401 })
+
+    // Support url via JSON body or query param
+    let url: string | undefined
+    const contentType = req.headers.get("content-type") || ""
+    if (contentType.includes("application/json")) {
+      const body = (await req.json().catch(() => ({}))) as any
+      url = typeof body?.url === "string" ? body.url : undefined
+    }
+    if (!url) {
+      const u = new URL(req.url)
+      url = u.searchParams.get("url") ?? undefined
+    }
+    if (!url) return new Response("Missing url", { status: 400 })
+
+    // Only allow deleting blobs under the current user's prefix on Vercel Blob
+    try {
+      const u = new URL(url)
+      const isVercelHost = u.hostname.includes("vercel-storage.com")
+      const pathOk = u.pathname.startsWith(`/${userId}/`)
+      if (!isVercelHost || !pathOk) {
+        return new Response("Forbidden", { status: 403 })
+      }
+    } catch {
+      return new Response("Invalid url", { status: 400 })
+    }
+
+    try {
+      await deleteBlob(url)
+    } catch (e) {
+      // Best-effort; return 204 even if delete fails to avoid blocking UX
+      console.warn("Blob delete failed (continuing):", e)
+    }
+    return new Response(null, { status: 204 })
+  } catch (err: any) {
+    console.error("Generic delete upload error:", err)
+    return new Response(err?.message || "Delete failed", { status: 500 })
   }
 }

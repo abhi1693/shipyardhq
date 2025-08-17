@@ -34,7 +34,17 @@ export default function Step4({
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organization</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>Organization</FormLabel>
+                <a
+                  href="/member/organizations"
+                  className="text-xs text-primary hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Manage organizations
+                </a>
+              </div>
               <Select
                 onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
                 value={field.value && field.value.length ? field.value : "none"}

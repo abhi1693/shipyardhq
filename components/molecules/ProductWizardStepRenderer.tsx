@@ -9,9 +9,6 @@ const Step1 = dynamic(
 const Step2 = dynamic(
   () => import("@/app/(member)/member/products/shared/step2"),
 )
-const Step3 = dynamic(
-  () => import("@/app/(member)/member/products/shared/step3"),
-)
 const Step4 = dynamic(
   () => import("@/app/(member)/member/products/shared/step4"),
 )
@@ -40,13 +37,6 @@ export function renderStep(
     case 2:
       return <Step2 />
     case 3:
-      return (
-        <Step3
-          productId={args.productId}
-          persistOnVerify={Boolean(args.persistOnVerify)}
-        />
-      )
-    case 4:
       return (
         <Step4 organizations={args.organizations} productId={args.productId} />
       )

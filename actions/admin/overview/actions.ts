@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { clerkClient } from "@clerk/nextjs/server"
 import { addDays, startOfDay, subDays } from "date-fns"
 
 export async function getRecentProducts(limit = 10, days?: number) {
@@ -135,7 +136,29 @@ export async function getDashboardStats(days = 7) {
   const unverifiedProducts = totalProducts - verifiedProducts
   const verifiedRate =
     totalProducts > 0 ? Math.round((verifiedProducts / totalProducts) * 100) : 0
-  const memberCount = totalUsers - adminCount
+
+  // Fallback/supplement: derive admin count from Clerk public metadata
+  let adminCountFromClerk = 0
+  try {
+    const ids = await prisma.user.findMany({ select: { clerkId: true } })
+    const client = await clerkClient()
+    const results = await Promise.all(
+      ids.map(async (u) => {
+        try {
+          const user = await client.users.getUser(u.clerkId)
+          const role = (user.publicMetadata as any)?.role
+          return role === "admin" ? 1 : 0
+        } catch {
+          return 0
+        }
+      }),
+    )
+    adminCountFromClerk = results.reduce<number>((a, b) => a + b, 0)
+  } catch (e) {
+    // ignore Clerk failures; rely on DB role
+  }
+  const effectiveAdminCount = Math.max(adminCount, adminCountFromClerk)
+  const memberCount = totalUsers - effectiveAdminCount
 
   // Previous-period counts for deltas
   const [prevProducts, prevUsers] = await Promise.all([
@@ -167,7 +190,7 @@ export async function getDashboardStats(days = 7) {
     productsDelta,
     usersDelta,
     verifiedRate,
-    adminCount,
+    adminCount: effectiveAdminCount,
     memberCount,
     defaultPlanProductCount,
     mostPopularPlan: mostPopularPlan
