@@ -3,14 +3,14 @@ import { on } from "@/lib/server/events"
 
 // Auto-assign the "new" badge for newly created products
 on("product.created", async ({ productId }) => {
-  const sevenDays = 7 * 24 * 60 * 60 * 1000
-  const expiresAt = new Date(Date.now() + sevenDays)
+  const oneDay = 24 * 60 * 60 * 1000
+  const expiresAt = new Date(Date.now() + oneDay)
   const badge = "new"
 
   try {
-    const existing = await prisma.productBadge.findFirst({
-      where: { productId, badge },
-    })
+      const existing = await prisma.productBadge.findFirst({
+        where: { productId, badge },
+      })
 
     if (existing) {
       // If already exists, leave as-is; optionally refresh expiry if missing
@@ -40,7 +40,7 @@ on("badge.assigned", async ({ id, badge, expiresAt }) => {
     let ttlMs: number | null = null
     switch (badge) {
       case "new":
-        ttlMs = 7 * 24 * 60 * 60 * 1000 // 7 days
+        ttlMs = 24 * 60 * 60 * 1000 // 1 day
         break
       case "featured":
         ttlMs = 7 * 24 * 60 * 60 * 1000 // default 7 days
@@ -68,7 +68,7 @@ on("badge.assigned", async ({ id, badge, expiresAt }) => {
 
 // Hooks for future behavior (examples)
 on("product.updated", async ({ productId }) => {
-  // Example: ensure "new" badge exists if product is within 7 days of creation
+  // Ensure "new" badge exists if product is within 1 day of creation
   try {
     const product = await prisma.product.findUnique({
       where: { id: productId },
@@ -76,8 +76,8 @@ on("product.updated", async ({ productId }) => {
     })
     if (!product) return
     const ageMs = Date.now() - product.createdAt.getTime()
-    const sevenDays = 7 * 24 * 60 * 60 * 1000
-    if (ageMs < sevenDays) {
+    const oneDay = 24 * 60 * 60 * 1000
+    if (ageMs < oneDay) {
       const existing = await prisma.productBadge.findFirst({
         where: { productId, badge: "new" },
       })
@@ -86,7 +86,7 @@ on("product.updated", async ({ productId }) => {
           data: {
             productId,
             badge: "new",
-            expiresAt: new Date(product.createdAt.getTime() + sevenDays),
+            expiresAt: new Date(product.createdAt.getTime() + oneDay),
           },
         })
       }
