@@ -16,11 +16,10 @@ export async function getMyOrganizations() {
   if (!user) throw new Error("User not found")
 
   const gate = await requireMemberFeature("organization")
+  // When not entitled, return an empty list to keep the
+  // return type consistent with the array expected by callers.
   if (!gate.ok) {
-    // Return empty dataset gracefully if not entitled
-    const page = 1
-    const limit = 10
-    return { rows: [], total: 0, page, limit }
+    return []
   }
 
   return prisma.organization.findMany({
