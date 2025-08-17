@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "./generated/client"
+  output   = "./generated/client"
 }
 
 datasource db {
@@ -218,18 +218,18 @@ model Category {
 }
 
 model Plan {
-  id          String   @id @default(cuid())
-  externalId  String?  @unique
-  name        String
-  slug        String   @unique
-  description String?
-  type        PlanType
-  price       Int // in cents
-  discount    Float? // percentage
-  boostForDays Int @default(1)   // how long the boost applies (1-30 days)
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  externalId   String?  @unique
+  name         String
+  slug         String   @unique
+  description  String?
+  type         PlanType
+  price        Int // in cents
+  discount     Float? // percentage
+  boostForDays Int      @default(1) // how long the boost applies (1-30 days)
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   products    Product[]
   assignments PlanFeatureAssignment[]
