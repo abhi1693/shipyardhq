@@ -14,10 +14,10 @@ export async function getMyOrganizations() {
   if (!user) throw new Error("User not found")
 
   return prisma.organization.findMany({
-    where: {memberships: {some: {userId: user.id}}},
-    select: {id: true, name: true, url: true},
-    orderBy: {name: "asc"},
-  });
+    where: { memberships: { some: { userId: user.id } } },
+    select: { id: true, name: true, url: true },
+    orderBy: { name: "asc" },
+  })
 }
 
 export async function getMyOrganizationById(id: string) {

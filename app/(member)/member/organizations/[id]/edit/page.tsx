@@ -1,0 +1,120 @@
+"use client"
+
+import { useParams, useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  updateMyOrganizationAction,
+  getMyOrganizationById,
+} from "@/actions/member/organizations/actions"
+import { useEffect, useState } from "react"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/atoms/form"
+import { Input } from "@/components/atoms/input"
+import SaveButton from "@/components/molecules/SaveButton"
+
+const schema = z.object({
+  name: z.string().min(1, "Name is required"),
+  url: z
+    .string()
+    .min(1, "URL is required")
+    .regex(
+      /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i,
+      "Enter a valid domain, e.g. acme.com",
+    ),
+})
+
+type Values = z.infer<typeof schema>
+
+export default function EditOrganizationPage() {
+  const router = useRouter()
+  const { id } = useParams<{ id: string }>()
+  const [initial, setInitial] = useState<Values | null>(null)
+  const form = useForm<Values>({
+    resolver: zodResolver(schema),
+    defaultValues: { name: "", url: "" },
+  })
+
+  useEffect(() => {
+    ;(async () => {
+      if (!id) return
+      const org = (await getMyOrganizationById(id as string)) as {
+        name: string
+        url: string
+      } | null
+      if (!org) return router.replace("/member/organizations")
+      setInitial({ name: org.name, url: org.url })
+      form.reset({ name: org.name, url: org.url })
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
+
+  async function onSubmit(values: Values) {
+    const res = await updateMyOrganizationAction(id as string, values)
+    if ((res as any)?.error) {
+      form.setError("url", { type: "server", message: (res as any).error })
+      return
+    }
+    router.push(`/member/organizations/${id}`)
+  }
+
+  if (!initial) return null
+
+  return (
+    <Card className="mx-auto w-full max-w-md">
+      <CardHeader>
+        <CardTitle className="text-left text-2xl font-bold">
+          Edit Organization
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Acme Inc." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL (domain)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="acme.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <SaveButton type="submit" disabled={form.formState.isSubmitting}>
+              Save Changes
+            </SaveButton>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  )
+}

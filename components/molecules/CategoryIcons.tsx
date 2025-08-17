@@ -113,10 +113,18 @@ export const CATEGORY_ICON_OPTIONS: {
   { value: "briefcase", label: "Briefcase / HR", Icon: IconBriefcase },
   { value: "wifi", label: "Wi‑Fi / IoT", Icon: IconWifi },
   { value: "scale", label: "Scale / Legal", Icon: IconScale },
-  { value: "megaphone", label: "Megaphone / Marketing", Icon: IconSpeakerphone },
+  {
+    value: "megaphone",
+    label: "Megaphone / Marketing",
+    Icon: IconSpeakerphone,
+  },
   { value: "car", label: "Car / Mobility", Icon: IconCar },
   { value: "music", label: "Music / Audio", Icon: IconMusic },
-  { value: "handheart", label: "Hand Heart / Impact", Icon: IconHeartHandshake },
+  {
+    value: "handheart",
+    label: "Hand Heart / Impact",
+    Icon: IconHeartHandshake,
+  },
   {
     value: "checklist",
     label: "Checklist / Productivity",
