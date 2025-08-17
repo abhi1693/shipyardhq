@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import { PLAN_FEATURE_KEYS } from "@/lib/constants"
 
 export async function existsPlanFeature(key: string) {
   return prisma.planFeature.findUnique({
@@ -15,6 +16,9 @@ export async function createPlanFeatureAction(formData: FormData) {
   const description = formData.get("description")!.toString().trim()
 
   try {
+    if (!PLAN_FEATURE_KEYS.includes(key as any)) {
+      return { error: "Invalid feature key." }
+    }
     const existing = await existsPlanFeature(key)
     if (existing) {
       return { error: "Feature key already exists." }

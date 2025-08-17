@@ -62,3 +62,18 @@ export const PLATFORMS = [
 ] as const
 
 export type PlatformCode = (typeof PLATFORMS)[number]
+
+export const PLAN_FEATURE_KEYS = [
+  "analytics.basic",
+  "analytics.advanced",
+  "featured",
+  "priorityPlacement",
+  "homepage",
+  "stickyBanner",
+  "customCTA",
+  "earlyAccess",
+  "newsletterPromotion",
+  "backlink",
+] as const
+
+export type PlanFeatureKey = (typeof PLAN_FEATURE_KEYS)[number]

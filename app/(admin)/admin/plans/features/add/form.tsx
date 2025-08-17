@@ -21,12 +21,25 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/atoms/select"
 import CreateButton from "@/components/molecules/CreateButton"
 import PageContainer from "@/components/layout/page-container"
 import { createPlanFeatureAction } from "@/actions/admin/plans/features/actions"
+import { PLAN_FEATURE_KEYS } from "@/lib/constants"
 
 const featureFormSchema = z.object({
-  key: z.string().min(1, "Key is required"),
+  key: z
+    .string()
+    .min(1, "Key is required")
+    .refine((v) => PLAN_FEATURE_KEYS.includes(v as any), {
+      message: "Select a valid feature key",
+    }),
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
 })
@@ -86,7 +99,21 @@ export default function AddPlanFeatureForm() {
                   <FormItem>
                     <FormLabel>Key</FormLabel>
                     <FormControl>
-                      <Input placeholder="feature.unique.key" {...field} />
+                      <Select
+                        value={field.value || undefined}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a feature key" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PLAN_FEATURE_KEYS.map((keyStr) => (
+                            <SelectItem key={keyStr} value={keyStr}>
+                              {keyStr}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
