@@ -161,6 +161,10 @@ model Organization {
   createdAt   DateTime                 @default(now())
   updatedAt   DateTime                 @updatedAt
   memberships OrganizationMembership[]
+  planId      String?
+
+  // Organization-level subscription plan (optional)
+  plan   Plan? @relation(fields: [planId], references: [id], onDelete: SetNull)
 
   Product Product[]
 
@@ -236,6 +240,7 @@ model Plan {
 
   products    Product[]
   assignments PlanFeatureAssignment[]
+  Organization Organization[]
 }
 
 model PlanFeature {
@@ -263,6 +268,7 @@ model PlanFeatureAssignment {
 
   @@unique([planId, featureId]) // Prevent duplicate assignments
 }
+
 
 enum PlanType {
   one_time_price

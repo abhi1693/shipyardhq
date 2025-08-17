@@ -2530,11 +2530,13 @@ export namespace Prisma {
   export type PlanCountOutputType = {
     products: number
     assignments: number
+    Organization: number
   }
 
   export type PlanCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     products?: boolean | PlanCountOutputTypeCountProductsArgs
     assignments?: boolean | PlanCountOutputTypeCountAssignmentsArgs
+    Organization?: boolean | PlanCountOutputTypeCountOrganizationArgs
   }
 
   // Custom InputTypes
@@ -2560,6 +2562,13 @@ export namespace Prisma {
    */
   export type PlanCountOutputTypeCountAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PlanFeatureAssignmentWhereInput
+  }
+
+  /**
+   * PlanCountOutputType without action
+   */
+  export type PlanCountOutputTypeCountOrganizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrganizationWhereInput
   }
 
 
@@ -9621,6 +9630,7 @@ export namespace Prisma {
     ownerUserId: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    planId: string | null
   }
 
   export type OrganizationMaxAggregateOutputType = {
@@ -9630,6 +9640,7 @@ export namespace Prisma {
     ownerUserId: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    planId: string | null
   }
 
   export type OrganizationCountAggregateOutputType = {
@@ -9639,6 +9650,7 @@ export namespace Prisma {
     ownerUserId: number
     createdAt: number
     updatedAt: number
+    planId: number
     _all: number
   }
 
@@ -9650,6 +9662,7 @@ export namespace Prisma {
     ownerUserId?: true
     createdAt?: true
     updatedAt?: true
+    planId?: true
   }
 
   export type OrganizationMaxAggregateInputType = {
@@ -9659,6 +9672,7 @@ export namespace Prisma {
     ownerUserId?: true
     createdAt?: true
     updatedAt?: true
+    planId?: true
   }
 
   export type OrganizationCountAggregateInputType = {
@@ -9668,6 +9682,7 @@ export namespace Prisma {
     ownerUserId?: true
     createdAt?: true
     updatedAt?: true
+    planId?: true
     _all?: true
   }
 
@@ -9750,6 +9765,7 @@ export namespace Prisma {
     ownerUserId: string | null
     createdAt: Date
     updatedAt: Date
+    planId: string | null
     _count: OrganizationCountAggregateOutputType | null
     _min: OrganizationMinAggregateOutputType | null
     _max: OrganizationMaxAggregateOutputType | null
@@ -9776,7 +9792,9 @@ export namespace Prisma {
     ownerUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    planId?: boolean
     memberships?: boolean | Organization$membershipsArgs<ExtArgs>
+    plan?: boolean | Organization$planArgs<ExtArgs>
     Product?: boolean | Organization$ProductArgs<ExtArgs>
     owner?: boolean | Organization$ownerArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
@@ -9789,6 +9807,8 @@ export namespace Prisma {
     ownerUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    planId?: boolean
+    plan?: boolean | Organization$planArgs<ExtArgs>
     owner?: boolean | Organization$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["organization"]>
 
@@ -9799,6 +9819,8 @@ export namespace Prisma {
     ownerUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    planId?: boolean
+    plan?: boolean | Organization$planArgs<ExtArgs>
     owner?: boolean | Organization$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["organization"]>
 
@@ -9809,19 +9831,23 @@ export namespace Prisma {
     ownerUserId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    planId?: boolean
   }
 
-  export type OrganizationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "ownerUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+  export type OrganizationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "ownerUserId" | "createdAt" | "updatedAt" | "planId", ExtArgs["result"]["organization"]>
   export type OrganizationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     memberships?: boolean | Organization$membershipsArgs<ExtArgs>
+    plan?: boolean | Organization$planArgs<ExtArgs>
     Product?: boolean | Organization$ProductArgs<ExtArgs>
     owner?: boolean | Organization$ownerArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    plan?: boolean | Organization$planArgs<ExtArgs>
     owner?: boolean | Organization$ownerArgs<ExtArgs>
   }
   export type OrganizationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    plan?: boolean | Organization$planArgs<ExtArgs>
     owner?: boolean | Organization$ownerArgs<ExtArgs>
   }
 
@@ -9829,6 +9855,7 @@ export namespace Prisma {
     name: "Organization"
     objects: {
       memberships: Prisma.$OrganizationMembershipPayload<ExtArgs>[]
+      plan: Prisma.$PlanPayload<ExtArgs> | null
       Product: Prisma.$ProductPayload<ExtArgs>[]
       owner: Prisma.$UserPayload<ExtArgs> | null
     }
@@ -9839,6 +9866,7 @@ export namespace Prisma {
       ownerUserId: string | null
       createdAt: Date
       updatedAt: Date
+      planId: string | null
     }, ExtArgs["result"]["organization"]>
     composites: {}
   }
@@ -10234,6 +10262,7 @@ export namespace Prisma {
   export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     memberships<T extends Organization$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    plan<T extends Organization$planArgs<ExtArgs> = {}>(args?: Subset<T, Organization$planArgs<ExtArgs>>): Prisma__PlanClient<$Result.GetResult<Prisma.$PlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     Product<T extends Organization$ProductArgs<ExtArgs> = {}>(args?: Subset<T, Organization$ProductArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     owner<T extends Organization$ownerArgs<ExtArgs> = {}>(args?: Subset<T, Organization$ownerArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
@@ -10271,6 +10300,7 @@ export namespace Prisma {
     readonly ownerUserId: FieldRef<"Organization", 'String'>
     readonly createdAt: FieldRef<"Organization", 'DateTime'>
     readonly updatedAt: FieldRef<"Organization", 'DateTime'>
+    readonly planId: FieldRef<"Organization", 'String'>
   }
     
 
@@ -10688,6 +10718,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: OrganizationMembershipScalarFieldEnum | OrganizationMembershipScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.plan
+   */
+  export type Organization$planArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Plan
+     */
+    select?: PlanSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Plan
+     */
+    omit?: PlanOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PlanInclude<ExtArgs> | null
+    where?: PlanWhereInput
   }
 
   /**
@@ -14504,6 +14553,7 @@ export namespace Prisma {
     updatedAt?: boolean
     products?: boolean | Plan$productsArgs<ExtArgs>
     assignments?: boolean | Plan$assignmentsArgs<ExtArgs>
+    Organization?: boolean | Plan$OrganizationArgs<ExtArgs>
     _count?: boolean | PlanCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["plan"]>
 
@@ -14568,6 +14618,7 @@ export namespace Prisma {
   export type PlanInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     products?: boolean | Plan$productsArgs<ExtArgs>
     assignments?: boolean | Plan$assignmentsArgs<ExtArgs>
+    Organization?: boolean | Plan$OrganizationArgs<ExtArgs>
     _count?: boolean | PlanCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PlanIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -14578,6 +14629,7 @@ export namespace Prisma {
     objects: {
       products: Prisma.$ProductPayload<ExtArgs>[]
       assignments: Prisma.$PlanFeatureAssignmentPayload<ExtArgs>[]
+      Organization: Prisma.$OrganizationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -14992,6 +15044,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     products<T extends Plan$productsArgs<ExtArgs> = {}>(args?: Subset<T, Plan$productsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     assignments<T extends Plan$assignmentsArgs<ExtArgs> = {}>(args?: Subset<T, Plan$assignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlanFeatureAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    Organization<T extends Plan$OrganizationArgs<ExtArgs> = {}>(args?: Subset<T, Plan$OrganizationArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -15470,6 +15523,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PlanFeatureAssignmentScalarFieldEnum | PlanFeatureAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * Plan.Organization
+   */
+  export type Plan$OrganizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Organization
+     */
+    omit?: OrganizationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    where?: OrganizationWhereInput
+    orderBy?: OrganizationOrderByWithRelationInput | OrganizationOrderByWithRelationInput[]
+    cursor?: OrganizationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OrganizationScalarFieldEnum | OrganizationScalarFieldEnum[]
   }
 
   /**
@@ -20946,7 +21023,8 @@ export namespace Prisma {
     url: 'url',
     ownerUserId: 'ownerUserId',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    planId: 'planId'
   };
 
   export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
@@ -21757,7 +21835,9 @@ export namespace Prisma {
     ownerUserId?: StringNullableFilter<"Organization"> | string | null
     createdAt?: DateTimeFilter<"Organization"> | Date | string
     updatedAt?: DateTimeFilter<"Organization"> | Date | string
+    planId?: StringNullableFilter<"Organization"> | string | null
     memberships?: OrganizationMembershipListRelationFilter
+    plan?: XOR<PlanNullableScalarRelationFilter, PlanWhereInput> | null
     Product?: ProductListRelationFilter
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
@@ -21769,7 +21849,9 @@ export namespace Prisma {
     ownerUserId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    planId?: SortOrderInput | SortOrder
     memberships?: OrganizationMembershipOrderByRelationAggregateInput
+    plan?: PlanOrderByWithRelationInput
     Product?: ProductOrderByRelationAggregateInput
     owner?: UserOrderByWithRelationInput
   }
@@ -21784,7 +21866,9 @@ export namespace Prisma {
     ownerUserId?: StringNullableFilter<"Organization"> | string | null
     createdAt?: DateTimeFilter<"Organization"> | Date | string
     updatedAt?: DateTimeFilter<"Organization"> | Date | string
+    planId?: StringNullableFilter<"Organization"> | string | null
     memberships?: OrganizationMembershipListRelationFilter
+    plan?: XOR<PlanNullableScalarRelationFilter, PlanWhereInput> | null
     Product?: ProductListRelationFilter
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "url">
@@ -21796,6 +21880,7 @@ export namespace Prisma {
     ownerUserId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    planId?: SortOrderInput | SortOrder
     _count?: OrganizationCountOrderByAggregateInput
     _max?: OrganizationMaxOrderByAggregateInput
     _min?: OrganizationMinOrderByAggregateInput
@@ -21811,6 +21896,7 @@ export namespace Prisma {
     ownerUserId?: StringNullableWithAggregatesFilter<"Organization"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
+    planId?: StringNullableWithAggregatesFilter<"Organization"> | string | null
   }
 
   export type OrganizationMembershipWhereInput = {
@@ -22066,6 +22152,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Plan"> | Date | string
     products?: ProductListRelationFilter
     assignments?: PlanFeatureAssignmentListRelationFilter
+    Organization?: OrganizationListRelationFilter
   }
 
   export type PlanOrderByWithRelationInput = {
@@ -22087,6 +22174,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     products?: ProductOrderByRelationAggregateInput
     assignments?: PlanFeatureAssignmentOrderByRelationAggregateInput
+    Organization?: OrganizationOrderByRelationAggregateInput
   }
 
   export type PlanWhereUniqueInput = Prisma.AtLeast<{
@@ -22111,6 +22199,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Plan"> | Date | string
     products?: ProductListRelationFilter
     assignments?: PlanFeatureAssignmentListRelationFilter
+    Organization?: OrganizationListRelationFilter
   }, "id" | "externalId" | "slug">
 
   export type PlanOrderByWithAggregationInput = {
@@ -22986,6 +23075,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     memberships?: OrganizationMembershipCreateNestedManyWithoutOrganizationInput
+    plan?: PlanCreateNestedOneWithoutOrganizationInput
     Product?: ProductCreateNestedManyWithoutOrganizationInput
     owner?: UserCreateNestedOneWithoutOrganizationInput
   }
@@ -22997,6 +23087,7 @@ export namespace Prisma {
     ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    planId?: string | null
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutOrganizationInput
     Product?: ProductUncheckedCreateNestedManyWithoutOrganizationInput
   }
@@ -23008,6 +23099,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUpdateManyWithoutOrganizationNestedInput
+    plan?: PlanUpdateOneWithoutOrganizationNestedInput
     Product?: ProductUpdateManyWithoutOrganizationNestedInput
     owner?: UserUpdateOneWithoutOrganizationNestedInput
   }
@@ -23019,6 +23111,7 @@ export namespace Prisma {
     ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutOrganizationNestedInput
     Product?: ProductUncheckedUpdateManyWithoutOrganizationNestedInput
   }
@@ -23030,6 +23123,7 @@ export namespace Prisma {
     ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    planId?: string | null
   }
 
   export type OrganizationUpdateManyMutationInput = {
@@ -23047,6 +23141,7 @@ export namespace Prisma {
     ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrganizationMembershipCreateInput = {
@@ -23328,6 +23423,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutPlanInput
     assignments?: PlanFeatureAssignmentCreateNestedManyWithoutPlanInput
+    Organization?: OrganizationCreateNestedManyWithoutPlanInput
   }
 
   export type PlanUncheckedCreateInput = {
@@ -23349,6 +23445,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutPlanInput
     assignments?: PlanFeatureAssignmentUncheckedCreateNestedManyWithoutPlanInput
+    Organization?: OrganizationUncheckedCreateNestedManyWithoutPlanInput
   }
 
   export type PlanUpdateInput = {
@@ -23370,6 +23467,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutPlanNestedInput
     assignments?: PlanFeatureAssignmentUpdateManyWithoutPlanNestedInput
+    Organization?: OrganizationUpdateManyWithoutPlanNestedInput
   }
 
   export type PlanUncheckedUpdateInput = {
@@ -23391,6 +23489,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutPlanNestedInput
     assignments?: PlanFeatureAssignmentUncheckedUpdateManyWithoutPlanNestedInput
+    Organization?: OrganizationUncheckedUpdateManyWithoutPlanNestedInput
   }
 
   export type PlanCreateManyInput = {
@@ -24339,6 +24438,7 @@ export namespace Prisma {
     ownerUserId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    planId?: SortOrder
   }
 
   export type OrganizationMaxOrderByAggregateInput = {
@@ -24348,6 +24448,7 @@ export namespace Prisma {
     ownerUserId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    planId?: SortOrder
   }
 
   export type OrganizationMinOrderByAggregateInput = {
@@ -24357,6 +24458,7 @@ export namespace Prisma {
     ownerUserId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    planId?: SortOrder
   }
 
   export type OrganizationScalarRelationFilter = {
@@ -25222,6 +25324,12 @@ export namespace Prisma {
     connect?: OrganizationMembershipWhereUniqueInput | OrganizationMembershipWhereUniqueInput[]
   }
 
+  export type PlanCreateNestedOneWithoutOrganizationInput = {
+    create?: XOR<PlanCreateWithoutOrganizationInput, PlanUncheckedCreateWithoutOrganizationInput>
+    connectOrCreate?: PlanCreateOrConnectWithoutOrganizationInput
+    connect?: PlanWhereUniqueInput
+  }
+
   export type ProductCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<ProductCreateWithoutOrganizationInput, ProductUncheckedCreateWithoutOrganizationInput> | ProductCreateWithoutOrganizationInput[] | ProductUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: ProductCreateOrConnectWithoutOrganizationInput | ProductCreateOrConnectWithoutOrganizationInput[]
@@ -25261,6 +25369,16 @@ export namespace Prisma {
     update?: OrganizationMembershipUpdateWithWhereUniqueWithoutOrganizationInput | OrganizationMembershipUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: OrganizationMembershipUpdateManyWithWhereWithoutOrganizationInput | OrganizationMembershipUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: OrganizationMembershipScalarWhereInput | OrganizationMembershipScalarWhereInput[]
+  }
+
+  export type PlanUpdateOneWithoutOrganizationNestedInput = {
+    create?: XOR<PlanCreateWithoutOrganizationInput, PlanUncheckedCreateWithoutOrganizationInput>
+    connectOrCreate?: PlanCreateOrConnectWithoutOrganizationInput
+    upsert?: PlanUpsertWithoutOrganizationInput
+    disconnect?: PlanWhereInput | boolean
+    delete?: PlanWhereInput | boolean
+    connect?: PlanWhereUniqueInput
+    update?: XOR<XOR<PlanUpdateToOneWithWhereWithoutOrganizationInput, PlanUpdateWithoutOrganizationInput>, PlanUncheckedUpdateWithoutOrganizationInput>
   }
 
   export type ProductUpdateManyWithoutOrganizationNestedInput = {
@@ -25609,6 +25727,13 @@ export namespace Prisma {
     connect?: PlanFeatureAssignmentWhereUniqueInput | PlanFeatureAssignmentWhereUniqueInput[]
   }
 
+  export type OrganizationCreateNestedManyWithoutPlanInput = {
+    create?: XOR<OrganizationCreateWithoutPlanInput, OrganizationUncheckedCreateWithoutPlanInput> | OrganizationCreateWithoutPlanInput[] | OrganizationUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: OrganizationCreateOrConnectWithoutPlanInput | OrganizationCreateOrConnectWithoutPlanInput[]
+    createMany?: OrganizationCreateManyPlanInputEnvelope
+    connect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+  }
+
   export type ProductUncheckedCreateNestedManyWithoutPlanInput = {
     create?: XOR<ProductCreateWithoutPlanInput, ProductUncheckedCreateWithoutPlanInput> | ProductCreateWithoutPlanInput[] | ProductUncheckedCreateWithoutPlanInput[]
     connectOrCreate?: ProductCreateOrConnectWithoutPlanInput | ProductCreateOrConnectWithoutPlanInput[]
@@ -25621,6 +25746,13 @@ export namespace Prisma {
     connectOrCreate?: PlanFeatureAssignmentCreateOrConnectWithoutPlanInput | PlanFeatureAssignmentCreateOrConnectWithoutPlanInput[]
     createMany?: PlanFeatureAssignmentCreateManyPlanInputEnvelope
     connect?: PlanFeatureAssignmentWhereUniqueInput | PlanFeatureAssignmentWhereUniqueInput[]
+  }
+
+  export type OrganizationUncheckedCreateNestedManyWithoutPlanInput = {
+    create?: XOR<OrganizationCreateWithoutPlanInput, OrganizationUncheckedCreateWithoutPlanInput> | OrganizationCreateWithoutPlanInput[] | OrganizationUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: OrganizationCreateOrConnectWithoutPlanInput | OrganizationCreateOrConnectWithoutPlanInput[]
+    createMany?: OrganizationCreateManyPlanInputEnvelope
+    connect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
   }
 
   export type EnumPlanTypeFieldUpdateOperationsInput = {
@@ -25667,6 +25799,20 @@ export namespace Prisma {
     deleteMany?: PlanFeatureAssignmentScalarWhereInput | PlanFeatureAssignmentScalarWhereInput[]
   }
 
+  export type OrganizationUpdateManyWithoutPlanNestedInput = {
+    create?: XOR<OrganizationCreateWithoutPlanInput, OrganizationUncheckedCreateWithoutPlanInput> | OrganizationCreateWithoutPlanInput[] | OrganizationUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: OrganizationCreateOrConnectWithoutPlanInput | OrganizationCreateOrConnectWithoutPlanInput[]
+    upsert?: OrganizationUpsertWithWhereUniqueWithoutPlanInput | OrganizationUpsertWithWhereUniqueWithoutPlanInput[]
+    createMany?: OrganizationCreateManyPlanInputEnvelope
+    set?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    disconnect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    delete?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    connect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    update?: OrganizationUpdateWithWhereUniqueWithoutPlanInput | OrganizationUpdateWithWhereUniqueWithoutPlanInput[]
+    updateMany?: OrganizationUpdateManyWithWhereWithoutPlanInput | OrganizationUpdateManyWithWhereWithoutPlanInput[]
+    deleteMany?: OrganizationScalarWhereInput | OrganizationScalarWhereInput[]
+  }
+
   export type ProductUncheckedUpdateManyWithoutPlanNestedInput = {
     create?: XOR<ProductCreateWithoutPlanInput, ProductUncheckedCreateWithoutPlanInput> | ProductCreateWithoutPlanInput[] | ProductUncheckedCreateWithoutPlanInput[]
     connectOrCreate?: ProductCreateOrConnectWithoutPlanInput | ProductCreateOrConnectWithoutPlanInput[]
@@ -25693,6 +25839,20 @@ export namespace Prisma {
     update?: PlanFeatureAssignmentUpdateWithWhereUniqueWithoutPlanInput | PlanFeatureAssignmentUpdateWithWhereUniqueWithoutPlanInput[]
     updateMany?: PlanFeatureAssignmentUpdateManyWithWhereWithoutPlanInput | PlanFeatureAssignmentUpdateManyWithWhereWithoutPlanInput[]
     deleteMany?: PlanFeatureAssignmentScalarWhereInput | PlanFeatureAssignmentScalarWhereInput[]
+  }
+
+  export type OrganizationUncheckedUpdateManyWithoutPlanNestedInput = {
+    create?: XOR<OrganizationCreateWithoutPlanInput, OrganizationUncheckedCreateWithoutPlanInput> | OrganizationCreateWithoutPlanInput[] | OrganizationUncheckedCreateWithoutPlanInput[]
+    connectOrCreate?: OrganizationCreateOrConnectWithoutPlanInput | OrganizationCreateOrConnectWithoutPlanInput[]
+    upsert?: OrganizationUpsertWithWhereUniqueWithoutPlanInput | OrganizationUpsertWithWhereUniqueWithoutPlanInput[]
+    createMany?: OrganizationCreateManyPlanInputEnvelope
+    set?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    disconnect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    delete?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    connect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+    update?: OrganizationUpdateWithWhereUniqueWithoutPlanInput | OrganizationUpdateWithWhereUniqueWithoutPlanInput[]
+    updateMany?: OrganizationUpdateManyWithWhereWithoutPlanInput | OrganizationUpdateManyWithWhereWithoutPlanInput[]
+    deleteMany?: OrganizationScalarWhereInput | OrganizationScalarWhereInput[]
   }
 
   export type PlanFeatureAssignmentCreateNestedManyWithoutFeatureInput = {
@@ -26237,6 +26397,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     assignments?: PlanFeatureAssignmentCreateNestedManyWithoutPlanInput
+    Organization?: OrganizationCreateNestedManyWithoutPlanInput
   }
 
   export type PlanUncheckedCreateWithoutProductsInput = {
@@ -26257,6 +26418,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     assignments?: PlanFeatureAssignmentUncheckedCreateNestedManyWithoutPlanInput
+    Organization?: OrganizationUncheckedCreateNestedManyWithoutPlanInput
   }
 
   export type PlanCreateOrConnectWithoutProductsInput = {
@@ -26271,6 +26433,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     memberships?: OrganizationMembershipCreateNestedManyWithoutOrganizationInput
+    plan?: PlanCreateNestedOneWithoutOrganizationInput
     owner?: UserCreateNestedOneWithoutOrganizationInput
   }
 
@@ -26281,6 +26444,7 @@ export namespace Prisma {
     ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    planId?: string | null
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
@@ -26543,6 +26707,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignments?: PlanFeatureAssignmentUpdateManyWithoutPlanNestedInput
+    Organization?: OrganizationUpdateManyWithoutPlanNestedInput
   }
 
   export type PlanUncheckedUpdateWithoutProductsInput = {
@@ -26563,6 +26728,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     assignments?: PlanFeatureAssignmentUncheckedUpdateManyWithoutPlanNestedInput
+    Organization?: OrganizationUncheckedUpdateManyWithoutPlanNestedInput
   }
 
   export type OrganizationUpsertWithoutProductInput = {
@@ -26583,6 +26749,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUpdateManyWithoutOrganizationNestedInput
+    plan?: PlanUpdateOneWithoutOrganizationNestedInput
     owner?: UserUpdateOneWithoutOrganizationNestedInput
   }
 
@@ -26593,6 +26760,7 @@ export namespace Prisma {
     ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
@@ -27601,6 +27769,53 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PlanCreateWithoutOrganizationInput = {
+    id?: string
+    externalId?: string | null
+    name: string
+    slug: string
+    description?: string | null
+    type: $Enums.PlanType
+    price: number
+    discount?: number | null
+    boostForDays?: number
+    isDefault?: boolean
+    paymentFrequencyCount?: number | null
+    paymentFrequencyInterval?: $Enums.TimeInterval | null
+    subscriptionPeriodCount?: number | null
+    subscriptionPeriodInterval?: $Enums.TimeInterval | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    products?: ProductCreateNestedManyWithoutPlanInput
+    assignments?: PlanFeatureAssignmentCreateNestedManyWithoutPlanInput
+  }
+
+  export type PlanUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    externalId?: string | null
+    name: string
+    slug: string
+    description?: string | null
+    type: $Enums.PlanType
+    price: number
+    discount?: number | null
+    boostForDays?: number
+    isDefault?: boolean
+    paymentFrequencyCount?: number | null
+    paymentFrequencyInterval?: $Enums.TimeInterval | null
+    subscriptionPeriodCount?: number | null
+    subscriptionPeriodInterval?: $Enums.TimeInterval | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    products?: ProductUncheckedCreateNestedManyWithoutPlanInput
+    assignments?: PlanFeatureAssignmentUncheckedCreateNestedManyWithoutPlanInput
+  }
+
+  export type PlanCreateOrConnectWithoutOrganizationInput = {
+    where: PlanWhereUniqueInput
+    create: XOR<PlanCreateWithoutOrganizationInput, PlanUncheckedCreateWithoutOrganizationInput>
+  }
+
   export type ProductCreateWithoutOrganizationInput = {
     id?: string
     name: string
@@ -27744,6 +27959,59 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"OrganizationMembership"> | Date | string
   }
 
+  export type PlanUpsertWithoutOrganizationInput = {
+    update: XOR<PlanUpdateWithoutOrganizationInput, PlanUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<PlanCreateWithoutOrganizationInput, PlanUncheckedCreateWithoutOrganizationInput>
+    where?: PlanWhereInput
+  }
+
+  export type PlanUpdateToOneWithWhereWithoutOrganizationInput = {
+    where?: PlanWhereInput
+    data: XOR<PlanUpdateWithoutOrganizationInput, PlanUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type PlanUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumPlanTypeFieldUpdateOperationsInput | $Enums.PlanType
+    price?: IntFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    boostForDays?: IntFieldUpdateOperationsInput | number
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    paymentFrequencyCount?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentFrequencyInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: NullableIntFieldUpdateOperationsInput | number | null
+    subscriptionPeriodInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    products?: ProductUpdateManyWithoutPlanNestedInput
+    assignments?: PlanFeatureAssignmentUpdateManyWithoutPlanNestedInput
+  }
+
+  export type PlanUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    externalId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumPlanTypeFieldUpdateOperationsInput | $Enums.PlanType
+    price?: IntFieldUpdateOperationsInput | number
+    discount?: NullableFloatFieldUpdateOperationsInput | number | null
+    boostForDays?: IntFieldUpdateOperationsInput | number
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    paymentFrequencyCount?: NullableIntFieldUpdateOperationsInput | number | null
+    paymentFrequencyInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    subscriptionPeriodCount?: NullableIntFieldUpdateOperationsInput | number | null
+    subscriptionPeriodInterval?: NullableEnumTimeIntervalFieldUpdateOperationsInput | $Enums.TimeInterval | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    products?: ProductUncheckedUpdateManyWithoutPlanNestedInput
+    assignments?: PlanFeatureAssignmentUncheckedUpdateManyWithoutPlanNestedInput
+  }
+
   export type ProductUpsertWithWhereUniqueWithoutOrganizationInput = {
     where: ProductWhereUniqueInput
     update: XOR<ProductUpdateWithoutOrganizationInput, ProductUncheckedUpdateWithoutOrganizationInput>
@@ -27884,6 +28152,7 @@ export namespace Prisma {
     url: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    plan?: PlanCreateNestedOneWithoutOrganizationInput
     Product?: ProductCreateNestedManyWithoutOrganizationInput
     owner?: UserCreateNestedOneWithoutOrganizationInput
   }
@@ -27895,6 +28164,7 @@ export namespace Prisma {
     ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    planId?: string | null
     Product?: ProductUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
@@ -27967,6 +28237,7 @@ export namespace Prisma {
     url?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    plan?: PlanUpdateOneWithoutOrganizationNestedInput
     Product?: ProductUpdateManyWithoutOrganizationNestedInput
     owner?: UserUpdateOneWithoutOrganizationNestedInput
   }
@@ -27978,6 +28249,7 @@ export namespace Prisma {
     ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
     Product?: ProductUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
@@ -28110,6 +28382,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     memberships?: OrganizationMembershipCreateNestedManyWithoutOrganizationInput
+    plan?: PlanCreateNestedOneWithoutOrganizationInput
     Product?: ProductCreateNestedManyWithoutOrganizationInput
   }
 
@@ -28119,6 +28392,7 @@ export namespace Prisma {
     url: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    planId?: string | null
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutOrganizationInput
     Product?: ProductUncheckedCreateNestedManyWithoutOrganizationInput
   }
@@ -28207,6 +28481,7 @@ export namespace Prisma {
     ownerUserId?: StringNullableFilter<"Organization"> | string | null
     createdAt?: DateTimeFilter<"Organization"> | Date | string
     updatedAt?: DateTimeFilter<"Organization"> | Date | string
+    planId?: StringNullableFilter<"Organization"> | string | null
   }
 
   export type ProductCreateWithoutCategoryInput = {
@@ -28443,6 +28718,38 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type OrganizationCreateWithoutPlanInput = {
+    id?: string
+    name: string
+    url: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: OrganizationMembershipCreateNestedManyWithoutOrganizationInput
+    Product?: ProductCreateNestedManyWithoutOrganizationInput
+    owner?: UserCreateNestedOneWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutPlanInput = {
+    id?: string
+    name: string
+    url: string
+    ownerUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutOrganizationInput
+    Product?: ProductUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutPlanInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutPlanInput, OrganizationUncheckedCreateWithoutPlanInput>
+  }
+
+  export type OrganizationCreateManyPlanInputEnvelope = {
+    data: OrganizationCreateManyPlanInput | OrganizationCreateManyPlanInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ProductUpsertWithWhereUniqueWithoutPlanInput = {
     where: ProductWhereUniqueInput
     update: XOR<ProductUpdateWithoutPlanInput, ProductUncheckedUpdateWithoutPlanInput>
@@ -28486,6 +28793,22 @@ export namespace Prisma {
     isExperimental?: BoolFilter<"PlanFeatureAssignment"> | boolean
     createdAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     updatedAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
+  }
+
+  export type OrganizationUpsertWithWhereUniqueWithoutPlanInput = {
+    where: OrganizationWhereUniqueInput
+    update: XOR<OrganizationUpdateWithoutPlanInput, OrganizationUncheckedUpdateWithoutPlanInput>
+    create: XOR<OrganizationCreateWithoutPlanInput, OrganizationUncheckedCreateWithoutPlanInput>
+  }
+
+  export type OrganizationUpdateWithWhereUniqueWithoutPlanInput = {
+    where: OrganizationWhereUniqueInput
+    data: XOR<OrganizationUpdateWithoutPlanInput, OrganizationUncheckedUpdateWithoutPlanInput>
+  }
+
+  export type OrganizationUpdateManyWithWhereWithoutPlanInput = {
+    where: OrganizationScalarWhereInput
+    data: XOR<OrganizationUpdateManyMutationInput, OrganizationUncheckedUpdateManyWithoutPlanInput>
   }
 
   export type PlanFeatureAssignmentCreateWithoutFeatureInput = {
@@ -28550,6 +28873,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutPlanInput
+    Organization?: OrganizationCreateNestedManyWithoutPlanInput
   }
 
   export type PlanUncheckedCreateWithoutAssignmentsInput = {
@@ -28570,6 +28894,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutPlanInput
+    Organization?: OrganizationUncheckedCreateNestedManyWithoutPlanInput
   }
 
   export type PlanCreateOrConnectWithoutAssignmentsInput = {
@@ -28629,6 +28954,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutPlanNestedInput
+    Organization?: OrganizationUpdateManyWithoutPlanNestedInput
   }
 
   export type PlanUncheckedUpdateWithoutAssignmentsInput = {
@@ -28649,6 +28975,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutPlanNestedInput
+    Organization?: OrganizationUncheckedUpdateManyWithoutPlanNestedInput
   }
 
   export type PlanFeatureUpsertWithoutAssignmentsInput = {
@@ -29248,6 +29575,7 @@ export namespace Prisma {
     url: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    planId?: string | null
   }
 
   export type ProductUpdateWithoutUserInput = {
@@ -29389,6 +29717,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUpdateManyWithoutOrganizationNestedInput
+    plan?: PlanUpdateOneWithoutOrganizationNestedInput
     Product?: ProductUpdateManyWithoutOrganizationNestedInput
   }
 
@@ -29398,6 +29727,7 @@ export namespace Prisma {
     url?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutOrganizationNestedInput
     Product?: ProductUncheckedUpdateManyWithoutOrganizationNestedInput
   }
@@ -29408,6 +29738,7 @@ export namespace Prisma {
     url?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ProductCreateManyCategoryInput = {
@@ -29577,6 +29908,15 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type OrganizationCreateManyPlanInput = {
+    id?: string
+    name: string
+    url: string
+    ownerUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type ProductUpdateWithoutPlanInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -29690,6 +30030,37 @@ export namespace Prisma {
     featureId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationUpdateWithoutPlanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: OrganizationMembershipUpdateManyWithoutOrganizationNestedInput
+    Product?: ProductUpdateManyWithoutOrganizationNestedInput
+    owner?: UserUpdateOneWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutPlanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: OrganizationMembershipUncheckedUpdateManyWithoutOrganizationNestedInput
+    Product?: ProductUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateManyWithoutPlanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -74,6 +74,7 @@ export const PLAN_FEATURE_KEYS = [
   "earlyAccess",
   "newsletterPromotion",
   "backlink",
+  "organization"
 ] as const
 
 export type PlanFeatureKey = (typeof PLAN_FEATURE_KEYS)[number]

@@ -302,7 +302,7 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     // Ownership check
     const product = await prisma.product.findFirst({
       where: { id: productId, user: { clerkId: userId } },
-      select: { id: true },
+      select: { id: true, userId: true },
     })
     if (!product) return { error: "Product not found or not owned" }
 

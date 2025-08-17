@@ -161,6 +161,10 @@ model Organization {
   createdAt   DateTime                 @default(now())
   updatedAt   DateTime                 @updatedAt
   memberships OrganizationMembership[]
+  planId      String?
+
+  // Organization-level subscription plan (optional)
+  plan Plan? @relation(fields: [planId], references: [id], onDelete: SetNull)
 
   Product Product[]
 
@@ -234,8 +238,9 @@ model Plan {
   createdAt                  DateTime      @default(now())
   updatedAt                  DateTime      @updatedAt
 
-  products    Product[]
-  assignments PlanFeatureAssignment[]
+  products     Product[]
+  assignments  PlanFeatureAssignment[]
+  Organization Organization[]
 }
 
 model PlanFeature {

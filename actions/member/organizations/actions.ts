@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
+import { requireMemberFeature } from "@/lib/memberFeatures"
 
 export async function getMyOrganizations() {
   const { userId: clerkId } = await auth()
@@ -12,6 +13,9 @@ export async function getMyOrganizations() {
     select: { id: true },
   })
   if (!user) throw new Error("User not found")
+
+  const gate = await requireMemberFeature("organization")
+  if (!gate.ok) throw new Error("Not entitled")
 
   return prisma.organization.findMany({
     where: { memberships: { some: { userId: user.id } } },
@@ -28,6 +32,8 @@ export async function getMyOrganizationById(id: string) {
     select: { id: true },
   })
   if (!user) throw new Error("User not found")
+  const gate = await requireMemberFeature("organization")
+  if (!gate.ok) throw new Error("Not entitled")
   const org = await prisma.organization.findFirst({
     where: { id, memberships: { some: { userId: user.id } } },
     select: {
@@ -52,6 +58,9 @@ export async function getMyOrganizationsPage(
     select: { id: true },
   })
   if (!user) throw new Error("User not found")
+
+  const gate = await requireMemberFeature("organization")
+  if (!gate.ok) throw new Error("Not entitled")
 
   const q = ((params?.q as string) || "").trim()
   const page = Math.max(1, parseInt((params?.page as string) || "1", 10) || 1)
@@ -91,6 +100,8 @@ export async function getMyOrganizationMembers(orgId: string) {
     select: { id: true },
   })
   if (!user) throw new Error("User not found")
+  const gate = await requireMemberFeature("organization")
+  if (!gate.ok) throw new Error("Not entitled")
   const org = await prisma.organization.findFirst({
     where: { id: orgId, memberships: { some: { userId: user.id } } },
     select: { ownerUserId: true },
@@ -127,6 +138,8 @@ export async function addMyOrganizationMemberAction(
       select: { id: true },
     })
     if (!current) return { error: "User not found" }
+    const gate = await requireMemberFeature("organization")
+    if (!gate.ok) return { error: "Upgrade required for organizations" }
     const org = await prisma.organization.findUnique({
       where: { id: orgId },
       select: { ownerUserId: true },
@@ -162,6 +175,8 @@ export async function deleteMyOrganizationMemberAction(membershipId: string) {
       select: { id: true },
     })
     if (!current) return { error: "User not found" }
+    const gate = await requireMemberFeature("organization")
+    if (!gate.ok) return { error: "Upgrade required for organizations" }
     const membership = await prisma.organizationMembership.findUnique({
       where: { id: membershipId },
     })
@@ -196,6 +211,8 @@ export async function createMyOrganizationAction(formData: FormData) {
       select: { id: true },
     })
     if (!user) return { error: "User not found" }
+    const gate = await requireMemberFeature("organization")
+    if (!gate.ok) return { error: "Upgrade required for organizations" }
     await prisma.organization.create({
       data: {
         name,
@@ -224,6 +241,8 @@ export async function updateOrganizationOwnerAction(
       select: { id: true },
     })
     if (!current) return { error: "User not found" }
+    const gate = await requireMemberFeature("organization")
+    if (!gate.ok) return { error: "Upgrade required for organizations" }
     const org = await prisma.organization.findUnique({
       where: { id: orgId },
       select: { ownerUserId: true },
@@ -258,6 +277,8 @@ export async function updateMyOrganizationAction(
       select: { id: true },
     })
     if (!user) return { error: "User not found" }
+    const gate = await requireMemberFeature("organization")
+    if (!gate.ok) return { error: "Upgrade required for organizations" }
     const org = await prisma.organization.findUnique({
       where: { id },
       select: { ownerUserId: true },
@@ -286,6 +307,8 @@ export async function deleteMyOrganizationAction(id: string) {
       select: { id: true },
     })
     if (!user) return { error: "User not found" }
+    const gate = await requireMemberFeature("organization")
+    if (!gate.ok) return { error: "Upgrade required for organizations" }
     const org = await prisma.organization.findUnique({
       where: { id },
       select: { ownerUserId: true },
