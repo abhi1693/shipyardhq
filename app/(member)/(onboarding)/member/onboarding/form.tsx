@@ -6,6 +6,7 @@ import { z } from "zod"
 import { useRouter } from "next/navigation"
 import { completeOnboarding } from "@/actions/member/onboarding/actions"
 import { toast } from "sonner"
+import Link from "next/link"
 
 import {
   Card,
@@ -173,7 +174,15 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
               }
             />
             <Label htmlFor="terms" className="text-sm leading-relaxed">
-              I agree to the terms and conditions
+              I agree to the{" "}
+              <Link
+                href="/legal/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-primary"
+              >
+                Terms and Conditions
+              </Link>
             </Label>
           </div>
           {errors.acceptedTerms && (
