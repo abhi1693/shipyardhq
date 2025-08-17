@@ -42,7 +42,7 @@ export default function AddMemberPage() {
       form.setError("email", { type: "server", message: (res as any).error })
       return
     }
-    router.push(`/member/organizations/${id}/members`)
+    router.push(`/member/organizations/${id}`)
   }
 
   return (

@@ -32,7 +32,7 @@ export default function DeleteMemberPage() {
   async function onDelete() {
     const res = await deleteMyOrganizationMemberAction(membershipId as string)
     if ((res as any)?.error) return alert((res as any).error)
-    router.push(`/member/organizations/${id}/members`)
+    router.push(`/member/organizations/${id}`)
   }
 
   return (
