@@ -514,7 +514,6 @@ export default async function ViewUserProductPage({
                       {product.organization.url
                         ? linkify({
                             href: product.organization.url,
-                            label: new URL(product.organization.url).hostname,
                             isExternal: true,
                           })
                         : null}
