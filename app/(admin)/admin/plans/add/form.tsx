@@ -53,18 +53,16 @@ const planFormSchema = z
       .positive()
       .optional(),
     paymentFrequencyInterval: z
-      .enum(["day", "week", "month", "year"]) as unknown as z.ZodType<
-      "day" | "week" | "month" | "year" | undefined
-    >,
+      .enum(["day", "week", "month", "year"]) 
+      .optional(),
     subscriptionPeriodCount: z.coerce
       .number()
       .int()
       .positive()
       .optional(),
     subscriptionPeriodInterval: z
-      .enum(["day", "week", "month", "year"]) as unknown as z.ZodType<
-      "day" | "week" | "month" | "year" | undefined
-    >,
+      .enum(["day", "week", "month", "year"]) 
+      .optional(),
   })
   .superRefine((val, ctx) => {
     if (val.type === "recurring_price") {
@@ -115,17 +113,11 @@ export default function AddPlanForm() {
     for (const [key, value] of Object.entries(values)) {
       if (value !== undefined) formData.append(key, String(value))
     }
-
     const result = await createPlanAction(formData)
-
     if (result?.error) {
-      form.setError("name", {
-        type: "server",
-        message: result.error,
-      })
+      form.setError("name", { type: "server", message: result.error })
       return
     }
-
     router.push("/admin/plans")
   }
 
