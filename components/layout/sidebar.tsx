@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useTransition } from "react"
 import Image from "next/image"
 import {
   Sidebar,
@@ -28,6 +28,8 @@ import {
 import { IconChevronRight } from "@tabler/icons-react"
 import Link from "next/link"
 import { NavItem } from "@/types"
+import { toast } from "sonner"
+import { createCustomerPortalAction } from "@/actions/member/billing/portal"
 
 interface SidebarProps {
   navItems?: NavItem[]
@@ -38,6 +40,21 @@ export default function AppSidebar(props: SidebarProps) {
   const { navItems = [] } = props
 
   const [query, setQuery] = useState("")
+  const [isPortalPending, startPortal] = useTransition()
+
+  function openCustomerPortal() {
+    startPortal(async () => {
+      const res = (await createCustomerPortalAction(false)) as any
+      if (res?.link) {
+        try {
+          window.open(res.link, "_blank", "noopener,noreferrer")
+        } catch {}
+      } else {
+        toast.error(res?.error || "Unable to open customer portal")
+      }
+    })
+  }
+
 
   const isActivePath = (url?: string) => {
     if (!url || url === "#") return false
@@ -192,6 +209,17 @@ export default function AppSidebar(props: SidebarProps) {
                 </SidebarMenuItem>
               )
             })}
+            {/* Billing portal quick action */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Customer Portal"
+                onClick={openCustomerPortal}
+                disabled={isPortalPending}
+              >
+                <Icons.billing />
+                <span className="flex-1 truncate">Customer Portal</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

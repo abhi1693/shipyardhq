@@ -139,19 +139,19 @@ export async function validateOrgSubscriptionAction(
   }
 
   try {
-    // Determine an eligible plan that unlocks the organization feature.
-    // Prefer the lowest-priced plan that has the organization feature enabled.
-    const plan = await prisma.plan.findFirst({
-      where: {
-        assignments: {
-          some: { enabled: true, feature: { key: "organization" } },
-        },
-      },
-      orderBy: { price: "asc" },
-      select: { id: true },
-    })
-
-    if (!plan) return { error: "No organization-enabled plan configured" }
+    // Try to map the subscription's product_id to a local plan via externalId
+    let mappedPlanId: string | undefined
+    try {
+      const sub = await dodoClient.subscriptions.retrieve(subscriptionId)
+      const pid = (sub as any)?.product_id as string | undefined
+      if (pid) {
+        const mapped = await prisma.plan.findFirst({
+          where: { externalId: pid },
+          select: { id: true },
+        })
+        mappedPlanId = mapped?.id
+      }
+    } catch {}
 
     const u = await prisma.user.findUnique({
       where: { clerkId: userId },
@@ -161,9 +161,9 @@ export async function validateOrgSubscriptionAction(
 
     // Record the active subscription as a purchase for entitlement
     await prisma.userPlanPurchase.upsert({
-      where: { userId_planId: { userId: u.id, planId: plan.id } },
+      where: { userId_planId: { userId: u.id, planId: mappedPlanId } },
       update: { externalId: subscriptionId },
-      create: { userId: u.id, planId: plan.id, externalId: subscriptionId },
+      create: { userId: u.id, planId: mappedPlanId, externalId: subscriptionId },
     })
     return { success: true }
   } catch (e) {

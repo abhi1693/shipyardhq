@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { requireMemberFeature } from "@/lib/memberFeatures"
+import { redirect } from "next/navigation"
 
 export async function getMyOrganizations() {
   const { userId: clerkId } = await auth()
@@ -15,7 +16,12 @@ export async function getMyOrganizations() {
   if (!user) throw new Error("User not found")
 
   const gate = await requireMemberFeature("organization")
-  if (!gate.ok) throw new Error("Not entitled")
+  if (!gate.ok) {
+    // Return empty dataset gracefully if not entitled
+    const page = 1
+    const limit = 10
+    return { rows: [], total: 0, page, limit }
+  }
 
   return prisma.organization.findMany({
     where: { memberships: { some: { userId: user.id } } },
@@ -33,7 +39,7 @@ export async function getMyOrganizationById(id: string) {
   })
   if (!user) throw new Error("User not found")
   const gate = await requireMemberFeature("organization")
-  if (!gate.ok) throw new Error("Not entitled")
+  if (!gate.ok) return null
   const org = await prisma.organization.findFirst({
     where: { id, memberships: { some: { userId: user.id } } },
     select: {
@@ -60,7 +66,7 @@ export async function getMyOrganizationsPage(
   if (!user) throw new Error("User not found")
 
   const gate = await requireMemberFeature("organization")
-  if (!gate.ok) throw new Error("Not entitled")
+  if (!gate.ok) redirect("/member/organizations")
 
   const q = ((params?.q as string) || "").trim()
   const page = Math.max(1, parseInt((params?.page as string) || "1", 10) || 1)
@@ -101,7 +107,7 @@ export async function getMyOrganizationMembers(orgId: string) {
   })
   if (!user) throw new Error("User not found")
   const gate = await requireMemberFeature("organization")
-  if (!gate.ok) throw new Error("Not entitled")
+  if (!gate.ok) redirect("/member/organizations")
   const org = await prisma.organization.findFirst({
     where: { id: orgId, memberships: { some: { userId: user.id } } },
     select: { ownerUserId: true },

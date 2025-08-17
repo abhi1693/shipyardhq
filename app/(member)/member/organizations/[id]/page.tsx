@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { notFound } from "next/navigation"
+import { redirect } from "next/navigation"
 import {
   getMyOrganizationById,
   getMyOrganizationMembers,
@@ -24,7 +24,9 @@ export default async function MemberOrganizationPage({
     updatedAt: Date | null
     ownerUserId?: string | null
   } | null
-  if (!org) return notFound()
+  if (!org) {
+    redirect("/member/organizations")
+  }
 
   // Determine if current user is the owner
   const { userId: clerkId } = await auth()
