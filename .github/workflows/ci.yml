@@ -56,9 +56,6 @@ jobs:
       - name: Install dependencies (no postinstall)
         run: npm ci --ignore-scripts
 
-      - name: Generate Prisma Client (no engine)
-        run: npx prisma generate --no-engine
-
       - name: Run tests (vitest)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
