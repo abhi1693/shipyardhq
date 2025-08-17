@@ -39,6 +39,7 @@ import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import { ExternalLink, Copy as CopyIcon } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
+import { PlanType } from "@/lib/vendor/prisma/client"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
 
@@ -72,10 +73,10 @@ export default async function ViewUserProductPage({
   const publicPath = `/products/${productSlug}`
   const upvoters = await getRecentUpvoters(productId, 5).catch(() => [])
 
-  const allPlans = await getPublicPlans().catch(() => [])
-  const currentPlanPublic = product.plan
-    ? allPlans.find((p) => p.id === product.plan!.id)
-    : undefined
+  const allPlans = await getPublicPlans({ type: PlanType.one_time_price }).catch(
+    () => [],
+  )
+  const currentPlanPublic = allPlans.find((p) => p.id === product.plan?.id)
   const nextPlan = (() => {
     const baseline = currentPlanPublic ? currentPlanPublic.price : -1
     const higher = allPlans
@@ -131,6 +132,7 @@ export default async function ViewUserProductPage({
     productId,
     redirectPath: `/member/products/${productSlug}`,
   })
+  const showPlanUI = Boolean(currentPlanPublic)
 
   return (
     <ObjectPageLayout
@@ -257,6 +259,7 @@ export default async function ViewUserProductPage({
         </div>
       }
       topRowExtras={[
+        showPlanUI ? (
         <Card key="plan-top">
           <CardHeader>
             <CardTitle className="text-base">Plan</CardTitle>
@@ -480,7 +483,8 @@ export default async function ViewUserProductPage({
               )
             })()}
           </CardContent>
-        </Card>,
+        </Card>
+        ) : null,
       ]}
       relationships={
         <div className="grid grid-cols-12 gap-6">

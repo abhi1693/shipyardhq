@@ -5,6 +5,7 @@ import PublicContainer from "@/components/layout/PublicContainer"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { getProducts } from "@/actions/public/products/featured"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
+import {PlanType} from "@/lib/vendor/prisma/client";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default async function PricingPage() {
-  const plans = await getPublicPlans()
+  const plans = await getPublicPlans({type: PlanType.one_time_price})
   const featured = await getProducts("featured")
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">

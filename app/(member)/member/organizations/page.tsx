@@ -10,6 +10,7 @@ import { getPublicPlans } from "@/actions/public/plans/actions"
 import { validateOrgPaymentAction, startOrgCheckoutAction, validateOrgSubscriptionAction } from "@/actions/member/organizations/upsell"
 import { OrgPlanBuyButton } from "@/components/molecules/OrgPlanBuyButton"
 import { redirect } from "next/navigation"
+import {PlanType} from "@/lib/vendor/prisma/client";
 
 export const metadata: Metadata = {
   title: "Organizations",
@@ -40,7 +41,7 @@ export default async function MemberOrganizationsPage({
   const hasOrgs = await memberHasFeature("organization")
   if (!hasOrgs) {
     // Fetch eligible plans only; checkout happens at user/org level
-    const plans = await getPublicPlans().catch(() => [] as any[])
+    const plans = await getPublicPlans({type: PlanType.recurring_price}).catch(() => [] as any[])
     const eligiblePlans = plans.filter((p: any) =>
       (p.features || []).some((f: any) => f.enabled && f.key === "organization"),
     )

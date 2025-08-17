@@ -1,10 +1,12 @@
 import prisma from "@/lib/prisma"
+import { PlanType } from "@/lib/vendor/prisma/client"
 
 export type PublicPlan = Awaited<ReturnType<typeof getPublicPlans>>[number]
 
-export async function getPublicPlans() {
+export async function getPublicPlans(opts?: { type?: PlanType }) {
   const [plans, allFeatures] = await Promise.all([
     prisma.plan.findMany({
+      where: opts?.type ? { type: opts.type } : undefined,
       orderBy: [{ price: "asc" }],
       include: {
         assignments: {
