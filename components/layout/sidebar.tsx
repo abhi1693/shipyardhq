@@ -55,7 +55,6 @@ export default function AppSidebar(props: SidebarProps) {
     })
   }
 
-
   const isActivePath = (url?: string) => {
     if (!url || url === "#") return false
     try {

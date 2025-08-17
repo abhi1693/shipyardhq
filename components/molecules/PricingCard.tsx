@@ -50,9 +50,10 @@ export function PricingCard({
   ) : (
     <span className="text-4xl font-extrabold tracking-tight">{priceText}</span>
   )
-  const priceSub = !isFree && priceSuffix ? (
-    <span className="text-sm text-foreground/80">{priceSuffix}</span>
-  ) : null
+  const priceSub =
+    !isFree && priceSuffix ? (
+      <span className="text-sm text-foreground/80">{priceSuffix}</span>
+    ) : null
 
   return (
     <Card className={clsx("h-full min-h-[22rem] flex flex-col")}>

@@ -52,11 +52,14 @@ export async function getPublicPlans(opts?: { type?: PlanType }) {
       isDefault: p.isDefault,
       externalId: p.externalId,
       paymentFrequencyCount: (p as any).paymentFrequencyCount ?? undefined,
-      paymentFrequencyInterval: (p as any).paymentFrequencyInterval ?? undefined,
+      paymentFrequencyInterval:
+        (p as any).paymentFrequencyInterval ?? undefined,
       subscriptionPeriodCount: (p as any).subscriptionPeriodCount ?? undefined,
-      subscriptionPeriodInterval: (p as any).subscriptionPeriodInterval ?? undefined,
+      subscriptionPeriodInterval:
+        (p as any).subscriptionPeriodInterval ?? undefined,
       priceSuffix:
-        (p as any).type === "recurring_price" && (p as any).paymentFrequencyInterval
+        (p as any).type === "recurring_price" &&
+        (p as any).paymentFrequencyInterval
           ? (() => {
               const c = (p as any).paymentFrequencyCount ?? 1
               const i = String((p as any).paymentFrequencyInterval)

@@ -61,27 +61,25 @@ export default async function ViewPlanPage({
           {
             label: "Price",
             value:
-              plan.price === 0 ? (
-                "Free"
-              ) : (
-                (() => {
-                  const base = formatCurrency(plan.price)
-                  if (
-                    p.type === "recurring_price" &&
-                    p.paymentFrequencyInterval
-                  ) {
-                    const c = p.paymentFrequencyCount ?? 1
-                    const i = String(p.paymentFrequencyInterval)
-                    const human = c === 1 ? i : `${c} ${i}s`
-                    return (
-                      <span className="text-sm text-muted-foreground">
-                        {base} <span>/ {human}</span>
-                      </span>
-                    )
-                  }
-                  return base
-                })()
-              ),
+              plan.price === 0
+                ? "Free"
+                : (() => {
+                    const base = formatCurrency(plan.price)
+                    if (
+                      p.type === "recurring_price" &&
+                      p.paymentFrequencyInterval
+                    ) {
+                      const c = p.paymentFrequencyCount ?? 1
+                      const i = String(p.paymentFrequencyInterval)
+                      const human = c === 1 ? i : `${c} ${i}s`
+                      return (
+                        <span className="text-sm text-muted-foreground">
+                          {base} <span>/ {human}</span>
+                        </span>
+                      )
+                    }
+                    return base
+                  })(),
           },
           {
             label: "Boost For",

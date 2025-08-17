@@ -41,27 +41,19 @@ const planFormSchema = z
     slug: z.string().min(1),
     description: z.string().optional(),
     type: z
-      .enum(["one_time_price", "recurring_price"]) 
+      .enum(["one_time_price", "recurring_price"])
       .default("one_time_price"),
     price: z.coerce.number().nonnegative(),
     discount: z.coerce.number().min(0).max(100).optional(),
     boostForDays: z.coerce.number().min(1).max(30),
     isDefault: z.boolean().optional(),
-    paymentFrequencyCount: z.coerce
-      .number()
-      .int()
-      .positive()
-      .optional(),
+    paymentFrequencyCount: z.coerce.number().int().positive().optional(),
     paymentFrequencyInterval: z
-      .enum(["day", "week", "month", "year"]) 
+      .enum(["day", "week", "month", "year"])
       .optional(),
-    subscriptionPeriodCount: z.coerce
-      .number()
-      .int()
-      .positive()
-      .optional(),
+    subscriptionPeriodCount: z.coerce.number().int().positive().optional(),
     subscriptionPeriodInterval: z
-      .enum(["day", "week", "month", "year"]) 
+      .enum(["day", "week", "month", "year"])
       .optional(),
   })
   .superRefine((val, ctx) => {
@@ -198,8 +190,12 @@ export default function AddPlanForm() {
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="one_time_price">One-time</SelectItem>
-                          <SelectItem value="recurring_price">Recurring</SelectItem>
+                          <SelectItem value="one_time_price">
+                            One-time
+                          </SelectItem>
+                          <SelectItem value="recurring_price">
+                            Recurring
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

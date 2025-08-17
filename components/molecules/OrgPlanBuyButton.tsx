@@ -1,12 +1,15 @@
-"use client";
+"use client"
 
-import { useUser } from "@clerk/nextjs";
-import { CheckoutButton } from "@/components/molecules/CheckoutButton";
+import { useUser } from "@clerk/nextjs"
+import { CheckoutButton } from "@/components/molecules/CheckoutButton"
 
 export function OrgPlanBuyButton({ externalId }: { externalId: string }) {
-  const { user } = useUser();
-  const email = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress;
-  const name = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || undefined;
+  const { user } = useUser()
+  const email =
+    user?.primaryEmailAddress?.emailAddress ||
+    user?.emailAddresses?.[0]?.emailAddress
+  const name =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") || undefined
   return (
     <CheckoutButton
       productId={externalId}
@@ -16,5 +19,5 @@ export function OrgPlanBuyButton({ externalId }: { externalId: string }) {
       redirectPath="/member/organizations"
       disabled={!email}
     />
-  );
+  )
 }

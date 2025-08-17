@@ -52,7 +52,13 @@ export async function startOrgCheckoutAction(formData: FormData) {
     create_new_customer: false,
   } as any
 
-  const billing = { street: "", city: "", state: "", zipcode: "", country: "US" }
+  const billing = {
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "US",
+  }
 
   const session = await dodoClient.payments.create({
     billing,
@@ -75,7 +81,8 @@ export async function validateOrgPaymentAction(paymentId: string) {
   try {
     const payment = await dodoClient.payments.retrieve(paymentId)
     if (!payment) return { error: "Payment not found" }
-    if (payment.status !== "succeeded") return { error: `Payment not succeeded: ${payment.status}` }
+    if (payment.status !== "succeeded")
+      return { error: `Payment not succeeded: ${payment.status}` }
     const meta = (payment as any).metadata || {}
 
     // Preferred: metadata specifies the feature and plan
@@ -93,7 +100,10 @@ export async function validateOrgPaymentAction(paymentId: string) {
 
       let productId: string | undefined
       for (const it of candidates) {
-        const pid = (it && (it.product_id || it.productId || it.product?.id)) as string | undefined
+        const pid = (it &&
+          (it.product_id || it.productId || it.product?.id)) as
+          | string
+          | undefined
         if (pid) {
           productId = pid
           break
@@ -104,11 +114,17 @@ export async function validateOrgPaymentAction(paymentId: string) {
         return { error: "Unable to infer purchased product" }
       }
 
-      const plan = await prisma.plan.findFirst({ where: { externalId: productId }, select: { id: true } })
+      const plan = await prisma.plan.findFirst({
+        where: { externalId: productId },
+        select: { id: true },
+      })
       if (!plan) return { error: "No plan found for product" }
       planId = plan.id
     }
-    const u = await prisma.user.findUnique({ where: { clerkId: userId }, select: { id: true, firstName: true } })
+    const u = await prisma.user.findUnique({
+      where: { clerkId: userId },
+      select: { id: true, firstName: true },
+    })
     if (!u) return { error: "User not found" }
 
     // Record the successful purchase for entitlement
@@ -163,7 +179,11 @@ export async function validateOrgSubscriptionAction(
     await prisma.userPlanPurchase.upsert({
       where: { userId_planId: { userId: u.id, planId: mappedPlanId } },
       update: { externalId: subscriptionId },
-      create: { userId: u.id, planId: mappedPlanId, externalId: subscriptionId },
+      create: {
+        userId: u.id,
+        planId: mappedPlanId,
+        externalId: subscriptionId,
+      },
     })
     return { success: true }
   } catch (e) {

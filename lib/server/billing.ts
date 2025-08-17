@@ -59,7 +59,13 @@ export async function syncCurrentUserBilling() {
   const plans = await prisma.plan.findMany({
     where: {
       externalId: {
-        in: Array.from(new Set([...activeProducts, ...cancelledProducts, ...oneTimeProducts])),
+        in: Array.from(
+          new Set([
+            ...activeProducts,
+            ...cancelledProducts,
+            ...oneTimeProducts,
+          ]),
+        ),
       },
     },
     select: { id: true, externalId: true },
@@ -82,7 +88,9 @@ export async function syncCurrentUserBilling() {
   // Only remove entitlements for products that are cancelled AND not otherwise
   // protected by an active subscription or successful one-time payment.
   const protectedPids = new Set<string>([...activeProducts, ...oneTimeProducts])
-  const removablePids = Array.from(cancelledProducts).filter((pid) => !protectedPids.has(pid))
+  const removablePids = Array.from(cancelledProducts).filter(
+    (pid) => !protectedPids.has(pid),
+  )
   const removed = await prisma.userPlanPurchase.deleteMany({
     where: {
       userId: user.id,

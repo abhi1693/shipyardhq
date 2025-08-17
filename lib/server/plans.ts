@@ -26,4 +26,3 @@ on("product.created", async ({ productId }) => {
     console.error("Failed to attach default plan to product:", err)
   }
 })
-

@@ -5,12 +5,21 @@ import { columns, type MemberOrgRow } from "./columns"
 import { getMyOrganizationsPage } from "@/actions/member/organizations/actions"
 import { memberHasFeature } from "@/lib/memberFeatures"
 import PageContainer from "@/components/layout/page-container"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import { validateOrgPaymentAction, startOrgCheckoutAction, validateOrgSubscriptionAction } from "@/actions/member/organizations/upsell"
+import {
+  validateOrgPaymentAction,
+  startOrgCheckoutAction,
+  validateOrgSubscriptionAction,
+} from "@/actions/member/organizations/upsell"
 import { OrgPlanBuyButton } from "@/components/molecules/OrgPlanBuyButton"
 import { redirect } from "next/navigation"
-import {PlanType} from "@/lib/vendor/prisma/client";
+import { PlanType } from "@/lib/vendor/prisma/client"
 
 export const metadata: Metadata = {
   title: "Organizations",
@@ -41,9 +50,13 @@ export default async function MemberOrganizationsPage({
   const hasOrgs = await memberHasFeature("organization")
   if (!hasOrgs) {
     // Fetch eligible plans only; checkout happens at user/org level
-    const plans = await getPublicPlans({type: PlanType.recurring_price}).catch(() => [] as any[])
+    const plans = await getPublicPlans({
+      type: PlanType.recurring_price,
+    }).catch(() => [] as any[])
     const eligiblePlans = plans.filter((p: any) =>
-      (p.features || []).some((f: any) => f.enabled && f.key === "organization"),
+      (p.features || []).some(
+        (f: any) => f.enabled && f.key === "organization",
+      ),
     )
 
     return (
@@ -55,9 +68,9 @@ export default async function MemberOrganizationsPage({
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                Unlock Organizations to collaborate with your team and manage members.
-                Choose a plan below to buy access. Organization features unlock automatically
-                after successful checkout.
+                Unlock Organizations to collaborate with your team and manage
+                members. Choose a plan below to buy access. Organization
+                features unlock automatically after successful checkout.
               </p>
             </CardContent>
           </Card>
@@ -69,16 +82,18 @@ export default async function MemberOrganizationsPage({
                   <CardTitle className="flex items-baseline justify-between text-lg">
                     <span>{p.name}</span>
                     <span className="text-sm font-normal text-muted-foreground">
-                      {(p.price > 0 ? `$${(p.price / 100).toFixed(2)}` : "Free")}
+                      {p.price > 0 ? `$${(p.price / 100).toFixed(2)}` : "Free"}
                     </span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <ul className="list-inside list-disc text-sm text-muted-foreground">
-                      {(p.features || []).filter((f: any) => f.enabled).map((f: any) => (
-                        <li key={f.id}>{f.name}</li>
-                      ))}
+                      {(p.features || [])
+                        .filter((f: any) => f.enabled)
+                        .map((f: any) => (
+                          <li key={f.id}>{f.name}</li>
+                        ))}
                     </ul>
                     {p.externalId && (p.price || 0) > 0 ? (
                       <OrgPlanBuyButton externalId={p.externalId} />
@@ -100,7 +115,9 @@ export default async function MemberOrganizationsPage({
             {!eligiblePlans.length && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">No eligible plans found</CardTitle>
+                  <CardTitle className="text-lg">
+                    No eligible plans found
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">

@@ -20,4 +20,3 @@ export async function createCustomerPortalAction(sendEmail = false) {
   if (!link) return { error: "Unable to create customer portal session" }
   return { link }
 }
-

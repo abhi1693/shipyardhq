@@ -42,30 +42,26 @@ const planFormSchema = z
     slug: z.string().min(1),
     description: z.string().optional(),
     type: z
-      .enum(["one_time_price", "recurring_price"]) 
+      .enum(["one_time_price", "recurring_price"])
       .default("one_time_price"),
     price: z.coerce.number().nonnegative(),
     discount: z.coerce.number().min(0).max(100).optional(),
     boostForDays: z.coerce.number().min(1).max(30),
     isDefault: z.boolean().optional(),
-    paymentFrequencyCount: z.coerce
-      .number()
-      .int()
-      .positive()
-      .optional(),
-    paymentFrequencyInterval: z
-      .enum(["day", "week", "month", "year"]) as unknown as z.ZodType<
-      "day" | "week" | "month" | "year" | undefined
-    >,
-    subscriptionPeriodCount: z.coerce
-      .number()
-      .int()
-      .positive()
-      .optional(),
-    subscriptionPeriodInterval: z
-      .enum(["day", "week", "month", "year"]) as unknown as z.ZodType<
-      "day" | "week" | "month" | "year" | undefined
-    >,
+    paymentFrequencyCount: z.coerce.number().int().positive().optional(),
+    paymentFrequencyInterval: z.enum([
+      "day",
+      "week",
+      "month",
+      "year",
+    ]) as unknown as z.ZodType<"day" | "week" | "month" | "year" | undefined>,
+    subscriptionPeriodCount: z.coerce.number().int().positive().optional(),
+    subscriptionPeriodInterval: z.enum([
+      "day",
+      "week",
+      "month",
+      "year",
+    ]) as unknown as z.ZodType<"day" | "week" | "month" | "year" | undefined>,
   })
   .superRefine((val, ctx) => {
     if (val.type === "recurring_price") {
@@ -105,9 +101,12 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
       boostForDays: (plan as any).boostForDays ?? 1,
       isDefault: plan.isDefault ?? false,
       paymentFrequencyCount: (plan as any).paymentFrequencyCount ?? undefined,
-      paymentFrequencyInterval: (plan as any).paymentFrequencyInterval ?? undefined,
-      subscriptionPeriodCount: (plan as any).subscriptionPeriodCount ?? undefined,
-      subscriptionPeriodInterval: (plan as any).subscriptionPeriodInterval ?? undefined,
+      paymentFrequencyInterval:
+        (plan as any).paymentFrequencyInterval ?? undefined,
+      subscriptionPeriodCount:
+        (plan as any).subscriptionPeriodCount ?? undefined,
+      subscriptionPeriodInterval:
+        (plan as any).subscriptionPeriodInterval ?? undefined,
     },
   })
 
@@ -200,8 +199,12 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="one_time_price">One-time</SelectItem>
-                          <SelectItem value="recurring_price">Recurring</SelectItem>
+                          <SelectItem value="one_time_price">
+                            One-time
+                          </SelectItem>
+                          <SelectItem value="recurring_price">
+                            Recurring
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

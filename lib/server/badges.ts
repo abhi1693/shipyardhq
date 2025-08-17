@@ -8,9 +8,9 @@ on("product.created", async ({ productId }) => {
   const badge = "new"
 
   try {
-      const existing = await prisma.productBadge.findFirst({
-        where: { productId, badge },
-      })
+    const existing = await prisma.productBadge.findFirst({
+      where: { productId, badge },
+    })
 
     if (existing) {
       // If already exists, leave as-is; optionally refresh expiry if missing

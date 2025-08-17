@@ -48,13 +48,13 @@ export async function createPlanAction(formData: FormData) {
     formData.get("isDefault") === "true" || formData.get("isDefault") === "on"
 
   const paymentFrequencyCountRaw = formData.get("paymentFrequencyCount")
-  const paymentFrequencyIntervalRaw = formData.get(
-    "paymentFrequencyInterval",
-  )?.toString()
+  const paymentFrequencyIntervalRaw = formData
+    .get("paymentFrequencyInterval")
+    ?.toString()
   const subscriptionPeriodCountRaw = formData.get("subscriptionPeriodCount")
-  const subscriptionPeriodIntervalRaw = formData.get(
-    "subscriptionPeriodInterval",
-  )?.toString()
+  const subscriptionPeriodIntervalRaw = formData
+    .get("subscriptionPeriodInterval")
+    ?.toString()
 
   const discount = discountRaw ? parseFloat(discountRaw.toString()) : null
   const boostForDays = boostForDaysRaw
@@ -63,7 +63,8 @@ export async function createPlanAction(formData: FormData) {
   const paymentFrequencyCount = paymentFrequencyCountRaw
     ? parseInt(paymentFrequencyCountRaw.toString(), 10)
     : null
-  const paymentFrequencyInterval = paymentFrequencyIntervalRaw &&
+  const paymentFrequencyInterval =
+    paymentFrequencyIntervalRaw &&
     (Object.values(TimeInterval) as string[]).includes(
       paymentFrequencyIntervalRaw,
     )
@@ -72,7 +73,8 @@ export async function createPlanAction(formData: FormData) {
   const subscriptionPeriodCount = subscriptionPeriodCountRaw
     ? parseInt(subscriptionPeriodCountRaw.toString(), 10)
     : null
-  const subscriptionPeriodInterval = subscriptionPeriodIntervalRaw &&
+  const subscriptionPeriodInterval =
+    subscriptionPeriodIntervalRaw &&
     (Object.values(TimeInterval) as string[]).includes(
       subscriptionPeriodIntervalRaw,
     )
@@ -109,7 +111,10 @@ export async function createPlanAction(formData: FormData) {
         discount: pct,
         price,
         purchasing_power_parity: true,
-        type: type === PlanType.recurring_price ? "recurring_price" : "one_time_price",
+        type:
+          type === PlanType.recurring_price
+            ? "recurring_price"
+            : "one_time_price",
         tax_inclusive: false,
       }
       if (type === PlanType.recurring_price) {
@@ -312,7 +317,9 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
               : "one_time_price",
           tax_inclusive: false,
         }
-        if ((data.type ?? PlanType.one_time_price) === PlanType.recurring_price) {
+        if (
+          (data.type ?? PlanType.one_time_price) === PlanType.recurring_price
+        ) {
           pricePayload.payment_frequency_count = data.paymentFrequencyCount ?? 1
           pricePayload.payment_frequency_interval =
             toDodoInterval(data.paymentFrequencyInterval as any) || "Month"

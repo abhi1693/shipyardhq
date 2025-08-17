@@ -73,9 +73,9 @@ export default async function ViewUserProductPage({
   const publicPath = `/products/${productSlug}`
   const upvoters = await getRecentUpvoters(productId, 5).catch(() => [])
 
-  const allPlans = await getPublicPlans({ type: PlanType.one_time_price }).catch(
-    () => [],
-  )
+  const allPlans = await getPublicPlans({
+    type: PlanType.one_time_price,
+  }).catch(() => [])
   const currentPlanPublic = allPlans.find((p) => p.id === product.plan?.id)
   const nextPlan = (() => {
     const baseline = currentPlanPublic ? currentPlanPublic.price : -1
@@ -260,230 +260,238 @@ export default async function ViewUserProductPage({
       }
       topRowExtras={[
         showPlanUI ? (
-        <Card key="plan-top">
-          <CardHeader>
-            <CardTitle className="text-base">Plan</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {product.plan ? (
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                  <span className="font-medium text-foreground">
-                    {product.plan.name}
-                  </span>
-                  <span className="text-muted-foreground">•</span>
-                  <span>{formatCurrency(product.plan.price) as any}</span>
+          <Card key="plan-top">
+            <CardHeader>
+              <CardTitle className="text-base">Plan</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {product.plan ? (
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                    <span className="font-medium text-foreground">
+                      {product.plan.name}
+                    </span>
+                    <span className="text-muted-foreground">•</span>
+                    <span>{formatCurrency(product.plan.price) as any}</span>
 
-                  {product.plan.isDefault ? (
-                    <Badge variant="secondary">Default</Badge>
-                  ) : null}
+                    {product.plan.isDefault ? (
+                      <Badge variant="secondary">Default</Badge>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            ) : null}
-            {product.plan && exclusiveCurrentTop.length ? (
-              <div className="mt-2">
-                <div className="text-xs text-muted-foreground mb-1">
-                  Included only in {product.plan.name}
-                </div>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {exclusiveCurrentTop.map((f) => (
-                    <li
-                      key={f.id}
-                      className="text-xs text-foreground/90 before:content-['✓'] before:mr-2 before:text-green-600"
-                    >
-                      {f.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-            {(() => {
-              const np = nextPlan
-              if (!np) return null
-              return (
-                <div className="mt-3 rounded-md border p-3 bg-muted/30">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div className="text-sm">
-                      <span className="font-medium">
-                        Unlock more with {np!.name}
-                      </span>
-                      <div className="mt-1 flex items-baseline gap-2">
-                        {(() => {
-                          const nf = new Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                          })
-                          const pctRaw = np!.discount ?? 0
-                          const pct = Math.min(Math.max(pctRaw, 0), 100)
-                          const originalCents = np!.price
-                          const discountedCents =
-                            pct > 0 && pct < 100
-                              ? Math.round(originalCents * (1 - pct / 100))
-                              : originalCents
-                          const original =
-                            pct > 0 && pct < 100
-                              ? nf.format(originalCents / 100)
-                              : null
-                          const priceText = nf.format(discountedCents / 100)
-                          return (
-                            <>
-                              {original && (
-                                <span className="text-xs text-muted-foreground line-through">
-                                  {original}
-                                </span>
-                              )}
-                              <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-                                {priceText}
-                              </span>
-                              {pct > 0 ? (
-                                <span className="text-[11px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1.5 py-0.5">
-                                  Save{" "}
-                                  {new Intl.NumberFormat("en-US", {
-                                    maximumFractionDigits: 2,
-                                  }).format(pct)}
-                                  %
-                                </span>
-                              ) : null}
-                            </>
-                          )
-                        })()}
-                      </div>
-                    </div>
-                    <form action={choosePlan} className="contents">
-                      <input type="hidden" name="planId" value={np!.id} />
-                      <Button
-                        size="sm"
-                        className="transition-transform hover:-translate-y-0.5"
+              ) : null}
+              {product.plan && exclusiveCurrentTop.length ? (
+                <div className="mt-2">
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Included only in {product.plan.name}
+                  </div>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {exclusiveCurrentTop.map((f) => (
+                      <li
+                        key={f.id}
+                        className="text-xs text-foreground/90 before:content-['✓'] before:mr-2 before:text-green-600"
                       >
-                        Buy now
-                      </Button>
-                    </form>
-                  </div>
-                  <div className="mt-1 text-[11px] text-muted-foreground">
-                    Instant activation after payment. Boost lasts{" "}
-                    {(np as any).boostForDays ?? 1} day(s).
-                  </div>
-                  {np!.description ? (
-                    <div className="mt-1 text-xs text-foreground/90">
-                      {np!.description}
-                    </div>
-                  ) : null}
-                  {deltaTop.length ? (
-                    <>
-                      <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {deltaTop.map((f) => (
-                          <li
-                            key={f.id}
-                            className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600"
-                          >
-                            {f.name}
-                          </li>
-                        ))}
-                      </ul>
-                      {deltaCount > deltaTop.length ? (
-                        <div className="mt-1 text-xs text-muted-foreground">
-                          …and {deltaCount - deltaTop.length} more benefits
-                        </div>
-                      ) : null}
-                    </>
-                  ) : null}
-                </div>
-              )
-            })()}
-
-            {(() => {
-              const currentPrice = currentPlanPublic
-                ? currentPlanPublic.price
-                : 0
-              const upgradableAll = allPlans.filter(
-                (p) => p.price > currentPrice,
-              )
-              const upgradable = nextPlan
-                ? upgradableAll.filter((p) => p.id !== nextPlan.id)
-                : upgradableAll
-              if (!upgradable.length) return null
-              return (
-                <div id="plan-upsell" className="mt-4">
-                  <div className="mb-2 text-sm font-medium">Other plans</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {upgradable.map((p) => (
-                      <form key={p.id} action={choosePlan} className="contents">
-                        <input type="hidden" name="planId" value={p.id} />
-                        <div className="rounded-md border p-3 h-full">
-                          <div className="flex items-center justify-between">
-                            <div className="text-sm font-semibold truncate">
-                              {p.name}
-                            </div>
-                            {p.isDefault ? (
-                              <Badge variant="secondary">Default</Badge>
-                            ) : null}
-                          </div>
-                          <div className="mt-1 flex items-baseline gap-2">
-                            {(() => {
-                              const nf = new Intl.NumberFormat("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                              })
-                              const pctRaw = p.discount ?? 0
-                              const pct = Math.min(Math.max(pctRaw, 0), 100)
-                              const originalCents = p.price
-                              const discountedCents =
-                                pct > 0 && pct < 100
-                                  ? Math.round(originalCents * (1 - pct / 100))
-                                  : originalCents
-                              const original =
-                                pct > 0 && pct < 100
-                                  ? nf.format(originalCents / 100)
-                                  : null
-                              const priceText = nf.format(discountedCents / 100)
-                              return (
-                                <>
-                                  {original && (
-                                    <span className="text-xs text-muted-foreground line-through">
-                                      {original}
-                                    </span>
-                                  )}
-                                  <span className="text-2xl font-extrabold tracking-tight">
-                                    {priceText}
-                                  </span>
-                                  {pct > 0 ? (
-                                    <span className="text-[10px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1 py-0.5">
-                                      Save{" "}
-                                      {new Intl.NumberFormat("en-US", {
-                                        maximumFractionDigits: 2,
-                                      }).format(pct)}
-                                      %
-                                    </span>
-                                  ) : null}
-                                </>
-                              )
-                            })()}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground mt-0.5">
-                            for {(p as any).boostForDays ?? 0} day(s)
-                          </div>
-                          {p.description ? (
-                            <div className="mt-1 text-xs text-foreground/90 line-clamp-3">
-                              {p.description}
-                            </div>
-                          ) : null}
-                          <div className="mt-3">
-                            <Button
-                              size="sm"
-                              className="w-full transition-transform hover:-translate-y-0.5"
-                            >
-                              Buy now
-                            </Button>
-                          </div>
-                        </div>
-                      </form>
+                        {f.name}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
-              )
-            })()}
-          </CardContent>
-        </Card>
+              ) : null}
+              {(() => {
+                const np = nextPlan
+                if (!np) return null
+                return (
+                  <div className="mt-3 rounded-md border p-3 bg-muted/30">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div className="text-sm">
+                        <span className="font-medium">
+                          Unlock more with {np!.name}
+                        </span>
+                        <div className="mt-1 flex items-baseline gap-2">
+                          {(() => {
+                            const nf = new Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                            })
+                            const pctRaw = np!.discount ?? 0
+                            const pct = Math.min(Math.max(pctRaw, 0), 100)
+                            const originalCents = np!.price
+                            const discountedCents =
+                              pct > 0 && pct < 100
+                                ? Math.round(originalCents * (1 - pct / 100))
+                                : originalCents
+                            const original =
+                              pct > 0 && pct < 100
+                                ? nf.format(originalCents / 100)
+                                : null
+                            const priceText = nf.format(discountedCents / 100)
+                            return (
+                              <>
+                                {original && (
+                                  <span className="text-xs text-muted-foreground line-through">
+                                    {original}
+                                  </span>
+                                )}
+                                <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                                  {priceText}
+                                </span>
+                                {pct > 0 ? (
+                                  <span className="text-[11px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1.5 py-0.5">
+                                    Save{" "}
+                                    {new Intl.NumberFormat("en-US", {
+                                      maximumFractionDigits: 2,
+                                    }).format(pct)}
+                                    %
+                                  </span>
+                                ) : null}
+                              </>
+                            )
+                          })()}
+                        </div>
+                      </div>
+                      <form action={choosePlan} className="contents">
+                        <input type="hidden" name="planId" value={np!.id} />
+                        <Button
+                          size="sm"
+                          className="transition-transform hover:-translate-y-0.5"
+                        >
+                          Buy now
+                        </Button>
+                      </form>
+                    </div>
+                    <div className="mt-1 text-[11px] text-muted-foreground">
+                      Instant activation after payment. Boost lasts{" "}
+                      {(np as any).boostForDays ?? 1} day(s).
+                    </div>
+                    {np!.description ? (
+                      <div className="mt-1 text-xs text-foreground/90">
+                        {np!.description}
+                      </div>
+                    ) : null}
+                    {deltaTop.length ? (
+                      <>
+                        <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {deltaTop.map((f) => (
+                            <li
+                              key={f.id}
+                              className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600"
+                            >
+                              {f.name}
+                            </li>
+                          ))}
+                        </ul>
+                        {deltaCount > deltaTop.length ? (
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            …and {deltaCount - deltaTop.length} more benefits
+                          </div>
+                        ) : null}
+                      </>
+                    ) : null}
+                  </div>
+                )
+              })()}
+
+              {(() => {
+                const currentPrice = currentPlanPublic
+                  ? currentPlanPublic.price
+                  : 0
+                const upgradableAll = allPlans.filter(
+                  (p) => p.price > currentPrice,
+                )
+                const upgradable = nextPlan
+                  ? upgradableAll.filter((p) => p.id !== nextPlan.id)
+                  : upgradableAll
+                if (!upgradable.length) return null
+                return (
+                  <div id="plan-upsell" className="mt-4">
+                    <div className="mb-2 text-sm font-medium">Other plans</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {upgradable.map((p) => (
+                        <form
+                          key={p.id}
+                          action={choosePlan}
+                          className="contents"
+                        >
+                          <input type="hidden" name="planId" value={p.id} />
+                          <div className="rounded-md border p-3 h-full">
+                            <div className="flex items-center justify-between">
+                              <div className="text-sm font-semibold truncate">
+                                {p.name}
+                              </div>
+                              {p.isDefault ? (
+                                <Badge variant="secondary">Default</Badge>
+                              ) : null}
+                            </div>
+                            <div className="mt-1 flex items-baseline gap-2">
+                              {(() => {
+                                const nf = new Intl.NumberFormat("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                })
+                                const pctRaw = p.discount ?? 0
+                                const pct = Math.min(Math.max(pctRaw, 0), 100)
+                                const originalCents = p.price
+                                const discountedCents =
+                                  pct > 0 && pct < 100
+                                    ? Math.round(
+                                        originalCents * (1 - pct / 100),
+                                      )
+                                    : originalCents
+                                const original =
+                                  pct > 0 && pct < 100
+                                    ? nf.format(originalCents / 100)
+                                    : null
+                                const priceText = nf.format(
+                                  discountedCents / 100,
+                                )
+                                return (
+                                  <>
+                                    {original && (
+                                      <span className="text-xs text-muted-foreground line-through">
+                                        {original}
+                                      </span>
+                                    )}
+                                    <span className="text-2xl font-extrabold tracking-tight">
+                                      {priceText}
+                                    </span>
+                                    {pct > 0 ? (
+                                      <span className="text-[10px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1 py-0.5">
+                                        Save{" "}
+                                        {new Intl.NumberFormat("en-US", {
+                                          maximumFractionDigits: 2,
+                                        }).format(pct)}
+                                        %
+                                      </span>
+                                    ) : null}
+                                  </>
+                                )
+                              })()}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground mt-0.5">
+                              for {(p as any).boostForDays ?? 0} day(s)
+                            </div>
+                            {p.description ? (
+                              <div className="mt-1 text-xs text-foreground/90 line-clamp-3">
+                                {p.description}
+                              </div>
+                            ) : null}
+                            <div className="mt-3">
+                              <Button
+                                size="sm"
+                                className="w-full transition-transform hover:-translate-y-0.5"
+                              >
+                                Buy now
+                              </Button>
+                            </div>
+                          </div>
+                        </form>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
+            </CardContent>
+          </Card>
         ) : null,
       ]}
       relationships={
