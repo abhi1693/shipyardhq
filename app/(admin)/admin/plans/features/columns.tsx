@@ -1,7 +1,11 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Plan, PlanFeature, PlanFeatureAssignment } from "@/lib/vendor/prisma/client"
+import {
+  Plan,
+  PlanFeature,
+  PlanFeatureAssignment,
+} from "@/lib/vendor/prisma/client"
 import { commaSeparated, formatDate, linkify } from "@/lib/ui/formatters"
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"

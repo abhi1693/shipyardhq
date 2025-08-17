@@ -30,7 +30,11 @@ import { Checkbox } from "@/components/atoms/checkbox"
 import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 import { updatePlanFeatureAssignmentAction } from "@/actions/admin/plans/assignments/actions"
-import { PlanFeatureAssignment, Plan, PlanFeature } from "@/lib/vendor/prisma/client"
+import {
+  PlanFeatureAssignment,
+  Plan,
+  PlanFeature,
+} from "@/lib/vendor/prisma/client"
 
 const schema = z.object({
   planId: z.string().min(1, "Plan is required"),

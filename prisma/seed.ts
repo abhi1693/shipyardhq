@@ -1,4 +1,9 @@
-import { PrismaClient, Prisma, PlanType, Plan } from "@/lib/vendor/prisma/client"
+import {
+  PrismaClient,
+  Prisma,
+  PlanType,
+  Plan,
+} from "@/lib/vendor/prisma/client"
 
 const prisma = new PrismaClient()
 
