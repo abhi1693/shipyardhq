@@ -4,7 +4,7 @@ on:
   push: {}
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}-${{ github.actor }}
   cancel-in-progress: true
 
 jobs:
@@ -43,13 +43,6 @@ jobs:
     strategy:
       matrix:
         node: [22.x]
-    env:
-      # Provide dummy env vars so imports using process.env don’t crash
-      DATABASE_URL: file:./dev.db
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: test_pk
-      CLERK_SECRET_KEY: test_sk
-      DODO_API_KEY: test_key
-      NODE_ENV: test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -67,4 +60,8 @@ jobs:
         run: npx prisma generate --no-engine
 
       - name: Run tests (vitest)
-        run: npm run test
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npx --yes vercel env pull --yes --environment=preview .env.local --token "$VERCEL_TOKEN"
+          npm run test
