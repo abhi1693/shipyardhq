@@ -83,6 +83,21 @@ export default async function OverviewPage({
     getProductHealthSummary(days),
   ])
 
+  // If user has no products yet, show a crisp, focused welcome prompt
+  if (stats.totalProducts === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <h1 className="mb-2 text-2xl font-semibold tracking-tight">Welcome</h1>
+        <p className="mb-6 text-sm text-muted-foreground">
+          Start by adding your first product to unlock your dashboard.
+        </p>
+        <Link href="/member/products/add">
+          <AddButton label="Add Product" />
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
