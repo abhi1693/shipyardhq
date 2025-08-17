@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Product } from "@prisma/client"
+import { Product } from "@/lib/vendor/prisma/client"
 import { formatDate, image, linkify } from "@/lib/ui/formatters"
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"

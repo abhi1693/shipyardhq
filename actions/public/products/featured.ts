@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/lib/vendor/prisma/client"
 
 export async function getProducts(badge: string) {
   const now = new Date()

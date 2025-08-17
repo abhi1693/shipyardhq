@@ -6,7 +6,7 @@ vi.mock("@prisma/extension-accelerate", () => ({
   withAccelerate: () => (client: any) => client,
 }))
 
-vi.mock("@prisma/client", () => ({
+vi.mock("@/lib/vendor/prisma/client", () => ({
   PrismaClient: class MockClient {
     $extends() {
       return this

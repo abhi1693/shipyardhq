@@ -1,5 +1,5 @@
 "use client"
-import { Product, ProductVerification, ProductAnalytics } from "@prisma/client"
+import { Product, ProductVerification, ProductAnalytics } from "@/lib/vendor/prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
 import {
   formatBoolean,

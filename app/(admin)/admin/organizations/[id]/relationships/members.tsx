@@ -2,7 +2,7 @@
 
 import { Relationship } from "@/components/molecules/Relationship"
 import { ColumnDef } from "@tanstack/react-table"
-import type { OrganizationMembership, User } from "@prisma/client"
+import type { OrganizationMembership, User } from "@/lib/vendor/prisma/client"
 import { linkify, formatDate } from "@/lib/ui/formatters"
 import Link from "next/link"
 import AddButton from "@/components/molecules/AddButton"

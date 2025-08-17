@@ -2,7 +2,7 @@
 
 import { Relationship } from "@/components/molecules/Relationship"
 import { ColumnDef } from "@tanstack/react-table"
-import { Product, Category } from "@prisma/client"
+import { Product, Category } from "@/lib/vendor/prisma/client"
 import { linkify, formatDate } from "@/lib/ui/formatters"
 
 type ProductWithCategory = Product & {

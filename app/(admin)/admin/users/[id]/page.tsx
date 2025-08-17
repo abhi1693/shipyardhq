@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { getUserById } from "@/actions/admin/users/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { UserProductRelationship } from "./relationships/products"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/lib/vendor/prisma/client"
 
 export default async function ViewUserPage({
   params,

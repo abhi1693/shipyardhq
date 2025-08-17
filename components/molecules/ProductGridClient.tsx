@@ -12,7 +12,7 @@ import {
   ProductAnalytics,
   ProductVerification,
   User,
-} from "@prisma/client"
+} from "@/lib/vendor/prisma/client"
 import { loadMoreProducts } from "@/actions/public/browse/loadMore"
 
 type ProductWithMeta = Product & {

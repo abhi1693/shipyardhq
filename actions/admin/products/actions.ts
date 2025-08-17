@@ -6,7 +6,7 @@ import prisma from "@/lib/prisma"
 import { publish } from "@/lib/server/events"
 import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
-import { ProductType, PricingModel, Prisma } from "@prisma/client"
+import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
 
 function generateVerificationTxtFromWebsite(websiteUrl: string): string {

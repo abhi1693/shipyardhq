@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { slugify } from "@/lib/utils"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/lib/vendor/prisma/client"
 
 export async function getCategories(args = {}) {
   try {

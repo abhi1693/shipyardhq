@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Organization } from "@prisma/client"
+import { Organization } from "@/lib/vendor/prisma/client"
 import { formatDate, linkify } from "@/lib/ui/formatters"
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"

@@ -47,7 +47,7 @@ import type {
   Category,
   User,
   Organization,
-} from "@prisma/client"
+} from "@/lib/vendor/prisma/client"
 
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),

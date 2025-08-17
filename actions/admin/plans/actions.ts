@@ -1,7 +1,7 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { Prisma, PlanType } from "@prisma/client"
+import { Prisma, PlanType } from "@/lib/vendor/prisma/client"
 import { dodoClient } from "@/lib/dodo"
 
 // Get all plans

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "@/lib/vendor/prisma/client"
 import { withAccelerate } from "@prisma/extension-accelerate"
 import { IS_PROD } from "@/lib/constants"
 

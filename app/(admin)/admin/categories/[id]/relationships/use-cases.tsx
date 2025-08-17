@@ -2,7 +2,7 @@
 
 import { Relationship } from "@/components/molecules/Relationship"
 import { ColumnDef } from "@tanstack/react-table"
-import { UseCaseCategory } from "@prisma/client"
+import { UseCaseCategory } from "@/lib/vendor/prisma/client"
 import { linkify } from "@/lib/ui/formatters"
 
 type UseCaseWithJoin = UseCaseCategory & {

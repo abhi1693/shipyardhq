@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { getCategoryById } from "@/actions/admin/categories/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/lib/vendor/prisma/client"
 import { CategoryProductRelationship } from "@/app/(admin)/admin/categories/[id]/relationships/products"
 import { CategoryUseCaseRelationship } from "@/app/(admin)/admin/categories/[id]/relationships/use-cases"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
 import { updateUserAction } from "@/actions/admin/users/actions"
-import { User } from "@prisma/client"
+import { User } from "@/lib/vendor/prisma/client"
 
 import {
   Card,

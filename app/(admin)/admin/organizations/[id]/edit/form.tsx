@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/atoms/input"
 import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
-import type { Organization } from "@prisma/client"
+import type { Organization } from "@/lib/vendor/prisma/client"
 
 const orgSchema = z.object({
   name: z.string().min(1, "Name is required"),

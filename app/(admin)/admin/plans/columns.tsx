@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Plan } from "@prisma/client"
+import { Plan } from "@/lib/vendor/prisma/client"
 import { Badge } from "@/components/atoms/badge"
 import {
   linkify,

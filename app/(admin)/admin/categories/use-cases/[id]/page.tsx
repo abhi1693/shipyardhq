@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { getUseCaseById } from "@/actions/admin/categories/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
-import { Prisma, UseCaseCategory } from "@prisma/client"
+import { Prisma, UseCaseCategory } from "@/lib/vendor/prisma/client"
 import { UseCaseCategoryRelationship } from "@/app/(admin)/admin/categories/use-cases/[id]/relationships/categories"
 
 export default async function ViewUseCasePage({

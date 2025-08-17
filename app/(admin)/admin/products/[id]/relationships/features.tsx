@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { Relationship } from "@/components/molecules/Relationship"
-import { PlanFeatureAssignment, PlanFeature } from "@prisma/client"
+import { PlanFeatureAssignment, PlanFeature } from "@/lib/vendor/prisma/client"
 import { formatBoolean, linkify } from "@/lib/ui/formatters"
 
 type AssignmentWithFeature = PlanFeatureAssignment & {

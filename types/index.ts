@@ -1,5 +1,5 @@
 import { Icons } from "@/components/icons"
-import { Category, Prisma, UseCase } from "@prisma/client"
+import { Category, Prisma, UseCase } from "@/lib/vendor/prisma/client"
 
 export interface NavItem {
   title: string

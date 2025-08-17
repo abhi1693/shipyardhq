@@ -27,7 +27,7 @@ import { Separator } from "@/components/atoms/separator"
 
 import PageContainer from "@/components/layout/page-container"
 import { updatePlanAction } from "@/actions/admin/plans/actions"
-import { Plan } from "@prisma/client"
+import { Plan } from "@/lib/vendor/prisma/client"
 
 const planFormSchema = z.object({
   name: z.string().min(1),

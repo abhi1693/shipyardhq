@@ -6,7 +6,7 @@ import {
   ProductAnalytics,
   ProductVerification,
   User,
-} from "@prisma/client"
+} from "@/lib/vendor/prisma/client"
 import { useState } from "react"
 import { Check } from "lucide-react"
 import { Button } from "@/components/atoms/button"

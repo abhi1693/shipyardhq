@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { getPlanFeatureById } from "@/actions/admin/plans/features/actions"
 import { PlanAssignmentRelationship } from "./relationships/assignments"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/lib/vendor/prisma/client"
 
 export default async function PlanFeaturePage({
   params,

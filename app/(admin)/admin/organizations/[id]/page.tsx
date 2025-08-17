@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { getOrganizationById } from "@/actions/admin/organizations/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { linkify, formatDate } from "@/lib/ui/formatters"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/lib/vendor/prisma/client"
 import { OrganizationMembersRelationship } from "./relationships/members"
 
 export default async function ViewOrganizationPage({
