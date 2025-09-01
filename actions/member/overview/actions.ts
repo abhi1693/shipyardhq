@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
-import { auth } from "@clerk/nextjs/server"
-import { subDays } from "date-fns"
+import {auth} from "@clerk/nextjs/server"
+import {subDays} from "date-fns"
 
 type UserRef = { id: string }
 
@@ -157,22 +157,23 @@ export async function getTopProductsByMetric(
 // New: Expiring badges soon
 export async function getExpiringBadges(limit = 5, withinDays = 14) {
   const user = await getCurrentUser()
+  const now = new Date()
   const until = subDays(new Date(), -withinDays) // now + withinDays
-  const rows = await prisma.productBadge.findMany({
-    where: {
-      product: { userId: user.id },
-      expiresAt: { not: null, lte: until },
-    },
-    orderBy: { expiresAt: "asc" },
-    take: limit,
-    select: {
-      id: true,
-      badge: true,
-      expiresAt: true,
-      product: { select: { id: true, name: true, slug: true } },
-    },
+  return prisma.productBadge.findMany({
+      where: {
+          product: {userId: user.id},
+          // Only show badges that are in the future but within the window
+          expiresAt: {not: null, gt: now, lte: until},
+      },
+      orderBy: {expiresAt: "asc"},
+      take: limit,
+      select: {
+          id: true,
+          badge: true,
+          expiresAt: true,
+          product: {select: {id: true, name: true, slug: true}},
+      },
   })
-  return rows
 }
 
 // New: Products needing media (lt min images)
