@@ -26,15 +26,19 @@ export async function startOrgCheckoutAction(formData: FormData) {
   })
   if (!plan) return
 
-  // If plan is free or missing externalId, just grant access by creating a purchase record
-  if (!plan.externalId || (plan.price || 0) === 0) {
-    // Upsert a free purchase record so entitlement is granted
+  // Free plans: grant access immediately by creating a purchase record
+  if ((plan.price || 0) === 0) {
     await prisma.userPlanPurchase.upsert({
       where: { userId_planId: { userId: user.id, planId: plan.id } },
       update: {},
       create: { userId: user.id, planId: plan.id },
     })
     redirect("/member/organizations?upgraded=1")
+  }
+
+  // Paid plans without a configured externalId should not grant access
+  if (plan.price > 0 && !plan.externalId) {
+    redirect("/member/organizations?error=plan_not_configured")
   }
 
   // Build return URL using current host if available
@@ -168,6 +172,11 @@ export async function validateOrgSubscriptionAction(
         mappedPlanId = mapped?.id
       }
     } catch {}
+
+    // Require a mapped plan for entitlement; do not upsert with undefined
+    if (!mappedPlanId) {
+      return { error: "Unable to map subscription to a plan" }
+    }
 
     const u = await prisma.user.findUnique({
       where: { clerkId: userId },
