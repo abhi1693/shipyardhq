@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { getProductById } from "@/actions/admin/products/actions"
+import { assignProductPlanAction, getProductById } from "@/actions/admin/products/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { OverviewRow } from "@/components/layout/object-view/overview"
 import {
@@ -17,6 +17,10 @@ import {
   placeholder,
 } from "@/lib/ui/formatters"
 import { AssignedFeatureOfPlanRelationship } from "@/app/(admin)/admin/products/[id]/relationships/features"
+import { getPlans } from "@/actions/admin/plans/actions"
+import { Button } from "@/components/atoms/button"
+// Use native select for simple server action submission
+import { revalidatePath } from "next/cache"
 
 export default async function ViewProductPage({
   params,
@@ -24,8 +28,20 @@ export default async function ViewProductPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const product = await getProductById(id)
+  const [product, plans] = await Promise.all([
+    getProductById(id),
+    getPlans({ select: { id: true, name: true, type: true, price: true } }),
+  ])
   if (!product) return notFound()
+  const productId = product.id
+
+  async function assignPlan(formData: FormData) {
+    "use server"
+    const planIdRaw = formData.get("planId")?.toString() || ""
+    const planId = planIdRaw.length ? planIdRaw : null
+    await assignProductPlanAction(productId, planId)
+    revalidatePath(`/admin/products/${productId}`)
+  }
 
   return (
     <ObjectPageLayout
@@ -99,6 +115,31 @@ export default async function ViewProductPage({
       editable
       relationships={
         <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Plan Assignment</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form action={assignPlan} className="flex items-end gap-3">
+                <div className="flex-1">
+                  <label className="block text-sm mb-2">Plan</label>
+                  <select
+                    name="planId"
+                    defaultValue={product.plan?.id || ""}
+                    className="border rounded-md px-3 py-2 text-sm w-full bg-transparent"
+                  >
+                    <option value="">No plan</option>
+                    {plans.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} {p.price ? `— $${(p.price / 100).toFixed(2)}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <Button type="submit" variant="outline">Save</Button>
+              </form>
+            </CardContent>
+          </Card>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Metadata Card */}
             <Card>

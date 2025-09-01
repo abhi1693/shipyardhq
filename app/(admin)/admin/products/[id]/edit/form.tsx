@@ -94,6 +94,8 @@ const productFormSchema = z.object({
   demoUrl: z.string().optional().or(z.literal("")),
   contactEmail: z.string().optional().or(z.literal("")),
   utmCampaign: z.string().optional().or(z.literal("")),
+  // optional plan assignment (empty string means clear)
+  planId: z.string().optional().or(z.literal("")),
 })
 
 type ProductFormInput = z.infer<typeof productFormSchema>
@@ -103,6 +105,7 @@ export default function EditProductForm({
   categories,
   users,
   organizations,
+  plans,
 }: {
   product: Product & {
     metadata: ProductMetadata | null
@@ -115,6 +118,7 @@ export default function EditProductForm({
   categories: { id: string; name: string }[]
   users: { id: string; email: string }[]
   organizations: { id: string; name: string }[]
+  plans: { id: string; name: string; price: number | null }[]
 }) {
   const router = useRouter()
 
@@ -151,6 +155,9 @@ export default function EditProductForm({
       demoUrl: product.metadata?.demoUrl || "",
       contactEmail: product.metadata?.contactEmail || "",
       utmCampaign: product.metadata?.utmCampaign || "",
+      // optional plan assignment
+      // @ts-expect-error extend schema below to include planId
+      planId: product.plan?.id || "",
     },
   })
 
@@ -186,6 +193,7 @@ export default function EditProductForm({
       demoUrl: values.demoUrl || null,
       contactEmail: values.contactEmail || null,
       utmCampaign: values.utmCampaign || null,
+      planId: (values as any).planId ? String((values as any).planId) : null,
     })
 
     if ((result as any)?.error) return
@@ -460,6 +468,32 @@ export default function EditProductForm({
 
               {/* Pricing */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Plan Assignment */}
+                <FormField
+                  name="planId"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Plan</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value as any}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select plan (optional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">No plan</SelectItem>
+                          {plans.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name} {p.price ? `— $${(p.price / 100).toFixed(2)}` : ""}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   name="utmCampaign"
                   control={form.control}

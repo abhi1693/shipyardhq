@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   description: "Manage categories in the admin panel",
 }
 
+// Ensure this page always reflects the latest DB state
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export default async function CategoryPage() {
   const categories = await getCategories()
 

@@ -9,6 +9,10 @@ import "./globals.css"
 import { IS_PROD } from "@/lib/constants"
 import "./theme.css"
 
+// Make all routes dynamic to always reflect latest data
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

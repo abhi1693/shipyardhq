@@ -11,7 +11,10 @@ CREATE TYPE "public"."ProductStatus" AS ENUM ('draft', 'published', 'archived');
 CREATE TYPE "public"."Platform" AS ENUM ('web', 'ios', 'android', 'mac', 'windows', 'linux', 'chrome_extension', 'firefox_extension');
 
 -- CreateEnum
-CREATE TYPE "public"."PlanType" AS ENUM ('one_time_price');
+CREATE TYPE "public"."PlanType" AS ENUM ('one_time_price', 'recurring_price');
+
+-- CreateEnum
+CREATE TYPE "public"."TimeInterval" AS ENUM ('day', 'week', 'month', 'year');
 
 -- CreateTable
 CREATE TABLE "public"."Product" (
@@ -110,6 +113,7 @@ CREATE TABLE "public"."Organization" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "url" TEXT NOT NULL,
+    "ownerUserId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -171,6 +175,10 @@ CREATE TABLE "public"."Plan" (
     "discount" DOUBLE PRECISION,
     "boostForDays" INTEGER NOT NULL DEFAULT 1,
     "isDefault" BOOLEAN NOT NULL DEFAULT false,
+    "paymentFrequencyCount" INTEGER,
+    "paymentFrequencyInterval" "public"."TimeInterval",
+    "subscriptionPeriodCount" INTEGER,
+    "subscriptionPeriodInterval" "public"."TimeInterval",
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -200,6 +208,18 @@ CREATE TABLE "public"."PlanFeatureAssignment" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "PlanFeatureAssignment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."UserPlanPurchase" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "planId" TEXT NOT NULL,
+    "externalId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UserPlanPurchase_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -291,6 +311,12 @@ CREATE UNIQUE INDEX "PlanFeature_key_key" ON "public"."PlanFeature"("key");
 CREATE UNIQUE INDEX "PlanFeatureAssignment_planId_featureId_key" ON "public"."PlanFeatureAssignment"("planId", "featureId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "UserPlanPurchase_externalId_key" ON "public"."UserPlanPurchase"("externalId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserPlanPurchase_userId_planId_key" ON "public"."UserPlanPurchase"("userId", "planId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "UseCase_slug_key" ON "public"."UseCase"("slug");
 
 -- AddForeignKey
@@ -324,6 +350,9 @@ ALTER TABLE "public"."ProductUpvote" ADD CONSTRAINT "ProductUpvote_productId_fke
 ALTER TABLE "public"."ProductUpvote" ADD CONSTRAINT "ProductUpvote_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "public"."Organization" ADD CONSTRAINT "Organization_ownerUserId_fkey" FOREIGN KEY ("ownerUserId") REFERENCES "public"."User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "public"."OrganizationMembership" ADD CONSTRAINT "OrganizationMembership_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -334,6 +363,12 @@ ALTER TABLE "public"."PlanFeatureAssignment" ADD CONSTRAINT "PlanFeatureAssignme
 
 -- AddForeignKey
 ALTER TABLE "public"."PlanFeatureAssignment" ADD CONSTRAINT "PlanFeatureAssignment_featureId_fkey" FOREIGN KEY ("featureId") REFERENCES "public"."PlanFeature"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."UserPlanPurchase" ADD CONSTRAINT "UserPlanPurchase_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."UserPlanPurchase" ADD CONSTRAINT "UserPlanPurchase_planId_fkey" FOREIGN KEY ("planId") REFERENCES "public"."Plan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."ProductBadge" ADD CONSTRAINT "ProductBadge_productId_fkey" FOREIGN KEY ("productId") REFERENCES "public"."Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;

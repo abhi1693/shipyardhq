@@ -263,6 +263,7 @@ export async function updateProductAction(
     demoUrl?: string | null
     contactEmail?: string | null
     utmCampaign?: string | null
+    planId?: string | null
   },
 ) {
   const {
@@ -338,6 +339,7 @@ export async function updateProductAction(
         bannerImage: data.bannerImage ?? undefined,
         keywords: data.keywords as any,
         platforms: data.platforms as any,
+        planId: data.planId === undefined ? undefined : data.planId || null,
       },
     })
 
@@ -477,6 +479,28 @@ export async function checkDomainTxtAction(websiteUrl: string) {
   } catch (error: unknown) {
     const code = (error as { code?: string })?.code ?? "UNKNOWN"
     return { error: `DNS check failed: ${code}` }
+  }
+}
+
+// Assign or clear a plan for a product (admin only)
+export async function assignProductPlanAction(
+  productId: string,
+  planId: string | null,
+) {
+  try {
+    if (planId) {
+      const plan = await prisma.plan.findUnique({ where: { id: planId } })
+      if (!plan) return { error: "Plan not found" }
+    }
+    await prisma.product.update({
+      where: { id: productId },
+      data: { planId: planId || null },
+      select: { id: true, planId: true },
+    })
+    return { success: true }
+  } catch (e) {
+    console.error("Failed to assign plan to product", e)
+    return { error: "Failed to assign plan" }
   }
 }
 
