@@ -32,6 +32,7 @@ interface ProductGridClientProps {
     category?: string
     verified?: boolean
     sort?: string
+    q?: string
   }
 }
 

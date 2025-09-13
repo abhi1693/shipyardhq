@@ -14,8 +14,9 @@ export async function loadMoreProducts(params: {
   category?: string
   verified?: boolean
   sort?: string
+  q?: string
 }) {
-  const { page, useCase, category, verified, sort } = params
+  const { page, useCase, category, verified, sort, q } = params
 
   return getBrowseProducts({
     page,
@@ -23,5 +24,6 @@ export async function loadMoreProducts(params: {
     categorySlug: category,
     verified,
     sort: isValidSort(sort) ? sort : undefined, // validated sort
+    query: q,
   })
 }

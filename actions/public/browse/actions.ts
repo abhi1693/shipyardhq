@@ -8,6 +8,7 @@ interface GetBrowseProductsOptions {
   sort?: "new" | "trending" | "votes" | "az"
   page?: number
   pageSize?: number
+  query?: string
 }
 
 export async function getBrowseProducts({
@@ -17,6 +18,7 @@ export async function getBrowseProducts({
   sort = "new",
   page = 1,
   pageSize = 20,
+  query,
 }: GetBrowseProductsOptions) {
   const skip = (page - 1) * pageSize
 
@@ -49,9 +51,30 @@ export async function getBrowseProducts({
     categoryIds = [category.id]
   }
 
+  // Prepare keyword token variants for array matching
+  const q = query?.trim()
+  const tokens = q ? q.split(/[\s,]+/).filter(Boolean) : []
+  const tokensLower = tokens.map((t) => t.toLowerCase())
+
   const baseWhere: Prisma.ProductWhereInput = {
     ...(verified ? { verification: { is: { isVerified: true } } } : {}),
     ...(categoryIds?.length ? { categoryId: { in: categoryIds } } : {}),
+    ...(q
+      ? {
+          OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            { tagline: { contains: q, mode: "insensitive" } },
+            { description: { contains: q, mode: "insensitive" } },
+            { category: { is: { name: { contains: q, mode: "insensitive" } } } },
+            // Keyword array matches (best-effort for case)
+            ...(tokens.length ? [{ keywords: { hasSome: tokens } }] : []),
+            ...(tokensLower.length
+              ? [{ keywords: { hasSome: tokensLower } }]
+              : []),
+            { keywords: { has: q } },
+          ],
+        }
+      : {}),
   }
 
   const orderBy: Prisma.ProductOrderByWithRelationInput =

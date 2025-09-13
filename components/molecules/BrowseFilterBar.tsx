@@ -1,10 +1,11 @@
 "use client"
 
-import { useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/atoms/button"
 import Link from "next/link"
 import { Switch } from "@/components/atoms/switch"
+import { Input } from "@/components/atoms/input"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -55,10 +56,27 @@ export default function BrowseFilterBar({
 }: BrowseFilterBarProps) {
   const router = useRouter()
   const params = useSearchParams()
-
-  // Simple lists (search removed for now)
-
   const qs = params?.toString() ?? ""
+  const [q, setQ] = useState("")
+
+  useEffect(() => {
+    const nextQ = params?.get("q") ?? ""
+    setQ(nextQ)
+  }, [params])
+
+  // Debounced apply of search param when typing
+  useEffect(() => {
+    const currentQ = params?.get("q") ?? ""
+    const trimmed = (q || "").trim()
+    if (trimmed === currentQ) return
+    const t = setTimeout(() => {
+      router.push(
+        buildQuery("/browse", qs, { q: trimmed || undefined, page: "1" }),
+      )
+    }, 400)
+    return () => clearTimeout(t)
+  }, [q, params, qs, router])
+  // Simple lists (search removed for now)
   const buildUrl = useCallback(
     (key: string, value: string | boolean | undefined) => {
       return buildQuery("/browse", qs, {
@@ -116,6 +134,7 @@ export default function BrowseFilterBar({
     (!!current.useCase && current.useCase !== "__all__") ||
     (!!current.category && current.category !== "__all__") ||
     !!current.verified ||
+    Boolean((params?.get("q") ?? "").trim()) ||
     (current.sort && current.sort !== "new")
 
   const currentUseCaseLabel = useCases.find(
@@ -134,6 +153,38 @@ export default function BrowseFilterBar({
   return (
     <div className="sticky top-24 z-20 rounded-lg border bg-card/80 backdrop-blur px-3 py-2 md:px-4 md:py-3 shadow-sm">
       <div className="flex flex-wrap items-center gap-2 md:gap-3">
+        {/* Search */}
+        <div className="w-full sm:w-auto sm:min-w-[14rem]">
+          <div className="relative">
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                }
+              }}
+              placeholder="Search products"
+              className="h-8 pr-8"
+            />
+            {q ? (
+              <button
+                type="button"
+                aria-label="Clear search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  setQ("")
+                  router.push(
+                    buildQuery("/browse", qs, { q: undefined, page: "1" }),
+                  )
+                }}
+              >
+                ×
+              </button>
+            ) : null}
+          </div>
+        </div>
+
         {/* Use Case */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

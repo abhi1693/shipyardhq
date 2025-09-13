@@ -27,6 +27,7 @@ interface BrowseSearchParams {
   verified?: StrOrArr
   sort?: StrOrArr
   page?: StrOrArr
+  q?: StrOrArr
 }
 
 export default async function BrowsePage({
@@ -49,6 +50,7 @@ export default async function BrowsePage({
   const sort =
     (pick(params.sort) as "new" | "trending" | "votes" | "az") ?? "new"
   const page = pick(params.page) ?? "1"
+  const q = pick(params.q)
 
   const { products, hasMore } = await getBrowseProducts({
     useCaseSlug: useCase === "__all__" ? undefined : useCase,
@@ -56,6 +58,7 @@ export default async function BrowsePage({
     verified: verified === "true",
     sort,
     page: parseInt(page),
+    query: q?.trim() || undefined,
   })
 
   // URL building handled in client components; removed local duplication.
@@ -124,6 +127,7 @@ export default async function BrowsePage({
                 category: category === "__all__" ? undefined : category,
                 verified: verified === "true",
                 sort,
+                q: q?.trim() || undefined,
               }}
             />
           )}
