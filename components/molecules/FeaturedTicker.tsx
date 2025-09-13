@@ -25,7 +25,7 @@ export default function FeaturedTicker({ items }: { items: Item[] }) {
   const endTranslate = shouldDuplicate ? "-100%" : `-${50 + list.length * 10}%`
 
   return (
-    <div className="border-b bg-muted/40 overflow-hidden">
+    <div className="sticky top-16 z-40 border-b bg-muted/40 overflow-hidden">
       <div className="py-2">
         <div
           className="flex flex-nowrap items-center gap-8 w-max whitespace-nowrap will-change-transform"
