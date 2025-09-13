@@ -55,25 +55,25 @@ export function ProductCard({
         <Card
           className={clsx(
             "relative h-full bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer",
-            compact && "p-3",
+            compact ? "p-3 gap-2" : undefined,
           )}
         >
           {topRight && (
             <div className="absolute top-2 right-2 z-10">{topRight}</div>
           )}
-          <CardHeader className={clsx("pb-3", compact && "p-0")}>
-            <div className="flex gap-3 items-start">
+          <CardHeader className={clsx(compact ? "p-0 pb-2" : "pb-3")}>
+            <div className={clsx("flex items-start", compact ? "gap-2" : "gap-3")}>
               <div
                 className={clsx(
                   "flex-shrink-0 rounded-md border bg-muted overflow-hidden",
-                  compact ? "w-10 h-10" : "w-14 h-14",
+                  compact ? "w-8 h-8" : "w-14 h-14",
                 )}
               >
                 <Image
                   src={product.logo}
                   alt={product.name}
-                  width={compact ? 40 : 56}
-                  height={compact ? 40 : 56}
+                  width={compact ? 32 : 56}
+                  height={compact ? 32 : 56}
                   className="object-cover w-full h-full"
                   loading={imagePriority ? "eager" : "lazy"}
                   priority={imagePriority}
@@ -99,43 +99,14 @@ export function ProductCard({
 
                 <p
                   className={clsx(
-                    "text-muted-foreground line-clamp-2",
-                    compact ? "text-xs" : "text-sm",
+                    "text-muted-foreground",
+                    compact ? "text-xs line-clamp-1" : "text-sm line-clamp-2",
                   )}
                 >
                   {product.tagline}
                 </p>
 
-                {compact ? (
-                  // Reserved space for badges in compact mode to keep card heights consistent
-                  <div className="pt-1 h-5 flex items-center gap-1">
-                    {badges.slice(0, 3).map((b, i) => {
-                      const badgeDef = BADGE_OPTIONS.find((x) => x.value === b)
-                      if (!badgeDef) return null
-                      const colorClass =
-                        badgeColorMap[badgeDef.color as TailwindColor]
-                      return (
-                        <Badge
-                          key={i}
-                          className={clsx(
-                            "rounded-full border px-1.5 py-0.5 text-[12px] leading-none inline-flex items-center justify-center",
-                            colorClass,
-                          )}
-                          title={badgeDef.label}
-                        >
-                          <span className="leading-none align-middle">
-                            {badgeDef.icon}
-                          </span>
-                        </Badge>
-                      )
-                    })}
-                    {badges.length > 3 && (
-                      <span className="text-[10px] text-muted-foreground">
-                        +{badges.length - 3}
-                      </span>
-                    )}
-                  </div>
-                ) : (
+                {compact ? null : (
                   badges.length > 0 && (
                     <div className="flex flex-wrap gap-2 pt-2">
                       {badges.map((b, i) => {
@@ -167,7 +138,7 @@ export function ProductCard({
             </div>
           </CardHeader>
 
-          <CardContent className={clsx("pt-1 px-4", compact && "pt-1 px-4")}>
+          <CardContent className={clsx("pt-1 px-4", compact && "pt-0 px-3")}>
             <div className="flex items-center justify-between">
               <UpvoteSquare
                 count={upvotes}

@@ -24,7 +24,7 @@ export function UpvoteSquare({
     <div
       className={clsx(
         "inline-flex items-center justify-center rounded-md text-foreground transition-colors px-2 select-none",
-        compact ? "w-14 h-14 bg-transparent" : "w-16 h-16 bg-transparent",
+        compact ? "w-8 h-8 bg-transparent" : "w-16 h-16 bg-transparent",
         pending && "opacity-70",
         className,
       )}
@@ -35,7 +35,7 @@ export function UpvoteSquare({
         <ChevronsUp
           className={clsx(
             active ? "text-primary" : "text-muted-foreground",
-            compact ? "w-4 h-4" : "w-6 h-6",
+            compact ? "w-3 h-3" : "w-6 h-6",
             "transition-transform duration-150",
             pop && "animate-pop",
           )}
@@ -43,7 +43,7 @@ export function UpvoteSquare({
         <span
           className={clsx(
             "font-bold leading-none transition-transform duration-150",
-            compact ? "text-base" : "text-2xl",
+            compact ? "text-xs" : "text-2xl",
             pop && "animate-count-bump",
           )}
         >
