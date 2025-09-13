@@ -65,7 +65,6 @@ export type PlatformCode = (typeof PLATFORMS)[number]
 
 export const PLAN_FEATURE_KEYS = [
   "analytics.basic",
-  "analytics.advanced",
   "featured",
   "priorityPlacement",
   "homepage",

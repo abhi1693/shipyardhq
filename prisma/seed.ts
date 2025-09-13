@@ -122,11 +122,6 @@ async function main() {
       description: "Shows basic view count",
     },
     {
-      key: "analytics.advanced",
-      name: "Advanced Analytics",
-      description: "Shows CTR and traffic sources",
-    },
-    {
       key: "featured",
       name: "Featured Badge",
       description: "Product marked as featured",
@@ -200,7 +195,6 @@ async function main() {
       boostForDays: 14,
       featureKeys: [
         "analytics.basic",
-        "analytics.advanced",
         "featured",
         "priorityPlacement",
         "homepage",
@@ -216,7 +210,6 @@ async function main() {
       boostForDays: 30,
       featureKeys: [
         "analytics.basic",
-        "analytics.advanced",
         "featured",
         "priorityPlacement",
         "homepage",
