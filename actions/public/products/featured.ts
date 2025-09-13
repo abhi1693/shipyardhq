@@ -76,7 +76,7 @@ export async function getTrendingProducts(limit = 12) {
   }>[]
 }
 
-export async function getTopCategories(limit = 10) {
+export async function getTopCategories(limit = 12) {
   return prisma.category.findMany({
     orderBy: {
       products: {
