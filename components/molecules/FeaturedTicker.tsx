@@ -14,14 +14,17 @@ export default function FeaturedTicker({ items }: { items: Item[] }) {
   const list = useMemo(() => items.slice(0, 12), [items])
   if (!list.length) return null
   return (
-    <div className="border-b bg-muted/40">
-      <div className="max-w-7xl mx-auto px-4 py-2 overflow-hidden">
-        <div className="flex gap-8 animate-[ticker_30s_linear_infinite] will-change-transform">
-          {[...list].map((p, i) => (
+    <div className="border-b bg-muted/40 overflow-hidden">
+      <div className="py-2">
+        <div
+          className="flex flex-nowrap items-center gap-8 w-max whitespace-nowrap will-change-transform"
+          style={{ animation: "ticker 30s linear infinite" }}
+        >
+          {[...list, ...list].map((p, i) => (
             <Link
               key={`${p.slug}-${i}`}
               href={`/products/${p.slug}`}
-              className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
+              className="inline-flex shrink-0 items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
             >
               <Image
                 src={p.logo}
@@ -36,14 +39,10 @@ export default function FeaturedTicker({ items }: { items: Item[] }) {
           ))}
         </div>
       </div>
-      <style jsx>{`
+      <style>{`
         @keyframes ticker {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
+          0% { transform: translateX(100vw); }
+          100% { transform: translateX(-50%); }
         }
       `}</style>
     </div>
