@@ -17,7 +17,7 @@ export default function FeaturedTicker({ items }: { items: Item[] }) {
     <div className="border-b bg-muted/40">
       <div className="max-w-7xl mx-auto px-4 py-2 overflow-hidden">
         <div className="flex gap-8 animate-[ticker_30s_linear_infinite] will-change-transform">
-          {[...list, ...list].map((p, i) => (
+          {[...list].map((p, i) => (
             <Link
               key={`${p.slug}-${i}`}
               href={`/products/${p.slug}`}
