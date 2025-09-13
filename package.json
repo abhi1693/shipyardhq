@@ -13,6 +13,7 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate --no-engine",
     "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:seed:categories": "tsx prisma/seed.categories.ts",
     "postinstall": "npm run prisma:deploy",
     "test": "vitest run --reporter=verbose",
     "test:watch": "vitest",
