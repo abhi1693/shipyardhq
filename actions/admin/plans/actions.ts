@@ -179,8 +179,8 @@ export async function deletePlanAction(id: string) {
       select: { externalId: true },
     })
     if (plan?.externalId) {
-      await dodoClient.products.delete(plan.externalId)
-      console.log("Product deleted on DodoPayments:", plan.externalId)
+      await dodoClient.products.archive(plan.externalId)
+      console.log("Product archived on DodoPayments:", plan.externalId)
     }
 
     await prisma.plan.delete({
