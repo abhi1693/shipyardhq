@@ -441,7 +441,7 @@ export default async function OverviewPage({
             {products.length === 0 ? (
               <EmptyState
                 title="No products yet"
-                description="Start by adding your first product to get visibility."
+                description="Dock your first product to get visibility."
                 actionLabel="Add Product"
                 actionHref="/member/products/add"
               />

@@ -97,8 +97,8 @@ export default async function BrowsePage({
           {products.length === 0 ? (
             <div>
               <EmptyState
-                title="Nothing Found"
-                description="Explore our categories or use cases to find products that suit your needs."
+                title="No results in sight"
+                description="Explore categories or adjust filters to spot what you need."
                 actionLabel="Reset Filters"
                 actionHref="/browse"
               />

@@ -68,9 +68,9 @@ export default async function MemberOrganizationsPage({
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                Unlock Organizations to collaborate with your team and manage
-                members. Choose a plan below to buy access. Organization
-                features unlock automatically after successful checkout.
+                Unlock Organizations to run your crew and manage members.
+                Choose a plan below to get access. Organization features unlock
+                automatically after successful checkout.
               </p>
             </CardContent>
           </Card>
@@ -104,7 +104,7 @@ export default async function MemberOrganizationsPage({
                           type="submit"
                           className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
                         >
-                          Buy Now
+                          Get Access
                         </button>
                       </form>
                     )}
