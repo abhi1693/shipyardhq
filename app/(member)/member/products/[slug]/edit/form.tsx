@@ -38,10 +38,12 @@ export default function EditProductForm({
   product,
   categories,
   organizations,
+  canEditCTA,
 }: {
   product: any
   categories: { id: string; name: string }[]
   organizations: { id: string; name: string }[]
+  canEditCTA: boolean
 }) {
   const router = useRouter()
 
@@ -85,8 +87,9 @@ export default function EditProductForm({
       productId: product.id,
       lockWebsiteUrl: true,
       persistOnVerify: true,
+      canEditCTA,
     })
-  }, [wizard.step, categories, organizations, product.id])
+  }, [wizard.step, categories, organizations, product.id, canEditCTA])
 
   return (
     <Card className="mx-auto w-full max-w-4xl">

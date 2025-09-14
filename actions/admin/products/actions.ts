@@ -10,6 +10,7 @@ import "@/lib/server/plans" // register default-plan listeners
 import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
 import { checkRole } from "@/lib/roles"
+import { memberHasFeature } from "@/lib/memberFeatures"
 
 function generateVerificationTxtFromWebsite(websiteUrl: string): string {
   const norm = websiteUrl.trim().toLowerCase()
@@ -120,8 +121,8 @@ export async function createProductAction(formData: FormData) {
     : undefined
   const currencyCode =
     formData.get("currencyCode")?.toString().trim() || undefined
-  const ctaLabel = formData.get("ctaLabel")?.toString().trim() || undefined
-  const ctaUrl = formData.get("ctaUrl")?.toString().trim() || undefined
+  let ctaLabel = formData.get("ctaLabel")?.toString().trim() || undefined
+  let ctaUrl = formData.get("ctaUrl")?.toString().trim() || undefined
   const bannerImage =
     formData.get("bannerImage")?.toString().trim() || undefined
 
@@ -163,6 +164,14 @@ export async function createProductAction(formData: FormData) {
       initialVerified = flattened.some((txt) => txt === verificationTxt.trim())
     } catch {
       // Ignore DNS errors during creation; user can verify later
+    }
+
+    // Gate CTA fields by feature for non-admins
+    const isAdmin = await checkRole("admin")
+    const canEditCTA = isAdmin || (await memberHasFeature("customCTA"))
+    if (!canEditCTA) {
+      ctaLabel = undefined
+      ctaUrl = undefined
     }
 
     const created = await prisma.product.create({
@@ -331,6 +340,9 @@ export async function updateProductAction(
       select: { logo: true, bannerImage: true },
     })
 
+    // Gate CTA fields by feature for non-admins: ignore incoming changes if not allowed
+    const canEditCTA = isAdmin || (await memberHasFeature("customCTA"))
+
     const updated = await prisma.product.update({
       where: { id },
       data: {
@@ -360,8 +372,8 @@ export async function updateProductAction(
         publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
         startingPriceCents: data.startingPriceCents ?? undefined,
         currencyCode: data.currencyCode ?? undefined,
-        ctaLabel: data.ctaLabel ?? undefined,
-        ctaUrl: data.ctaUrl ?? undefined,
+        ctaLabel: canEditCTA ? data.ctaLabel ?? undefined : undefined,
+        ctaUrl: canEditCTA ? data.ctaUrl ?? undefined : undefined,
         bannerImage: data.bannerImage ?? undefined,
         keywords: data.keywords as any,
         platforms: data.platforms as any,

@@ -4,6 +4,7 @@ import EditProductForm from "./form"
 import { getProductById } from "@/actions/admin/products/actions"
 import { getMyOrganizations } from "@/actions/member/organizations/actions"
 import prisma from "@/lib/prisma"
+import { memberHasFeature } from "@/lib/memberFeatures"
 
 export default async function EditProductPage({
   params,
@@ -23,11 +24,14 @@ export default async function EditProductPage({
     getMyOrganizations().catch(() => []),
   ])
 
+  const canEditCTA = await memberHasFeature("customCTA")
+
   return (
     <EditProductForm
       product={product}
       categories={categories}
       organizations={organizations}
+      canEditCTA={canEditCTA}
     />
   )
 }

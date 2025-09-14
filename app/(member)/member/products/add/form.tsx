@@ -38,10 +38,12 @@ export default function AddProductForm({
   categories,
   organizations,
   userId,
+  canEditCTA,
 }: {
   categories: { id: string; name: string }[]
   organizations: { id: string; name: string }[]
   userId: string
+  canEditCTA: boolean
 }) {
   const router = useRouter()
   const [newProductId] = useState(() => {
@@ -102,8 +104,9 @@ export default function AddProductForm({
       organizations,
       productId: newProductId,
       persistOnVerify: false,
+      canEditCTA,
     })
-  }, [wizard.step, categories, organizations, newProductId])
+  }, [wizard.step, categories, organizations, newProductId, canEditCTA])
 
   return (
     <Card className="mx-auto w-full max-w-4xl">

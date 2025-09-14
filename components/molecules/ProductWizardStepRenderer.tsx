@@ -24,6 +24,7 @@ export function renderStep(
     productId?: string
     persistOnVerify?: boolean
     lockWebsiteUrl?: boolean
+    canEditCTA?: boolean
   },
 ) {
   switch (step) {
@@ -40,7 +41,11 @@ export function renderStep(
       return <Step2 />
     case 3:
       return (
-        <Step4 organizations={args.organizations} productId={args.productId} />
+        <Step4
+          organizations={args.organizations}
+          productId={args.productId}
+          canEditCTA={args.canEditCTA}
+        />
       )
     default:
       return (

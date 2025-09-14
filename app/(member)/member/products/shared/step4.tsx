@@ -21,9 +21,11 @@ import {
 export default function Step4({
   organizations,
   productId,
+  canEditCTA = true,
 }: {
   organizations: { id: string; name: string }[]
   productId?: string
+  canEditCTA?: boolean
 }) {
   const form = useFormContext()
   return (
@@ -89,8 +91,18 @@ export default function Step4({
             <FormItem>
               <FormLabel>CTA Label</FormLabel>
               <FormControl>
-                <Input placeholder="Try it free" {...field} />
+                <Input
+                  placeholder="Try it free"
+                  {...field}
+                  disabled={!canEditCTA}
+                  readOnly={!canEditCTA}
+                />
               </FormControl>
+              {!canEditCTA ? (
+                <p className="text-xs text-muted-foreground">
+                  Custom CTA is available on plans with the CTA feature.
+                </p>
+              ) : null}
               <FormMessage />
             </FormItem>
           )}
@@ -102,8 +114,18 @@ export default function Step4({
             <FormItem>
               <FormLabel>CTA URL</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com/signup" {...field} />
+                <Input
+                  placeholder="https://example.com/signup"
+                  {...field}
+                  disabled={!canEditCTA}
+                  readOnly={!canEditCTA}
+                />
               </FormControl>
+              {!canEditCTA ? (
+                <p className="text-xs text-muted-foreground">
+                  Purchase a plan with Custom CTA to edit this.
+                </p>
+              ) : null}
               <FormMessage />
             </FormItem>
           )}

@@ -3,6 +3,7 @@ import AddProductForm from "./form"
 import { getUserByClerkId } from "@/actions/member/users/actions"
 import { auth } from "@clerk/nextjs/server"
 import { getMyOrganizations } from "@/actions/member/organizations/actions"
+import { memberHasFeature } from "@/lib/memberFeatures"
 
 export default async function AddProductPage() {
   const { userId: clerkId } = await auth()
@@ -28,11 +29,14 @@ export default async function AddProductPage() {
     getMyOrganizations().catch(() => []),
   ])
 
+  const canEditCTA = await memberHasFeature("customCTA")
+
   return (
     <AddProductForm
       categories={categories}
       organizations={organizations}
       userId={dbUser.id}
+      canEditCTA={canEditCTA}
     />
   )
 }
