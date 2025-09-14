@@ -11,6 +11,7 @@ import { Leaderboard } from "@/components/organisms/Leaderboard"
 import { TopCategories } from "@/components/organisms/TopCategories"
 import { EditorsPick } from "@/components/organisms/EditorsPick"
 import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
+import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 
 export default async function HomePage() {
   const featuredProducts = await getProducts("featured")
@@ -19,10 +20,18 @@ export default async function HomePage() {
   const trendingProducts = await getTrendingProducts(3)
   const topCategories = await getTopCategories()
   const homepagePromo = await getHomepageFeatureProducts(6)
+  const stats = await getLeaderboardStats()
 
   return (
     <>
-      <LandingHero />
+      <LandingHero
+        stats={{
+          totalProducts: stats.totalProducts,
+          totalCreators: stats.totalCreators,
+          totalUpvotes: stats.totalUpvotes,
+        }}
+        logos={homepagePromo.map((p) => ({ name: p.name, logo: p.logo }))}
+      />
       <HomepageSpotlight products={homepagePromo} />
       <FeaturedHighlights products={featuredProducts} />
       <EditorsPick products={editorsPick} />

@@ -1,11 +1,26 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/atoms/button"
 import { Sparkles, Users, Rocket } from "lucide-react"
 import SubmitProductButton from "@/components/molecules/SubmitProductButton"
 
-export default function Hero() {
+type Stats = {
+  totalProducts?: number
+  totalCreators?: number
+  totalUpvotes?: number
+}
+
+type Logo = { name: string; logo: string }
+
+export default function Hero({
+  stats,
+  logos = [],
+}: {
+  stats?: Stats
+  logos?: Logo[]
+}) {
   return (
     <section className="relative isolate w-full border-b py-20 md:py-32 overflow-hidden">
       {/* Brand gradient backdrop */}
@@ -19,7 +34,7 @@ export default function Hero() {
           Built for makers. Lightning fast.
         </span>
         <h1 className="mt-6 text-4xl sm:text-5xl xl:text-6xl font-bold leading-tight tracking-tight text-transparent bg-clip-text bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]">
-          Set sail faster. Get discovered sooner.
+          Launch faster. Get discovered sooner.
         </h1>
         <p className="mt-5 text-lg text-muted-foreground">
           Submit your product in minutes and reach a crew of real users and
@@ -41,41 +56,67 @@ export default function Hero() {
           </Link>
         </div>
 
-        {/* Benefits */}
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-          {/* Card 1 */}
-          <div className="rounded-xl border bg-card/80 p-5 shadow-sm transition-all duration-300 will-change-transform hover:-translate-y-0.5 hover:shadow-md hover:border-[color:var(--brand-1)]/30">
-            <div className="inline-flex items-center justify-center rounded-md p-2 bg-[color:var(--brand-1)]/12 text-[color:var(--brand-1)]">
-              <Sparkles className="h-4 w-4" />
+        {/* Stat view */}
+        {stats && (
+          <div className="mt-8 mx-auto max-w-3xl">
+            <div className="grid grid-cols-1 sm:grid-cols-3 overflow-hidden rounded-xl border bg-background/60 backdrop-blur-sm divide-y sm:divide-y-0 sm:divide-x">
+              <div className="p-5 text-center">
+                <div className="text-3xl sm:text-4xl font-semibold tracking-tight animate-count-bump">
+                  {(stats.totalProducts ?? 0).toLocaleString()
+                    .toString()
+                    .replace(/,/g, ",")}
+                </div>
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground mt-1">
+                  Products listed
+                </div>
+              </div>
+              <div className="p-5 text-center">
+                <div className="text-3xl sm:text-4xl font-semibold tracking-tight animate-count-bump">
+                  {(stats.totalCreators ?? 0).toLocaleString()
+                    .toString()
+                    .replace(/,/g, ",")}
+                </div>
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground mt-1">
+                  Makers onboard
+                </div>
+              </div>
+              <div className="p-5 text-center">
+                <div className="text-3xl sm:text-4xl font-semibold tracking-tight animate-count-bump">
+                  {(stats.totalUpvotes ?? 0).toLocaleString()
+                    .toString()
+                    .replace(/,/g, ",")}
+                </div>
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground mt-1">
+                  Community upvotes
+                </div>
+              </div>
             </div>
-            <div className="mt-3 font-semibold">Featured placement</div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Get highlighted across categories and feeds.
-            </p>
           </div>
+        )}
 
-          {/* Card 2 */}
-          <div className="rounded-xl border bg-card/80 p-5 shadow-sm transition-all duration-300 will-change-transform hover:-translate-y-0.5 hover:shadow-md hover:border-[color:var(--brand-2)]/30">
-            <div className="inline-flex items-center justify-center rounded-md p-2 bg-[color:var(--brand-2)]/12 text-[color:var(--brand-2)]">
-              <Users className="h-4 w-4" />
+        {/* Social proof logos */}
+        {logos.length > 0 && (
+          <div className="mt-10">
+            <div className="text-xs text-muted-foreground mb-3">Trusted by featured builders</div>
+            <div className="flex flex-wrap items-center justify-center gap-4 opacity-80">
+              {logos.slice(0, 12).map((p, i) => (
+                <div
+                  key={`${p.name}-${i}`}
+                  className="h-8 w-8 rounded-sm overflow-hidden grayscale hover:grayscale-0 transition"
+                  title={p.name}
+                >
+                  <Image
+                    src={p.logo}
+                    alt={p.name}
+                    width={32}
+                    height={32}
+                    className="h-8 w-8 object-cover"
+                  />
+                </div>
+              ))}
             </div>
-            <div className="mt-3 font-semibold">Real audience</div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Reach makers, not just algorithms.
-            </p>
           </div>
-
-          {/* Card 3 */}
-          <div className="rounded-xl border bg-card/80 p-5 shadow-sm transition-all duration-300 will-change-transform hover:-translate-y-0.5 hover:shadow-md hover:border-[color:var(--brand-3)]/30">
-            <div className="inline-flex items-center justify-center rounded-md p-2 bg-[color:var(--brand-3)]/12 text-[color:var(--brand-3)]">
-              <Rocket className="h-4 w-4" />
-            </div>
-            <div className="mt-3 font-semibold">Frictionless launch</div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Submit in minutes, not weeks.
-            </p>
-          </div>
-        </div>
+        )}
       </div>
     </section>
   )
