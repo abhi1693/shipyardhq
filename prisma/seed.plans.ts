@@ -99,7 +99,6 @@ async function main() {
     for (const key of p.featureKeys) {
       const featureId = featureByKey.get(key)
       if (!featureId) {
-        // eslint-disable-next-line no-console
         console.warn(
           `Plan ${p.slug}: missing feature '${key}', skip assignment`,
         )
@@ -115,13 +114,11 @@ async function main() {
     rows.push({ slug: p.slug, action })
   }
 
-  // eslint-disable-next-line no-console
   console.table(rows)
 }
 
 main()
   .catch((e) => {
-    // eslint-disable-next-line no-console
     console.error(e)
     process.exit(1)
   })

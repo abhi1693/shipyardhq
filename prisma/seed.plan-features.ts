@@ -66,13 +66,11 @@ async function main() {
     rows.push({ key: f.key, action })
   }
 
-  // eslint-disable-next-line no-console
   console.table(rows)
 }
 
 main()
   .catch((e) => {
-    // eslint-disable-next-line no-console
     console.error(e)
     process.exit(1)
   })

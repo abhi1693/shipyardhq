@@ -6,7 +6,6 @@ import { vi } from "vitest"
 vi.mock("next/link", () => ({
   default: ({ href, children, ...props }: any) => {
     // Render as a regular anchor in tests
-    // eslint-disable-next-line jsx-a11y/anchor-is-valid
     return (
       <a href={typeof href === "string" ? href : "#"} {...props}>
         {children}
@@ -19,6 +18,9 @@ vi.mock("next/image", () => ({
   __esModule: true,
   default: (props: any) => {
     const { src, alt, priority: _p, fill: _f, ...rest } = props
+    // Mark intentionally unused extracted props as used
+    void _p
+    void _f
     // Render a basic img for testing (strip boolean-only props to avoid warnings)
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={typeof src === "string" ? src : ""} alt={alt} {...rest} />

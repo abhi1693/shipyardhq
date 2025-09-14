@@ -64,7 +64,6 @@ async function main() {
     const foundSlugs = new Set(categories.map((c) => c.slug))
     const missing = def.categorySlugs.filter((s) => !foundSlugs.has(s))
     if (missing.length) {
-      // eslint-disable-next-line no-console
       console.warn(
         `UseCase ${slug} missing categories (skipped mappings): ${missing.join(", ")}`,
       )
@@ -87,13 +86,11 @@ async function main() {
     rows.push({ label: def.label, slug, action })
   }
 
-  // eslint-disable-next-line no-console
   console.table(rows)
 }
 
 main()
   .catch((e) => {
-    // eslint-disable-next-line no-console
     console.error(e)
     process.exit(1)
   })

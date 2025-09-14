@@ -47,7 +47,6 @@ export async function getDashboardStats(days = 7) {
     adminCount,
     mostPopularPlanAllTime,
     defaultPlanProductCount,
-    totalRevenue,
     totalFeatures,
     usedFeatures,
   ] = await Promise.all([
@@ -70,10 +69,6 @@ export async function getDashboardStats(days = 7) {
           isDefault: true,
         },
       },
-    }),
-
-    prisma.plan.aggregate({
-      _sum: { price: true },
     }),
 
     prisma.planFeature.count(),
@@ -154,7 +149,7 @@ export async function getDashboardStats(days = 7) {
       }),
     )
     adminCountFromClerk = results.reduce<number>((a, b) => a + b, 0)
-  } catch (e) {
+  } catch {
     // ignore Clerk failures; rely on DB role
   }
   const effectiveAdminCount = Math.max(adminCount, adminCountFromClerk)

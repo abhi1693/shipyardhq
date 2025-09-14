@@ -11,7 +11,7 @@ function TestComp() {
 describe("useIsMobile", () => {
   beforeEach(() => {
     // Minimal matchMedia mock
-    // @ts-ignore
+    // @ts-expect-error: attaching test-only handler
     let handler: any
     window.matchMedia = (query: string) => ({
       media: query,
@@ -31,27 +31,27 @@ describe("useIsMobile", () => {
   })
 
   it("returns true when width < 768", () => {
-    // @ts-ignore
+    // @ts-expect-error: override window size in test
     window.innerWidth = 500
     render(<TestComp />)
     expect(screen.getByTestId("val").textContent).toBe("true")
   })
 
   it("returns false when width >= 768", () => {
-    // @ts-ignore
+    // @ts-expect-error: override window size in test
     window.innerWidth = 1000
     render(<TestComp />)
     expect(screen.getByTestId("val").textContent).toBe("false")
   })
 
   it("updates on media change and cleans up", async () => {
-    // @ts-ignore
+    // @ts-expect-error: override window size in test
     window.innerWidth = 500
     const { unmount } = render(<TestComp />)
     // simulate media change
-    // @ts-ignore
+    // @ts-expect-error: override window size in test
     window.innerWidth = 900
-    // @ts-ignore
+    // @ts-expect-error: test-only global handler
     await act(async () => {
       await Promise.resolve(window.__mqlHandler())
     })

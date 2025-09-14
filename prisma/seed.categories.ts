@@ -214,7 +214,6 @@ async function main() {
     results.push({ name: item.name, slug, action })
   }
 
-  // eslint-disable-next-line no-console
   console.table(results)
 
   await prisma.$disconnect()
@@ -222,7 +221,6 @@ async function main() {
 
 // Execute the seeding routine
 main().catch((e) => {
-  // eslint-disable-next-line no-console
   console.error(e)
   process.exit(1)
 })
