@@ -149,10 +149,7 @@ export default async function ViewProductPage({
           label: "Starting Price",
           value:
             product.startingPriceCents != null && product.currencyCode
-              ? formatCurrency(
-                  product.startingPriceCents,
-                  product.currencyCode,
-                )
+              ? formatCurrency(product.startingPriceCents, product.currencyCode)
               : placeholder(),
         },
         {
@@ -212,7 +209,9 @@ export default async function ViewProductPage({
 
             <Card className="col-span-12 md:col-span-4">
               <CardHeader>
-                <CardTitle className="text-base">Organization & Targeting</CardTitle>
+                <CardTitle className="text-base">
+                  Organization & Targeting
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <OverviewRow
@@ -369,8 +368,14 @@ export default async function ViewProductPage({
                     label="Verification TXT"
                     value={
                       <div className="flex items-center gap-2">
-                        <code className="text-xs">{product.verification.verificationTxt}</code>
-                        <CopyButton text={product.verification.verificationTxt} size="sm" variant="outline">
+                        <code className="text-xs">
+                          {product.verification.verificationTxt}
+                        </code>
+                        <CopyButton
+                          text={product.verification.verificationTxt}
+                          size="sm"
+                          variant="outline"
+                        >
                           Copy
                         </CopyButton>
                       </div>

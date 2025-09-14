@@ -70,7 +70,9 @@ export default function AddProductForm({
     mode: "onBlur",
   })
 
-  async function submitAll(values: ProductWizardInput & { status?: "draft" | "published" }) {
+  async function submitAll(
+    values: ProductWizardInput & { status?: "draft" | "published" },
+  ) {
     if (!ownerId) {
       toast.error("Please select an owner")
       return
@@ -134,7 +136,9 @@ export default function AddProductForm({
   return (
     <Card className="mx-auto w-full max-w-4xl">
       <CardHeader>
-        <CardTitle className="text-left text-2xl font-bold">Add Product</CardTitle>
+        <CardTitle className="text-left text-2xl font-bold">
+          Add Product
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <WizardStepper steps={STEPS} step={wizard.step} />
@@ -143,7 +147,9 @@ export default function AddProductForm({
 
         <FormProvider {...form}>
           <form
-            onSubmit={form.handleSubmit(() => wizard.submitWithStatus("published"))}
+            onSubmit={form.handleSubmit(() =>
+              wizard.submitWithStatus("published"),
+            )}
             className="space-y-6"
           >
             {StepComponent}

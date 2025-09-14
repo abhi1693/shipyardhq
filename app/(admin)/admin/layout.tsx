@@ -4,6 +4,7 @@ import PrivateHeader from "@/components/layout/headers/private-header"
 import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
 import PageContainer from "@/components/layout/page-container"
+import AdminFooter from "@/components/layout/footers/admin-footer"
 
 export const metadata: Metadata = {
   title: "Admin - ShipYardHQ",
@@ -116,7 +117,10 @@ export default async function AdminLayout({
       <AppSidebar navItems={navItems} />
       <SidebarInset>
         <PrivateHeader />
-        <PageContainer>{children}</PageContainer>
+        <div className="flex-1">
+          <PageContainer>{children}</PageContainer>
+        </div>
+        <AdminFooter />
       </SidebarInset>
     </SidebarProvider>
   )

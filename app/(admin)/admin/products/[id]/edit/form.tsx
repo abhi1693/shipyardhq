@@ -122,7 +122,9 @@ export default function EditProductForm({
   return (
     <Card className="mx-auto w-full max-w-4xl">
       <CardHeader>
-        <CardTitle className="text-left text-2xl font-bold">Edit Product</CardTitle>
+        <CardTitle className="text-left text-2xl font-bold">
+          Edit Product
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <WizardStepper steps={STEPS} step={wizard.step} />
@@ -131,7 +133,9 @@ export default function EditProductForm({
 
         <FormProvider {...form}>
           <form
-            onSubmit={form.handleSubmit(() => wizard.submitWithStatus("published"))}
+            onSubmit={form.handleSubmit(() =>
+              wizard.submitWithStatus("published"),
+            )}
             className="space-y-6"
           >
             {StepComponent}
