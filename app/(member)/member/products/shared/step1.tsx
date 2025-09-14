@@ -1,7 +1,7 @@
 "use client"
 
 import { useFormContext } from "react-hook-form"
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import {
@@ -28,6 +28,7 @@ type Props = {
   platforms: readonly string[]
   productId?: string
   lockWebsiteUrl?: boolean
+  rightOfWebsite?: ReactNode
 }
 
 export default function Step1({
@@ -35,6 +36,7 @@ export default function Step1({
   platforms,
   productId,
   lockWebsiteUrl,
+  rightOfWebsite,
 }: Props) {
   const form = useFormContext()
   const [previewDesc, setPreviewDesc] = useState(false)
@@ -99,6 +101,9 @@ export default function Step1({
             </FormItem>
           )}
         />
+        {rightOfWebsite ? (
+          <div className="flex flex-col gap-2">{rightOfWebsite}</div>
+        ) : null}
       </div>
 
       <FormField

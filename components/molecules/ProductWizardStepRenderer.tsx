@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { ReactNode } from "react"
 import { PLATFORMS } from "@/lib/productWizard/constants"
 
 const Step1 = dynamic(
@@ -25,6 +26,7 @@ export function renderStep(
     persistOnVerify?: boolean
     lockWebsiteUrl?: boolean
     canEditCTA?: boolean
+    rightOfWebsite?: ReactNode
   },
 ) {
   switch (step) {
@@ -35,6 +37,7 @@ export function renderStep(
           platforms={PLATFORMS as any}
           productId={args.productId}
           lockWebsiteUrl={args.lockWebsiteUrl}
+          rightOfWebsite={args.rightOfWebsite as any}
         />
       )
     case 2:

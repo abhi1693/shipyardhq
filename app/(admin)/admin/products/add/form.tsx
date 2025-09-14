@@ -1,26 +1,34 @@
 "use client"
 
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm, FormProvider } from "react-hook-form"
+import { toast } from "sonner"
 
+import { createProductAction } from "@/actions/admin/products/actions"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
+import { Separator } from "@/components/atoms/separator"
+
+import WizardStepper from "@/components/molecules/WizardStepper"
+import WizardFooter from "@/components/molecules/WizardFooter"
+import { STEPS, STEP_FIELDS } from "@/lib/productWizard/constants"
+import { validateExternalResources as validateResources } from "@/lib/productWizard/validate"
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/atoms/form"
-import { Input } from "@/components/atoms/input"
+  makeAddProductSchema,
+  type ProductWizardInputAdd,
+} from "@/lib/productWizard/schema"
+import {
+  getInitialValuesForAdd,
+  toCreateFormData,
+} from "@/lib/productWizard/mappers"
+import { useProductWizard } from "@/hooks/useProductWizard"
+import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
 import {
   Select,
   SelectContent,
@@ -28,685 +36,132 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
-import CreateButton from "@/components/molecules/CreateButton"
-import PageContainer from "@/components/layout/page-container"
-import { createProductAction } from "@/actions/admin/products/actions"
-import { Separator } from "@/components/atoms/separator"
-import {
-  CURRENCIES,
-  CURRENCY_CODES,
-  PLATFORMS,
-  type PlatformCode,
-} from "@/lib/constants"
-import { Textarea } from "@/components/atoms/textarea"
+import { Label } from "@/components/atoms/label"
 
-const productFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  tagline: z.string().min(1, "Tagline is required"),
-  description: z.string().min(1, "Description is required"),
-  websiteUrl: z.url("Valid URL required"),
-  logo: z.string().min(1, "Logo is required"),
-  categoryId: z.string().min(1, "Category is required"),
-  userId: z.string().min(1, "User is required"),
-  organizationId: z.string().optional().or(z.literal("")),
-  status: z.enum(["draft", "published", "archived"]),
-  publishedAt: z.string().optional(),
-  type: z.enum([
-    "saas",
-    "browser_extension",
-    "mobile_app",
-    "desktop_app",
-    "api",
-    "open_source",
-    "other",
-  ]),
-  pricingModel: z.enum([
-    "free",
-    "freemium",
-    "subscription",
-    "one_time",
-    "custom",
-  ]),
-  startingPriceCents: z
-    .number()
-    .optional()
-    .refine((v) => v === undefined || v >= 0, "Must be >= 0"),
-  currencyCode: z.enum(CURRENCY_CODES),
-  ctaLabel: z.string().optional(),
-  ctaUrl: z.url().or(z.literal("")).optional(),
-  bannerImage: z.url().or(z.literal("")).optional(),
-  keywords: z.string().optional(),
-  platforms: z.array(z.enum(PLATFORMS)).optional(),
-  githubUrl: z.url().or(z.literal("")).optional(),
-  twitterUrl: z.url().or(z.literal("")).optional(),
-  demoUrl: z.url().or(z.literal("")).optional(),
-  contactEmail: z.email().or(z.literal("")).optional(),
-  utmCampaign: z.string().or(z.literal("")).optional(),
-})
+const schema = makeAddProductSchema()
 
-type ProductFormInput = z.infer<typeof productFormSchema>
+export type ProductWizardInput = ProductWizardInputAdd
 
 export default function AddProductForm({
   categories,
-  users,
   organizations,
+  users,
 }: {
   categories: { id: string; name: string }[]
-  users: { id: string; email: string }[]
   organizations: { id: string; name: string }[]
+  users: { id: string; email: string }[]
 }) {
   const router = useRouter()
+  const [ownerId, setOwnerId] = useState("")
 
-  const form = useForm<ProductFormInput>({
-    resolver: zodResolver(productFormSchema),
-    defaultValues: {
-      name: "",
-      tagline: "",
-      description: "",
-      websiteUrl: "",
-      logo: "",
-      categoryId: "",
-      userId: "",
-      organizationId: "",
-      status: "published",
-      type: "saas",
-      pricingModel: "free",
-      startingPriceCents: 0,
-      currencyCode: "USD",
-      ctaLabel: "",
-      ctaUrl: "",
-      bannerImage: "",
-      keywords: "",
-      platforms: [],
-      githubUrl: "",
-      twitterUrl: "",
-      demoUrl: "",
-      contactEmail: "",
-      utmCampaign: "",
-    },
+  const [newProductId] = useState(() => {
+    const g: any = typeof globalThis !== "undefined" ? (globalThis as any) : {}
+    const c = g.crypto as Crypto | undefined
+    if (c && typeof (c as any).randomUUID === "function") {
+      return (c as any).randomUUID()
+    }
+    const rand = () => Math.random().toString(36).slice(2, 10)
+    return `prod_${Date.now().toString(36)}_${rand()}_${rand()}`
   })
 
-  async function onSubmit(values: ProductFormInput) {
-    const formData = new FormData()
-    for (const [key, value] of Object.entries(values)) {
-      if (value === undefined || value === null) continue
-      // platforms handled separately below; keywords re-encoded below
-      if (Array.isArray(value)) continue
-      formData.append(key, typeof value === "string" ? value : String(value))
-    }
+  const form = useForm<ProductWizardInput>({
+    resolver: zodResolver(schema) as any,
+    defaultValues: getInitialValuesForAdd(),
+    mode: "onBlur",
+  })
 
-    // derive slug if not provided
-    const slug = form
-      .getValues("name")
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-
-    formData.set("slug", slug)
-
-    // parse keywords
-    const keywords = (form.getValues("keywords") || "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-    formData.set("keywords", JSON.stringify(keywords))
-
-    // platforms as JSON
-    const platforms = form.getValues("platforms") || []
-    formData.set("platforms", JSON.stringify(platforms))
-
-    const result = await createProductAction(formData)
-
-    if (result?.error) {
-      form.setError("name", {
-        type: "server",
-        message: result.error,
-      })
+  async function submitAll(values: ProductWizardInput & { status?: "draft" | "published" }) {
+    if (!ownerId) {
+      toast.error("Please select an owner")
       return
     }
-
+    const fd = toCreateFormData(values as any, ownerId, newProductId)
+    const result = await createProductAction(fd)
+    if ((result as any)?.error) {
+      toast.error((result as any).error)
+      return
+    }
+    toast.success("Product created successfully!")
     router.push("/admin/products")
   }
 
+  const wizard = useProductWizard<ProductWizardInput>({
+    form,
+    steps: STEPS,
+    stepFields: STEP_FIELDS,
+    validateExternal: async () => {
+      const v = form.getValues()
+      const { issues, checks } = await validateResources(v as any)
+      form.setValue("reviewIssues" as any, issues)
+      form.setValue("reviewChecks" as any, checks)
+      if (issues.length) {
+        toast.error("Some links/images look invalid. Please review.")
+        return false
+      }
+      return true
+    },
+    onSubmit: submitAll as any,
+  })
+
+  const StepComponent = useMemo(() => {
+    const ownerNode = (
+      <div>
+        <Label>Owner (user)</Label>
+        <Select value={ownerId} onValueChange={setOwnerId}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select owner" />
+          </SelectTrigger>
+          <SelectContent>
+            {users.map((u) => (
+              <SelectItem key={u.id} value={u.id}>
+                {u.email}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    )
+    return renderStep(wizard.step, {
+      categories,
+      organizations,
+      productId: newProductId,
+      persistOnVerify: false,
+      canEditCTA: true,
+      rightOfWebsite: ownerId ? ownerNode : ownerNode,
+    })
+  }, [wizard.step, categories, organizations, newProductId, ownerId, users])
+
   return (
-    <PageContainer>
-      <Card className="mx-auto w-full max-w-4xl">
-        <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">
-            Add Product
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Fill in the required and optional metadata to list your product.
-          </CardDescription>
-        </CardHeader>
+    <Card className="mx-auto w-full max-w-4xl">
+      <CardHeader>
+        <CardTitle className="text-left text-2xl font-bold">Add Product</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <WizardStepper steps={STEPS} step={wizard.step} />
 
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Two-column Grid for Required Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  name="name"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter product name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        {/* Admin-only owner control is inlined on Step 1 via rightOfWebsite */}
 
-                <FormField
-                  name="tagline"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tagline</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Short tagline" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <FormProvider {...form}>
+          <form
+            onSubmit={form.handleSubmit(() => wizard.submitWithStatus("published"))}
+            className="space-y-6"
+          >
+            {StepComponent}
 
-                <FormField
-                  name="description"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter full product description"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <Separator className="my-4" />
 
-                <FormField
-                  name="websiteUrl"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Website URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="logo"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Logo</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://example.com/logo.png"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="categoryId"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.id}>
-                              {cat.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="userId"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>User</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select user" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {users.map((u) => (
-                            <SelectItem key={u.id} value={u.id}>
-                              {u.email}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="organizationId"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Organization (optional)</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select organization" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {organizations.map((org) => (
-                            <SelectItem key={org.id} value={org.id}>
-                              {org.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="type"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Product Type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {[
-                            "saas",
-                            "browser_extension",
-                            "mobile_app",
-                            "desktop_app",
-                            "api",
-                            "open_source",
-                            "other",
-                          ].map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type.replace(/_/g, " ").toUpperCase()}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="pricingModel"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pricing Model</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select pricing model" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {[
-                            "free",
-                            "freemium",
-                            "subscription",
-                            "one_time",
-                            "custom",
-                          ].map((model) => (
-                            <SelectItem key={model} value={model}>
-                              {model.toUpperCase()}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="status"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {["draft", "published", "archived"].map((s) => (
-                            <SelectItem key={s} value={s}>
-                              {s.toUpperCase()}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Divider for optional metadata */}
-              <Separator className="my-4" />
-
-              {/* Pricing */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  name="utmCampaign"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>UTM Campaign (optional)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g. product-summer-promo"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Pricing */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField
-                  name="startingPriceCents"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Starting Price (cents)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min={0}
-                          placeholder="e.g. 1900"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="currencyCode"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Currency</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select currency" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {CURRENCIES.map((c) => (
-                            <SelectItem key={c.code} value={c.code}>
-                              {c.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* CTA */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  name="ctaLabel"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CTA Label</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Get Started" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="ctaUrl"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CTA URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://example.com/signup"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Branding */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  name="bannerImage"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Banner Image</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://example.com/banner.png"
-                          {...field}
-                        />
-                      </FormControl>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Recommended size: 1200×628 (≈1.91:1 aspect).
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Platforms & Tags */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  name="platforms"
-                  control={form.control}
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Platforms</FormLabel>
-                      <div className="flex flex-wrap gap-3">
-                        {PLATFORMS.map((p: PlatformCode) => (
-                          <label
-                            key={p}
-                            className="inline-flex items-center gap-2 text-sm"
-                          >
-                            <input
-                              type="checkbox"
-                              className="accent-foreground"
-                              checked={(
-                                (form.getValues("platforms") ||
-                                  []) as PlatformCode[]
-                              ).includes(p)}
-                              onChange={(e) => {
-                                const selected = (form.getValues("platforms") ||
-                                  []) as PlatformCode[]
-                                const current = new Set<PlatformCode>(selected)
-                                if (e.target.checked) current.add(p)
-                                else current.delete(p)
-                                form.setValue("platforms", Array.from(current))
-                              }}
-                            />
-                            {p.replaceAll("_", " ")}
-                          </label>
-                        ))}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="keywords"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tags (comma-separated)</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="saas, productivity, ai"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Optional Fields */}
-              <FormField
-                name="githubUrl"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>GitHub URL</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="https://github.com/org/repo"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                name="twitterUrl"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Twitter URL</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="https://twitter.com/yourapp"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                name="demoUrl"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Demo URL</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="https://demo.example.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                name="contactEmail"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="support@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="pt-2">
-                <CreateButton
-                  type="submit"
-                  disabled={form.formState.isSubmitting}
-                  label="Create Product"
-                />
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </PageContainer>
+            <WizardFooter
+              isReview={wizard.isReview}
+              onBack={wizard.back}
+              onNext={wizard.next}
+              onSaveDraft={() => wizard.submitWithStatus("draft")}
+              onPublish={() => wizard.submitWithStatus("published")}
+              disableBack={wizard.step === 1}
+              isSubmitting={form.formState.isSubmitting}
+            />
+          </form>
+        </FormProvider>
+      </CardContent>
+    </Card>
   )
 }
