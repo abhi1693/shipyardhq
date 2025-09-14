@@ -476,8 +476,8 @@ export default function EditProductForm({
                     <FormItem>
                       <FormLabel>Plan</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        value={field.value as any}
+                        onValueChange={(v) => field.onChange(v === "none" ? null : v)}
+                        value={(field.value ?? "none") as any}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -485,7 +485,7 @@ export default function EditProductForm({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">No plan</SelectItem>
+                          <SelectItem value="none">No plan</SelectItem>
                           {plans.map((p) => (
                             <SelectItem key={p.id} value={p.id}>
                               {p.name}{" "}
