@@ -76,6 +76,8 @@ export async function getUserProducts(params?: ListParams) {
       skip,
       take: limit,
       include: {
+        category: { select: { id: true, name: true, slug: true } },
+        plan: { select: { id: true, name: true } },
         verification: { select: { isVerified: true } },
         analytics: { select: { clicks: true, upvotes: true } },
       },

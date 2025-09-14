@@ -6,6 +6,7 @@ import { formatDate, image, linkify } from "@/lib/ui/formatters"
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"
 import { Eye, Pencil } from "lucide-react"
+import DeleteButton from "@/components/molecules/DeleteButton"
 
 export type AdminProductRow = Product & {
   category: { id: string; name: string }
@@ -82,9 +83,9 @@ export const columns: ColumnDef<AdminProductRow>[] = [
   },
   {
     id: "actions",
-    header: "Actions",
+    header: () => null,
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-end gap-2">
         <Link href={`/admin/products/${row.original.id}`}>
           <Button size="sm" variant="outline">
             <Eye className="h-4 w-4" /> View
@@ -94,6 +95,9 @@ export const columns: ColumnDef<AdminProductRow>[] = [
           <Button size="sm" variant="outline">
             <Pencil className="h-4 w-4" /> Edit
           </Button>
+        </Link>
+        <Link href={`/admin/products/${row.original.id}/delete`}>
+          <DeleteButton size="sm" />
         </Link>
       </div>
     ),
