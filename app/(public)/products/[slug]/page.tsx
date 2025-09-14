@@ -220,8 +220,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     ? withUtm(product.websiteUrl, "visit-website")
                     : product.websiteUrl
                 }
-                target="_blank"
-                rel={hasBacklinkFeature ? "noopener" : "nofollow noopener"}
+                productId={product.id}
               >
                 <span className="flex items-center gap-1">
                   <ExternalLink size={14} /> Visit website
@@ -234,8 +233,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       ? withUtm(product.ctaUrl, "cta")
                       : product.ctaUrl
                   }
-                  target="_blank"
-                  rel={hasBacklinkFeature ? "noopener" : "nofollow noopener"}
+                  productId={product.id}
                 >
                   {product.ctaLabel || "Get Started"}
                 </ExternalBadgeLink>
@@ -247,9 +245,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       ? withUtm(product.metadata.demoUrl, "demo")
                       : product.metadata.demoUrl
                   }
-                  target="_blank"
-                  rel={hasBacklinkFeature ? "noopener" : "nofollow noopener"}
                   variant="outline"
+                  productId={product.id}
                 >
                   Live demo
                 </ExternalBadgeLink>
@@ -303,8 +300,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       <ExternalBadgeLink
                         key={l.href}
                         href={l.href}
-                        target="_blank"
                         variant="outline"
+                        productId={product.id}
                       >
                         <span className="flex items-center gap-1 text-sm">
                           {l.icon} {l.label}
