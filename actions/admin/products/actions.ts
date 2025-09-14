@@ -9,6 +9,7 @@ import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
 import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
+import { checkRole } from "@/lib/roles"
 
 function generateVerificationTxtFromWebsite(websiteUrl: string): string {
   const norm = websiteUrl.trim().toLowerCase()
@@ -266,6 +267,9 @@ export async function updateProductAction(
     planId?: string | null
   },
 ) {
+  // Determine role for permission-sensitive updates
+  const isAdmin = await checkRole("admin")
+
   const {
     name,
     categoryId,
@@ -282,23 +286,43 @@ export async function updateProductAction(
     pricingModel,
   } = data
 
-  if (websiteUrl) {
-    const product = await prisma.product.findUnique({
-      where: { id },
-      include: { verification: true },
-    })
-    if (product && product.websiteUrl !== websiteUrl) {
-      // Website changed: reset verification state and refresh expected TXT value
-      const newVerificationTxt = generateVerificationTxtFromWebsite(websiteUrl)
-      await prisma.productVerification.update({
-        where: { productId: id },
-        data: {
-          verificationTxt: newVerificationTxt,
-          isVerified: false,
-          verifiedAt: null,
-        },
-      })
+  // Load current product for comparisons
+  const current = await prisma.product.findUnique({
+    where: { id },
+    include: { verification: true },
+  })
+
+  if (!current) {
+    return { error: "Product not found" }
+  }
+
+  // Guard: members cannot change website URL or slug once created
+  if (!isAdmin) {
+    if (typeof data.websiteUrl === "string" && data.websiteUrl.trim().length) {
+      const normalizedIncoming = data.websiteUrl.trim()
+      if (normalizedIncoming && normalizedIncoming !== current.websiteUrl) {
+        return { error: "Members cannot change Website URL after creation." }
+      }
     }
+    if (typeof data.slug === "string" && data.slug.trim().length) {
+      const incomingSlug = data.slug.trim()
+      if (incomingSlug && incomingSlug !== current.slug) {
+        return { error: "Members cannot change product URL/slug after creation." }
+      }
+    }
+  }
+
+  // If admin is changing website, reset verification expectations
+  if (isAdmin && websiteUrl && current.websiteUrl !== websiteUrl) {
+    const newVerificationTxt = generateVerificationTxtFromWebsite(websiteUrl)
+    await prisma.productVerification.update({
+      where: { productId: id },
+      data: {
+        verificationTxt: newVerificationTxt,
+        isVerified: false,
+        verifiedAt: null,
+      },
+    })
   }
 
   try {
@@ -315,7 +339,8 @@ export async function updateProductAction(
         userId,
         tagline: tagline?.trim(),
         description: description?.trim(),
-        websiteUrl: websiteUrl?.trim(),
+        // Only admins may change websiteUrl (guarded above); members keep current value
+        websiteUrl: isAdmin ? websiteUrl?.trim() : undefined,
         logo: logo?.trim(),
         type,
         pricingModel,
@@ -329,7 +354,8 @@ export async function updateProductAction(
           },
         },
         organizationId: data.organizationId || null,
-        slug: data.slug || undefined,
+        // Only admins may change slug (guarded above)
+        slug: isAdmin ? data.slug || undefined : undefined,
         status: (data.status as any) || undefined,
         publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
         startingPriceCents: data.startingPriceCents ?? undefined,

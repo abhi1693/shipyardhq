@@ -27,9 +27,10 @@ type Props = {
   categories: { id: string; name: string }[]
   platforms: readonly string[]
   productId?: string
+  lockWebsiteUrl?: boolean
 }
 
-export default function Step1({ categories, platforms, productId }: Props) {
+export default function Step1({ categories, platforms, productId, lockWebsiteUrl }: Props) {
   const form = useFormContext()
   const [previewDesc, setPreviewDesc] = useState(false)
 
@@ -75,6 +76,8 @@ export default function Step1({ categories, platforms, productId }: Props) {
                   placeholder="https://example.com"
                   value={field.value}
                   onChange={field.onChange}
+                  disabled={!!lockWebsiteUrl}
+                  readOnly={!!lockWebsiteUrl}
                   onBlur={(e) => {
                     const sanitized = (e.target.value ?? "").replace(/^\/+/, "")
                     if (sanitized !== e.target.value) {

@@ -83,6 +83,7 @@ export default function EditProductForm({
       categories,
       organizations,
       productId: product.id,
+      lockWebsiteUrl: true,
       persistOnVerify: true,
     })
   }, [wizard.step, categories, organizations, product.id])

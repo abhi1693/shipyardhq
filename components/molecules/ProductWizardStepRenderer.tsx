@@ -23,6 +23,7 @@ export function renderStep(
     organizations: { id: string; name: string }[]
     productId?: string
     persistOnVerify?: boolean
+    lockWebsiteUrl?: boolean
   },
 ) {
   switch (step) {
@@ -32,6 +33,7 @@ export function renderStep(
           categories={args.categories}
           platforms={PLATFORMS as any}
           productId={args.productId}
+          lockWebsiteUrl={args.lockWebsiteUrl}
         />
       )
     case 2:
