@@ -496,9 +496,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         <div className="mt-2 flex items-center gap-2 flex-wrap">
           <span className="text-sm text-muted-foreground">Tags:</span>
           {product.keywords.map((k) => (
-            <Badge key={k} variant="secondary" className="text-xs">
-              {k}
-            </Badge>
+            <Link
+              key={k}
+              href={{ pathname: "/browse", query: { q: k } }}
+              className="inline-flex"
+            >
+              <Badge variant="secondary" className="text-xs hover:bg-accent">
+                {k}
+              </Badge>
+            </Link>
           ))}
         </div>
       )}
