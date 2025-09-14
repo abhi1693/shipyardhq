@@ -10,6 +10,14 @@ interface CustomPublicMetadata {
 }
 
 export default clerkMiddleware(async (auth, req) => {
+  // Rewrite sitemap chunk URLs ending with .xml to existing handler
+  const url = new URL(req.url)
+  const match = url.pathname.match(/^\/sitemap-products\/(\d+)\.xml$/)
+  if (match) {
+    url.pathname = `/sitemap-products/${match[1]}`
+    return NextResponse.rewrite(url)
+  }
+
   const { sessionClaims } = await auth()
 
   const metadata = sessionClaims?.metadata as CustomPublicMetadata

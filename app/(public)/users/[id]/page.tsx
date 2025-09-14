@@ -81,8 +81,7 @@ export default async function PublicUserPage({ params }: PageProps) {
     itemListElement: items.map((p, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      url: `${base}/products/${p.slug}`,
-      name: p.name,
+      item: `${base}/products/${p.slug}`,
     })),
   }
   const ldBreadcrumb = {

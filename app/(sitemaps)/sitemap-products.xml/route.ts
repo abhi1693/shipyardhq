@@ -31,7 +31,7 @@ export async function GET() {
       (n) =>
         xml`
         <sitemap>
-          <loc>${base}/sitemap-products-${n}.xml</loc>
+          <loc>${base}/sitemap-products/${n}.xml</loc>
           <lastmod>${lastmod}</lastmod>
         </sitemap>
       `,

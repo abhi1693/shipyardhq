@@ -1,9 +1,16 @@
 import type { MetadataRoute } from "next"
 
 export default function robots(): MetadataRoute.Robots {
-  const base = (
+  const baseStr = (
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   ).replace(/\/$/, "")
+  let host: string | undefined
+  try {
+    const u = new URL(baseStr)
+    host = u.host
+  } catch {
+    host = undefined
+  }
   return {
     rules: [
       {
@@ -12,7 +19,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/member", "/admin", "/api"],
       },
     ],
-    sitemap: [`${base}/sitemap.xml`],
-    host: base,
+    sitemap: [`${baseStr}/sitemap.xml`],
+    host,
   }
 }
