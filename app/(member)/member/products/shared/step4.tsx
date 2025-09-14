@@ -80,6 +80,10 @@ export default function Step4({
                 folder="banners"
                 productId={productId}
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Recommended size: 1200×628 (≈1.91:1 aspect). Larger images will
+                be scaled to fit.
+              </p>
               <FormMessage />
             </FormItem>
           )}

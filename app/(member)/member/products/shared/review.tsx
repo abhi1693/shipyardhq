@@ -120,12 +120,12 @@ export default function Review({ categories, organizations }: Props) {
           {v.bannerImage ? (
             <div>
               <div className="text-sm font-medium mb-1">Banner</div>
-              <div className="relative h-32 w-full max-w-md rounded border overflow-hidden">
+              <div className="relative h-32 w-full max-w-md rounded border overflow-hidden bg-muted">
                 <Image
                   src={v.bannerImage}
                   alt="Banner preview"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                 />
               </div>
               {checks.bannerOk === false ? (

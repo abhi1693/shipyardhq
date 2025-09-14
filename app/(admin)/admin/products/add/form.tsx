@@ -565,6 +565,9 @@ export default function AddProductForm({
                           {...field}
                         />
                       </FormControl>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Recommended size: 1200×628 (≈1.91:1 aspect).
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}

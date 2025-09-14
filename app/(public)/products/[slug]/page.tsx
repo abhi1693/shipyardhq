@@ -39,6 +39,7 @@ import { IconBrandFirefox } from "@tabler/icons-react"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
 import { JSX } from "react"
+import ImageLightbox from "@/components/molecules/ImageLightbox"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -424,31 +425,39 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         <div>
           <h2 className="text-lg font-semibold mb-3">Media</h2>
           {product.bannerImage && (
-            <div className="relative w-full aspect-[3/1] overflow-hidden rounded-lg border bg-muted">
-              <Image
-                src={product.bannerImage}
-                alt={`${product.name} banner`}
-                fill
-                className="object-cover"
-              />
-            </div>
+            <ImageLightbox
+              src={product.bannerImage}
+              alt={`${product.name} banner`}
+            >
+              <div className="relative w-full aspect-[3/1] overflow-hidden rounded-lg border bg-muted cursor-zoom-in">
+                <Image
+                  src={product.bannerImage}
+                  alt={`${product.name} banner`}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </ImageLightbox>
           )}
           {product.ProductMedia.length > 0 && (
             <div
               className={`grid grid-cols-2 md:grid-cols-3 gap-3 ${product.bannerImage ? "mt-3" : ""}`}
             >
               {product.ProductMedia.map((m) => (
-                <div
+                <ImageLightbox
                   key={m.id}
-                  className="relative aspect-video overflow-hidden rounded-md border bg-muted"
+                  src={m.imageUrl}
+                  alt={m.altText || product.name}
                 >
-                  <Image
-                    src={m.imageUrl}
-                    alt={m.altText || product.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                  <div className="relative aspect-video overflow-hidden rounded-md border bg-muted cursor-zoom-in">
+                    <Image
+                      src={m.imageUrl}
+                      alt={m.altText || product.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </ImageLightbox>
               ))}
             </div>
           )}
