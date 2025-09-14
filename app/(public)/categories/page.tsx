@@ -8,7 +8,7 @@ import { pluralize } from "@/lib/pluralize"
 export const metadata: Metadata = {
   title: "Categories",
   description:
-    "Explore top startup categories and discover innovative products.",
+    "Explore the harbor by category and discover innovative products.",
 }
 
 export default async function CategoriesPage() {
@@ -17,8 +17,8 @@ export default async function CategoriesPage() {
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
       <PageHeader
-        title="Discover Top Startup Categories"
-        subtitle="Explore our curated categories to discover innovative startups and solutions shaping the future."
+        title="Explore the harbor by category"
+        subtitle="Plot your route across curated categories to discover innovative startups and solutions."
         meta={
           <>
             Showing <strong>{categories.length}</strong>{" "}

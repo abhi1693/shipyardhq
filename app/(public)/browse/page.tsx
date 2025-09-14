@@ -17,7 +17,7 @@ import AsideFeatured from "@/components/organisms/AsideFeatured"
 
 export const metadata: Metadata = {
   title: "Browse Products",
-  description: "Discover tools, startups, and products by use case or category",
+  description: "Chart your course through tools, startups, and products by use case or category",
 }
 
 type StrOrArr = string | string[] | undefined
@@ -73,8 +73,8 @@ export default async function BrowsePage({
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-6">
       <PageHeader
-        title="Discover the best startups."
-        subtitle="Browse through a curated collection of SaaS tools, micro-SaaS solutions, and indie side projects built by hackers and makers."
+        title="Chart your course through top startups."
+        subtitle="Explore a curated fleet of SaaS tools, micro‑SaaS solutions, and indie projects built by makers."
         underline
         meta={
           <>

@@ -19,7 +19,7 @@ export default async function PricingPage() {
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
       <PageHeader
         title="Simple, fair pricing"
-        subtitle="Choose the plan that fits your launch. Upgrade anytime."
+        subtitle="Choose a plan and set sail. Upgrade anytime."
         align="center"
       />
       <PricingTable plans={plans} />
@@ -27,7 +27,7 @@ export default async function PricingPage() {
         <div className="pt-8 border-t">
           <PageHeader
             title="Featured Success Stories"
-            subtitle="Products gaining traction with featured placements"
+            subtitle="Flagships gaining traction with featured placements"
             align="center"
           />
           <FeaturedProductGrid items={featured.slice(0, 6)} />

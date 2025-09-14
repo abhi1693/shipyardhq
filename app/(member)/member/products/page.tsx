@@ -7,7 +7,7 @@ import MemberProductFilters from "@/components/molecules/MemberProductFilters"
 
 export const metadata: Metadata = {
   title: "Products",
-  description: "Manage your products, view analytics, and track performance.",
+  description: "Manage your products, chart growth, and track performance.",
 }
 
 export default async function CategoryPage({

@@ -33,7 +33,7 @@ export function TopCategories({ categories }: TopCategoriesProps) {
     >
       <PageSectionHeader
         title="Top Categories"
-        subtitle="Browse by product verticals."
+        subtitle="Chart your course by category."
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">

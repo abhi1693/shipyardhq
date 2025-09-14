@@ -19,10 +19,10 @@ export default function Hero() {
           Built for makers. Lightning fast.
         </span>
         <h1 className="mt-6 text-4xl sm:text-5xl xl:text-6xl font-bold leading-tight tracking-tight text-transparent bg-clip-text bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]">
-          Launch faster. Get discovered sooner.
+          Set sail faster. Get discovered sooner.
         </h1>
         <p className="mt-5 text-lg text-muted-foreground">
-          Submit your product in minutes and reach a community of real users and
+          Submit your product in minutes and reach a crew of real users and
           builders.
         </p>
 

@@ -21,7 +21,7 @@ export function Leaderboard({ products }: LeaderboardProps) {
     >
       <PageSectionHeader
         title="Trending"
-        subtitle="Most upvoted products."
+        subtitle="Top of the fleet by upvotes."
         action={
           <a
             href="/leaderboard"

@@ -21,7 +21,7 @@ export function LatestLaunches({ products }: LatestLaunchesProps) {
     >
       <PageSectionHeader
         title="Latest Launches"
-        subtitle="Fresh off the launchpad. Explore what’s new."
+        subtitle="Fresh off the dock. Explore what’s new."
       />
 
       <FeaturedProductGrid items={products} />

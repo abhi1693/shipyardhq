@@ -31,7 +31,7 @@ export default function HomepageSpotlight({
     >
       <PageSectionHeader
         title="Homepage Picks"
-        subtitle="Products currently highlighted on our homepage"
+        subtitle="Flagship picks on our homepage"
       />
       <ProductList
         items={products.map((p) => ({

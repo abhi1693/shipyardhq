@@ -43,7 +43,7 @@ export default async function LeaderboardPage({
       {/* Header */}
       <PageHeader
         title="🏆 Product Leaderboard"
-        subtitle="Discover the most popular products ranked by community upvotes. See which innovations are leading the way and getting the most love from our community."
+        subtitle="Discover the most popular products ranked by community upvotes. See which innovations are leading the fleet and getting the most love from our community."
       />
 
       {/* Stat Cards */}
