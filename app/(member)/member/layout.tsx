@@ -79,7 +79,9 @@ export default async function MemberLayout({
       <AppSidebar navItems={items} />
       <SidebarInset>
         <PrivateHeader />
-        <PageContainer>{children}</PageContainer>
+        <div className="flex-1">
+          <PageContainer>{children}</PageContainer>
+        </div>
         <MemberFooter />
       </SidebarInset>
     </SidebarProvider>
