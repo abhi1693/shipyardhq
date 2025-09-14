@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/atoms/button"
-import { Sparkles, Users, Rocket } from "lucide-react"
+import { Sparkles } from "lucide-react"
 import SubmitProductButton from "@/components/molecules/SubmitProductButton"
 
 type Stats = {
