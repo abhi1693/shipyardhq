@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation"
-import { assignProductPlanAction, getProductById } from "@/actions/admin/products/actions"
+import {
+  assignProductPlanAction,
+  getProductById,
+} from "@/actions/admin/products/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { OverviewRow } from "@/components/layout/object-view/overview"
 import {
@@ -131,12 +134,15 @@ export default async function ViewProductPage({
                     <option value="">No plan</option>
                     {plans.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name} {p.price ? `— $${(p.price / 100).toFixed(2)}` : ""}
+                        {p.name}{" "}
+                        {p.price ? `— $${(p.price / 100).toFixed(2)}` : ""}
                       </option>
                     ))}
                   </select>
                 </div>
-                <Button type="submit" variant="outline">Save</Button>
+                <Button type="submit" variant="outline">
+                  Save
+                </Button>
               </form>
             </CardContent>
           </Card>

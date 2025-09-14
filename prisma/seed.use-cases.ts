@@ -2,7 +2,8 @@ import { PrismaClient } from "@/lib/vendor/prisma/client"
 import slugifyLib from "slugify"
 
 const prisma = new PrismaClient()
-const slugify = (text: string) => slugifyLib(text, { lower: true, strict: true })
+const slugify = (text: string) =>
+  slugifyLib(text, { lower: true, strict: true })
 
 type UseCaseSeed = {
   label: string
@@ -35,16 +36,13 @@ const USE_CASES: UseCaseSeed[] = [
   {
     label: "Ship Faster",
     slug: "ship-faster",
-    categorySlugs: [
-      "devops-ci-cd",
-      "testing-qa",
-      "monitoring-observability",
-    ],
+    categorySlugs: ["devops-ci-cd", "testing-qa", "monitoring-observability"],
   },
 ]
 
 async function main() {
-  const rows: { label: string; slug: string; action: "create" | "update" }[] = []
+  const rows: { label: string; slug: string; action: "create" | "update" }[] =
+    []
 
   for (const def of USE_CASES) {
     const slug = def.slug ?? slugify(def.label)
@@ -76,7 +74,10 @@ async function main() {
     for (const category of categories) {
       await prisma.useCaseCategory.upsert({
         where: {
-          useCaseId_categoryId: { useCaseId: useCase.id, categoryId: category.id },
+          useCaseId_categoryId: {
+            useCaseId: useCase.id,
+            categoryId: category.id,
+          },
         },
         update: {},
         create: { useCaseId: useCase.id, categoryId: category.id },
@@ -99,4 +100,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect()
   })
-

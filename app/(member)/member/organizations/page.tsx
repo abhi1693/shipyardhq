@@ -68,8 +68,8 @@ export default async function MemberOrganizationsPage({
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                Unlock Organizations to run your crew and manage members.
-                Choose a plan below to get access. Organization features unlock
+                Unlock Organizations to run your crew and manage members. Choose
+                a plan below to get access. Organization features unlock
                 automatically after successful checkout.
               </p>
             </CardContent>

@@ -13,8 +13,9 @@ import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import {
   getPublicProduct,
   getRelatedProductsByCategory,
+  getProductIdBySlug,
 } from "@/actions/public/products/actions"
-import prisma from "@/lib/prisma"
+import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
 import {
   CheckCircle,
   ExternalLink,
@@ -49,21 +50,7 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params
-  const product = await prisma.product.findUnique({
-    where: { slug },
-    select: {
-      slug: true,
-      name: true,
-      tagline: true,
-      description: true,
-      logo: true,
-      bannerImage: true,
-      keywords: true,
-      status: true,
-      category: { select: { name: true, slug: true } },
-      user: { select: { firstName: true, lastName: true } },
-    },
-  })
+  const product = await getPublicProductMetaBySlug(slug)
   if (!product) return {}
   const relativeUrl = `/products/${product.slug}`
   const desc = product.tagline || product.description || undefined
@@ -104,10 +91,7 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const bySlug = await prisma.product.findUnique({
-    where: { slug },
-    select: { id: true },
-  })
+  const bySlug = await getProductIdBySlug(slug)
   const product = bySlug ? await getPublicProduct(bySlug.id) : null
   if (!product) return notFound()
 

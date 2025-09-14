@@ -12,7 +12,10 @@ export default function AsideFeatured({
   if (!products || products.length === 0) return null
   return (
     <aside className="sticky top-24 space-y-4">
-      <PageSectionHeader title={title} subtitle="Curated picks from the harbor" />
+      <PageSectionHeader
+        title={title}
+        subtitle="Curated picks from the harbor"
+      />
       <FeaturedProductGrid
         items={products.slice(0, 6)}
         columns="grid-cols-1"

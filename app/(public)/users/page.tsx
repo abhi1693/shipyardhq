@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import prisma from "@/lib/prisma"
+import { getPublicUsersWithCounts } from "@/actions/public/users/actions"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 
@@ -25,18 +25,7 @@ export const metadata: Metadata = {
 }
 
 export default async function UsersIndexPage() {
-  // List users who have at least one published product
-  const users = await prisma.user.findMany({
-    where: { products: { some: { status: "published" as any } } },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      products: { where: { status: "published" as any }, select: { id: true } },
-    },
-    orderBy: { products: { _count: "desc" } },
-    take: 48,
-  })
+  const users = await getPublicUsersWithCounts(48)
 
   return (
     <PublicContainer paddingY="py-10" max="7xl">

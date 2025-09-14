@@ -62,7 +62,9 @@ export function ProductCard({
             <div className="absolute top-2 right-2 z-10">{topRight}</div>
           )}
           <CardHeader className={clsx(compact ? "p-0 pb-2" : "pb-3")}>
-            <div className={clsx("flex items-start", compact ? "gap-2" : "gap-3")}>
+            <div
+              className={clsx("flex items-start", compact ? "gap-2" : "gap-3")}
+            >
               <div
                 className={clsx(
                   "flex-shrink-0 rounded-md border bg-muted overflow-hidden",
@@ -106,34 +108,34 @@ export function ProductCard({
                   {product.tagline}
                 </p>
 
-                {compact ? null : (
-                  badges.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-2">
-                      {badges.map((b, i) => {
-                        const badgeDef = BADGE_OPTIONS.find(
-                          (x) => x.value === b,
-                        )
-                        if (!badgeDef) return null
+                {compact
+                  ? null
+                  : badges.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {badges.map((b, i) => {
+                          const badgeDef = BADGE_OPTIONS.find(
+                            (x) => x.value === b,
+                          )
+                          if (!badgeDef) return null
 
-                        const colorClass =
-                          badgeColorMap[badgeDef.color as TailwindColor]
+                          const colorClass =
+                            badgeColorMap[badgeDef.color as TailwindColor]
 
-                        return (
-                          <Badge
-                            key={i}
-                            className={clsx(
-                              "rounded-full border px-2 py-0.5 text-xs",
-                              colorClass,
-                            )}
-                          >
-                            {badgeDef.icon}
-                            <span className="ml-1">{badgeDef.label}</span>
-                          </Badge>
-                        )
-                      })}
-                    </div>
-                  )
-                )}
+                          return (
+                            <Badge
+                              key={i}
+                              className={clsx(
+                                "rounded-full border px-2 py-0.5 text-xs",
+                                colorClass,
+                              )}
+                            >
+                              {badgeDef.icon}
+                              <span className="ml-1">{badgeDef.label}</span>
+                            </Badge>
+                          )
+                        })}
+                      </div>
+                    )}
               </div>
             </div>
           </CardHeader>

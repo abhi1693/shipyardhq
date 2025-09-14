@@ -6,6 +6,7 @@ import { NavItem } from "@/types"
 import { auth } from "@clerk/nextjs/server"
 import PageContainer from "@/components/layout/page-container"
 import { syncCurrentUserBilling } from "@/lib/server/billing"
+import MemberFooter from "@/components/layout/footers/member-footer"
 
 export const metadata: Metadata = {
   title: "ShipYardHQ",
@@ -79,6 +80,7 @@ export default async function MemberLayout({
       <SidebarInset>
         <PrivateHeader />
         <PageContainer>{children}</PageContainer>
+        <MemberFooter />
       </SidebarInset>
     </SidebarProvider>
   )

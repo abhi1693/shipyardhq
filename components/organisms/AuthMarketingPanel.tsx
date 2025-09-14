@@ -21,8 +21,9 @@ export default function AuthMarketingPanel() {
           <h2 className="text-2xl font-semibold">Discover. Launch. Grow.</h2>
           <p className="mt-4 text-base text-zinc-400 leading-relaxed">
             ShipYard is your dock for discovering niche SaaS tools, showcasing
-            your products, and connecting with indie founders. Whether you&#39;re
-            a maker or an early adopter, this is where great ideas set sail.
+            your products, and connecting with indie founders. Whether
+            you&#39;re a maker or an early adopter, this is where great ideas
+            set sail.
           </p>
         </div>
 

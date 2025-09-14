@@ -11,6 +11,13 @@ import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
 import { checkRole } from "@/lib/roles"
 import { memberHasFeature } from "@/lib/memberFeatures"
+import {
+  revalidateCategory,
+  revalidateCategories,
+  revalidateLeaderboard,
+  revalidateProduct,
+  revalidateProducts,
+} from "@/lib/cache/revalidate"
 
 function generateVerificationTxtFromWebsite(websiteUrl: string): string {
   const norm = websiteUrl.trim().toLowerCase()
@@ -223,6 +230,11 @@ export async function createProductAction(formData: FormData) {
     // Fire domain event for listeners (e.g., auto badges)
     await publish("product.created", { productId: created.id })
 
+    // Invalidate public caches affected by a new product
+    revalidateProducts()
+    revalidateCategory(categoryId)
+    revalidateLeaderboard()
+
     return { success: true }
   } catch (error) {
     console.error("Error creating product:", error)
@@ -316,7 +328,9 @@ export async function updateProductAction(
     if (typeof data.slug === "string" && data.slug.trim().length) {
       const incomingSlug = data.slug.trim()
       if (incomingSlug && incomingSlug !== current.slug) {
-        return { error: "Members cannot change product URL/slug after creation." }
+        return {
+          error: "Members cannot change product URL/slug after creation.",
+        }
       }
     }
   }
@@ -372,8 +386,8 @@ export async function updateProductAction(
         publishedAt: data.publishedAt ? new Date(data.publishedAt) : undefined,
         startingPriceCents: data.startingPriceCents ?? undefined,
         currencyCode: data.currencyCode ?? undefined,
-        ctaLabel: canEditCTA ? data.ctaLabel ?? undefined : undefined,
-        ctaUrl: canEditCTA ? data.ctaUrl ?? undefined : undefined,
+        ctaLabel: canEditCTA ? (data.ctaLabel ?? undefined) : undefined,
+        ctaUrl: canEditCTA ? (data.ctaUrl ?? undefined) : undefined,
         bannerImage: data.bannerImage ?? undefined,
         keywords: data.keywords as any,
         platforms: data.platforms as any,
@@ -412,6 +426,11 @@ export async function updateProductAction(
     }
     if (deletions.length) await Promise.all(deletions)
 
+    // Invalidate caches for updated product
+    if (typeof id === "string" && id) revalidateProduct(id)
+    revalidateCategory(categoryId)
+    revalidateLeaderboard()
+
     return updated
   } catch (error) {
     console.error("Error updating product:", error)
@@ -441,6 +460,10 @@ export async function deleteProductAction(id: string) {
     const result = await prisma.product.delete({ where: { id } })
     // Fire delete event (badges are cascaded in DB, but listeners may react)
     await publish("product.deleted", { productId: id })
+    // Invalidate public caches heavily, product removed
+    revalidateProducts()
+    revalidateCategories()
+    revalidateLeaderboard()
     return result
   } catch (error) {
     console.error("Error deleting product:", error)

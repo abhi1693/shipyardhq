@@ -30,7 +30,12 @@ type Props = {
   lockWebsiteUrl?: boolean
 }
 
-export default function Step1({ categories, platforms, productId, lockWebsiteUrl }: Props) {
+export default function Step1({
+  categories,
+  platforms,
+  productId,
+  lockWebsiteUrl,
+}: Props) {
   const form = useFormContext()
   const [previewDesc, setPreviewDesc] = useState(false)
 

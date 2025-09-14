@@ -7,6 +7,10 @@ import {
   trackProductUpvoted,
   trackProductDownvoted,
 } from "@/lib/server/analytics/productVotes"
+import {
+  revalidateLeaderboard,
+  revalidateProduct,
+} from "@/lib/cache/revalidate"
 
 export type UpvoteState = { upvotes: number; upvoted: boolean; error?: string }
 
@@ -56,6 +60,10 @@ export async function upvoteProductAction(
       where: { productId: product.id },
       select: { upvotes: true },
     })
+
+    // Invalidate relevant public caches (product page + leaderboard/trending)
+    revalidateProduct(product.id)
+    revalidateLeaderboard()
 
     return { upvotes: result?.upvotes ?? 0, upvoted: !existing }
   } catch (err: any) {

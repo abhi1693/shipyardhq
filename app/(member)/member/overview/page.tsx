@@ -87,7 +87,9 @@ export default async function OverviewPage({
   if (stats.totalProducts === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <h1 className="mb-2 text-2xl font-semibold tracking-tight">Welcome aboard</h1>
+        <h1 className="mb-2 text-2xl font-semibold tracking-tight">
+          Welcome aboard
+        </h1>
         <p className="mb-6 text-sm text-muted-foreground">
           Dock your first product to unlock your dashboard.
         </p>

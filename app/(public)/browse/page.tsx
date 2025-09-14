@@ -17,7 +17,8 @@ import AsideFeatured from "@/components/organisms/AsideFeatured"
 
 export const metadata: Metadata = {
   title: "Browse Products",
-  description: "Chart your course through tools, startups, and products by use case or category",
+  description:
+    "Chart your course through tools, startups, and products by use case or category",
 }
 
 type StrOrArr = string | string[] | undefined

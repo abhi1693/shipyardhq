@@ -3,6 +3,11 @@
 import prisma from "@/lib/prisma"
 import { slugify } from "@/lib/utils"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import {
+  revalidateCategories,
+  revalidateCategory,
+  revalidateProducts,
+} from "@/lib/cache/revalidate"
 
 export async function getCategories(args = {}) {
   try {
@@ -63,6 +68,8 @@ export async function createCategoryAction(formData: FormData) {
     await prisma.category.create({
       data: { name: cleanName, slug, description, icon },
     })
+    revalidateCategories()
+    revalidateProducts()
     return { success: true }
   } catch (error) {
     console.error("Error creating category:", error)
@@ -83,10 +90,14 @@ export async function updateCategoryAction(
   }
 
   try {
-    return await prisma.category.update({
+    const result = await prisma.category.update({
       where: { id },
       data: { name, slug, description, icon },
     })
+    revalidateCategory(id)
+    revalidateCategories()
+    revalidateProducts()
+    return result
   } catch (error) {
     console.error("Error updating category:", error)
     return { error: "Failed to update category" }
@@ -106,7 +117,9 @@ export async function deleteCategoryAction(id: string) {
     await prisma.category.delete({
       where: { id },
     })
-
+    revalidateCategory(id)
+    revalidateCategories()
+    revalidateProducts()
     return { success: true }
   } catch (error) {
     console.error("Error deleting category:", error)

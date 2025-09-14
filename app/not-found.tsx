@@ -20,7 +20,9 @@ export default function NotFound() {
           404
         </h1>
 
-        <h2 className="mt-6 text-2xl md:text-3xl font-semibold">Page not found</h2>
+        <h2 className="mt-6 text-2xl md:text-3xl font-semibold">
+          Page not found
+        </h2>
         <p className="mt-3 text-base md:text-lg text-muted-foreground">
           Sorry, we couldn’t find that page. It may have been moved or deleted.
         </p>

@@ -3,6 +3,11 @@
 import prisma from "@/lib/prisma"
 import { publish } from "@/lib/server/events"
 import "@/lib/server/badges" // ensure listeners are registered
+import {
+  revalidateBadges,
+  revalidateProduct,
+  revalidateProducts,
+} from "@/lib/cache/revalidate"
 
 export async function getAllAssignedBadges() {
   return prisma.productBadge.findMany({
@@ -52,6 +57,11 @@ export async function assignBadgeToProduct(data: {
     expiresAt: created.expiresAt ?? undefined,
   })
 
+  // Invalidate caches for product badge-related sections
+  revalidateProduct(productId)
+  revalidateBadges()
+  revalidateProducts()
+
   return created
 }
 
@@ -79,6 +89,11 @@ export async function deleteProductBadgeAction(id: string) {
     const result = await prisma.productBadge.delete({ where: { id } })
     if (existing) {
       await publish("badge.removed", existing)
+    }
+    if (existing?.productId) {
+      revalidateProduct(existing.productId)
+      revalidateBadges()
+      revalidateProducts()
     }
     return result
   } catch (error) {

@@ -4,31 +4,32 @@ Clear, fair tiers that start generous and scale with growth. Free is the default
 
 ## Plan Summary
 
-| Plan | Type | Price | Boost Window | Included Feature Keys | Primary Value |
-|---|---|---:|---:|---|---|
-| Free (Default) | Default | $0 | — | `analytics.basic`, `backlink` | Public listing, product page, browse visibility, basic analytics, do‑follow backlink |
-| Pro | One‑time (lifetime) | $19 one‑time | Time‑boxed placements | `priorityPlacement`, `featured`, `homepage`, `newsletterPromotion`, `stickyBanner`, `customCTA`, `earlyAccess`, `backlink` | Stronger page + premium surfaces + visibility bump |
-| Team | One‑time (lifetime) | $49 one‑time | Time‑boxed placements | All Pro features + `organization` | Collaboration (orgs) with all Pro growth tools |
+| Plan           | Type                |        Price |          Boost Window | Included Feature Keys                                                                                                      | Primary Value                                                                        |
+| -------------- | ------------------- | -----------: | --------------------: | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Free (Default) | Default             |           $0 |                     — | `analytics.basic`, `backlink`                                                                                              | Public listing, product page, browse visibility, basic analytics, do‑follow backlink |
+| Pro            | One‑time (lifetime) | $19 one‑time | Time‑boxed placements | `priorityPlacement`, `featured`, `homepage`, `newsletterPromotion`, `stickyBanner`, `customCTA`, `earlyAccess`, `backlink` | Stronger page + premium surfaces + visibility bump                                   |
+| Team           | One‑time (lifetime) | $49 one‑time | Time‑boxed placements | All Pro features + `organization`                                                                                          | Collaboration (orgs) with all Pro growth tools                                       |
 
 Notes
+
 - Keep Free feeling complete: listing + upvotes + product page + basic click/upvote analytics.
 - Reserve homepage/featured/banner/newsletter for Spotlight to protect feed quality.
 - Pro remains compelling via ongoing outcomes: traffic lift + better on‑page conversion + earlier access.
 
 ## Feature Comparison
 
-| Feature Key | Free | Pro | Team | Spotlight |
-|---|:---:|:---:|:---:|:---:|
-| `analytics.basic` | ✓ | ✓ | ✓ |
-| `priorityPlacement` | — | ✓ | ✓ |
-| `featured` | — | ✓ | ✓ |
-| `homepage` | — | ✓ | ✓ |
-| `stickyBanner` | — | ✓ | ✓ |
-| `customCTA` | — | ✓ | ✓ |
-| `earlyAccess` | — | ✓ | ✓ |
-| `newsletterPromotion` | — | ✓ | ✓ |
-| `backlink` | ✓ | ✓ | ✓ |
-| `organization` | — | — | ✓ |
+| Feature Key           | Free | Pro | Team | Spotlight |
+| --------------------- | :--: | :-: | :--: | :-------: |
+| `analytics.basic`     |  ✓   |  ✓  |  ✓   |
+| `priorityPlacement`   |  —   |  ✓  |  ✓   |
+| `featured`            |  —   |  ✓  |  ✓   |
+| `homepage`            |  —   |  ✓  |  ✓   |
+| `stickyBanner`        |  —   |  ✓  |  ✓   |
+| `customCTA`           |  —   |  ✓  |  ✓   |
+| `earlyAccess`         |  —   |  ✓  |  ✓   |
+| `newsletterPromotion` |  —   |  ✓  |  ✓   |
+| `backlink`            |  ✓   |  ✓  |  ✓   |
+| `organization`        |  —   |  —  |  ✓   |
 
 ## Implementation Notes
 

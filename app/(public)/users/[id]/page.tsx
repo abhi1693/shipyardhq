@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
-import prisma from "@/lib/prisma"
+import { getPublicUserProfile } from "@/actions/public/users/actions"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import ProductList from "@/components/molecules/ProductList"
@@ -16,10 +16,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id } = await params
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: { firstName: true, lastName: true },
-  })
+  const user = await getPublicUserProfile(id)
   if (!user) return {}
   const fullName =
     `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"
@@ -45,26 +42,7 @@ export async function generateMetadata({
 
 export default async function PublicUserPage({ params }: PageProps) {
   const { id } = await params
-
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      products: {
-        where: { status: "published" as any },
-        orderBy: { createdAt: "desc" },
-        include: {
-          analytics: true,
-          verification: true,
-          category: true,
-          user: true,
-          ProductBadge: true,
-        },
-      },
-    },
-  })
+  const user = await getPublicUserProfile(id)
 
   if (!user) return notFound()
 

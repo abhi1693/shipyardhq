@@ -1,5 +1,9 @@
 import prisma from "@/lib/prisma"
 import { on, publish } from "@/lib/server/events"
+import {
+  revalidateLeaderboard,
+  revalidateProduct,
+} from "@/lib/cache/revalidate"
 
 // Keeps ProductAnalytics.upvotes in sync with upvote/unupvote actions
 on("product.upvoted", async ({ productId }) => {
@@ -9,6 +13,8 @@ on("product.upvoted", async ({ productId }) => {
       update: { upvotes: { increment: 1 } },
       create: { productId, upvotes: 1, clicks: 0 },
     })
+    revalidateProduct(productId)
+    revalidateLeaderboard()
   } catch (err) {
     console.error("[analytics] increment upvotes failed:", err)
   }
@@ -21,6 +27,8 @@ on("product.downvoted", async ({ productId }) => {
       update: { upvotes: { decrement: 1 } },
       create: { productId, upvotes: 0, clicks: 0 },
     })
+    revalidateProduct(productId)
+    revalidateLeaderboard()
   } catch (err) {
     console.error("[analytics] decrement upvotes failed:", err)
   }

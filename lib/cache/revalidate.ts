@@ -1,0 +1,37 @@
+import { revalidateTag } from "next/cache"
+import { TAGS } from "./tags"
+
+export function revalidateProducts() {
+  revalidateTag(TAGS.products)
+}
+
+export function revalidateProduct(idOrSlug: string) {
+  revalidateTag(TAGS.product(idOrSlug))
+  revalidateProducts()
+}
+
+export function revalidateCategories() {
+  revalidateTag(TAGS.categories)
+}
+
+export function revalidateCategory(idOrSlug: string) {
+  revalidateTag(TAGS.category(idOrSlug))
+  revalidateCategories()
+}
+
+export function revalidateLeaderboard() {
+  revalidateTag(TAGS.leaderboard)
+  revalidateTag(TAGS.trending)
+  revalidateTag(TAGS.analytics)
+}
+
+export function revalidateBadges() {
+  revalidateTag(TAGS.badges)
+  revalidateProducts()
+}
+
+export function revalidatePlanFeature(key: string) {
+  revalidateTag(TAGS.planFeature(key))
+  revalidateTag(TAGS.plans)
+  revalidateProducts()
+}

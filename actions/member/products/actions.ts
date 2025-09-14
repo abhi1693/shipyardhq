@@ -330,14 +330,25 @@ export async function choosePlanAction(
     where: { id: planId },
     select: { id: true, externalId: true, price: true },
   })
-  if (plan?.externalId && (plan.price || 0) > 0) {
-    const session = await startPlanCheckoutAction(ctx.productId, planId)
-    if ((session as any)?.paymentLink) {
-      redirect((session as any).paymentLink)
-    }
+  if (!plan) return
+
+  // Free plans (no price): attach immediately
+  if ((plan.price || 0) === 0) {
+    await setProductPlanAction(ctx.productId, planId)
+    redirect(`${ctx.redirectPath}?upgraded=1`)
   }
 
-  // Fallback to direct attach
-  await setProductPlanAction(ctx.productId, planId)
-  redirect(ctx.redirectPath)
+  // Paid plans must have an externalId to start checkout
+  if ((plan.price || 0) > 0 && !plan.externalId) {
+    redirect(`${ctx.redirectPath}?error=plan_not_configured`)
+  }
+
+  // Start hosted checkout for paid plans
+  const session = await startPlanCheckoutAction(ctx.productId, planId)
+  if ((session as any)?.paymentLink) {
+    redirect((session as any).paymentLink)
+  }
+
+  // If checkout couldn't be created, do NOT grant the plan
+  redirect(`${ctx.redirectPath}?error=checkout_init_failed`)
 }

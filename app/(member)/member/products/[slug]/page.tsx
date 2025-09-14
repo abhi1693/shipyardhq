@@ -42,6 +42,7 @@ import { getPublicPlans } from "@/actions/public/plans/actions"
 import { PlanType } from "@/lib/vendor/prisma/client"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
+import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
 
 export default async function ViewUserProductPage({
   params,
@@ -135,7 +136,9 @@ export default async function ViewUserProductPage({
   const showPlanUI = Boolean(currentPlanPublic)
 
   return (
-    <ObjectPageLayout
+    <>
+      <PurchasePlanToast />
+      <ObjectPageLayout
       heading={{
         id: product.slug,
         title: product.name,
@@ -722,6 +725,7 @@ export default async function ViewUserProductPage({
           </Card>
         </div>
       }
-    />
+      />
+    </>
   )
 }

@@ -1,71 +1,115 @@
 import prisma from "@/lib/prisma"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 
-export async function getPublicProduct(id: string) {
-  const product = await prisma.product.findUnique({
-    where: { id },
-    include: {
-      category: {
-        include: {
-          useCases: {
-            include: { useCase: true },
+export const getPublicProduct = cached(
+  async (id: string) => {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        category: {
+          include: {
+            useCases: {
+              include: { useCase: true },
+            },
           },
         },
-      },
-      user: {
-        select: { id: true, firstName: true, lastName: true, email: true },
-      },
-      metadata: true,
-      analytics: true,
-      verification: true,
-      ProductMedia: { orderBy: { createdAt: "asc" } },
-      ProductBadge: true,
-      plan: {
-        include: {
-          assignments: {
-            include: { feature: true },
+        user: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        metadata: true,
+        analytics: true,
+        verification: true,
+        ProductMedia: { orderBy: { createdAt: "asc" } },
+        ProductBadge: true,
+        plan: {
+          include: {
+            assignments: {
+              include: { feature: true },
+            },
           },
         },
-      },
-      organization: {
-        include: {
-          memberships: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true,
+        organization: {
+          include: {
+            memberships: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                  },
                 },
               },
             },
           },
         },
       },
-    },
-  })
+    })
 
-  if (!product) return null
+    if (!product) return null
 
-  // Filter expired badges
-  const activeBadges = product.ProductBadge.filter(
-    (b) => !b.expiresAt || b.expiresAt > new Date(),
-  ).map((b) => b.badge)
+    const activeBadges = product.ProductBadge.filter(
+      (b) => !b.expiresAt || b.expiresAt > new Date(),
+    ).map((b) => b.badge)
 
-  return { ...product, badges: activeBadges }
-}
+    return { ...product, badges: activeBadges }
+  },
+  "product:public",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: ([id]) => [TAGS.products, TAGS.product(String(id))],
+  },
+)
 
-export async function getRelatedProductsByCategory(
-  categoryId: string,
-  excludeId: string,
-) {
-  return prisma.product.findMany({
-    where: { categoryId, NOT: { id: excludeId } },
-    orderBy: { createdAt: "desc" },
-    take: 6,
-    include: { analytics: true },
-  })
-}
+export const getPublicProductMetaBySlug = cached(
+  async (slug: string) =>
+    prisma.product.findUnique({
+      where: { slug },
+      select: {
+        slug: true,
+        name: true,
+        tagline: true,
+        description: true,
+        logo: true,
+        bannerImage: true,
+        keywords: true,
+        status: true,
+        category: { select: { name: true, slug: true } },
+        user: { select: { firstName: true, lastName: true } },
+      },
+    }),
+  "product:meta-by-slug",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: ([slug]) => [TAGS.products, TAGS.product(String(slug))],
+  },
+)
+
+export const getProductIdBySlug = cached(
+  async (slug: string) =>
+    prisma.product.findUnique({ where: { slug }, select: { id: true } }),
+  "product:id-by-slug",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: ([slug]) => [TAGS.products, TAGS.product(String(slug))],
+  },
+)
+
+export const getRelatedProductsByCategory = cached(
+  async (categoryId: string, excludeId: string) =>
+    prisma.product.findMany({
+      where: { categoryId, NOT: { id: excludeId } },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+      include: { analytics: true },
+    }),
+  "products:related-by-category",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: ([categoryId]) => [TAGS.products, TAGS.category(String(categoryId))],
+  },
+)
 
 export async function hasUserUpvoted(productId: string, clerkId: string) {
   const user = await prisma.user.findUnique({

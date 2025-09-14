@@ -192,14 +192,23 @@ async function main() {
 
   for (const item of CATEGORIES) {
     const slug = item.slug ?? slugify(item.name)
-    const data = { name: item.name, slug, icon: item.icon, description: item.description }
+    const data = {
+      name: item.name,
+      slug,
+      icon: item.icon,
+      description: item.description,
+    }
 
     const existing = await prisma.category.findUnique({ where: { slug } })
     const action = existing ? "update" : "create"
 
     await prisma.category.upsert({
       where: { slug },
-      update: { name: data.name, icon: data.icon, description: data.description },
+      update: {
+        name: data.name,
+        icon: data.icon,
+        description: data.description,
+      },
       create: data,
     })
     results.push({ name: item.name, slug, action })

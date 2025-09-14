@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import { revalidateProducts } from "@/lib/cache/revalidate"
 
 export async function getUsers(args = {}) {
   try {
@@ -56,6 +57,8 @@ export async function createUserAction(formData: FormData) {
         role: String(role),
       },
     })
+    // Users list depends on products count, revalidate products-driven caches
+    revalidateProducts()
     return { success: true }
   } catch (error: any) {
     console.error("Error creating user:", error)
@@ -78,10 +81,12 @@ export async function updateUserAction(
   },
 ) {
   try {
-    return await prisma.user.update({
+    const result = await prisma.user.update({
       where: { id },
       data,
     })
+    revalidateProducts()
+    return result
   } catch (error) {
     console.error("Error updating user:", error)
     return { error: "Failed to update user" }
@@ -90,9 +95,11 @@ export async function updateUserAction(
 
 export async function deleteUserAction(id: string) {
   try {
-    return await prisma.user.delete({
+    const result = await prisma.user.delete({
       where: { id },
     })
+    revalidateProducts()
+    return result
   } catch (error) {
     console.error("Error deleting user:", error)
     return { error: "Failed to delete user" }

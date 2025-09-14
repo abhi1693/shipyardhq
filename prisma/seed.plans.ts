@@ -66,7 +66,9 @@ async function main() {
   const rows: { slug: string; action: "create" | "update" }[] = []
 
   // Resolve features once
-  const allFeatures = await prisma.planFeature.findMany({ select: { id: true, key: true } })
+  const allFeatures = await prisma.planFeature.findMany({
+    select: { id: true, key: true },
+  })
   const featureByKey = new Map(allFeatures.map((f) => [f.key, f.id]))
 
   for (const p of PLANS) {
@@ -98,7 +100,9 @@ async function main() {
       const featureId = featureByKey.get(key)
       if (!featureId) {
         // eslint-disable-next-line no-console
-        console.warn(`Plan ${p.slug}: missing feature '${key}', skip assignment`)
+        console.warn(
+          `Plan ${p.slug}: missing feature '${key}', skip assignment`,
+        )
         continue
       }
       await prisma.planFeatureAssignment.upsert({

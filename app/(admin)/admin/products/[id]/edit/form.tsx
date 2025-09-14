@@ -475,7 +475,10 @@ export default function EditProductForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Plan</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value as any}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value as any}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select plan (optional)" />
@@ -485,7 +488,10 @@ export default function EditProductForm({
                           <SelectItem value="">No plan</SelectItem>
                           {plans.map((p) => (
                             <SelectItem key={p.id} value={p.id}>
-                              {p.name} {p.price ? `— $${(p.price / 100).toFixed(2)}` : ""}
+                              {p.name}{" "}
+                              {p.price
+                                ? `— $${(p.price / 100).toFixed(2)}`
+                                : ""}
                             </SelectItem>
                           ))}
                         </SelectContent>
