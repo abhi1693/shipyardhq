@@ -10,14 +10,22 @@ export function ExternalBadgeLink({
   children,
   variant,
   productId,
+  follow = false,
+  target,
+  rel,
 }: {
   href: string
   children: ReactNode
   variant?: "default" | "secondary" | "outline"
   // Optional: when provided, use a server action to track and redirect
   productId?: string
+  // When true, render a real anchor tag (SEO follow). Otherwise use server action form.
+  follow?: boolean
+  // Optional anchor attributes when follow=true
+  target?: string
+  rel?: string
 }) {
-  if (productId) {
+  if (!follow && productId) {
     return (
       <form action={clickExternalProductLinkAction} method="post">
         <input type="hidden" name="productId" value={productId} />
@@ -29,7 +37,7 @@ export function ExternalBadgeLink({
     )
   }
   return (
-    <Link href={href}>
+    <Link href={href} target={target} rel={rel}>
       <Badge variant={variant ?? "default"}>{children}</Badge>
     </Link>
   )

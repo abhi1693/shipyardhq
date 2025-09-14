@@ -220,7 +220,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     ? withUtm(product.websiteUrl, "visit-website")
                     : product.websiteUrl
                 }
-                productId={product.id}
+                productId={hasBacklinkFeature ? undefined : product.id}
+                follow={hasBacklinkFeature}
+                target={hasBacklinkFeature ? "_blank" : undefined}
+                rel={hasBacklinkFeature ? "noopener" : undefined}
               >
                 <span className="flex items-center gap-1">
                   <ExternalLink size={14} /> Visit website
@@ -233,7 +236,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       ? withUtm(product.ctaUrl, "cta")
                       : product.ctaUrl
                   }
-                  productId={product.id}
+                  productId={hasBacklinkFeature ? undefined : product.id}
+                  follow={hasBacklinkFeature}
+                  target={hasBacklinkFeature ? "_blank" : undefined}
+                  rel={hasBacklinkFeature ? "noopener" : undefined}
                 >
                   {product.ctaLabel || "Get Started"}
                 </ExternalBadgeLink>
@@ -246,7 +252,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       : product.metadata.demoUrl
                   }
                   variant="outline"
-                  productId={product.id}
+                  productId={hasBacklinkFeature ? undefined : product.id}
+                  follow={hasBacklinkFeature}
+                  target={hasBacklinkFeature ? "_blank" : undefined}
+                  rel={hasBacklinkFeature ? "noopener" : undefined}
                 >
                   Live demo
                 </ExternalBadgeLink>
@@ -301,7 +310,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                         key={l.href}
                         href={l.href}
                         variant="outline"
-                        productId={product.id}
+                        productId={hasBacklinkFeature ? undefined : product.id}
+                        follow={hasBacklinkFeature}
+                        target={hasBacklinkFeature ? "_blank" : undefined}
+                        rel={hasBacklinkFeature ? "noopener" : undefined}
                       >
                         <span className="flex items-center gap-1 text-sm">
                           {l.icon} {l.label}
