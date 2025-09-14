@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/atoms/button"
 import { Sparkles } from "lucide-react"
 import SubmitProductButton from "@/components/molecules/SubmitProductButton"
@@ -12,14 +11,10 @@ type Stats = {
   totalUpvotes?: number
 }
 
-type Logo = { name: string; logo: string }
-
 export default function Hero({
   stats,
-  logos = [],
 }: {
   stats?: Stats
-  logos?: Logo[]
 }) {
   return (
     <section className="relative isolate w-full border-b py-20 md:py-32 overflow-hidden">
@@ -90,30 +85,6 @@ export default function Hero({
                   Community upvotes
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Social proof logos */}
-        {logos.length > 0 && (
-          <div className="mt-10">
-            <div className="text-xs text-muted-foreground mb-3">Trusted by featured builders</div>
-            <div className="flex flex-wrap items-center justify-center gap-4 opacity-80">
-              {logos.slice(0, 12).map((p, i) => (
-                <div
-                  key={`${p.name}-${i}`}
-                  className="h-8 w-8 rounded-sm overflow-hidden grayscale hover:grayscale-0 transition"
-                  title={p.name}
-                >
-                  <Image
-                    src={p.logo}
-                    alt={p.name}
-                    width={32}
-                    height={32}
-                    className="h-8 w-8 object-cover"
-                  />
-                </div>
-              ))}
             </div>
           </div>
         )}

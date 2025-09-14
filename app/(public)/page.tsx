@@ -30,7 +30,6 @@ export default async function HomePage() {
           totalCreators: stats.totalCreators,
           totalUpvotes: stats.totalUpvotes,
         }}
-        logos={homepagePromo.map((p) => ({ name: p.name, logo: p.logo }))}
       />
       <HomepageSpotlight products={homepagePromo} />
       <FeaturedHighlights products={featuredProducts} />
