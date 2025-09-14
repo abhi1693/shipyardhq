@@ -13,17 +13,16 @@ export default function AuthMarketingPanel() {
           <h1 className="text-4xl font-extrabold tracking-tight text-white">
             ShipYard
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">The Micro‑SaaS Directory</p>
+          <p className="text-sm text-zinc-400 mt-1">A harbor for indie SaaS</p>
         </div>
 
         {/* Hero Content */}
         <div>
-          <h2 className="text-2xl font-semibold">Discover. Launch. Grow.</h2>
+          <h2 className="text-2xl font-semibold">Set sail. Build boldly.</h2>
           <p className="mt-4 text-base text-zinc-400 leading-relaxed">
-            ShipYard is your dock for discovering niche SaaS tools, showcasing
-            your products, and connecting with indie founders. Whether
-            you&#39;re a maker or an early adopter, this is where great ideas
-            set sail.
+            ShipYard is where indie products find their sea legs. Dock your
+            project, meet a helpful crew, and catch tailwinds toward your next
+            milestone. Calm waters today, brighter horizons tomorrow.
           </p>
         </div>
 
@@ -31,15 +30,15 @@ export default function AuthMarketingPanel() {
         <ul className="space-y-3 text-sm text-zinc-300">
           <li className="flex items-start gap-2">
             <span className="mt-1 w-2 h-2 rounded-full bg-emerald-400" />
-            400+ Micro-SaaS projects listed
+            Built for indie makers, by indie makers
           </li>
           <li className="flex items-start gap-2">
             <span className="mt-1 w-2 h-2 rounded-full bg-emerald-400" />
-            Built by real indie developers
+            Showcase your product and find early fans
           </li>
           <li className="flex items-start gap-2">
             <span className="mt-1 w-2 h-2 rounded-full bg-emerald-400" />
-            Curated with zero fluff
+            Friendly waters, honest feedback, real momentum
           </li>
         </ul>
       </div>
@@ -47,20 +46,20 @@ export default function AuthMarketingPanel() {
       {/* Testimonial */}
       <div className="relative z-10 mt-10 max-w-md border-l-2 border-emerald-500 pl-4">
         <blockquote className="text-zinc-300 text-sm italic leading-relaxed">
-          “The best place I’ve found new tools, inspiration, and makers to
-          follow. ShipYard feels like Product Hunt for micro‑SaaS.”
+          “Every launch needs a lighthouse. We’ll keep the beam steady while you
+          steer.”
         </blockquote>
         <div className="mt-4 flex items-center gap-3">
           <Image
             src="/avatars/user1.jpg"
-            alt="Maya Chen"
+            alt="The ShipYard Crew"
             width={40}
             height={40}
             className="rounded-full"
           />
           <div>
-            <div className="text-sm font-medium">Maya Chen</div>
-            <div className="text-xs text-zinc-400">Founder @ Notionables</div>
+            <div className="text-sm font-medium">The ShipYard Crew</div>
+            <div className="text-xs text-zinc-400">Guiding builders to calm waters</div>
           </div>
         </div>
       </div>

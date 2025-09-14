@@ -37,12 +37,12 @@ describe("AuthMarketingPanel", () => {
   it("shows brand, hero copy, features and testimonial", () => {
     render(<AuthMarketingPanel />)
     expect(screen.getByText("ShipYard")).toBeInTheDocument()
-    expect(screen.getByText("Discover. Launch. Grow.")).toBeInTheDocument()
+    expect(screen.getByText("Set sail. Build boldly.")).toBeInTheDocument()
     expect(
-      screen.getByText("400+ Micro-SaaS projects listed"),
+      screen.getByText("Built for indie makers, by indie makers"),
     ).toBeInTheDocument()
     // Testimonial author
-    expect(screen.getByText("Maya Chen")).toBeInTheDocument()
+    expect(screen.getByText("The ShipYard Crew")).toBeInTheDocument()
   })
 })
 
