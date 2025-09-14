@@ -17,8 +17,8 @@ export default function AuthFormPanel({ mode }: AuthFormPanelProps) {
           </h1>
           <p className="mt-1 text-sm text-zinc-500">
             {isSignIn
-              ? "List your product or discover new micro-SaaS gems."
-              : "Join the community and showcase your micro-SaaS project."}
+              ? "Dock your product or discover new micro‑SaaS gems."
+              : "Join the crew and showcase your micro‑SaaS project."}
           </p>
         </div>
 

@@ -45,7 +45,7 @@ export default async function UsersIndexPage() {
         <header className="space-y-1">
           <h1 className="text-2xl md:text-3xl font-bold">Makers</h1>
           <p className="text-muted-foreground">
-            Explore creators with published products on ShipYardHQ.
+            Explore creators and their launched products on ShipYardHQ.
           </p>
         </header>
 
