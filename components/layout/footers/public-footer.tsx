@@ -5,7 +5,13 @@ import Image from "next/image"
 import { Mail, Twitter } from "lucide-react"
 import { Button } from "@/components/atoms/button"
 
-export default function PublicFooter() {
+type UseCaseLink = { label: string; slug: string }
+
+export default function PublicFooter({
+  useCases = [],
+}: {
+  useCases?: UseCaseLink[]
+}) {
   const year = new Date().getFullYear()
   const textLinkCls =
     "relative text-muted-foreground hover:text-foreground transition-colors md:after:absolute md:after:left-0 md:after:-bottom-1 md:after:h-0.5 md:after:w-full md:after:rounded-full md:after:bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] md:after:opacity-0 md:hover:after:opacity-100 md:after:transition-opacity"
@@ -17,7 +23,7 @@ export default function PublicFooter() {
       {/* Brand gradient accent */}
       <div className="h-px md:h-1 w-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]" />
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16 lg:py-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-12 lg:gap-16">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16 lg:py-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10 md:gap-12 lg:gap-16">
         {/* Brand */}
         <div className="space-y-3">
           <Link href="/" className="inline-flex items-center gap-2">
@@ -116,6 +122,27 @@ export default function PublicFooter() {
             </li>
           </ul>
         </div>
+
+        {/* Use Cases */}
+        {useCases.length > 0 && (
+          <div className="space-y-3">
+            <div className="text-xs md:text-sm font-semibold uppercase tracking-wide leading-none text-foreground">
+              Use Cases
+            </div>
+            <ul className="space-y-2 md:space-y-2.5">
+              {useCases.map((uc) => (
+                <li key={uc.slug}>
+                  <Link
+                    href={`/browse?useCase=${uc.slug}`}
+                    className={textLinkCls + " md:font-medium"}
+                  >
+                    {uc.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Company & Legal */}
         <div className="space-y-3">

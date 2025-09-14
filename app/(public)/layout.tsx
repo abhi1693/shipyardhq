@@ -3,6 +3,7 @@ import PublicFooter from "@/components/layout/footers/public-footer"
 import { FaqSection } from "@/components/organisms/FaqSection"
 import FeaturedTicker from "@/components/molecules/FeaturedTicker"
 import { getStickyBannerProducts } from "@/actions/public/products/featured"
+import { getUseCases } from "@/actions/admin/categories/actions"
 
 export default async function PublicLayout({
   children,
@@ -10,13 +11,18 @@ export default async function PublicLayout({
   children: React.ReactNode
 }) {
   const tickerItems = await getStickyBannerProducts(12)
+  const useCases = await getUseCases({
+    select: { label: true, slug: true },
+    orderBy: { label: "asc" },
+    take: 6,
+  })
   return (
     <div className="min-h-screen flex flex-col">
       <PublicHeader />
       {tickerItems.length > 0 && <FeaturedTicker items={tickerItems} />}
       <main className="flex-1">{children}</main>
       <FaqSection />
-      <PublicFooter />
+      <PublicFooter useCases={useCases} />
     </div>
   )
 }

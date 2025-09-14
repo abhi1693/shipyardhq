@@ -18,6 +18,10 @@ interface TopCategoriesProps {
 }
 
 export function TopCategories({ categories }: TopCategoriesProps) {
+  const nonEmpty = categories.filter((c) => (c?._count?.products ?? 0) > 0)
+
+  if (nonEmpty.length === 0) return null
+
   return (
     <PublicContainer
       as="section"
@@ -33,7 +37,7 @@ export function TopCategories({ categories }: TopCategoriesProps) {
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {categories.map((cat) => (
+        {nonEmpty.map((cat) => (
           <CategoryCard
             key={cat.id}
             href={`/categories/${cat.slug}`}
