@@ -16,7 +16,7 @@ export default function TermsOfServicePage() {
       />
 
       <div className="space-y-6 mt-6">
-        <p className="text-muted-foreground">Last updated: Aug 1, 2025</p>
+        <p className="text-muted-foreground">Last updated: Sep 16, 2025</p>
 
         <p>
           Welcome to ShipYardHQ! By accessing or using our website,
@@ -66,7 +66,8 @@ export default function TermsOfServicePage() {
         <p>
           Some features may require payment. All fees are clearly displayed
           before purchase. Payments are generally non-refundable unless required
-          by law.
+          by law, and purchased credits are not eligible for refunds or
+          exchanges.
         </p>
 
         <h2 className="text-2xl font-semibold mt-6">Disclaimers</h2>
