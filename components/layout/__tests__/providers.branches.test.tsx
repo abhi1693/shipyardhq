@@ -9,6 +9,7 @@ vi.mock("@clerk/nextjs", () => ({
     clerkSpy(appearance?.baseTheme ? "dark" : "light")
     return <div data-testid="clerk">{children}</div>
   },
+  useUser: () => ({ isLoaded: true, isSignedIn: true }),
 }))
 
 let currentTheme = "dark"

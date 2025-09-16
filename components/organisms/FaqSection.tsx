@@ -1,3 +1,4 @@
+import { ReactNode } from "react"
 import {
   Accordion,
   AccordionContent,
@@ -5,29 +6,51 @@ import {
   AccordionTrigger,
 } from "@/components/atoms/accordion"
 
+export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
+  {
+    question: "Is it free to submit a product?",
+    answer:
+      "Yes. Listing a product on ShipYardHQ is free—you can publish immediately or keep a draft without paying. Paid upgrades simply layer on extra reach such as featured badges, homepage placement, newsletter promotion, sticky banners, custom CTAs, and priority placement in browse results.",
+  },
+  {
+    question: "How does the product submission flow work?",
+    answer:
+      "The four-step product wizard walks through core details, pricing, domain verification, and launch assets. A final review screen runs link and image checks so you can fix issues before you ship. You can save progress, move between steps, and publish or save as draft when you’re ready.",
+  },
+  {
+    question: "How do I get the Verified badge on my listing?",
+    answer:
+      "During the verification step we generate a unique prod-verif-shipyard TXT record. Add it to your DNS, then click Verify Now from the wizard or product edit screen. Once the record resolves we persist the status so your public page shows the Verified badge until you remove the record.",
+  },
+  {
+    question: "Can I update or relaunch after publishing?",
+    answer:
+      "Absolutely. Edit from your member dashboard at any time to refresh copy, swap assets, or re-run verification. You can also flip a live product back to draft while you iterate, then republish when it’s polished.",
+  },
+  {
+    question: "What do paid plans unlock?",
+    answer:
+      "Paid plans unlock additional exposure and tooling—think featured badges, homepage placement, sticky hero banners, newsletter promotion, early access perks, do-follow backlinks, custom CTA buttons, and richer analytics. You can upgrade any product whenever you need a boost.",
+  },
+  {
+    question: "How do I manage billing or cancel an upgrade?",
+    answer:
+      "Open the Customer Portal link in the member sidebar. We use Dodo Payments, so the portal lets you download invoices, update payment methods, or cancel future renewals without waiting on support.",
+  },
+  {
+    question: "Who can create organizations or invite teammates?",
+    answer:
+      "Organizations unlock for makers on plans that include the organization feature. If you don’t have access yet you’ll see an upsell screen with eligible plans, and the collaboration tools stay hidden until a qualifying purchase is active.",
+  },
+  {
+    question: "How do upvotes work?",
+    answer:
+      "Every signed-in member can toggle a single upvote per product. Votes update analytics in real time, drive the leaderboard, and help us surface trending tools while keeping spam out.",
+  },
+]
+
 export function FaqSection() {
-  const faqs = [
-    {
-      question: "Is it free to submit a product?",
-      answer:
-        "Yes. You can submit your product for free and get listed. We also offer optional paid plans to get featured or gain more visibility.",
-    },
-    {
-      question: "How do you decide which products get featured?",
-      answer:
-        "Featured products are manually curated based on quality, relevance, and user traction. Paid placements are also available.",
-    },
-    {
-      question: "Can I update my product after publishing?",
-      answer:
-        "Yes, you can edit your product’s details, logo, and category from your dashboard at any time.",
-    },
-    {
-      question: "Do I need to create an account to vote?",
-      answer:
-        "Yes, we require users to sign in before voting to maintain vote integrity and prevent spam.",
-    },
-  ]
+  const faqs = FAQ_ITEMS
 
   return (
     <section className="py-16 border-b" id="faq">

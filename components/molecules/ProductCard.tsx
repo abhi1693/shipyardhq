@@ -44,8 +44,25 @@ export function ProductCard({
   topRight,
   imagePriority = false,
 }: ProductCardProps) {
+  const resolvedBadges = badges
+    .map((value) => {
+      const badgeDef = BADGE_OPTIONS.find((x) => x.value === value)
+      if (!badgeDef) return null
+      const colorClass = badgeColorMap[badgeDef.color as TailwindColor]
+      return { ...badgeDef, colorClass }
+    })
+    .filter((badge): badge is (typeof BADGE_OPTIONS)[number] & { colorClass: string } =>
+      Boolean(badge),
+    )
+
+  const compactBadgeLimit = 3
+  const compactBadges = resolvedBadges.slice(0, compactBadgeLimit)
+  const extraBadgeCount = compact
+    ? Math.max(0, badges.length - compactBadges.length)
+    : 0
+
   return (
-    <form action={clickProductCardAction} method="post" className="h-full">
+    <form action={clickProductCardAction} className="h-full">
       <input type="hidden" name="productId" value={product.id} />
       <input type="hidden" name="productSlug" value={product.slug} />
       <button
@@ -108,34 +125,46 @@ export function ProductCard({
                   {product.tagline}
                 </p>
 
-                {compact
-                  ? null
-                  : badges.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        {badges.map((b, i) => {
-                          const badgeDef = BADGE_OPTIONS.find(
-                            (x) => x.value === b,
-                          )
-                          if (!badgeDef) return null
+                {!compact && resolvedBadges.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {resolvedBadges.map((badge, i) => (
+                      <Badge
+                        key={`${badge.value}-${i}`}
+                        title={badge.label}
+                        className={clsx(
+                          "rounded-full border px-2 py-0.5 text-xs",
+                          badge.colorClass,
+                        )}
+                      >
+                        {badge.icon}
+                        <span className="ml-1">{badge.label}</span>
+                      </Badge>
+                    ))}
+                  </div>
+                ) : null}
 
-                          const colorClass =
-                            badgeColorMap[badgeDef.color as TailwindColor]
-
-                          return (
-                            <Badge
-                              key={i}
-                              className={clsx(
-                                "rounded-full border px-2 py-0.5 text-xs",
-                                colorClass,
-                              )}
-                            >
-                              {badgeDef.icon}
-                              <span className="ml-1">{badgeDef.label}</span>
-                            </Badge>
-                          )
-                        })}
-                      </div>
-                    )}
+                {compact && (compactBadges.length > 0 || extraBadgeCount > 0) ? (
+                  <div className="flex items-center gap-1 pt-1">
+                    {compactBadges.map((badge, i) => (
+                      <Badge
+                        key={`${badge.value}-${i}`}
+                        title={badge.label}
+                        className={clsx(
+                          "rounded-full border px-1.5 py-0.5 text-[10px] leading-none",
+                          badge.colorClass,
+                        )}
+                      >
+                        {badge.icon}
+                        <span className="ml-1 font-medium">{badge.label}</span>
+                      </Badge>
+                    ))}
+                    {extraBadgeCount > 0 ? (
+                      <span className="text-xs font-medium text-muted-foreground">
+                        +{extraBadgeCount}
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </div>
           </CardHeader>

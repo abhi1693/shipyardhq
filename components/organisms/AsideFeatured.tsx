@@ -14,7 +14,11 @@ export default function AsideFeatured({
     <aside className="sticky top-24 space-y-4">
       <PageSectionHeader
         title={title}
-        subtitle="Curated picks from the harbor"
+        subtitle={
+          <>
+            <span>Curated picks</span> from the harbor
+          </>
+        }
       />
       <FeaturedProductGrid
         items={products.slice(0, 6)}

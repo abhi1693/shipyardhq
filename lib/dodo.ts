@@ -9,7 +9,32 @@ const DODO_ENV_RAW = (
 ).toLowerCase()
 const DODO_ENV = DODO_ENV_RAW.startsWith("live") ? "live_mode" : "test_mode"
 
-export const dodoClient = new DodoPayments({
-  bearerToken: process.env.DODO_API_KEY,
-  environment: DODO_ENV,
-})
+function createDodoClient() {
+  const token = process.env.DODO_API_KEY?.trim()
+  if (token) {
+    return new DodoPayments({
+      bearerToken: token,
+      environment: DODO_ENV,
+    })
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      "DODO_API_KEY is not configured; using a no-op Dodo client for local/test environments.",
+    )
+    const noop = {
+      customers: {
+        customerPortal: {
+          async create() {
+            return { link: null }
+          },
+        },
+      },
+    }
+    return noop as unknown as DodoPayments
+  }
+
+  throw new Error("DODO_API_KEY environment variable is required")
+}
+
+export const dodoClient = createDodoClient()

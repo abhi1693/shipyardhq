@@ -77,6 +77,7 @@ export default function ImageUploadField({
             </a>
             <DeleteButton
               size="sm"
+              label="Remove"
               onClick={async () => {
                 if (!value) {
                   setValue(name, "", {
@@ -94,7 +95,7 @@ export default function ImageUploadField({
                       method: "DELETE",
                     },
                   )
-                  if (!res.ok && res.status !== 204) {
+                  if (!res?.ok && res?.status !== 204) {
                     // Non-blocking: still clear the field
                     console.warn("Failed to delete blob for", value)
                   }

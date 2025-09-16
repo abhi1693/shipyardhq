@@ -44,9 +44,11 @@ export default function PublicFooter({
             Discover, launch, and grow your micro‑SaaS fleet.
           </p>
           <div className="pt-3">
-            <Link href="/browse">
-              <Button size="sm">Explore the Fleet</Button>
-            </Link>
+            <Button size="sm" asChild>
+              <Link href="/browse" role="button">
+                Explore Products
+              </Link>
+            </Button>
           </div>
           <div className="flex gap-3 pt-3 text-muted-foreground">
             <Link

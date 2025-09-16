@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { EditorsPick } from "@/components/organisms/EditorsPick"
-import { FaqSection } from "@/components/organisms/FaqSection"
+import { FaqSection, FAQ_ITEMS } from "@/components/organisms/FaqSection"
 
 describe("EditorsPick", () => {
   it("returns null when no products", () => {
@@ -33,14 +34,20 @@ describe("EditorsPick", () => {
 })
 
 describe("FaqSection", () => {
-  it("renders all questions and answers", () => {
+  it("renders all questions and answers", async () => {
     render(<FaqSection />)
     expect(screen.getByText("Frequently Asked Questions")).toBeInTheDocument()
+    FAQ_ITEMS.forEach(({ question }) => {
+      expect(screen.getByRole("button", { name: question })).toBeInTheDocument()
+    })
+    const user = userEvent.setup()
+    await user.click(
+      screen.getByRole("button", {
+        name: "How do I manage billing or cancel an upgrade?",
+      }),
+    )
     expect(
-      screen.getByText("Is it free to submit a product?"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText("Can I update my product after publishing?"),
+      screen.getByText(/Customer Portal link in the member sidebar/i),
     ).toBeInTheDocument()
   })
 })

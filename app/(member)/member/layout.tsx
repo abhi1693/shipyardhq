@@ -27,7 +27,7 @@ const navItems: NavItem[] = [
   {
     title: "Organizations",
     url: "/member/organizations",
-    icon: "team",
+    icon: "building",
   },
   {
     title: "Account",

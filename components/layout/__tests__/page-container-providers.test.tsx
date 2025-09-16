@@ -10,6 +10,7 @@ vi.mock("next-themes", () => ({
 // Stub ClerkProvider to a pass-through for this test
 vi.mock("@clerk/nextjs", () => ({
   ClerkProvider: ({ children }: any) => <>{children}</>,
+  useUser: () => ({ isLoaded: true, isSignedIn: false }),
 }))
 
 describe("PageContainer", () => {

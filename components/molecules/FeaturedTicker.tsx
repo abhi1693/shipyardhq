@@ -15,7 +15,7 @@ export default function FeaturedTicker({ items }: { items: Item[] }) {
   if (!list.length) return null
 
   // Only duplicate if the list is long enough (e.g., > 3 items)
-  const shouldDuplicate = list.length > 3
+  const shouldDuplicate = list.length >= 3
   const tickerItems = shouldDuplicate ? [...list, ...list] : list
 
   // Dynamic animation duration based on item count (min 30s, scales with items)
@@ -29,7 +29,9 @@ export default function FeaturedTicker({ items }: { items: Item[] }) {
       <div className="py-2">
         <div
           className="flex flex-nowrap items-center gap-8 w-max whitespace-nowrap will-change-transform"
-          style={{ animation: `ticker ${animationDuration}s linear infinite` }}
+          style={{
+            animation: `featured-ticker-scroll ${animationDuration}s linear infinite`,
+          }}
         >
           {tickerItems.map((p, i) => (
             <Link
@@ -50,16 +52,20 @@ export default function FeaturedTicker({ items }: { items: Item[] }) {
           ))}
         </div>
       </div>
-      <style jsx>{`
-        @keyframes ticker {
-          0% {
-            transform: translateX(100vw);
-          }
-          100% {
-            transform: translateX(${endTranslate});
-          }
-        }
-      `}</style>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes featured-ticker-scroll {
+              0% {
+                transform: translateX(100vw);
+              }
+              100% {
+                transform: translateX(${endTranslate});
+              }
+            }
+          `,
+        }}
+      />
     </div>
   )
 }
