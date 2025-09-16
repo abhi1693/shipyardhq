@@ -17,6 +17,7 @@ export type PricingCardProps = {
   description?: string | null
   price: number
   priceSuffix?: string
+  discount?: number | null
   isPopular?: boolean
   features: {
     id: string
@@ -35,25 +36,32 @@ export function PricingCard({
   description,
   price,
   priceSuffix,
+  discount,
   isPopular,
   features,
   ctaHref = "/member/overview",
   ctaLabel = "Choose Plan",
 }: PricingCardProps) {
   const isFree = price === 0
-  const priceText = new Intl.NumberFormat("en-US", {
+  const currency = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-  }).format(price / 100)
-  const priceMain = isFree ? (
-    <span className="text-4xl font-extrabold tracking-tight">Free</span>
-  ) : (
-    <span className="text-4xl font-extrabold tracking-tight">{priceText}</span>
-  )
-  const priceSub =
-    !isFree && priceSuffix ? (
-      <span className="text-sm text-foreground/80">{priceSuffix}</span>
-    ) : null
+  })
+  const pctRaw = discount ?? 0
+  const pct = Math.min(Math.max(pctRaw, 0), 100)
+  const hasDiscount = !isFree && pct > 0 && pct < 100
+  const discountedCents = hasDiscount
+    ? Math.round(price * (1 - pct / 100))
+    : price
+  const originalPrice = !isFree ? currency.format(price / 100) : null
+  const displayPrice = isFree
+    ? "Free"
+    : currency.format(discountedCents / 100)
+  const formattedDiscount = hasDiscount
+    ? new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: 2,
+      }).format(pct)
+    : null
 
   return (
     <Card className={clsx("h-full min-h-[22rem] flex flex-col")}>
@@ -68,9 +76,25 @@ export function PricingCard({
             </Badge>
           )}
         </div>
-        <div className="mt-2 flex flex-col">
-          {priceMain}
-          {priceSub}
+        <div className="mt-2 flex flex-col gap-2">
+          <div className="flex flex-wrap items-baseline gap-2">
+            {hasDiscount && originalPrice ? (
+              <span className="text-sm text-muted-foreground line-through">
+                {originalPrice}
+              </span>
+            ) : null}
+            <span className="text-4xl font-extrabold tracking-tight">
+              {displayPrice}
+            </span>
+            {!isFree && priceSuffix ? (
+              <span className="text-sm text-foreground/80">{priceSuffix}</span>
+            ) : null}
+          </div>
+          {hasDiscount && formattedDiscount ? (
+            <span className="text-xs inline-flex w-fit items-center rounded bg-green-100 text-green-800 border border-green-300 px-2 py-0.5">
+              Save {formattedDiscount}%
+            </span>
+          ) : null}
         </div>
         {description && (
           <p className="text-base text-foreground/90 leading-snug">

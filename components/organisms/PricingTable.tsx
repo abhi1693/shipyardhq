@@ -21,6 +21,7 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
                 description={p.description}
                 price={p.price}
                 priceSuffix={(p as any).priceSuffix}
+                discount={p.discount}
                 isPopular={
                   p.price > 0 &&
                   (p.productCount || 0) === maxCount &&
