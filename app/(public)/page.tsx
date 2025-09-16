@@ -14,13 +14,23 @@ import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 
 export default async function HomePage() {
-  const featuredProducts = await getProducts("featured")
-  const editorsPick = await getProducts("editor-pick")
-  const latestLaunches = await getProducts("new")
-  const trendingProducts = await getTrendingProducts(3)
-  const topCategories = await getTopCategories()
-  const homepagePromo = await getHomepageFeatureProducts(6)
-  const stats = await getLeaderboardStats()
+  const [
+    featuredProducts,
+    editorsPick,
+    latestLaunches,
+    trendingProducts,
+    topCategories,
+    homepagePromo,
+    stats,
+  ] = await Promise.all([
+    getProducts("featured"),
+    getProducts("editor-pick"),
+    getProducts("new"),
+    getTrendingProducts(3),
+    getTopCategories(),
+    getHomepageFeatureProducts(6),
+    getLeaderboardStats(),
+  ])
 
   return (
     <>

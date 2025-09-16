@@ -11,9 +11,8 @@ import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import {
-  getPublicProduct,
+  getPublicProductBySlug,
   getRelatedProductsByCategory,
-  getProductIdBySlug,
 } from "@/actions/public/products/actions"
 import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
 import {
@@ -91,19 +90,20 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const bySlug = await getProductIdBySlug(slug)
-  const product = bySlug ? await getPublicProduct(bySlug.id) : null
+  const product = await getPublicProductBySlug(slug)
   if (!product) return notFound()
 
   const isVerified = product.verification?.isVerified
   const stats = product.analytics
-  const related = await getRelatedProductsByCategory(
-    product.categoryId,
-    product.id,
-  )
+  const [authResult, related] = await Promise.all([
+    auth(),
+    getRelatedProductsByCategory(product.categoryId, product.id),
+  ])
 
-  const { userId } = await auth()
-  const userUpvoted = userId ? await hasUserUpvoted(product.id, userId) : false
+  const userId = authResult.userId
+  const userUpvoted = userId
+    ? await hasUserUpvoted(product.id, userId)
+    : false
 
   const activeBadgeDefs = (product.badges || [])
     .map((b) => BADGE_OPTIONS.find((x) => x.value === b))

@@ -21,6 +21,22 @@ export const getPublicUsersWithCounts = cached(
   { ttl: DEFAULT_TTL.slow, tags: () => [TAGS.users, TAGS.products] },
 )
 
+export const getPublicUserMeta = cached(
+  async (id: string) =>
+    prisma.user.findUnique({
+      where: { id },
+      select: {
+        firstName: true,
+        lastName: true,
+      },
+    }),
+  "user:public-meta",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: ([id]) => [TAGS.users, TAGS.user(String(id))],
+  },
+)
+
 export const getPublicUserProfile = cached(
   async (id: string) =>
     prisma.user.findUnique({

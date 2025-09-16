@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 import Link from "next/link"
 import {
   getCategories,
@@ -36,13 +36,6 @@ export default async function BrowsePage({
 }: {
   searchParams: Promise<BrowseSearchParams>
 }) {
-  const featured = await getProducts("featured")
-  const useCases = await getUseCasesWithCounts()
-  const categories = await getCategories({
-    include: { _count: { select: { products: true } } },
-    orderBy: { createdAt: "desc" },
-  })
-
   const params = await searchParams
   const pick = (v: StrOrArr) => (Array.isArray(v) ? v[0] : v)
   const useCase = pick(params.useCase)
@@ -53,14 +46,24 @@ export default async function BrowsePage({
   const page = pick(params.page) ?? "1"
   const q = pick(params.q)
 
-  const { products, hasMore } = await getBrowseProducts({
-    useCaseSlug: useCase === "__all__" ? undefined : useCase,
-    categorySlug: category === "__all__" ? undefined : category,
-    verified: verified === "true",
-    sort,
-    page: parseInt(page),
-    query: q?.trim() || undefined,
-  })
+  const [browseResult, featured, useCases, categories] = await Promise.all([
+    getBrowseProducts({
+      useCaseSlug: useCase === "__all__" ? undefined : useCase,
+      categorySlug: category === "__all__" ? undefined : category,
+      verified: verified === "true",
+      sort,
+      page: parseInt(page),
+      query: q?.trim() || undefined,
+    }),
+    getProducts("featured"),
+    getUseCasesWithCounts(),
+    getCategories({
+      include: { _count: { select: { products: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+  ])
+
+  const { products, hasMore } = browseResult
 
   // URL building handled in client components; removed local duplication.
 

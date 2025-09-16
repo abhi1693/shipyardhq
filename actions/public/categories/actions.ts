@@ -24,6 +24,19 @@ export const getCategoriesWithCounts = cached(
   { ttl: DEFAULT_TTL.slow, tags: () => [TAGS.categories] },
 )
 
+export const getCategoryMeta = cached(
+  async (slug: string) =>
+    prisma.category.findUnique({
+      where: { slug },
+      select: { name: true, description: true },
+    }),
+  "category:meta",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: ([slug]) => [TAGS.categories, TAGS.category(String(slug))],
+  },
+)
+
 export const getCategoryWithProducts = cached(
   async (slug: string) => {
     const category = await prisma.category.findUnique({

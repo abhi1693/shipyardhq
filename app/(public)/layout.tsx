@@ -10,12 +10,14 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode
 }) {
-  const tickerItems = await getStickyBannerProducts(12)
-  const useCases = await getUseCases({
-    select: { label: true, slug: true },
-    orderBy: { label: "asc" },
-    take: 6,
-  })
+  const [tickerItems, useCases] = await Promise.all([
+    getStickyBannerProducts(12),
+    getUseCases({
+      select: { label: true, slug: true },
+      orderBy: { label: "asc" },
+      take: 6,
+    }),
+  ])
   return (
     <div className="min-h-screen flex flex-col">
       <PublicHeader />

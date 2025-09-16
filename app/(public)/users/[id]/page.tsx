@@ -1,22 +1,25 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
-import { getPublicUserProfile } from "@/actions/public/users/actions"
+import {
+  getPublicUserMeta,
+  getPublicUserProfile,
+} from "@/actions/public/users/actions"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import ProductList from "@/components/molecules/ProductList"
 import { EmptyState } from "@/components/molecules/empty-state"
 
+export const revalidate = 120
+
 interface PageProps {
   params: Promise<{ id: string }>
 }
-
-export const dynamic = "force-dynamic"
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id } = await params
-  const user = await getPublicUserProfile(id)
+  const user = await getPublicUserMeta(id)
   if (!user) return {}
   const fullName =
     `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"

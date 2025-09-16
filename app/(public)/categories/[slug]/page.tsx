@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
-import { getCategoryWithProducts } from "@/actions/public/categories/actions"
+import {
+  getCategoryMeta,
+  getCategoryWithProducts,
+} from "@/actions/public/categories/actions"
 import { Badge } from "@/components/atoms/badge"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
@@ -18,23 +21,25 @@ export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params
-  const data = await getCategoryWithProducts(slug)
-  if (!data) return {}
+  const category = await getCategoryMeta(slug)
+  if (!category) return {}
 
   return {
-    title: `${data.category.name} | Categories`,
-    description: data.category.description,
+    title: `${category.name} | Categories`,
+    description: category.description,
   }
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params
-  const data = await getCategoryWithProducts(slug)
+  const [data, featured] = await Promise.all([
+    getCategoryWithProducts(slug),
+    getFeaturedByCategorySlug(slug, 7),
+  ])
 
   if (!data) notFound()
 
   const { category, products } = data
-  const featured = await getFeaturedByCategorySlug(slug, 7)
 
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-10">

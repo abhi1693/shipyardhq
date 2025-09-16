@@ -4,7 +4,7 @@ import { getPublicUsersWithCounts } from "@/actions/public/users/actions"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 120
 
 export const metadata: Metadata = {
   title: "Users | ShipYardHQ",

@@ -3,6 +3,7 @@ import {
   getTopRankedProducts,
 } from "@/actions/public/leaderboard/actions"
 import { Metadata } from "next"
+export const revalidate = 60
 
 import { StatCard } from "@/components/molecules/StatCard"
 import {
@@ -29,12 +30,15 @@ export default async function LeaderboardPage({
 }: {
   searchParams: Promise<{ category?: string; limit?: string }>
 }) {
-  const stats = await getLeaderboardStats()
-  const categories = await getCategoriesWithCounts()
   const sp = await searchParams
   const limit = Number(sp?.limit || 50)
   const categorySlug = sp?.category || undefined
-  const products = await getTopRankedProducts({ limit, categorySlug })
+
+  const [stats, categories, products] = await Promise.all([
+    getLeaderboardStats(),
+    getCategoriesWithCounts(),
+    getTopRankedProducts({ limit, categorySlug }),
+  ])
   const topThree = products.slice(0, 3)
   const rest = products.slice(3)
 
