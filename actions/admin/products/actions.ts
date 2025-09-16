@@ -357,6 +357,24 @@ export async function updateProductAction(
     // Gate CTA fields by feature for non-admins: ignore incoming changes if not allowed
     const canEditCTA = isAdmin || (await memberHasFeature("customCTA"))
 
+    let planUpdate: { planId?: string | null; planAssignedAt?: Date | null } = {}
+    if (data.planId !== undefined) {
+      if (data.planId) {
+        const plan = await prisma.plan.findUnique({
+          where: { id: data.planId },
+          select: { boostForDays: true, isDefault: true },
+        })
+        if (!plan) return { error: "Plan not found" }
+        planUpdate = {
+          planId: data.planId,
+          planAssignedAt:
+            !plan.isDefault && (plan.boostForDays ?? 0) > 0 ? new Date() : null,
+        }
+      } else {
+        planUpdate = { planId: null, planAssignedAt: null }
+      }
+    }
+
     const updated = await prisma.product.update({
       where: { id },
       data: {
@@ -391,7 +409,7 @@ export async function updateProductAction(
         bannerImage: data.bannerImage ?? undefined,
         keywords: data.keywords as any,
         platforms: data.platforms as any,
-        planId: data.planId === undefined ? undefined : data.planId || null,
+        ...planUpdate,
       },
     })
 

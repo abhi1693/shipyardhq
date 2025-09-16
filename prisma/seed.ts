@@ -264,6 +264,7 @@ async function main() {
       category: { connect: { id: createdCategories[0].id } },
       organization: { connect: { id: createdOrgs[0].id } },
       plan: { connect: { id: createdPlans[1].id } },
+      planAssignedAt: new Date(),
       type: "saas",
       pricingModel: "freemium",
       metadata: {

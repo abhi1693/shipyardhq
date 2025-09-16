@@ -2838,6 +2838,7 @@ export namespace Prisma {
     userId: string | null
     categoryId: string | null
     planId: string | null
+    planAssignedAt: Date | null
     type: $Enums.ProductType | null
     pricingModel: $Enums.PricingModel | null
     status: $Enums.ProductStatus | null
@@ -2863,6 +2864,7 @@ export namespace Prisma {
     userId: string | null
     categoryId: string | null
     planId: string | null
+    planAssignedAt: Date | null
     type: $Enums.ProductType | null
     pricingModel: $Enums.PricingModel | null
     status: $Enums.ProductStatus | null
@@ -2888,6 +2890,7 @@ export namespace Prisma {
     userId: number
     categoryId: number
     planId: number
+    planAssignedAt: number
     type: number
     pricingModel: number
     status: number
@@ -2925,6 +2928,7 @@ export namespace Prisma {
     userId?: true
     categoryId?: true
     planId?: true
+    planAssignedAt?: true
     type?: true
     pricingModel?: true
     status?: true
@@ -2950,6 +2954,7 @@ export namespace Prisma {
     userId?: true
     categoryId?: true
     planId?: true
+    planAssignedAt?: true
     type?: true
     pricingModel?: true
     status?: true
@@ -2975,6 +2980,7 @@ export namespace Prisma {
     userId?: true
     categoryId?: true
     planId?: true
+    planAssignedAt?: true
     type?: true
     pricingModel?: true
     status?: true
@@ -3089,6 +3095,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId: string | null
+    planAssignedAt: Date | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status: $Enums.ProductStatus
@@ -3135,6 +3142,7 @@ export namespace Prisma {
     userId?: boolean
     categoryId?: boolean
     planId?: boolean
+    planAssignedAt?: boolean
     type?: boolean
     pricingModel?: boolean
     status?: boolean
@@ -3173,6 +3181,7 @@ export namespace Prisma {
     userId?: boolean
     categoryId?: boolean
     planId?: boolean
+    planAssignedAt?: boolean
     type?: boolean
     pricingModel?: boolean
     status?: boolean
@@ -3204,6 +3213,7 @@ export namespace Prisma {
     userId?: boolean
     categoryId?: boolean
     planId?: boolean
+    planAssignedAt?: boolean
     type?: boolean
     pricingModel?: boolean
     status?: boolean
@@ -3235,6 +3245,7 @@ export namespace Prisma {
     userId?: boolean
     categoryId?: boolean
     planId?: boolean
+    planAssignedAt?: boolean
     type?: boolean
     pricingModel?: boolean
     status?: boolean
@@ -3251,7 +3262,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "tagline" | "description" | "websiteUrl" | "logo" | "userId" | "categoryId" | "planId" | "type" | "pricingModel" | "status" | "publishedAt" | "organizationId" | "startingPriceCents" | "currencyCode" | "ctaLabel" | "ctaUrl" | "bannerImage" | "keywords" | "platforms" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "tagline" | "description" | "websiteUrl" | "logo" | "userId" | "categoryId" | "planId" | "planAssignedAt" | "type" | "pricingModel" | "status" | "publishedAt" | "organizationId" | "startingPriceCents" | "currencyCode" | "ctaLabel" | "ctaUrl" | "bannerImage" | "keywords" | "platforms" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
   export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     category?: boolean | CategoryDefaultArgs<ExtArgs>
@@ -3303,6 +3314,7 @@ export namespace Prisma {
       userId: string
       categoryId: string
       planId: string | null
+      planAssignedAt: Date | null
       type: $Enums.ProductType
       pricingModel: $Enums.PricingModel
       status: $Enums.ProductStatus
@@ -3760,6 +3772,7 @@ export namespace Prisma {
     readonly userId: FieldRef<"Product", 'String'>
     readonly categoryId: FieldRef<"Product", 'String'>
     readonly planId: FieldRef<"Product", 'String'>
+    readonly planAssignedAt: FieldRef<"Product", 'DateTime'>
     readonly type: FieldRef<"Product", 'ProductType'>
     readonly pricingModel: FieldRef<"Product", 'PricingModel'>
     readonly status: FieldRef<"Product", 'ProductStatus'>
@@ -23154,6 +23167,7 @@ export namespace Prisma {
     userId: 'userId',
     categoryId: 'categoryId',
     planId: 'planId',
+    planAssignedAt: 'planAssignedAt',
     type: 'type',
     pricingModel: 'pricingModel',
     status: 'status',
@@ -23434,6 +23448,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
    * Reference to a field of type 'ProductType'
    */
   export type EnumProductTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductType'>
@@ -23472,20 +23500,6 @@ export namespace Prisma {
    * Reference to a field of type 'ProductStatus[]'
    */
   export type ListEnumProductStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductStatus[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'DateTime'
-   */
-  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
-
-
-  /**
-   * Reference to a field of type 'DateTime[]'
-   */
-  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -23583,6 +23597,7 @@ export namespace Prisma {
     userId?: StringFilter<"Product"> | string
     categoryId?: StringFilter<"Product"> | string
     planId?: StringNullableFilter<"Product"> | string | null
+    planAssignedAt?: DateTimeNullableFilter<"Product"> | Date | string | null
     type?: EnumProductTypeFilter<"Product"> | $Enums.ProductType
     pricingModel?: EnumPricingModelFilter<"Product"> | $Enums.PricingModel
     status?: EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
@@ -23620,6 +23635,7 @@ export namespace Prisma {
     userId?: SortOrder
     categoryId?: SortOrder
     planId?: SortOrderInput | SortOrder
+    planAssignedAt?: SortOrderInput | SortOrder
     type?: SortOrder
     pricingModel?: SortOrder
     status?: SortOrder
@@ -23660,6 +23676,7 @@ export namespace Prisma {
     userId?: StringFilter<"Product"> | string
     categoryId?: StringFilter<"Product"> | string
     planId?: StringNullableFilter<"Product"> | string | null
+    planAssignedAt?: DateTimeNullableFilter<"Product"> | Date | string | null
     type?: EnumProductTypeFilter<"Product"> | $Enums.ProductType
     pricingModel?: EnumPricingModelFilter<"Product"> | $Enums.PricingModel
     status?: EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
@@ -23697,6 +23714,7 @@ export namespace Prisma {
     userId?: SortOrder
     categoryId?: SortOrder
     planId?: SortOrderInput | SortOrder
+    planAssignedAt?: SortOrderInput | SortOrder
     type?: SortOrder
     pricingModel?: SortOrder
     status?: SortOrder
@@ -23732,6 +23750,7 @@ export namespace Prisma {
     userId?: StringWithAggregatesFilter<"Product"> | string
     categoryId?: StringWithAggregatesFilter<"Product"> | string
     planId?: StringNullableWithAggregatesFilter<"Product"> | string | null
+    planAssignedAt?: DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
     type?: EnumProductTypeWithAggregatesFilter<"Product"> | $Enums.ProductType
     pricingModel?: EnumPricingModelWithAggregatesFilter<"Product"> | $Enums.PricingModel
     status?: EnumProductStatusWithAggregatesFilter<"Product"> | $Enums.ProductStatus
@@ -24889,6 +24908,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -24925,6 +24945,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -24955,6 +24976,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -24991,6 +25013,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -25024,6 +25047,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -25048,6 +25072,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -25074,6 +25099,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -26323,6 +26349,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type EnumProductTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.ProductType | EnumProductTypeFieldRefInput<$PrismaModel>
     in?: $Enums.ProductType[] | ListEnumProductTypeFieldRefInput<$PrismaModel>
@@ -26342,17 +26379,6 @@ export namespace Prisma {
     in?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumProductStatusFilter<$PrismaModel> | $Enums.ProductStatus
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -26474,6 +26500,7 @@ export namespace Prisma {
     userId?: SortOrder
     categoryId?: SortOrder
     planId?: SortOrder
+    planAssignedAt?: SortOrder
     type?: SortOrder
     pricingModel?: SortOrder
     status?: SortOrder
@@ -26505,6 +26532,7 @@ export namespace Prisma {
     userId?: SortOrder
     categoryId?: SortOrder
     planId?: SortOrder
+    planAssignedAt?: SortOrder
     type?: SortOrder
     pricingModel?: SortOrder
     status?: SortOrder
@@ -26530,6 +26558,7 @@ export namespace Prisma {
     userId?: SortOrder
     categoryId?: SortOrder
     planId?: SortOrder
+    planAssignedAt?: SortOrder
     type?: SortOrder
     pricingModel?: SortOrder
     status?: SortOrder
@@ -26584,6 +26613,20 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type EnumProductTypeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.ProductType | EnumProductTypeFieldRefInput<$PrismaModel>
     in?: $Enums.ProductType[] | ListEnumProductTypeFieldRefInput<$PrismaModel>
@@ -26612,20 +26655,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumProductStatusFilter<$PrismaModel>
     _max?: NestedEnumProductStatusFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -27512,6 +27541,10 @@ export namespace Prisma {
     set?: string
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type EnumProductTypeFieldUpdateOperationsInput = {
     set?: $Enums.ProductType
   }
@@ -27522,10 +27555,6 @@ export namespace Prisma {
 
   export type EnumProductStatusFieldUpdateOperationsInput = {
     set?: $Enums.ProductStatus
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -28604,6 +28633,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedEnumProductTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.ProductType | EnumProductTypeFieldRefInput<$PrismaModel>
     in?: $Enums.ProductType[] | ListEnumProductTypeFieldRefInput<$PrismaModel>
@@ -28623,17 +28663,6 @@ export namespace Prisma {
     in?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumProductStatusFilter<$PrismaModel> | $Enums.ProductStatus
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedIntNullableFilter<$PrismaModel = never> = {
@@ -28703,6 +28732,20 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type NestedEnumProductTypeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.ProductType | EnumProductTypeFieldRefInput<$PrismaModel>
     in?: $Enums.ProductType[] | ListEnumProductTypeFieldRefInput<$PrismaModel>
@@ -28731,20 +28774,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumProductStatusFilter<$PrismaModel>
     _max?: NestedEnumProductStatusFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -29510,6 +29539,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -29545,6 +29575,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -29590,6 +29621,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -29625,6 +29657,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -29654,6 +29687,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -29689,6 +29723,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -29734,6 +29769,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -29769,6 +29805,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -29798,6 +29835,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -29833,6 +29871,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -29878,6 +29917,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -29913,6 +29953,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -29942,6 +29983,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -29977,6 +30019,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -30022,6 +30065,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -30057,6 +30101,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -30086,6 +30131,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -30121,6 +30167,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -30209,6 +30256,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -30244,6 +30292,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -30348,6 +30397,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -30383,6 +30433,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -30515,6 +30566,7 @@ export namespace Prisma {
     userId?: StringFilter<"Product"> | string
     categoryId?: StringFilter<"Product"> | string
     planId?: StringNullableFilter<"Product"> | string | null
+    planAssignedAt?: DateTimeNullableFilter<"Product"> | Date | string | null
     type?: EnumProductTypeFilter<"Product"> | $Enums.ProductType
     pricingModel?: EnumPricingModelFilter<"Product"> | $Enums.PricingModel
     status?: EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
@@ -30736,6 +30788,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -30770,6 +30823,7 @@ export namespace Prisma {
     logo: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -31018,6 +31072,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -31052,6 +31107,7 @@ export namespace Prisma {
     logo: string
     userId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -31150,6 +31206,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -31184,6 +31241,7 @@ export namespace Prisma {
     logo: string
     userId: string
     categoryId: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -31727,6 +31785,7 @@ export namespace Prisma {
     description: string
     websiteUrl: string
     logo: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -31762,6 +31821,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -31807,6 +31867,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -31842,6 +31903,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32112,6 +32174,7 @@ export namespace Prisma {
     userId: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -32159,6 +32222,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32194,6 +32258,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32226,6 +32291,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32251,6 +32317,7 @@ export namespace Prisma {
     logo: string
     categoryId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -32305,6 +32372,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32339,6 +32407,7 @@ export namespace Prisma {
     logo?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32371,6 +32440,7 @@ export namespace Prisma {
     logo?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32491,6 +32561,7 @@ export namespace Prisma {
     logo: string
     userId: string
     planId?: string | null
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -32519,6 +32590,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32553,6 +32625,7 @@ export namespace Prisma {
     logo?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32585,6 +32658,7 @@ export namespace Prisma {
     logo?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32623,6 +32697,7 @@ export namespace Prisma {
     logo: string
     userId: string
     categoryId: string
+    planAssignedAt?: Date | string | null
     type: $Enums.ProductType
     pricingModel: $Enums.PricingModel
     status?: $Enums.ProductStatus
@@ -32664,6 +32739,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     websiteUrl?: StringFieldUpdateOperationsInput | string
     logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32698,6 +32774,7 @@ export namespace Prisma {
     logo?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
@@ -32730,6 +32807,7 @@ export namespace Prisma {
     logo?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     categoryId?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
     pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
     status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus

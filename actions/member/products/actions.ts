@@ -192,17 +192,21 @@ export async function setProductPlanAction(
   })
   if (!product) return { error: "Product not found or not owned by user" }
 
+  let planAssignedAt: Date | null = null
   if (planId) {
-    const exists = await prisma.plan.findUnique({
+    const plan = await prisma.plan.findUnique({
       where: { id: planId },
-      select: { id: true },
+      select: { id: true, boostForDays: true, isDefault: true },
     })
-    if (!exists) return { error: "Plan not found" }
+    if (!plan) return { error: "Plan not found" }
+    planAssignedAt = !plan.isDefault && (plan.boostForDays ?? 0) > 0
+      ? new Date()
+      : null
   }
 
   await prisma.product.update({
     where: { id: productId },
-    data: { planId: planId ?? null },
+    data: { planId: planId ?? null, planAssignedAt },
   })
 
   return { success: true }
@@ -309,7 +313,18 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     if (!product) return { error: "Product not found or not owned" }
 
     // Attach plan
-    await prisma.product.update({ where: { id: productId }, data: { planId } })
+    const plan = await prisma.plan.findUnique({
+      where: { id: planId },
+      select: { boostForDays: true, isDefault: true },
+    })
+    if (!plan) return { error: "Plan not found" }
+    const planAssignedAt = !plan.isDefault && (plan.boostForDays ?? 0) > 0
+      ? new Date()
+      : null
+    await prisma.product.update({
+      where: { id: productId },
+      data: { planId, planAssignedAt },
+    })
     return { success: true }
   } catch (e) {
     console.error("Payment validation failed:", e)

@@ -25,6 +25,7 @@ model Product {
   userId             String
   categoryId         String
   planId             String?
+  planAssignedAt     DateTime?
   type               ProductType
   pricingModel       PricingModel
   status             ProductStatus @default(published)

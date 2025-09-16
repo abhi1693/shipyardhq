@@ -168,9 +168,9 @@ describe("ProductGridClient", () => {
         screen.getByTestId("product-list").getAttribute("data-count"),
       ).toBe("2"),
     )
-    expect(
-      screen.getByRole("button", { name: /Load More/i }),
-    ).toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.getByRole("button")).toHaveTextContent(/Load More/i),
+    )
 
     // Clean up: resolve prefetch
     resolvePrefetch({ products: [], hasMore: false })
