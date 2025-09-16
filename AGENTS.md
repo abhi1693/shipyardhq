@@ -1,45 +1,38 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+Shipyard HQ uses a Next.js App Router stack with Prisma and Tailwind; follow these notes to stay aligned with the existing patterns.
 
-- `app/`: Next.js App Router pages, layouts, and API routes.
-- `components/`: Atomic Design (`atoms/`, `molecules/`, `organisms/`, `pages/`, `layout/`). Use PascalCase files; import only upward (atoms → molecules → organisms → pages).
-- `lib/`: Client/server utilities, helpers, and config.
-- `prisma/`: Schema, migrations, and `seed.ts`.
-- `public/`: Static assets.
-- `types/`: Shared TypeScript types.
-- Root: `middleware.ts`, `next.config.ts`.
+## Project Structure & Module Organization
+- `app/` holds App Router routes, layouts, and API handlers; keep route segment folders lowercase.
+- `components/` follows Atomic Design (`atoms/` → `molecules/` → `organisms/` → `pages/` → `layout/`); only import upward in that chain.
+- `lib/` stores shared client/server utilities; `types/` carries reusable TypeScript definitions.
+- Prisma schema, migrations, and `seed.ts` live in `prisma/`; static assets belong in `public/`.
 
 ## Build, Test, and Development Commands
-
-- `npm run dev`: Start the Next.js dev server.
-- `npm run build`: Create a production build.
-- `npm start`: Serve the compiled app.
-- `npm run lint`: Lint with ESLint/Next.
-- `npm run format`: Format with Prettier.
-- Prisma: `npm run prisma:init` (copy `DATABASE_URL`), `npm run prisma:deploy` (apply existing migrations), `npm run prisma:generate` (client), `npm run prisma:seed` (seed local). For creating new migrations, do NOT use npm scripts — run Prisma CLI explicitly: `npx prisma migrate dev --name <name>`.
+- `npm run dev` starts the local Next.js server with hot reload.
+- `npm run build` compiles a production bundle; run before shipping.
+- `npm start` serves the compiled app for smoke checks.
+- `npm run lint` executes ESLint with the Next.js config; fix all warnings.
+- `npm run format` applies the repository Prettier settings.
+- Prisma workflows: `npm run prisma:init`, `npm run prisma:deploy`, `npm run prisma:generate`, `npm run prisma:seed`.
 
 ## Coding Style & Naming Conventions
-
-- Stack: TypeScript, React 19, Next.js App Router, Tailwind CSS 4.
-- Formatting: Prettier (2‑space, semicolons per config). Run `npm run format`.
-- Linting: ESLint (`eslint.config.mjs`). Fix all warnings before PRs.
-- Naming: components `PascalCase.tsx`; hooks/utilities `camelCase.ts`; route segments lowercase; env vars `SCREAMING_SNAKE_CASE`.
-- Atomic Design: compose smaller units; promote shared UI downward when duplication appears; never import downward.
+- TypeScript, React 19, and Tailwind CSS 4 are standard; default to functional components.
+- Formatting uses Prettier (2-space indent, semicolons per config); run `npm run format` before PRs.
+- Name components in PascalCase (`ExampleButton.tsx`), hooks/utilities in camelCase, and env vars in SCREAMING_SNAKE_CASE.
 
 ## Testing Guidelines
-
-- Runner: none configured yet. Prefer Jest or Vitest when adding tests.
-- File patterns: `*.test.ts` / `*.test.tsx` colocated or in `__tests__/`.
-- Minimum: keep `npm run lint` passing; add unit tests for library code and critical UI.
-- Example (once configured): `npx vitest --coverage` or `npx jest --coverage`.
+- No runner yet, but prefer Vitest or Jest when adding tests.
+- Place specs as `*.test.ts` / `*.test.tsx` near sources or in `__tests__/`.
+- Keep `npm run lint` passing and add targeted unit coverage for reusable logic or critical UI paths.
 
 ## Commit & Pull Request Guidelines
+- Use Conventional Commits (e.g., `feat: add leaderboard page`, `fix: handle auth edge cases`).
+- PRs should describe scope, link issues, and include screenshots or GIFs for UI updates.
+- Document Prisma migration impacts and note rollback steps when schema changes ship.
+- Confirm build, lint, and seed (if touched) before requesting review.
 
-- Commits: Conventional Commits (`feat:`, `fix:`, `chore:`, `refactor:`). Example: `feat: add leaderboard page`.
-- PRs: include description, linked issue, screenshots/GIFs for UI, Prisma migration notes, and a checklist of commands run (build, lint, seed if applicable). Keep PRs small and focused; include rollback notes for schema changes.
-
-## Security & Configuration
-
+## Security & Configuration Tips
 - Required env vars: `DATABASE_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `DODO_API_KEY`.
-- Do not commit secrets. Use `.env.local` for development. Initialize DB with `npm run prisma:init`, then apply existing migrations with `npx prisma migrate reset --force`. To create a new migration, run `npx prisma migrate dev --name <name>` explicitly.
+- Keep secrets in `.env.local`; never commit them.
+- Initialize databases with `npm run prisma:init`, then `npx prisma migrate reset --force` to sync schemas.
