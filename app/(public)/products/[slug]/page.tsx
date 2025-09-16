@@ -427,6 +427,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   src={product.bannerImage}
                   alt={`${product.name} banner`}
                   fill
+                  priority
                   className="object-contain"
                 />
               </div>
