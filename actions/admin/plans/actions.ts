@@ -4,6 +4,21 @@ import prisma from "@/lib/prisma"
 import { Prisma, PlanType, TimeInterval } from "@/lib/vendor/prisma/client"
 import { dodoClient } from "@/lib/dodo"
 
+function normalizeDiscount(value: unknown): number | null {
+  if (value === null || value === undefined) return null
+
+  const raw =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? parseFloat(value)
+        : Number(value)
+
+  if (!Number.isFinite(raw)) return null
+
+  return Math.max(0, Math.min(raw, 100))
+}
+
 // Map interval to Dodo's expected enum casing
 const toDodoInterval = (iv: TimeInterval | string | null | undefined) => {
   switch ((iv || "").toString().toLowerCase()) {
@@ -56,7 +71,7 @@ export async function createPlanAction(formData: FormData) {
     .get("subscriptionPeriodInterval")
     ?.toString()
 
-  const discount = discountRaw ? parseFloat(discountRaw.toString()) : null
+  const discount = normalizeDiscount(discountRaw)
   const boostForDays = boostForDaysRaw
     ? Math.max(1, Math.min(30, parseInt(boostForDaysRaw.toString(), 10) || 1))
     : 1
@@ -94,7 +109,7 @@ export async function createPlanAction(formData: FormData) {
         description,
         type,
         price,
-        discount: Math.max(0, Math.min(discount ?? 0, 100)),
+        discount,
         boostForDays,
         isDefault,
         paymentFrequencyCount,
@@ -105,7 +120,7 @@ export async function createPlanAction(formData: FormData) {
     })
 
     if (price !== 0) {
-      const pct = Math.max(0, Math.min(discount ?? 0, 100))
+      const pct = discount ?? 0
       const pricePayload: any = {
         currency: "USD",
         discount: pct,
@@ -248,6 +263,8 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
       return { error: "Slug already exists. Please use a unique slug." }
     }
 
+    const discount = normalizeDiscount(data.discount)
+
     await prisma.plan.update({
       where: { id },
       data: {
@@ -255,7 +272,7 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
         slug: data.slug,
         description: data.description ?? null,
         price: data.price,
-        discount: Math.max(0, Math.min(data.discount ?? 0, 100)),
+        discount,
         boostForDays: Math.max(1, Math.min(data.boostForDays ?? 1, 30)),
         isDefault: data.isDefault ?? false,
         type: data.type ?? PlanType.one_time_price,
@@ -272,7 +289,7 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
       select: { externalId: true },
     })
     if (plan?.externalId) {
-      const pct = Math.max(0, Math.min(data.discount ?? 0, 100))
+      const pct = discount ?? 0
       const pricePayload: any = {
         currency: "USD",
         discount: pct,
@@ -305,7 +322,7 @@ export async function updatePlanAction(id: string, data: UpdatePlanInput) {
       console.log("Product updated on DodoPayments:", plan.externalId)
     } else {
       if (data.price !== 0) {
-        const pct = Math.max(0, Math.min(data.discount ?? 0, 100))
+        const pct = discount ?? 0
         const pricePayload: any = {
           currency: "USD",
           discount: pct,
