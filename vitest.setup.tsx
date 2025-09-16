@@ -3,6 +3,9 @@ import "@testing-library/jest-dom"
 // Minimal mocks for Next.js modules often imported by components
 import { vi } from "vitest"
 
+process.env.DODO_ENV = process.env.DODO_ENV || "test_mode"
+process.env.DODO_API_KEY = process.env.DODO_API_KEY || "test_key"
+
 vi.mock("next/link", () => ({
   default: ({ href, children, ...props }: any) => {
     // Render as a regular anchor in tests

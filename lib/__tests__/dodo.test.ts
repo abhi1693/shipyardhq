@@ -21,6 +21,7 @@ vi.mock("dodopayments", () => ({
 describe("dodo client", () => {
   it("throws when DODO_ENV missing", async () => {
     process.env.DODO_API_KEY = "k"
+    delete process.env.DODO_ENV
     await expect(import("@/lib/dodo")).rejects.toThrow(
       /DODO_ENV environment variable is required/,
     )
