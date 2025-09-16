@@ -49,19 +49,13 @@ const planFormSchema = z
     boostForDays: z.coerce.number().min(1).max(30),
     isDefault: z.boolean().optional(),
     paymentFrequencyCount: z.coerce.number().int().positive().optional(),
-    paymentFrequencyInterval: z.enum([
-      "day",
-      "week",
-      "month",
-      "year",
-    ]) as unknown as z.ZodType<"day" | "week" | "month" | "year" | undefined>,
+    paymentFrequencyInterval: z
+      .enum(["day", "week", "month", "year"])
+      .optional(),
     subscriptionPeriodCount: z.coerce.number().int().positive().optional(),
-    subscriptionPeriodInterval: z.enum([
-      "day",
-      "week",
-      "month",
-      "year",
-    ]) as unknown as z.ZodType<"day" | "week" | "month" | "year" | undefined>,
+    subscriptionPeriodInterval: z
+      .enum(["day", "week", "month", "year"])
+      .optional(),
   })
   .superRefine((val, ctx) => {
     if (val.type === "recurring_price") {
