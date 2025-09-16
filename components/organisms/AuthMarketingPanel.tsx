@@ -50,13 +50,6 @@ export default function AuthMarketingPanel() {
           steer.”
         </blockquote>
         <div className="mt-4 flex items-center gap-3">
-          <Image
-            src="/avatars/user1.jpg"
-            alt="The ShipYard Crew"
-            width={40}
-            height={40}
-            className="rounded-full"
-          />
           <div>
             <div className="text-sm font-medium">The ShipYard Crew</div>
             <div className="text-xs text-zinc-400">Guiding builders to calm waters</div>
