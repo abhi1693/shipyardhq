@@ -52,6 +52,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+      </head>
       <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
         <NextTopLoader showSpinner={false} />
         <ThemeProvider
