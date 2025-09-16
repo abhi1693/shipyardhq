@@ -2,6 +2,10 @@
 
 import { auth, clerkClient } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
+import {
+  subscribeToNewsletterAction,
+  unsubscribeFromNewsletterAction,
+} from "@/actions/public/newsletter/actions"
 
 export async function completeOnboarding(formData: FormData) {
   const { userId } = await auth()
@@ -10,6 +14,9 @@ export async function completeOnboarding(formData: FormData) {
   const roleIntent = formData.get("roleIntent")?.toString()
   const heardFrom = formData.get("heardFrom")?.toString()
   const acceptedTerms = formData.get("acceptedTerms") === "on"
+  const newsletterOptInRaw = formData.get("newsletterOptIn")?.toString()
+  const newsletterOptIn =
+    newsletterOptInRaw === "true" || newsletterOptInRaw === "on"
 
   try {
     const client = await clerkClient()
@@ -40,6 +47,23 @@ export async function completeOnboarding(formData: FormData) {
         heardFrom,
       },
     })
+
+    if (user.email) {
+      if (newsletterOptIn) {
+        const result = await subscribeToNewsletterAction(user.email)
+        if (result.error) {
+          console.error("Failed to auto-opt user into newsletter:", result.error)
+        }
+      } else {
+        const result = await unsubscribeFromNewsletterAction(user.email)
+        if (result.error) {
+          console.error(
+            "Failed to respect newsletter opt-out during onboarding:",
+            result.error,
+          )
+        }
+      }
+    }
 
     return { success: true }
   } catch (error) {

@@ -203,6 +203,15 @@ model User {
   purchases     UserPlanPurchase[]
 }
 
+model NewsletterSubscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
 model Category {
   id          String   @id @default(cuid())
   name        String   @unique

@@ -46,9 +46,10 @@ const onboardingSchema = z.object({
   acceptedTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms",
   }),
+  newsletterOptIn: z.boolean().default(true),
 })
 
-type OnboardingFormInput = z.infer<typeof onboardingSchema>
+type OnboardingFormInput = z.input<typeof onboardingSchema>
 
 export function OnboardingForm({ firstName }: { firstName?: string | null }) {
   const router = useRouter()
@@ -59,6 +60,7 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
       roleIntent: "",
       heardFrom: "",
       acceptedTerms: false,
+      newsletterOptIn: true,
     },
   })
 
@@ -89,6 +91,7 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
     roleIntent: form.watch("roleIntent"),
     heardFrom: form.watch("heardFrom"),
     acceptedTerms: form.watch("acceptedTerms"),
+    newsletterOptIn: form.watch("newsletterOptIn"),
   }
 
   const canSubmit = Boolean(
@@ -190,6 +193,19 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
               {errors.acceptedTerms.message}
             </p>
           )}
+
+          <div className="flex items-start space-x-2">
+            <Checkbox
+              id="newsletterOptIn"
+              checked={sel.newsletterOptIn ?? true}
+              onCheckedChange={(checked: boolean) =>
+                setValue("newsletterOptIn", checked, { shouldDirty: true })
+              }
+            />
+            <Label htmlFor="newsletterOptIn" className="text-sm leading-relaxed">
+              Keep me aboard the Captain&#39;s Log with launch alerts.
+            </Label>
+          </div>
         </CardContent>
 
         <CardFooter className="flex flex-col items-start gap-4 mt-4">
