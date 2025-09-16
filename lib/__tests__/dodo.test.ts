@@ -19,17 +19,26 @@ vi.mock("dodopayments", () => ({
 }))
 
 describe("dodo client", () => {
-  it("uses test_mode when not production", async () => {
-    process.env.NODE_ENV = "test"
+  it("throws when DODO_ENV missing", async () => {
     process.env.DODO_API_KEY = "k"
-    const mod = await import("@/lib/dodo")
-    expect((mod.dodoClient as any).opts.environment).toBe("test_mode")
+    await expect(import("@/lib/dodo")).rejects.toThrow(
+      /DODO_ENV environment variable is required/,
+    )
   })
 
-  it("uses live_mode when production", async () => {
-    process.env.NODE_ENV = "production"
+  it("throws when DODO_ENV invalid", async () => {
     process.env.DODO_API_KEY = "k"
+    process.env.DODO_ENV = "sandbox"
+    await expect(import("@/lib/dodo")).rejects.toThrow(
+      /DODO_ENV must be set to 'live_mode' or 'test_mode'/,
+    )
+  })
+
+  it("creates client with provided environment", async () => {
+    process.env.DODO_API_KEY = "k"
+    process.env.DODO_ENV = "test_mode"
     const mod = await import("@/lib/dodo")
-    expect((mod.dodoClient as any).opts.environment).toBe("live_mode")
+    expect((mod.dodoClient as any).opts.environment).toBe("test_mode")
+    expect((mod.dodoClient as any).opts.bearerToken).toBe("k")
   })
 })
