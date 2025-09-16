@@ -7,7 +7,7 @@ import { FaqSection, FAQ_ITEMS } from "@/components/organisms/FaqSection"
 
 describe("EditorsPick", () => {
   it("returns null when no products", () => {
-    const { container } = render(<EditorsPick products={[]} as any />)
+    const { container } = render(<EditorsPick products={[]} />)
     expect(container.firstChild).toBeNull()
   })
 

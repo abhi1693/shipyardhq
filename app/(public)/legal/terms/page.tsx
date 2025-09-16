@@ -19,90 +19,125 @@ export default function TermsOfServicePage() {
         <p className="text-muted-foreground">Last updated: Sep 16, 2025</p>
 
         <p>
-          Welcome to ShipYardHQ! By accessing or using our website,
-          https://shipyardhq.dev, you agree to be bound by these Terms of
-          Service. Please read them carefully.
+          ShipYardHQ is owned and operated by Abhimanyu Saharan. These Terms of
+          Service (the &#34;Terms&#34;) govern your use of our website and services at
+          https://shipyardhq.dev (the &#34;Service&#34;). By accessing or using the
+          Service, you agree to be bound by these Terms and our Privacy Policy.
+          If you do not agree, do not use the Service.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Acceptance</h2>
+        <h2 className="text-2xl font-semibold mt-6">Eligibility and Accounts</h2>
         <p>
-          By using ShipYardHQ, you agree to these terms. If you don&#39;t agree,
-          please don&#39;t use our service.
+          You must be at least 18 years old (or the age of majority in your
+          jurisdiction) and have the authority to bind any organization you
+          represent. You are responsible for maintaining accurate account
+          information, safeguarding your credentials, and complying with
+          applicable laws when using the Service.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Our Service</h2>
+        <h2 className="text-2xl font-semibold mt-6">Acceptable Use</h2>
         <p>
-          ShipYardHQ is a platform for startups to showcase their products and
-          connect with potential customers and investors.
+          You may not use the Service in any manner that violates these Terms or
+          applicable law. Without limiting the foregoing, you will not:
         </p>
-
-        <h2 className="text-2xl font-semibold mt-6">Your Account</h2>
-        <p>
-          You&#39;re responsible for your account security and all activities
-          under your account. Provide accurate information and keep your login
-          credentials safe.
-        </p>
-
-        <h2 className="text-2xl font-semibold mt-6">Content Rules</h2>
-        <p>When using our platform, you agree not to:</p>
         <ul className="list-disc list-inside space-y-1">
-          <li>Post illegal, harmful, or offensive content</li>
-          <li>Violate others&#39; intellectual property rights</li>
-          <li>Share false or misleading information</li>
-          <li>Spam or misuse the platform</li>
+          <li>Post or promote pornography, sexually explicit content, or escort services</li>
+          <li>Advertise alcohol, tobacco, or cannabis in violation of any law or regulation</li>
+          <li>Operate or advertise gambling, betting, or fantasy-sports services</li>
+          <li>Engage in illegal, harmful, deceptive, or abusive conduct</li>
+          <li>Infringe any intellectual property or proprietary rights</li>
+          <li>Attempt to gain unauthorized access to the Service</li>
         </ul>
         <p className="mt-2">
-          You own your content, but by posting it, you give us permission to
-          display and distribute it on our platform.
+          We reserve the right to suspend or terminate accounts, remove content,
+          or refuse service to anyone for any abusive or unlawful use of the
+          Service.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Intellectual Property</h2>
+        <h2 className="text-2xl font-semibold mt-6">Your Content</h2>
         <p>
-          Our platform, design, and features belong to us. You can use our
-          service but can&#39;t copy or misuse our intellectual property.
+          You retain ownership of the content you submit to the Service. By
+          posting or submitting content, you grant ShipYardHQ a worldwide,
+          non-exclusive, royalty-free, sublicensable, and transferable license
+          to host, store, reproduce, modify for formatting, publicly display,
+          distribute, and promote the content in connection with the Service.
+          You represent that you have all rights necessary to grant this license
+          and that your content does not violate any laws or third-party rights.
+        </p>
+        <p className="mt-2">
+          You agree to indemnify and hold harmless Abhimanyu Saharan and
+          ShipYardHQ from any claims, damages, liabilities, costs, and expenses
+          (including reasonable legal fees) arising out of or relating to your
+          content, your use of the Service, or your violation of these Terms.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Payments</h2>
+        <h2 className="text-2xl font-semibold mt-6">Paid Features and Payments</h2>
         <p>
-          Some features may require payment. All fees are clearly displayed
-          before purchase. Payments are generally non-refundable unless required
-          by law, and purchased credits are not eligible for refunds or
-          exchanges.
+          Certain features, including the Adaptive Currency offerings, require
+          payment of fees (collectively, the &#34;Paid Features&#34;). Fees are stated
+          at the point of purchase and are processed through Stripe Connect on
+          behalf of ShipYardHQ. Charges are typically taken in the currency
+          presented at checkout; Stripe may convert payments when required.
+        </p>
+        <p className="mt-2">
+          All fees must be paid in full when due. All sales are final and
+          non-refundable, and we do not offer free trials. You are responsible
+          for any taxes, levies, or duties associated with your purchases, other
+          than taxes on our income. We may suspend or terminate access to Paid
+          Features for non-payment, disputed charges, chargebacks, or suspected
+          fraud.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Disclaimers</h2>
+        <h2 className="text-2xl font-semibold mt-6">Service Changes and Availability</h2>
         <p>
-          Our service is provided &#34;as is&#34; without warranties. We
-          don&#39;t guarantee the platform will always be available or
-          error-free.
+          We may modify, discontinue, or suspend any part of the Service at any
+          time, with or without notice. We are not liable for any loss you incur
+          due to such changes, provided we refund any fees paid for unused Paid
+          Features if required by law.
+        </p>
+
+        <h2 className="text-2xl font-semibold mt-6">Disclaimer of Warranties</h2>
+        <p>
+          THE SERVICE IS PROVIDED ON AN &#34;AS IS&#34; AND &#34;AS AVAILABLE&#34; BASIS WITHOUT
+          WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING IMPLIED
+          WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
+          TITLE, AND NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL
+          BE UNINTERRUPTED, SECURE, ERROR-FREE, OR FREE OF HARMFUL COMPONENTS,
+          NOR DO WE ENDORSE OR GUARANTEE ANY USER CONTENT OR THIRD-PARTY
+          SERVICES OR LINKS ACCESSED THROUGH THE SERVICE. YOU USE THE SERVICE AT
+          YOUR OWN RISK.
         </p>
 
         <h2 className="text-2xl font-semibold mt-6">Limitation of Liability</h2>
         <p>
-          We&#39;re not liable for any indirect damages or losses from using our
-          service. Our total liability is limited to the amount you&#39;ve paid
-          us.
+          TO THE MAXIMUM EXTENT PERMITTED BY LAW, SHIPYARDHQ AND ABHIMANYU
+          SAHARAN WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+          CONSEQUENTIAL, COVER, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS,
+          REVENUE, DATA, OR GOODWILL ARISING OUT OF OR RELATED TO YOUR USE OF OR
+          INABILITY TO USE THE SERVICE. OUR TOTAL LIABILITY FOR ALL CLAIMS IN
+          CONNECTION WITH THE SERVICE WILL NOT EXCEED THE AMOUNT YOU PAID TO US
+          FOR THE SERVICE IN THE 12 MONTHS BEFORE THE CLAIM AROSE.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Changes</h2>
+        <h2 className="text-2xl font-semibold mt-6">Changes to These Terms</h2>
         <p>
-          We may update these terms occasionally. We&#39;ll notify you of
-          significant changes. Continued use means you accept the new terms.
+          We may update these Terms from time to time. If we make material
+          changes, we will provide notice, such as by email or by updating the
+          date at the top of this page. Your continued use of the Service after
+          the revised Terms go into effect constitutes acceptance of the
+          changes.
         </p>
 
         <h2 className="text-2xl font-semibold mt-6">Contact Us</h2>
         <p>
-          If you have questions about these terms of service, contact us at{" "}
+          If you have questions about these Terms, contact us at{" "}
           <a
             href="mailto:shipyardhq.dev@gmail.com"
             className="text-primary underline"
           >
             shipyardhq.dev@gmail.com
           </a>
-        </p>
-
-        <p className="mt-6">
-          Thank you for reading our terms of service and using ShipYardHQ!
+          .
         </p>
       </div>
     </PublicContainer>
