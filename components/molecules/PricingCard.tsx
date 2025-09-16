@@ -64,7 +64,7 @@ export function PricingCard({
     : null
 
   return (
-    <Card className={clsx("h-full min-h-[22rem] flex flex-col")}>
+    <Card className={clsx("h-full min-h-[32rem] flex flex-col")}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold truncate">

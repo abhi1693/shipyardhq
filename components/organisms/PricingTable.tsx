@@ -49,8 +49,11 @@ function CardWrapper({ children }: { children: React.ReactNode }) {
       )
       // Reset heights to natural to measure
       nodes.forEach((n) => (n.style.height = "auto"))
-      const max = nodes.reduce((m, n) => Math.max(m, n.offsetHeight), 0)
-      nodes.forEach((n) => (n.style.height = `${max}px`))
+      const baseMin = 30 * 16 // ensure a comfortable minimum height
+      const heights = nodes.map((n) => Math.max(n.offsetHeight, baseMin))
+      const maxContent = heights.reduce((m, h) => Math.max(m, h), baseMin)
+      const target = Math.max(maxContent, baseMin) + 24
+      nodes.forEach((n) => (n.style.height = `${target}px`))
     }
 
     equalize()
@@ -59,7 +62,11 @@ function CardWrapper({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <div ref={ref} data-pricing-card-wrapper className="w-full max-w-sm">
+    <div
+      ref={ref}
+      data-pricing-card-wrapper
+      className="w-full max-w-sm min-h-[30rem]"
+    >
       {children}
     </div>
   )
