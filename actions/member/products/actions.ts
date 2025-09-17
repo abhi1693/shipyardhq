@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
+import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -188,7 +189,11 @@ export async function setProductPlanAction(
 
   const product = await prisma.product.findFirst({
     where: { id: productId, user: { clerkId: userId } },
-    select: { id: true },
+    select: {
+      id: true,
+      planAssignedAt: true,
+      plan: { select: { boostForDays: true, isDefault: true } },
+    },
   })
   if (!product) return { error: "Product not found or not owned by user" }
 
@@ -199,9 +204,11 @@ export async function setProductPlanAction(
       select: { id: true, boostForDays: true, isDefault: true },
     })
     if (!plan) return { error: "Plan not found" }
-    planAssignedAt = !plan.isDefault && (plan.boostForDays ?? 0) > 0
-      ? new Date()
-      : null
+    planAssignedAt = resolvePlanAssignedAt({
+      currentPlan: product.plan,
+      currentAssignedAt: product.planAssignedAt,
+      newPlan: plan,
+    })
   }
 
   await prisma.product.update({
@@ -308,7 +315,12 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
     // Ownership check
     const product = await prisma.product.findFirst({
       where: { id: productId, user: { clerkId: userId } },
-      select: { id: true, userId: true },
+      select: {
+        id: true,
+        userId: true,
+        planAssignedAt: true,
+        plan: { select: { boostForDays: true, isDefault: true } },
+      },
     })
     if (!product) return { error: "Product not found or not owned" }
 
@@ -318,9 +330,11 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
       select: { boostForDays: true, isDefault: true },
     })
     if (!plan) return { error: "Plan not found" }
-    const planAssignedAt = !plan.isDefault && (plan.boostForDays ?? 0) > 0
-      ? new Date()
-      : null
+    const planAssignedAt = resolvePlanAssignedAt({
+      currentPlan: product.plan,
+      currentAssignedAt: product.planAssignedAt,
+      newPlan: plan,
+    })
     await prisma.product.update({
       where: { id: productId },
       data: { planId, planAssignedAt },

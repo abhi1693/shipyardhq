@@ -7,6 +7,7 @@ import { publish } from "@/lib/server/events"
 import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
+import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
 import { checkRole } from "@/lib/roles"
@@ -310,7 +311,10 @@ export async function updateProductAction(
   // Load current product for comparisons
   const current = await prisma.product.findUnique({
     where: { id },
-    include: { verification: true },
+    include: {
+      verification: true,
+      plan: { select: { boostForDays: true, isDefault: true } },
+    },
   })
 
   if (!current) {
@@ -367,8 +371,11 @@ export async function updateProductAction(
         if (!plan) return { error: "Plan not found" }
         planUpdate = {
           planId: data.planId,
-          planAssignedAt:
-            !plan.isDefault && (plan.boostForDays ?? 0) > 0 ? new Date() : null,
+          planAssignedAt: resolvePlanAssignedAt({
+            currentPlan: current.plan,
+            currentAssignedAt: current.planAssignedAt,
+            newPlan: plan,
+          }),
         }
       } else {
         planUpdate = { planId: null, planAssignedAt: null }
@@ -567,13 +574,32 @@ export async function assignProductPlanAction(
   planId: string | null,
 ) {
   try {
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: {
+        id: true,
+        planAssignedAt: true,
+        plan: { select: { boostForDays: true, isDefault: true } },
+      },
+    })
+    if (!product) return { error: "Product not found" }
+
+    let planAssignedAt: Date | null = null
     if (planId) {
-      const plan = await prisma.plan.findUnique({ where: { id: planId } })
+      const plan = await prisma.plan.findUnique({
+        where: { id: planId },
+        select: { boostForDays: true, isDefault: true },
+      })
       if (!plan) return { error: "Plan not found" }
+      planAssignedAt = resolvePlanAssignedAt({
+        currentPlan: product.plan,
+        currentAssignedAt: product.planAssignedAt,
+        newPlan: plan,
+      })
     }
     await prisma.product.update({
       where: { id: productId },
-      data: { planId: planId || null },
+      data: { planId: planId || null, planAssignedAt },
       select: { id: true, planId: true },
     })
     return { success: true }
