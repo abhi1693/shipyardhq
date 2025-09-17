@@ -8,6 +8,7 @@ import Providers from "@/components/layout/providers"
 import "./globals.css"
 import { IS_PROD } from "@/lib/constants"
 import "./theme.css"
+import { buildSiteSeo, siteConfig } from "@/lib/siteConfig"
 
 // Make all routes dynamic to always reflect latest data
 export const dynamic = "force-dynamic"
@@ -28,21 +29,29 @@ const META_THEME_COLORS = {
   dark: "#09090b",
 }
 
+const siteSeo = buildSiteSeo()
+
 export const metadata: Metadata = {
-  title: "ShipYardHQ",
-  description: "Join our waitlist for the ultimate micro‑SaaS growth toolkit.",
-  icons: {
-    icon: "/brand.png",
-    shortcut: "/brand.png",
-    apple: "/brand.png",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: siteSeo.defaultTitle,
+    template: siteSeo.titleTemplate,
   },
-  metadataBase: new URL(
-    (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000") as string,
-  ),
+  description: siteSeo.description,
+  icons: {
+    icon: siteConfig.ogImage,
+    shortcut: siteConfig.ogImage,
+    apple: siteConfig.ogImage,
+  },
+  openGraph: siteSeo.openGraph,
+  twitter: siteSeo.twitter,
 }
 
 export const viewport: Viewport = {
-  themeColor: META_THEME_COLORS.light,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: META_THEME_COLORS.light },
+    { media: "(prefers-color-scheme: dark)", color: META_THEME_COLORS.dark },
+  ],
 }
 
 export default function RootLayout({
