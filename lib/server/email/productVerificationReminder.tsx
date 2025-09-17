@@ -2,16 +2,10 @@ import prisma from "@/lib/prisma"
 import { on } from "@/lib/server/events"
 import DomainVerificationReminderEmail from "@/lib/email/templates/product/domainVerificationReminder"
 import { sendEmail } from "@/lib/email/resend"
-import { EMAIL_BRAND } from "@/lib/email/brand"
-
-function getBaseUrl() {
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL
-  if (envUrl && envUrl.length) return envUrl.replace(/\/$/, "")
-  return EMAIL_BRAND.homeUrl.replace(/\/$/, "")
-}
+import { getAppBaseUrl } from "@/lib/email/utils"
 
 function getProductSettingsUrl(slug: string) {
-  const base = getBaseUrl()
+  const base = getAppBaseUrl()
   return `${base}/member/products/${slug}/edit`
 }
 

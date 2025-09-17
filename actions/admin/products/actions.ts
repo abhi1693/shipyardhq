@@ -8,6 +8,7 @@ import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
 import "@/lib/server/email/productVerificationReminder"
+import { sendProductPublishedEmail } from "@/lib/server/email/productPublished"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
@@ -231,6 +232,10 @@ export async function createProductAction(formData: FormData) {
     })
     // Fire domain event for listeners (e.g., auto badges)
     await publish("product.created", { productId: created.id })
+
+    if (created.status === "published") {
+      await sendProductPublishedEmail(created.id)
+    }
 
     // Invalidate public caches affected by a new product
     revalidateProducts()
@@ -457,6 +462,10 @@ export async function updateProductAction(
     revalidateCategory(categoryId)
     revalidateLeaderboard()
 
+    if (updated.status === "published" && current.status !== "published") {
+      await sendProductPublishedEmail(updated.id)
+    }
+
     return updated
   } catch (error) {
     console.error("Error updating product:", error)
@@ -616,7 +625,12 @@ export async function setProductStatusAction(
   status: "draft" | "published" | "archived",
 ) {
   try {
-    return await prisma.product.update({
+    const previous = await prisma.product.findUnique({
+      where: { id },
+      select: { status: true },
+    })
+
+    const result = await prisma.product.update({
       where: { id },
       data: {
         status,
@@ -624,6 +638,12 @@ export async function setProductStatusAction(
       },
       select: { id: true, status: true, slug: true },
     })
+
+    if (status === "published" && previous?.status !== "published") {
+      await sendProductPublishedEmail(id)
+    }
+
+    return result
   } catch (error) {
     console.error("Error updating product status:", error)
     return { error: "Failed to update status" }
