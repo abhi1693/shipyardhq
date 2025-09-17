@@ -7,6 +7,7 @@ import { publish } from "@/lib/server/events"
 import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
+import "@/lib/server/email/productVerificationReminder"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
