@@ -427,6 +427,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   src={product.bannerImage}
                   alt={`${product.name} banner`}
                   fill
+                  quality={95}
                   priority
                   className="object-contain"
                 />
@@ -448,6 +449,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       src={m.imageUrl}
                       alt={m.altText || product.name}
                       fill
+                      quality={95}
                       className="object-cover"
                     />
                   </div>

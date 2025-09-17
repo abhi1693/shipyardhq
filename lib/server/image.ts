@@ -19,10 +19,8 @@ export async function toWebpIfPossible(
   input: ArrayBuffer,
   originalMime: string,
 ): Promise<ProcessResult> {
-  // Always attempt conversion; use result only if smaller
-  const lossless = false
+  // Prefer lossless conversions so we never ship visibly degraded assets.
   const effort = 6
-  const quality = 82 // only used if we ever switch to lossy
   try {
     const sharp = (await import("sharp")).default
     // Avoid breaking animated GIF/SVG — preserve original in those cases
@@ -34,14 +32,12 @@ export async function toWebpIfPossible(
       }
     }
     const buf = Buffer.from(input)
-    // Convert to WebP (lossless or quality-based)
-    const webp = await sharp(buf)
-      .webp(lossless ? { lossless: true, effort } : { quality, effort })
-      .toBuffer()
-    // Only use WebP if smaller; otherwise keep original
+    // Convert to WebP (lossless) and only keep if it actually shrinks the asset.
+    const webp = await sharp(buf).webp({ lossless: true, effort }).toBuffer()
     if (webp.length < buf.length) {
       return { buffer: webp, contentType: "image/webp", extension: "webp" }
     }
+    // Fallback: keep the original buffer to avoid quality loss.
     return {
       buffer: buf,
       contentType: originalMime || "application/octet-stream",

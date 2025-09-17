@@ -25,6 +25,7 @@ export default function ImageLightbox({ src, alt, children }: Props) {
             height={900}
             className="h-auto w-auto max-h-[85vh] max-w-[90vw] object-contain rounded-md border bg-background"
             sizes="(max-width: 1024px) 90vw, 80vw"
+            quality={95}
             priority={false}
           />
         </div>

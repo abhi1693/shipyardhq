@@ -65,7 +65,13 @@ export default function ImageUploadField({
       <div className="text-sm font-medium">{label}</div>
       {value ? (
         <div className="relative h-40 rounded border overflow-hidden bg-white">
-          <Image src={value} alt="" fill className="object-contain" />
+          <Image
+            src={value}
+            alt=""
+            fill
+            className="object-contain"
+            quality={95}
+          />
           <div className="absolute top-2 right-2 flex gap-2">
             <a
               href={value}

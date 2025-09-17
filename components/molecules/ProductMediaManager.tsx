@@ -135,7 +135,13 @@ export default function ProductMediaManager({
               key={m.id}
               className="relative overflow-hidden rounded border bg-background aspect-video"
             >
-              <Image src={m.imageUrl} alt="" fill className="object-cover" />
+              <Image
+                src={m.imageUrl}
+                alt=""
+                fill
+                className="object-cover"
+                quality={95}
+              />
               {deletingId === m.id ? (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
                   <div className="flex items-center gap-2 text-xs">
