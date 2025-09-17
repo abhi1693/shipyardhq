@@ -1,5 +1,3 @@
-import Image from "next/image"
-
 export default function AuthMarketingPanel() {
   return (
     <div className="relative hidden lg:flex flex-col justify-between bg-zinc-950 p-10 text-white">
