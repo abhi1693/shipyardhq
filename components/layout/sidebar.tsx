@@ -33,11 +33,12 @@ import { createCustomerPortalAction } from "@/actions/member/billing/portal"
 
 interface SidebarProps {
   navItems?: NavItem[]
+  showCustomerPortal?: boolean
 }
 
 export default function AppSidebar(props: SidebarProps) {
   const pathname = usePathname()
-  const { navItems = [] } = props
+  const { navItems = [], showCustomerPortal = false } = props
 
   const [query, setQuery] = useState("")
   const [isPortalPending, startPortal] = useTransition()
@@ -208,17 +209,18 @@ export default function AppSidebar(props: SidebarProps) {
                 </SidebarMenuItem>
               )
             })}
-            {/* Billing portal quick action */}
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                tooltip="Customer Portal"
-                onClick={openCustomerPortal}
-                disabled={isPortalPending}
-              >
-                <Icons.billing />
-                <span className="flex-1 truncate">Customer Portal</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {showCustomerPortal && (
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Customer Portal"
+                  onClick={openCustomerPortal}
+                  disabled={isPortalPending}
+                >
+                  <Icons.billing />
+                  <span className="flex-1 truncate">Customer Portal</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

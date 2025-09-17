@@ -67,7 +67,7 @@ export default async function MemberLayout({
 
   return (
     <SidebarProvider defaultOpen>
-      <AppSidebar navItems={items} />
+      <AppSidebar navItems={items} showCustomerPortal />
       <SidebarInset>
         <PrivateHeader />
         <div className="flex-1">
