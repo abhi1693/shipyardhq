@@ -27,7 +27,39 @@ export function sanitizeTextFields<T extends Record<string, any>>(
   ]) {
     if (typeof clone[k] === "string") clone[k] = clone[k].trim()
   }
+  if (typeof clone.websiteUrl === "string") {
+    clone.websiteUrl = cleanWebsiteUrlInput(clone.websiteUrl)
+  }
   return clone
+}
+
+export function cleanWebsiteUrlInput(raw?: string | null): string {
+  const value = (raw ?? "").trim()
+  if (!value) return ""
+
+  const hasProtocol = /^https?:\/\//i.test(value)
+  let cleaned = value
+
+  if (!hasProtocol) {
+    cleaned = cleaned.replace(/^\/+/g, "")
+  }
+
+  if (!cleaned) return ""
+
+  const candidate = hasProtocol ? cleaned : `https://${cleaned}`
+
+  try {
+    const url = new URL(candidate)
+    const isRootPath = !url.pathname || url.pathname === "/"
+    const hasQueryOrHash = Boolean(url.search || url.hash)
+    if (isRootPath && !hasQueryOrHash) {
+      cleaned = cleaned.replace(/\/+$/g, "")
+    }
+  } catch {
+    cleaned = cleaned.replace(/\/+$/g, "")
+  }
+
+  return cleaned
 }
 
 export function normalizeUrl(url?: string | null): string | undefined {

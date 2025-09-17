@@ -5,6 +5,7 @@ import {
   sanitizeTextFields,
   normalizeUrl,
   coercePricing,
+  cleanWebsiteUrlInput,
 } from "@/lib/productWizard/transform"
 
 describe("productWizard transform", () => {
@@ -28,7 +29,7 @@ describe("productWizard transform", () => {
     const input = {
       name: "  Name  ",
       tagline: "  Tag ",
-      websiteUrl: " example.com ",
+      websiteUrl: " example.com/ ",
       logo: " /img.png ",
       ctaLabel: " Go ",
       ctaUrl: " /go ",
@@ -46,6 +47,15 @@ describe("productWizard transform", () => {
       untouched: " no-trim ",
       num: 1,
     })
+  })
+
+  it("cleanWebsiteUrlInput trims leading/trailing slashes for root urls", () => {
+    expect(cleanWebsiteUrlInput("example.com/")).toBe("example.com")
+    expect(cleanWebsiteUrlInput("https://example.com/")).toBe("https://example.com")
+    expect(cleanWebsiteUrlInput("https://example.com/path/")).toBe(
+      "https://example.com/path/",
+    )
+    expect(cleanWebsiteUrlInput("   ")).toBe("")
   })
 
   it("normalizeUrl adds https if missing and trims", () => {

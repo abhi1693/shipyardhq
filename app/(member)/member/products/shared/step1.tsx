@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { Checkbox } from "@/components/atoms/checkbox"
+import { cleanWebsiteUrlInput } from "@/lib/productWizard/transform"
 
 type Props = {
   categories: { id: string; name: string }[]
@@ -86,8 +87,8 @@ export default function Step1({
                   disabled={!!lockWebsiteUrl}
                   readOnly={!!lockWebsiteUrl}
                   onBlur={(e) => {
-                    const sanitized = (e.target.value ?? "").replace(/^\/+/, "")
-                    if (sanitized !== e.target.value) {
+                    const sanitized = cleanWebsiteUrlInput(e.target.value)
+                    if (sanitized !== field.value) {
                       form.setValue("websiteUrl", sanitized, {
                         shouldDirty: true,
                         shouldValidate: true,
