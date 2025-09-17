@@ -38,6 +38,41 @@ const USE_CASES: UseCaseSeed[] = [
     slug: "ship-faster",
     categorySlugs: ["devops-ci-cd", "testing-qa", "monitoring-observability"],
   },
+  {
+    label: "Automate Support",
+    slug: "automate-support",
+    categorySlugs: ["customer-support", "ai-machine-learning"],
+  },
+  {
+    label: "Scale Customer Success",
+    slug: "scale-customer-success",
+    categorySlugs: ["customer-success", "product-management"],
+  },
+  {
+    label: "Build Internal Tools",
+    slug: "build-internal-tools",
+    categorySlugs: ["internal-tools", "developer-tools"],
+  },
+  {
+    label: "Launch a Marketplace",
+    slug: "launch-marketplace",
+    categorySlugs: ["marketplace-platforms", "e-commerce", "creator-economy"],
+  },
+  {
+    label: "Optimize Field Operations",
+    slug: "optimize-field-operations",
+    categorySlugs: ["field-operations-logistics", "iot-hardware"],
+  },
+  {
+    label: "Monetize Content",
+    slug: "monetize-content",
+    categorySlugs: ["creator-economy", "content-writing", "video-audio"],
+  },
+  {
+    label: "Deliver Insights",
+    slug: "deliver-insights",
+    categorySlugs: ["analytics", "monitoring-observability", "ai-machine-learning"],
+  },
 ]
 
 async function main() {
