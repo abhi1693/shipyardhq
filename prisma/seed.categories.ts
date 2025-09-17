@@ -184,6 +184,36 @@ export const CATEGORIES: SeedCategory[] = [
     icon: "wifi",
     description: "Connected devices, hardware kits, and telemetry.",
   },
+  {
+    name: "Customer Success",
+    icon: "handheart",
+    description: "Lifecycle health, playbooks, renewals, and expansion.",
+  },
+  {
+    name: "Product Management",
+    icon: "checklist",
+    description: "Roadmaps, prioritization, discovery, and insights.",
+  },
+  {
+    name: "Internal Tools",
+    icon: "tool",
+    description: "Back-office dashboards, admin panels, and ops tooling.",
+  },
+  {
+    name: "Marketplace Platforms",
+    icon: "share",
+    description: "Two-sided marketplaces and platform orchestration.",
+  },
+  {
+    name: "Field Operations & Logistics",
+    icon: "map",
+    description: "Routing, dispatch, fleet management, and on-site ops.",
+  },
+  {
+    name: "Creator Economy",
+    icon: "video",
+    description: "Tools for content entrepreneurs, memberships, and monetization.",
+  },
 ]
 
 async function main() {
