@@ -69,9 +69,7 @@ describe("plan expiration helpers", () => {
         plan: { boostForDays: 10, name: "Boost", isDefault: false },
       },
     ])
-    const result = await expireBoostedPlans(
-      new Date("2024-01-05T00:00:00Z"),
-    )
+    const result = await expireBoostedPlans(new Date("2024-01-05T00:00:00Z"))
     expect(result).toEqual({ expired: [], count: 0 })
     expect(mockPrisma.product.updateMany).not.toHaveBeenCalled()
   })
@@ -87,9 +85,7 @@ describe("plan expiration helpers", () => {
       },
     ])
 
-    const result = await expireBoostedPlans(
-      new Date("2024-01-10T00:00:00Z"),
-    )
+    const result = await expireBoostedPlans(new Date("2024-01-10T00:00:00Z"))
 
     expect(result.count).toBe(1)
     expect(result.expired[0].productId).toBe("p1")

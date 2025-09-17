@@ -20,13 +20,15 @@ export default function TermsOfServicePage() {
 
         <p>
           ShipYardHQ is owned and operated by Abhimanyu Saharan. These Terms of
-          Service (the &#34;Terms&#34;) govern your use of our website and services at
-          https://shipyardhq.dev (the &#34;Service&#34;). By accessing or using the
-          Service, you agree to be bound by these Terms and our Privacy Policy.
-          If you do not agree, do not use the Service.
+          Service (the &#34;Terms&#34;) govern your use of our website and
+          services at https://shipyardhq.dev (the &#34;Service&#34;). By
+          accessing or using the Service, you agree to be bound by these Terms
+          and our Privacy Policy. If you do not agree, do not use the Service.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Eligibility and Accounts</h2>
+        <h2 className="text-2xl font-semibold mt-6">
+          Eligibility and Accounts
+        </h2>
         <p>
           You must be at least 18 years old (or the age of majority in your
           jurisdiction) and have the authority to bind any organization you
@@ -41,9 +43,17 @@ export default function TermsOfServicePage() {
           applicable law. Without limiting the foregoing, you will not:
         </p>
         <ul className="list-disc list-inside space-y-1">
-          <li>Post or promote pornography, sexually explicit content, or escort services</li>
-          <li>Advertise alcohol, tobacco, or cannabis in violation of any law or regulation</li>
-          <li>Operate or advertise gambling, betting, or fantasy-sports services</li>
+          <li>
+            Post or promote pornography, sexually explicit content, or escort
+            services
+          </li>
+          <li>
+            Advertise alcohol, tobacco, or cannabis in violation of any law or
+            regulation
+          </li>
+          <li>
+            Operate or advertise gambling, betting, or fantasy-sports services
+          </li>
           <li>Engage in illegal, harmful, deceptive, or abusive conduct</li>
           <li>Infringe any intellectual property or proprietary rights</li>
           <li>Attempt to gain unauthorized access to the Service</li>
@@ -71,13 +81,16 @@ export default function TermsOfServicePage() {
           content, your use of the Service, or your violation of these Terms.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Paid Features and Payments</h2>
+        <h2 className="text-2xl font-semibold mt-6">
+          Paid Features and Payments
+        </h2>
         <p>
           Certain features, including the Adaptive Currency offerings, require
-          payment of fees (collectively, the &#34;Paid Features&#34;). Fees are stated
-          at the point of purchase and are processed through Stripe Connect on
-          behalf of ShipYardHQ. Charges are typically taken in the currency
-          presented at checkout; Stripe may convert payments when required.
+          payment of fees (collectively, the &#34;Paid Features&#34;). Fees are
+          stated at the point of purchase and are processed through Stripe
+          Connect on behalf of ShipYardHQ. Charges are typically taken in the
+          currency presented at checkout; Stripe may convert payments when
+          required.
         </p>
         <p className="mt-2">
           All fees must be paid in full when due. All sales are final and
@@ -88,7 +101,9 @@ export default function TermsOfServicePage() {
           fraud.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Service Changes and Availability</h2>
+        <h2 className="text-2xl font-semibold mt-6">
+          Service Changes and Availability
+        </h2>
         <p>
           We may modify, discontinue, or suspend any part of the Service at any
           time, with or without notice. We are not liable for any loss you incur
@@ -96,16 +111,18 @@ export default function TermsOfServicePage() {
           Features if required by law.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Disclaimer of Warranties</h2>
+        <h2 className="text-2xl font-semibold mt-6">
+          Disclaimer of Warranties
+        </h2>
         <p>
-          THE SERVICE IS PROVIDED ON AN &#34;AS IS&#34; AND &#34;AS AVAILABLE&#34; BASIS WITHOUT
-          WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING IMPLIED
-          WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE,
-          TITLE, AND NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL
-          BE UNINTERRUPTED, SECURE, ERROR-FREE, OR FREE OF HARMFUL COMPONENTS,
-          NOR DO WE ENDORSE OR GUARANTEE ANY USER CONTENT OR THIRD-PARTY
-          SERVICES OR LINKS ACCESSED THROUGH THE SERVICE. YOU USE THE SERVICE AT
-          YOUR OWN RISK.
+          THE SERVICE IS PROVIDED ON AN &#34;AS IS&#34; AND &#34;AS
+          AVAILABLE&#34; BASIS WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS
+          OR IMPLIED, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
+          FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. WE DO NOT
+          WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, ERROR-FREE, OR
+          FREE OF HARMFUL COMPONENTS, NOR DO WE ENDORSE OR GUARANTEE ANY USER
+          CONTENT OR THIRD-PARTY SERVICES OR LINKS ACCESSED THROUGH THE SERVICE.
+          YOU USE THE SERVICE AT YOUR OWN RISK.
         </p>
 
         <h2 className="text-2xl font-semibold mt-6">Limitation of Liability</h2>

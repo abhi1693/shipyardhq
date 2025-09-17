@@ -3,9 +3,7 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
-async function fetchPublicProduct(
-  where: Prisma.ProductWhereUniqueInput,
-) {
+async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   const product = await prisma.product.findUnique({
     where,
     include: {

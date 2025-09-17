@@ -9,21 +9,25 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 })
 
-const eslintConfig = [{
-  ignores: [
-    "node_modules/**",
-    ".next/**",
-    "out/**",
-    "build/**",
-    "coverage/**",
-    "next-env.d.ts",
-  ],
-}, // Ignore generated vendor code (e.g., Prisma client output)
-{ ignores: ["lib/vendor/**"] }, ...compat.extends("next/core-web-vitals", "next/typescript"), {
-  rules: {
-    // Allow pragmatic use of `any` in complex app code
-    "@typescript-eslint/no-explicit-any": "off",
+const eslintConfig = [
+  {
+    ignores: [
+      "node_modules/**",
+      ".next/**",
+      "out/**",
+      "build/**",
+      "coverage/**",
+      "next-env.d.ts",
+    ],
+  }, // Ignore generated vendor code (e.g., Prisma client output)
+  { ignores: ["lib/vendor/**"] },
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    rules: {
+      // Allow pragmatic use of `any` in complex app code
+      "@typescript-eslint/no-explicit-any": "off",
+    },
   },
-}]
+]
 
 export default eslintConfig

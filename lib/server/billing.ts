@@ -4,7 +4,10 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
-import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
+import {
+  getActiveUserByClerkId,
+  INACTIVE_ACCOUNT_MESSAGE,
+} from "@/lib/server/userStatus"
 
 export async function syncCurrentUserBilling() {
   const { userId } = await auth()

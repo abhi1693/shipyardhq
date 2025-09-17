@@ -28,10 +28,7 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (isSuspended) {
     if (pathname.startsWith("/api")) {
-      return NextResponse.json(
-        { error: "Account suspended" },
-        { status: 403 },
-      )
+      return NextResponse.json({ error: "Account suspended" }, { status: 403 })
     }
 
     if (!pathname.startsWith("/auth/suspended")) {

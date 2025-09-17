@@ -11,11 +11,7 @@ type Stats = {
   totalUpvotes?: number
 }
 
-export default function Hero({
-  stats,
-}: {
-  stats?: Stats
-}) {
+export default function Hero({ stats }: { stats?: Stats }) {
   return (
     <section className="relative isolate w-full border-b py-20 md:py-32 overflow-hidden">
       {/* Brand gradient backdrop */}
@@ -57,7 +53,8 @@ export default function Hero({
             <div className="grid grid-cols-1 sm:grid-cols-3 overflow-hidden rounded-xl border bg-background/60 backdrop-blur-sm divide-y sm:divide-y-0 sm:divide-x">
               <div className="p-5 text-center">
                 <div className="text-3xl sm:text-4xl font-semibold tracking-tight animate-count-bump">
-                  {(stats.totalProducts ?? 0).toLocaleString()
+                  {(stats.totalProducts ?? 0)
+                    .toLocaleString()
                     .toString()
                     .replace(/,/g, ",")}
                 </div>
@@ -67,7 +64,8 @@ export default function Hero({
               </div>
               <div className="p-5 text-center">
                 <div className="text-3xl sm:text-4xl font-semibold tracking-tight animate-count-bump">
-                  {(stats.totalCreators ?? 0).toLocaleString()
+                  {(stats.totalCreators ?? 0)
+                    .toLocaleString()
                     .toString()
                     .replace(/,/g, ",")}
                 </div>
@@ -77,7 +75,8 @@ export default function Hero({
               </div>
               <div className="p-5 text-center">
                 <div className="text-3xl sm:text-4xl font-semibold tracking-tight animate-count-bump">
-                  {(stats.totalUpvotes ?? 0).toLocaleString()
+                  {(stats.totalUpvotes ?? 0)
+                    .toLocaleString()
                     .toString()
                     .replace(/,/g, ",")}
                 </div>

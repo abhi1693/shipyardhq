@@ -50,7 +50,9 @@ export default function AuthMarketingPanel() {
         <div className="mt-4 flex items-center gap-3">
           <div>
             <div className="text-sm font-medium">The ShipYardHQ Crew</div>
-            <div className="text-xs text-zinc-400">Guiding builders to calm waters</div>
+            <div className="text-xs text-zinc-400">
+              Guiding builders to calm waters
+            </div>
           </div>
         </div>
       </div>

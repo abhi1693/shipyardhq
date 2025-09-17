@@ -51,7 +51,9 @@ describe("productWizard transform", () => {
 
   it("cleanWebsiteUrlInput trims leading/trailing slashes for root urls", () => {
     expect(cleanWebsiteUrlInput("example.com/")).toBe("example.com")
-    expect(cleanWebsiteUrlInput("https://example.com/")).toBe("https://example.com")
+    expect(cleanWebsiteUrlInput("https://example.com/")).toBe(
+      "https://example.com",
+    )
     expect(cleanWebsiteUrlInput("https://example.com/path/")).toBe(
       "https://example.com/path/",
     )

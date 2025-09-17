@@ -33,9 +33,7 @@ export function PricingFeature({
           <IconMinus aria-hidden className="h-3.5 w-3.5" />
         )}
       </span>
-      <span className="leading-tight text-foreground/90">
-        {label}
-      </span>
+      <span className="leading-tight text-foreground/90">{label}</span>
     </li>
   )
 }

@@ -4,7 +4,10 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
-import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
+import {
+  getActiveUserByClerkId,
+  INACTIVE_ACCOUNT_MESSAGE,
+} from "@/lib/server/userStatus"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"

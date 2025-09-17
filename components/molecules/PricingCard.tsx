@@ -54,9 +54,7 @@ export function PricingCard({
     ? Math.round(price * (1 - pct / 100))
     : price
   const originalPrice = !isFree ? currency.format(price / 100) : null
-  const displayPrice = isFree
-    ? "Free"
-    : currency.format(discountedCents / 100)
+  const displayPrice = isFree ? "Free" : currency.format(discountedCents / 100)
   const formattedDiscount = hasDiscount
     ? new Intl.NumberFormat("en-US", {
         maximumFractionDigits: 2,

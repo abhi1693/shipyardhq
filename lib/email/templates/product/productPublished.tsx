@@ -78,10 +78,13 @@ export function ProductPublishedEmail({
 
       <p style={paragraphStyle}>Recommended next steps:</p>
       <ol style={listStyle}>
-        <li>Announce the launch on Twitter/X, LinkedIn, and your mailing list.</li>
+        <li>
+          Announce the launch on Twitter/X, LinkedIn, and your mailing list.
+        </li>
         <li>Ask early adopters to upvote and leave feedback on Shipyard HQ.</li>
         <li>
-          Monitor analytics in your dashboard to watch clicks and upvotes roll in.
+          Monitor analytics in your dashboard to watch clicks and upvotes roll
+          in.
         </li>
       </ol>
 
@@ -94,7 +97,7 @@ export function ProductPublishedEmail({
 
       {shareUrl ? (
         <p style={paragraphStyle}>
-          Need assets? Grab social previews and badges here: {" "}
+          Need assets? Grab social previews and badges here:{" "}
           <a href={shareUrl} style={linkStyle}>
             Launch asset kit
           </a>
@@ -103,7 +106,8 @@ export function ProductPublishedEmail({
       ) : null}
 
       <p style={paragraphStyle}>
-        We&apos;re cheering you on. Reply if you need help or want a signal boost!
+        We&apos;re cheering you on. Reply if you need help or want a signal
+        boost!
       </p>
     </BaseEmailTemplate>
   )

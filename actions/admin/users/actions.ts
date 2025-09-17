@@ -107,10 +107,7 @@ export async function deleteUserAction(id: string) {
   }
 }
 
-export async function setUserStatusAction(
-  id: string,
-  status: UserStatus,
-) {
+export async function setUserStatusAction(id: string, status: UserStatus) {
   try {
     const { userId: currentClerkId, sessionClaims } = await auth()
 

@@ -11,7 +11,12 @@ import {
 } from "@/components/atoms/dropdown-menu"
 import { setUserStatusAction } from "@/actions/admin/users/actions"
 import { toast } from "sonner"
-import { Settings2, PauseCircle, CheckCircle2, OctagonAlert } from "lucide-react"
+import {
+  Settings2,
+  PauseCircle,
+  CheckCircle2,
+  OctagonAlert,
+} from "lucide-react"
 import { UserStatus } from "@/lib/vendor/prisma/client"
 import { useUser } from "@clerk/nextjs"
 

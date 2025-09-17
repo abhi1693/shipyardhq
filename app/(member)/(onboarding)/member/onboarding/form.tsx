@@ -202,7 +202,10 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
                 setValue("newsletterOptIn", checked, { shouldDirty: true })
               }
             />
-            <Label htmlFor="newsletterOptIn" className="text-sm leading-relaxed">
+            <Label
+              htmlFor="newsletterOptIn"
+              className="text-sm leading-relaxed"
+            >
               Keep me aboard the Captain&#39;s Log with launch alerts.
             </Label>
           </div>

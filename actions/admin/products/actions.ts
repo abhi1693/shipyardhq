@@ -367,7 +367,8 @@ export async function updateProductAction(
     // Gate CTA fields by feature for non-admins: ignore incoming changes if not allowed
     const canEditCTA = isAdmin || (await memberHasFeature("customCTA"))
 
-    let planUpdate: { planId?: string | null; planAssignedAt?: Date | null } = {}
+    let planUpdate: { planId?: string | null; planAssignedAt?: Date | null } =
+      {}
     if (data.planId !== undefined) {
       if (data.planId) {
         const plan = await prisma.plan.findUnique({

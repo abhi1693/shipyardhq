@@ -6,7 +6,10 @@ import {
   subscribeToNewsletterAction,
   unsubscribeFromNewsletterAction,
 } from "@/actions/public/newsletter/actions"
-import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
+import {
+  getActiveUserByClerkId,
+  INACTIVE_ACCOUNT_MESSAGE,
+} from "@/lib/server/userStatus"
 
 export async function completeOnboarding(formData: FormData) {
   const { userId } = await auth()
@@ -51,7 +54,10 @@ export async function completeOnboarding(formData: FormData) {
       if (newsletterOptIn) {
         const result = await subscribeToNewsletterAction(user.email)
         if (result.error) {
-          console.error("Failed to auto-opt user into newsletter:", result.error)
+          console.error(
+            "Failed to auto-opt user into newsletter:",
+            result.error,
+          )
         }
       } else {
         const result = await unsubscribeFromNewsletterAction(user.email)

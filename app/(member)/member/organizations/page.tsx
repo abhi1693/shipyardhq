@@ -79,7 +79,9 @@ export default async function MemberOrganizationsPage({
                     Organizations are charting new waters
                   </h1>
                   <p className="text-base text-sky-100/80">
-                    Our crew is crafting a plan that unlocks organizations with a nautical flair. Sit tight - we&apos;ll hoist the sails soon.
+                    Our crew is crafting a plan that unlocks organizations with
+                    a nautical flair. Sit tight - we&apos;ll hoist the sails
+                    soon.
                   </p>
                 </div>
                 <div className="flex flex-col items-center gap-4 text-sm text-sky-100/70">
@@ -88,7 +90,8 @@ export default async function MemberOrganizationsPage({
                     Coming soon to member organizations
                   </span>
                   <p className="max-w-md">
-                    Keep your crew ready. We&apos;ll message you inside Shipyard the moment the new plans drop.
+                    Keep your crew ready. We&apos;ll message you inside Shipyard
+                    the moment the new plans drop.
                   </p>
                 </div>
               </div>

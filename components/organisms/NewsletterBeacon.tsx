@@ -108,12 +108,17 @@ export function NewsletterBeacon({ className }: { className?: string }) {
                   window.localStorage.setItem(SUBSCRIBED_KEY, "1")
                   window.localStorage.removeItem(DISMISS_KEY)
                 } catch (storageError) {
-                  console.warn("Unable to persist newsletter subscription", storageError)
+                  console.warn(
+                    "Unable to persist newsletter subscription",
+                    storageError,
+                  )
                 }
 
                 setHasSubscribed(true)
                 setIsOpen(false)
-                toast.success("All hands! You\'ll hear from us when new launches sail.")
+                toast.success(
+                  "All hands! You\'ll hear from us when new launches sail.",
+                )
               })
             }}
           >

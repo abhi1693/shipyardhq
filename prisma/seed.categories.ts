@@ -212,7 +212,8 @@ export const CATEGORIES: SeedCategory[] = [
   {
     name: "Creator Economy",
     icon: "video",
-    description: "Tools for content entrepreneurs, memberships, and monetization.",
+    description:
+      "Tools for content entrepreneurs, memberships, and monetization.",
   },
 ]
 

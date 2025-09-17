@@ -5,7 +5,12 @@ import {
   ProductAnalytics,
 } from "@/lib/vendor/prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
-import { formatBoolean, linkify, formatDistanceToNow, image } from "@/lib/ui/formatters"
+import {
+  formatBoolean,
+  linkify,
+  formatDistanceToNow,
+  image,
+} from "@/lib/ui/formatters"
 import { Badge } from "@/components/atoms/badge"
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"

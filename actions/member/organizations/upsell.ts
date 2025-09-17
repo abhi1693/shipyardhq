@@ -5,7 +5,10 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { dodoClient } from "@/lib/dodo"
 import { headers } from "next/headers"
-import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
+import {
+  getActiveUserByClerkId,
+  INACTIVE_ACCOUNT_MESSAGE,
+} from "@/lib/server/userStatus"
 
 // Start a user-level checkout for a plan that includes the organization feature
 export async function startOrgCheckoutAction(formData: FormData) {

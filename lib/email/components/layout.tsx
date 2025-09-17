@@ -79,7 +79,12 @@ export function EmailLayout({
       </head>
       <body style={bodyStyle}>
         {previewText ? <div style={previewStyle}>{previewText}</div> : null}
-        <table width="100%" cellPadding={0} cellSpacing={0} style={containerStyle}>
+        <table
+          width="100%"
+          cellPadding={0}
+          cellSpacing={0}
+          style={containerStyle}
+        >
           <tbody>
             <tr>
               <td align="center">

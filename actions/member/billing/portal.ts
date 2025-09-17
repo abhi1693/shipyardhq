@@ -2,7 +2,10 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { createDodoCustomerPortalLinkByEmail } from "@/lib/dodoCustomerPortal"
-import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
+import {
+  getActiveUserByClerkId,
+  INACTIVE_ACCOUNT_MESSAGE,
+} from "@/lib/server/userStatus"
 
 export async function createCustomerPortalAction(sendEmail = false) {
   const { userId } = await auth()

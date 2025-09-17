@@ -40,7 +40,9 @@ export async function sendEmail(options: SendEmailOptions) {
   const resend = getClient()
   const from = options.from ?? defaultFrom
   if (!from) {
-    throw new Error("Missing sender. Provide options.from or set RESEND_FROM_EMAIL.")
+    throw new Error(
+      "Missing sender. Provide options.from or set RESEND_FROM_EMAIL.",
+    )
   }
 
   const { data, error } = await resend.emails.send({

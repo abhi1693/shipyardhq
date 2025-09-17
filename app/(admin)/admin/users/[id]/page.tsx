@@ -72,11 +72,15 @@ export default async function ViewUserPage({
         },
         {
           label: "Suspended At",
-          value: user.suspendedAt ? formatDate(user.suspendedAt) : placeholder(),
+          value: user.suspendedAt
+            ? formatDate(user.suspendedAt)
+            : placeholder(),
         },
         {
           label: "Terminated At",
-          value: user.terminatedAt ? formatDate(user.terminatedAt) : placeholder(),
+          value: user.terminatedAt
+            ? formatDate(user.terminatedAt)
+            : placeholder(),
         },
       ]}
       basePath="admin/users"

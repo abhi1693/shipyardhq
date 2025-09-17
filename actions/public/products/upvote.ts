@@ -11,7 +11,10 @@ import {
   revalidateLeaderboard,
   revalidateProduct,
 } from "@/lib/cache/revalidate"
-import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
+import {
+  getActiveUserByClerkId,
+  INACTIVE_ACCOUNT_MESSAGE,
+} from "@/lib/server/userStatus"
 
 export type UpvoteState = { upvotes: number; upvoted: boolean; error?: string }
 
@@ -27,8 +30,7 @@ export async function upvoteProductAction(
     if (!userId) return { ..._prevState, error: "Unauthorized" }
 
     const user = await getActiveUserByClerkId(userId)
-    if (!user)
-      return { ..._prevState, error: INACTIVE_ACCOUNT_MESSAGE }
+    if (!user) return { ..._prevState, error: INACTIVE_ACCOUNT_MESSAGE }
 
     const product = await prisma.product.findUnique({
       where: { id: productId },

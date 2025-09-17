@@ -47,7 +47,9 @@ export function DomainVerificationReminderEmail({
       intro="Your launch is live, but visitors still see the unverified badge. Add the TXT record below so we can confirm you own the domain."
       cta={{ label: "Open product settings", href: dashboardUrl }}
     >
-      <p style={paragraphStyle}>Here’s the DNS record to add at your domain host:</p>
+      <p style={paragraphStyle}>
+        Here’s the DNS record to add at your domain host:
+      </p>
       <table
         width="100%"
         cellPadding={12}
@@ -90,7 +92,7 @@ export function DomainVerificationReminderEmail({
       </ol>
 
       <p style={paragraphStyle}>
-        Need a walkthrough? We put together a short guide here: {" "}
+        Need a walkthrough? We put together a short guide here:{" "}
         <a
           href={docsUrl}
           style={{ color: "#2563eb", textDecoration: "none", fontWeight: 500 }}
@@ -101,8 +103,8 @@ export function DomainVerificationReminderEmail({
       </p>
 
       <p style={paragraphStyle}>
-        Once verified we’ll automatically remove the warning badge, boost trust, and
-        surface the product in more curated feeds.
+        Once verified we’ll automatically remove the warning badge, boost trust,
+        and surface the product in more curated feeds.
       </p>
     </BaseEmailTemplate>
   )

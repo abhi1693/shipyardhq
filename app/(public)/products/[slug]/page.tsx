@@ -101,9 +101,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ])
 
   const userId = authResult.userId
-  const userUpvoted = userId
-    ? await hasUserUpvoted(product.id, userId)
-    : false
+  const userUpvoted = userId ? await hasUserUpvoted(product.id, userId) : false
 
   const activeBadgeDefs = (product.badges || [])
     .map((b) => BADGE_OPTIONS.find((x) => x.value === b))

@@ -44,11 +44,10 @@ const planFormSchema = z
       .enum(["one_time_price", "recurring_price"])
       .default("one_time_price"),
     price: z.coerce.number().nonnegative(),
-    discount: z
-      .preprocess(
-        (value) => (value === "" || value === null ? undefined : value),
-        z.coerce.number().min(0).max(100).optional(),
-      ),
+    discount: z.preprocess(
+      (value) => (value === "" || value === null ? undefined : value),
+      z.coerce.number().min(0).max(100).optional(),
+    ),
     boostForDays: z.coerce.number().min(1).max(30),
     isDefault: z.boolean().optional(),
     paymentFrequencyCount: z.coerce.number().int().positive().optional(),
