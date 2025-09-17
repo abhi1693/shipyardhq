@@ -31,10 +31,10 @@ vi.mock("next/navigation", () => ({
 }))
 
 describe("UserNav profile click", () => {
-  it("navigates to /admin/profile when Profile is clicked", () => {
+  it("navigates to /member/account/profile when Profile is clicked", () => {
     render(<UserNav />)
     const profile = screen.getByText(/Profile/)
     fireEvent.click(profile)
-    expect(push).toHaveBeenCalledWith("/admin/profile")
+    expect(push).toHaveBeenCalledWith("/member/account/profile")
   })
 })
