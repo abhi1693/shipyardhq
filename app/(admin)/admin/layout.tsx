@@ -90,17 +90,6 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    title: "Account",
-    url: "#",
-    icon: "billing",
-    items: [
-      {
-        title: "Profile",
-        url: "/admin/account/profile",
-      },
-    ],
-  },
-  {
     title: "Member Area",
     url: "/member/overview",
     icon: "member",

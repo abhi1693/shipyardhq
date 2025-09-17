@@ -30,18 +30,6 @@ const navItems: NavItem[] = [
     icon: "building",
   },
   {
-    title: "Account",
-    url: "#",
-    icon: "billing",
-    items: [
-      {
-        title: "Profile",
-        url: "/member/account/profile",
-        icon: "user",
-      },
-    ],
-  },
-  {
     title: "Homepage",
     url: "/",
     icon: "dashboard",
