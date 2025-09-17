@@ -378,8 +378,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 key={`${uc.useCaseId}-${uc.categoryId}`}
                 variant="secondary"
                 className="text-xs"
+                asChild
               >
-                <CheckCircle size={12} className="mr-1" /> {uc.useCase.label}
+                <Link
+                  href={{
+                    pathname: "/browse",
+                    query: { useCase: uc.useCase.slug },
+                  }}
+                >
+                  <CheckCircle size={12} className="mr-1" /> {uc.useCase.label}
+                </Link>
               </Badge>
             ))}
           </div>
