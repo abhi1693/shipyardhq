@@ -13,7 +13,7 @@ export default function AuthFormPanel({ mode }: AuthFormPanelProps) {
       <div className="flex w-full max-w-md flex-col items-center justify-center space-y-6 text-center">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-800">
-            {isSignIn ? "Sign in to ShipYard" : "Create your account"}
+            {isSignIn ? "Sign in to ShipYardHQ" : "Create your account"}
           </h1>
           <p className="mt-1 text-sm text-zinc-500">
             {isSignIn

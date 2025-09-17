@@ -11,7 +11,7 @@ import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 
 export const metadata: Metadata = {
   title: "Admin - ShipYardHQ",
-  description: "Admin dashboard for managing ShipYard.",
+  description: "Admin dashboard for managing ShipYardHQ.",
 }
 
 const navItems: NavItem[] = [

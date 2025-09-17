@@ -9,7 +9,7 @@ export default function AuthMarketingPanel() {
         {/* Branding */}
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight text-white">
-            ShipYard
+            ShipYardHQ
           </h1>
           <p className="text-sm text-zinc-400 mt-1">A harbor for indie SaaS</p>
         </div>
@@ -18,7 +18,7 @@ export default function AuthMarketingPanel() {
         <div>
           <h2 className="text-2xl font-semibold">Set sail. Build boldly.</h2>
           <p className="mt-4 text-base text-zinc-400 leading-relaxed">
-            ShipYard is where indie products find their sea legs. Dock your
+            ShipYardHQ is where indie products find their sea legs. Dock your
             project, meet a helpful crew, and catch tailwinds toward your next
             milestone. Calm waters today, brighter horizons tomorrow.
           </p>
@@ -49,7 +49,7 @@ export default function AuthMarketingPanel() {
         </blockquote>
         <div className="mt-4 flex items-center gap-3">
           <div>
-            <div className="text-sm font-medium">The ShipYard Crew</div>
+            <div className="text-sm font-medium">The ShipYardHQ Crew</div>
             <div className="text-xs text-zinc-400">Guiding builders to calm waters</div>
           </div>
         </div>

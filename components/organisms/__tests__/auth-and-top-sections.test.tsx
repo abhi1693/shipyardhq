@@ -16,7 +16,7 @@ import { Leaderboard } from "@/components/organisms/Leaderboard"
 describe("AuthFormPanel", () => {
   it("renders sign-in variant with heading and legal links", () => {
     render(<AuthFormPanel mode="sign-in" />)
-    expect(screen.getByText("Sign in to ShipYard")).toBeInTheDocument()
+    expect(screen.getByText("Sign in to ShipYardHQ")).toBeInTheDocument()
     expect(screen.getByTestId("sign-in")).toBeInTheDocument()
     expect(
       screen.getByRole("link", { name: "Terms of Service" }),
@@ -36,13 +36,13 @@ describe("AuthFormPanel", () => {
 describe("AuthMarketingPanel", () => {
   it("shows brand, hero copy, features and testimonial", () => {
     render(<AuthMarketingPanel />)
-    expect(screen.getByText("ShipYard")).toBeInTheDocument()
+    expect(screen.getByText("ShipYardHQ")).toBeInTheDocument()
     expect(screen.getByText("Set sail. Build boldly.")).toBeInTheDocument()
     expect(
       screen.getByText("Built for indie makers, by indie makers"),
     ).toBeInTheDocument()
     // Testimonial author
-    expect(screen.getByText("The ShipYard Crew")).toBeInTheDocument()
+    expect(screen.getByText("The ShipYardHQ Crew")).toBeInTheDocument()
   })
 })
 
@@ -76,7 +76,7 @@ describe("Top sections", () => {
   })
 
   it("Leaderboard renders nothing when empty and shows CTA when populated", () => {
-    const { container, rerender } = render(<Leaderboard products={[]} as any />)
+    const { container, rerender } = render(<Leaderboard products={[]} />)
     expect(container.firstChild).toBeNull()
 
     rerender(
