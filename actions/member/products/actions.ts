@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
+import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -13,13 +14,8 @@ type ListParams = Record<string, string | string[] | undefined>
 export async function getUserProducts(params?: ListParams) {
   const { userId } = await auth()
   if (!userId) throw new Error("Unauthenticated")
-
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-    select: { id: true },
-  })
-
-  if (!user) throw new Error("User not found")
+  const user = await getActiveUserByClerkId(userId)
+  if (!user) throw new Error(INACTIVE_ACCOUNT_MESSAGE)
 
   const verification = (params?.verification as string) || undefined
   const status = (params?.status as string) || undefined
@@ -96,8 +92,10 @@ export async function getProductActivity(
 ) {
   const { userId } = await auth()
   if (!userId) throw new Error("Unauthenticated")
+  const user = await getActiveUserByClerkId(userId)
+  if (!user) throw new Error(INACTIVE_ACCOUNT_MESSAGE)
   const owner = await prisma.product.findFirst({
-    where: { id: productId, user: { clerkId: userId } },
+    where: { id: productId, userId: user.id },
     select: { id: true, createdAt: true, updatedAt: true },
   })
   if (!owner) throw new Error("Not found")
@@ -156,8 +154,10 @@ export async function getProductActivity(
 export async function getRecentUpvoters(productId: string, limit = 5) {
   const { userId } = await auth()
   if (!userId) throw new Error("Unauthenticated")
+  const user = await getActiveUserByClerkId(userId)
+  if (!user) throw new Error(INACTIVE_ACCOUNT_MESSAGE)
   const ok = await prisma.product.findFirst({
-    where: { id: productId, user: { clerkId: userId } },
+    where: { id: productId, userId: user.id },
     select: { id: true },
   })
   if (!ok) throw new Error("Not found")
@@ -187,8 +187,11 @@ export async function setProductPlanAction(
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
 
+  const user = await getActiveUserByClerkId(userId)
+  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
+
   const product = await prisma.product.findFirst({
-    where: { id: productId, user: { clerkId: userId } },
+    where: { id: productId, userId: user.id },
     select: {
       id: true,
       planAssignedAt: true,
@@ -227,14 +230,14 @@ export async function startPlanCheckoutAction(
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
 
+  const user = await getActiveUserByClerkId(userId)
+  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
+
   const product = await prisma.product.findFirst({
-    where: { id: productId, user: { clerkId: userId } },
+    where: { id: productId, userId: user.id },
     select: {
       id: true,
       slug: true,
-      user: {
-        select: { id: true, email: true, firstName: true, lastName: true },
-      },
     },
   })
   if (!product) return { error: "Product not found or not owned by user" }
@@ -257,13 +260,11 @@ export async function startPlanCheckoutAction(
     if (host) returnUrl = `${proto}://${host}/member/products/${product.slug}`
   } catch {}
 
-  const customer = product.user
-    ? ({
-        email: product.user.email,
-        name: `${product.user.firstName} ${product.user.lastName}`.trim(),
-        create_new_customer: false,
-      } as any)
-    : undefined
+  const customer = {
+    email: user.email,
+    name: `${user.firstName} ${user.lastName}`.trim(),
+    create_new_customer: false,
+  } as any
 
   // Minimal placeholder billing; hosted checkout will collect real details
   const billing = {
@@ -296,6 +297,9 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
 
+  const user = await getActiveUserByClerkId(userId)
+  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
+
   try {
     const payment = await dodoClient.payments.retrieve(paymentId)
     if (!payment) return { error: "Payment not found" }
@@ -314,7 +318,7 @@ export async function validatePaymentAndAttachPlan(paymentId: string) {
 
     // Ownership check
     const product = await prisma.product.findFirst({
-      where: { id: productId, user: { clerkId: userId } },
+      where: { id: productId, userId: user.id },
       select: {
         id: true,
         userId: true,

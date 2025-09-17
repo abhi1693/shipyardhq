@@ -5,6 +5,9 @@ import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
 import PageContainer from "@/components/layout/page-container"
 import AdminFooter from "@/components/layout/footers/admin-footer"
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
+import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 
 export const metadata: Metadata = {
   title: "Admin - ShipYardHQ",
@@ -101,6 +104,13 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
+  const { userId } = await auth()
+  if (!userId) {
+    redirect(process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/")
+  }
+
+  await requireActiveUserOrRedirect(userId)
+
   return (
     <SidebarProvider defaultOpen>
       <AppSidebar navItems={navItems} />

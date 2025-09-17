@@ -6,6 +6,7 @@ import {
   subscribeToNewsletterAction,
   unsubscribeFromNewsletterAction,
 } from "@/actions/public/newsletter/actions"
+import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
 
 export async function completeOnboarding(formData: FormData) {
   const { userId } = await auth()
@@ -29,12 +30,10 @@ export async function completeOnboarding(formData: FormData) {
     })
 
     // 2. Get the local user by Clerk ID
-    const user = await prisma.user.findUnique({
-      where: { clerkId: userId },
-    })
+    const user = await getActiveUserByClerkId(userId)
 
     if (!user) {
-      return { error: "User not found in local DB." }
+      return { error: INACTIVE_ACCOUNT_MESSAGE }
     }
 
     // 3. Update user data

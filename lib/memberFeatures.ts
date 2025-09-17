@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import type { PlanFeatureKey } from "@/lib/constants"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 // Check if the current member has access to a feature via any paid plan
 export async function memberHasFeature(key: PlanFeatureKey): Promise<boolean> {
@@ -8,10 +9,7 @@ export async function memberHasFeature(key: PlanFeatureKey): Promise<boolean> {
     const { userId: clerkId } = await auth()
     if (!clerkId) return false
 
-    const user = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true },
-    })
+    const user = await getActiveUserByClerkId(clerkId)
     if (!user) return false
 
     // 1) Any owned product whose plan grants this feature

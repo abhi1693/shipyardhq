@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { putBlob, deleteBlob } from "@/lib/blob"
 import { toWebpIfPossible } from "@/lib/server/image"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 export const dynamic = "force-dynamic"
 
@@ -12,6 +13,9 @@ export async function POST(req: Request) {
   try {
     const { userId } = await auth()
     if (!userId) return new Response("Unauthorized", { status: 401 })
+
+    const user = await getActiveUserByClerkId(userId)
+    if (!user) return new Response("Account inactive", { status: 403 })
 
     const form = await req.formData()
     const file = form.get("file") as File | null
@@ -48,6 +52,9 @@ export async function DELETE(req: Request) {
   try {
     const { userId } = await auth()
     if (!userId) return new Response("Unauthorized", { status: 401 })
+
+    const user = await getActiveUserByClerkId(userId)
+    if (!user) return new Response("Account inactive", { status: 403 })
 
     // Support url via JSON body or query param
     let url: string | undefined

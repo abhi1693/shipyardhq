@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { dodoClient } from "@/lib/dodo"
 import { headers } from "next/headers"
+import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
 
 // Start a user-level checkout for a plan that includes the organization feature
 export async function startOrgCheckoutAction(formData: FormData) {
@@ -14,10 +15,7 @@ export async function startOrgCheckoutAction(formData: FormData) {
   const planId = formData.get("planId")?.toString() || ""
   if (!planId) return
 
-  const user = await prisma.user.findFirst({
-    where: { clerkId: userId },
-    select: { id: true, email: true, firstName: true, lastName: true },
-  })
+  const user = await getActiveUserByClerkId(userId)
   if (!user) return
 
   const plan = await prisma.plan.findUnique({
@@ -125,11 +123,8 @@ export async function validateOrgPaymentAction(paymentId: string) {
       if (!plan) return { error: "No plan found for product" }
       planId = plan.id
     }
-    const u = await prisma.user.findUnique({
-      where: { clerkId: userId },
-      select: { id: true, firstName: true },
-    })
-    if (!u) return { error: "User not found" }
+    const u = await getActiveUserByClerkId(userId)
+    if (!u) return { error: INACTIVE_ACCOUNT_MESSAGE }
 
     // Record the successful purchase for entitlement
     await prisma.userPlanPurchase.upsert({
@@ -178,11 +173,8 @@ export async function validateOrgSubscriptionAction(
       return { error: "Unable to map subscription to a plan" }
     }
 
-    const u = await prisma.user.findUnique({
-      where: { clerkId: userId },
-      select: { id: true, firstName: true },
-    })
-    if (!u) return { error: "User not found" }
+    const u = await getActiveUserByClerkId(userId)
+    if (!u) return { error: INACTIVE_ACCOUNT_MESSAGE }
 
     // Record the active subscription as a purchase for entitlement
     await prisma.userPlanPurchase.upsert({

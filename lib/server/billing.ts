@@ -4,16 +4,14 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
+import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
 
 export async function syncCurrentUserBilling() {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
 
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-    select: { id: true, email: true },
-  })
-  if (!user?.email) return { error: "User not found" }
+  const user = await getActiveUserByClerkId(userId)
+  if (!user?.email) return { error: INACTIVE_ACCOUNT_MESSAGE }
 
   const customer = await fetchDodoCustomerByEmail(user.email)
   if (!customer) {

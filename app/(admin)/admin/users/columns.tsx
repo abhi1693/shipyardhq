@@ -6,6 +6,8 @@ import { formatDate, linkify } from "@/lib/ui/formatters"
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"
 import { Eye, Pencil } from "lucide-react"
+import { Badge } from "@/components/atoms/badge"
+import UserStatusMenu from "@/components/molecules/UserStatusMenu"
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -28,6 +30,23 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => row.original.role,
   },
   {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <Badge
+        variant={
+          row.original.status === "active"
+            ? "success"
+            : row.original.status === "terminated"
+              ? "destructive"
+              : "secondary"
+        }
+      >
+        {row.original.status}
+      </Badge>
+    ),
+  },
+  {
     accessorKey: "createdAt",
     header: "Created At",
     cell: ({ row }) => formatDate(row.original.createdAt),
@@ -42,6 +61,11 @@ export const columns: ColumnDef<User>[] = [
     header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
+        <UserStatusMenu
+          userId={row.original.id}
+          clerkId={row.original.clerkId}
+          status={row.original.status}
+        />
         <Link href={`/admin/users/${row.original.id}`}>
           <Button size="sm" variant="outline">
             <Eye className="h-4 w-4" /> View

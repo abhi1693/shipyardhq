@@ -193,6 +193,9 @@ model User {
   heardFrom       String? // How they heard about us
   acceptedTerms   Boolean   @default(false)
   termsAcceptedAt DateTime?
+  status          UserStatus @default(active)
+  suspendedAt     DateTime?
+  terminatedAt    DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -202,6 +205,12 @@ model User {
   ProductUpvote ProductUpvote[]
   Organization  Organization[]
   purchases     UserPlanPurchase[]
+}
+
+enum UserStatus {
+  active
+  suspended
+  terminated
 }
 
 model NewsletterSubscription {

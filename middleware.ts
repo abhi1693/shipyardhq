@@ -7,6 +7,7 @@ const isMemberRoute = createRouteMatcher(["/member(.*)"])
 interface CustomPublicMetadata {
   role?: "admin" | "member"
   onboardingComplete?: boolean
+  status?: "active" | "suspended" | "terminated"
 }
 
 export default clerkMiddleware(async (auth, req) => {
@@ -21,6 +22,22 @@ export default clerkMiddleware(async (auth, req) => {
   const { sessionClaims } = await auth()
 
   const metadata = sessionClaims?.metadata as CustomPublicMetadata
+  const status = metadata?.status
+  const pathname = req.nextUrl.pathname
+  const isSuspended = status && status !== "active"
+
+  if (isSuspended) {
+    if (pathname.startsWith("/api")) {
+      return NextResponse.json(
+        { error: "Account suspended" },
+        { status: 403 },
+      )
+    }
+
+    if (!pathname.startsWith("/auth/suspended")) {
+      return NextResponse.redirect(new URL("/auth/suspended", req.url))
+    }
+  }
 
   // Admin access control
   if (isAdminRoute(req) && metadata?.role !== "admin") {

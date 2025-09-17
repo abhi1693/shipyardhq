@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 async function fetchPublicProduct(
   where: Prisma.ProductWhereUniqueInput,
@@ -116,10 +117,7 @@ export const getRelatedProductsByCategory = cached(
 )
 
 export async function hasUserUpvoted(productId: string, clerkId: string) {
-  const user = await prisma.user.findUnique({
-    where: { clerkId },
-    select: { id: true },
-  })
+  const user = await getActiveUserByClerkId(clerkId)
   if (!user) return false
   const existing = await (prisma as any).productUpvote.findUnique({
     where: { productId_userId: { productId, userId: user.id } },

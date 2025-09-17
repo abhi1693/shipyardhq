@@ -7,6 +7,7 @@ import { auth } from "@clerk/nextjs/server"
 import PageContainer from "@/components/layout/page-container"
 import { syncCurrentUserBilling } from "@/lib/server/billing"
 import MemberFooter from "@/components/layout/footers/member-footer"
+import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 
 export const metadata: Metadata = {
   title: "ShipYardHQ",
@@ -41,9 +42,11 @@ export default async function MemberLayout({
 }: {
   children: React.ReactNode
 }) {
-  await syncCurrentUserBilling()
-
-  const { sessionClaims } = await auth()
+  const { sessionClaims, userId } = await auth()
+  if (userId) {
+    await requireActiveUserOrRedirect(userId)
+    await syncCurrentUserBilling()
+  }
   const role = sessionClaims?.metadata.role || "member"
 
   const items: NavItem[] = [...navItems]

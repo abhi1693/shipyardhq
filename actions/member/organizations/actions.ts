@@ -4,16 +4,20 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { requireMemberFeature } from "@/lib/memberFeatures"
 import { redirect } from "next/navigation"
+import {
+  getActiveUserByClerkId,
+  INACTIVE_ACCOUNT_MESSAGE,
+  requireActiveUserOrRedirect,
+} from "@/lib/server/userStatus"
 
-export async function getMyOrganizations() {
+async function requireActiveCurrentUser() {
   const { userId: clerkId } = await auth()
   if (!clerkId) throw new Error("Unauthenticated")
+  return requireActiveUserOrRedirect(clerkId)
+}
 
-  const user = await prisma.user.findUnique({
-    where: { clerkId },
-    select: { id: true },
-  })
-  if (!user) throw new Error("User not found")
+export async function getMyOrganizations() {
+  const user = await requireActiveCurrentUser()
 
   const gate = await requireMemberFeature("organization")
   // When not entitled, return an empty list to keep the
@@ -30,13 +34,7 @@ export async function getMyOrganizations() {
 }
 
 export async function getMyOrganizationById(id: string) {
-  const { userId: clerkId } = await auth()
-  if (!clerkId) throw new Error("Unauthenticated")
-  const user = await prisma.user.findUnique({
-    where: { clerkId },
-    select: { id: true },
-  })
-  if (!user) throw new Error("User not found")
+  const user = await requireActiveCurrentUser()
   const gate = await requireMemberFeature("organization")
   if (!gate.ok) return null
   const org = await prisma.organization.findFirst({
@@ -56,13 +54,7 @@ export async function getMyOrganizationById(id: string) {
 export async function getMyOrganizationsPage(
   params?: Record<string, string | string[] | undefined>,
 ) {
-  const { userId: clerkId } = await auth()
-  if (!clerkId) throw new Error("Unauthenticated")
-  const user = await prisma.user.findUnique({
-    where: { clerkId },
-    select: { id: true },
-  })
-  if (!user) throw new Error("User not found")
+  const user = await requireActiveCurrentUser()
 
   const gate = await requireMemberFeature("organization")
   if (!gate.ok) redirect("/member/organizations")
@@ -98,13 +90,7 @@ export async function getMyOrganizationsPage(
 }
 
 export async function getMyOrganizationMembers(orgId: string) {
-  const { userId: clerkId } = await auth()
-  if (!clerkId) throw new Error("Unauthenticated")
-  const user = await prisma.user.findUnique({
-    where: { clerkId },
-    select: { id: true },
-  })
-  if (!user) throw new Error("User not found")
+  const user = await requireActiveCurrentUser()
   const gate = await requireMemberFeature("organization")
   if (!gate.ok) redirect("/member/organizations")
   const org = await prisma.organization.findFirst({
@@ -138,11 +124,8 @@ export async function addMyOrganizationMemberAction(
   const { userId: clerkId } = await auth()
   if (!clerkId) return { error: "Unauthenticated" }
   try {
-    const current = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true },
-    })
-    if (!current) return { error: "User not found" }
+    const current = await getActiveUserByClerkId(clerkId)
+    if (!current) return { error: INACTIVE_ACCOUNT_MESSAGE }
     const gate = await requireMemberFeature("organization")
     if (!gate.ok) return { error: "Upgrade required for organizations" }
     const org = await prisma.organization.findUnique({
@@ -175,11 +158,8 @@ export async function deleteMyOrganizationMemberAction(membershipId: string) {
   const { userId: clerkId } = await auth()
   if (!clerkId) return { error: "Unauthenticated" }
   try {
-    const current = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true },
-    })
-    if (!current) return { error: "User not found" }
+    const current = await getActiveUserByClerkId(clerkId)
+    if (!current) return { error: INACTIVE_ACCOUNT_MESSAGE }
     const gate = await requireMemberFeature("organization")
     if (!gate.ok) return { error: "Upgrade required for organizations" }
     const membership = await prisma.organizationMembership.findUnique({
@@ -211,11 +191,8 @@ export async function createMyOrganizationAction(formData: FormData) {
   if (!name) return { error: "Name is required" }
   if (!url) return { error: "URL is required" }
   try {
-    const user = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true },
-    })
-    if (!user) return { error: "User not found" }
+    const user = await getActiveUserByClerkId(clerkId)
+    if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
     const gate = await requireMemberFeature("organization")
     if (!gate.ok) return { error: "Upgrade required for organizations" }
     await prisma.organization.create({
@@ -241,11 +218,8 @@ export async function updateOrganizationOwnerAction(
   const { userId: clerkId } = await auth()
   if (!clerkId) return { error: "Unauthenticated" }
   try {
-    const current = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true },
-    })
-    if (!current) return { error: "User not found" }
+    const current = await getActiveUserByClerkId(clerkId)
+    if (!current) return { error: INACTIVE_ACCOUNT_MESSAGE }
     const gate = await requireMemberFeature("organization")
     if (!gate.ok) return { error: "Upgrade required for organizations" }
     const org = await prisma.organization.findUnique({
@@ -277,11 +251,8 @@ export async function updateMyOrganizationAction(
   const { userId: clerkId } = await auth()
   if (!clerkId) return { error: "Unauthenticated" }
   try {
-    const user = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true },
-    })
-    if (!user) return { error: "User not found" }
+    const user = await getActiveUserByClerkId(clerkId)
+    if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
     const gate = await requireMemberFeature("organization")
     if (!gate.ok) return { error: "Upgrade required for organizations" }
     const org = await prisma.organization.findUnique({
@@ -307,11 +278,8 @@ export async function deleteMyOrganizationAction(id: string) {
   const { userId: clerkId } = await auth()
   if (!clerkId) return { error: "Unauthenticated" }
   try {
-    const user = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true },
-    })
-    if (!user) return { error: "User not found" }
+    const user = await getActiveUserByClerkId(clerkId)
+    if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
     const gate = await requireMemberFeature("organization")
     if (!gate.ok) return { error: "Upgrade required for organizations" }
     const org = await prisma.organization.findUnique({

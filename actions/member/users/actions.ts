@@ -2,6 +2,7 @@
 
 import { type User as ClerkUser } from "@clerk/backend"
 import prisma from "@/lib/prisma"
+import { clerkClient } from "@clerk/nextjs/server"
 
 export async function syncUserFromClerk(clerkUser: ClerkUser) {
   const email = clerkUser.emailAddresses[0]?.emailAddress
@@ -12,7 +13,7 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
     throw new Error("Clerk user email is required but missing.")
   }
 
-  await prisma.user.upsert({
+  const user = await prisma.user.upsert({
     where: { email },
     update: {
       clerkId: clerkUser.id,
@@ -27,6 +28,16 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
       lastName,
     },
   })
+
+  try {
+    const client = await clerkClient()
+    await client.users.updateUser(clerkUser.id, {
+      publicMetadata: { status: user.status },
+      privateMetadata: { status: user.status },
+    })
+  } catch (error) {
+    console.error("Failed to sync user status metadata:", error)
+  }
 }
 
 export async function getUserByClerkId(clerkId: string) {
@@ -36,12 +47,12 @@ export async function getUserByClerkId(clerkId: string) {
 
   const user = await prisma.user.findUnique({
     where: { clerkId },
-    select: { id: true },
+    select: { id: true, status: true },
   })
 
-  if (!user) {
-    throw new Error(`User with Clerk ID ${clerkId} not found.`)
+  if (!user || user.status !== "active") {
+    throw new Error(`User with Clerk ID ${clerkId} not active or not found.`)
   }
 
-  return user
+  return { id: user.id }
 }

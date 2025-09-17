@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { deleteBlob } from "@/lib/blob"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 export async function DELETE(
   _req: Request,
@@ -11,11 +12,8 @@ export async function DELETE(
     const { userId } = await auth()
     if (!userId) return new Response("Unauthorized", { status: 401 })
 
-    const user = await prisma.user.findUnique({
-      where: { clerkId: userId },
-      select: { id: true },
-    })
-    if (!user) return new Response("Unauthorized", { status: 401 })
+    const user = await getActiveUserByClerkId(userId)
+    if (!user) return new Response("Account inactive", { status: 403 })
 
     const media = await prisma.productMedia.findUnique({
       where: { id: mediaId },

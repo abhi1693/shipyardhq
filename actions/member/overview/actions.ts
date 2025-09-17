@@ -1,18 +1,15 @@
 import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import { subDays } from "date-fns"
+import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 
 type UserRef = { id: string }
 
 async function getCurrentUser(): Promise<UserRef> {
   const { userId } = await auth()
   if (!userId) throw new Error("Unauthenticated")
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-    select: { id: true },
-  })
-  if (!user) throw new Error("User not found")
-  return user
+  const user = await requireActiveUserOrRedirect(userId)
+  return { id: user.id }
 }
 
 export async function getUserDashboardStats(days = 7) {

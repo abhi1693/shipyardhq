@@ -7,7 +7,7 @@ import {
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { formatDistanceToNow } from "@/lib/ui/formatters"
 import { auth } from "@clerk/nextjs/server"
-import prisma from "@/lib/prisma"
+import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { MemberOrganizationMembersRelationship } from "./relationships/members"
 
 export default async function MemberOrganizationPage({
@@ -32,10 +32,7 @@ export default async function MemberOrganizationPage({
   const { userId: clerkId } = await auth()
   let isOwner = false
   if (clerkId) {
-    const me = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true },
-    })
+    const me = await requireActiveUserOrRedirect(clerkId)
     if (me && org.ownerUserId) {
       isOwner = org.ownerUserId === me.id
     }

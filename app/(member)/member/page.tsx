@@ -1,6 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
+import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 
 export default async function MemberIndexPage() {
   const { userId } = await auth()
@@ -15,6 +16,8 @@ export default async function MemberIndexPage() {
     clerkUser.publicMetadata?.onboardingComplete === true
 
   await syncUserFromClerk(clerkUser)
+
+  await requireActiveUserOrRedirect(userId)
 
   redirect(onboardingComplete ? "/member/overview" : "/member/onboarding")
 }

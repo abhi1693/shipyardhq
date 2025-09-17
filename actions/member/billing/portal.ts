@@ -1,18 +1,16 @@
 "use server"
 
 import { auth } from "@clerk/nextjs/server"
-import prisma from "@/lib/prisma"
 import { createDodoCustomerPortalLinkByEmail } from "@/lib/dodoCustomerPortal"
+import { getActiveUserByClerkId, INACTIVE_ACCOUNT_MESSAGE } from "@/lib/server/userStatus"
 
 export async function createCustomerPortalAction(sendEmail = false) {
   const { userId } = await auth()
   if (!userId) return { error: "Unauthenticated" }
 
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-    select: { email: true },
-  })
-  if (!user?.email) return { error: "User email not found" }
+  const user = await getActiveUserByClerkId(userId)
+  if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
+  if (!user.email) return { error: "User email not found" }
 
   const link = await createDodoCustomerPortalLinkByEmail(user.email, {
     sendEmail,

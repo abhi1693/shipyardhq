@@ -1,0 +1,48 @@
+import prisma from "@/lib/prisma"
+import { redirect } from "next/navigation"
+
+export const INACTIVE_ACCOUNT_MESSAGE = "Account is not active"
+export const SUSPENDED_ACCOUNT_PATH = "/auth/suspended"
+
+export async function getActiveUserByClerkId(clerkId: string) {
+  if (!clerkId) return null
+
+  const user = await prisma.user.findUnique({
+    where: { clerkId },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+      firstName: true,
+      lastName: true,
+    },
+  })
+
+  if (!user || user.status !== "active") {
+    return null
+  }
+
+  return user
+}
+
+export async function requireActiveUserOrRedirect(clerkId?: string | null) {
+  if (!clerkId) redirect(SUSPENDED_ACCOUNT_PATH)
+
+  const user = await getActiveUserByClerkId(clerkId)
+  if (!user) redirect(SUSPENDED_ACCOUNT_PATH)
+
+  return user
+}
+
+export async function getUserStatusByClerkId(clerkId: string) {
+  if (!clerkId) return null
+
+  return prisma.user.findUnique({
+    where: { clerkId },
+    select: {
+      id: true,
+      status: true,
+    },
+  })
+}

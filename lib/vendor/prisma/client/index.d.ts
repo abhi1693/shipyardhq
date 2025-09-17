@@ -155,6 +155,15 @@ export const Platform: {
 export type Platform = (typeof Platform)[keyof typeof Platform]
 
 
+export const UserStatus: {
+  active: 'active',
+  suspended: 'suspended',
+  terminated: 'terminated'
+};
+
+export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
+
+
 export const PlanType: {
   one_time_price: 'one_time_price',
   recurring_price: 'recurring_price'
@@ -189,6 +198,10 @@ export const ProductStatus: typeof $Enums.ProductStatus
 export type Platform = $Enums.Platform
 
 export const Platform: typeof $Enums.Platform
+
+export type UserStatus = $Enums.UserStatus
+
+export const UserStatus: typeof $Enums.UserStatus
 
 export type PlanType = $Enums.PlanType
 
@@ -12043,6 +12056,9 @@ export namespace Prisma {
     heardFrom: string | null
     acceptedTerms: boolean | null
     termsAcceptedAt: Date | null
+    status: $Enums.UserStatus | null
+    suspendedAt: Date | null
+    terminatedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -12058,6 +12074,9 @@ export namespace Prisma {
     heardFrom: string | null
     acceptedTerms: boolean | null
     termsAcceptedAt: Date | null
+    status: $Enums.UserStatus | null
+    suspendedAt: Date | null
+    terminatedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -12073,6 +12092,9 @@ export namespace Prisma {
     heardFrom: number
     acceptedTerms: number
     termsAcceptedAt: number
+    status: number
+    suspendedAt: number
+    terminatedAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -12090,6 +12112,9 @@ export namespace Prisma {
     heardFrom?: true
     acceptedTerms?: true
     termsAcceptedAt?: true
+    status?: true
+    suspendedAt?: true
+    terminatedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -12105,6 +12130,9 @@ export namespace Prisma {
     heardFrom?: true
     acceptedTerms?: true
     termsAcceptedAt?: true
+    status?: true
+    suspendedAt?: true
+    terminatedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -12120,6 +12148,9 @@ export namespace Prisma {
     heardFrom?: true
     acceptedTerms?: true
     termsAcceptedAt?: true
+    status?: true
+    suspendedAt?: true
+    terminatedAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -12208,6 +12239,9 @@ export namespace Prisma {
     heardFrom: string | null
     acceptedTerms: boolean
     termsAcceptedAt: Date | null
+    status: $Enums.UserStatus
+    suspendedAt: Date | null
+    terminatedAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -12240,6 +12274,9 @@ export namespace Prisma {
     heardFrom?: boolean
     acceptedTerms?: boolean
     termsAcceptedAt?: boolean
+    status?: boolean
+    suspendedAt?: boolean
+    terminatedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     products?: boolean | User$productsArgs<ExtArgs>
@@ -12261,6 +12298,9 @@ export namespace Prisma {
     heardFrom?: boolean
     acceptedTerms?: boolean
     termsAcceptedAt?: boolean
+    status?: boolean
+    suspendedAt?: boolean
+    terminatedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -12276,6 +12316,9 @@ export namespace Prisma {
     heardFrom?: boolean
     acceptedTerms?: boolean
     termsAcceptedAt?: boolean
+    status?: boolean
+    suspendedAt?: boolean
+    terminatedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -12291,11 +12334,14 @@ export namespace Prisma {
     heardFrom?: boolean
     acceptedTerms?: boolean
     termsAcceptedAt?: boolean
+    status?: boolean
+    suspendedAt?: boolean
+    terminatedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clerkId" | "email" | "firstName" | "lastName" | "role" | "roleIntent" | "heardFrom" | "acceptedTerms" | "termsAcceptedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clerkId" | "email" | "firstName" | "lastName" | "role" | "roleIntent" | "heardFrom" | "acceptedTerms" | "termsAcceptedAt" | "status" | "suspendedAt" | "terminatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     products?: boolean | User$productsArgs<ExtArgs>
     memberships?: boolean | User$membershipsArgs<ExtArgs>
@@ -12327,6 +12373,9 @@ export namespace Prisma {
       heardFrom: string | null
       acceptedTerms: boolean
       termsAcceptedAt: Date | null
+      status: $Enums.UserStatus
+      suspendedAt: Date | null
+      terminatedAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -12767,6 +12816,9 @@ export namespace Prisma {
     readonly heardFrom: FieldRef<"User", 'String'>
     readonly acceptedTerms: FieldRef<"User", 'Boolean'>
     readonly termsAcceptedAt: FieldRef<"User", 'DateTime'>
+    readonly status: FieldRef<"User", 'UserStatus'>
+    readonly suspendedAt: FieldRef<"User", 'DateTime'>
+    readonly terminatedAt: FieldRef<"User", 'DateTime'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -23284,6 +23336,9 @@ export namespace Prisma {
     heardFrom: 'heardFrom',
     acceptedTerms: 'acceptedTerms',
     termsAcceptedAt: 'termsAcceptedAt',
+    status: 'status',
+    suspendedAt: 'suspendedAt',
+    terminatedAt: 'terminatedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -23535,6 +23590,20 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'UserStatus'
+   */
+  export type EnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'UserStatus[]'
+   */
+  export type ListEnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserStatus[]'>
     
 
 
@@ -24227,6 +24296,9 @@ export namespace Prisma {
     heardFrom?: StringNullableFilter<"User"> | string | null
     acceptedTerms?: BoolFilter<"User"> | boolean
     termsAcceptedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
+    suspendedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    terminatedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     products?: ProductListRelationFilter
@@ -24247,6 +24319,9 @@ export namespace Prisma {
     heardFrom?: SortOrderInput | SortOrder
     acceptedTerms?: SortOrder
     termsAcceptedAt?: SortOrderInput | SortOrder
+    status?: SortOrder
+    suspendedAt?: SortOrderInput | SortOrder
+    terminatedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     products?: ProductOrderByRelationAggregateInput
@@ -24270,6 +24345,9 @@ export namespace Prisma {
     heardFrom?: StringNullableFilter<"User"> | string | null
     acceptedTerms?: BoolFilter<"User"> | boolean
     termsAcceptedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
+    suspendedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    terminatedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     products?: ProductListRelationFilter
@@ -24290,6 +24368,9 @@ export namespace Prisma {
     heardFrom?: SortOrderInput | SortOrder
     acceptedTerms?: SortOrder
     termsAcceptedAt?: SortOrderInput | SortOrder
+    status?: SortOrder
+    suspendedAt?: SortOrderInput | SortOrder
+    terminatedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -24311,6 +24392,9 @@ export namespace Prisma {
     heardFrom?: StringNullableWithAggregatesFilter<"User"> | string | null
     acceptedTerms?: BoolWithAggregatesFilter<"User"> | boolean
     termsAcceptedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    status?: EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
+    suspendedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    terminatedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -25581,6 +25665,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutUserInput
@@ -25601,6 +25688,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
@@ -25621,6 +25711,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutUserNestedInput
@@ -25641,6 +25734,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
@@ -25661,6 +25757,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -25676,6 +25775,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25691,6 +25793,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26977,6 +27082,13 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type EnumUserStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserStatusFilter<$PrismaModel> | $Enums.UserStatus
+  }
+
   export type OrganizationListRelationFilter = {
     every?: OrganizationWhereInput
     some?: OrganizationWhereInput
@@ -27008,6 +27120,9 @@ export namespace Prisma {
     heardFrom?: SortOrder
     acceptedTerms?: SortOrder
     termsAcceptedAt?: SortOrder
+    status?: SortOrder
+    suspendedAt?: SortOrder
+    terminatedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -27023,6 +27138,9 @@ export namespace Prisma {
     heardFrom?: SortOrder
     acceptedTerms?: SortOrder
     termsAcceptedAt?: SortOrder
+    status?: SortOrder
+    suspendedAt?: SortOrder
+    terminatedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -27038,8 +27156,21 @@ export namespace Prisma {
     heardFrom?: SortOrder
     acceptedTerms?: SortOrder
     termsAcceptedAt?: SortOrder
+    status?: SortOrder
+    suspendedAt?: SortOrder
+    terminatedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type EnumUserStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserStatusWithAggregatesFilter<$PrismaModel> | $Enums.UserStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUserStatusFilter<$PrismaModel>
+    _max?: NestedEnumUserStatusFilter<$PrismaModel>
   }
 
   export type NewsletterSubscriptionCountOrderByAggregateInput = {
@@ -28057,6 +28188,10 @@ export namespace Prisma {
     connect?: UserPlanPurchaseWhereUniqueInput | UserPlanPurchaseWhereUniqueInput[]
   }
 
+  export type EnumUserStatusFieldUpdateOperationsInput = {
+    set?: $Enums.UserStatus
+  }
+
   export type ProductUpdateManyWithoutUserNestedInput = {
     create?: XOR<ProductCreateWithoutUserInput, ProductUncheckedCreateWithoutUserInput> | ProductCreateWithoutUserInput[] | ProductUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ProductCreateOrConnectWithoutUserInput | ProductCreateOrConnectWithoutUserInput[]
@@ -28857,6 +28992,23 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedEnumUserStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserStatusFilter<$PrismaModel> | $Enums.UserStatus
+  }
+
+  export type NestedEnumUserStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserStatusWithAggregatesFilter<$PrismaModel> | $Enums.UserStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUserStatusFilter<$PrismaModel>
+    _max?: NestedEnumUserStatusFilter<$PrismaModel>
+  }
+
   export type NestedEnumPlanTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.PlanType | EnumPlanTypeFieldRefInput<$PrismaModel>
     in?: $Enums.PlanType[] | ListEnumPlanTypeFieldRefInput<$PrismaModel>
@@ -28918,6 +29070,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
@@ -28937,6 +29092,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
@@ -29216,6 +29374,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
@@ -29235,6 +29396,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -30205,6 +30369,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutUserInput
@@ -30224,6 +30391,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
@@ -30336,6 +30506,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutUserNestedInput
@@ -30355,6 +30528,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
@@ -30476,6 +30652,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutUserInput
@@ -30495,6 +30674,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
@@ -30605,6 +30787,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutUserNestedInput
@@ -30624,6 +30809,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
@@ -30643,6 +30831,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutUserInput
@@ -30662,6 +30853,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
@@ -30722,6 +30916,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutUserNestedInput
@@ -30741,6 +30938,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
@@ -31596,6 +31796,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductCreateNestedManyWithoutUserInput
@@ -31615,6 +31818,9 @@ export namespace Prisma {
     heardFrom?: string | null
     acceptedTerms?: boolean
     termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
@@ -31697,6 +31903,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUpdateManyWithoutUserNestedInput
@@ -31716,6 +31925,9 @@ export namespace Prisma {
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
     acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
     termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
