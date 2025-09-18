@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
+import { ProductStatus } from "@/lib/vendor/prisma/client"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -21,7 +22,15 @@ export async function getUserProducts(params?: ListParams) {
   if (!user) throw new Error(INACTIVE_ACCOUNT_MESSAGE)
 
   const verification = (params?.verification as string) || undefined
-  const status = (params?.status as string) || undefined
+  const rawStatus = (params?.status as string) || undefined
+  const validStatuses: readonly ProductStatus[] = [
+    "draft",
+    "published",
+    "archived",
+  ]
+  const status = rawStatus && validStatuses.includes(rawStatus as ProductStatus)
+    ? (rawStatus as ProductStatus)
+    : undefined
   const q = ((params?.q as string) || "").trim()
   const sort = (params?.sort as string) || "new"
   const page = Math.max(1, parseInt((params?.page as string) || "1", 10) || 1)

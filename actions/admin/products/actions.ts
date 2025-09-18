@@ -230,17 +230,30 @@ export async function createProductAction(formData: FormData) {
         },
       },
     })
-    // Fire domain event for listeners (e.g., auto badges)
-    await publish("product.created", { productId: created.id })
+    const sideEffects: Promise<unknown>[] = [
+      // Fire domain event for listeners (e.g., auto badges)
+      publish("product.created", { productId: created.id }),
+      // Invalidate public caches affected by a new product
+      Promise.resolve().then(() => revalidateProducts()),
+      Promise.resolve().then(() => revalidateCategory(categoryId)),
+      Promise.resolve().then(() => revalidateLeaderboard()),
+    ]
 
     if (created.status === "published") {
-      await sendProductPublishedEmail(created.id)
+      sideEffects.push(sendProductPublishedEmail(created.id))
     }
 
-    // Invalidate public caches affected by a new product
-    revalidateProducts()
-    revalidateCategory(categoryId)
-    revalidateLeaderboard()
+    const results = await Promise.allSettled(sideEffects)
+    const failures = results.filter(
+      (result): result is PromiseRejectedResult => result.status === "rejected",
+    )
+
+    if (failures.length) {
+      console.error("Product created but follow-up tasks failed", {
+        productId: created.id,
+        reasons: failures.map((failure) => failure.reason),
+      })
+    }
 
     return { success: true }
   } catch (error) {
@@ -502,6 +515,16 @@ export async function deleteProductAction(id: string) {
     revalidateLeaderboard()
     return result
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      console.warn("Delete skipped, product already removed:", id)
+      revalidateProducts()
+      revalidateCategories()
+      revalidateLeaderboard()
+      return { error: "Product not found" }
+    }
     console.error("Error deleting product:", error)
     return { error: "Failed to delete product" }
   }

@@ -152,7 +152,7 @@ export function ProductCard({
 
                 {compact &&
                 (compactBadges.length > 0 || extraBadgeCount > 0) ? (
-                  <div className="flex items-center gap-1.5 pt-2">
+                  <div className="flex flex-wrap items-center gap-1.5 pt-2">
                     {compactBadges.map((badge, i) => (
                       <Badge
                         key={`${badge.value}-${i}`}

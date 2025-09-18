@@ -114,6 +114,33 @@ export const getRelatedProductsByCategory = cached(
   },
 )
 
+export const getPublicProductsByUseCase = cached(
+  async (useCaseSlug: string, excludeId: string) =>
+    prisma.product.findMany({
+      where: {
+        id: { not: excludeId },
+        status: "published",
+        category: {
+          useCases: {
+            some: {
+              useCase: {
+                slug: useCaseSlug,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+      include: { analytics: true },
+    }),
+  "products:public-by-usecase",
+  {
+    ttl: DEFAULT_TTL.medium,
+    tags: ([useCaseSlug]) => [TAGS.products, TAGS.category(String(useCaseSlug))],
+  },
+)
+
 export async function hasUserUpvoted(productId: string, clerkId: string) {
   const user = await getActiveUserByClerkId(clerkId)
   if (!user) return false

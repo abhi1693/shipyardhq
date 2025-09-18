@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import { ReactNode } from "react"
 import { clickExternalProductLinkAction } from "@/actions/public/products/analytics"
+import { cn } from "@/lib/utils"
 
 export function ExternalBadgeLink({
   href,
@@ -13,6 +14,7 @@ export function ExternalBadgeLink({
   follow = false,
   target,
   rel,
+  className,
 }: {
   href: string
   children: ReactNode
@@ -24,6 +26,7 @@ export function ExternalBadgeLink({
   // Optional anchor attributes when follow=true
   target?: string
   rel?: string
+  className?: string
 }) {
   if (!follow && productId) {
     return (
@@ -31,14 +34,18 @@ export function ExternalBadgeLink({
         <input type="hidden" name="productId" value={productId} />
         <input type="hidden" name="to" value={href} />
         <button type="submit">
-          <Badge variant={variant ?? "default"}>{children}</Badge>
+          <Badge variant={variant ?? "default"} className={cn(className)}>
+            {children}
+          </Badge>
         </button>
       </form>
     )
   }
   return (
     <Link href={href} target={target} rel={rel}>
-      <Badge variant={variant ?? "default"}>{children}</Badge>
+      <Badge variant={variant ?? "default"} className={cn(className)}>
+        {children}
+      </Badge>
     </Link>
   )
 }

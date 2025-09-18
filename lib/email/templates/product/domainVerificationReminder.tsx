@@ -37,7 +37,6 @@ export function DomainVerificationReminderEmail({
   productName,
   verificationCode,
   dashboardUrl,
-  docsUrl = "https://shipyardhq.com/docs/launch/verification",
 }: DomainVerificationReminderProps) {
   return (
     <BaseEmailTemplate
@@ -90,17 +89,6 @@ export function DomainVerificationReminderEmail({
           Visit your product settings and click <strong>Verify domain</strong>.
         </li>
       </ol>
-
-      <p style={paragraphStyle}>
-        Need a walkthrough? We put together a short guide here:{" "}
-        <a
-          href={docsUrl}
-          style={{ color: "#2563eb", textDecoration: "none", fontWeight: 500 }}
-        >
-          Domain verification help
-        </a>
-        .
-      </p>
 
       <p style={paragraphStyle}>
         Once verified we’ll automatically remove the warning badge, boost trust,

@@ -14,6 +14,8 @@ const statusOptions = [
   { value: "archived", label: "Archived" },
 ]
 
+const statusOptionValues = new Set(statusOptions.map((opt) => opt.value))
+
 const verificationOptions = [
   { value: "__all__", label: "All domains" },
   { value: "verified", label: "Verified" },
@@ -33,9 +35,14 @@ export default function MemberProductFilters() {
   const pathname = usePathname()
   const params = useSearchParams()
 
+  const statusParam = params?.get("status") ?? "__all__"
+  const normalizedStatus = statusOptionValues.has(statusParam)
+    ? statusParam
+    : "__all__"
+
   const current = {
     q: params?.get("q") ?? "",
-    status: params?.get("status") ?? "__all__",
+    status: normalizedStatus,
     verification: params?.get("verification") ?? "__all__",
     sort: params?.get("sort") ?? "new",
   }
