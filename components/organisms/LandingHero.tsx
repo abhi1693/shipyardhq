@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"
-import { ArrowRight, Compass, Ship, Waves } from "lucide-react"
+import { Ship } from "lucide-react"
 import SubmitProductButton from "@/components/molecules/SubmitProductButton"
 
 type Stats = {
@@ -116,38 +116,6 @@ export default function Hero({ stats }: { stats?: Stats }) {
         )}
       </div>
 
-      {stats && (
-        <>
-          <Link
-            href="/leaderboard"
-            className="group absolute left-6 top-24 hidden max-w-xs rounded-2xl border border-[color:var(--brand-1)/0.25] bg-background px-5 py-4 text-left shadow-[0px_35px_60px_-30px_rgba(7,58,104,0.75)] backdrop-blur transition hover:-translate-y-1 hover:border-[color:var(--brand-1)/0.4] lg:block"
-          >
-            <div className="flex items-center gap-2 text-sm font-semibold text-[color:var(--brand-2)]">
-              <Waves className="h-4 w-4" /> Rising tide
-            </div>
-            <p className="mt-3 text-sm font-medium text-[color:var(--brand-1)]">
-              {formattedUpvotes}+ community signals logged this week.
-            </p>
-            <span className="mt-3 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.28em] text-[color:var(--brand-1)/0.8]">
-              See leaderboard <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" />
-            </span>
-          </Link>
-          <Link
-            href="/browse?sort=trending"
-            className="group absolute right-6 top-32 hidden max-w-xs rounded-2xl border border-[color:var(--brand-1)/0.25] bg-background px-5 py-4 text-left shadow-[0px_35px_60px_-30px_rgba(7,58,104,0.75)] backdrop-blur transition hover:-translate-y-1 hover:border-[color:var(--brand-1)/0.4] lg:block"
-          >
-            <div className="flex items-center gap-2 text-sm font-semibold text-[color:var(--brand-2)]">
-              <Compass className="h-4 w-4" /> Harbor spotlight
-            </div>
-            <p className="mt-3 text-sm font-medium text-[color:var(--brand-1)]">
-              Catch the launches trending before they dock on the homepage.
-            </p>
-            <span className="mt-3 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.28em] text-[color:var(--brand-1)/0.8]">
-              Explore trending <ArrowRight className="h-3 w-3 transition group-hover:translate-x-0.5" />
-            </span>
-          </Link>
-        </>
-      )}
     </section>
   )
 }
