@@ -23,33 +23,31 @@ export function UpvoteSquare({
   return (
     <div
       className={clsx(
-        "inline-flex items-center justify-center rounded-md text-foreground transition-colors px-2 select-none",
-        compact ? "w-8 h-8 bg-transparent" : "w-16 h-16 bg-transparent",
+        "inline-flex select-none items-center gap-2 rounded-lg border border-[color:var(--brand-1)/0.22] bg-background/90 px-3 py-1.5 text-[color:var(--brand-1)] shadow-[0px_15px_35px_-30px_rgba(7,58,104,0.6)] transition-colors",
+        compact && "gap-1 px-2.5 py-1 text-xs",
         pending && "opacity-70",
+        active &&
+          "border-[color:var(--brand-2)/0.4] text-[color:var(--brand-2)]",
         className,
       )}
       aria-label="Upvotes"
       title={title ?? `${count} upvotes`}
     >
-      <div className="inline-flex items-center justify-center gap-2">
-        <ChevronsUp
-          className={clsx(
-            active ? "text-primary" : "text-muted-foreground",
-            compact ? "w-3 h-3" : "w-6 h-6",
-            "transition-transform duration-150",
-            pop && "animate-pop",
-          )}
-        />
-        <span
-          className={clsx(
-            "font-bold leading-none transition-transform duration-150",
-            compact ? "text-xs" : "text-2xl",
-            pop && "animate-count-bump",
-          )}
-        >
-          {count}
-        </span>
-      </div>
+      <ChevronsUp
+        className={clsx(
+          compact ? "h-3 w-3" : "h-4 w-4",
+          pop && "animate-pop",
+        )}
+      />
+      <span
+        className={clsx(
+          "font-semibold leading-none transition-transform duration-150",
+          compact ? "text-xs" : "text-base",
+          pop && "animate-count-bump",
+        )}
+      >
+        {count}
+      </span>
     </div>
   )
 }

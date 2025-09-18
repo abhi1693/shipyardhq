@@ -30,17 +30,17 @@ export function CategoryCard({
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] text-white shadow-sm">
-            <CategoryIcon icon={icon} size={16} className="text-white" />
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.08] text-[color:var(--brand-1)]">
+            <CategoryIcon icon={icon} size={16} className="text-[color:var(--brand-1)]" />
           </span>
-          <span className="font-semibold text-sm md:text-base truncate">
+          <span className="flex-1 text-sm font-semibold leading-tight text-balance line-clamp-2 md:text-base">
             {name}
           </span>
         </div>
         {typeof count === "number" && (
-          <Badge variant="secondary" className="shrink-0">
+          <Badge variant="secondary" className="shrink-0 self-start">
             {count} product{count !== 1 && "s"}
           </Badge>
         )}

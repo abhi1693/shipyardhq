@@ -11,7 +11,6 @@ import {
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
 import { ProductAuthor } from "@/components/molecules/ProductAuthor"
 import { Badge } from "@/components/atoms/badge"
-import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import { BADGE_OPTIONS } from "@/lib/constants"
 
 interface ProductCardProps {
@@ -45,17 +44,11 @@ export function ProductCard({
   imagePriority = false,
 }: ProductCardProps) {
   const resolvedBadges = badges
-    .map((value) => {
-      const badgeDef = BADGE_OPTIONS.find((x) => x.value === value)
-      if (!badgeDef) return null
-      const colorClass = badgeColorMap[badgeDef.color as TailwindColor]
-      return { ...badgeDef, colorClass }
-    })
+    .map((value) => BADGE_OPTIONS.find((option) => option.value === value) ?? null)
     .filter(
       (
         badge,
-      ): badge is (typeof BADGE_OPTIONS)[number] & { colorClass: string } =>
-        Boolean(badge),
+      ): badge is (typeof BADGE_OPTIONS)[number] => Boolean(badge),
     )
 
   const compactBadgeLimit = 3
@@ -70,33 +63,42 @@ export function ProductCard({
       <input type="hidden" name="productSlug" value={product.slug} />
       <button
         type="submit"
-        className="block h-full w-full text-left transition-transform duration-300 hover:-translate-y-1"
+        className="group block h-full w-full text-left focus-visible:outline-none focus-visible:ring-0"
       >
         <Card
           className={clsx(
-            "relative h-full bg-background text-foreground border border-muted rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer",
-            compact ? "p-3 gap-2" : undefined,
+            "relative h-full overflow-hidden rounded-xl border border-[color:var(--brand-1)/0.18] bg-background/92 text-foreground shadow-[0px_20px_55px_-35px_rgba(7,58,104,0.65)] transition-all duration-200 ease-out",
+            "cursor-pointer group-hover:-translate-y-1 group-hover:shadow-[0px_28px_70px_-45px_rgba(7,58,104,0.7)] group-focus-visible:-translate-y-1 group-focus-visible:shadow-[0px_28px_70px_-45px_rgba(7,58,104,0.7)]",
+            compact ? "gap-4 py-4" : "gap-5 py-6",
           )}
         >
           {topRight && (
-            <div className="absolute top-2 right-2 z-10">{topRight}</div>
+            <div className="absolute right-4 top-4 z-10">{topRight}</div>
           )}
-          <CardHeader className={clsx(compact ? "p-0 pb-2" : "pb-3")}>
+          <CardHeader
+            className={clsx(
+              "relative",
+              compact ? "px-4 pb-2" : "px-6 pb-3",
+            )}
+          >
             <div
-              className={clsx("flex items-start", compact ? "gap-2" : "gap-3")}
+              className={clsx(
+                "flex items-start",
+                compact ? "gap-3" : "gap-4",
+              )}
             >
               <div
                 className={clsx(
-                  "flex-shrink-0 rounded-md border bg-muted overflow-hidden",
-                  compact ? "w-8 h-8" : "w-14 h-14",
+                  "flex-shrink-0 overflow-hidden rounded-lg border border-[color:var(--brand-1)/0.28] bg-[color:var(--brand-1)/0.08]",
+                  compact ? "h-10 w-10" : "h-16 w-16",
                 )}
               >
                 <Image
                   src={product.logo}
                   alt={product.name}
-                  width={compact ? 32 : 56}
-                  height={compact ? 32 : 56}
-                  className="object-cover w-full h-full"
+                  width={compact ? 40 : 64}
+                  height={compact ? 40 : 64}
+                  className="h-full w-full object-cover"
                   loading={imagePriority ? "eager" : "lazy"}
                   priority={imagePriority}
                 />
@@ -106,14 +108,14 @@ export function ProductCard({
                 <div className="flex items-center justify-between">
                   <CardTitle
                     className={clsx(
-                      "font-semibold leading-snug",
+                      "font-semibold leading-tight text-foreground",
                       compact ? "text-sm" : "text-base",
                     )}
                   >
                     {product.name}
                   </CardTitle>
                   {category && !compact && (
-                    <span className="ml-2 text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full border">
+                    <span className="ml-3 inline-flex items-center rounded-full border border-[color:var(--brand-1)/0.22] bg-[color:var(--brand-1)/0.08] px-3 py-1 text-[11px] font-medium text-[color:var(--brand-1)]">
                       {category}
                     </span>
                   )}
@@ -122,22 +124,24 @@ export function ProductCard({
                 <p
                   className={clsx(
                     "text-muted-foreground",
-                    compact ? "text-xs line-clamp-1" : "text-sm line-clamp-2",
+                    compact
+                      ? "line-clamp-2 text-xs"
+                      : "line-clamp-2 text-sm",
                   )}
                 >
                   {product.tagline}
                 </p>
 
                 {!compact && resolvedBadges.length > 0 ? (
-                  <div className="flex flex-wrap gap-2 pt-2">
+                  <div className="flex flex-wrap gap-2 pt-3">
                     {resolvedBadges.map((badge, i) => (
                       <Badge
                         key={`${badge.value}-${i}`}
                         title={badge.label}
                         className={clsx(
-                          "rounded-full border px-2 py-0.5 text-xs",
-                          badge.colorClass,
+                          "rounded-full border border-[color:var(--brand-1)/0.18] bg-background/80 px-2.5 py-0.5 text-xs font-medium text-[color:var(--brand-1)]",
                         )}
+                        variant="outline"
                       >
                         {badge.icon}
                         <span className="ml-1">{badge.label}</span>
@@ -148,15 +152,15 @@ export function ProductCard({
 
                 {compact &&
                 (compactBadges.length > 0 || extraBadgeCount > 0) ? (
-                  <div className="flex items-center gap-1 pt-1">
+                  <div className="flex items-center gap-1.5 pt-2">
                     {compactBadges.map((badge, i) => (
                       <Badge
                         key={`${badge.value}-${i}`}
                         title={badge.label}
                         className={clsx(
-                          "rounded-full border px-1.5 py-0.5 text-[10px] leading-none",
-                          badge.colorClass,
+                          "rounded-full border border-[color:var(--brand-1)/0.18] bg-background/80 px-2 py-0.5 text-[10px] font-medium text-[color:var(--brand-1)]",
                         )}
+                        variant="outline"
                       >
                         {badge.icon}
                         <span className="ml-1 font-medium">{badge.label}</span>
@@ -173,21 +177,31 @@ export function ProductCard({
             </div>
           </CardHeader>
 
-          <CardContent className={clsx("pt-1 px-4", compact && "pt-0 px-3")}>
-            <div className="flex items-center justify-between">
+          <CardContent
+            className={clsx(
+              compact ? "px-4 pt-3" : "px-6 pt-4",
+            )}
+          >
+            <div
+              className={clsx(
+                "flex items-center justify-between",
+                compact ? "gap-2" : "gap-3",
+              )}
+            >
               <UpvoteSquare
                 count={upvotes}
                 compact={compact}
-                className={compact ? "-ml-4" : "ml-2"}
+                className={clsx(compact ? "-ml-1" : "ml-1")}
               />
 
-              {author && (
+              {author ? (
                 <ProductAuthor
                   name={author.name}
                   initial={author.initial}
                   compact={compact}
+                  className="text-foreground"
                 />
-              )}
+              ) : null}
             </div>
           </CardContent>
         </Card>
