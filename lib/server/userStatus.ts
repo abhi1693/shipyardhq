@@ -34,15 +34,3 @@ export async function requireActiveUserOrRedirect(clerkId?: string | null) {
 
   return user
 }
-
-export async function getUserStatusByClerkId(clerkId: string) {
-  if (!clerkId) return null
-
-  return prisma.user.findUnique({
-    where: { clerkId },
-    select: {
-      id: true,
-      status: true,
-    },
-  })
-}
