@@ -371,14 +371,19 @@ async function requestApproval(
 
   while (true) {
     const answer = await ask(
-      "\nReply with this draft? (y = post, n = skip, r = regenerate) ",
+      "\nReply with this draft? (y = post, n = skip, r = regenerate, enter = skip) ",
     )
+
+    if (answer === "") {
+      console.log("Skipping by default (no input).")
+      return "n"
+    }
 
     if (answer === "y" || answer === "n" || answer === "r") {
       return answer
     }
 
-    console.log("Please enter y, n, or r.")
+    console.log("Please enter y, n, or r (or press enter to skip).")
   }
 }
 
