@@ -496,42 +496,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         </div>
       </PublicContainer>
 
-      {hasUseCaseItems && primaryUseCaseSlug && (
-        <PublicContainer
-          as="section"
-          max="marketing"
-          paddingY="py-16"
-          fillScreen={false}
-          className="relative"
-        >
-          <div className="mx-auto max-w-6xl space-y-6 px-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                  Similar voyages
-                </p>
-                <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
-                  More ways to {primaryUseCaseLabel || "explore"}
-                </h2>
-              </div>
-              <Link
-                href={{ pathname: "/browse", query: { useCase: primaryUseCaseSlug } }}
-                className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.2] px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)] transition-colors hover:border-[color:var(--brand-1)/0.35]"
-              >
-                Explore use case <ExternalLink size={14} />
-              </Link>
-            </div>
-            <ProductList
-              items={useCaseItems as any}
-              compact
-              showCategory={false}
-              showVerified={false}
-              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-            />
-          </div>
-        </PublicContainer>
-      )}
-
       <PublicContainer
         as="section"
         max="marketing"
@@ -552,15 +516,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               </div>
               {hasBanner && (
                 <ImageLightbox src={product.bannerImage!} alt={`${product.name} banner`}>
-                  <div className="relative w-full overflow-hidden rounded-[28px] border border-[color:var(--brand-1)/0.18] bg-background/75 pb-[33%]">
-                    <Image
-                      src={product.bannerImage!}
-                      alt={`${product.name} banner`}
-                      fill
-                      quality={95}
-                      priority
-                      className="object-cover"
-                    />
+                  <div className="relative w-full overflow-hidden rounded-[28px] border border-[color:var(--brand-1)/0.18] bg-background/75">
+                    <div className="relative aspect-[3/1] w-full">
+                      <Image
+                        src={product.bannerImage!}
+                        alt={`${product.name} banner`}
+                        fill
+                        quality={95}
+                        priority
+                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 960px"
+                        className="object-contain object-center"
+                      />
+                    </div>
                   </div>
                 </ImageLightbox>
               )}
@@ -721,12 +688,48 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 compact
                 showCategory={false}
                 showVerified={false}
-                columns="grid-cols-1 sm:grid-cols-2"
+                columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
               />
             </section>
           )}
         </div>
       </PublicContainer>
+
+      {hasUseCaseItems && primaryUseCaseSlug && (
+        <PublicContainer
+          as="section"
+          max="marketing"
+          paddingY="py-16"
+          fillScreen={false}
+          className="relative"
+        >
+          <div className="mx-auto max-w-6xl space-y-6 px-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
+                  Similar voyages
+                </p>
+                <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
+                  More ways to {primaryUseCaseLabel || "explore"}
+                </h2>
+              </div>
+              <Link
+                href={{ pathname: "/browse", query: { useCase: primaryUseCaseSlug } }}
+                className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.2] px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)] transition-colors hover:border-[color:var(--brand-1)/0.35]"
+              >
+                Explore use case <ExternalLink size={14} />
+              </Link>
+            </div>
+            <ProductList
+              items={useCaseItems as any}
+              compact
+              showCategory={false}
+              showVerified={false}
+              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            />
+          </div>
+        </PublicContainer>
+      )}
     </main>
   )
 }
