@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"
-import { Sparkles } from "lucide-react"
+import { LifeBuoy, Ship, Waves } from "lucide-react"
 import SubmitProductButton from "@/components/molecules/SubmitProductButton"
 
 type Stats = {
@@ -12,82 +12,136 @@ type Stats = {
 }
 
 export default function Hero({ stats }: { stats?: Stats }) {
-  return (
-    <section className="relative isolate w-full border-b py-20 md:py-32 overflow-hidden">
-      {/* Brand gradient backdrop */}
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-70">
-        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_0%,var(--brand-1)/0.18,transparent_70%),radial-gradient(40%_50%_at_10%_80%,var(--brand-2)/0.16,transparent_70%),radial-gradient(50%_40%_at_90%_60%,var(--brand-3)/0.14,transparent_72%)]" />
-      </div>
+  const totalProducts = stats?.totalProducts ?? 0
+  const totalCreators = stats?.totalCreators ?? 0
+  const totalUpvotes = stats?.totalUpvotes ?? 0
 
-      <div className="max-w-5xl mx-auto px-4 text-center">
-        <span className="inline-flex items-center gap-2 rounded-full border bg-background/70 px-3 py-1 text-xs font-medium shadow-sm backdrop-blur">
-          <Sparkles className="h-3.5 w-3.5 text-[color:var(--brand-2)]" />
-          Built for makers. Lightning fast.
+  const formattedProducts = totalProducts.toLocaleString()
+  const formattedCreators = totalCreators.toLocaleString()
+  const formattedUpvotes = totalUpvotes.toLocaleString()
+
+  return (
+    <section className="relative isolate w-full overflow-hidden border-b bg-background/90 py-20 md:py-32">
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-20 bg-[radial-gradient(120%_80%_at_10%_0%,var(--brand-1)/0.2,transparent_68%)]"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-20 bg-[radial-gradient(100%_80%_at_85%_-10%,var(--brand-2)/0.18,transparent_70%)]"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-2)/0.45] to-transparent opacity-80"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 opacity-40"
+        style={{
+          backgroundImage:
+            "linear-gradient(90deg, rgba(10, 52, 88, 0.12) 1px, transparent 1px), linear-gradient(180deg, rgba(10, 52, 88, 0.12) 1px, transparent 1px)",
+          backgroundSize: "140px 140px",
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-[color:var(--brand-1)/0.28] via-transparent to-transparent"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-12 -z-10 h-32 blur-3xl bg-[radial-gradient(70%_100%_at_50%_0%,var(--brand-3)/0.22,transparent_78%)]"
+      />
+
+      <div className="relative mx-auto max-w-5xl px-4 text-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.4] bg-background/80 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
+          <Ship className="h-3.5 w-3.5" />
+          Shipyard Fleet
         </span>
-        <h1 className="mt-6 text-4xl sm:text-5xl xl:text-6xl font-bold leading-tight tracking-tight text-transparent bg-clip-text bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]">
-          Launch faster. Get discovered sooner.
+        <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight text-transparent sm:text-5xl xl:text-6xl bg-clip-text bg-[linear-gradient(92deg,var(--brand-1),var(--brand-2),var(--brand-3))]">
+          Set sail to your next product launch.
         </h1>
-        <p className="mt-5 text-lg text-muted-foreground">
-          Submit your product in minutes and reach a crew of real users and
-          builders.
+        <p className="mx-auto mt-6 max-w-3xl text-lg text-muted-foreground">
+          Bring your latest build aboard a crew of early adopters and fellow
+          makers charting the next horizon.
         </p>
 
-        <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+        <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
           <Link href="/member/products/add">
             <SubmitProductButton
               size="lg"
-              className="shadow-sm"
+              className="shadow-[0px_25px_50px_-30px_rgba(7,58,104,0.65)]"
               label="Submit Your Product"
             />
           </Link>
           <Link href="/browse">
-            <Button size="lg" variant="outline" className="">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-[color:var(--brand-1)/0.35] bg-background/70 text-[color:var(--brand-1)] shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.75)]"
+            >
               Explore Products
             </Button>
           </Link>
         </div>
 
-        {/* Stat view */}
         {stats && (
-          <div className="mt-8 mx-auto max-w-3xl">
-            <div className="grid grid-cols-1 sm:grid-cols-3 overflow-hidden rounded-xl border bg-background/60 backdrop-blur-sm divide-y sm:divide-y-0 sm:divide-x">
-              <div className="p-5 text-center">
-                <div className="text-3xl sm:text-4xl font-semibold tracking-tight animate-count-bump">
-                  {(stats.totalProducts ?? 0)
-                    .toLocaleString()
-                    .toString()
-                    .replace(/,/g, ",")}
+          <div className="mx-auto mt-12 max-w-3xl">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-5 text-center shadow-[0px_25px_50px_-28px_rgba(7,58,104,0.85)] backdrop-blur">
+                <div className="text-3xl font-semibold tracking-tight text-[color:var(--brand-1)] sm:text-4xl">
+                  {formattedProducts}
                 </div>
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground mt-1">
-                  Products listed
+                <div className="mt-2 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                  Products Listed
                 </div>
               </div>
-              <div className="p-5 text-center">
-                <div className="text-3xl sm:text-4xl font-semibold tracking-tight animate-count-bump">
-                  {(stats.totalCreators ?? 0)
-                    .toLocaleString()
-                    .toString()
-                    .replace(/,/g, ",")}
+              <div className="rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-5 text-center shadow-[0px_25px_50px_-28px_rgba(7,58,104,0.85)] backdrop-blur">
+                <div className="text-3xl font-semibold tracking-tight text-[color:var(--brand-1)] sm:text-4xl">
+                  {formattedCreators}
                 </div>
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground mt-1">
-                  Makers onboard
+                <div className="mt-2 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                  Makers Onboard
                 </div>
               </div>
-              <div className="p-5 text-center">
-                <div className="text-3xl sm:text-4xl font-semibold tracking-tight animate-count-bump">
-                  {(stats.totalUpvotes ?? 0)
-                    .toLocaleString()
-                    .toString()
-                    .replace(/,/g, ",")}
+              <div className="rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-5 text-center shadow-[0px_25px_50px_-28px_rgba(7,58,104,0.85)] backdrop-blur">
+                <div className="text-3xl font-semibold tracking-tight text-[color:var(--brand-1)] sm:text-4xl">
+                  {formattedUpvotes}
                 </div>
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground mt-1">
-                  Community upvotes
+                <div className="mt-2 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                  Community Upvotes
                 </div>
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {stats && (
+        <>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-6 top-24 hidden max-w-xs rounded-2xl border border-[color:var(--brand-1)/0.25] bg-background/85 px-5 py-4 text-left shadow-[0px_35px_60px_-30px_rgba(7,58,104,0.75)] backdrop-blur lg:block"
+          >
+            <div className="flex items-center gap-2 text-sm font-semibold text-[color:var(--brand-2)]">
+              <Waves className="h-4 w-4" /> Daily tide report
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {formattedUpvotes} upvotes logged in the last 24 hours.
+            </p>
+          </div>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute right-6 top-32 hidden max-w-xs rounded-2xl border border-[color:var(--brand-1)/0.25] bg-background/85 px-5 py-4 text-left shadow-[0px_35px_60px_-30px_rgba(7,58,104,0.75)] backdrop-blur lg:block"
+          >
+            <div className="flex items-center gap-2 text-sm font-semibold text-[color:var(--brand-2)]">
+              <LifeBuoy className="h-4 w-4" /> Crew aboard
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {formattedCreators} makers sharing feedback across the fleet.
+            </p>
+          </div>
+        </>
+      )}
     </section>
   )
 }

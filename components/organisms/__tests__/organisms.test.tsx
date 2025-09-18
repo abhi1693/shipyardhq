@@ -142,7 +142,7 @@ describe("Organisms", () => {
 
   it("LandingHero renders hero content and CTA", () => {
     render(<Hero />)
-    expect(screen.getByText(/Launch faster/i)).toBeInTheDocument()
+    expect(screen.getByText(/Set sail/i)).toBeInTheDocument()
     expect(
       screen.getByRole("button", { name: /submit your product/i }),
     ).toBeInTheDocument()
