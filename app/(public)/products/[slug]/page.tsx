@@ -30,7 +30,7 @@ import {
 } from "lucide-react"
 import PublicContainer from "@/components/layout/PublicContainer"
 import ExternalBadgeLink from "@/components/molecules/ExternalBadgeLink"
-import ProductList from "@/components/molecules/ProductList"
+import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { IconBrandFirefox } from "@tabler/icons-react"
@@ -685,12 +685,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 Explore use case <ExternalLink size={14} />
               </Link>
             </div>
-            <ProductList
-              items={useCaseItems as any}
-              compact
-              showCategory={false}
-              showVerified={false}
+            <ProductCompactGrid
+              items={(useCaseItems as any[]).map((p) => ({
+                id: p.id,
+                slug: p.slug,
+                name: p.name,
+                logo: p.logo,
+                tagline: p.tagline,
+                analytics: p.analytics ?? null,
+                category: p.category ?? undefined,
+              }))}
               columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              showCategory={false}
             />
           </div>
         </PublicContainer>

@@ -1,3 +1,4 @@
+import { ReactNode } from "react"
 import Image from "next/image"
 import { clickProductCardAction } from "@/actions/public/products/analytics"
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
@@ -13,6 +14,8 @@ interface ProductCompactCardProps {
   upvotes?: number
   category?: string | null
   imagePriority?: boolean
+  meta?: ReactNode
+  showCategory?: boolean
 }
 
 export function ProductCompactCard({
@@ -20,6 +23,8 @@ export function ProductCompactCard({
   upvotes = 0,
   category,
   imagePriority = false,
+  meta,
+  showCategory = true,
 }: ProductCompactCardProps) {
   return (
     <form action={clickProductCardAction} className="h-full" data-testid="product-compact-card">
@@ -27,8 +32,9 @@ export function ProductCompactCard({
       <input type="hidden" name="productSlug" value={product.slug} />
       <button
         type="submit"
-        className="group block h-full w-full rounded-lg border bg-card p-4 text-left text-card-foreground shadow-sm transition-all hover:border-[color:var(--brand-1)/0.35] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.25]"
+        className="group relative block h-full w-full cursor-pointer rounded-lg border bg-card p-4 text-left text-card-foreground shadow-sm transition-all hover:border-[color:var(--brand-1)/0.35] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.25]"
       >
+        {meta ? <div className="absolute right-4 top-3 sm:top-4">{meta}</div> : null}
         <div className="flex h-full flex-col gap-3">
           <div className="flex items-start gap-3">
             <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.08]">
@@ -58,7 +64,7 @@ export function ProductCompactCard({
               className="shrink-0"
               title={`${upvotes} upvotes`}
             />
-            {category ? (
+            {showCategory && category ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.08] px-2 py-0.5 text-[11px] font-medium text-[color:var(--brand-1)]">
                 {category}
               </span>

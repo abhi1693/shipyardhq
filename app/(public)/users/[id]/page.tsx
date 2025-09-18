@@ -5,7 +5,7 @@ import {
   getPublicUserProfile,
 } from "@/actions/public/users/actions"
 import PublicContainer from "@/components/layout/PublicContainer"
-import ProductList from "@/components/molecules/ProductList"
+import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
 
 export const revalidate = 120
@@ -138,7 +138,7 @@ export default async function PublicUserPage({ params }: PageProps) {
       </header>
 
       {items.length ? (
-        <ProductList items={items} compact showCategory showVerified />
+        <ProductCompactGrid items={items} />
       ) : (
         <EmptyState
           title="No published products yet"

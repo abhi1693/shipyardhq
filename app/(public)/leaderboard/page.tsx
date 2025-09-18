@@ -8,8 +8,9 @@ import type { ComponentType } from "react"
 export const revalidate = 60
 
 import { Button } from "@/components/atoms/button"
+import { Badge } from "@/components/atoms/badge"
 import PublicContainer from "@/components/layout/PublicContainer"
-import ProductList from "@/components/molecules/ProductList"
+import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import Medal from "@/components/atoms/Medal"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { LeaderboardFilters } from "./filters"
@@ -195,19 +196,23 @@ export default async function LeaderboardPage({
       >
         <div className="rounded-3xl border border-[color:var(--brand-1)/0.16] bg-background/90 px-5 py-6 shadow-[0px_28px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
           {restHasEntries ? (
-            <ProductList
+            <ProductCompactGrid
               items={rest.map((p) => ({
-                ...p,
-                badges: p.ProductBadge?.filter(
-                  (pb: any) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
-                ).map((pb: any) => pb.badge),
+                id: p.id,
+                slug: p.slug,
+                name: p.name,
+                logo: p.logo,
+                tagline: p.tagline,
+                analytics: p.analytics ?? null,
+                category: p.category ?? undefined,
               }))}
-              compact
-              showCategory
-              showRank
-              rankStartAt={topThree.length}
               columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
               className="gap-y-6"
+              renderMeta={(_, index) => (
+                <Badge variant="secondary" className="px-2 py-0.5 text-xs">
+                  #{topThree.length + index + 1}
+                </Badge>
+              )}
             />
           ) : (
             <div className="flex flex-col items-center gap-4 py-12 text-center text-muted-foreground">

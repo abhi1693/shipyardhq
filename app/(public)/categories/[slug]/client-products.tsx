@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import ProductList from "@/components/molecules/ProductList"
+import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import InlineSelect from "@/components/molecules/InlineSelect"
 import { cn } from "@/lib/utils"
 
@@ -91,7 +91,7 @@ export function CategoryProductsClient({ products, className }: Props) {
       </div>
 
       <div className="mt-6">
-        <ProductList items={sorted} compact showCategory showVerified={false} />
+        <ProductCompactGrid items={sorted} />
       </div>
     </section>
   )

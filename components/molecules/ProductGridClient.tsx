@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition, useRef } from "react"
 import { Button } from "@/components/atoms/button"
 import { Skeleton } from "@/components/atoms/skeleton"
-import { ProductCompactCard } from "@/components/molecules/ProductCompactCard"
+import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 
 import {
   Category,
@@ -90,26 +90,10 @@ export default function ProductGridClient({
 
   return (
     <section className="space-y-6">
-      <div
-        className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
-        data-testid="product-grid"
-      >
-        {products.map((p, index) => (
-          <ProductCompactCard
-            key={p.id}
-            product={{
-              id: p.id,
-              slug: p.slug,
-              name: p.name,
-              logo: p.logo,
-              tagline: p.tagline,
-            }}
-            category={p.category?.name ?? null}
-            upvotes={p.analytics?.upvotes ?? 0}
-            imagePriority={index < 6}
-          />
-        ))}
-      </div>
+      <ProductCompactGrid
+        items={products}
+        columns="grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+      />
 
       {isPending && (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
