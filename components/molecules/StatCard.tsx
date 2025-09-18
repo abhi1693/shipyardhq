@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Card,
   CardHeader,
@@ -8,7 +10,8 @@ import {
 } from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
 import { IconTrendingUp, IconTrendingDown } from "@tabler/icons-react"
-import { ReactNode } from "react"
+import { ReactNode, useMemo, useId } from "react"
+import { ResponsiveContainer, AreaChart, Area } from "recharts"
 
 export function StatCard({
   title,
@@ -43,23 +46,12 @@ export function StatCard({
       ? new Intl.NumberFormat("en", { notation: "compact" }).format(value)
       : value
 
-  // Prepare sparkline path (normalized to a 100x24 viewBox)
-  const pathD = (() => {
-    if (!sparkline || sparkline.length < 2) return undefined
-    const values = sparkline
-    const min = Math.min(...values)
-    const max = Math.max(...values)
-    const range = max - min || 1
-    const w = 100
-    const h = 24
-    const stepX = w / (values.length - 1)
-    const points = values.map((v, i) => {
-      const x = i * stepX
-      const y = h - ((v - min) / range) * h
-      return `${x.toFixed(2)},${y.toFixed(2)}`
-    })
-    return `M ${points[0]} L ${points.slice(1).join(" ")}`
-  })()
+  const sparkData = useMemo(() => {
+    if (!sparkline || sparkline.length < 2) return null
+    return sparkline.map((point, index) => ({ index, value: point }))
+  }, [sparkline])
+
+  const gradientId = useId().replace(/:/g, "-")
 
   return (
     <Card
@@ -93,18 +85,28 @@ export function StatCard({
         )}
       </CardHeader>
 
-      {pathD && (
+      {sparkData && (
         <div className="px-6 -mt-2">
-          <svg
-            viewBox="0 0 100 24"
-            width="100%"
-            height="24"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-            className="text-primary/60"
-          >
-            <path d={pathD} fill="none" stroke="currentColor" strokeWidth="2" />
-          </svg>
+          <div className="h-12 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={sparkData} margin={{ top: 4, bottom: 0, left: 0, right: 0 }}>
+                <defs>
+                  <linearGradient id={`${gradientId}-fill`} x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="var(--brand-2)" stopOpacity={0.45} />
+                    <stop offset="100%" stopColor="var(--brand-1)" stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--brand-2)"
+                  strokeWidth={2}
+                  fill={`url(#${gradientId}-fill)`}
+                  isAnimationActive={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
 
