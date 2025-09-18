@@ -2,6 +2,7 @@ import { FeaturedProduct } from "@/types"
 import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
 import PublicContainer from "@/components/layout/PublicContainer"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
+import { getWaveBackground } from "@/lib/nautical"
 
 interface LeaderboardProps {
   products: FeaturedProduct[]
@@ -35,11 +36,10 @@ export function Leaderboard({ products }: LeaderboardProps) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 opacity-25"
+        className="pointer-events-none absolute inset-0 -z-20 opacity-30"
         style={{
-          backgroundImage:
-            "linear-gradient(88deg, rgba(8, 52, 96, 0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(8, 52, 96, 0.05) 1px, transparent 1px)",
-          backgroundSize: "150px 150px",
+          ...getWaveBackground("240px 90px"),
+          backgroundPosition: "0 60%",
         }}
       />
       <div

@@ -1,6 +1,7 @@
 import PublicContainer from "@/components/layout/PublicContainer"
 import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
 import ProductList from "@/components/molecules/ProductList"
+import { getWaveBackground } from "@/lib/nautical"
 
 type ProductItem = {
   id: string
@@ -45,11 +46,10 @@ export default function HomepageSpotlight({
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 opacity-25"
+        className="pointer-events-none absolute inset-0 -z-20 opacity-30"
         style={{
-          backgroundImage:
-            "linear-gradient(102deg, rgba(11, 53, 94, 0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-          backgroundSize: "150px 150px",
+          ...getWaveBackground("240px 90px"),
+          backgroundPosition: "0 50%",
         }}
       />
       <div

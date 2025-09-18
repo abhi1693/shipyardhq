@@ -1,6 +1,7 @@
 import { CategoryCard } from "@/components/molecules/CategoryCard"
 import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
 import PublicContainer from "@/components/layout/PublicContainer"
+import { getWaveBackground } from "@/lib/nautical"
 
 interface CategoryWithCount {
   id: string
@@ -47,11 +48,10 @@ export function TopCategories({ categories }: TopCategoriesProps) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 opacity-25"
+        className="pointer-events-none absolute inset-0 -z-20 opacity-30"
         style={{
-          backgroundImage:
-            "linear-gradient(90deg, rgba(8, 54, 96, 0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(8, 54, 96, 0.05) 1px, transparent 1px)",
-          backgroundSize: "160px 160px",
+          ...getWaveBackground("240px 90px"),
+          backgroundPosition: "0 55%",
         }}
       />
       <div

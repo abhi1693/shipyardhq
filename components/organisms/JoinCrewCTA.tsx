@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Compass, Anchor } from "lucide-react"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { Button } from "@/components/atoms/button"
+import { getWaveBackground } from "@/lib/nautical"
 
 export function JoinCrewCTA() {
   return (
@@ -31,11 +32,10 @@ export function JoinCrewCTA() {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 opacity-25"
+        className="pointer-events-none absolute inset-0 -z-20 opacity-30"
         style={{
-          backgroundImage:
-            "linear-gradient(90deg, rgba(10, 59, 106, 0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(10, 59, 106, 0.05) 1px, transparent 1px)",
-          backgroundSize: "150px 150px",
+          ...getWaveBackground("240px 90px"),
+          backgroundPosition: "0 60%",
         }}
       />
       <div
