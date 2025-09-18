@@ -12,6 +12,7 @@ import { TopCategories } from "@/components/organisms/TopCategories"
 import { EditorsPick } from "@/components/organisms/EditorsPick"
 import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
+import JoinCrewCTA from "@/components/organisms/JoinCrewCTA"
 
 export default async function HomePage() {
   const [
@@ -67,6 +68,7 @@ export default async function HomePage() {
       <LatestLaunches products={latestLaunches} />
       <Leaderboard products={trendingProducts} />
       <TopCategories categories={topCategories} />
+      <JoinCrewCTA />
     </main>
   )
 }

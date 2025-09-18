@@ -8,6 +8,7 @@ export function PageSectionHeader({
   align = "left",
   underline = true,
   className,
+  eyebrow,
 }: {
   title: string
   subtitle?: string | ReactNode
@@ -15,6 +16,7 @@ export function PageSectionHeader({
   align?: "left" | "center"
   underline?: boolean
   className?: string
+  eyebrow?: string
 }) {
   const isCenter = align === "center"
   return (
@@ -26,6 +28,19 @@ export function PageSectionHeader({
       )}
     >
       <div className={cn("text-left", isCenter && "text-center")}>
+        {eyebrow ? (
+          <div
+            className={cn(
+              "mb-4 flex",
+              isCenter ? "justify-center" : "justify-start",
+            )}
+          >
+            <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.34em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--brand-3)]" />
+              {eyebrow}
+            </span>
+          </div>
+        ) : null}
         <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
         {underline && (
           <div className="mt-3 h-1.5 w-16 rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]" />

@@ -25,7 +25,7 @@ export default function HomepageSpotlight({
       as="section"
       max="marketing"
       paddingY="py-20"
-      className="relative overflow-hidden border-b bg-background/80 backdrop-blur"
+      className="relative overflow-hidden border-b bg-background/85 shadow-[0px_35px_90px_-60px_rgba(7,58,104,0.85)] backdrop-blur"
       innerClassName="relative"
       fillScreen={false}
     >
@@ -35,23 +35,34 @@ export default function HomepageSpotlight({
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-32 left-1/2 -z-20 h-72 w-[120%] -translate-x-1/2 bg-[radial-gradient(70%_100%_at_50%_0%,var(--brand-2)/0.16,transparent_72%)] blur-3xl"
+        className="pointer-events-none absolute inset-0 -z-30"
+        style={{
+          backgroundImage:
+            "radial-gradient(120%_90%_at_10%_10%, rgba(7, 58, 104, 0.22), transparent 70%), radial-gradient(95%_80%_at_85%_20%, rgba(20, 90, 140, 0.18), transparent 75%)",
+          maskImage:
+            "radial-gradient(85%_100%_at_50%_5%, rgba(0, 0, 0, 0.92), transparent 72%)",
+        }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 opacity-30"
+        className="pointer-events-none absolute inset-0 -z-20 opacity-25"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-          backgroundSize: "120px 120px",
+            "linear-gradient(102deg, rgba(11, 53, 94, 0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
+          backgroundSize: "150px 150px",
         }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-[-20%] bottom-[-40px] -z-40 h-48 rounded-[50%] bg-[radial-gradient(70%_100%_at_50%_0%,var(--brand-2)/0.22,transparent_82%)] blur-3xl"
       />
 
       <div className="relative space-y-10">
         <PageSectionHeader
+          eyebrow="Harbor Picks"
           align="center"
-          title="Homepage Picks"
-          subtitle="Flagship picks anchored on our homepage"
+          title="Harbor Spotlight"
+          subtitle="Flagship picks charted to greet every newcomer at the dock."
         />
         <ProductList
           items={products.map((p) => ({

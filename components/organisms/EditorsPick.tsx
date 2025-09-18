@@ -15,7 +15,7 @@ export function EditorsPick({ products }: EditorsPickProps) {
       as="section"
       max="marketing"
       paddingY="py-20"
-      className="relative overflow-hidden border-b bg-background/80 backdrop-blur"
+      className="relative overflow-hidden border-b bg-background/85 shadow-[0px_40px_110px_-80px_rgba(7,58,104,0.95)] backdrop-blur"
       innerClassName="relative"
       fillScreen={false}
     >
@@ -25,23 +25,34 @@ export function EditorsPick({ products }: EditorsPickProps) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-24 left-1/4 -z-20 h-72 w-[70%] rounded-full bg-[radial-gradient(circle,var(--brand-2)/0.18,transparent_70%)] blur-3xl"
+        className="pointer-events-none absolute inset-0 -z-30"
+        style={{
+          backgroundImage:
+            "radial-gradient(120%_100%_at_15%_0%, rgba(9, 60, 109, 0.2), transparent 72%), radial-gradient(90%_70%_at_90%_20%, rgba(10, 78, 138, 0.22), transparent 78%)",
+          maskImage:
+            "radial-gradient(85%_100%_at_50%_5%, rgba(0,0,0,0.95), transparent 75%)",
+        }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 opacity-25"
+        className="pointer-events-none absolute inset-0 -z-20 opacity-25"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, rgba(7, 58, 104, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(7, 58, 104, 0.05) 1px, transparent 1px)",
-          backgroundSize: "120px 120px",
+            "linear-gradient(110deg, rgba(9, 58, 102, 0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(9, 58, 102, 0.05) 1px, transparent 1px)",
+          backgroundSize: "150px 150px",
         }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-[-30%] bottom-[-55px] -z-40 h-56 rounded-[50%] bg-[radial-gradient(78%_100%_at_50%_0%,var(--brand-2)/0.2,transparent_82%)] blur-3xl"
       />
 
       <div className="relative space-y-10">
         <PageSectionHeader
+          eyebrow="Crew's Choice"
           align="center"
           title="Editor’s Picks"
-          subtitle="Curated favorites from our crew."
+          subtitle="Curated favorites from our bridge crew."
         />
 
         <FeaturedProductGrid items={products} />

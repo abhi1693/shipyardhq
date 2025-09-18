@@ -27,7 +27,7 @@ export function TopCategories({ categories }: TopCategoriesProps) {
       as="section"
       max="7xl"
       paddingY="py-20"
-      className="relative overflow-hidden border-b bg-background/80 backdrop-blur"
+      className="relative overflow-hidden border-b bg-background/85 shadow-[0px_45px_120px_-85px_rgba(7,58,104,0.95)] backdrop-blur"
       innerClassName="relative"
       fillScreen={false}
     >
@@ -37,23 +37,34 @@ export function TopCategories({ categories }: TopCategoriesProps) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-24 left-1/3 -z-20 h-72 w-[70%] rounded-full bg-[radial-gradient(circle,var(--brand-2)/0.2,transparent_70%)] blur-3xl"
+        className="pointer-events-none absolute inset-0 -z-30"
+        style={{
+          backgroundImage:
+            "radial-gradient(120%_90%_at_50%_-10%, rgba(8, 56, 102, 0.22), transparent 75%), radial-gradient(85%_70%_at_15%_25%, rgba(6, 28, 54, 0.2), transparent 72%)",
+          maskImage:
+            "radial-gradient(90%_100%_at_50%_0%, rgba(0,0,0,0.95), transparent 78%)",
+        }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 opacity-25"
+        className="pointer-events-none absolute inset-0 -z-20 opacity-25"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-          backgroundSize: "120px 120px",
+            "linear-gradient(90deg, rgba(8, 54, 96, 0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(8, 54, 96, 0.05) 1px, transparent 1px)",
+          backgroundSize: "160px 160px",
         }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-[-30%] bottom-[-45px] -z-40 h-52 rounded-[50%] bg-[radial-gradient(78%_100%_at_50%_0%,var(--brand-2)/0.22,transparent_82%)] blur-3xl"
       />
 
       <div className="relative space-y-10">
         <PageSectionHeader
           align="center"
-          title="Top Categories"
-          subtitle="Chart your course by category."
+          eyebrow="Navigation Charts"
+          title="Chart Your Course"
+          subtitle="Plot a heading by the categories captains visit most."
         />
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">

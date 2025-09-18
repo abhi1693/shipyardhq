@@ -15,7 +15,7 @@ export function LatestLaunches({ products }: LatestLaunchesProps) {
       as="section"
       max="marketing"
       paddingY="py-20"
-      className="relative overflow-hidden border-b bg-background/82 backdrop-blur"
+      className="relative overflow-hidden border-b bg-background/85 shadow-[0px_40px_110px_-80px_rgba(7,58,104,0.9)] backdrop-blur"
       innerClassName="relative"
       fillScreen={false}
     >
@@ -25,23 +25,34 @@ export function LatestLaunches({ products }: LatestLaunchesProps) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-20 right-1/4 -z-20 h-72 w-[65%] rounded-full bg-[radial-gradient(circle,var(--brand-3)/0.22,transparent_70%)] blur-3xl"
+        className="pointer-events-none absolute inset-0 -z-30"
+        style={{
+          backgroundImage:
+            "radial-gradient(110%_85%_at_85%_-10%, rgba(13, 69, 120, 0.24), transparent 76%), radial-gradient(90%_75%_at_10%_20%, rgba(9, 43, 78, 0.22), transparent 72%)",
+          maskImage:
+            "radial-gradient(80%_100%_at_50%_5%, rgba(0,0,0,0.95), transparent 75%)",
+        }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 opacity-25"
+        className="pointer-events-none absolute inset-0 -z-20 opacity-25"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-          backgroundSize: "120px 120px",
+            "linear-gradient(96deg, rgba(11, 58, 106, 0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(11, 58, 106, 0.05) 1px, transparent 1px)",
+          backgroundSize: "150px 150px",
         }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-[-28%] bottom-[-52px] -z-40 h-56 rounded-[50%] bg-[radial-gradient(78%_100%_at_50%_0%,var(--brand-3)/0.22,transparent_82%)] blur-3xl"
       />
 
       <div className="relative space-y-10">
         <PageSectionHeader
           align="center"
-          title="Latest Launches"
-          subtitle="Fresh off the dock. Explore what’s new."
+          eyebrow="Fresh Launches"
+          title="Fresh Off the Dock"
+          subtitle="Explore the latest ships to depart our makers' slips."
         />
 
         <FeaturedProductGrid items={products} />

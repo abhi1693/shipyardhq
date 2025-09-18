@@ -15,7 +15,7 @@ export function Leaderboard({ products }: LeaderboardProps) {
       as="section"
       max="marketing"
       paddingY="py-20"
-      className="relative overflow-hidden border-b bg-background/82 backdrop-blur"
+      className="relative overflow-hidden border-b bg-background/85 shadow-[0px_40px_110px_-80px_rgba(7,58,104,0.9)] backdrop-blur"
       innerClassName="relative"
       fillScreen={false}
     >
@@ -25,22 +25,33 @@ export function Leaderboard({ products }: LeaderboardProps) {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-24 right-[15%] -z-20 h-72 w-[65%] rounded-full bg-[radial-gradient(circle,var(--brand-1)/0.22,transparent_70%)] blur-3xl"
+        className="pointer-events-none absolute inset-0 -z-30"
+        style={{
+          backgroundImage:
+            "radial-gradient(110%_85%_at_80%_110%, rgba(7, 54, 102, 0.24), transparent 76%), radial-gradient(85%_75%_at_15%_25%, rgba(6, 33, 60, 0.2), transparent 72%)",
+          maskImage:
+            "radial-gradient(80%_100%_at_50%_95%, rgba(0,0,0,0.95), transparent 75%)",
+        }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 opacity-25"
+        className="pointer-events-none absolute inset-0 -z-20 opacity-25"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-          backgroundSize: "120px 120px",
+            "linear-gradient(88deg, rgba(8, 52, 96, 0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(8, 52, 96, 0.05) 1px, transparent 1px)",
+          backgroundSize: "150px 150px",
         }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-[-24%] bottom-[-48px] -z-40 h-52 rounded-[50%] bg-[radial-gradient(78%_100%_at_50%_100%,var(--brand-1)/0.22,transparent_82%)] blur-3xl"
       />
 
       <div className="relative space-y-10">
         <PageSectionHeader
-          title="Trending"
-          subtitle="Top of the fleet by upvotes."
+          eyebrow="Fleet Standings"
+          title="Trending Fleet"
+          subtitle="Vessels pulling ahead on the tide of community upvotes."
           action={
             <a
               href="/leaderboard"

@@ -14,7 +14,7 @@ export function FeaturedHighlights({
       as="section"
       max="marketing"
       paddingY="py-20"
-      className="relative overflow-hidden border-b bg-background/85 backdrop-blur"
+      className="relative overflow-hidden border-b bg-background/88 shadow-[0px_40px_110px_-70px_rgba(7,58,104,0.95)] backdrop-blur"
       innerClassName="relative"
       fillScreen={false}
     >
@@ -24,22 +24,33 @@ export function FeaturedHighlights({
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-32 right-1/4 -z-20 h-72 w-[70%] rounded-full bg-[radial-gradient(circle,var(--brand-3)/0.2,transparent_70%)] blur-3xl"
+        className="pointer-events-none absolute inset-0 -z-30"
+        style={{
+          backgroundImage:
+            "radial-gradient(110%_90%_at_85%_-10%, rgba(10, 64, 112, 0.26), transparent 75%), radial-gradient(90%_70%_at_10%_20%, rgba(6, 38, 73, 0.22), transparent 72%)",
+          maskImage:
+            "radial-gradient(78%_100%_at_50%_0%, rgba(0,0,0,0.95), transparent 75%)",
+        }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 opacity-25"
+        className="pointer-events-none absolute inset-0 -z-20 opacity-25"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-          backgroundSize: "120px 120px",
+            "linear-gradient(90deg, rgba(10, 59, 104, 0.08) 1px, transparent 1px), linear-gradient(0deg, rgba(10, 59, 104, 0.05) 1px, transparent 1px)",
+          backgroundSize: "140px 140px",
         }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-[-25%] bottom-[-50px] -z-40 h-52 rounded-[50%] bg-[radial-gradient(75%_100%_at_50%_0%,var(--brand-3)/0.2,transparent_80%)] blur-3xl"
       />
 
       <div className="relative space-y-10">
         <PageSectionHeader
-          title="Featured Highlights"
-          subtitle="Curated products making waves right now."
+          eyebrow="Featured Fleet"
+          title="Highlights From the Helm"
+          subtitle="Curated launches making waves across the community."
           action={
             <a
               href="/browse"
