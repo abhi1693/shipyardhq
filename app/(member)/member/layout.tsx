@@ -8,6 +8,7 @@ import PageContainer from "@/components/layout/page-container"
 import { syncCurrentUserBilling } from "@/lib/server/billing"
 import MemberFooter from "@/components/layout/footers/member-footer"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
+import { IS_PROD } from "@/lib/constants"
 
 export const metadata: Metadata = {
   title: "ShipYardHQ",
@@ -51,6 +52,11 @@ export default async function MemberLayout({
 
   const items: NavItem[] = [...navItems]
 
+  const shouldShowCustomerPortal = !(
+    IS_PROD &&
+    (process.env.DODO_ENV?.trim() || "") === "test_mode"
+  )
+
   if (
     role === "admin" &&
     !items.some(
@@ -67,7 +73,10 @@ export default async function MemberLayout({
 
   return (
     <SidebarProvider defaultOpen>
-      <AppSidebar navItems={items} showCustomerPortal />
+      <AppSidebar
+        navItems={items}
+        showCustomerPortal={shouldShowCustomerPortal}
+      />
       <SidebarInset>
         <PrivateHeader />
         <div className="flex-1">
