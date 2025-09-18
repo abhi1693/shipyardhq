@@ -35,7 +35,7 @@ export function CategoryCard({
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.08] text-[color:var(--brand-1)]">
             <CategoryIcon icon={icon} size={16} className="text-[color:var(--brand-1)]" />
           </span>
-          <span className="flex-1 text-sm font-semibold leading-tight text-balance line-clamp-2 md:text-base">
+          <span className="flex-1 text-sm font-semibold leading-tight line-clamp-2 md:text-base">
             {name}
           </span>
         </div>

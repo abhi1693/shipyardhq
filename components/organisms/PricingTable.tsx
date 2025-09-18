@@ -12,8 +12,8 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
 
   return (
     <section className="py-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-wrap gap-6 justify-center items-stretch">
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {plans.map((p) => (
             <CardWrapper key={p.id}>
               <PricingCard
@@ -65,7 +65,7 @@ function CardWrapper({ children }: { children: React.ReactNode }) {
     <div
       ref={ref}
       data-pricing-card-wrapper
-      className="w-full max-w-sm min-h-[30rem]"
+      className="h-full w-full"
     >
       {children}
     </div>

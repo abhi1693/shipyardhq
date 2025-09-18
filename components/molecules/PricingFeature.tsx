@@ -15,7 +15,7 @@ export function PricingFeature({
   return (
     <li
       className={clsx(
-        "flex items-center gap-3 text-sm",
+        "flex items-center gap-3 text-sm text-foreground/90",
         subtle && "text-muted-foreground",
       )}
     >
@@ -23,8 +23,8 @@ export function PricingFeature({
         className={clsx(
           "inline-flex h-6 w-6 items-center justify-center rounded-full border shadow-sm",
           enabled
-            ? "bg-emerald-100 text-emerald-600 border-emerald-200"
-            : "bg-muted text-muted-foreground border-muted",
+            ? "border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)/0.12] text-[color:var(--brand-1)]"
+            : "border-border bg-muted text-muted-foreground",
         )}
       >
         {enabled ? (

@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import clsx from "clsx"
-import { IconFlame } from "@tabler/icons-react"
+import { IconAnchor, IconArrowUpRight } from "@tabler/icons-react"
 import { PricingFeature } from "@/components/molecules/PricingFeature"
 
 export type PricingCardProps = {
@@ -62,26 +62,40 @@ export function PricingCard({
     : null
 
   return (
-    <Card className={clsx("h-full min-h-[32rem] flex flex-col")}>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold truncate">
-            {name}
-          </CardTitle>
-          {isPopular && !isFree && (
-            <Badge className="bg-orange-100 text-orange-800 border-orange-300">
-              <IconFlame className="h-3.5 w-3.5 mr-1" /> Popular
+    <Card
+      className={clsx(
+        "flex h-full min-h-[32rem] flex-col overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/95 shadow-[0px_22px_55px_-38px_rgba(7,58,104,0.6)] transition-transform duration-200 ease-out",
+        isPopular &&
+          "border-[color:var(--brand-2)/0.45] shadow-[0px_28px_65px_-30px_rgba(7,78,134,0.45)]",
+      )}
+    >
+      <CardHeader className="space-y-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="space-y-1">
+            <CardTitle className="text-xl font-semibold leading-tight text-foreground">
+              {name}
+            </CardTitle>
+            {description && (
+              <p className="text-sm text-muted-foreground leading-snug">
+                {description}
+              </p>
+            )}
+          </div>
+          {isPopular && !isFree ? (
+            <Badge className="inline-flex items-center gap-1 rounded-full border-[color:var(--brand-2)/0.3] bg-[color:var(--brand-2)/0.15] text-[color:var(--brand-2)]">
+              <IconAnchor className="h-3.5 w-3.5" /> Most popular
             </Badge>
-          )}
+          ) : null}
         </div>
-        <div className="mt-2 flex flex-col gap-2">
-          <div className="flex flex-wrap items-baseline gap-2">
+
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-baseline gap-2 text-[color:var(--brand-1)]">
             {hasDiscount && originalPrice ? (
-              <span className="text-sm text-muted-foreground line-through">
+              <span className="text-sm text-foreground/60 line-through">
                 {originalPrice}
               </span>
             ) : null}
-            <span className="text-4xl font-extrabold tracking-tight">
+            <span className="text-4xl font-bold tracking-tight">
               {displayPrice}
             </span>
             {!isFree && priceSuffix ? (
@@ -89,28 +103,43 @@ export function PricingCard({
             ) : null}
           </div>
           {hasDiscount && formattedDiscount ? (
-            <span className="text-xs inline-flex w-fit items-center rounded bg-green-100 text-green-800 border border-green-300 px-2 py-0.5">
+            <span className="inline-flex w-fit items-center rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
               Save {formattedDiscount}%
             </span>
           ) : null}
+          {isFree && (
+            <span className="inline-flex w-fit items-center rounded-full border border-[color:var(--brand-1)/0.3] bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
+              Starter
+            </span>
+          )}
         </div>
-        {description && (
-          <p className="text-base text-foreground/90 leading-snug">
-            {description}
-          </p>
-        )}
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col">
-        <ul className="space-y-2 mb-4">
-          {features
-            .filter((f) => f.enabled)
-            .map((f) => (
-              <PricingFeature key={f.id} label={f.name} enabled={true} />
-            ))}
-        </ul>
-        <div className="mt-auto">
-          <Button asChild className="w-full">
-            <a href={ctaHref}>{ctaLabel}</a>
+
+      <CardContent className="flex flex-1 flex-col">
+        <div className="flex-1">
+          <ul className="space-y-3">
+            {features
+              .filter((f) => f.enabled)
+              .map((f) => (
+                <PricingFeature key={f.id} label={f.name} enabled={true} />
+              ))}
+          </ul>
+        </div>
+
+        <div className="mt-8">
+          <Button
+            asChild
+            className={clsx(
+              "group w-full justify-center gap-2 transition",
+              isFree
+                ? "border-[color:var(--brand-1)/0.3] bg-background text-[color:var(--brand-1)] hover:border-[color:var(--brand-1)/0.45] hover:bg-[color:var(--brand-1)/0.08] hover:text-[color:var(--brand-1)]"
+                : "shadow-[0px_22px_55px_-32px_rgba(7,58,104,0.65)] hover:shadow-[0px_30px_70px_-38px_rgba(7,78,134,0.7)]",
+            )}
+          >
+            <a href={ctaHref}>
+              {isFree ? "Start for free" : ctaLabel}
+              {!isFree && <IconArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
+            </a>
           </Button>
         </div>
       </CardContent>

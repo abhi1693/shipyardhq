@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import PublicHeader from "@/components/layout/headers/public-header"
 import PublicFooter from "@/components/layout/footers/public-footer"
-import { FaqSection } from "@/components/organisms/FaqSection"
 import FeaturedTicker from "@/components/molecules/FeaturedTicker"
 import { getStickyBannerProducts } from "@/actions/public/products/featured"
 import { getUseCases } from "@/actions/admin/categories/actions"
@@ -37,7 +36,6 @@ export default async function PublicLayout({
       <PublicHeader />
       {tickerItems.length > 0 && <FeaturedTicker items={tickerItems} />}
       <main className="flex-1">{children}</main>
-      <FaqSection />
       <PublicFooter useCases={useCases} />
     </div>
   )
