@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+import AuthViewShell from "@/components/layout/AuthViewShell"
 import AuthMarketingPanel from "@/components/organisms/AuthMarketingPanel"
 import AuthFormPanel from "@/components/organisms/AuthFormPanel"
 
@@ -9,9 +10,9 @@ export const metadata: Metadata = {
 
 export default function RegisterViewPage() {
   return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
+    <AuthViewShell>
       <AuthMarketingPanel />
       <AuthFormPanel mode="sign-up" />
-    </div>
+    </AuthViewShell>
   )
 }
