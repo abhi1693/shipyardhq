@@ -5,19 +5,18 @@ import {
 import { columns } from "./columns"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
-import { resolvePagination } from "@/lib/pagination"
-
-type SearchParams = {
-  page?: string | string[]
-  limit?: string | string[]
-}
+import {
+  resolvePagination,
+  type PaginationSearchParams,
+} from "@/lib/pagination"
 
 export default async function AssignedProductBadgesPage({
   searchParams,
 }: {
-  searchParams?: SearchParams
+  searchParams?: Promise<PaginationSearchParams>
 }) {
-  const { pageSize, skip, take } = resolvePagination(searchParams)
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const { pageSize, skip, take } = resolvePagination(resolvedSearchParams)
 
   const [assignments, totalAssignments] = await Promise.all([
     getAllAssignedBadges({ skip, take }),

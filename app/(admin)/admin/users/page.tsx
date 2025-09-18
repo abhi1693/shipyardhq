@@ -35,13 +35,21 @@ function coerceNumber(
 export default async function UserPage({
   searchParams,
 }: {
-  searchParams?: SearchParams
+  searchParams?: Promise<SearchParams>
 }) {
-  const page = coerceNumber(searchParams?.page, DEFAULT_PAGE, { min: 1 })
-  const pageSize = coerceNumber(searchParams?.limit, DEFAULT_PAGE_SIZE, {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+
+  const page = coerceNumber(resolvedSearchParams?.page, DEFAULT_PAGE, {
     min: 1,
-    max: MAX_PAGE_SIZE,
   })
+  const pageSize = coerceNumber(
+    resolvedSearchParams?.limit,
+    DEFAULT_PAGE_SIZE,
+    {
+      min: 1,
+      max: MAX_PAGE_SIZE,
+    },
+  )
 
   const skip = (page - 1) * pageSize
 

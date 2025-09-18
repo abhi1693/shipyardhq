@@ -3,24 +3,23 @@ import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import { columns, type AdminProductRow } from "./columns"
 import { getProducts, getProductsCount } from "@/actions/admin/products/actions"
-import { resolvePagination } from "@/lib/pagination"
+import {
+  resolvePagination,
+  type PaginationSearchParams,
+} from "@/lib/pagination"
 
 export const metadata: Metadata = {
   title: "Products",
   description: "Manage products in the admin panel",
 }
 
-type SearchParams = {
-  page?: string | string[]
-  limit?: string | string[]
-}
-
 export default async function CategoryPage({
   searchParams,
 }: {
-  searchParams?: SearchParams
+  searchParams?: Promise<PaginationSearchParams>
 }) {
-  const { pageSize, skip, take } = resolvePagination(searchParams)
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const { pageSize, skip, take } = resolvePagination(resolvedSearchParams)
 
   const [products, totalProducts] = await Promise.all([
     getProducts({ skip, take }),

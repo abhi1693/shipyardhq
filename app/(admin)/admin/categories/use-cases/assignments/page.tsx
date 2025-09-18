@@ -6,24 +6,23 @@ import {
   getUseCaseAssignments,
   getUseCaseAssignmentsCount,
 } from "@/actions/admin/categories/actions"
-import { resolvePagination } from "@/lib/pagination"
+import {
+  resolvePagination,
+  type PaginationSearchParams,
+} from "@/lib/pagination"
 
 export const metadata: Metadata = {
   title: "Assigned Use Cases",
   description: "View all use-case to category assignments",
 }
 
-type SearchParams = {
-  page?: string | string[]
-  limit?: string | string[]
-}
-
 export default async function UseCaseAssignmentsPage({
   searchParams,
 }: {
-  searchParams?: SearchParams
+  searchParams?: Promise<PaginationSearchParams>
 }) {
-  const { pageSize, skip, take } = resolvePagination(searchParams)
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const { pageSize, skip, take } = resolvePagination(resolvedSearchParams)
 
   const [assignments, totalAssignments] = await Promise.all([
     getUseCaseAssignments({ skip, take }),

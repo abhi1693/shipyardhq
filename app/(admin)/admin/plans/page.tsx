@@ -3,24 +3,23 @@ import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import { columns } from "./columns"
 import { getPlans, getPlansCount } from "@/actions/admin/plans/actions"
-import { resolvePagination } from "@/lib/pagination"
+import {
+  resolvePagination,
+  type PaginationSearchParams,
+} from "@/lib/pagination"
 
 export const metadata: Metadata = {
   title: "Plans",
   description: "Manage plans in the admin panel",
 }
 
-type SearchParams = {
-  page?: string | string[]
-  limit?: string | string[]
-}
-
 export default async function PlanPage({
   searchParams,
 }: {
-  searchParams?: SearchParams
+  searchParams?: Promise<PaginationSearchParams>
 }) {
-  const { pageSize, skip, take } = resolvePagination(searchParams)
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const { pageSize, skip, take } = resolvePagination(resolvedSearchParams)
 
   const [plans, totalPlans] = await Promise.all([
     getPlans({ skip, take }),

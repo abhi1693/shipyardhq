@@ -6,24 +6,23 @@ import {
   getUseCases,
   getUseCasesCount,
 } from "@/actions/admin/categories/actions"
-import { resolvePagination } from "@/lib/pagination"
+import {
+  resolvePagination,
+  type PaginationSearchParams,
+} from "@/lib/pagination"
 
 export const metadata: Metadata = {
   title: "Use Cases",
   description: "Manage functional use-cases in the admin panel",
 }
 
-type SearchParams = {
-  page?: string | string[]
-  limit?: string | string[]
-}
-
 export default async function UseCasePage({
   searchParams,
 }: {
-  searchParams?: SearchParams
+  searchParams?: Promise<PaginationSearchParams>
 }) {
-  const { pageSize, skip, take } = resolvePagination(searchParams)
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const { pageSize, skip, take } = resolvePagination(resolvedSearchParams)
 
   const [useCases, totalUseCases] = await Promise.all([
     getUseCases({ skip, take }),

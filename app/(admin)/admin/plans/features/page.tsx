@@ -6,31 +6,30 @@ import {
 import { columns, PlanFeatureWithAssignments } from "./columns"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
-import { resolvePagination } from "@/lib/pagination"
+import {
+  resolvePagination,
+  type PaginationSearchParams,
+} from "@/lib/pagination"
 
 export const metadata: Metadata = {
   title: "Plan Features",
   description: "Manage feature flags for pricing plans",
 }
 
-type SearchParams = {
-  page?: string | string[]
-  limit?: string | string[]
-}
-
 export default async function PlanFeatureListPage({
   searchParams,
 }: {
-  searchParams?: SearchParams
+  searchParams?: Promise<PaginationSearchParams>
 }) {
-  const { pageSize, skip, take } = resolvePagination(searchParams)
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const { pageSize, skip, take } = resolvePagination(resolvedSearchParams)
 
   const [features, totalFeatures] = await Promise.all([
     getPlanFeatures({ skip, take }),
     getPlanFeaturesCount(),
   ])
 
-  const typedFeatures = features as PlanFeatureWithAssignments[]
+  const typedFeatures = features as unknown as PlanFeatureWithAssignments[]
 
   const pageCount = Math.max(Math.ceil(totalFeatures / pageSize), 1)
 

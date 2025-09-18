@@ -6,24 +6,23 @@ import {
   getOrganizationsCount,
 } from "@/actions/admin/organizations/actions"
 import { columns } from "./columns"
-import { resolvePagination } from "@/lib/pagination"
+import {
+  resolvePagination,
+  type PaginationSearchParams,
+} from "@/lib/pagination"
 
 export const metadata: Metadata = {
   title: "Organizations",
   description: "Manage organizations in the admin panel",
 }
 
-type SearchParams = {
-  page?: string | string[]
-  limit?: string | string[]
-}
-
 export default async function OrganizationsPage({
   searchParams,
 }: {
-  searchParams?: SearchParams
+  searchParams?: Promise<PaginationSearchParams>
 }) {
-  const { pageSize, skip, take } = resolvePagination(searchParams)
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const { pageSize, skip, take } = resolvePagination(resolvedSearchParams)
 
   const [orgs, totalOrgs] = await Promise.all([
     getOrganizations({ skip, take }),

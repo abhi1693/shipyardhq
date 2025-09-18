@@ -6,7 +6,10 @@ import {
   getCategories,
   getCategoriesCount,
 } from "@/actions/admin/categories/actions"
-import { resolvePagination } from "@/lib/pagination"
+import {
+  resolvePagination,
+  type PaginationSearchParams,
+} from "@/lib/pagination"
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -17,17 +20,13 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-type SearchParams = {
-  page?: string | string[]
-  limit?: string | string[]
-}
-
 export default async function CategoryPage({
   searchParams,
 }: {
-  searchParams?: SearchParams
+  searchParams?: Promise<PaginationSearchParams>
 }) {
-  const { pageSize, skip, take } = resolvePagination(searchParams)
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const { pageSize, skip, take } = resolvePagination(resolvedSearchParams)
 
   const [categories, totalCategories] = await Promise.all([
     getCategories({ skip, take }),
