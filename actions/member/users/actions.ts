@@ -31,9 +31,11 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
 
   try {
     const client = await clerkClient()
+    const existingPublicMetadata =
+      (clerkUser.publicMetadata as Record<string, unknown> | null) ?? {}
+
     await client.users.updateUser(clerkUser.id, {
-      publicMetadata: { status: user.status },
-      privateMetadata: { status: user.status },
+      publicMetadata: { ...existingPublicMetadata, status: user.status },
     })
   } catch (error) {
     console.error("Failed to sync user status metadata:", error)
