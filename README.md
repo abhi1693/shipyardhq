@@ -51,3 +51,27 @@ Questions or feedback? Email `shipyardhq.dev@gmail.com` or say hi on X: https://
 
 - Organizations: Access to member Organizations is gated by the plan feature key `organization`. Entitlement is determined server-side: a user is entitled if they (a) own any product whose attached plan has the `organization` feature enabled, or (b) have purchased any plan that includes the `organization` feature. See `lib/memberFeatures.ts`.
 - Enforcement: All organization server actions check entitlement. The member sidebar hides the Organizations link when not entitled. The organizations index is accessible and shows an upsell when access is missing.
+
+## Reddit Outreach Bot
+
+Use `npm exec tsx scripts/reddit-bot.ts` to run a CLI assistant that watches Reddit for recent product showcase posts and drafts tailored outreach replies with GPT.
+
+### Required env vars
+
+Set these before running (e.g., in `.env.local`):
+
+- `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`: credentials for your Reddit script app.
+- `REDDIT_USERNAME`, `REDDIT_PASSWORD`: the Reddit account the bot posts as.
+- `OPENAI_API_KEY`: API key with access to `gpt-4.1-mini` (override via `OPENAI_MODEL`).
+
+Optional tuning:
+
+- `REDDIT_SUBREDDITS` (comma list, default `startups,Entrepreneur,smallbusiness,Entrepreneurship,business,IndieHackers,SaaS,SaaS_Talk,EntrepreneurRideAlong,bootstrapping,WebApps,alphaandbetausers,ProductFeedback,DesignCritiques,AppHookup,InternetIsBeautiful,SideProject,SideHustle,BuildInPublic,selfhosted,opensource,indiebiz,webdev,frontend,coding,learnprogramming`).
+- `REDDIT_KEYWORDS` (comma list, default `launch,product,showcase,feedback,built,app`).
+- `REDDIT_ALLOWED_FLAIRS` (comma list, default `showoff,showcase,launch,feedback,demo,beta,product,milestone`).
+- `REDDIT_MAX_POST_AGE_MINUTES`, `REDDIT_MIN_UPVOTES`, `REDDIT_MAX_POSTS_PER_SUB`.
+- `REDDIT_POLL_INTERVAL_SECONDS` (default 300s) and `REDDIT_REQUEST_DELAY_MS` to respect rate limits.
+- `OPENAI_MAX_OUTPUT_TOKENS`, `OPENAI_TEMPERATURE` for draft length/tone tweaks.
+- `REDDIT_STATE_FILE` to change the cache location (default `tmp/reddit-bot-state.json`).
+
+The script prints each candidate post, the GPT-generated draft, and pauses for a `y/n` approval before posting (use `r` to request a fresh draft). Decisions (approve/skip) are cached in `tmp/reddit-bot-state.json` so the bot will not repeatedly prompt on the same thread.
