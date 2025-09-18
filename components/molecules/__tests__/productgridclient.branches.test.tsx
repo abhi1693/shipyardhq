@@ -1,48 +1,25 @@
 import React from "react"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
-import ProductGridClient from "@/components/molecules/ProductGridClient"
 import { vi } from "vitest"
 
-// Mock ProductList to expose items and topRight rendering
-vi.mock("@/components/molecules/ProductList", () => ({
-  __esModule: true,
-  default: ({ items, topRight }: any) => (
-    <div data-testid="product-list" data-count={items.length}>
-      {items.map((it: any, i: number) => (
-        <div
-          key={it.id}
-          data-testid={`item-${i}`}
-          data-badges={(it.badges || []).join(",")}
-        >
-          <span>{it.name}</span>
-          {topRight ? (
-            <div data-testid={`top-${i}`}>{topRight(it, i)}</div>
-          ) : null}
-        </div>
-      ))}
-    </div>
+vi.mock("@/components/molecules/ProductCompactCard", () => ({
+  ProductCompactCard: ({ product, category, upvotes }: any) => (
+    <div
+      data-testid="product-card"
+      data-name={product?.name}
+      data-category={category ?? ""}
+      data-upvotes={upvotes ?? 0}
+    />
   ),
 }))
 
-// Mock server action
 const loadMoreMock = vi.fn()
 vi.mock("@/actions/public/browse/loadMore", () => ({
   loadMoreProducts: (...args: any[]) => loadMoreMock(...args),
 }))
 
-function futureDate(days = 1) {
-  const d = new Date()
-  d.setDate(d.getDate() + days)
-  return d.toISOString()
-}
+import ProductGridClient from "@/components/molecules/ProductGridClient"
 
-function pastDate(days = 1) {
-  const d = new Date()
-  d.setDate(d.getDate() - days)
-  return d.toISOString()
-}
-
-// Minimal product factory
 const baseProduct = (over: Partial<any> = {}) => ({
   id: Math.random().toString(36).slice(2),
   slug: "slug",
@@ -62,14 +39,8 @@ describe("ProductGridClient", () => {
     loadMoreMock.mockReset()
   })
 
-  it("renders items with filtered badges and topRight (verified + category)", async () => {
-    const p1 = baseProduct({
-      name: "First",
-      ProductBadge: [
-        { badge: "Gold", expiresAt: futureDate(2) },
-        { badge: "Old", expiresAt: pastDate(2) },
-      ],
-    })
+  it("renders compact product cards with category and upvote data", async () => {
+    const p1 = baseProduct({ name: "First", analytics: { upvotes: 42 } })
     loadMoreMock.mockResolvedValue({ products: [], hasMore: false })
 
     render(
@@ -81,24 +52,18 @@ describe("ProductGridClient", () => {
       />,
     )
 
-    // Prefetch happens once
     await waitFor(() => expect(loadMoreMock).toHaveBeenCalledTimes(1))
 
-    // Only non-expired badge is present
-    expect(screen.getByTestId("item-0").getAttribute("data-badges")).toBe(
-      "Gold",
-    )
-    // topRight should contain Verified and category
-    expect(screen.getByText(/Verified/i)).toBeInTheDocument()
-    expect(screen.getByText(/AI/)).toBeInTheDocument()
+    const card = screen.getByTestId("product-card")
+    expect(card.getAttribute("data-name")).toBe("First")
+    expect(card.getAttribute("data-category")).toBe("AI")
+    expect(card.getAttribute("data-upvotes")).toBe("42")
   })
 
   it("uses prefetched data on load more and hides button when no more", async () => {
     const p1 = baseProduct({ name: "First" })
     const p2 = baseProduct({ name: "Second" })
-    // First call: prefetch
     loadMoreMock.mockResolvedValueOnce({ products: [p2], hasMore: false })
-    // Subsequent calls (next prefetch after page increment)
     loadMoreMock.mockResolvedValue({ products: [], hasMore: false })
 
     render(
@@ -110,18 +75,13 @@ describe("ProductGridClient", () => {
       />,
     )
 
-    // Wait for initial prefetch
     await waitFor(() => expect(loadMoreMock).toHaveBeenCalledTimes(1))
 
-    // Click Load More -> should append p2 from prefetchedRef
     fireEvent.click(screen.getByRole("button", { name: /Load More/i }))
 
-    await waitFor(() =>
-      expect(
-        screen.getByTestId("product-list").getAttribute("data-count"),
-      ).toBe("2"),
-    )
-    // Since hasMore false in result, button disappears
+    await waitFor(() => {
+      expect(document.querySelectorAll('[data-testid="product-card"]').length).toBe(2)
+    })
     await waitFor(() =>
       expect(screen.queryByRole("button", { name: /Load More/i })).toBeNull(),
     )
@@ -131,13 +91,11 @@ describe("ProductGridClient", () => {
     const p1 = baseProduct({ name: "First" })
     const p2 = baseProduct({ name: "Next" })
 
-    // Deferred promises to control timing
     let resolvePrefetch: any
     const prefetchPromise = new Promise((res) => (resolvePrefetch = res))
     let resolveLoad: any
     const loadPromise = new Promise((res) => (resolveLoad = res))
 
-    // 1st call (prefetch) pending; 2nd call (load more) pending too
     loadMoreMock
       .mockImplementationOnce(() => prefetchPromise)
       .mockImplementationOnce(() => loadPromise)
@@ -152,27 +110,19 @@ describe("ProductGridClient", () => {
       />,
     )
 
-    // Click load more immediately (prefetch not ready -> network path)
     fireEvent.click(screen.getByRole("button", { name: /Load More/i }))
 
-    // During transition, skeletons and Loading...
     expect(screen.getByText(/Loading.../i)).toBeInTheDocument()
-    expect(
-      document.querySelectorAll('[class*="grid-cols-"]').length,
-    ).toBeGreaterThan(0)
+    expect(screen.getAllByTestId("product-card-skeleton").length).toBeGreaterThan(0)
 
-    // Resolve loadMore call
     resolveLoad({ products: [p2], hasMore: true })
-    await waitFor(() =>
-      expect(
-        screen.getByTestId("product-list").getAttribute("data-count"),
-      ).toBe("2"),
-    )
+    await waitFor(() => {
+      expect(document.querySelectorAll('[data-testid="product-card"]').length).toBe(2)
+    })
     await waitFor(() =>
       expect(screen.getByRole("button")).toHaveTextContent(/Load More/i),
     )
 
-    // Clean up: resolve prefetch
     resolvePrefetch({ products: [], hasMore: false })
   })
 
@@ -190,15 +140,11 @@ describe("ProductGridClient", () => {
       />,
     )
 
-    // Append an item via state change (simulate previous growth)
     fireEvent.click(screen.getByRole("button", { name: /Load More/i }))
-    await waitFor(() =>
-      expect(
-        screen.getByTestId("product-list").getAttribute("data-count"),
-      ).toBe("1"),
-    )
+    await waitFor(() => {
+      expect(document.querySelectorAll('[data-testid="product-card"]').length).toBe(1)
+    })
 
-    // Rerender with new server props -> resets to p2 only and no button when hasMore false
     rerender(
       <ProductGridClient
         initialProducts={[p2]}
@@ -208,9 +154,7 @@ describe("ProductGridClient", () => {
       />,
     )
 
-    expect(screen.getByTestId("product-list").getAttribute("data-count")).toBe(
-      "1",
-    )
+    expect(document.querySelectorAll('[data-testid="product-card"]').length).toBe(1)
     expect(screen.queryByRole("button", { name: /Load More/i })).toBeNull()
   })
 })

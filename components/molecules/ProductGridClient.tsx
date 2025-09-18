@@ -1,10 +1,9 @@
 "use client"
 
 import { useEffect, useState, useTransition, useRef } from "react"
-import { Check } from "lucide-react"
 import { Button } from "@/components/atoms/button"
 import { Skeleton } from "@/components/atoms/skeleton"
-import ProductList from "@/components/molecules/ProductList"
+import { ProductCompactCard } from "@/components/molecules/ProductCompactCard"
 
 import {
   Category,
@@ -91,47 +90,41 @@ export default function ProductGridClient({
 
   return (
     <section className="space-y-6">
-      <ProductList
-        items={products.map((p) => ({
-          ...p,
-          badges: p.ProductBadge?.filter(
-            (pb) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
-          ).map((pb) => pb.badge),
-        }))}
-        compact
-        showCategory
-        showVerified={false}
-        columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
-        topRight={(p) => (
-          <div className="flex items-center gap-1">
-            {p.verification?.isVerified && (
-              <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px]">
-                <Check className="h-3 w-3" /> Verified
-              </span>
-            )}
-            {p.category?.name && (
-              <span className="inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px]">
-                {p.category.name}
-              </span>
-            )}
-          </div>
-        )}
-      />
+      <div
+        className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
+        data-testid="product-grid"
+      >
+        {products.map((p, index) => (
+          <ProductCompactCard
+            key={p.id}
+            product={{
+              id: p.id,
+              slug: p.slug,
+              name: p.name,
+              logo: p.logo,
+              tagline: p.tagline,
+            }}
+            category={p.category?.name ?? null}
+            upvotes={p.analytics?.upvotes ?? 0}
+            imagePriority={index < 6}
+          />
+        ))}
+      </div>
 
       {isPending && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={`sk-${i}`} className="rounded-lg border p-4">
-              <div className="flex items-center gap-3">
+            <div
+              key={`sk-${i}`}
+              className="rounded-lg border border-[color:var(--brand-1)/0.15] bg-card/60 p-4"
+              data-testid="product-card-skeleton"
+            >
+              <div className="flex items-start gap-3">
                 <Skeleton className="h-10 w-10 rounded-md" />
                 <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-2/3" />
-                  <Skeleton className="h-3 w-1/3" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-full" />
                 </div>
-              </div>
-              <Skeleton className="mt-4 h-16 w-full" />
-              <div className="mt-4 flex items-center gap-2">
-                <Skeleton className="h-5 w-16" />
                 <Skeleton className="h-5 w-12" />
               </div>
             </div>
