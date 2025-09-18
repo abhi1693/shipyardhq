@@ -104,7 +104,7 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
   const canSubmit = Boolean(roleIntent && heardFrom)
 
   return (
-    <div className="flex h-full w-full items-center justify-center py-6">
+    <div className="flex h-full items-center justify-center py-6">
       <Card className="mx-auto w-full max-w-2xl rounded-[26px] border-slate-200/75 bg-white/95 px-0 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.45)] backdrop-blur lg:max-w-3xl">
         <CardHeader className="space-y-3 px-10 pt-8">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-sky-200/70 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-sky-700">

@@ -28,7 +28,7 @@ const highlights = [
 
 export default function OnboardingMarketingPanel() {
   return (
-    <div className="relative hidden overflow-hidden rounded-none bg-white/90 px-10 py-12 text-slate-900 shadow-[0_25px_60px_-40px_rgba(56,189,248,0.45)] ring-1 ring-sky-100/70 backdrop-blur xl:px-12 xl:py-14 lg:flex lg:w-[58%] lg:flex-col">
+    <div className="relative hidden overflow-hidden rounded-none bg-white/90 px-10 py-12 text-slate-900 shadow-[0_25px_60px_-40px_rgba(56,189,248,0.45)] ring-1 ring-sky-100/70 backdrop-blur xl:px-12 xl:py-14 lg:flex lg:w-full lg:items-center">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.35),_transparent_65%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_rgba(125,211,252,0.45),_transparent_72%)]" />
@@ -36,7 +36,7 @@ export default function OnboardingMarketingPanel() {
         <div className="absolute -right-24 top-20 h-48 w-48 rounded-full bg-sky-300/35 blur-3xl" />
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-10">
+      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col justify-between gap-10">
         <div className="space-y-8 pt-4">
           <span className="inline-flex items-center gap-2 rounded-full border border-sky-300/50 bg-sky-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-sky-700">
             Member onboarding
