@@ -76,7 +76,7 @@ export function PricingCard({
   return (
     <Card
       className={clsx(
-        "flex h-full min-h-[32rem] flex-col overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/95 shadow-[0px_22px_55px_-38px_rgba(7,58,104,0.6)] transition-transform duration-200 ease-out",
+        "flex h-full min-h-[34rem] flex-col overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/95 shadow-[0px_22px_55px_-38px_rgba(7,58,104,0.6)] transition-transform duration-200 ease-out",
         isPopular &&
           "border-[color:var(--brand-2)/0.45] shadow-[0px_28px_65px_-30px_rgba(7,78,134,0.45)]",
       )}
