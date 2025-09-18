@@ -5,7 +5,6 @@ import {
   getPublicUserProfile,
 } from "@/actions/public/users/actions"
 import PublicContainer from "@/components/layout/PublicContainer"
-import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import ProductList from "@/components/molecules/ProductList"
 import { EmptyState } from "@/components/molecules/empty-state"
 
@@ -114,9 +113,6 @@ export default async function PublicUserPage({ params }: PageProps) {
 
   return (
     <PublicContainer paddingY="py-10" max="7xl" innerClassName="space-y-8">
-      <Breadcrumbs
-        items={[{ title: "Users", link: "/users" }, { title: fullName }]}
-      />
       <script
         type="application/ld+json"
         suppressHydrationWarning

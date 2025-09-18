@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import ProductList from "@/components/molecules/ProductList"
 import InlineSelect from "@/components/molecules/InlineSelect"
+import { cn } from "@/lib/utils"
 
 type ProductForCard = {
   id: string
@@ -21,11 +22,12 @@ type ProductForCard = {
 
 type Props = {
   products: ProductForCard[]
+  className?: string
 }
 
 type SortKey = "newest" | "upvotes" | "clicks" | "name"
 
-export function CategoryProductsClient({ products }: Props) {
+export function CategoryProductsClient({ products, className }: Props) {
   const [sort, setSort] = useState<SortKey>("newest")
 
   const sorted = useMemo(() => {
@@ -58,9 +60,19 @@ export function CategoryProductsClient({ products }: Props) {
   }, [products, sort])
 
   return (
-    <div>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">Products</h2>
+    <section
+      className={cn(
+        "rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/88 px-6 py-6 shadow-[0px_28px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur",
+        className,
+      )}
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold text-foreground">Products</h2>
+          <p className="text-xs text-muted-foreground">
+            Sort to surface fresh launches, rising favorites, or the most clicks.
+          </p>
+        </div>
         <div className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">Sort by</span>
           <InlineSelect
@@ -73,12 +85,14 @@ export function CategoryProductsClient({ products }: Props) {
               { value: "clicks", label: "Most Clicked" },
               { value: "name", label: "Name (A–Z)" },
             ]}
-            triggerClassName="h-8 w-[160px]"
+            triggerClassName="h-9 w-[180px]"
           />
         </div>
       </div>
 
-      <ProductList items={sorted} compact showCategory showVerified={false} />
-    </div>
+      <div className="mt-6">
+        <ProductList items={sorted} compact showCategory showVerified={false} />
+      </div>
+    </section>
   )
 }

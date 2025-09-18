@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { getPublicUsersWithCounts } from "@/actions/public/users/actions"
 import PublicContainer from "@/components/layout/PublicContainer"
-import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 
 export const revalidate = 120
 
@@ -30,7 +29,6 @@ export default async function UsersIndexPage() {
   return (
     <PublicContainer paddingY="py-10" max="7xl">
       <div className="space-y-8">
-        <Breadcrumbs items={[{ title: "Users" }]} />
         <header className="space-y-1">
           <h1 className="text-2xl md:text-3xl font-bold">Makers</h1>
           <p className="text-muted-foreground">

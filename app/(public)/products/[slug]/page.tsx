@@ -7,7 +7,6 @@ import UpvoteSquareButton from "@/components/molecules/UpvoteSquareButton"
 import { upvoteProductAction } from "@/actions/public/products/upvote"
 import { hasUserUpvoted } from "@/actions/public/products/actions"
 import { auth } from "@clerk/nextjs/server"
-import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import {
@@ -148,17 +147,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
       <ProductMetricsTracker productId={product.id} />
-      <Breadcrumbs
-        items={[
-          { title: "Categories", link: "/categories" },
-          {
-            title: product.category.name,
-            link: `/categories/${product.category.slug}`,
-          },
-          { title: "Products", link: "/browse" },
-          { title: product.name },
-        ]}
-      />
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
