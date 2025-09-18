@@ -11,7 +11,7 @@ export default function OnboardingPage() {
   return (
     <AuthViewShell>
       <OnboardingMarketingPanel />
-      <div className="flex h-full w-full items-center justify-center px-6 py-12 lg:px-16 lg:py-20">
+      <div className="flex h-full w-full items-center justify-center px-5 py-10 lg:px-12 lg:py-14">
         <OnboardingForm firstName={user?.firstName} />
       </div>
     </AuthViewShell>

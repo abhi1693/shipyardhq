@@ -106,7 +106,7 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
   return (
     <div className="flex h-full items-center justify-center py-6">
       <Card className="mx-auto w-full max-w-2xl rounded-[26px] border-slate-200/75 bg-white/95 px-0 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.45)] backdrop-blur lg:max-w-3xl">
-        <CardHeader className="space-y-3 px-10 pt-8">
+        <CardHeader className="space-y-2 px-8 pt-6">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-sky-200/70 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-sky-700">
             Welcome aboard
           </span>
@@ -118,14 +118,14 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
           </CardDescription>
         </CardHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-          <CardContent className="space-y-10 px-10 pb-0">
-            <fieldset className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <CardContent className="space-y-8 px-8 pb-0">
+            <fieldset className="space-y-4">
               <legend className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-500">
                 Mission focus
               </legend>
               <input type="hidden" {...register("roleIntent")} />
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-3">
                 {roleIntentOptions.map(({ value, label, blurb }) => {
                   const active = roleIntent === value
 
@@ -134,7 +134,7 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
                     key={value}
                     type="button"
                     className={cn(
-                      "flex h-full cursor-pointer flex-col rounded-2xl border border-slate-200/80 bg-white px-5 py-5 text-left transition-all hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
+                      "flex h-full cursor-pointer flex-col rounded-2xl border border-slate-200/80 bg-white px-4 py-4 text-left transition-all hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
                         active &&
                           "border-sky-400 bg-sky-50 shadow-[0_18px_45px_-35px_rgba(56,189,248,0.65)]",
                       )}
@@ -159,12 +159,12 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
               ) : null}
             </fieldset>
 
-            <fieldset className="space-y-5">
+            <fieldset className="space-y-4">
               <legend className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-500">
                 How you found us
               </legend>
               <input type="hidden" {...register("heardFrom")} />
-              <div className="flex flex-wrap justify-center gap-3">
+              <div className="flex flex-wrap justify-center gap-2.5">
                 {heardFromOptions.map(({ value, label }) => {
                   const active = heardFrom === value
 
@@ -173,7 +173,7 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
                     key={value}
                     type="button"
                     className={cn(
-                      "cursor-pointer rounded-full border border-slate-200/80 px-5 py-2.5 text-sm font-medium text-slate-600 transition-all hover:border-sky-300 hover:bg-sky-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
+                      "cursor-pointer rounded-full border border-slate-200/80 px-4 py-2 text-sm font-medium text-slate-600 transition-all hover:border-sky-300 hover:bg-sky-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
                         active &&
                           "border-sky-400 bg-sky-100 text-slate-900 shadow-[0_16px_40px_-30px_rgba(56,189,248,0.55)]",
                       )}
@@ -195,8 +195,8 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
 
             <Separator className="bg-slate-200/80" />
 
-            <div className="flex flex-col gap-6">
-              <div className="flex items-start gap-4">
+            <div className="flex flex-col gap-5">
+              <div className="flex items-start gap-3.5">
                 <Checkbox
                   id="newsletterOptIn"
                   checked={newsletterOptIn ?? true}
@@ -215,7 +215,7 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col gap-3 px-10 pb-10 pt-2">
+          <CardFooter className="flex flex-col gap-3 px-8 pb-8 pt-2">
             <Button
               type="submit"
               className="w-full rounded-full bg-sky-500 px-6 py-3 text-base font-semibold text-white shadow-[0_22px_45px_-25px_rgba(56,189,248,0.65)] transition hover:bg-sky-400 focus-visible:ring-sky-200 disabled:opacity-60"
