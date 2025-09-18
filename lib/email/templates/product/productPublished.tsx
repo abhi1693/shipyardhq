@@ -106,8 +106,7 @@ export function ProductPublishedEmail({
       ) : null}
 
       <p style={paragraphStyle}>
-        We&apos;re cheering you on. Reply if you need help or want a signal
-        boost!
+        We&apos;re cheering you on.
       </p>
     </BaseEmailTemplate>
   )
