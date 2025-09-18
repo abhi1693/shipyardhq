@@ -62,8 +62,8 @@ export default async function HomePage() {
           totalUpvotes: stats.totalUpvotes,
         }}
       />
-      <HomepageSpotlight products={homepagePromo} />
       <FeaturedHighlights products={featuredProducts} />
+      <HomepageSpotlight products={homepagePromo} />
       <EditorsPick products={editorsPick} />
       <LatestLaunches products={latestLaunches} />
       <Leaderboard products={trendingProducts} />

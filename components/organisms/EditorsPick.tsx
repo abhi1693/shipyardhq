@@ -1,7 +1,7 @@
 import { FeaturedProduct } from "@/types"
 import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
 import PublicContainer from "@/components/layout/PublicContainer"
-import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
+import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import { getWaveBackground } from "@/lib/nautical"
 
 interface EditorsPickProps {
@@ -55,7 +55,17 @@ export function EditorsPick({ products }: EditorsPickProps) {
           subtitle="Curated favorites from our bridge crew."
         />
 
-        <FeaturedProductGrid items={products} />
+        <ProductCompactGrid
+          items={products.map(({ product }) => ({
+            id: product.id,
+            slug: product.slug,
+            name: product.name,
+            logo: product.logo,
+            tagline: product.tagline,
+            analytics: product.analytics ?? null,
+            category: product.category ?? undefined,
+          }))}
+        />
       </div>
     </PublicContainer>
   )

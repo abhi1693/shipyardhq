@@ -1,7 +1,7 @@
 import { FeaturedProduct } from "@/types"
 import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
 import PublicContainer from "@/components/layout/PublicContainer"
-import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
+import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import { getWaveBackground } from "@/lib/nautical"
 
 interface LatestLaunchesProps {
@@ -55,7 +55,17 @@ export function LatestLaunches({ products }: LatestLaunchesProps) {
           subtitle="Explore the latest ships to depart our makers' slips."
         />
 
-        <FeaturedProductGrid items={products} />
+        <ProductCompactGrid
+          items={products.map(({ product }) => ({
+            id: product.id,
+            slug: product.slug,
+            name: product.name,
+            logo: product.logo,
+            tagline: product.tagline,
+            analytics: product.analytics ?? null,
+            category: product.category ?? undefined,
+          }))}
+        />
       </div>
     </PublicContainer>
   )
