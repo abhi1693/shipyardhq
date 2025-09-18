@@ -2,6 +2,38 @@ import prisma from "@/lib/prisma"
 import { clerkClient } from "@clerk/nextjs/server"
 import { addDays, startOfDay, subDays } from "date-fns"
 
+export interface DashboardStats {
+  totalProducts: number
+  verifiedProducts: number
+  unverifiedProducts: number
+  totalUsers: number
+  totalPlans: number
+  productsInRange: number
+  usersInRange: number
+  productsDelta: number
+  usersDelta: number
+  verifiedRate: number
+  adminCount: number
+  memberCount: number
+  defaultPlanProductCount: number
+  mostPopularPlan: { name: string; id: string; count: number } | null
+  totalRevenue: number
+  totalFeatures: number
+  usedFeatureAssignments: number
+  featureCoverage: number
+  dailyProducts: number[]
+  dailyUsers: number[]
+  totalViews: number
+  viewsInRange: number
+  previousViews: number
+  viewsDelta: number
+  totalClicks: number
+  totalUpvotes: number
+  upvotesInRange: number
+  previousUpvotes: number
+  upvotesDelta: number
+}
+
 export async function getRecentProducts(limit = 10, days?: number) {
   const where = days
     ? { createdAt: { gte: subDays(new Date(), days) } }
@@ -32,7 +64,7 @@ export async function getRecentUsers(limit = 10, days?: number) {
   })
 }
 
-export async function getDashboardStats(days = 7) {
+export async function getDashboardStats(days = 7): Promise<DashboardStats> {
   const now = new Date()
   const since = subDays(now, days)
   const prevSince = subDays(since, days)
