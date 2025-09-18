@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useForm } from "react-hook-form"
@@ -6,7 +7,6 @@ import { z } from "zod"
 import { useRouter } from "next/navigation"
 import { completeOnboarding } from "@/actions/member/onboarding/actions"
 import { toast } from "sonner"
-import Link from "next/link"
 
 import {
   Card,
@@ -20,12 +20,24 @@ import { Button } from "@/components/atoms/button"
 import { Label } from "@/components/atoms/label"
 import { Checkbox } from "@/components/atoms/checkbox"
 import { Separator } from "@/components/atoms/separator"
+import { cn } from "@/lib/utils"
 
-// Options
 const roleIntentOptions = [
-  { label: "Launch a product", value: "launch-product" },
-  { label: "Manage a team", value: "manage-team" },
-  { label: "Just exploring", value: "explore" },
+  {
+    label: "Launch a product",
+    value: "launch-product",
+    blurb: "Spin up a launch plan, highlight milestones, and track early adopters.",
+  },
+  {
+    label: "Manage a team",
+    value: "manage-team",
+    blurb: "Coordinate your crew with shared dashboards and smoother workflows.",
+  },
+  {
+    label: "Just exploring",
+    value: "explore",
+    blurb: "Preview the harbor before you commit, no strings attached.",
+  },
 ]
 
 const heardFromOptions = [
@@ -39,13 +51,9 @@ const heardFromOptions = [
   { label: "Other", value: "other" },
 ]
 
-// Schema
 const onboardingSchema = z.object({
   roleIntent: z.string().min(1, "Please select your intent"),
   heardFrom: z.string().min(1, "Please select an option"),
-  acceptedTerms: z.boolean().refine((val) => val === true, {
-    message: "You must accept the terms",
-  }),
   newsletterOptIn: z.boolean().default(true),
 })
 
@@ -59,7 +67,6 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
     defaultValues: {
       roleIntent: "",
       heardFrom: "",
-      acceptedTerms: false,
       newsletterOptIn: true,
     },
   })
@@ -68,15 +75,22 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
     handleSubmit,
     register,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     watch,
   } = form
+
+  const roleIntent = watch("roleIntent")
+  const heardFrom = watch("heardFrom")
+  const newsletterOptIn = watch("newsletterOptIn")
 
   const onSubmit = async (values: OnboardingFormInput) => {
     const formData = new FormData()
     Object.entries(values).forEach(([key, val]) => {
-      if (val !== undefined) formData.append(key, val.toString())
+      if (val !== undefined) {
+        formData.append(key, val.toString())
+      }
     })
+    formData.append("acceptedTerms", "true")
 
     const result = await completeOnboarding(formData)
     if ("success" in result) {
@@ -87,142 +101,131 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
     }
   }
 
-  const sel = {
-    roleIntent: form.watch("roleIntent"),
-    heardFrom: form.watch("heardFrom"),
-    acceptedTerms: form.watch("acceptedTerms"),
-    newsletterOptIn: form.watch("newsletterOptIn"),
-  }
-
-  const canSubmit = Boolean(
-    sel.roleIntent && sel.heardFrom && sel.acceptedTerms,
-  )
+  const canSubmit = Boolean(roleIntent && heardFrom)
 
   return (
-    <Card className="w-full max-w-2xl border shadow-sm">
-      <CardHeader className="text-center space-y-1">
-        <CardTitle className="text-2xl font-semibold">
-          Welcome, {firstName ?? "User"} 👋
-        </CardTitle>
-        <CardDescription>
-          Let&#39;s personalize your experience and get you started quickly.
-        </CardDescription>
-      </CardHeader>
+    <div className="flex h-full w-full items-center justify-center py-6">
+      <Card className="mx-auto w-full max-w-2xl rounded-[26px] border-slate-200/75 bg-white/95 px-0 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.45)] backdrop-blur lg:max-w-3xl">
+        <CardHeader className="space-y-3 px-10 pt-8">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-sky-200/70 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-sky-700">
+            Welcome aboard
+          </span>
+          <CardTitle className="text-3xl font-semibold tracking-tight text-slate-900">
+            {firstName ? `Hi ${firstName}, let's personalize things` : "Let's personalize things"}
+          </CardTitle>
+          <CardDescription className="max-w-xl text-slate-600">
+            Answer a few quick questions so we can tailor dashboards, checklists, and partner perks for your crew.
+          </CardDescription>
+        </CardHeader>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-6">
-          <div className="grid gap-2">
-            <Label>Why are you here?</Label>
-            <input type="hidden" {...register("roleIntent")} />
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {roleIntentOptions.map((opt) => {
-                const active = sel.roleIntent === opt.value
-                return (
-                  <Button
-                    key={opt.value}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+          <CardContent className="space-y-10 px-10 pb-0">
+            <fieldset className="space-y-5">
+              <legend className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-500">
+                Mission focus
+              </legend>
+              <input type="hidden" {...register("roleIntent")} />
+              <div className="grid gap-4 sm:grid-cols-3">
+                {roleIntentOptions.map(({ value, label, blurb }) => {
+                  const active = roleIntent === value
+
+                  return (
+                  <button
+                    key={value}
                     type="button"
-                    variant={active ? "default" : "outline"}
-                    onClick={() =>
-                      setValue("roleIntent", opt.value, {
-                        shouldValidate: true,
-                      })
-                    }
-                  >
-                    {opt.label}
-                  </Button>
-                )
-              })}
-            </div>
-            {errors.roleIntent && (
-              <p className="text-sm text-red-600">
-                {errors.roleIntent.message}
-              </p>
-            )}
-          </div>
+                    className={cn(
+                      "flex h-full cursor-pointer flex-col rounded-2xl border border-slate-200/80 bg-white px-5 py-5 text-left transition-all hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
+                        active &&
+                          "border-sky-400 bg-sky-50 shadow-[0_18px_45px_-35px_rgba(56,189,248,0.65)]",
+                      )}
+                      onClick={() =>
+                        setValue("roleIntent", value, { shouldValidate: true })
+                      }
+                    >
+                      <span className="text-base font-semibold text-slate-900">
+                        {label}
+                      </span>
+                      {blurb ? (
+                        <span className="mt-2 text-sm text-slate-500">{blurb}</span>
+                      ) : null}
+                    </button>
+                  )
+                })}
+              </div>
+              {errors.roleIntent ? (
+                <p className="text-sm font-medium text-rose-500">
+                  {errors.roleIntent.message}
+                </p>
+              ) : null}
+            </fieldset>
 
-          <div className="grid gap-2">
-            <Label>Where did you hear about us?</Label>
-            <input type="hidden" {...register("heardFrom")} />
-            <div className="flex flex-wrap gap-2">
-              {heardFromOptions.map((opt) => {
-                const active = sel.heardFrom === opt.value
-                return (
-                  <Button
-                    key={opt.value}
+            <fieldset className="space-y-5">
+              <legend className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-500">
+                How you found us
+              </legend>
+              <input type="hidden" {...register("heardFrom")} />
+              <div className="flex flex-wrap justify-center gap-3">
+                {heardFromOptions.map(({ value, label }) => {
+                  const active = heardFrom === value
+
+                  return (
+                  <button
+                    key={value}
                     type="button"
-                    size="sm"
-                    variant={active ? "default" : "outline"}
-                    onClick={() =>
-                      setValue("heardFrom", opt.value, { shouldValidate: true })
-                    }
-                  >
-                    {opt.label}
-                  </Button>
-                )
-              })}
+                    className={cn(
+                      "cursor-pointer rounded-full border border-slate-200/80 px-5 py-2.5 text-sm font-medium text-slate-600 transition-all hover:border-sky-300 hover:bg-sky-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
+                        active &&
+                          "border-sky-400 bg-sky-100 text-slate-900 shadow-[0_16px_40px_-30px_rgba(56,189,248,0.55)]",
+                      )}
+                      onClick={() =>
+                        setValue("heardFrom", value, { shouldValidate: true })
+                      }
+                    >
+                      {label}
+                    </button>
+                  )
+                })}
+              </div>
+              {errors.heardFrom ? (
+                <p className="text-sm font-medium text-rose-500">
+                  {errors.heardFrom.message}
+                </p>
+              ) : null}
+            </fieldset>
+
+            <Separator className="bg-slate-200/80" />
+
+            <div className="flex flex-col gap-6">
+              <div className="flex items-start gap-4">
+                <Checkbox
+                  id="newsletterOptIn"
+                  checked={newsletterOptIn ?? true}
+                  onCheckedChange={(checked: boolean) =>
+                    setValue("newsletterOptIn", checked, { shouldDirty: true })
+                  }
+                  className="border-slate-300/90 bg-white data-[state=checked]:border-sky-400 data-[state=checked]:bg-sky-100 data-[state=checked]:text-slate-900"
+                />
+                <Label
+                  htmlFor="newsletterOptIn"
+                  className="text-sm leading-relaxed text-slate-600"
+                >
+                  Keep me aboard the Captain&apos;s Log with launch alerts.
+                </Label>
+              </div>
             </div>
-            {errors.heardFrom && (
-              <p className="text-sm text-red-600">{errors.heardFrom.message}</p>
-            )}
-          </div>
+          </CardContent>
 
-          <Separator />
-
-          <div className="flex items-start space-x-2 pt-2">
-            <Checkbox
-              id="terms"
-              checked={watch("acceptedTerms")}
-              onCheckedChange={(checked: boolean) =>
-                setValue("acceptedTerms", checked, { shouldValidate: true })
-              }
-            />
-            <Label htmlFor="terms" className="text-sm leading-relaxed">
-              I agree to the{" "}
-              <Link
-                href="/legal/terms"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-primary"
-              >
-                Terms and Conditions
-              </Link>
-            </Label>
-          </div>
-          {errors.acceptedTerms && (
-            <p className="text-sm text-red-600">
-              {errors.acceptedTerms.message}
-            </p>
-          )}
-
-          <div className="flex items-start space-x-2">
-            <Checkbox
-              id="newsletterOptIn"
-              checked={sel.newsletterOptIn ?? true}
-              onCheckedChange={(checked: boolean) =>
-                setValue("newsletterOptIn", checked, { shouldDirty: true })
-              }
-            />
-            <Label
-              htmlFor="newsletterOptIn"
-              className="text-sm leading-relaxed"
+          <CardFooter className="flex flex-col gap-3 px-10 pb-10 pt-2">
+            <Button
+              type="submit"
+              className="w-full rounded-full bg-sky-500 px-6 py-3 text-base font-semibold text-white shadow-[0_22px_45px_-25px_rgba(56,189,248,0.65)] transition hover:bg-sky-400 focus-visible:ring-sky-200 disabled:opacity-60"
+              disabled={isSubmitting || !canSubmit}
             >
-              Keep me aboard the Captain&#39;s Log with launch alerts.
-            </Label>
-          </div>
-        </CardContent>
-
-        <CardFooter className="flex flex-col items-start gap-4 mt-4">
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={form.formState.isSubmitting || !canSubmit}
-          >
-            {form.formState.isSubmitting
-              ? "Submitting..."
-              : "Complete Onboarding"}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+              {isSubmitting ? "Hoisting sails..." : "Complete Onboarding"}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
   )
 }
