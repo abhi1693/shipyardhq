@@ -14,24 +14,36 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
     <section className="py-12">
       <div className="mx-auto max-w-6xl px-4">
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {plans.map((p) => (
-            <CardWrapper key={p.id}>
-              <PricingCard
-                name={p.name}
-                description={p.description}
-                price={p.price}
-                priceSuffix={(p as any).priceSuffix}
-                discount={p.discount}
-                isPopular={
-                  p.price > 0 &&
-                  (p.productCount || 0) === maxCount &&
-                  maxCount > 0
-                }
-                features={p.features}
-                boostForDays={p.boostForDays}
-              />
-            </CardWrapper>
-          ))}
+          {plans.map((p) => {
+            const recurringSuffix = (p as any).priceSuffix as
+              | string
+              | undefined
+            const priceSuffix =
+              p.price > 0
+                ? recurringSuffix
+                  ? `${recurringSuffix} / product`
+                  : "per product"
+                : undefined
+
+            return (
+              <CardWrapper key={p.id}>
+                <PricingCard
+                  name={p.name}
+                  description={p.description}
+                  price={p.price}
+                  priceSuffix={priceSuffix}
+                  discount={p.discount}
+                  isPopular={
+                    p.price > 0 &&
+                    (p.productCount || 0) === maxCount &&
+                    maxCount > 0
+                  }
+                  features={p.features}
+                  boostForDays={p.boostForDays}
+                />
+              </CardWrapper>
+            )
+          })}
         </div>
       </div>
     </section>
