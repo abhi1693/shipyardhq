@@ -21,7 +21,8 @@
     "postinstall": "npm run prisma:deploy && npm run prisma:seed:prod",
     "test": "vitest run --reporter=verbose",
     "test:watch": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "reddit:bot": "tsx scripts/reddit-bot.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.32.0",
