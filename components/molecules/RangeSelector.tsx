@@ -20,26 +20,30 @@ export default function RangeSelector({ className }: { className?: string }) {
     const next = new URLSearchParams(params.toString())
     if (value === "7d") next.delete("range")
     else next.set("range", value)
-    router.push(`${pathname}?${next.toString()}`)
+
+    const query = next.toString()
+    router.push(query ? `${pathname}?${query}` : pathname)
   }
 
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border p-1",
+        "inline-flex items-center gap-1 rounded-full border border-[color:var(--brand-1)/0.25] bg-background/70 p-1 shadow-[0_18px_45px_-35px_rgba(7,78,134,0.45)] backdrop-blur",
         className,
       )}
     >
       {ranges.map((r) => (
         <Button
           key={r.value}
+          type="button"
           size="sm"
-          variant={current === r.value ? "default" : "ghost"}
+          variant="ghost"
           className={cn(
-            "px-2",
+            "rounded-full px-3 text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-1)] transition",
             current === r.value &&
-              "bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] text-white",
+              "bg-[linear-gradient(120deg,var(--brand-1),var(--brand-2))] text-white shadow-[0_18px_45px_-30px_rgba(7,78,134,0.6)]",
           )}
+          aria-pressed={current === r.value}
           onClick={() => setRange(r.value)}
         >
           {r.label}
