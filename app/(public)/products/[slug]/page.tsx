@@ -370,7 +370,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     {product.type.replaceAll("_", " ")}
                   </Badge>
                   {isVerified && (
-                    <Badge className="flex items-center gap-1 rounded-full border border-green-300 bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                    <Badge className="flex items-center gap-1 rounded-full border border-[color:var(--brand-2)/0.4] bg-[color:var(--brand-2)/0.12] px-3 py-1 text-xs font-semibold text-[color:var(--brand-2)]">
                       <CheckCircle size={12} /> Verified domain
                     </Badge>
                   )}

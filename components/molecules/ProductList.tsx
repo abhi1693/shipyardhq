@@ -1,6 +1,8 @@
 "use client"
 
 import React from "react"
+import { CheckCircle } from "lucide-react"
+
 import { ProductCard } from "@/components/molecules/ProductCard"
 import { Badge } from "@/components/atoms/badge"
 
@@ -75,9 +77,9 @@ export default function ProductList<T extends ProductListItem>({
                 #{rankStartAt + i + 1}
               </Badge>
             ) : showVerified && p.verification?.isVerified ? (
-              <span className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px]">
-                Verified
-              </span>
+              <Badge className="gap-1 rounded-full border border-[color:var(--brand-2)/0.4] bg-[color:var(--brand-2)/0.12] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--brand-2)]">
+                <CheckCircle className="size-3" /> Verified
+              </Badge>
             ) : undefined
           }
           imagePriority={i < imagePriorityFirstN}

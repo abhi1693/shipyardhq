@@ -106,16 +106,16 @@ export default async function BrowsePage({
                 actionLabel="Reset Filters"
                 actionHref="/browse"
               />
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
                 <Link
                   href="/browse?sort=trending"
-                  className="inline-flex items-center rounded-md border px-2.5 py-1.5 text-xs hover:bg-accent"
+                  className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.35] bg-background/85 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-1)] shadow-[0_18px_45px_-30px_rgba(7,58,104,0.6)] backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-[color:var(--brand-1)/0.5] hover:bg-[linear-gradient(120deg,rgba(59,130,246,0.18),rgba(14,165,233,0.12))]"
                 >
                   Try Trending
                 </Link>
                 <Link
                   href="/browse?verified=true"
-                  className="inline-flex items-center rounded-md border px-2.5 py-1.5 text-xs hover:bg-accent"
+                  className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.35] bg-background/85 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-1)] shadow-[0_18px_45px_-30px_rgba(7,58,104,0.6)] backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-[color:var(--brand-1)/0.5] hover:bg-[linear-gradient(120deg,rgba(59,130,246,0.18),rgba(14,165,233,0.12))]"
                 >
                   Verified Only
                 </Link>
