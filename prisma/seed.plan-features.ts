@@ -10,6 +10,11 @@ const FEATURES = [
     description: "Shows basic view count",
   },
   {
+    key: "analytics.advanced",
+    name: "Advanced Analytics",
+    description: "Unlocks advanced traffic dashboards",
+  },
+  {
     key: "featured",
     name: "Featured Badge",
     description: "Product marked as featured",

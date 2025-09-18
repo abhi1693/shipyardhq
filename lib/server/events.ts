@@ -1,6 +1,8 @@
 // Simple in-memory event bus with typed events
 // Scales to more events and listeners as needed
 
+import type { ProductTrafficPayload } from "@/types/analytics"
+
 export type ProductCreatedEvent = { productId: string }
 export type ProductUpdatedEvent = { productId: string }
 export type ProductDeletedEvent = { productId: string }
@@ -14,6 +16,7 @@ export type BadgeAssignedEvent = {
 export type BadgeRemovedEvent = { id: string; productId: string; badge: string }
 export type ProductUpvotedEvent = { productId: string; userId: string }
 export type ProductDownvotedEvent = { productId: string; userId: string }
+export type ProductTrafficRecordedEvent = ProductTrafficPayload
 
 type AppEvents = {
   "product.created": ProductCreatedEvent
@@ -24,6 +27,7 @@ type AppEvents = {
   "product.downvoted": ProductDownvotedEvent
   "badge.assigned": BadgeAssignedEvent
   "badge.removed": BadgeRemovedEvent
+  "analytics.product-traffic": ProductTrafficRecordedEvent
 }
 
 type Handler<K extends keyof AppEvents> = (

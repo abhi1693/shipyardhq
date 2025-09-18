@@ -39,6 +39,11 @@ export type ProductMetadata = $Result.DefaultSelection<Prisma.$ProductMetadataPa
  */
 export type ProductAnalytics = $Result.DefaultSelection<Prisma.$ProductAnalyticsPayload>
 /**
+ * Model ProductTrafficEvent
+ * 
+ */
+export type ProductTrafficEvent = $Result.DefaultSelection<Prisma.$ProductTrafficEventPayload>
+/**
  * Model ProductUpvote
  * 
  */
@@ -155,6 +160,16 @@ export const Platform: {
 export type Platform = (typeof Platform)[keyof typeof Platform]
 
 
+export const DeviceCategory: {
+  desktop: 'desktop',
+  mobile: 'mobile',
+  tablet: 'tablet',
+  unknown: 'unknown'
+};
+
+export type DeviceCategory = (typeof DeviceCategory)[keyof typeof DeviceCategory]
+
+
 export const UserStatus: {
   active: 'active',
   suspended: 'suspended',
@@ -198,6 +213,10 @@ export const ProductStatus: typeof $Enums.ProductStatus
 export type Platform = $Enums.Platform
 
 export const Platform: typeof $Enums.Platform
+
+export type DeviceCategory = $Enums.DeviceCategory
+
+export const DeviceCategory: typeof $Enums.DeviceCategory
 
 export type UserStatus = $Enums.UserStatus
 
@@ -378,6 +397,16 @@ export class PrismaClient<
     * ```
     */
   get productAnalytics(): Prisma.ProductAnalyticsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productTrafficEvent`: Exposes CRUD operations for the **ProductTrafficEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductTrafficEvents
+    * const productTrafficEvents = await prisma.productTrafficEvent.findMany()
+    * ```
+    */
+  get productTrafficEvent(): Prisma.ProductTrafficEventDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.productUpvote`: Exposes CRUD operations for the **ProductUpvote** model.
@@ -953,6 +982,7 @@ export namespace Prisma {
     ProductVerification: 'ProductVerification',
     ProductMetadata: 'ProductMetadata',
     ProductAnalytics: 'ProductAnalytics',
+    ProductTrafficEvent: 'ProductTrafficEvent',
     ProductUpvote: 'ProductUpvote',
     Organization: 'Organization',
     OrganizationMembership: 'OrganizationMembership',
@@ -984,7 +1014,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "product" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productUpvote" | "organization" | "organizationMembership" | "user" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
+      modelProps: "product" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productTrafficEvent" | "productUpvote" | "organization" | "organizationMembership" | "user" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1355,6 +1385,80 @@ export namespace Prisma {
           count: {
             args: Prisma.ProductAnalyticsCountArgs<ExtArgs>
             result: $Utils.Optional<ProductAnalyticsCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProductTrafficEvent: {
+        payload: Prisma.$ProductTrafficEventPayload<ExtArgs>
+        fields: Prisma.ProductTrafficEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductTrafficEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductTrafficEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductTrafficEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductTrafficEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+          }
+          findMany: {
+            args: Prisma.ProductTrafficEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>[]
+          }
+          create: {
+            args: Prisma.ProductTrafficEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+          }
+          createMany: {
+            args: Prisma.ProductTrafficEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductTrafficEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductTrafficEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+          }
+          update: {
+            args: Prisma.ProductTrafficEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductTrafficEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductTrafficEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductTrafficEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductTrafficEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductTrafficEventPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductTrafficEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductTrafficEvent>
+          }
+          groupBy: {
+            args: Prisma.ProductTrafficEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductTrafficEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductTrafficEventCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductTrafficEventCountAggregateOutputType> | number
           }
         }
       }
@@ -2421,6 +2525,7 @@ export namespace Prisma {
     productVerification?: ProductVerificationOmit
     productMetadata?: ProductMetadataOmit
     productAnalytics?: ProductAnalyticsOmit
+    productTrafficEvent?: ProductTrafficEventOmit
     productUpvote?: ProductUpvoteOmit
     organization?: OrganizationOmit
     organizationMembership?: OrganizationMembershipOmit
@@ -2517,12 +2622,14 @@ export namespace Prisma {
     ProductBadge: number
     ProductMedia: number
     ProductUpvote: number
+    trafficEvents: number
   }
 
   export type ProductCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ProductBadge?: boolean | ProductCountOutputTypeCountProductBadgeArgs
     ProductMedia?: boolean | ProductCountOutputTypeCountProductMediaArgs
     ProductUpvote?: boolean | ProductCountOutputTypeCountProductUpvoteArgs
+    trafficEvents?: boolean | ProductCountOutputTypeCountTrafficEventsArgs
   }
 
   // Custom InputTypes
@@ -2555,6 +2662,13 @@ export namespace Prisma {
    */
   export type ProductCountOutputTypeCountProductUpvoteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProductUpvoteWhereInput
+  }
+
+  /**
+   * ProductCountOutputType without action
+   */
+  export type ProductCountOutputTypeCountTrafficEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductTrafficEventWhereInput
   }
 
 
@@ -3180,6 +3294,7 @@ export namespace Prisma {
     ProductBadge?: boolean | Product$ProductBadgeArgs<ExtArgs>
     ProductMedia?: boolean | Product$ProductMediaArgs<ExtArgs>
     ProductUpvote?: boolean | Product$ProductUpvoteArgs<ExtArgs>
+    trafficEvents?: boolean | Product$trafficEventsArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["product"]>
 
@@ -3287,6 +3402,7 @@ export namespace Prisma {
     ProductBadge?: boolean | Product$ProductBadgeArgs<ExtArgs>
     ProductMedia?: boolean | Product$ProductMediaArgs<ExtArgs>
     ProductUpvote?: boolean | Product$ProductUpvoteArgs<ExtArgs>
+    trafficEvents?: boolean | Product$trafficEventsArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProductIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3315,6 +3431,7 @@ export namespace Prisma {
       ProductBadge: Prisma.$ProductBadgePayload<ExtArgs>[]
       ProductMedia: Prisma.$ProductMediaPayload<ExtArgs>[]
       ProductUpvote: Prisma.$ProductUpvotePayload<ExtArgs>[]
+      trafficEvents: Prisma.$ProductTrafficEventPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3746,6 +3863,7 @@ export namespace Prisma {
     ProductBadge<T extends Product$ProductBadgeArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductBadgeArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductBadgePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductMedia<T extends Product$ProductMediaArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductMediaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductUpvote<T extends Product$ProductUpvoteArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductUpvoteArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductUpvotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    trafficEvents<T extends Product$trafficEventsArgs<ExtArgs> = {}>(args?: Subset<T, Product$trafficEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4360,6 +4478,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProductUpvoteScalarFieldEnum | ProductUpvoteScalarFieldEnum[]
+  }
+
+  /**
+   * Product.trafficEvents
+   */
+  export type Product$trafficEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
+    where?: ProductTrafficEventWhereInput
+    orderBy?: ProductTrafficEventOrderByWithRelationInput | ProductTrafficEventOrderByWithRelationInput[]
+    cursor?: ProductTrafficEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProductTrafficEventScalarFieldEnum | ProductTrafficEventScalarFieldEnum[]
   }
 
   /**
@@ -8752,6 +8894,1168 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ProductAnalyticsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProductTrafficEvent
+   */
+
+  export type AggregateProductTrafficEvent = {
+    _count: ProductTrafficEventCountAggregateOutputType | null
+    _min: ProductTrafficEventMinAggregateOutputType | null
+    _max: ProductTrafficEventMaxAggregateOutputType | null
+  }
+
+  export type ProductTrafficEventMinAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    path: string | null
+    referrer: string | null
+    userAgent: string | null
+    device: $Enums.DeviceCategory | null
+    browser: string | null
+    os: string | null
+    country: string | null
+    region: string | null
+    city: string | null
+    ipHash: string | null
+    createdAt: Date | null
+  }
+
+  export type ProductTrafficEventMaxAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    path: string | null
+    referrer: string | null
+    userAgent: string | null
+    device: $Enums.DeviceCategory | null
+    browser: string | null
+    os: string | null
+    country: string | null
+    region: string | null
+    city: string | null
+    ipHash: string | null
+    createdAt: Date | null
+  }
+
+  export type ProductTrafficEventCountAggregateOutputType = {
+    id: number
+    productId: number
+    path: number
+    referrer: number
+    userAgent: number
+    device: number
+    browser: number
+    os: number
+    country: number
+    region: number
+    city: number
+    ipHash: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ProductTrafficEventMinAggregateInputType = {
+    id?: true
+    productId?: true
+    path?: true
+    referrer?: true
+    userAgent?: true
+    device?: true
+    browser?: true
+    os?: true
+    country?: true
+    region?: true
+    city?: true
+    ipHash?: true
+    createdAt?: true
+  }
+
+  export type ProductTrafficEventMaxAggregateInputType = {
+    id?: true
+    productId?: true
+    path?: true
+    referrer?: true
+    userAgent?: true
+    device?: true
+    browser?: true
+    os?: true
+    country?: true
+    region?: true
+    city?: true
+    ipHash?: true
+    createdAt?: true
+  }
+
+  export type ProductTrafficEventCountAggregateInputType = {
+    id?: true
+    productId?: true
+    path?: true
+    referrer?: true
+    userAgent?: true
+    device?: true
+    browser?: true
+    os?: true
+    country?: true
+    region?: true
+    city?: true
+    ipHash?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ProductTrafficEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductTrafficEvent to aggregate.
+     */
+    where?: ProductTrafficEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductTrafficEvents to fetch.
+     */
+    orderBy?: ProductTrafficEventOrderByWithRelationInput | ProductTrafficEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductTrafficEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductTrafficEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductTrafficEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductTrafficEvents
+    **/
+    _count?: true | ProductTrafficEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductTrafficEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductTrafficEventMaxAggregateInputType
+  }
+
+  export type GetProductTrafficEventAggregateType<T extends ProductTrafficEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductTrafficEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductTrafficEvent[P]>
+      : GetScalarType<T[P], AggregateProductTrafficEvent[P]>
+  }
+
+
+
+
+  export type ProductTrafficEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductTrafficEventWhereInput
+    orderBy?: ProductTrafficEventOrderByWithAggregationInput | ProductTrafficEventOrderByWithAggregationInput[]
+    by: ProductTrafficEventScalarFieldEnum[] | ProductTrafficEventScalarFieldEnum
+    having?: ProductTrafficEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductTrafficEventCountAggregateInputType | true
+    _min?: ProductTrafficEventMinAggregateInputType
+    _max?: ProductTrafficEventMaxAggregateInputType
+  }
+
+  export type ProductTrafficEventGroupByOutputType = {
+    id: string
+    productId: string
+    path: string
+    referrer: string | null
+    userAgent: string | null
+    device: $Enums.DeviceCategory
+    browser: string | null
+    os: string | null
+    country: string | null
+    region: string | null
+    city: string | null
+    ipHash: string | null
+    createdAt: Date
+    _count: ProductTrafficEventCountAggregateOutputType | null
+    _min: ProductTrafficEventMinAggregateOutputType | null
+    _max: ProductTrafficEventMaxAggregateOutputType | null
+  }
+
+  type GetProductTrafficEventGroupByPayload<T extends ProductTrafficEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductTrafficEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductTrafficEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductTrafficEventGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductTrafficEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductTrafficEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    path?: boolean
+    referrer?: boolean
+    userAgent?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    country?: boolean
+    region?: boolean
+    city?: boolean
+    ipHash?: boolean
+    createdAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productTrafficEvent"]>
+
+  export type ProductTrafficEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    path?: boolean
+    referrer?: boolean
+    userAgent?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    country?: boolean
+    region?: boolean
+    city?: boolean
+    ipHash?: boolean
+    createdAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productTrafficEvent"]>
+
+  export type ProductTrafficEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    path?: boolean
+    referrer?: boolean
+    userAgent?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    country?: boolean
+    region?: boolean
+    city?: boolean
+    ipHash?: boolean
+    createdAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productTrafficEvent"]>
+
+  export type ProductTrafficEventSelectScalar = {
+    id?: boolean
+    productId?: boolean
+    path?: boolean
+    referrer?: boolean
+    userAgent?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    country?: boolean
+    region?: boolean
+    city?: boolean
+    ipHash?: boolean
+    createdAt?: boolean
+  }
+
+  export type ProductTrafficEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "path" | "referrer" | "userAgent" | "device" | "browser" | "os" | "country" | "region" | "city" | "ipHash" | "createdAt", ExtArgs["result"]["productTrafficEvent"]>
+  export type ProductTrafficEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type ProductTrafficEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type ProductTrafficEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+
+  export type $ProductTrafficEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductTrafficEvent"
+    objects: {
+      product: Prisma.$ProductPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      productId: string
+      path: string
+      referrer: string | null
+      userAgent: string | null
+      device: $Enums.DeviceCategory
+      browser: string | null
+      os: string | null
+      country: string | null
+      region: string | null
+      city: string | null
+      ipHash: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["productTrafficEvent"]>
+    composites: {}
+  }
+
+  type ProductTrafficEventGetPayload<S extends boolean | null | undefined | ProductTrafficEventDefaultArgs> = $Result.GetResult<Prisma.$ProductTrafficEventPayload, S>
+
+  type ProductTrafficEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductTrafficEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductTrafficEventCountAggregateInputType | true
+    }
+
+  export interface ProductTrafficEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductTrafficEvent'], meta: { name: 'ProductTrafficEvent' } }
+    /**
+     * Find zero or one ProductTrafficEvent that matches the filter.
+     * @param {ProductTrafficEventFindUniqueArgs} args - Arguments to find a ProductTrafficEvent
+     * @example
+     * // Get one ProductTrafficEvent
+     * const productTrafficEvent = await prisma.productTrafficEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductTrafficEventFindUniqueArgs>(args: SelectSubset<T, ProductTrafficEventFindUniqueArgs<ExtArgs>>): Prisma__ProductTrafficEventClient<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductTrafficEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductTrafficEventFindUniqueOrThrowArgs} args - Arguments to find a ProductTrafficEvent
+     * @example
+     * // Get one ProductTrafficEvent
+     * const productTrafficEvent = await prisma.productTrafficEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductTrafficEventFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductTrafficEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductTrafficEventClient<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductTrafficEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTrafficEventFindFirstArgs} args - Arguments to find a ProductTrafficEvent
+     * @example
+     * // Get one ProductTrafficEvent
+     * const productTrafficEvent = await prisma.productTrafficEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductTrafficEventFindFirstArgs>(args?: SelectSubset<T, ProductTrafficEventFindFirstArgs<ExtArgs>>): Prisma__ProductTrafficEventClient<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductTrafficEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTrafficEventFindFirstOrThrowArgs} args - Arguments to find a ProductTrafficEvent
+     * @example
+     * // Get one ProductTrafficEvent
+     * const productTrafficEvent = await prisma.productTrafficEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductTrafficEventFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductTrafficEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductTrafficEventClient<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductTrafficEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTrafficEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductTrafficEvents
+     * const productTrafficEvents = await prisma.productTrafficEvent.findMany()
+     * 
+     * // Get first 10 ProductTrafficEvents
+     * const productTrafficEvents = await prisma.productTrafficEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productTrafficEventWithIdOnly = await prisma.productTrafficEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductTrafficEventFindManyArgs>(args?: SelectSubset<T, ProductTrafficEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductTrafficEvent.
+     * @param {ProductTrafficEventCreateArgs} args - Arguments to create a ProductTrafficEvent.
+     * @example
+     * // Create one ProductTrafficEvent
+     * const ProductTrafficEvent = await prisma.productTrafficEvent.create({
+     *   data: {
+     *     // ... data to create a ProductTrafficEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductTrafficEventCreateArgs>(args: SelectSubset<T, ProductTrafficEventCreateArgs<ExtArgs>>): Prisma__ProductTrafficEventClient<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductTrafficEvents.
+     * @param {ProductTrafficEventCreateManyArgs} args - Arguments to create many ProductTrafficEvents.
+     * @example
+     * // Create many ProductTrafficEvents
+     * const productTrafficEvent = await prisma.productTrafficEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductTrafficEventCreateManyArgs>(args?: SelectSubset<T, ProductTrafficEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductTrafficEvents and returns the data saved in the database.
+     * @param {ProductTrafficEventCreateManyAndReturnArgs} args - Arguments to create many ProductTrafficEvents.
+     * @example
+     * // Create many ProductTrafficEvents
+     * const productTrafficEvent = await prisma.productTrafficEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductTrafficEvents and only return the `id`
+     * const productTrafficEventWithIdOnly = await prisma.productTrafficEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductTrafficEventCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductTrafficEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductTrafficEvent.
+     * @param {ProductTrafficEventDeleteArgs} args - Arguments to delete one ProductTrafficEvent.
+     * @example
+     * // Delete one ProductTrafficEvent
+     * const ProductTrafficEvent = await prisma.productTrafficEvent.delete({
+     *   where: {
+     *     // ... filter to delete one ProductTrafficEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductTrafficEventDeleteArgs>(args: SelectSubset<T, ProductTrafficEventDeleteArgs<ExtArgs>>): Prisma__ProductTrafficEventClient<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductTrafficEvent.
+     * @param {ProductTrafficEventUpdateArgs} args - Arguments to update one ProductTrafficEvent.
+     * @example
+     * // Update one ProductTrafficEvent
+     * const productTrafficEvent = await prisma.productTrafficEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductTrafficEventUpdateArgs>(args: SelectSubset<T, ProductTrafficEventUpdateArgs<ExtArgs>>): Prisma__ProductTrafficEventClient<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductTrafficEvents.
+     * @param {ProductTrafficEventDeleteManyArgs} args - Arguments to filter ProductTrafficEvents to delete.
+     * @example
+     * // Delete a few ProductTrafficEvents
+     * const { count } = await prisma.productTrafficEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductTrafficEventDeleteManyArgs>(args?: SelectSubset<T, ProductTrafficEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductTrafficEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTrafficEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductTrafficEvents
+     * const productTrafficEvent = await prisma.productTrafficEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductTrafficEventUpdateManyArgs>(args: SelectSubset<T, ProductTrafficEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductTrafficEvents and returns the data updated in the database.
+     * @param {ProductTrafficEventUpdateManyAndReturnArgs} args - Arguments to update many ProductTrafficEvents.
+     * @example
+     * // Update many ProductTrafficEvents
+     * const productTrafficEvent = await prisma.productTrafficEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductTrafficEvents and only return the `id`
+     * const productTrafficEventWithIdOnly = await prisma.productTrafficEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductTrafficEventUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductTrafficEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductTrafficEvent.
+     * @param {ProductTrafficEventUpsertArgs} args - Arguments to update or create a ProductTrafficEvent.
+     * @example
+     * // Update or create a ProductTrafficEvent
+     * const productTrafficEvent = await prisma.productTrafficEvent.upsert({
+     *   create: {
+     *     // ... data to create a ProductTrafficEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductTrafficEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductTrafficEventUpsertArgs>(args: SelectSubset<T, ProductTrafficEventUpsertArgs<ExtArgs>>): Prisma__ProductTrafficEventClient<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductTrafficEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTrafficEventCountArgs} args - Arguments to filter ProductTrafficEvents to count.
+     * @example
+     * // Count the number of ProductTrafficEvents
+     * const count = await prisma.productTrafficEvent.count({
+     *   where: {
+     *     // ... the filter for the ProductTrafficEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductTrafficEventCountArgs>(
+      args?: Subset<T, ProductTrafficEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductTrafficEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductTrafficEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTrafficEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductTrafficEventAggregateArgs>(args: Subset<T, ProductTrafficEventAggregateArgs>): Prisma.PrismaPromise<GetProductTrafficEventAggregateType<T>>
+
+    /**
+     * Group by ProductTrafficEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductTrafficEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductTrafficEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductTrafficEventGroupByArgs['orderBy'] }
+        : { orderBy?: ProductTrafficEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductTrafficEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductTrafficEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductTrafficEvent model
+   */
+  readonly fields: ProductTrafficEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductTrafficEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductTrafficEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    product<T extends ProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductDefaultArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductTrafficEvent model
+   */
+  interface ProductTrafficEventFieldRefs {
+    readonly id: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly productId: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly path: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly referrer: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly userAgent: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly device: FieldRef<"ProductTrafficEvent", 'DeviceCategory'>
+    readonly browser: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly os: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly country: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly region: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly city: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly ipHash: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly createdAt: FieldRef<"ProductTrafficEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductTrafficEvent findUnique
+   */
+  export type ProductTrafficEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductTrafficEvent to fetch.
+     */
+    where: ProductTrafficEventWhereUniqueInput
+  }
+
+  /**
+   * ProductTrafficEvent findUniqueOrThrow
+   */
+  export type ProductTrafficEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductTrafficEvent to fetch.
+     */
+    where: ProductTrafficEventWhereUniqueInput
+  }
+
+  /**
+   * ProductTrafficEvent findFirst
+   */
+  export type ProductTrafficEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductTrafficEvent to fetch.
+     */
+    where?: ProductTrafficEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductTrafficEvents to fetch.
+     */
+    orderBy?: ProductTrafficEventOrderByWithRelationInput | ProductTrafficEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductTrafficEvents.
+     */
+    cursor?: ProductTrafficEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductTrafficEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductTrafficEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductTrafficEvents.
+     */
+    distinct?: ProductTrafficEventScalarFieldEnum | ProductTrafficEventScalarFieldEnum[]
+  }
+
+  /**
+   * ProductTrafficEvent findFirstOrThrow
+   */
+  export type ProductTrafficEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductTrafficEvent to fetch.
+     */
+    where?: ProductTrafficEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductTrafficEvents to fetch.
+     */
+    orderBy?: ProductTrafficEventOrderByWithRelationInput | ProductTrafficEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductTrafficEvents.
+     */
+    cursor?: ProductTrafficEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductTrafficEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductTrafficEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductTrafficEvents.
+     */
+    distinct?: ProductTrafficEventScalarFieldEnum | ProductTrafficEventScalarFieldEnum[]
+  }
+
+  /**
+   * ProductTrafficEvent findMany
+   */
+  export type ProductTrafficEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductTrafficEvents to fetch.
+     */
+    where?: ProductTrafficEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductTrafficEvents to fetch.
+     */
+    orderBy?: ProductTrafficEventOrderByWithRelationInput | ProductTrafficEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductTrafficEvents.
+     */
+    cursor?: ProductTrafficEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductTrafficEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductTrafficEvents.
+     */
+    skip?: number
+    distinct?: ProductTrafficEventScalarFieldEnum | ProductTrafficEventScalarFieldEnum[]
+  }
+
+  /**
+   * ProductTrafficEvent create
+   */
+  export type ProductTrafficEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProductTrafficEvent.
+     */
+    data: XOR<ProductTrafficEventCreateInput, ProductTrafficEventUncheckedCreateInput>
+  }
+
+  /**
+   * ProductTrafficEvent createMany
+   */
+  export type ProductTrafficEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductTrafficEvents.
+     */
+    data: ProductTrafficEventCreateManyInput | ProductTrafficEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductTrafficEvent createManyAndReturn
+   */
+  export type ProductTrafficEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductTrafficEvents.
+     */
+    data: ProductTrafficEventCreateManyInput | ProductTrafficEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductTrafficEvent update
+   */
+  export type ProductTrafficEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProductTrafficEvent.
+     */
+    data: XOR<ProductTrafficEventUpdateInput, ProductTrafficEventUncheckedUpdateInput>
+    /**
+     * Choose, which ProductTrafficEvent to update.
+     */
+    where: ProductTrafficEventWhereUniqueInput
+  }
+
+  /**
+   * ProductTrafficEvent updateMany
+   */
+  export type ProductTrafficEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductTrafficEvents.
+     */
+    data: XOR<ProductTrafficEventUpdateManyMutationInput, ProductTrafficEventUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductTrafficEvents to update
+     */
+    where?: ProductTrafficEventWhereInput
+    /**
+     * Limit how many ProductTrafficEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductTrafficEvent updateManyAndReturn
+   */
+  export type ProductTrafficEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductTrafficEvents.
+     */
+    data: XOR<ProductTrafficEventUpdateManyMutationInput, ProductTrafficEventUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductTrafficEvents to update
+     */
+    where?: ProductTrafficEventWhereInput
+    /**
+     * Limit how many ProductTrafficEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductTrafficEvent upsert
+   */
+  export type ProductTrafficEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProductTrafficEvent to update in case it exists.
+     */
+    where: ProductTrafficEventWhereUniqueInput
+    /**
+     * In case the ProductTrafficEvent found by the `where` argument doesn't exist, create a new ProductTrafficEvent with this data.
+     */
+    create: XOR<ProductTrafficEventCreateInput, ProductTrafficEventUncheckedCreateInput>
+    /**
+     * In case the ProductTrafficEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductTrafficEventUpdateInput, ProductTrafficEventUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductTrafficEvent delete
+   */
+  export type ProductTrafficEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
+    /**
+     * Filter which ProductTrafficEvent to delete.
+     */
+    where: ProductTrafficEventWhereUniqueInput
+  }
+
+  /**
+   * ProductTrafficEvent deleteMany
+   */
+  export type ProductTrafficEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductTrafficEvents to delete
+     */
+    where?: ProductTrafficEventWhereInput
+    /**
+     * Limit how many ProductTrafficEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductTrafficEvent without action
+   */
+  export type ProductTrafficEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductTrafficEvent
+     */
+    select?: ProductTrafficEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductTrafficEvent
+     */
+    omit?: ProductTrafficEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductTrafficEventInclude<ExtArgs> | null
   }
 
 
@@ -23291,6 +24595,25 @@ export namespace Prisma {
   export type ProductAnalyticsScalarFieldEnum = (typeof ProductAnalyticsScalarFieldEnum)[keyof typeof ProductAnalyticsScalarFieldEnum]
 
 
+  export const ProductTrafficEventScalarFieldEnum: {
+    id: 'id',
+    productId: 'productId',
+    path: 'path',
+    referrer: 'referrer',
+    userAgent: 'userAgent',
+    device: 'device',
+    browser: 'browser',
+    os: 'os',
+    country: 'country',
+    region: 'region',
+    city: 'city',
+    ipHash: 'ipHash',
+    createdAt: 'createdAt'
+  };
+
+  export type ProductTrafficEventScalarFieldEnum = (typeof ProductTrafficEventScalarFieldEnum)[keyof typeof ProductTrafficEventScalarFieldEnum]
+
+
   export const ProductUpvoteScalarFieldEnum: {
     id: 'id',
     productId: 'productId',
@@ -23594,6 +24917,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'DeviceCategory'
+   */
+  export type EnumDeviceCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeviceCategory'>
+    
+
+
+  /**
+   * Reference to a field of type 'DeviceCategory[]'
+   */
+  export type ListEnumDeviceCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeviceCategory[]'>
+    
+
+
+  /**
    * Reference to a field of type 'UserStatus'
    */
   export type EnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserStatus'>
@@ -23691,6 +25028,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeListRelationFilter
     ProductMedia?: ProductMediaListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
+    trafficEvents?: ProductTrafficEventListRelationFilter
   }
 
   export type ProductOrderByWithRelationInput = {
@@ -23729,6 +25067,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeOrderByRelationAggregateInput
     ProductMedia?: ProductMediaOrderByRelationAggregateInput
     ProductUpvote?: ProductUpvoteOrderByRelationAggregateInput
+    trafficEvents?: ProductTrafficEventOrderByRelationAggregateInput
   }
 
   export type ProductWhereUniqueInput = Prisma.AtLeast<{
@@ -23770,6 +25109,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeListRelationFilter
     ProductMedia?: ProductMediaListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
+    trafficEvents?: ProductTrafficEventListRelationFilter
   }, "id" | "slug">
 
   export type ProductOrderByWithAggregationInput = {
@@ -24096,6 +25436,101 @@ export namespace Prisma {
     clicks?: IntWithAggregatesFilter<"ProductAnalytics"> | number
     createdAt?: DateTimeWithAggregatesFilter<"ProductAnalytics"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ProductAnalytics"> | Date | string
+  }
+
+  export type ProductTrafficEventWhereInput = {
+    AND?: ProductTrafficEventWhereInput | ProductTrafficEventWhereInput[]
+    OR?: ProductTrafficEventWhereInput[]
+    NOT?: ProductTrafficEventWhereInput | ProductTrafficEventWhereInput[]
+    id?: StringFilter<"ProductTrafficEvent"> | string
+    productId?: StringFilter<"ProductTrafficEvent"> | string
+    path?: StringFilter<"ProductTrafficEvent"> | string
+    referrer?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    userAgent?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    device?: EnumDeviceCategoryFilter<"ProductTrafficEvent"> | $Enums.DeviceCategory
+    browser?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    os?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    country?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    region?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    city?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    ipHash?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    createdAt?: DateTimeFilter<"ProductTrafficEvent"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+  }
+
+  export type ProductTrafficEventOrderByWithRelationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    path?: SortOrder
+    referrer?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    device?: SortOrder
+    browser?: SortOrderInput | SortOrder
+    os?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
+    region?: SortOrderInput | SortOrder
+    city?: SortOrderInput | SortOrder
+    ipHash?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    product?: ProductOrderByWithRelationInput
+  }
+
+  export type ProductTrafficEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ProductTrafficEventWhereInput | ProductTrafficEventWhereInput[]
+    OR?: ProductTrafficEventWhereInput[]
+    NOT?: ProductTrafficEventWhereInput | ProductTrafficEventWhereInput[]
+    productId?: StringFilter<"ProductTrafficEvent"> | string
+    path?: StringFilter<"ProductTrafficEvent"> | string
+    referrer?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    userAgent?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    device?: EnumDeviceCategoryFilter<"ProductTrafficEvent"> | $Enums.DeviceCategory
+    browser?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    os?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    country?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    region?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    city?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    ipHash?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    createdAt?: DateTimeFilter<"ProductTrafficEvent"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+  }, "id">
+
+  export type ProductTrafficEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    path?: SortOrder
+    referrer?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    device?: SortOrder
+    browser?: SortOrderInput | SortOrder
+    os?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
+    region?: SortOrderInput | SortOrder
+    city?: SortOrderInput | SortOrder
+    ipHash?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ProductTrafficEventCountOrderByAggregateInput
+    _max?: ProductTrafficEventMaxOrderByAggregateInput
+    _min?: ProductTrafficEventMinOrderByAggregateInput
+  }
+
+  export type ProductTrafficEventScalarWhereWithAggregatesInput = {
+    AND?: ProductTrafficEventScalarWhereWithAggregatesInput | ProductTrafficEventScalarWhereWithAggregatesInput[]
+    OR?: ProductTrafficEventScalarWhereWithAggregatesInput[]
+    NOT?: ProductTrafficEventScalarWhereWithAggregatesInput | ProductTrafficEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductTrafficEvent"> | string
+    productId?: StringWithAggregatesFilter<"ProductTrafficEvent"> | string
+    path?: StringWithAggregatesFilter<"ProductTrafficEvent"> | string
+    referrer?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
+    userAgent?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
+    device?: EnumDeviceCategoryWithAggregatesFilter<"ProductTrafficEvent"> | $Enums.DeviceCategory
+    browser?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
+    os?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
+    country?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
+    region?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
+    city?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
+    ipHash?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ProductTrafficEvent"> | Date | string
   }
 
   export type ProductUpvoteWhereInput = {
@@ -25016,6 +26451,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateInput = {
@@ -25050,6 +26486,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductUpdateInput = {
@@ -25084,6 +26521,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateInput = {
@@ -25118,6 +26556,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateManyInput = {
@@ -25474,6 +26913,117 @@ export namespace Prisma {
     clicks?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductTrafficEventCreateInput = {
+    id?: string
+    path: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
+    createdAt?: Date | string
+    product: ProductCreateNestedOneWithoutTrafficEventsInput
+  }
+
+  export type ProductTrafficEventUncheckedCreateInput = {
+    id?: string
+    productId: string
+    path: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProductTrafficEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutTrafficEventsNestedInput
+  }
+
+  export type ProductTrafficEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductTrafficEventCreateManyInput = {
+    id?: string
+    productId: string
+    path: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProductTrafficEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductTrafficEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductUpvoteCreateInput = {
@@ -26577,6 +28127,12 @@ export namespace Prisma {
     none?: ProductUpvoteWhereInput
   }
 
+  export type ProductTrafficEventListRelationFilter = {
+    every?: ProductTrafficEventWhereInput
+    some?: ProductTrafficEventWhereInput
+    none?: ProductTrafficEventWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -26591,6 +28147,10 @@ export namespace Prisma {
   }
 
   export type ProductUpvoteOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProductTrafficEventOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -26965,6 +28525,71 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type EnumDeviceCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeviceCategory | EnumDeviceCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeviceCategoryFilter<$PrismaModel> | $Enums.DeviceCategory
+  }
+
+  export type ProductTrafficEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    path?: SortOrder
+    referrer?: SortOrder
+    userAgent?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    os?: SortOrder
+    country?: SortOrder
+    region?: SortOrder
+    city?: SortOrder
+    ipHash?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProductTrafficEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    path?: SortOrder
+    referrer?: SortOrder
+    userAgent?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    os?: SortOrder
+    country?: SortOrder
+    region?: SortOrder
+    city?: SortOrder
+    ipHash?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProductTrafficEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    path?: SortOrder
+    referrer?: SortOrder
+    userAgent?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    os?: SortOrder
+    country?: SortOrder
+    region?: SortOrder
+    city?: SortOrder
+    ipHash?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumDeviceCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeviceCategory | EnumDeviceCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeviceCategoryWithAggregatesFilter<$PrismaModel> | $Enums.DeviceCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeviceCategoryFilter<$PrismaModel>
+    _max?: NestedEnumDeviceCategoryFilter<$PrismaModel>
   }
 
   export type ProductUpvoteProductIdUserIdCompoundUniqueInput = {
@@ -27629,6 +29254,13 @@ export namespace Prisma {
     connect?: ProductUpvoteWhereUniqueInput | ProductUpvoteWhereUniqueInput[]
   }
 
+  export type ProductTrafficEventCreateNestedManyWithoutProductInput = {
+    create?: XOR<ProductTrafficEventCreateWithoutProductInput, ProductTrafficEventUncheckedCreateWithoutProductInput> | ProductTrafficEventCreateWithoutProductInput[] | ProductTrafficEventUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductTrafficEventCreateOrConnectWithoutProductInput | ProductTrafficEventCreateOrConnectWithoutProductInput[]
+    createMany?: ProductTrafficEventCreateManyProductInputEnvelope
+    connect?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
+  }
+
   export type ProductMetadataUncheckedCreateNestedOneWithoutProductInput = {
     create?: XOR<ProductMetadataCreateWithoutProductInput, ProductMetadataUncheckedCreateWithoutProductInput>
     connectOrCreate?: ProductMetadataCreateOrConnectWithoutProductInput
@@ -27666,6 +29298,13 @@ export namespace Prisma {
     connectOrCreate?: ProductUpvoteCreateOrConnectWithoutProductInput | ProductUpvoteCreateOrConnectWithoutProductInput[]
     createMany?: ProductUpvoteCreateManyProductInputEnvelope
     connect?: ProductUpvoteWhereUniqueInput | ProductUpvoteWhereUniqueInput[]
+  }
+
+  export type ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<ProductTrafficEventCreateWithoutProductInput, ProductTrafficEventUncheckedCreateWithoutProductInput> | ProductTrafficEventCreateWithoutProductInput[] | ProductTrafficEventUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductTrafficEventCreateOrConnectWithoutProductInput | ProductTrafficEventCreateOrConnectWithoutProductInput[]
+    createMany?: ProductTrafficEventCreateManyProductInputEnvelope
+    connect?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -27822,6 +29461,20 @@ export namespace Prisma {
     deleteMany?: ProductUpvoteScalarWhereInput | ProductUpvoteScalarWhereInput[]
   }
 
+  export type ProductTrafficEventUpdateManyWithoutProductNestedInput = {
+    create?: XOR<ProductTrafficEventCreateWithoutProductInput, ProductTrafficEventUncheckedCreateWithoutProductInput> | ProductTrafficEventCreateWithoutProductInput[] | ProductTrafficEventUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductTrafficEventCreateOrConnectWithoutProductInput | ProductTrafficEventCreateOrConnectWithoutProductInput[]
+    upsert?: ProductTrafficEventUpsertWithWhereUniqueWithoutProductInput | ProductTrafficEventUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: ProductTrafficEventCreateManyProductInputEnvelope
+    set?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
+    disconnect?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
+    delete?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
+    connect?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
+    update?: ProductTrafficEventUpdateWithWhereUniqueWithoutProductInput | ProductTrafficEventUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: ProductTrafficEventUpdateManyWithWhereWithoutProductInput | ProductTrafficEventUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: ProductTrafficEventScalarWhereInput | ProductTrafficEventScalarWhereInput[]
+  }
+
   export type ProductMetadataUncheckedUpdateOneWithoutProductNestedInput = {
     create?: XOR<ProductMetadataCreateWithoutProductInput, ProductMetadataUncheckedCreateWithoutProductInput>
     connectOrCreate?: ProductMetadataCreateOrConnectWithoutProductInput
@@ -27894,6 +29547,20 @@ export namespace Prisma {
     deleteMany?: ProductUpvoteScalarWhereInput | ProductUpvoteScalarWhereInput[]
   }
 
+  export type ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<ProductTrafficEventCreateWithoutProductInput, ProductTrafficEventUncheckedCreateWithoutProductInput> | ProductTrafficEventCreateWithoutProductInput[] | ProductTrafficEventUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductTrafficEventCreateOrConnectWithoutProductInput | ProductTrafficEventCreateOrConnectWithoutProductInput[]
+    upsert?: ProductTrafficEventUpsertWithWhereUniqueWithoutProductInput | ProductTrafficEventUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: ProductTrafficEventCreateManyProductInputEnvelope
+    set?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
+    disconnect?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
+    delete?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
+    connect?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
+    update?: ProductTrafficEventUpdateWithWhereUniqueWithoutProductInput | ProductTrafficEventUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: ProductTrafficEventUpdateManyWithWhereWithoutProductInput | ProductTrafficEventUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: ProductTrafficEventScalarWhereInput | ProductTrafficEventScalarWhereInput[]
+  }
+
   export type ProductCreateNestedOneWithoutProductMediaInput = {
     create?: XOR<ProductCreateWithoutProductMediaInput, ProductUncheckedCreateWithoutProductMediaInput>
     connectOrCreate?: ProductCreateOrConnectWithoutProductMediaInput
@@ -27960,6 +29627,24 @@ export namespace Prisma {
     upsert?: ProductUpsertWithoutAnalyticsInput
     connect?: ProductWhereUniqueInput
     update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutAnalyticsInput, ProductUpdateWithoutAnalyticsInput>, ProductUncheckedUpdateWithoutAnalyticsInput>
+  }
+
+  export type ProductCreateNestedOneWithoutTrafficEventsInput = {
+    create?: XOR<ProductCreateWithoutTrafficEventsInput, ProductUncheckedCreateWithoutTrafficEventsInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutTrafficEventsInput
+    connect?: ProductWhereUniqueInput
+  }
+
+  export type EnumDeviceCategoryFieldUpdateOperationsInput = {
+    set?: $Enums.DeviceCategory
+  }
+
+  export type ProductUpdateOneRequiredWithoutTrafficEventsNestedInput = {
+    create?: XOR<ProductCreateWithoutTrafficEventsInput, ProductUncheckedCreateWithoutTrafficEventsInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutTrafficEventsInput
+    upsert?: ProductUpsertWithoutTrafficEventsInput
+    connect?: ProductWhereUniqueInput
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutTrafficEventsInput, ProductUpdateWithoutTrafficEventsInput>, ProductUncheckedUpdateWithoutTrafficEventsInput>
   }
 
   export type ProductCreateNestedOneWithoutProductUpvoteInput = {
@@ -28992,6 +30677,23 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedEnumDeviceCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeviceCategory | EnumDeviceCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeviceCategoryFilter<$PrismaModel> | $Enums.DeviceCategory
+  }
+
+  export type NestedEnumDeviceCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeviceCategory | EnumDeviceCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeviceCategoryWithAggregatesFilter<$PrismaModel> | $Enums.DeviceCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeviceCategoryFilter<$PrismaModel>
+    _max?: NestedEnumDeviceCategoryFilter<$PrismaModel>
+  }
+
   export type NestedEnumUserStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
     in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
@@ -29352,6 +31054,46 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ProductTrafficEventCreateWithoutProductInput = {
+    id?: string
+    path: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProductTrafficEventUncheckedCreateWithoutProductInput = {
+    id?: string
+    path: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProductTrafficEventCreateOrConnectWithoutProductInput = {
+    where: ProductTrafficEventWhereUniqueInput
+    create: XOR<ProductTrafficEventCreateWithoutProductInput, ProductTrafficEventUncheckedCreateWithoutProductInput>
+  }
+
+  export type ProductTrafficEventCreateManyProductInputEnvelope = {
+    data: ProductTrafficEventCreateManyProductInput | ProductTrafficEventCreateManyProductInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutProductsInput = {
     update: XOR<UserUpdateWithoutProductsInput, UserUncheckedUpdateWithoutProductsInput>
     create: XOR<UserCreateWithoutProductsInput, UserUncheckedCreateWithoutProductsInput>
@@ -29695,6 +31437,41 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ProductUpvote"> | Date | string
   }
 
+  export type ProductTrafficEventUpsertWithWhereUniqueWithoutProductInput = {
+    where: ProductTrafficEventWhereUniqueInput
+    update: XOR<ProductTrafficEventUpdateWithoutProductInput, ProductTrafficEventUncheckedUpdateWithoutProductInput>
+    create: XOR<ProductTrafficEventCreateWithoutProductInput, ProductTrafficEventUncheckedCreateWithoutProductInput>
+  }
+
+  export type ProductTrafficEventUpdateWithWhereUniqueWithoutProductInput = {
+    where: ProductTrafficEventWhereUniqueInput
+    data: XOR<ProductTrafficEventUpdateWithoutProductInput, ProductTrafficEventUncheckedUpdateWithoutProductInput>
+  }
+
+  export type ProductTrafficEventUpdateManyWithWhereWithoutProductInput = {
+    where: ProductTrafficEventScalarWhereInput
+    data: XOR<ProductTrafficEventUpdateManyMutationInput, ProductTrafficEventUncheckedUpdateManyWithoutProductInput>
+  }
+
+  export type ProductTrafficEventScalarWhereInput = {
+    AND?: ProductTrafficEventScalarWhereInput | ProductTrafficEventScalarWhereInput[]
+    OR?: ProductTrafficEventScalarWhereInput[]
+    NOT?: ProductTrafficEventScalarWhereInput | ProductTrafficEventScalarWhereInput[]
+    id?: StringFilter<"ProductTrafficEvent"> | string
+    productId?: StringFilter<"ProductTrafficEvent"> | string
+    path?: StringFilter<"ProductTrafficEvent"> | string
+    referrer?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    userAgent?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    device?: EnumDeviceCategoryFilter<"ProductTrafficEvent"> | $Enums.DeviceCategory
+    browser?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    os?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    country?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    region?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    city?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    ipHash?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    createdAt?: DateTimeFilter<"ProductTrafficEvent"> | Date | string
+  }
+
   export type ProductCreateWithoutProductMediaInput = {
     id?: string
     name: string
@@ -29726,6 +31503,7 @@ export namespace Prisma {
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductMediaInput = {
@@ -29759,6 +31537,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductMediaInput = {
@@ -29808,6 +31587,7 @@ export namespace Prisma {
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductMediaInput = {
@@ -29841,6 +31621,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutVerificationInput = {
@@ -29874,6 +31655,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutVerificationInput = {
@@ -29907,6 +31689,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutVerificationInput = {
@@ -29956,6 +31739,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutVerificationInput = {
@@ -29989,6 +31773,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutMetadataInput = {
@@ -30022,6 +31807,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutMetadataInput = {
@@ -30055,6 +31841,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutMetadataInput = {
@@ -30104,6 +31891,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutMetadataInput = {
@@ -30137,6 +31925,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutAnalyticsInput = {
@@ -30170,6 +31959,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutAnalyticsInput = {
@@ -30203,6 +31993,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutAnalyticsInput = {
@@ -30252,6 +32043,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutAnalyticsInput = {
@@ -30281,6 +32073,159 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
+    verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
+    ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+    ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductCreateWithoutTrafficEventsInput = {
+    id?: string
+    name: string
+    slug: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    logo: string
+    planAssignedAt?: Date | string | null
+    type: $Enums.ProductType
+    pricingModel: $Enums.PricingModel
+    status?: $Enums.ProductStatus
+    publishedAt?: Date | string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    keywords?: ProductCreatekeywordsInput | string[]
+    platforms?: ProductCreateplatformsInput | $Enums.Platform[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutProductsInput
+    category: CategoryCreateNestedOneWithoutProductsInput
+    plan?: PlanCreateNestedOneWithoutProductsInput
+    organization?: OrganizationCreateNestedOneWithoutProductInput
+    metadata?: ProductMetadataCreateNestedOneWithoutProductInput
+    analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
+    verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
+    ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
+    ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductUncheckedCreateWithoutTrafficEventsInput = {
+    id?: string
+    name: string
+    slug: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    logo: string
+    userId: string
+    categoryId: string
+    planId?: string | null
+    planAssignedAt?: Date | string | null
+    type: $Enums.ProductType
+    pricingModel: $Enums.PricingModel
+    status?: $Enums.ProductStatus
+    publishedAt?: Date | string | null
+    organizationId?: string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    keywords?: ProductCreatekeywordsInput | string[]
+    platforms?: ProductCreateplatformsInput | $Enums.Platform[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
+    analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
+    verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
+    ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
+    ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductCreateOrConnectWithoutTrafficEventsInput = {
+    where: ProductWhereUniqueInput
+    create: XOR<ProductCreateWithoutTrafficEventsInput, ProductUncheckedCreateWithoutTrafficEventsInput>
+  }
+
+  export type ProductUpsertWithoutTrafficEventsInput = {
+    update: XOR<ProductUpdateWithoutTrafficEventsInput, ProductUncheckedUpdateWithoutTrafficEventsInput>
+    create: XOR<ProductCreateWithoutTrafficEventsInput, ProductUncheckedCreateWithoutTrafficEventsInput>
+    where?: ProductWhereInput
+  }
+
+  export type ProductUpdateToOneWithWhereWithoutTrafficEventsInput = {
+    where?: ProductWhereInput
+    data: XOR<ProductUpdateWithoutTrafficEventsInput, ProductUncheckedUpdateWithoutTrafficEventsInput>
+  }
+
+  export type ProductUpdateWithoutTrafficEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    tagline?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    websiteUrl?: StringFieldUpdateOperationsInput | string
+    logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+    pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startingPriceCents?: NullableIntFieldUpdateOperationsInput | number | null
+    currencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
+    keywords?: ProductUpdatekeywordsInput | string[]
+    platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutProductsNestedInput
+    category?: CategoryUpdateOneRequiredWithoutProductsNestedInput
+    plan?: PlanUpdateOneWithoutProductsNestedInput
+    organization?: OrganizationUpdateOneWithoutProductNestedInput
+    metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
+    analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
+    verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
+    ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
+    ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductUncheckedUpdateWithoutTrafficEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    tagline?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    websiteUrl?: StringFieldUpdateOperationsInput | string
+    logo?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    categoryId?: StringFieldUpdateOperationsInput | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+    pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startingPriceCents?: NullableIntFieldUpdateOperationsInput | number | null
+    currencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
+    keywords?: ProductUpdatekeywordsInput | string[]
+    platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
+    analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
@@ -30318,6 +32263,7 @@ export namespace Prisma {
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductUpvoteInput = {
@@ -30351,6 +32297,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductUpvoteInput = {
@@ -30449,6 +32396,7 @@ export namespace Prisma {
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
@@ -30482,6 +32430,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type UserUpsertWithoutProductUpvoteInput = {
@@ -30596,6 +32545,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutOrganizationInput = {
@@ -30629,6 +32579,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutOrganizationInput = {
@@ -31011,6 +32962,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutUserInput = {
@@ -31044,6 +32996,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutUserInput = {
@@ -31295,6 +33248,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutCategoryInput = {
@@ -31328,6 +33282,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutCategoryInput = {
@@ -31429,6 +33384,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutPlanInput = {
@@ -31462,6 +33418,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutPlanInput = {
@@ -32020,6 +33977,7 @@ export namespace Prisma {
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductBadgeInput = {
@@ -32053,6 +34011,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductBadgeInput = {
@@ -32102,6 +34061,7 @@ export namespace Prisma {
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductBadgeInput = {
@@ -32135,6 +34095,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type UseCaseCategoryCreateWithoutUseCaseInput = {
@@ -32301,6 +34262,21 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type ProductTrafficEventCreateManyProductInput = {
+    id?: string
+    path: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
+    createdAt?: Date | string
+  }
+
   export type ProductBadgeUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     badge?: StringFieldUpdateOperationsInput | string
@@ -32364,6 +34340,51 @@ export namespace Prisma {
   export type ProductUpvoteUncheckedUpdateManyWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductTrafficEventUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductTrafficEventUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductTrafficEventUncheckedUpdateManyWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -32457,6 +34478,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutOrganizationInput = {
@@ -32490,6 +34512,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutOrganizationInput = {
@@ -32607,6 +34630,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutUserInput = {
@@ -32640,6 +34664,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutUserInput = {
@@ -32825,6 +34850,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutCategoryInput = {
@@ -32858,6 +34884,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutCategoryInput = {
@@ -32974,6 +35001,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutPlanInput = {
@@ -33007,6 +35035,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutPlanInput = {

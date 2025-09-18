@@ -33,6 +33,7 @@ export function ObjectPageLayout({
   topRowExtras = undefined,
   headingActionsLeft = null,
 }: ObjectPageLayoutProps) {
+  const hasOverview = Array.isArray(overview) && overview.length > 0
   const extrasList = Array.isArray(topRowExtras)
     ? topRowExtras
     : sidebar
@@ -50,7 +51,7 @@ export function ObjectPageLayout({
 
       <div className="w-full bg-muted py-6">
         <div className="w-full px-4 md:px-6">
-          {extrasList.length === 0 && (
+          {extrasList.length === 0 && hasOverview && (
             <OverviewCard title="Overview">
               {overview.map((field) => (
                 <OverviewRow
@@ -64,15 +65,17 @@ export function ObjectPageLayout({
           {extrasList.length === 1 && (
             <div className="grid grid-cols-12 gap-6">
               <div className="col-span-12 lg:col-span-8">
-                <OverviewCard title="Overview">
-                  {overview.map((field) => (
-                    <OverviewRow
-                      key={field.label}
-                      label={field.label}
-                      value={field.value}
-                    />
-                  ))}
-                </OverviewCard>
+                {hasOverview && (
+                  <OverviewCard title="Overview">
+                    {overview.map((field) => (
+                      <OverviewRow
+                        key={field.label}
+                        label={field.label}
+                        value={field.value}
+                      />
+                    ))}
+                  </OverviewCard>
+                )}
               </div>
               <aside className="col-span-12 lg:col-span-4">
                 <div className="space-y-4">{extrasList[0]}</div>
@@ -84,17 +87,19 @@ export function ObjectPageLayout({
               {/* When 2 extras, keep simple 4-4-4 layout */}
               {extrasList.length === 2 && (
                 <div className="grid grid-cols-12 gap-6">
-                  <div className="col-span-12 lg:col-span-4">
-                    <OverviewCard title="Overview">
-                      {overview.map((field) => (
-                        <OverviewRow
-                          key={field.label}
-                          label={field.label}
-                          value={field.value}
-                        />
-                      ))}
-                    </OverviewCard>
-                  </div>
+                  {hasOverview && (
+                    <div className="col-span-12 lg:col-span-4">
+                      <OverviewCard title="Overview">
+                        {overview.map((field) => (
+                          <OverviewRow
+                            key={field.label}
+                            label={field.label}
+                            value={field.value}
+                          />
+                        ))}
+                      </OverviewCard>
+                    </div>
+                  )}
                   <aside className="col-span-12 lg:col-span-4">
                     <div className="space-y-4">{extrasList[0]}</div>
                   </aside>
@@ -106,17 +111,19 @@ export function ObjectPageLayout({
               {/* When 3 extras, nest the right side to avoid overview-induced gaps */}
               {extrasList.length === 3 && (
                 <div className="grid grid-cols-12 gap-6">
-                  <div className="col-span-12 lg:col-span-4">
-                    <OverviewCard title="Overview">
-                      {overview.map((field) => (
-                        <OverviewRow
-                          key={field.label}
-                          label={field.label}
-                          value={field.value}
-                        />
-                      ))}
-                    </OverviewCard>
-                  </div>
+                  {hasOverview && (
+                    <div className="col-span-12 lg:col-span-4">
+                      <OverviewCard title="Overview">
+                        {overview.map((field) => (
+                          <OverviewRow
+                            key={field.label}
+                            label={field.label}
+                            value={field.value}
+                          />
+                        ))}
+                      </OverviewCard>
+                    </div>
+                  )}
                   <div className="col-span-12 lg:col-span-8">
                     <div className="grid grid-cols-12 gap-6">
                       <aside className="col-span-12 md:col-span-6">
@@ -135,17 +142,19 @@ export function ObjectPageLayout({
               {/* Fallback for >3 extras: lay out in additional rows */}
               {extrasList.length > 3 && (
                 <div className="grid grid-cols-12 gap-6">
-                  <div className="col-span-12 lg:col-span-4">
-                    <OverviewCard title="Overview">
-                      {overview.map((field) => (
-                        <OverviewRow
-                          key={field.label}
-                          label={field.label}
-                          value={field.value}
-                        />
-                      ))}
-                    </OverviewCard>
-                  </div>
+                  {hasOverview && (
+                    <div className="col-span-12 lg:col-span-4">
+                      <OverviewCard title="Overview">
+                        {overview.map((field) => (
+                          <OverviewRow
+                            key={field.label}
+                            label={field.label}
+                            value={field.value}
+                          />
+                        ))}
+                      </OverviewCard>
+                    </div>
+                  )}
                   <aside className="col-span-12 lg:col-span-4">
                     <div className="space-y-4">{extrasList[0]}</div>
                   </aside>

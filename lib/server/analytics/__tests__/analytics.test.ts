@@ -5,18 +5,24 @@ vi.mock("@/lib/prisma", () => ({
     productAnalytics: {
       upsert: vi.fn(async () => ({})),
     },
+    productTrafficEvent: {
+      create: vi.fn(async () => ({})),
+    },
   },
 }))
 
 import prisma from "@/lib/prisma"
 import { publish } from "@/lib/server/events"
 import { trackProductClicked } from "@/lib/server/analytics/productClicks"
+import { trackProductTraffic } from "@/lib/server/analytics/productTraffic"
 import "@/lib/server/analytics/productClicks"
 import "@/lib/server/analytics/productVotes"
+import "@/lib/server/analytics/productTraffic"
 
 describe("analytics listeners", () => {
   beforeEach(() => {
     ;(prisma.productAnalytics.upsert as any).mockClear()
+    ;(prisma.productTrafficEvent.create as any).mockClear()
   })
 
   it("increments clicks on product.clicked", async () => {
@@ -74,5 +80,47 @@ describe("analytics listeners", () => {
     expect(spy).toHaveBeenCalled()
     spy.mockRestore()
     ;(prisma.productAnalytics.upsert as any).mockResolvedValue({})
+  })
+
+  it("persists product traffic payloads", async () => {
+    const payload = {
+      productId: "p5",
+      path: "/products/test",
+      referrer: "https://example.com",
+      userAgent: "Mozilla/5.0",
+      device: "desktop" as const,
+      browser: "Chrome",
+      os: "macOS",
+      country: "US",
+      region: "CA",
+      city: "SF",
+      ipHash: "hash",
+    }
+
+    await publish("analytics.product-traffic", payload)
+    expect(prisma.productTrafficEvent.create).toHaveBeenCalledWith({
+      data: {
+        productId: payload.productId,
+        path: payload.path,
+        referrer: payload.referrer,
+        userAgent: payload.userAgent,
+        device: payload.device,
+        browser: payload.browser,
+        os: payload.os,
+        country: payload.country,
+        region: payload.region,
+        city: payload.city,
+        ipHash: payload.ipHash,
+      },
+    })
+  })
+
+  it("helper trackProductTraffic publishes event", async () => {
+    await trackProductTraffic({
+      productId: "p6",
+      path: "/p",
+      device: "mobile",
+    })
+    expect(prisma.productTrafficEvent.create).toHaveBeenCalled()
   })
 })

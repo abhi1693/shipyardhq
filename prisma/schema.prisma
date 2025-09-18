@@ -42,16 +42,17 @@ model Product {
   updatedAt          DateTime      @updatedAt
 
   // Relations
-  user          User                 @relation(fields: [userId], references: [id])
-  category      Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  plan          Plan?                @relation(fields: [planId], references: [id], onDelete: SetNull)
-  organization  Organization?        @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  user          User                  @relation(fields: [userId], references: [id])
+  category      Category              @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  plan          Plan?                 @relation(fields: [planId], references: [id], onDelete: SetNull)
+  organization  Organization?         @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   metadata      ProductMetadata?
   analytics     ProductAnalytics?
   verification  ProductVerification?
   ProductBadge  ProductBadge[]
   ProductMedia  ProductMedia[]
   ProductUpvote ProductUpvote[]
+  trafficEvents ProductTrafficEvent[]
 
   @@index([categoryId, createdAt])
   @@index([status, publishedAt])
@@ -140,6 +141,35 @@ model ProductAnalytics {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
+enum DeviceCategory {
+  desktop
+  mobile
+  tablet
+  unknown
+}
+
+model ProductTrafficEvent {
+  id        String         @id @default(cuid())
+  productId String
+  path      String
+  referrer  String?
+  userAgent String?
+  device    DeviceCategory @default(unknown)
+  browser   String?
+  os        String?
+  country   String?
+  region    String?
+  city      String?
+  ipHash    String?
+  createdAt DateTime       @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, createdAt])
+  @@index([country])
+  @@index([device])
+}
+
 model ProductUpvote {
   id        String   @id @default(cuid())
   productId String
@@ -183,15 +213,15 @@ model OrganizationMembership {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  clerkId         String    @unique
-  email           String    @unique
+  id              String     @id @default(cuid())
+  clerkId         String     @unique
+  email           String     @unique
   firstName       String
   lastName        String
-  role            String    @default("member")
+  role            String     @default("member")
   roleIntent      String? // Why they signed up
   heardFrom       String? // How they heard about us
-  acceptedTerms   Boolean   @default(false)
+  acceptedTerms   Boolean    @default(false)
   termsAcceptedAt DateTime?
   status          UserStatus @default(active)
   suspendedAt     DateTime?

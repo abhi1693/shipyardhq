@@ -36,7 +36,7 @@ import {
   choosePlanAction,
 } from "@/actions/member/products/actions"
 import ShareOnXButton from "@/components/molecules/ShareOnXButton"
-import { ExternalLink, Copy as CopyIcon } from "lucide-react"
+import { ExternalLink, Copy as CopyIcon, BarChart3 } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import { PlanType } from "@/lib/vendor/prisma/client"
@@ -72,6 +72,8 @@ export default async function ViewUserProductPage({
   const { userId: clerkId } = await auth()
   const isOwner = Boolean(clerkId && product.user?.clerkId === clerkId)
   const publicPath = `/products/${productSlug}`
+  const analyticsPath = `/member/products/${productSlug}/analytics`
+  const canViewAnalytics = hasPlanFeature(product.plan ?? null, "analytics.advanced")
   const upvoters = await getRecentUpvoters(productId, 5).catch(() => [])
 
   const allPlans = await getPublicPlans({
@@ -259,6 +261,13 @@ export default async function ViewUserProductPage({
             </CopyButton>
             <ShareOnXButton path={publicPath} productName={product.name} />
             <DuplicateProductButton productId={product.id} />
+            {isOwner && canViewAnalytics ? (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={analyticsPath}>
+                  <BarChart3 className="mr-2 h-4 w-4" /> Analytics
+                </Link>
+              </Button>
+            ) : null}
           </div>
         }
         topRowExtras={[

@@ -40,6 +40,7 @@ import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
 import { JSX } from "react"
 import ImageLightbox from "@/components/molecules/ImageLightbox"
+import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -146,6 +147,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <PublicContainer max="7xl" paddingY="py-12" innerClassName="space-y-8">
+      <ProductMetricsTracker productId={product.id} />
       <Breadcrumbs
         items={[
           { title: "Categories", link: "/categories" },
