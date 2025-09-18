@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import clsx from "clsx"
-import { IconAnchor, IconArrowUpRight } from "@tabler/icons-react"
+import { IconAnchor, IconArrowUpRight, IconBolt } from "@tabler/icons-react"
 import { PricingFeature } from "@/components/molecules/PricingFeature"
 
 export type PricingCardProps = {
@@ -29,6 +29,7 @@ export type PricingCardProps = {
   }[]
   ctaHref?: string
   ctaLabel?: string
+  boostForDays?: number | null
 }
 
 export function PricingCard({
@@ -39,6 +40,7 @@ export function PricingCard({
   discount,
   isPopular,
   features,
+  boostForDays,
   ctaHref = "/member/overview",
   ctaLabel = "Choose Plan",
 }: PricingCardProps) {
@@ -60,6 +62,16 @@ export function PricingCard({
         maximumFractionDigits: 2,
       }).format(pct)
     : null
+  const boostDuration =
+    typeof boostForDays === "number" && boostForDays > 0
+      ? Math.round(boostForDays)
+      : null
+  const boostLabel =
+    boostDuration && boostDuration > 0
+      ? `Boosts your launch for ${boostDuration} day${
+          boostDuration === 1 ? "" : "s"
+        }`
+      : null
 
   return (
     <Card
@@ -112,6 +124,12 @@ export function PricingCard({
               Starter
             </span>
           )}
+          {boostLabel ? (
+            <div className="flex items-center gap-2 rounded-xl border border-[color:var(--brand-1)/0.25] bg-[color:var(--brand-1)/0.1] px-3 py-2 text-sm font-medium text-[color:var(--brand-1)]">
+              <IconBolt aria-hidden className="h-4 w-4" />
+              <span className="leading-tight">{boostLabel}</span>
+            </div>
+          ) : null}
         </div>
       </CardHeader>
 
@@ -121,7 +139,13 @@ export function PricingCard({
             {features
               .filter((f) => f.enabled)
               .map((f) => (
-                <PricingFeature key={f.id} label={f.name} enabled={true} />
+                <PricingFeature
+                  key={f.id}
+                  label={f.name}
+                  enabled={true}
+                  isExperimental={f.isExperimental}
+                  description={f.description}
+                />
               ))}
           </ul>
         </div>

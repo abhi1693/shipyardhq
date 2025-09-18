@@ -28,6 +28,7 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
                   maxCount > 0
                 }
                 features={p.features}
+                boostForDays={p.boostForDays}
               />
             </CardWrapper>
           ))}

@@ -25,6 +25,14 @@ describe("PricingCard, PerformanceCard, ProductList", () => {
         enabled: false,
         isExperimental: false,
       },
+      {
+        id: "3",
+        name: "Beta labs",
+        key: "c",
+        description: "beta",
+        enabled: true,
+        isExperimental: true,
+      },
     ]
     const { rerender } = render(
       <PricingCard
@@ -35,23 +43,30 @@ describe("PricingCard, PerformanceCard, ProductList", () => {
         features={features}
         ctaHref="/go"
         ctaLabel="Go"
+        boostForDays={3}
       />,
     )
     expect(screen.getAllByText("Free").length).toBeGreaterThan(0)
     // Only enabled feature shows
     expect(screen.getByText("A")).toBeInTheDocument()
     expect(screen.queryByText("B")).not.toBeInTheDocument()
-    const btn = screen.getByRole("link", { name: "Go" })
+    expect(screen.getByText("Beta labs")).toBeInTheDocument()
+    expect(screen.getByText(/Boosts your launch for 3 days/i)).toBeInTheDocument()
+    expect(screen.getByText(/Experimental/i)).toBeInTheDocument()
+    const btn = screen.getByRole("link", { name: /start for free/i })
     expect(btn).toHaveAttribute("href", "/go")
 
     // Paid
-    rerender(<PricingCard name="Pro" price={12345} features={features} />)
+    rerender(
+      <PricingCard name="Pro" price={12345} features={features} boostForDays={1} />,
+    )
     expect(screen.getByText(/\$123\.45/)).toBeInTheDocument()
+    expect(screen.getByText(/Boosts your launch for 1 day/i)).toBeInTheDocument()
     // Popular badge when paid and isPopular
     rerender(
       <PricingCard name="Pro" price={12345} isPopular features={features} />,
     )
-    expect(screen.getByText(/Popular/)).toBeInTheDocument()
+    expect(screen.getByText(/popular/i)).toBeInTheDocument()
   })
 
   it("PerformanceCard renders KPIs, upvoters empty and badges empty, SEO snippet, edit link", () => {

@@ -2,15 +2,20 @@
 
 import { IconCheck, IconMinus } from "@tabler/icons-react"
 import clsx from "clsx"
+import { Badge } from "@/components/atoms/badge"
 
 export function PricingFeature({
   label,
   enabled,
   subtle = false,
+  description,
+  isExperimental = false,
 }: {
   label: string
   enabled: boolean
   subtle?: boolean
+  description?: string | null
+  isExperimental?: boolean
 }) {
   return (
     <li
@@ -18,6 +23,7 @@ export function PricingFeature({
         "flex items-center gap-3 text-sm text-foreground/90",
         subtle && "text-muted-foreground",
       )}
+      title={description || undefined}
     >
       <span
         className={clsx(
@@ -33,7 +39,17 @@ export function PricingFeature({
           <IconMinus aria-hidden className="h-3.5 w-3.5" />
         )}
       </span>
-      <span className="leading-tight text-foreground/90">{label}</span>
+      <div className="flex flex-wrap items-center gap-2 leading-tight text-foreground/90">
+        <span>{label}</span>
+        {isExperimental ? (
+          <Badge
+            variant="outline"
+            className="border-dashed border-[color:var(--brand-2)/0.55] bg-transparent text-[10px] font-semibold uppercase tracking-[0.25em] text-[color:var(--brand-2)]"
+          >
+            Experimental
+          </Badge>
+        ) : null}
+      </div>
     </li>
   )
 }

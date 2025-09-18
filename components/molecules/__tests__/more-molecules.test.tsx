@@ -26,16 +26,25 @@ describe("additional molecules render and branch coverage", () => {
   it("PricingFeature renders enabled and disabled states", () => {
     const { rerender } = render(
       <ul>
-        <PricingFeature label="A" enabled subtle />
+        <PricingFeature
+          label="A"
+          enabled
+          subtle
+          description="desc"
+          isExperimental
+        />
       </ul>,
     )
     expect(screen.getByText("A")).toBeInTheDocument()
+    expect(screen.getByText("Experimental")).toBeInTheDocument()
+    expect(screen.getByTitle("desc")).toBeInTheDocument()
     rerender(
       <ul>
-        <PricingFeature label="B" enabled={false} />
+        <PricingFeature label="B" enabled={false} description="disabled" />
       </ul>,
     )
     expect(screen.getByText("B")).toBeInTheDocument()
+    expect(screen.queryByText("Experimental")).not.toBeInTheDocument()
   })
 
   it("PageHeader renders with center alignment, underline, subtitle, meta", () => {
