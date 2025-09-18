@@ -11,7 +11,6 @@ import { BADGE_OPTIONS } from "@/lib/constants"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import {
   getPublicProductBySlug,
-  getRelatedProductsByCategory,
   getPublicProductsByUseCase,
 } from "@/actions/public/products/actions"
 import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
@@ -95,10 +94,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   const isVerified = product.verification?.isVerified
   const stats = product.analytics
-  const [authResult, related] = await Promise.all([
-    auth(),
-    getRelatedProductsByCategory(product.categoryId, product.id),
-  ])
+  const authResult = await auth()
 
   const userId = authResult.userId
   const userUpvoted = userId ? await hasUserUpvoted(product.id, userId) : false
@@ -263,17 +259,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ].filter(Boolean) as { href: string; label: string; icon: JSX.Element }[]
 
   const hasMetadataLinks = secondaryLinks.length > 0
-
-  const relatedItems = related.map((r) => ({
-    id: r.id,
-    slug: r.slug,
-    name: r.name,
-    logo: r.logo,
-    tagline: r.tagline,
-    analytics: r.analytics
-      ? { upvotes: r.analytics.upvotes ?? 0 }
-    : undefined,
-  }))
 
   const crewMembers = product.organization?.memberships || []
   const hasCrew = crewMembers.length > 0
@@ -672,26 +657,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </section>
           )}
 
-          {relatedItems.length > 0 && (
-            <section className="space-y-4">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="text-xl font-semibold text-foreground">Nearby ports</h2>
-                <Link
-                  href={`/categories/${product.category.slug}`}
-                  className="text-sm font-semibold text-[color:var(--brand-1)] hover:underline"
-                >
-                  View category
-                </Link>
-              </div>
-              <ProductList
-                items={relatedItems as any}
-                compact
-                showCategory={false}
-                showVerified={false}
-                columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-              />
-            </section>
-          )}
         </div>
       </PublicContainer>
 
