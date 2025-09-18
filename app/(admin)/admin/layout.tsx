@@ -22,6 +22,11 @@ const navItems: NavItem[] = [
     isActive: false,
   },
   {
+    title: "Analytics",
+    url: "/admin/analytics",
+    icon: "analytics",
+  },
+  {
     title: "Users",
     url: "/admin/users",
     icon: "user",

@@ -19,8 +19,6 @@ import { Badge } from "@/components/atoms/badge"
 import { formatDistanceToNow } from "date-fns"
 import CreateButton from "@/components/molecules/CreateButton"
 import RangeSelector from "@/components/molecules/RangeSelector"
-import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
-import { getGlobalTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 
 export const revalidate = 60
 
@@ -49,11 +47,10 @@ export default async function OverviewPage({
 }) {
   const sp = await searchParams
   const days = rangeToDays(sp?.range)
-  const [stats, products, users, trafficSummary] = await Promise.all([
+  const [stats, products, users] = await Promise.all([
     getDashboardStats(days),
     getRecentProducts(10, days),
     getRecentUsers(10, days),
-    getGlobalTrafficSummary({ rangeDays: days }),
   ])
 
   const productsDelta =
@@ -266,107 +263,12 @@ export default async function OverviewPage({
         <RecentProductsCard products={products} />
         <RecentUsersCard users={users} />
       </div>
-
-      <TrafficOverview summary={trafficSummary} />
     </>
   )
 }
 
-type TrafficSummary = Awaited<ReturnType<typeof getGlobalTrafficSummary>>
 type RecentProduct = Awaited<ReturnType<typeof getRecentProducts>>[number]
 type RecentUser = Awaited<ReturnType<typeof getRecentUsers>>[number]
-
-function TrafficOverview({ summary }: { summary: TrafficSummary }) {
-  const highlights = [
-    {
-      label: `Total views (last ${summary.rangeDays}d)`,
-      value: formatNumber(summary.totalViews),
-      delta: summary.totalViewsChange,
-      helper: `vs prior ${summary.rangeDays} days`,
-    },
-    {
-      label: "Unique visitors",
-      value: formatNumber(summary.uniqueVisitors),
-      delta: summary.uniqueVisitorsChange,
-      helper: `vs prior ${summary.rangeDays} days`,
-    },
-    {
-      label: "Views today",
-      value: formatNumber(summary.viewsToday),
-      helper: `${formatNumber(summary.viewsSevenDays)} in past 7 days`,
-    },
-    {
-      label: "Average per day",
-      value: summary.averageViewsPerDay.toLocaleString("en-US", {
-        maximumFractionDigits: 1,
-      }),
-      helper: `Across last ${summary.rangeDays} days`,
-    },
-    {
-      label: "Top country",
-      value: summary.topCountry?.country ?? "—",
-      helper: summary.topCountry
-        ? `${formatNumber(summary.topCountry.views)} views`
-        : "No traffic yet",
-    },
-    {
-      label: "Top referrer",
-      value: summary.topReferrer?.referrer ?? "—",
-      helper: summary.topReferrer
-        ? `${formatNumber(summary.topReferrer.views)} views`
-        : "No referrers tracked",
-    },
-  ]
-
-  const renderDelta = (value?: number) => {
-    if (typeof value !== "number" || !Number.isFinite(value)) {
-      return <span className="text-xs text-muted-foreground">—</span>
-    }
-    if (value === 0) {
-      return <span className="text-xs text-muted-foreground">0%</span>
-    }
-    const formatted = `${value > 0 ? "+" : ""}${value.toFixed(1)}%`
-    return (
-      <span className={`text-xs font-semibold ${value > 0 ? "text-green-600" : "text-red-600"}`}>
-        {formatted}
-      </span>
-    )
-  }
-
-  return (
-    <section className="mt-10 space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold tracking-tight">Traffic Overview</h2>
-        <span className="text-sm text-muted-foreground">Across all products</span>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Engagement snapshot</CardTitle>
-          <CardDescription>
-            Key signals for the last {summary.rangeDays} days with prior-period deltas.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {highlights.map((item) => (
-              <div key={item.label} className="space-y-1">
-                <div className="text-xs text-muted-foreground">{item.label}</div>
-                <div className="flex items-baseline gap-2 text-lg font-semibold">
-                  <span>{item.value}</span>
-                  {item.delta !== undefined ? renderDelta(item.delta) : null}
-                </div>
-                {item.helper && (
-                  <div className="text-xs text-muted-foreground">{item.helper}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-      <ProductAnalyticsCharts summary={summary} />
-    </section>
-  )
-}
 
 function RecentProductsCard({ products }: { products: RecentProduct[] }) {
   return (
