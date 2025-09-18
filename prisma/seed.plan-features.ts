@@ -54,6 +54,11 @@ const FEATURES = [
     name: "Do-follow Backlink",
     description: "Enables do-follow link to your site",
   },
+  {
+    key: "organization",
+    name: "Organizations",
+    description: "Invite your team and manage members together",
+  },
 ]
 
 async function main() {

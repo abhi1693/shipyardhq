@@ -3,6 +3,7 @@ import {
   Prisma,
   PlanType,
   Plan,
+  TimeInterval,
 } from "@/lib/vendor/prisma/client"
 
 const prisma = new PrismaClient()
@@ -166,6 +167,11 @@ async function main() {
       name: "Do-follow Backlink",
       description: "Enables do-follow link to your site",
     },
+    {
+      key: "organization",
+      name: "Organizations",
+      description: "Invite your team and manage members together",
+    },
   ]
 
   const createdFeatures: Record<string, { id: string }> = {}
@@ -225,6 +231,26 @@ async function main() {
         "earlyAccess",
         "newsletterPromotion",
         "backlink",
+      ],
+    },
+    {
+      name: "Crew",
+      slug: "crew",
+      description: "Unlock organizations and collaboration tools",
+      type: PlanType.recurring_price,
+      price: 9900,
+      isDefault: false,
+      boostForDays: 30,
+      paymentFrequencyCount: 1,
+      paymentFrequencyInterval: TimeInterval.month,
+      subscriptionPeriodCount: 1,
+      subscriptionPeriodInterval: TimeInterval.month,
+      featureKeys: [
+        "analytics.basic",
+        "analytics.advanced",
+        "priorityPlacement",
+        "homepage",
+        "organization",
       ],
     },
   ]
