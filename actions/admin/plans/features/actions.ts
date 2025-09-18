@@ -71,42 +71,46 @@ export async function deletePlanFeatureAction(id: string) {
 }
 
 export async function getPlanFeatures(
-  args: {
-    select?: Prisma.PlanFeatureSelect
-    where?: Prisma.PlanFeatureWhereInput
-    orderBy?: Prisma.PlanFeatureOrderByWithRelationInput
-    includeAssignments?: boolean
-  } = {},
+  args: Prisma.PlanFeatureFindManyArgs = {},
 ) {
-  const { select, where, orderBy, includeAssignments = true } = args
-
   try {
+    const { select, include, orderBy, ...rest } = args
+    const fallbackOrderBy = orderBy ?? { createdAt: "desc" }
+
     if (select) {
-      // Use select version (no include allowed)
       return await prisma.planFeature.findMany({
         select,
-        where,
-        orderBy,
+        orderBy: fallbackOrderBy,
+        ...rest,
       })
     }
 
-    // Use include version
     return await prisma.planFeature.findMany({
-      where,
-      orderBy,
-      include: includeAssignments
-        ? {
-            assignments: {
-              include: {
-                plan: true,
-              },
+      include:
+        include ?? {
+          assignments: {
+            include: {
+              plan: true,
             },
-          }
-        : undefined,
+          },
+        },
+      orderBy: fallbackOrderBy,
+      ...rest,
     })
   } catch (error) {
     console.error("Failed to fetch plan features:", error)
     throw new Error("Unable to load plan features.")
+  }
+}
+
+export async function getPlanFeaturesCount(
+  args: Prisma.PlanFeatureCountArgs = {},
+) {
+  try {
+    return await prisma.planFeature.count(args)
+  } catch (error) {
+    console.error("Failed to count plan features:", error)
+    throw new Error("Unable to count plan features.")
   }
 }
 

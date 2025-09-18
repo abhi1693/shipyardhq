@@ -48,6 +48,15 @@ export async function getPlans(args: Prisma.PlanFindManyArgs = {}) {
   }
 }
 
+export async function getPlansCount(args: Prisma.PlanCountArgs = {}) {
+  try {
+    return await prisma.plan.count(args)
+  } catch (error) {
+    console.error("Failed to count plans:", error)
+    throw new Error("Unable to count plans.")
+  }
+}
+
 export async function createPlanAction(formData: FormData) {
   const name = formData.get("name")!.toString().trim()
   const slug = formData.get("slug")!.toString().trim()

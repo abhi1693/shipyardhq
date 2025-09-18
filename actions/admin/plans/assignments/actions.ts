@@ -1,17 +1,47 @@
 "use server"
 
 import prisma from "@/lib/prisma"
+import { Prisma } from "@/lib/vendor/prisma/client"
 
-export async function getAssignedFeatures() {
-  return prisma.planFeatureAssignment.findMany({
-    include: {
-      plan: { select: { id: true, name: true } },
-      feature: { select: { id: true, name: true, key: true } },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  })
+export async function getAssignedFeatures(
+  args: Prisma.PlanFeatureAssignmentFindManyArgs = {},
+) {
+  const { select, include, orderBy, ...rest } = args
+  const fallbackOrderBy = orderBy ?? { createdAt: "desc" }
+
+  try {
+    if (select) {
+      return await prisma.planFeatureAssignment.findMany({
+        select,
+        orderBy: fallbackOrderBy,
+        ...rest,
+      })
+    }
+
+    return await prisma.planFeatureAssignment.findMany({
+      include:
+        include ?? {
+          plan: { select: { id: true, name: true } },
+          feature: { select: { id: true, name: true, key: true } },
+        },
+      orderBy: fallbackOrderBy,
+      ...rest,
+    })
+  } catch (error) {
+    console.error("Failed to fetch plan feature assignments:", error)
+    throw new Error("Unable to load plan feature assignments.")
+  }
+}
+
+export async function getAssignedFeaturesCount(
+  args: Prisma.PlanFeatureAssignmentCountArgs = {},
+) {
+  try {
+    return await prisma.planFeatureAssignment.count(args)
+  } catch (error) {
+    console.error("Failed to count plan feature assignments:", error)
+    throw new Error("Unable to count plan feature assignments.")
+  }
 }
 
 type Input = {

@@ -9,7 +9,7 @@ import {
   revalidateProducts,
 } from "@/lib/cache/revalidate"
 
-export async function getCategories(args = {}) {
+export async function getCategories(args: Prisma.CategoryFindManyArgs = {}) {
   try {
     return await prisma.category.findMany({
       orderBy: { createdAt: "desc" },
@@ -18,6 +18,17 @@ export async function getCategories(args = {}) {
   } catch (error) {
     console.error("Error fetching categories:", error)
     throw new Error("Failed to fetch categories")
+  }
+}
+
+export async function getCategoriesCount(
+  args: Prisma.CategoryCountArgs = {},
+) {
+  try {
+    return await prisma.category.count(args)
+  } catch (error) {
+    console.error("Error counting categories:", error)
+    throw new Error("Failed to count categories")
   }
 }
 
@@ -139,6 +150,15 @@ export async function getUseCases(args: Prisma.UseCaseFindManyArgs = {}) {
   }
 }
 
+export async function getUseCasesCount(args: Prisma.UseCaseCountArgs = {}) {
+  try {
+    return await prisma.useCase.count(args)
+  } catch (error) {
+    console.error("Error counting use cases:", error)
+    throw new Error("Failed to count use cases")
+  }
+}
+
 export async function getUseCasesWithCounts() {
   try {
     const useCases = await prisma.useCase.findMany({
@@ -254,22 +274,48 @@ export async function createUseCaseAction(formData: FormData) {
   }
 }
 
-export async function getUseCaseAssignments() {
+export async function getUseCaseAssignments(
+  args: Prisma.UseCaseCategoryFindManyArgs = {},
+) {
   try {
-    return await prisma.useCaseCategory.findMany({
-      include: {
-        useCase: true,
-        category: true,
-      },
-      orderBy: {
+    const { select, include, orderBy, ...rest } = args
+    const fallbackOrderBy =
+      orderBy ?? {
         useCase: {
           updatedAt: "desc",
         },
+      }
+
+    if (select) {
+      return await prisma.useCaseCategory.findMany({
+        select,
+        orderBy: fallbackOrderBy,
+        ...rest,
+      })
+    }
+
+    return await prisma.useCaseCategory.findMany({
+      include: include ?? {
+        useCase: true,
+        category: true,
       },
+      orderBy: fallbackOrderBy,
+      ...rest,
     })
   } catch (error) {
     console.error("Error fetching use case assignments:", error)
     throw new Error("Failed to fetch use case assignments")
+  }
+}
+
+export async function getUseCaseAssignmentsCount(
+  args: Prisma.UseCaseCategoryCountArgs = {},
+) {
+  try {
+    return await prisma.useCaseCategory.count(args)
+  } catch (error) {
+    console.error("Error counting use case assignments:", error)
+    throw new Error("Failed to count use case assignments")
   }
 }
 

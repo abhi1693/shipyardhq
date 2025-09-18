@@ -5,7 +5,7 @@ import { Prisma, UserStatus } from "@/lib/vendor/prisma/client"
 import { revalidateProducts } from "@/lib/cache/revalidate"
 import { auth, clerkClient } from "@clerk/nextjs/server"
 
-export async function getUsers(args = {}) {
+export async function getUsers(args: Prisma.UserFindManyArgs = {}) {
   try {
     return await prisma.user.findMany({
       orderBy: { createdAt: "desc" },
@@ -14,6 +14,15 @@ export async function getUsers(args = {}) {
   } catch (error) {
     console.error("Error fetching users:", error)
     throw new Error("Failed to fetch users")
+  }
+}
+
+export async function getUsersCount(args: Prisma.UserCountArgs = {}) {
+  try {
+    return await prisma.user.count(args)
+  } catch (error) {
+    console.error("Error counting users:", error)
+    throw new Error("Failed to count users")
   }
 }
 
@@ -160,14 +169,9 @@ export async function setUserStatusAction(id: string, status: UserStatus) {
       ...(clerkUser.publicMetadata || {}),
       status,
     }
-    const privateMetadata = {
-      ...(clerkUser.privateMetadata || {}),
-      status,
-    }
 
     await client.users.updateUser(target.clerkId, {
       publicMetadata,
-      privateMetadata,
     })
 
     try {

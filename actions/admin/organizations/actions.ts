@@ -1,8 +1,11 @@
 "use server"
 
 import prisma from "@/lib/prisma"
+import { Prisma } from "@/lib/vendor/prisma/client"
 
-export async function getOrganizations(args = {}) {
+export async function getOrganizations(
+  args: Prisma.OrganizationFindManyArgs = {},
+) {
   try {
     return await prisma.organization.findMany({
       orderBy: { createdAt: "desc" },
@@ -14,7 +17,21 @@ export async function getOrganizations(args = {}) {
   }
 }
 
-export async function getOrganizationById(id: string, args: any = {}) {
+export async function getOrganizationsCount(
+  args: Prisma.OrganizationCountArgs = {},
+) {
+  try {
+    return await prisma.organization.count(args)
+  } catch (error) {
+    console.error("Error counting organizations:", error)
+    throw new Error("Failed to count organizations")
+  }
+}
+
+export async function getOrganizationById(
+  id: string,
+  args: Omit<Prisma.OrganizationFindUniqueArgs, "where"> = {},
+) {
   try {
     return await prisma.organization.findUnique({
       where: { id },

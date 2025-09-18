@@ -8,19 +8,51 @@ import {
   revalidateProduct,
   revalidateProducts,
 } from "@/lib/cache/revalidate"
+import { Prisma } from "@/lib/vendor/prisma/client"
 
-export async function getAllAssignedBadges() {
-  return prisma.productBadge.findMany({
-    include: {
-      product: {
-        select: {
-          id: true,
-          name: true,
+export async function getAllAssignedBadges(
+  args: Prisma.ProductBadgeFindManyArgs = {},
+) {
+  try {
+    const { select, include, orderBy, ...rest } = args
+    const fallbackOrderBy = orderBy ?? { createdAt: "desc" }
+
+    if (select) {
+      return await prisma.productBadge.findMany({
+        select,
+        orderBy: fallbackOrderBy,
+        ...rest,
+      })
+    }
+
+    return await prisma.productBadge.findMany({
+      include:
+        include ?? {
+          product: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  })
+      orderBy: fallbackOrderBy,
+      ...rest,
+    })
+  } catch (error) {
+    console.error("Error fetching product badge assignments:", error)
+    throw new Error("Failed to fetch product badge assignments")
+  }
+}
+
+export async function getAllAssignedBadgesCount(
+  args: Prisma.ProductBadgeCountArgs = {},
+) {
+  try {
+    return await prisma.productBadge.count(args)
+  } catch (error) {
+    console.error("Error counting product badge assignments:", error)
+    throw new Error("Failed to count product badge assignments")
+  }
 }
 
 export async function assignBadgeToProduct(data: {

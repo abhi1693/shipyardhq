@@ -59,6 +59,17 @@ export async function getProducts(args: Prisma.ProductFindManyArgs = {}) {
   }
 }
 
+export async function getProductsCount(
+  args: Prisma.ProductCountArgs = {},
+) {
+  try {
+    return await prisma.product.count(args)
+  } catch (error) {
+    console.error("Error counting products:", error)
+    throw new Error("Failed to count products")
+  }
+}
+
 export async function getProductById(id: string) {
   try {
     return await prisma.product.findUnique({
