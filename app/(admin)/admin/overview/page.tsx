@@ -18,6 +18,8 @@ import { Badge } from "@/components/atoms/badge"
 import { formatDistanceToNow } from "date-fns"
 import CreateButton from "@/components/molecules/CreateButton"
 import RangeSelector from "@/components/molecules/RangeSelector"
+import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
+import { getGlobalTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 
 export const revalidate = 60
 
@@ -35,6 +37,10 @@ function rangeToDays(range?: string): number {
   }
 }
 
+function formatNumber(value: number) {
+  return new Intl.NumberFormat("en-US").format(value)
+}
+
 export default async function OverviewPage({
   searchParams,
 }: {
@@ -42,10 +48,11 @@ export default async function OverviewPage({
 }) {
   const sp = await searchParams
   const days = rangeToDays(sp?.range)
-  const [stats, products, users] = await Promise.all([
+  const [stats, products, users, trafficSummary] = await Promise.all([
     getDashboardStats(days),
     getRecentProducts(10, days),
     getRecentUsers(10, days),
+    getGlobalTrafficSummary({ rangeDays: days }),
   ])
 
   const productsDelta =
@@ -59,6 +66,71 @@ export default async function OverviewPage({
   const productsTrend =
     productsDelta > 0 ? "up" : productsDelta < 0 ? "down" : undefined
   const usersTrend = usersDelta > 0 ? "up" : usersDelta < 0 ? "down" : undefined
+  const viewsDelta =
+    typeof (stats as any).viewsDelta === "number" ? (stats as any).viewsDelta : 0
+  const upvotesDelta =
+    typeof (stats as any).upvotesDelta === "number"
+      ? (stats as any).upvotesDelta
+      : 0
+  const viewsTrend = viewsDelta > 0 ? "up" : viewsDelta < 0 ? "down" : undefined
+  const upvotesTrend =
+    upvotesDelta > 0 ? "up" : upvotesDelta < 0 ? "down" : undefined
+
+  const trafficHighlights = [
+    {
+      label: `Total views (last ${trafficSummary.rangeDays}d)`,
+      value: formatNumber(trafficSummary.totalViews),
+      delta: trafficSummary.totalViewsChange,
+      helper: `vs prior ${trafficSummary.rangeDays} days`,
+    },
+    {
+      label: "Unique visitors",
+      value: formatNumber(trafficSummary.uniqueVisitors),
+      delta: trafficSummary.uniqueVisitorsChange,
+      helper: `vs prior ${trafficSummary.rangeDays} days`,
+    },
+    {
+      label: "Views today",
+      value: formatNumber(trafficSummary.viewsToday),
+      helper: `${formatNumber(trafficSummary.viewsSevenDays)} in past 7 days`,
+    },
+    {
+      label: "Average per day",
+      value: trafficSummary.averageViewsPerDay.toLocaleString("en-US", {
+        maximumFractionDigits: 1,
+      }),
+      helper: `Across last ${trafficSummary.rangeDays} days`,
+    },
+    {
+      label: "Top country",
+      value: trafficSummary.topCountry?.country ?? "—",
+      helper: trafficSummary.topCountry
+        ? `${formatNumber(trafficSummary.topCountry.views)} views`
+        : "No traffic yet",
+    },
+    {
+      label: "Top referrer",
+      value: trafficSummary.topReferrer?.referrer ?? "—",
+      helper: trafficSummary.topReferrer
+        ? `${formatNumber(trafficSummary.topReferrer.views)} views`
+        : "No referrers tracked",
+    },
+  ]
+
+  function renderDelta(value?: number) {
+    if (typeof value !== "number" || !Number.isFinite(value)) {
+      return <span className="text-xs text-muted-foreground">—</span>
+    }
+    if (value === 0) {
+      return <span className="text-xs text-muted-foreground">0%</span>
+    }
+    const formatted = `${value > 0 ? "+" : ""}${value.toFixed(1)}%`
+    return (
+      <span className={`text-xs font-semibold ${value > 0 ? "text-green-600" : "text-red-600"}`}>
+        {formatted}
+      </span>
+    )
+  }
 
   return (
     <>
@@ -147,6 +219,43 @@ export default async function OverviewPage({
           />
         </Link>
 
+        <Link href="/admin/products" className="group block h-full">
+          <StatCard
+            title={`Views (last ${days}d)`}
+            value={stats.totalViews}
+            badge={
+              viewsDelta !== 0 ? `${viewsDelta > 0 ? "+" : ""}${viewsDelta}` : undefined
+            }
+            trend={viewsTrend as any}
+            subheading={`In range: ${formatNumber(stats.viewsInRange ?? 0)}`}
+            footnote={`vs prior ${days} days`}
+          />
+        </Link>
+
+        <Link href="/admin/products" className="group block h-full">
+          <StatCard
+            title={`Upvotes (last ${days}d)`}
+            value={stats.totalUpvotes}
+            badge={
+              upvotesDelta !== 0
+                ? `${upvotesDelta > 0 ? "+" : ""}${upvotesDelta}`
+                : undefined
+            }
+            trend={upvotesTrend as any}
+            subheading={`In range: ${formatNumber(stats.upvotesInRange ?? 0)}`}
+            footnote={`vs prior ${days} days`}
+          />
+        </Link>
+
+        <Link href="/admin/products" className="group block h-full">
+          <StatCard
+            title="Total Clicks"
+            value={stats.totalClicks}
+            subheading="Across all products"
+            footnote="Aggregated from product analytics"
+          />
+        </Link>
+
         {stats.mostPopularPlan && (
           <Link href="/admin/plans" className="group block h-full">
             <StatCard
@@ -164,6 +273,18 @@ export default async function OverviewPage({
             value={stats.defaultPlanProductCount}
             subheading="Auto-assigned on creation"
             footnote="Changeable per product"
+          />
+        </Link>
+
+        <Link href="/admin/plans" className="group block h-full">
+          <StatCard
+            title="Plans"
+            value={stats.totalPlans}
+            badge={`${stats.featureCoverage}%`}
+            badgeVariant="default"
+            subheading={`${formatNumber(stats.usedFeatureAssignments ?? 0)} assignments`}
+            footnote={`${formatNumber(stats.totalFeatures ?? 0)} features total`}
+            progress={stats.featureCoverage}
           />
         </Link>
 
@@ -262,6 +383,38 @@ export default async function OverviewPage({
           </CardFooter>
         </Card>
       </div>
+
+      <section className="mt-10 space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold tracking-tight">Traffic Overview</h2>
+          <span className="text-sm text-muted-foreground">Across all products</span>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Engagement snapshot</CardTitle>
+            <CardDescription>
+              Key signals for the last {trafficSummary.rangeDays} days with prior-period deltas.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {trafficHighlights.map((item) => (
+                <div key={item.label} className="space-y-1">
+                  <div className="text-xs text-muted-foreground">{item.label}</div>
+                  <div className="flex items-baseline gap-2 text-lg font-semibold">
+                    <span>{item.value}</span>
+                    {item.delta !== undefined ? renderDelta(item.delta) : null}
+                  </div>
+                  {item.helper && (
+                    <div className="text-xs text-muted-foreground">{item.helper}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <ProductAnalyticsCharts summary={trafficSummary} />
+      </section>
     </>
   )
 }

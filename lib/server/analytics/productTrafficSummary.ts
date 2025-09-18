@@ -2,6 +2,7 @@ import { format, formatISO, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
 import type { DeviceCategory, ProductTrafficSummary } from "@/types/analytics"
+import type { Prisma } from "@/lib/vendor/prisma/client"
 
 interface SummaryOptions {
   rangeDays?: number
@@ -50,8 +51,8 @@ function labelForBrowser(browser?: string | null) {
   return browser
 }
 
-export async function getProductTrafficSummary(
-  productId: string,
+async function buildTrafficSummary(
+  where: Prisma.ProductTrafficEventWhereInput,
   { rangeDays = 30, previousComparison = true }: SummaryOptions = {},
 ): Promise<ProductTrafficSummary> {
   const today = startOfDay(new Date())
@@ -61,7 +62,7 @@ export async function getProductTrafficSummary(
 
   const events = await prisma.productTrafficEvent.findMany({
     where: {
-      productId,
+      ...where,
       createdAt: { gte: rangeStart },
     },
     select: {
@@ -77,7 +78,7 @@ export async function getProductTrafficSummary(
   const previousEvents = previousComparison
     ? await prisma.productTrafficEvent.findMany({
         where: {
-          productId,
+          ...where,
           createdAt: {
             gte: previousStart,
             lte: previousEnd,
@@ -215,4 +216,17 @@ export async function getProductTrafficSummary(
     countryBreakdown,
     referrerBreakdown,
   }
+}
+
+export async function getProductTrafficSummary(
+  productId: string,
+  options: SummaryOptions = {},
+): Promise<ProductTrafficSummary> {
+  return buildTrafficSummary({ productId }, options)
+}
+
+export async function getGlobalTrafficSummary(
+  options: SummaryOptions = {},
+): Promise<ProductTrafficSummary> {
+  return buildTrafficSummary({}, options)
 }

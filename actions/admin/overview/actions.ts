@@ -131,6 +131,34 @@ export async function getDashboardStats(days = 7) {
   const unverifiedProducts = totalProducts - verifiedProducts
   const verifiedRate =
     totalProducts > 0 ? Math.round((verifiedProducts / totalProducts) * 100) : 0
+  const usedFeatureAssignments = usedFeatures._count ?? 0
+
+  const [
+    analyticsAggregate,
+    viewsInRange,
+    previousViews,
+    totalViews,
+    upvotesInRange,
+    previousUpvotes,
+  ] = await Promise.all([
+    prisma.productAnalytics.aggregate({
+      _sum: { clicks: true, upvotes: true },
+    }),
+    prisma.productTrafficEvent.count({ where: { createdAt: { gte: since } } }),
+    prisma.productTrafficEvent.count({
+      where: { createdAt: { gte: prevSince, lt: since } },
+    }),
+    prisma.productTrafficEvent.count(),
+    prisma.productUpvote.count({ where: { createdAt: { gte: since } } }),
+    prisma.productUpvote.count({
+      where: { createdAt: { gte: prevSince, lt: since } },
+    }),
+  ])
+
+  const totalClicks = analyticsAggregate._sum.clicks ?? 0
+  const totalUpvotes = analyticsAggregate._sum.upvotes ?? 0
+  const viewsDelta = viewsInRange - previousViews
+  const upvotesDelta = upvotesInRange - previousUpvotes
 
   // Fallback/supplement: derive admin count from Clerk public metadata
   let adminCountFromClerk = 0
@@ -196,9 +224,20 @@ export async function getDashboardStats(days = 7) {
         }
       : null,
     totalRevenue: estimatedRevenueCents,
+    totalFeatures,
+    usedFeatureAssignments,
     featureCoverage: totalFeatures
-      ? Math.round((usedFeatures._count / totalFeatures) * 100)
+      ? Math.round((usedFeatureAssignments / totalFeatures) * 100)
       : 0,
+    totalViews,
+    viewsInRange,
+    previousViews,
+    viewsDelta,
+    totalClicks,
+    totalUpvotes,
+    upvotesInRange,
+    previousUpvotes,
+    upvotesDelta,
     dailyProducts,
     dailyUsers,
   }
