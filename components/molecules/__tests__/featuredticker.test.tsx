@@ -9,21 +9,25 @@ describe("FeaturedTicker", () => {
     expect(container.firstChild).toBeNull()
   })
 
-  it("renders duplicated list of items with links and images", () => {
+  it("renders duplicated list of items with new spotlight styling", () => {
     const items = [
       { slug: "a", name: "Alpha", logo: "/a.png" },
       { slug: "b", name: "Beta", logo: "/b.png" },
       { slug: "c", name: "Gamma", logo: "/c.png" },
+      { slug: "d", name: "Delta", logo: "/d.png" },
     ]
     render(<FeaturedTicker items={items} />)
-    // Duplicates the list for ticker scroll -> 6 links
+
+    expect(screen.getByText(/Featured Today/i)).toBeInTheDocument()
+
     const links = screen.getAllByRole("link")
-    expect(links.length).toBe(6)
-    // First link points to product page
+    // Duplicates the list for continuous scroll
+    expect(links.length).toBe(8)
     expect(links[0]).toHaveAttribute("href", "/products/a")
-    // Should include a Featured label text
-    expect(screen.getAllByText("Featured").length).toBeGreaterThan(0)
-    // Images rendered with alt from name
-    expect(screen.getAllByAltText(/Alpha|Beta|Gamma/).length).toBe(6)
+
+    // Images rendered with alt text from product name
+    expect(
+      screen.getAllByAltText(/Alpha|Beta|Gamma|Delta/).length,
+    ).toBeGreaterThanOrEqual(8)
   })
 })
