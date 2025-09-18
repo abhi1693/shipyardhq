@@ -4,7 +4,7 @@ export const EMAIL_BRAND = {
   supportEmail: "shipyardhq.dev@gmail.com",
   twitterUrl: "https://x.com/abhi16_93",
   logoAlt: "ShipyardHQ logo",
-  logoUrl: "https://shipyardhq.dev/brand.png",
+  logoUrl: "https://shipyardhq.dev/brand-white.png",
 }
 
 export type EmailBrand = typeof EMAIL_BRAND
