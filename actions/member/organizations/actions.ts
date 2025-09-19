@@ -93,7 +93,7 @@ export async function getMyOrganizationsPage(
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
-      select: { id: true, name: true, url: true, createdAt: true },
+      select: { id: true, name: true, url: true, createdAt: true, ownerUserId: true },
     }),
     prisma.organization.count({ where }),
   ])
@@ -127,6 +127,35 @@ export async function getMyOrganizationMembers(orgId: string) {
     },
     isOwner: org.ownerUserId === m.userId,
   }))
+}
+
+export async function getMyOrganizationsWithProducts() {
+  const user = await requireActiveCurrentUser()
+  const gate = await requireMemberFeature("organization")
+  if (!gate.ok) redirect("/member/organizations")
+
+  return prisma.organization.findMany({
+    where: { memberships: { some: { userId: user.id } } },
+    orderBy: { name: "asc" },
+    select: {
+      id: true,
+      name: true,
+      url: true,
+      ownerUserId: true,
+      Product: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          plan: { select: { id: true, name: true } },
+        },
+      },
+    },
+  })
 }
 
 export async function getMyOrganizationProducts(orgId: string) {

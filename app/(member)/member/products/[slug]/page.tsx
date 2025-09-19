@@ -22,6 +22,7 @@ import { getProductById } from "@/actions/admin/products/actions"
 import { auth } from "@clerk/nextjs/server"
 import ProductMediaManager from "@/components/molecules/ProductMediaManager"
 import prisma from "@/lib/prisma"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import ProductStatusMenu from "@/components/molecules/ProductStatusMenu"
 import CopyButton from "@/components/molecules/CopyButton"
 import DuplicateProductButton from "@/components/molecules/DuplicateProductButton"
@@ -97,7 +98,20 @@ export default async function ViewUserProductPage({
   const productId = product!.id
   const productSlug = product!.slug
   const { userId: clerkId } = await auth()
+  const currentUser = clerkId ? await getActiveUserByClerkId(clerkId) : null
   const isOwner = Boolean(clerkId && product.user?.clerkId === clerkId)
+  let canManage = isOwner
+  if (!canManage && currentUser && product.organization?.id) {
+    const membership = await prisma.organizationMembership.findFirst({
+      where: {
+        organizationId: product.organization.id,
+        userId: currentUser.id,
+      },
+      select: { id: true },
+    })
+    canManage = Boolean(membership)
+  }
+  if (!canManage) return notFound()
   const publicPath = `/products/${productSlug}`
   const analyticsPath = `/member/products/${productSlug}/analytics`
   const canViewAnalytics = hasPlanFeature(
@@ -349,17 +363,19 @@ export default async function ViewUserProductPage({
             : []),
         ]}
         basePath="member/products"
-        deletable
-        editable
+        deletable={isOwner}
+        editable={canManage}
         headingActionsLeft={
           <div className="flex flex-wrap items-center gap-3">
             <div className={actionGroupClass}>
-              <ProductStatusMenu
-                productId={product.id}
-                status={product.status as any}
-                triggerClassName="h-8 px-3"
-              />
-              {isOwner && canViewAnalytics ? (
+              {canManage ? (
+                <ProductStatusMenu
+                  productId={product.id}
+                  status={product.status as any}
+                  triggerClassName="h-8 px-3"
+                />
+              ) : null}
+              {canManage && canViewAnalytics ? (
                 <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
                   <Link href={analyticsPath}>
                     <BarChart3 className="mr-2 h-4 w-4" /> Analytics
@@ -795,7 +811,7 @@ export default async function ViewUserProductPage({
                     id: m.id,
                     imageUrl: m.imageUrl,
                   }))}
-                  canEdit={isOwner}
+                  canEdit={canManage}
                   max={6}
                 />
               </CardContent>

@@ -2,6 +2,7 @@
 
 import { Resolver } from "node:dns/promises"
 import { createHash } from "crypto"
+import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { publish } from "@/lib/server/events"
 import "@/lib/server/badges" // register badge listeners
@@ -21,6 +22,10 @@ import {
   revalidateProduct,
   revalidateProducts,
 } from "@/lib/cache/revalidate"
+import {
+  getActiveUserByClerkId,
+  INACTIVE_ACCOUNT_MESSAGE,
+} from "@/lib/server/userStatus"
 
 function generateVerificationTxtFromWebsite(websiteUrl: string): string {
   const norm = websiteUrl.trim().toLowerCase()
@@ -319,6 +324,13 @@ export async function updateProductAction(
 ) {
   // Determine role for permission-sensitive updates
   const isAdmin = await checkRole("admin")
+  let currentUser: Awaited<ReturnType<typeof getActiveUserByClerkId>> | null = null
+  if (!isAdmin) {
+    const { userId: clerkId } = await auth()
+    if (!clerkId) return { error: "Unauthenticated" }
+    currentUser = await getActiveUserByClerkId(clerkId)
+    if (!currentUser) return { error: INACTIVE_ACCOUNT_MESSAGE }
+  }
 
   const {
     name,
@@ -347,6 +359,24 @@ export async function updateProductAction(
 
   if (!current) {
     return { error: "Product not found" }
+  }
+
+  if (!isAdmin && currentUser) {
+    const ownsProduct = current.userId === currentUser.id
+    let belongsToOrg = false
+    if (!ownsProduct && current.organizationId) {
+      const membership = await prisma.organizationMembership.findFirst({
+        where: {
+          organizationId: current.organizationId,
+          userId: currentUser.id,
+        },
+        select: { id: true },
+      })
+      belongsToOrg = Boolean(membership)
+    }
+    if (!ownsProduct && !belongsToOrg) {
+      return { error: "Not authorized to edit this product" }
+    }
   }
 
   // Guard: members cannot change website URL or slug once created
@@ -498,12 +528,28 @@ export async function updateProductAction(
 
 export async function deleteProductAction(id: string) {
   try {
+    const isAdmin = await checkRole("admin")
     // Fetch user to compute blob prefix, then delete entire folder
     const product = await prisma.product.findUnique({
       where: { id },
-      select: { id: true, user: { select: { clerkId: true } } },
+      select: {
+        id: true,
+        userId: true,
+        organizationId: true,
+        user: { select: { clerkId: true } },
+      },
     })
     if (!product) return { error: "Product not found" }
+
+    if (!isAdmin) {
+      const { userId: clerkId } = await auth()
+      if (!clerkId) return { error: "Unauthenticated" }
+      const currentUser = await getActiveUserByClerkId(clerkId)
+      if (!currentUser) return { error: INACTIVE_ACCOUNT_MESSAGE }
+      if (product.userId !== currentUser.id) {
+        return { error: "Only the owner can delete this product" }
+      }
+    }
 
     const userClerkId = product.user?.clerkId
     if (userClerkId) {
@@ -658,10 +704,38 @@ export async function setProductStatusAction(
   status: "draft" | "published" | "archived",
 ) {
   try {
+    const isAdmin = await checkRole("admin")
+    let currentUser: Awaited<ReturnType<typeof getActiveUserByClerkId>> | null = null
+    if (!isAdmin) {
+      const { userId: clerkId } = await auth()
+      if (!clerkId) return { error: "Unauthenticated" }
+      currentUser = await getActiveUserByClerkId(clerkId)
+      if (!currentUser) return { error: INACTIVE_ACCOUNT_MESSAGE }
+    }
+
     const previous = await prisma.product.findUnique({
       where: { id },
-      select: { status: true },
+      select: { status: true, userId: true, organizationId: true },
     })
+    if (!previous) return { error: "Product not found" }
+
+    if (!isAdmin && currentUser) {
+      const ownsProduct = previous.userId === currentUser.id
+      let belongsToOrg = false
+      if (!ownsProduct && previous.organizationId) {
+        const membership = await prisma.organizationMembership.findFirst({
+          where: {
+            organizationId: previous.organizationId,
+            userId: currentUser.id,
+          },
+          select: { id: true },
+        })
+        belongsToOrg = Boolean(membership)
+      }
+      if (!ownsProduct && !belongsToOrg) {
+        return { error: "Not authorized to update status" }
+      }
+    }
 
     const result = await prisma.product.update({
       where: { id },
@@ -672,7 +746,7 @@ export async function setProductStatusAction(
       select: { id: true, status: true, slug: true },
     })
 
-    if (status === "published" && previous?.status !== "published") {
+    if (status === "published" && previous.status !== "published") {
       await sendProductPublishedEmail(id)
     }
 

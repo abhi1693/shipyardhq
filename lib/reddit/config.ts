@@ -5,10 +5,10 @@ export type SubredditStatus = "allow" | "review" | "deny"
 
 export type SubredditConfigEntry = {
   name: string
-  intent?: string
-  notes?: string
+  intent?: string | string[]
+  notes?: string | string[]
   status?: SubredditStatus
-  ruleSummary?: string
+  ruleSummary?: string | string[]
   lastReviewedAt?: string
   confidence?: number
 }

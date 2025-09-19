@@ -15,11 +15,21 @@ import { redirect } from "next/navigation"
 
 type ListParams = Record<string, string | string[] | undefined>
 
+async function getAccessibleOrganizationIds(userId: string) {
+  const memberships = await prisma.organizationMembership.findMany({
+    where: { userId },
+    select: { organizationId: true },
+  })
+  return memberships.map((m) => m.organizationId)
+}
+
 export async function getUserProducts(params?: ListParams) {
   const { userId } = await auth()
   if (!userId) throw new Error("Unauthenticated")
   const user = await getActiveUserByClerkId(userId)
   if (!user) throw new Error(INACTIVE_ACCOUNT_MESSAGE)
+
+  const organizationIds = await getAccessibleOrganizationIds(user.id)
 
   const verification = (params?.verification as string) || undefined
   const rawStatus = (params?.status as string) || undefined
@@ -41,23 +51,39 @@ export async function getUserProducts(params?: ListParams) {
   )
   const skip = (page - 1) * limit
 
-  const where: any = { userId: user.id }
+  const accessFilter = organizationIds.length
+    ? {
+        OR: [
+          { userId: user.id },
+          { organizationId: { in: organizationIds } },
+        ],
+      }
+    : { userId: user.id }
+
+  const where: any = { ...accessFilter }
+  const andFilters: any[] = []
 
   if (verification === "verified") {
-    where.verification = { isVerified: true }
+    andFilters.push({ verification: { isVerified: true } })
   } else if (verification === "unverified") {
-    where.verification = { isVerified: false }
+    andFilters.push({ verification: { isVerified: false } })
   }
 
   if (status) {
-    where.status = status
+    andFilters.push({ status })
   }
 
   if (q.length) {
-    where.OR = [
-      { name: { contains: q, mode: "insensitive" } },
-      { slug: { contains: q, mode: "insensitive" } },
-    ]
+    andFilters.push({
+      OR: [
+        { name: { contains: q, mode: "insensitive" } },
+        { slug: { contains: q, mode: "insensitive" } },
+      ],
+    })
+  }
+
+  if (andFilters.length) {
+    where.AND = andFilters
   }
 
   let orderBy: any = { createdAt: "desc" as const }
@@ -95,7 +121,12 @@ export async function getUserProducts(params?: ListParams) {
     prisma.product.count({ where }),
   ])
 
-  return { products, total, page, limit }
+  const productsWithPermissions = products.map((product) => ({
+    ...product,
+    canDelete: product.userId === user.id,
+  }))
+
+  return { products: productsWithPermissions, total, page, limit }
 }
 
 export async function getRecentUpvoters(productId: string, limit = 5) {
@@ -104,7 +135,13 @@ export async function getRecentUpvoters(productId: string, limit = 5) {
   const user = await getActiveUserByClerkId(userId)
   if (!user) throw new Error(INACTIVE_ACCOUNT_MESSAGE)
   const ok = await prisma.product.findFirst({
-    where: { id: productId, userId: user.id },
+    where: {
+      id: productId,
+      OR: [
+        { userId: user.id },
+        { organization: { memberships: { some: { userId: user.id } } } },
+      ],
+    },
     select: { id: true },
   })
   if (!ok) throw new Error("Not found")

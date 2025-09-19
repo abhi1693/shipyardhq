@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import Link from "next/link"
+import { auth } from "@clerk/nextjs/server"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import { columns, type MemberOrgRow } from "./columns"
 import { getMyOrganizationsPage } from "@/actions/member/organizations/actions"
@@ -17,10 +18,29 @@ import { redirect } from "next/navigation"
 import { PlanType } from "@/lib/vendor/prisma/client"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 export const metadata: Metadata = {
   title: "Organizations",
   description: "Manage your organizations.",
+}
+
+type OrgPlan = {
+  id: string
+  name: string
+  description?: string | null
+  price: number
+  features: Array<{ id: string; name: string; enabled: boolean }>
+  externalId?: string | null
+}
+
+async function loadEligibleOrgPlans(): Promise<OrgPlan[]> {
+  const plans = await getPublicPlans({
+    type: PlanType.recurring_price,
+  }).catch(() => [] as any[])
+  return plans.filter((p: any) =>
+    (p.features || []).some((f: any) => f.enabled && f.key === "organization"),
+  )
 }
 
 export default async function MemberOrganizationsPage({
@@ -46,15 +66,7 @@ export default async function MemberOrganizationsPage({
 
   const hasOrgs = await memberHasFeature("organization")
   if (!hasOrgs) {
-    // Fetch eligible plans only; checkout happens at user/org level
-    const plans = await getPublicPlans({
-      type: PlanType.recurring_price,
-    }).catch(() => [] as any[])
-    const eligiblePlans = plans.filter((p: any) =>
-      (p.features || []).some(
-        (f: any) => f.enabled && f.key === "organization",
-      ),
-    )
+    const eligiblePlans = await loadEligibleOrgPlans()
 
     return (
       <PageContainer>
@@ -116,61 +128,7 @@ export default async function MemberOrganizationsPage({
                   </p>
                 </div>
 
-                {eligiblePlans.length ? (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {eligiblePlans.map((p: any) => (
-                      <div
-                        key={p.id}
-                        className="space-y-4 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-foreground">{p.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {(p.description as string) ||
-                                "Includes all core Shipyard features plus organizations."}
-                            </p>
-                          </div>
-                          <span className="text-sm font-semibold text-foreground">
-                            {p.price > 0 ? `$${(p.price / 100).toFixed(2)}` : "Free"}
-                          </span>
-                        </div>
-                        <ul className="space-y-2 text-xs text-muted-foreground">
-                          {(p.features || [])
-                            .filter((f: any) => f.enabled)
-                            .map((f: any) => (
-                              <li key={f.id} className="flex items-start gap-2">
-                                <span className="mt-1 h-1 w-1 rounded-full bg-muted-foreground/60" />
-                                <span>{f.name}</span>
-                              </li>
-                            ))}
-                        </ul>
-                        <div>
-                          {p.externalId && (p.price || 0) > 0 ? (
-                            <OrgPlanBuyButton externalId={p.externalId} />
-                          ) : (
-                            <form action={startOrgCheckoutAction} className="flex">
-                              <input type="hidden" name="planId" value={p.id} />
-                              <Button type="submit" className="px-6">
-                                Get access
-                              </Button>
-                            </form>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-muted-foreground">
-                    Reach out to our team and we&apos;ll help tailor a plan that unlocks organizations
-                    for your account.
-                    <div className="mt-3">
-                      <Button asChild variant="outline" className="w-fit">
-                        <a href="mailto:support@shipyardhq.com">Contact support</a>
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                <OrganizationPlanOptions eligiblePlans={eligiblePlans} fullWidth />
               </div>
             </CardContent>
           </Card>
@@ -178,9 +136,21 @@ export default async function MemberOrganizationsPage({
       </PageContainer>
     )
   }
-  const { rows, total, limit } = await getMyOrganizationsPage(params)
+  const [{ userId: clerkId }, pageData] = await Promise.all([
+    auth(),
+    getMyOrganizationsPage(params),
+  ])
+  const currentUser = clerkId ? await getActiveUserByClerkId(clerkId) : null
+  const { rows, total, limit } = pageData
   const perPage = Math.max(1, parseInt(String(limit || 10), 10) || 10)
   const pageCount = Math.max(1, Math.ceil(total / perPage))
+
+  const ownsOrganization = rows.some(
+    (org) => currentUser && org.ownerUserId === currentUser.id,
+  )
+
+  const shouldShowUpsell = !ownsOrganization
+  const eligiblePlans = shouldShowUpsell ? await loadEligibleOrgPlans() : []
 
   return (
     <PageContainer>
@@ -208,7 +178,79 @@ export default async function MemberOrganizationsPage({
             />
           </CardContent>
         </Card>
+
+        {shouldShowUpsell ? (
+          <OrganizationPlanOptions eligiblePlans={eligiblePlans} />
+        ) : null}
       </div>
     </PageContainer>
+  )
+}
+
+function OrganizationPlanOptions({
+  eligiblePlans,
+  fullWidth = false,
+}: {
+  eligiblePlans: OrgPlan[]
+  fullWidth?: boolean
+}) {
+  if (!eligiblePlans.length) {
+    return (
+      <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-muted-foreground">
+        Reach out to our team and we&apos;ll help tailor a plan that unlocks organizations for your
+        account.
+        <div className="mt-3">
+          <Button asChild variant="outline" className="w-fit">
+            <a href="mailto:support@shipyardhq.com">Contact support</a>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`grid gap-4 ${fullWidth ? "sm:grid-cols-2" : "md:grid-cols-2"}`}>
+      {eligiblePlans.map((plan) => (
+        <div
+          key={plan.id}
+          className="space-y-4 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-foreground">{plan.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {plan.description ||
+                  "Includes all core Shipyard features plus organizations."}
+              </p>
+            </div>
+            <span className="text-sm font-semibold text-foreground">
+              {plan.price > 0 ? `$${(plan.price / 100).toFixed(2)}` : "Free"}
+            </span>
+          </div>
+          <ul className="space-y-2 text-xs text-muted-foreground">
+            {plan.features
+              .filter((f) => f.enabled)
+              .map((feature) => (
+                <li key={feature.id} className="flex items-start gap-2">
+                  <span className="mt-1 h-1 w-1 rounded-full bg-muted-foreground/60" />
+                  <span>{feature.name}</span>
+                </li>
+              ))}
+          </ul>
+          <div>
+            {plan.externalId && plan.price > 0 ? (
+              <OrgPlanBuyButton externalId={plan.externalId} />
+            ) : (
+              <form action={startOrgCheckoutAction} className="flex">
+                <input type="hidden" name="planId" value={plan.id} />
+                <Button type="submit" className="px-6">
+                  Get access
+                </Button>
+              </form>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }

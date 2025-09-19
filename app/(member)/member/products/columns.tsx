@@ -21,6 +21,7 @@ export type MemberProductRow = Product & {
   analytics: ProductAnalytics | null
   category?: { id: string; name: string; slug: string }
   plan?: { id: string; name: string }
+  canDelete?: boolean
 }
 
 export const columns: ColumnDef<MemberProductRow>[] = [
@@ -127,11 +128,13 @@ export const columns: ColumnDef<MemberProductRow>[] = [
             <Pencil className={minimalActionIcon} /> Edit
           </Link>
         </Button>
-        <Button asChild size="sm" variant="ghost" className={destructiveActionButton}>
-          <Link href={`/member/products/${row.original.slug}/delete`} className={minimalActionLink}>
-            <Trash2 className={minimalActionIcon} /> Delete
-          </Link>
-        </Button>
+        {row.original.canDelete ? (
+          <Button asChild size="sm" variant="ghost" className={destructiveActionButton}>
+            <Link href={`/member/products/${row.original.slug}/delete`} className={minimalActionLink}>
+              <Trash2 className={minimalActionIcon} /> Delete
+            </Link>
+          </Button>
+        ) : null}
       </div>
     ),
   },
