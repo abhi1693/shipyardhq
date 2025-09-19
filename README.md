@@ -54,24 +54,29 @@ Questions or feedback? Email `shipyardhq.dev@gmail.com` or say hi on X: https://
 
 ## Reddit Outreach Bot
 
-Use `npm exec tsx scripts/reddit-bot.ts` to run a CLI assistant that watches Reddit for recent product showcase posts and drafts tailored outreach replies with GPT.
+Use `npm exec tsx scripts/reddit-bot.ts` (or `npm run reddit:bot`) to run a CLI assistant that watches Reddit for recent product showcase posts and drafts tailored outreach replies with GPT.
 
-### Required env vars
+### Configuration
 
-Set these before running (e.g., in `.env.local`):
+- `config/reddit-bot.config.json` is the canonical configuration. Each subreddit entry records a `status` (`allow`, `review`, `deny`), intent notes, and the last review date. The outreach bot only monitors entries marked `allow`; communities marked `review` or `deny` are listed for manual follow-up and excluded from automation.
+- Override the config path with `REDDIT_CONFIG_FILE` if you keep multiple profiles. Environment variables such as `REDDIT_SUBREDDITS`, `REDDIT_KEYWORDS`, or `REDDIT_ALLOWED_FLAIRS` still take precedence when present.
+- Required secrets (set in `.env.local`):
+  - `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`: credentials for your Reddit script app.
+  - `REDDIT_USERNAME`, `REDDIT_PASSWORD`: the Reddit account the bot posts as.
+  - `OPENAI_API_KEY`: API key with access to `gpt-4.1-mini` (`OPENAI_MODEL` overrides the default).
+- Additional knobs: `REDDIT_MAX_POST_AGE_MINUTES`, `REDDIT_MIN_UPVOTES`, `REDDIT_MAX_POSTS_PER_SUB`, `REDDIT_POLL_INTERVAL_SECONDS`, `REDDIT_REQUEST_DELAY_MS`, `OPENAI_MAX_OUTPUT_TOKENS`, `OPENAI_TEMPERATURE`, and `REDDIT_STATE_FILE` (cache location, default `tmp/reddit-bot-state.json`).
 
-- `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`: credentials for your Reddit script app.
-- `REDDIT_USERNAME`, `REDDIT_PASSWORD`: the Reddit account the bot posts as.
-- `OPENAI_API_KEY`: API key with access to `gpt-4.1-mini` (override via `OPENAI_MODEL`).
+The script prints each candidate post, the GPT-generated draft, and pauses for a `y/n` approval before posting (use `r` to regenerate). Decisions (approve/skip) are cached in `tmp/reddit-bot-state.json` so the bot will not repeatedly prompt on the same thread.
 
-Optional tuning:
+### Discovery assistant
 
-- `REDDIT_SUBREDDITS` (comma list, default `startups,Entrepreneur,smallbusiness,Entrepreneurship,business,IndieHackers,SaaS,SaaS_Talk,EntrepreneurRideAlong,bootstrapping,WebApps,alphaandbetausers,ProductFeedback,DesignCritiques,AppHookup,InternetIsBeautiful,SideProject,SideHustle,BuildInPublic,selfhosted,opensource,indiebiz,webdev,frontend,coding,learnprogramming`).
-- `REDDIT_KEYWORDS` (comma list, default `launch,product,showcase,feedback,built,app`).
-- `REDDIT_ALLOWED_FLAIRS` (comma list, default `showoff,showcase,launch,feedback,demo,beta,product,milestone`).
-- `REDDIT_MAX_POST_AGE_MINUTES`, `REDDIT_MIN_UPVOTES`, `REDDIT_MAX_POSTS_PER_SUB`.
-- `REDDIT_POLL_INTERVAL_SECONDS` (default 300s) and `REDDIT_REQUEST_DELAY_MS` to respect rate limits.
-- `OPENAI_MAX_OUTPUT_TOKENS`, `OPENAI_TEMPERATURE` for draft length/tone tweaks.
-- `REDDIT_STATE_FILE` to change the cache location (default `tmp/reddit-bot-state.json`).
+Use `npm run reddit:discover -- --query "saas,product feedback" --min-subscribers 750 --write` to let AI surface relevant communities, inspect moderation rules, and merge the vetted results back into `config/reddit-bot.config.json`. Key flags:
 
-The script prints each candidate post, the GPT-generated draft, and pauses for a `y/n` approval before posting (use `r` to request a fresh draft). Decisions (approve/skip) are cached in `tmp/reddit-bot-state.json` so the bot will not repeatedly prompt on the same thread.
+- `--query/-q`: comma-separated search terms (defaults to the keywords in the config file).
+- `--limit`: maximum subreddits to review per query (default `15`).
+- `--min-subscribers`: minimum subscriber count (default `500`).
+- `--include-nsfw`: include NSFW communities in the search.
+- `--skip-existing`: ignore subreddits already listed in the config.
+- `--write`: persist suggested entries into the config (otherwise results are printed and written to `tmp/reddit-discovery-results.json` for review).
+
+Each discovery run prints an AI summary for every candidate (verdict, risk factors, recommended messaging angle) and writes the raw JSON output to `tmp/reddit-discovery-results.json` for auditing before automation.

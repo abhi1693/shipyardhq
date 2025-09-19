@@ -3,6 +3,18 @@ import Snoowrap from "snoowrap"
 import path from "node:path"
 import { promises as fs } from "node:fs"
 import readline from "node:readline"
+import {
+  DEFAULT_ALLOWED_FLAIRS,
+  DEFAULT_CONFIG_FILE,
+  DEFAULT_KEYWORDS,
+  DEFAULT_SUBREDDITS,
+  LoadedFileConfig,
+  SubredditConfigEntry,
+  categorizeSubreddits,
+  loadBotFileConfig,
+  parseList,
+  resolveStringList,
+} from "../lib/reddit/config"
 
 dotenv.config()
 dotenv.config({
@@ -45,6 +57,9 @@ type Config = {
   openAIApiKey: string
   openAIModel: string
   subreddits: string[]
+  subredditConfigs: SubredditConfigEntry[]
+  reviewSubreddits: string[]
+  deniedSubreddits: string[]
   keywords: string[]
   allowedFlairs: string[]
   pollIntervalMs: number
@@ -57,6 +72,18 @@ type Config = {
   temperature: number
 }
 
+const fileConfig: LoadedFileConfig = loadBotFileConfig(
+  process.env.REDDIT_CONFIG_FILE || DEFAULT_CONFIG_FILE,
+)
+
+const {
+  ready: readySubreddits,
+  review: reviewSubreddits,
+  deny: deniedSubreddits,
+} = categorizeSubreddits(fileConfig.subreddits || [])
+
+const envSubreddits = parseList(process.env.REDDIT_SUBREDDITS)
+
 const config: Config = {
   redditClientId: requireEnv("REDDIT_CLIENT_ID"),
   redditClientSecret: requireEnv("REDDIT_CLIENT_SECRET"),
@@ -67,55 +94,23 @@ const config: Config = {
     "shipyardhq-reddit-bot/1.0 (+https://shipyardhq.dev)",
   openAIApiKey: requireEnv("OPENAI_API_KEY"),
   openAIModel: process.env.OPENAI_MODEL || "gpt-4.1-mini",
-  subreddits: parseList(process.env.REDDIT_SUBREDDITS) || [
-    "startups",
-    "Entrepreneur",
-    "smallbusiness",
-    "Entrepreneurship",
-    "business",
-    "IndieHackers",
-    "SaaS",
-    "SaaS_Talk",
-    "EntrepreneurRideAlong",
-    "bootstrapping",
-    "WebApps",
-    "alphaandbetausers",
-    "ProductFeedback",
-    "DesignCritiques",
-    "AppHookup",
-    "InternetIsBeautiful",
-    "SideProject",
-    "SideHustle",
-    "BuildInPublic",
-    "selfhosted",
-    "opensource",
-    "indiebiz",
-    "webdev",
-    "frontend",
-    "coding",
-    "learnprogramming",
-  ],
-  keywords: (
-    parseList(process.env.REDDIT_KEYWORDS) || [
-      "launch",
-      "product",
-      "showcase",
-      "feedback",
-      "built",
-      "app",
-    ]
+  subreddits: resolveStringList(
+    envSubreddits,
+    readySubreddits.map((entry) => entry.name),
+    DEFAULT_SUBREDDITS,
+  ),
+  subredditConfigs: fileConfig.subreddits || [],
+  reviewSubreddits: reviewSubreddits.map((entry) => entry.name),
+  deniedSubreddits: deniedSubreddits.map((entry) => entry.name),
+  keywords: resolveStringList(
+    parseList(process.env.REDDIT_KEYWORDS),
+    fileConfig.keywords,
+    DEFAULT_KEYWORDS,
   ).map((word) => word.toLowerCase()),
-  allowedFlairs: (
-    parseList(process.env.REDDIT_ALLOWED_FLAIRS) || [
-      "showoff",
-      "showcase",
-      "launch",
-      "feedback",
-      "demo",
-      "beta",
-      "product",
-      "milestone",
-    ]
+  allowedFlairs: resolveStringList(
+    parseList(process.env.REDDIT_ALLOWED_FLAIRS),
+    fileConfig.allowedFlairs,
+    DEFAULT_ALLOWED_FLAIRS,
   ).map((flair) => flair.toLowerCase()),
   pollIntervalMs:
     parseInt(process.env.REDDIT_POLL_INTERVAL_SECONDS || "300", 10) * 1000,
@@ -162,7 +157,18 @@ process.on("SIGINT", async () => {
 
 async function main() {
   console.log("Starting ShipyardHQ Reddit outreach bot.")
+  console.log(`Config file: ${fileConfig.path || "(none)"}`)
   console.log(`Monitoring subreddits: ${config.subreddits.join(", ")}`)
+  if (config.reviewSubreddits.length) {
+    console.log(
+      `Review needed: ${config.reviewSubreddits.join(", ")}`,
+    )
+  }
+  if (config.deniedSubreddits.length) {
+    console.log(
+      `Denied in config: ${config.deniedSubreddits.join(", ")}`,
+    )
+  }
   console.log(`Keywords: ${config.keywords.join(", ")}`)
   console.log(`Allowed flairs: ${config.allowedFlairs.join(", ")}`)
   console.log(`Polling every ${config.pollIntervalMs / 1000}s`)
@@ -440,16 +446,6 @@ function sanitize(value: string): string {
   return value.replace(/[\u0000-\u001F\u007F]/g, "").trim()
 }
 
-function parseList(value?: string | null): string[] | null {
-  if (!value) {
-    return null
-  }
-
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean)
-}
 
 async function loadState(filePath: string): Promise<BotState> {
   try {

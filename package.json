@@ -22,7 +22,8 @@
     "test": "vitest run --reporter=verbose",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "reddit:bot": "tsx scripts/reddit-bot.ts"
+    "reddit:bot": "tsx scripts/reddit-bot.ts",
+    "reddit:discover": "tsx scripts/reddit-discovery.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.32.0",
