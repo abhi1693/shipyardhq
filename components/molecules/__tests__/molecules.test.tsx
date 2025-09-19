@@ -52,15 +52,21 @@ describe("molecules", () => {
     ).toBeInTheDocument()
   })
 
-  it("ShareOnXButton opens intent", async () => {
+  it("ShareOnXButton opens intent with tagline", async () => {
     const openSpy = vi
       .spyOn(window, "open")
       .mockImplementation(() => null as any)
-    render(<ShareOnXButton path="/p/abc" productName="Cool" />)
+    render(
+      <ShareOnXButton path="/p/abc" productName="Cool" tagline="Do more with less" />,
+    )
     await screen.getByRole("button", { name: /share on x/i }).click()
     expect(openSpy).toHaveBeenCalled()
     const url = (openSpy as any).mock.calls[0][0] as string
     expect(url).toContain("https://x.com/intent/tweet")
+    const intent = new URL(url)
+    expect(intent.searchParams.get("text")).toContain(
+      "Cool — Do more with less",
+    )
     openSpy.mockRestore()
   })
 })

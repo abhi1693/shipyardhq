@@ -383,6 +383,7 @@ export default async function ViewUserProductPage({
               <ShareOnXButton
                 path={publicPath}
                 productName={product.name}
+                tagline={product.tagline}
                 variant="ghost"
                 className="h-8 px-3"
               />

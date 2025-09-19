@@ -83,7 +83,11 @@ export default async function ViewProductPage({
           >
             Copy link
           </CopyButton>
-          <ShareOnXButton path={publicPath} productName={product.name} />
+          <ShareOnXButton
+            path={publicPath}
+            productName={product.name}
+            tagline={product.tagline}
+          />
           <DuplicateProductButton productId={product.id} />
         </div>
       }

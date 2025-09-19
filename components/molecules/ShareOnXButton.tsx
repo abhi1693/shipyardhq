@@ -7,11 +7,13 @@ import { cn } from "@/lib/utils"
 export default function ShareOnXButton({
   path,
   productName,
+  tagline,
   className,
   variant = "outline",
 }: {
   path: string
   productName: string
+  tagline?: string | null
   className?: string
   variant?: React.ComponentProps<typeof Button>["variant"]
 }) {
@@ -20,7 +22,11 @@ export default function ShareOnXButton({
       const origin = typeof window !== "undefined" ? window.location.origin : ""
       const absolute = new URL(path, origin).toString()
       const intent = new URL("https://x.com/intent/tweet")
-      intent.searchParams.set("text", `Check out ${productName} on ShipYardHQ`)
+      const cleanedTagline = typeof tagline === "string" ? tagline.trim() : ""
+      const headline = cleanedTagline
+        ? `${productName} — ${cleanedTagline}`
+        : productName
+      intent.searchParams.set("text", `Check out ${headline} on ShipYardHQ`)
       intent.searchParams.set("url", absolute)
       window.open(intent.toString(), "_blank")
     } catch {}
