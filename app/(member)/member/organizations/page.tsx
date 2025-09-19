@@ -1,16 +1,11 @@
 import { Metadata } from "next"
-import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
+import Link from "next/link"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import { columns, type MemberOrgRow } from "./columns"
 import { getMyOrganizationsPage } from "@/actions/member/organizations/actions"
 import { memberHasFeature } from "@/lib/memberFeatures"
 import PageContainer from "@/components/layout/page-container"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/atoms/card"
+import { Card, CardContent } from "@/components/atoms/card"
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import {
   validateOrgPaymentAction,
@@ -20,7 +15,8 @@ import {
 import { OrgPlanBuyButton } from "@/components/molecules/OrgPlanBuyButton"
 import { redirect } from "next/navigation"
 import { PlanType } from "@/lib/vendor/prisma/client"
-import { Anchor } from "lucide-react"
+import { Badge } from "@/components/atoms/badge"
+import { Button } from "@/components/atoms/button"
 
 export const metadata: Metadata = {
   title: "Organizations",
@@ -60,101 +56,124 @@ export default async function MemberOrganizationsPage({
       ),
     )
 
-    if (!eligiblePlans.length) {
-      return (
-        <PageContainer>
-          <div className="mx-auto w-full max-w-3xl">
-            <section className="relative overflow-hidden rounded-3xl border border-sky-900/60 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 px-10 py-16 text-sky-100 shadow-2xl">
-              <div className="pointer-events-none absolute inset-0 -z-10">
-                <div className="absolute -left-20 top-0 h-64 w-64 rounded-full bg-sky-500/20 blur-3xl" />
-                <div className="absolute right-[-60px] top-24 h-48 w-48 rounded-full bg-blue-400/30 blur-2xl" />
-                <div className="absolute inset-x-0 bottom-0 h-40 translate-y-1/2 bg-[radial-gradient(circle_at_bottom,_rgba(56,189,248,0.35)_0%,_transparent_65%)]" />
-              </div>
-              <div className="flex flex-col items-center gap-6 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full border border-sky-500/40 bg-slate-950/50 shadow-lg">
-                  <Anchor aria-hidden className="h-8 w-8 text-sky-300" />
-                </div>
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-semibold tracking-tight text-sky-50">
-                    Organizations are charting new waters
-                  </h1>
-                  <p className="text-base text-sky-100/80">
-                    Our crew is crafting a plan that unlocks organizations with
-                    a nautical flair. Sit tight - we&apos;ll hoist the sails
-                    soon.
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-4 text-sm text-sky-100/70">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-slate-950/40 px-4 py-2">
-                    <span className="h-2 w-2 rounded-full bg-sky-400" />
-                    Coming soon to member organizations
-                  </span>
-                  <p className="max-w-md">
-                    Keep your crew ready. We&apos;ll message you inside Shipyard
-                    the moment the new plans drop.
-                  </p>
-                </div>
-              </div>
-            </section>
-          </div>
-        </PageContainer>
-      )
-    }
-
     return (
       <PageContainer>
-        <div className="mx-auto w-full max-w-4xl space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">Organizations</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Unlock Organizations to run your crew and manage members. Choose
-                a plan below to get access. Organization features unlock
-                automatically after successful checkout.
-              </p>
+        <div className="mx-auto max-w-5xl space-y-8 py-12">
+          <div className="space-y-2">
+            <Badge
+              variant="outline"
+              className="uppercase tracking-[0.28em] text-[0.65rem] text-muted-foreground"
+            >
+              Organizations
+            </Badge>
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+              Coordinate every crew with dedicated organizations
+            </h1>
+            <p className="max-w-3xl text-sm text-muted-foreground md:text-base">
+              Unlock shared workspaces, role-aware access, and billing oversight built for teams
+              that scale with Shipyard.
+            </p>
+          </div>
+
+          <Card className="border border-transparent bg-white/90 shadow-none">
+            <CardContent className="space-y-8 px-6 py-6 md:px-10">
+              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+                {[
+                  {
+                    title: "Centralized membership",
+                    description:
+                      "Assign owners, admins, and collaborators without leaving your command deck.",
+                  },
+                  {
+                    title: "Role-aware access",
+                    description: "Control permissions with clarity across every workspace.",
+                  },
+                  {
+                    title: "Unified billing",
+                    description:
+                      "Track invoices and payment methods for each organization in one place.",
+                  },
+                ].map((feature) => (
+                  <div
+                    key={feature.title}
+                    className="space-y-2 rounded-xl border border-slate-200 bg-white px-4 py-4"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                      {feature.title}
+                    </p>
+                    <p className="text-sm leading-relaxed text-muted-foreground/90">
+                      {feature.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <h2 className="text-lg font-semibold text-foreground">Choose your plan</h2>
+                  <p className="text-sm text-muted-foreground max-w-xl">
+                    Billing updates instantly after checkout—no support tickets or manual enablement.
+                  </p>
+                </div>
+
+                {eligiblePlans.length ? (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {eligiblePlans.map((p: any) => (
+                      <div
+                        key={p.id}
+                        className="space-y-4 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-foreground">{p.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {(p.description as string) ||
+                                "Includes all core Shipyard features plus organizations."}
+                            </p>
+                          </div>
+                          <span className="text-sm font-semibold text-foreground">
+                            {p.price > 0 ? `$${(p.price / 100).toFixed(2)}` : "Free"}
+                          </span>
+                        </div>
+                        <ul className="space-y-2 text-xs text-muted-foreground">
+                          {(p.features || [])
+                            .filter((f: any) => f.enabled)
+                            .map((f: any) => (
+                              <li key={f.id} className="flex items-start gap-2">
+                                <span className="mt-1 h-1 w-1 rounded-full bg-muted-foreground/60" />
+                                <span>{f.name}</span>
+                              </li>
+                            ))}
+                        </ul>
+                        <div>
+                          {p.externalId && (p.price || 0) > 0 ? (
+                            <OrgPlanBuyButton externalId={p.externalId} />
+                          ) : (
+                            <form action={startOrgCheckoutAction} className="flex">
+                              <input type="hidden" name="planId" value={p.id} />
+                              <Button type="submit" className="px-6">
+                                Get access
+                              </Button>
+                            </form>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-muted-foreground">
+                    Reach out to our team and we&apos;ll help tailor a plan that unlocks organizations
+                    for your account.
+                    <div className="mt-3">
+                      <Button asChild variant="outline" className="w-fit">
+                        <a href="mailto:support@shipyardhq.com">Contact support</a>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {eligiblePlans.map((p: any) => (
-              <Card key={p.id}>
-                <CardHeader>
-                  <CardTitle className="flex items-baseline justify-between text-lg">
-                    <span>{p.name}</span>
-                    <span className="text-sm font-normal text-muted-foreground">
-                      {p.price > 0 ? `$${(p.price / 100).toFixed(2)}` : "Free"}
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <ul className="list-inside list-disc text-sm text-muted-foreground">
-                      {(p.features || [])
-                        .filter((f: any) => f.enabled)
-                        .map((f: any) => (
-                          <li key={f.id}>{f.name}</li>
-                        ))}
-                    </ul>
-                    {p.externalId && (p.price || 0) > 0 ? (
-                      <OrgPlanBuyButton externalId={p.externalId} />
-                    ) : (
-                      <form action={startOrgCheckoutAction}>
-                        <input type="hidden" name="planId" value={p.id} />
-                        <button
-                          type="submit"
-                          className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-                        >
-                          Get Access
-                        </button>
-                      </form>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </div>
       </PageContainer>
     )
@@ -164,12 +183,53 @@ export default async function MemberOrganizationsPage({
   const pageCount = Math.max(1, Math.ceil(total / perPage))
 
   return (
-    <ListPageWrapper title="Organizations" addLink="/member/organizations/add">
-      <EntityList
-        columns={columns}
-        data={rows as unknown as MemberOrgRow[]}
-        pageCount={pageCount}
-      />
-    </ListPageWrapper>
+    <PageContainer>
+      <div className="space-y-6 py-10">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">
+              Organizations
+            </h1>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              Manage shared spaces, member roles, and billing for every crew operating inside Shipyard.
+            </p>
+          </div>
+          <Button asChild size="sm" className="px-4">
+            <Link href="/member/organizations/add">New organization</Link>
+          </Button>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Active organizations
+            </p>
+            <p className="mt-2 text-3xl font-semibold text-foreground">{total}</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Showing per page
+            </p>
+            <p className="mt-2 text-3xl font-semibold text-foreground">{perPage}</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Pages available
+            </p>
+            <p className="mt-2 text-3xl font-semibold text-foreground">{pageCount}</p>
+          </div>
+        </div>
+
+        <Card className="border border-transparent bg-white/90 shadow-none">
+          <CardContent className="space-y-6 px-0">
+            <EntityList
+              columns={columns}
+              data={rows as unknown as MemberOrgRow[]}
+              pageCount={pageCount}
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </PageContainer>
   )
 }
