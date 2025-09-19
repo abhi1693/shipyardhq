@@ -6,6 +6,7 @@ import { requireMemberFeature } from "@/lib/memberFeatures"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { ensureUrlHasSchema } from "@/lib/utils"
+import { sendOrganizationMemberInviteEmail } from "@/lib/server/email/organizationMemberInvite"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -16,6 +17,15 @@ async function requireActiveCurrentUser() {
   const { userId: clerkId } = await auth()
   if (!clerkId) throw new Error("Unauthenticated")
   return requireActiveUserOrRedirect(clerkId)
+}
+
+function formatUserName(user: {
+  firstName: string | null
+  lastName: string | null
+  email: string
+}) {
+  const full = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
+  return full.length ? full : user.email
 }
 
 export async function getMyOrganizations() {
@@ -184,7 +194,7 @@ export async function addMyOrganizationMemberAction(
     if (!gate.ok) return { error: "Upgrade required for organizations" }
     const org = await prisma.organization.findUnique({
       where: { id: orgId },
-      select: { ownerUserId: true },
+      select: { ownerUserId: true, name: true },
     })
     const member = await prisma.organizationMembership.findFirst({
       where: { organizationId: orgId, userId: current.id },
@@ -200,6 +210,17 @@ export async function addMyOrganizationMemberAction(
     await prisma.organizationMembership.create({
       data: { organizationId: orgId, userId: user.id },
     })
+
+    try {
+      await sendOrganizationMemberInviteEmail({
+        to: email,
+        organizationId: orgId,
+        organizationName: org.name ?? "your Shipyard organization",
+        inviterName: formatUserName(current),
+      })
+    } catch (error) {
+      console.error("Organization invite email failed", error)
+    }
     return { success: true }
   } catch (e: any) {
     if (e?.code === "P2002") return { error: "User is already a member" }
