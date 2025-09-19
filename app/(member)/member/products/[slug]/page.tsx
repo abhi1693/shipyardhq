@@ -54,26 +54,20 @@ import { PlanType } from "@/lib/vendor/prisma/client"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
 import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
-import {JSX} from "react";
+import { JSX } from "react"
 
-const surfaceBackdropClass =
-  "relative w-full overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/95 py-10 before:absolute before:inset-0 before:-z-10 before:bg-[radial-gradient(circle_at_top,var(--brand-1)/0.12,transparent_60%)]"
-
-const glassCardClass =
-  "rounded-3xl border border-[color:var(--brand-1)/0.16] bg-background/92 backdrop-blur"
-
-const actionPillClass =
-  "rounded-full border border-[color:var(--brand-1)/0.25] bg-background/90 px-3 py-1.5 text-sm font-medium text-[color:var(--brand-1)] transition-colors hover:border-[color:var(--brand-1)/0.35] hover:bg-[color:var(--brand-1)/0.08]"
-
-const insetPanelClass =
-  "rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/90"
-
-const chipIconClass = "h-3.5 w-3.5"
+const chipIconClass = "h-3.5 w-3.5 text-muted-foreground"
 const infoChipClass =
-  "inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.25] bg-background/90 px-3 py-1.5 text-sm text-foreground/80"
+  "inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700"
 const accentChipClass =
-  "inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.3] bg-[color:var(--brand-2)/0.12] px-3 py-1.5 text-sm text-[color:var(--brand-2)]"
-const placeholderTextClass = "text-sm text-muted-foreground"
+  "inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs text-sky-700"
+const placeholderTextClass = "text-xs text-muted-foreground"
+const calloutPanelClass =
+  "rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+const dashedCalloutClass =
+  "rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3"
+const sectionLabelClass =
+  "text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground"
 
 export default async function ViewUserProductPage({
   params,
@@ -355,45 +349,33 @@ export default async function ViewUserProductPage({
         basePath="member/products"
         deletable
         editable
-        surfaceClassName={surfaceBackdropClass}
-        overviewCardClassName={glassCardClass}
         headingActionsLeft={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap gap-2">
             <ProductStatusMenu
               productId={product.id}
               status={product.status as any}
-              variant="ghost"
-              triggerClassName={actionPillClass}
             />
             <CopyButton
               text={publicPath}
               resolveAbsolute
               size="sm"
-              variant="secondary"
-              className={actionPillClass}
+              variant="outline"
             >
               <>
-                <CopyIcon className="h-4 w-4 mr-2" /> Copy link
+                <CopyIcon className="mr-2 h-4 w-4" /> Copy link
               </>
             </CopyButton>
             <ShareOnXButton
               path={publicPath}
               productName={product.name}
-              variant="ghost"
-              className={actionPillClass}
+              variant="outline"
             />
             <DuplicateProductButton
               productId={product.id}
-              variant="ghost"
-              className={actionPillClass}
+              variant="outline"
             />
             {isOwner && canViewAnalytics ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className={actionPillClass}
-                asChild
-              >
+              <Button variant="outline" size="sm" asChild>
                 <Link href={analyticsPath}>
                   <BarChart3 className="mr-2 h-4 w-4" /> Analytics
                 </Link>
@@ -403,39 +385,36 @@ export default async function ViewUserProductPage({
         }
         topRowExtras={[
           showPlanUI ? (
-            <Card key="plan-top" className={glassCardClass}>
-              <CardHeader>
+            <Card key="plan-top">
+              <CardHeader className="pb-0">
                 <CardTitle className="text-base">Plan</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-5 text-sm">
                 {product.plan ? (
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                      <span className="font-medium text-foreground">
-                        {product.plan.name}
-                      </span>
-                      <span className="text-muted-foreground">•</span>
-                      <span>{formatCurrency(product.plan.price) as any}</span>
-
+                  <div className="space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
+                      {product.plan.name}
                       {product.plan.isDefault ? (
-                        <Badge variant="secondary">Default</Badge>
+                        <Badge variant="outline">Default</Badge>
                       ) : null}
                     </div>
+                    <div className="text-xs text-muted-foreground">
+                      {formatCurrency(product.plan.price) as any}
+                    </div>
                   </div>
-                ) : null}
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No plan currently attached.
+                  </p>
+                )}
                 {product.plan && exclusiveCurrentTop.length ? (
-                  <div className="mt-2">
-                    <div className="text-xs text-muted-foreground mb-1">
+                  <div className={dashedCalloutClass}>
+                    <div className="text-xs font-semibold text-foreground">
                       Included only in {product.plan.name}
                     </div>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
                       {exclusiveCurrentTop.map((f) => (
-                        <li
-                          key={f.id}
-                          className="text-xs text-foreground/90 before:content-['✓'] before:mr-2 before:text-green-600"
-                        >
-                          {f.name}
-                        </li>
+                        <li key={f.id}>• {f.name}</li>
                       ))}
                     </ul>
                   </div>
@@ -443,92 +422,74 @@ export default async function ViewUserProductPage({
                 {(() => {
                   const np = nextPlan
                   if (!np) return null
+                  const nf = new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  })
+                  const pctRaw = np.discount ?? 0
+                  const pct = Math.min(Math.max(pctRaw, 0), 100)
+                  const originalCents = np.price
+                  const discountedCents =
+                    pct > 0 && pct < 100
+                      ? Math.round(originalCents * (1 - pct / 100))
+                      : originalCents
+                  const original =
+                    pct > 0 && pct < 100 ? nf.format(originalCents / 100) : null
+                  const priceText = nf.format(discountedCents / 100)
                   return (
-                    <div className={`${insetPanelClass} mt-3 p-4`}>
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div className="text-sm">
-                          <span className="font-medium">
-                            Unlock more with {np!.name}
-                          </span>
-                          <div className="mt-1 flex items-baseline gap-2">
-                            {(() => {
-                              const nf = new Intl.NumberFormat("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                              })
-                              const pctRaw = np!.discount ?? 0
-                              const pct = Math.min(Math.max(pctRaw, 0), 100)
-                              const originalCents = np!.price
-                              const discountedCents =
-                                pct > 0 && pct < 100
-                                  ? Math.round(originalCents * (1 - pct / 100))
-                                  : originalCents
-                              const original =
-                                pct > 0 && pct < 100
-                                  ? nf.format(originalCents / 100)
-                                  : null
-                              const priceText = nf.format(discountedCents / 100)
-                              return (
-                                <>
-                                  {original && (
-                                    <span className="text-xs text-muted-foreground line-through">
-                                      {original}
-                                    </span>
-                                  )}
-                                  <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-                                    {priceText}
-                                  </span>
-                                  {pct > 0 ? (
-                                    <span className="text-[11px] inline-flex items-center gap-1 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-2 py-0.5 text-emerald-500">
-                                      Save{" "}
-                                      {new Intl.NumberFormat("en-US", {
-                                        maximumFractionDigits: 2,
-                                      }).format(pct)}
-                                      %
-                                    </span>
-                                  ) : null}
-                                </>
-                              )
-                            })()}
+                    <div className={calloutPanelClass}>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <div className="text-sm font-semibold text-foreground">
+                            Unlock more with {np.name}
                           </div>
+                          <div className="mt-1 flex flex-wrap items-baseline gap-2">
+                            {original ? (
+                              <span className="text-xs text-muted-foreground line-through">
+                                {original}
+                              </span>
+                            ) : null}
+                            <span className="text-2xl font-semibold text-foreground">
+                              {priceText}
+                            </span>
+                            {pct > 0 ? (
+                              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                                Save{" "}
+                                {new Intl.NumberFormat("en-US", {
+                                  maximumFractionDigits: 2,
+                                }).format(pct)}
+                                %
+                              </span>
+                            ) : null}
+                          </div>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Activation is instant. Boost lasts {(np as any).boostForDays ?? 1} day(s).
+                          </p>
+                          {np.description ? (
+                            <p className="mt-2 text-xs text-muted-foreground">
+                              {np.description}
+                            </p>
+                          ) : null}
                         </div>
-                        <form action={choosePlan} className="contents">
-                          <input type="hidden" name="planId" value={np!.id} />
-                          <Button
-                            size="sm"
-                            className={`${actionPillClass} transition-transform hover:-translate-y-0.5`}
-                          >
+                        <form action={choosePlan} className="flex-shrink-0">
+                          <input type="hidden" name="planId" value={np.id} />
+                          <Button variant="outline" size="sm">
                             Buy now
                           </Button>
                         </form>
                       </div>
-                      <div className="mt-1 text-[11px] text-muted-foreground">
-                        Instant activation after payment. Boost lasts{" "}
-                        {(np as any).boostForDays ?? 1} day(s).
-                      </div>
-                      {np!.description ? (
-                        <div className="mt-1 text-xs text-foreground/90">
-                          {np!.description}
-                        </div>
-                      ) : null}
                       {deltaTop.length ? (
-                        <>
-                          <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div className="mt-3 space-y-2 text-xs text-muted-foreground">
+                          <div className="font-medium text-foreground">You also get</div>
+                          <ul className="space-y-1">
                             {deltaTop.map((f) => (
-                              <li
-                                key={f.id}
-                                className="text-xs text-foreground/90 before:content-['+'] before:mr-2 before:text-green-600"
-                              >
-                                {f.name}
-                              </li>
+                              <li key={f.id}>+ {f.name}</li>
                             ))}
                           </ul>
                           {deltaCount > deltaTop.length ? (
-                            <div className="mt-1 text-xs text-muted-foreground">
-                              …and {deltaCount - deltaTop.length} more benefits
-                            </div>
+                            <div>…and {deltaCount - deltaTop.length} more benefits</div>
                           ) : null}
-                        </>
+                        </div>
                       ) : null}
                     </div>
                   )
@@ -546,92 +507,72 @@ export default async function ViewUserProductPage({
                     : upgradableAll
                   if (!upgradable.length) return null
                   return (
-                    <div id="plan-upsell" className="mt-4">
-                      <div className="mb-2 text-sm font-medium">
+                    <div className="space-y-3">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
                         Other plans
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {upgradable.map((p) => (
-                          <form
-                            key={p.id}
-                            action={choosePlan}
-                            className="contents"
-                          >
-                            <input type="hidden" name="planId" value={p.id} />
-                            <div className={`${insetPanelClass} h-full p-4`}>
-                              <div className="flex items-center justify-between">
-                                <div className="text-sm font-semibold truncate">
-                                  {p.name}
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        {upgradable.map((p) => {
+                          const nf = new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                          })
+                          const pctRaw = p.discount ?? 0
+                          const pct = Math.min(Math.max(pctRaw, 0), 100)
+                          const originalCents = p.price
+                          const discountedCents =
+                            pct > 0 && pct < 100
+                              ? Math.round(originalCents * (1 - pct / 100))
+                              : originalCents
+                          const original =
+                            pct > 0 && pct < 100
+                              ? nf.format(originalCents / 100)
+                              : null
+                          const priceText = nf.format(discountedCents / 100)
+                          return (
+                            <form key={p.id} action={choosePlan} className="contents">
+                              <input type="hidden" name="planId" value={p.id} />
+                              <div className={calloutPanelClass}>
+                                <div className="flex items-center justify-between text-sm font-medium text-foreground">
+                                  <span className="truncate">{p.name}</span>
+                                  {p.isDefault ? (
+                                    <Badge variant="outline">Default</Badge>
+                                  ) : null}
                                 </div>
-                                {p.isDefault ? (
-                                  <Badge variant="secondary">Default</Badge>
+                                <div className="mt-2 flex flex-wrap items-baseline gap-2 text-xs text-muted-foreground">
+                                  {original ? (
+                                    <span className="line-through">{original}</span>
+                                  ) : null}
+                                  <span className="text-lg font-semibold text-foreground">
+                                    {priceText}
+                                  </span>
+                                  {pct > 0 ? (
+                                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                                      Save{" "}
+                                      {new Intl.NumberFormat("en-US", {
+                                        maximumFractionDigits: 2,
+                                      }).format(pct)}
+                                      %
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="mt-1 text-[11px] text-muted-foreground">
+                                  Boosts your launch for {(p as any).boostForDays ?? 0} day(s)
+                                </div>
+                                {p.description ? (
+                                  <p className="mt-2 line-clamp-3 text-xs text-muted-foreground">
+                                    {p.description}
+                                  </p>
                                 ) : null}
-                              </div>
-                              <div className="mt-1 flex items-baseline gap-2">
-                                {(() => {
-                                  const nf = new Intl.NumberFormat("en-US", {
-                                    style: "currency",
-                                    currency: "USD",
-                                  })
-                                  const pctRaw = p.discount ?? 0
-                                  const pct = Math.min(Math.max(pctRaw, 0), 100)
-                                  const originalCents = p.price
-                                  const discountedCents =
-                                    pct > 0 && pct < 100
-                                      ? Math.round(
-                                          originalCents * (1 - pct / 100),
-                                        )
-                                      : originalCents
-                                  const original =
-                                    pct > 0 && pct < 100
-                                      ? nf.format(originalCents / 100)
-                                      : null
-                                  const priceText = nf.format(
-                                    discountedCents / 100,
-                                  )
-                                  return (
-                                    <>
-                                      {original && (
-                                        <span className="text-xs text-muted-foreground line-through">
-                                          {original}
-                                        </span>
-                                      )}
-                                      <span className="text-2xl font-extrabold tracking-tight">
-                                        {priceText}
-                                      </span>
-                                      {pct > 0 ? (
-                                        <span className="text-[10px] inline-flex items-center gap-1 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-2 py-0.5 text-emerald-500">
-                                          Save{" "}
-                                          {new Intl.NumberFormat("en-US", {
-                                            maximumFractionDigits: 2,
-                                          }).format(pct)}
-                                          %
-                                        </span>
-                                      ) : null}
-                                    </>
-                                  )
-                                })()}
-                              </div>
-                              <div className="text-[10px] text-muted-foreground mt-0.5">
-                                for {(p as any).boostForDays ?? 0} day(s)
-                              </div>
-                              {p.description ? (
-                                <div className="mt-1 text-xs text-foreground/90 line-clamp-3">
-                                  {p.description}
+                                <div className="mt-3">
+                                  <Button variant="outline" size="sm" className="w-full">
+                                    Buy now
+                                  </Button>
                                 </div>
-                              ) : null}
-                              <div className="mt-3">
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className={`${actionPillClass} w-full justify-center transition-transform hover:-translate-y-0.5`}
-                                >
-                                  Buy now
-                                </Button>
                               </div>
-                            </div>
-                          </form>
-                        ))}
+                            </form>
+                          )
+                        })}
                       </div>
                     </div>
                   )
@@ -642,7 +583,7 @@ export default async function ViewUserProductPage({
         ]}
         relationships={
           <div className="grid grid-cols-12 gap-6">
-            <Card className={`${glassCardClass} col-span-12 md:col-span-4`}>
+            <Card className="col-span-12 md:col-span-4">
               <CardHeader>
                 <CardTitle className="text-base">Branding</CardTitle>
               </CardHeader>
@@ -656,15 +597,15 @@ export default async function ViewUserProductPage({
               </CardContent>
             </Card>
 
-            <Card className={`${glassCardClass} col-span-12 md:col-span-4`}>
+            <Card className="col-span-12 md:col-span-4">
               <CardHeader>
                 <CardTitle className="text-base">
                   Organization & Targeting
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 text-sm text-foreground/85">
+              <CardContent className="space-y-4 text-sm text-muted-foreground">
                 <div className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                  <span className={sectionLabelClass}>
                     Organization
                   </span>
                   {organizationName ? (
@@ -692,7 +633,7 @@ export default async function ViewUserProductPage({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                  <span className={sectionLabelClass}>
                     Platforms
                   </span>
                   {platforms.length ? (
@@ -709,7 +650,7 @@ export default async function ViewUserProductPage({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                  <span className={sectionLabelClass}>
                     Keywords
                   </span>
                   {tags.length ? (
@@ -728,13 +669,13 @@ export default async function ViewUserProductPage({
               </CardContent>
             </Card>
 
-            <Card className={`${glassCardClass} col-span-12 md:col-span-4`}>
+            <Card className="col-span-12 md:col-span-4">
               <CardHeader>
                 <CardTitle className="text-base">Links</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 text-sm text-foreground/85">
+              <CardContent className="space-y-4 text-sm text-muted-foreground">
                 <div className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                  <span className={sectionLabelClass}>
                     Website
                   </span>
                   {product.websiteUrl ? (
@@ -753,7 +694,7 @@ export default async function ViewUserProductPage({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                  <span className={sectionLabelClass}>
                     Primary CTA
                   </span>
                   {hasCtaPair ? (
@@ -783,7 +724,7 @@ export default async function ViewUserProductPage({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                  <span className={sectionLabelClass}>
                     Additional Links
                   </span>
                   {extraLinks.length ? (
@@ -823,7 +764,7 @@ export default async function ViewUserProductPage({
                 </div>
               </CardContent>
             </Card>
-            <Card className={`${glassCardClass} col-span-12 md:col-span-8`}>
+            <Card className="col-span-12 md:col-span-8">
               <CardHeader>
                 <CardTitle className="text-base">Media Gallery</CardTitle>
               </CardHeader>
@@ -857,25 +798,22 @@ export default async function ViewUserProductPage({
               hasBanner={Boolean(product.bannerImage)}
               ogImageUrl={product.bannerImage || product.logo}
               editHref={`/member/products/${product.slug}/edit`}
-              className={glassCardClass}
             />
-            <Card className={`${glassCardClass} col-span-12`}>
-              <CardHeader>
+            <Card className="col-span-12">
+              <CardHeader className="pb-0">
                 <CardTitle className="text-base">Description</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between mb-2">
+              <CardContent className="space-y-4 text-sm text-muted-foreground">
+                <div className="flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between">
                   {(() => {
                     const len = (product.description || "").trim().length
                     const good = len >= 200
                     return (
-                      <div className="text-xs">
+                      <div>
                         Quality:{" "}
-                        {good ? (
-                          <span className="text-green-600">Good</span>
-                        ) : (
-                          <span className="text-yellow-600">Needs work</span>
-                        )}{" "}
+                        <span className={good ? "text-emerald-600" : "text-amber-600"}>
+                          {good ? "Good" : "Needs work"}
+                        </span>{" "}
                         ({len} chars)
                       </div>
                     )
@@ -887,7 +825,7 @@ export default async function ViewUserProductPage({
                     Improve description
                   </Link>
                 </div>
-                <div className="prose prose-sm max-w-none">
+                <div className="prose prose-sm max-w-none text-foreground">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {product.description}
                   </ReactMarkdown>

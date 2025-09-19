@@ -56,33 +56,33 @@ export default function PerformanceCard({
   }
 
   const statTileClass =
-    "rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/95 px-4 py-4 text-center"
+    "rounded-lg border border-slate-200 bg-slate-50 px-4 py-4 text-center"
   const statLabelClass =
-    "inline-flex items-center justify-center gap-1 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted-foreground"
-  const statValueClass = "text-3xl font-bold tracking-tight text-foreground"
+    "inline-flex items-center justify-center gap-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground"
+  const statValueClass = "text-2xl font-semibold text-foreground"
   const pillListClass =
-    "rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/95 px-4 py-3"
+    "rounded-lg border border-slate-200 bg-white px-4 py-3 text-muted-foreground"
   const badgeChipBaseClass =
-    "inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-medium shadow-sm"
+    "inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-medium"
   const seoPanelClass =
-    "rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/95 px-4 py-3"
+    "rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-muted-foreground"
 
   const themedBadgeColorMap: Record<TailwindColor, string> = {
-    blue: "border-blue-400/45 bg-blue-500/12 text-blue-400",
-    green: "border-emerald-400/45 bg-emerald-500/12 text-emerald-400",
-    yellow: "border-amber-400/45 bg-amber-400/15 text-amber-500",
-    red: "border-red-400/45 bg-red-500/12 text-red-400",
-    purple: "border-violet-400/45 bg-violet-500/12 text-violet-400",
-    orange: "border-orange-400/45 bg-orange-500/12 text-orange-400",
-    pink: "border-pink-400/45 bg-pink-500/12 text-pink-400",
-    teal: "border-teal-400/45 bg-teal-500/12 text-teal-400",
-    cyan: "border-cyan-400/45 bg-cyan-500/12 text-cyan-400",
-    gray: "border-zinc-400/45 bg-zinc-500/12 text-zinc-400",
+    blue: "border-blue-200 bg-blue-50 text-blue-700",
+    green: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    yellow: "border-amber-200 bg-amber-50 text-amber-700",
+    red: "border-rose-200 bg-rose-50 text-rose-700",
+    purple: "border-violet-200 bg-violet-50 text-violet-700",
+    orange: "border-orange-200 bg-orange-50 text-orange-700",
+    pink: "border-pink-200 bg-pink-50 text-pink-700",
+    teal: "border-teal-200 bg-teal-50 text-teal-700",
+    cyan: "border-cyan-200 bg-cyan-50 text-cyan-700",
+    gray: "border-slate-200 bg-slate-50 text-slate-700",
   }
 
   return (
     <Card className={cn("col-span-12 md:col-span-4", className)}>
-      <CardHeader>
+      <CardHeader className="pb-0">
         <CardTitle className="text-base">Performance</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -102,7 +102,7 @@ export default function PerformanceCard({
         </div>
 
         <div className={pillListClass}>
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center justify-between text-xs">
             <span>Recent upvoters</span>
             {!!upvoters.length && (
               <span className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
@@ -126,14 +126,15 @@ export default function PerformanceCard({
               ))}
             </div>
           ) : (
-            <div className="mt-2 text-xs text-muted-foreground">
-              No upvotes yet - share your product to spark engagement.
+            <div className="mt-2 text-xs">
+              <span>No recent upvotes</span>
+              <span className="text-muted-foreground/80"> — share your product to spark engagement.</span>
             </div>
           )}
         </div>
 
         <div className={pillListClass}>
-          <div className="text-xs text-muted-foreground">Active badges</div>
+          <div className="text-xs">Active badges</div>
           {badges.length ? (
             <div className="mt-2 flex flex-wrap gap-2">
               {badges.slice(0, 6).map((b) => {
@@ -146,7 +147,7 @@ export default function PerformanceCard({
                 const def = BADGE_OPTIONS.find((o) => o.value === b.badge)
                 const colorCls = def?.color
                   ? themedBadgeColorMap[def.color as TailwindColor]
-                  : "border-[color:var(--brand-1)/0.22] bg-background/90 text-foreground/80"
+                  : "border-slate-200 bg-white text-slate-700"
                 return (
                   <Tooltip key={b.id}>
                     <TooltipTrigger asChild>
@@ -163,14 +164,15 @@ export default function PerformanceCard({
               })}
             </div>
           ) : (
-            <div className="mt-2 text-xs text-muted-foreground">
-              No badges assigned yet.
+            <div className="mt-2 text-xs">
+              <span>No badges</span>
+              <span className="text-muted-foreground/80"> assigned yet.</span>
             </div>
           )}
         </div>
 
         <div className={seoPanelClass}>
-          <div className="text-xs text-muted-foreground">SEO preview</div>
+          <div className="text-xs">SEO preview</div>
           <div className="mt-1 text-sm font-medium truncate text-foreground">
             {productName}
           </div>
@@ -194,7 +196,7 @@ export default function PerformanceCard({
           <div className="mt-3">
             <Link
               href={editHref}
-              className="inline-flex items-center gap-1 text-xs text-[color:var(--brand-1)] hover:underline"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
             >
               <Sparkles className="h-3 w-3" /> Improve SEO
             </Link>
