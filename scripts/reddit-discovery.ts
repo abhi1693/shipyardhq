@@ -343,29 +343,40 @@ async function main() {
     : []
 
   console.log("")
-  printOptionTable([
-    { label: "Config file", value: configPath },
-    { label: "Queries", value: queryList },
-    { label: "Results/query", value: args.limit },
-    { label: "Pages/query", value: args.pages },
-    { label: "Min subscribers", value: formatNumber(args.minSubscribers) },
-    { label: "Include NSFW", value: args.includeNsfw },
-    { label: "Skip existing", value: args.skipExisting },
-    { label: "Write config", value: args.write },
-    { label: "Verbose", value: args.verbose },
-    { label: "Intent match", value: includeKeywords },
-    { label: "Intent deny", value: excludeKeywords },
-    { label: "Min intent score", value: minIntentScore },
-    { label: "Concurrency", value: concurrencyLimit },
-    { label: "Cooldown (ms)", value: cooldownMs },
-    { label: "Target ICP", value: targetProfile },
-    { label: "Sorts", value: args.sorts },
-    { label: "Top windows", value: effectiveTimeFilters.length ? effectiveTimeFilters : "(n/a)" },
-    {
-      label: "Fetch cap",
-      value: `up to ${fetchPerCombination} results per query/sort combo (API cap 100)`,
-    },
-  ])
+  const tableWidth = printOptionTable(
+    [
+      { label: "Config file", value: configPath },
+      { label: "Queries", value: queryList },
+      { label: "Results/query", value: args.limit },
+      { label: "Pages/query", value: args.pages },
+      { label: "Min subscribers", value: formatNumber(args.minSubscribers) },
+      { label: "Include NSFW", value: args.includeNsfw },
+      { label: "Skip existing", value: args.skipExisting },
+      { label: "Write config", value: args.write },
+      { label: "Verbose", value: args.verbose },
+      { label: "Intent match", value: includeKeywords },
+      { label: "Intent deny", value: excludeKeywords },
+      { label: "Min intent score", value: minIntentScore },
+      { label: "Concurrency", value: concurrencyLimit },
+      { label: "Cooldown (ms)", value: cooldownMs },
+      { label: "Target ICP", value: targetProfile },
+      { label: "Sorts", value: args.sorts },
+      { label: "Top windows", value: effectiveTimeFilters.length ? effectiveTimeFilters : "(n/a)" },
+      {
+        label: "Fetch cap",
+        value: `up to ${fetchPerCombination} results per query/sort combo (API cap 100)`,
+      },
+    ],
+    { maxWidth: process.stdout.columns || 100 },
+  )
+  const fallbackWidth = process.stdout.columns || 100
+  const dividerWidth = Math.max(
+    10,
+    Math.min(fallbackWidth, tableWidth || fallbackWidth),
+  )
+  if (dividerWidth > 0) {
+    console.log("-".repeat(dividerWidth))
+  }
   console.log("")
 
   const searchTasks: SearchTask[] = []
@@ -1208,6 +1219,11 @@ function createProgressBar(total: number, prefix = "Progress"): ProgressBar {
   }
 }
 
+type OptionTableOptions = {
+  maxWidth?: number
+  labelWidth?: number
+}
+
 function formatOptionValue(value: unknown): string {
   if (value === null || value === undefined) {
     return "(not set)"
@@ -1224,9 +1240,24 @@ function formatOptionValue(value: unknown): string {
   return `${value}`
 }
 
-function printOptionTable(rows: OptionTableRow[]) {
+function truncateValue(value: string, maxLength: number): string {
+  if (value.length <= maxLength) {
+    return value
+  }
+
+  if (maxLength <= 1) {
+    return value.slice(0, Math.max(0, maxLength))
+  }
+
+  return `${value.slice(0, maxLength - 1)}…`
+}
+
+function printOptionTable(
+  rows: OptionTableRow[],
+  options: OptionTableOptions = {},
+): number {
   if (!rows.length) {
-    return
+    return 0
   }
 
   const normalizedRows = rows.map((row) => ({
@@ -1236,29 +1267,45 @@ function printOptionTable(rows: OptionTableRow[]) {
 
   const headerLabel = "Option"
   const headerValue = "Value"
+  const configuredLabelWidth = options.labelWidth || headerLabel.length
   const labelWidth = Math.max(
-    headerLabel.length,
+    configuredLabelWidth,
     ...normalizedRows.map((row) => row.label.length),
   )
-  const valueWidth = Math.max(
+
+  const rawValueWidth = Math.max(
     headerValue.length,
     ...normalizedRows.map((row) => row.value.length),
   )
 
-  const horizontal = `+${"-".repeat(labelWidth + 2)}+${"-".repeat(valueWidth + 2)}+`
-  console.log(horizontal)
-  console.log(
-    `| ${headerLabel.padEnd(labelWidth)} | ${headerValue.padEnd(valueWidth)} |`,
+  const terminalWidth = typeof process.stdout.columns === "number"
+    ? process.stdout.columns
+    : undefined
+  const maxWidth = options.maxWidth || terminalWidth || 100
+  const gutter = 5 // " | " separation
+  const tableWidth = Math.min(maxWidth, labelWidth + gutter + rawValueWidth + 4)
+  const adjustedValueWidth = Math.max(
+    10,
+    tableWidth - (labelWidth + gutter + 4),
   )
-  console.log(horizontal)
+
+  const divider = `+${"-".repeat(labelWidth + 2)}+${"-".repeat(adjustedValueWidth + 2)}+`
+  console.log(divider)
+  console.log(
+    `| ${headerLabel.padEnd(labelWidth)} | ${headerValue.padEnd(adjustedValueWidth)} |`,
+  )
+  console.log(divider)
 
   for (const row of normalizedRows) {
+    const value = truncateValue(row.value, adjustedValueWidth)
     console.log(
-      `| ${row.label.padEnd(labelWidth)} | ${row.value.padEnd(valueWidth)} |`,
+      `| ${row.label.padEnd(labelWidth)} | ${value.padEnd(adjustedValueWidth)} |`,
     )
   }
 
-  console.log(horizontal)
+  console.log(divider)
+
+  return divider.length
 }
 
 async function collectCandidatesForQuery(
