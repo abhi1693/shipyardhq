@@ -1,27 +1,20 @@
 "use client"
-import {
-  Product,
-  ProductVerification,
-  ProductAnalytics,
-} from "@/lib/vendor/prisma/client"
-import { ColumnDef } from "@tanstack/react-table"
-import {
-  formatBoolean,
-  linkify,
-  formatDistanceToNow,
-  image,
-} from "@/lib/ui/formatters"
-import { Badge } from "@/components/atoms/badge"
+
 import Link from "next/link"
-import { Button } from "@/components/atoms/button"
+import { ColumnDef } from "@tanstack/react-table"
 import { Eye, Pencil, Trash2 } from "lucide-react"
 
-const actionButtonClass =
-  "rounded-full border border-[color:var(--brand-1)/0.25] bg-background px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:border-[color:var(--brand-1)/0.35] hover:bg-[color:var(--brand-1)/0.08]"
-const actionLinkClass = "inline-flex items-center gap-2 text-inherit"
-const actionIconClass = "h-4 w-4"
-const destructiveButtonClass =
-  "rounded-full border border-red-500/40 bg-background px-3 py-1.5 text-sm font-medium text-red-500 transition-colors hover:border-red-500/50 hover:bg-red-500/10"
+import { Product, ProductAnalytics, ProductVerification } from "@/lib/vendor/prisma/client"
+import { formatDistanceToNow, linkify, image } from "@/lib/ui/formatters"
+import { Badge } from "@/components/atoms/badge"
+import { Button } from "@/components/atoms/button"
+
+const minimalActionButton =
+  "rounded-full border border-slate-200/70 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
+const minimalActionLink = "inline-flex items-center gap-1.5 text-inherit"
+const minimalActionIcon = "h-3.5 w-3.5"
+const destructiveActionButton =
+  "rounded-full border border-red-400/70 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-100"
 
 export type MemberProductRow = Product & {
   verification: ProductVerification | null
@@ -31,54 +24,70 @@ export type MemberProductRow = Product & {
 }
 
 export const columns: ColumnDef<MemberProductRow>[] = [
-  // Visual identity first
   {
     id: "logo",
-    header: "Logo",
+    header: () => <span className="text-xs font-medium text-muted-foreground">Logo</span>,
     cell: ({ row }) => image(row.original.logo, row.original.name),
+    size: 60,
   },
-  // Primary identifier
   {
     accessorKey: "name",
-    header: "Product",
-    cell: ({ row }) =>
-      linkify({
-        label: row.original.name,
-        href: `/member/products/${row.original.slug}`,
-      }),
+    header: () => <span className="text-xs font-medium text-muted-foreground">Product</span>,
+    cell: ({ row }) => (
+      <div className="space-y-0.5">
+        {linkify({ label: row.original.name, href: `/member/products/${row.original.slug}` })}
+        <p className="text-xs text-muted-foreground">{row.original.slug}</p>
+      </div>
+    ),
+    size: 200,
   },
-  // Classification and links
   {
     id: "category",
-    header: "Category",
+    header: () => <span className="text-xs font-medium text-muted-foreground">Category</span>,
     cell: ({ row }) =>
       row.original.category
         ? linkify({
             label: row.original.category.name,
             href: `/categories/${row.original.category.slug}`,
           })
-        : "—",
+        : <span className="text-xs text-muted-foreground">—</span>,
   },
   {
-    accessorKey: "websiteUrl",
-    header: "Website",
-    cell: ({ row }) =>
-      linkify({
-        label: row.original.websiteUrl,
-        href: row.original.websiteUrl,
-        isExternal: true,
-      }),
+    accessorKey: "plan",
+    header: () => <span className="text-xs font-medium text-muted-foreground">Plan</span>,
+    cell: ({ row }) => (
+      <span className="text-sm text-slate-700">{row.original.plan?.name ?? "—"}</span>
+    ),
   },
-  // Commercial context
   {
-    id: "plan",
-    header: "Plan",
-    cell: ({ row }) => row.original.plan?.name ?? "—",
+    accessorKey: "verification",
+    header: () => <span className="text-xs font-medium text-muted-foreground">Domain</span>,
+    cell: ({ row }) => (
+      <Badge
+        variant={row.original.verification?.isVerified ? "success" : "outline"}
+        className="rounded-full border-[1px] px-2 py-0.5 text-[11px]"
+      >
+        {row.original.verification?.isVerified ? "Verified" : "Unverified"}
+      </Badge>
+    ),
   },
-  // State and verification
+  {
+    accessorKey: "analytics.upvotes",
+    header: () => <span className="text-xs font-medium text-muted-foreground">Upvotes</span>,
+    cell: ({ row }) => (
+      <span className="text-sm text-slate-700">{row.original.analytics?.upvotes ?? 0}</span>
+    ),
+  },
+  {
+    accessorKey: "analytics.clicks",
+    header: () => <span className="text-xs font-medium text-muted-foreground">Clicks</span>,
+    cell: ({ row }) => (
+      <span className="text-sm text-slate-700">{row.original.analytics?.clicks ?? 0}</span>
+    ),
+  },
   {
     accessorKey: "status",
-    header: "Status",
+    header: () => <span className="text-xs font-medium text-muted-foreground">Status</span>,
     cell: ({ row }) => (
       <Badge
         variant={
@@ -88,81 +97,39 @@ export const columns: ColumnDef<MemberProductRow>[] = [
               ? "outline"
               : "success"
         }
+        className="rounded-full border-[1px] px-2 py-0.5 text-[11px]"
       >
         {String(row.original.status || "").replace("_", " ")}
       </Badge>
     ),
   },
   {
-    id: "verified",
-    header: "Verified",
-    cell: ({ row }) =>
-      formatBoolean(
-        row.original.verification?.isVerified ?? false,
-        "Verified",
-        "Not Verified",
-      ),
-  },
-  // Performance
-  {
-    id: "upvotes",
-    header: "Upvotes",
-    cell: ({ row }) => row.original.analytics?.upvotes ?? 0,
-  },
-  {
-    id: "clicks",
-    header: "Clicks",
-    cell: ({ row }) => row.original.analytics?.clicks ?? 0,
-  },
-  // Temporal info near the end
-  {
     accessorKey: "createdAt",
-    header: "Created",
-    cell: ({ row }) => formatDistanceToNow(row.original.createdAt),
+    header: () => <span className="text-xs font-medium text-muted-foreground">Created</span>,
+    cell: ({ row }) => (
+      <span className="text-sm text-slate-600">
+        {formatDistanceToNow(row.original.createdAt)}
+      </span>
+    ),
   },
-  // Row actions last
   {
     id: "actions",
     header: () => null,
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-2">
-        <Button
-          asChild
-          size="sm"
-          variant="ghost"
-          className={actionButtonClass}
-        >
-          <Link
-            href={`/member/products/${row.original.slug}`}
-            className={actionLinkClass}
-          >
-            <Eye className={actionIconClass} /> View
+        <Button asChild size="sm" variant="ghost" className={minimalActionButton}>
+          <Link href={`/member/products/${row.original.slug}`} className={minimalActionLink}>
+            <Eye className={minimalActionIcon} /> View
           </Link>
         </Button>
-        <Button
-          asChild
-          size="sm"
-          variant="ghost"
-          className={actionButtonClass}
-        >
-          <Link
-            href={`/member/products/${row.original.slug}/edit`}
-            className={actionLinkClass}
-          >
-            <Pencil className={actionIconClass} /> Edit
+        <Button asChild size="sm" variant="ghost" className={minimalActionButton}>
+          <Link href={`/member/products/${row.original.slug}/edit`} className={minimalActionLink}>
+            <Pencil className={minimalActionIcon} /> Edit
           </Link>
         </Button>
-        <Button
-          asChild
-          size="sm"
-          variant="ghost"
-          className={destructiveButtonClass}
-        >
-          <Link
-            href={`/member/products/${row.original.slug}/delete`}
-            className={actionLinkClass}
-          >
-            <Trash2 className={actionIconClass} /> Delete
+        <Button asChild size="sm" variant="ghost" className={destructiveActionButton}>
+          <Link href={`/member/products/${row.original.slug}/delete`} className={minimalActionLink}>
+            <Trash2 className={minimalActionIcon} /> Delete
           </Link>
         </Button>
       </div>
