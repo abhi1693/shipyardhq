@@ -10,15 +10,15 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+          "border border-[color:var(--brand-1)/0.35] bg-[linear-gradient(135deg,var(--brand-1)/0.18,var(--brand-2)/0.22)] text-[color:var(--brand-1)] shadow-[0px_12px_30px_-28px_rgba(7,78,134,0.65)] hover:border-[color:var(--brand-1)/0.45] hover:bg-[linear-gradient(135deg,var(--brand-1)/0.22,var(--brand-2)/0.26)]",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+          "border border-[color:var(--brand-2)/0.32] bg-[color:var(--brand-2)/0.12] text-[color:var(--brand-2)] shadow-[0px_10px_25px_-28px_rgba(20,115,185,0.45)] hover:border-[color:var(--brand-2)/0.42] hover:bg-[color:var(--brand-2)/0.18]",
         destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "border border-red-500/50 bg-red-500/15 text-red-500 shadow-[0px_10px_25px_-28px_rgba(220,38,38,0.55)] hover:bg-red-500/20",
         outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+          "border border-[color:var(--brand-1)/0.28] bg-background/85 text-foreground shadow-[0px_8px_22px_-25px_rgba(7,78,134,0.45)] hover:border-[color:var(--brand-1)/0.38] hover:bg-[color:var(--brand-1)/0.08]",
         success:
-          "border-transparent bg-green-500 text-white [a&]:hover:bg-green-600 dark:bg-green-400 dark:text-black",
+          "border border-emerald-500/45 bg-emerald-500/15 text-emerald-500 shadow-[0px_10px_25px_-28px_rgba(16,163,127,0.45)] hover:bg-emerald-500/20",
       },
     },
     defaultVariants: {

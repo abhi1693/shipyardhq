@@ -87,18 +87,24 @@ export default function DataTable<TData, TValue>({
     manualFiltering: true,
   })
 
+  const totalPages = table.getPageCount()
+  const hasPagination = totalPages > 1
+
   return (
-    <>
-      <ScrollArea className="rounded-md border">
+    <div className="space-y-4">
+      <ScrollArea className="rounded-2xl border border-[color:var(--brand-1)/0.15] bg-background/96">
         <Table className="relative text-sm">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-muted/40">
+              <TableRow
+                key={headerGroup.id}
+                className="bg-background/90 text-muted-foreground [&_th]:uppercase [&_th]:tracking-[0.08em]"
+              >
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="px-4 py-3 font-medium"
+                      className="px-5 py-3 text-[11px] font-semibold text-foreground/80"
                     >
                       {header.isPlaceholder
                         ? null
@@ -117,13 +123,13 @@ export default function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="hover:bg-muted/30 transition-all border-b even:bg-muted/10"
+                  className="border-border/40 transition-colors even:bg-background/80 hover:bg-[color:var(--brand-1)/0.08]"
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="px-4 py-2 text-muted-foreground"
+                      className="px-5 py-3 text-sm text-foreground/80"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -148,24 +154,18 @@ export default function DataTable<TData, TValue>({
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
 
-      <div className="flex flex-col items-center justify-end gap-4 px-1 py-4 sm:flex-row sm:gap-2">
-        <div className="flex w-full items-center justify-between text-sm text-muted-foreground">
-          <div>
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className="whitespace-nowrap">Rows per page</span>
+      <div className="flex flex-col gap-3 rounded-2xl border border-[color:var(--brand-1)/0.08] bg-background/96 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex w-full items-center justify-end text-xs text-muted-foreground sm:text-sm">
+          <div className="flex items-center gap-3 rounded-full bg-background/90 px-4 py-1.5 text-xs text-foreground/75 sm:text-sm">
+            <span className="whitespace-nowrap text-foreground/70">Rows</span>
             <Select
-              value={`${table.getState().pagination.pageSize}`}
+              value={`${pageSize}`}
               onValueChange={(value: string) => {
                 table.setPageSize(Number(value))
               }}
             >
-              <SelectTrigger className="h-8 w-20 text-sm">
-                <SelectValue
-                  placeholder={table.getState().pagination.pageSize}
-                />
+              <SelectTrigger className="h-8 min-w-[5.5rem] rounded-full border border-[color:var(--brand-1)/0.25] bg-background/95 px-3 text-sm font-medium">
+                <SelectValue placeholder={pageSize} />
               </SelectTrigger>
               <SelectContent side="top">
                 {pageSizeOptions.map((pageSize) => (
@@ -178,51 +178,36 @@ export default function DataTable<TData, TValue>({
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 text-sm">
-          <span className="w-[100px] text-center">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
-          </span>
-          <Button
-            aria-label="First page"
-            variant="outline"
-            size="icon"
-            className="hidden lg:flex"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronLeftIcon className="h-4 w-4 rotate-180" />
-          </Button>
-          <Button
-            aria-label="Previous page"
-            variant="outline"
-            size="icon"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronLeftIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            aria-label="Next page"
-            variant="outline"
-            size="icon"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronRightIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            aria-label="Last page"
-            variant="outline"
-            size="icon"
-            className="hidden lg:flex"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronRightIcon className="h-4 w-4 rotate-180" />
-          </Button>
-        </div>
+        {hasPagination ? (
+          <div className="flex items-center justify-end gap-2 text-xs text-foreground/80 sm:text-sm">
+            <span className="px-3 py-1.5 text-sm font-medium text-foreground/75">
+              Page {pageIndex + 1} of {totalPages}
+            </span>
+            <div className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-1.5">
+              <Button
+                aria-label="Previous page"
+                variant="outline"
+                size="icon"
+                className="border-none bg-transparent text-foreground/70 hover:bg-[color:var(--brand-1)/0.12]"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+              <Button
+                aria-label="Next page"
+                variant="outline"
+                size="icon"
+                className="border-none bg-transparent text-foreground/70 hover:bg-[color:var(--brand-1)/0.12]"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </div>
-    </>
+    </div>
   )
 }

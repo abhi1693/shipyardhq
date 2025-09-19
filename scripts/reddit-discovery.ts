@@ -11,6 +11,9 @@ import {
   DEFAULT_DISCOVERY_INCLUDE_KEYWORDS,
   DEFAULT_DISCOVERY_EXCLUDE_KEYWORDS,
   DEFAULT_DISCOVERY_MIN_INTENT_SCORE,
+  DEFAULT_DISCOVERY_SORTS,
+  DEFAULT_DISCOVERY_TIME_FILTERS,
+  DEFAULT_DISCOVERY_RESULTS_PER_QUERY,
   SubredditConfigEntry,
   SubredditStatus,
   categorizeSubreddits,
@@ -39,6 +42,9 @@ type DiscoveryArgs = {
   quiet: boolean
   minIntentScore?: number
   concurrency: number
+  sorts: string[]
+  timeFilters: string[]
+  pages: number
 }
 
 type Candidate = {
@@ -164,7 +170,10 @@ process.on("SIGINT", () => handleInterrupt("SIGINT"))
 process.on("SIGTERM", () => handleInterrupt("SIGTERM"))
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2))
+  const rawArgv = process.argv.slice(2)
+  const args = parseArgs(rawArgv)
+  const limitProvided = rawArgv.includes("--limit")
+  const pagesProvided = rawArgv.includes("--pages")
 
   const configPath = process.env.REDDIT_CONFIG_FILE || DEFAULT_CONFIG_FILE
   const fileConfig = loadBotFileConfig(configPath)
@@ -196,6 +205,46 @@ async function main() {
   const targetProfile = (
     discoveryConfig.targetProfile || DEFAULT_DISCOVERY_TARGET_PROFILE
   ).trim()
+
+  args.sorts = normalizeStringList(args.sorts)
+  if (!args.sorts.length) {
+    args.sorts = normalizeStringList(
+      resolveStringList(
+        null,
+        discoveryConfig.sorts,
+        DEFAULT_DISCOVERY_SORTS,
+      ),
+    )
+  }
+
+  if (!args.sorts.length) {
+    args.sorts = ["relevance"]
+  }
+
+  args.timeFilters = normalizeStringList(args.timeFilters)
+  if (!args.timeFilters.length) {
+    args.timeFilters = normalizeStringList(
+      resolveStringList(
+        null,
+        discoveryConfig.timeFilters,
+        DEFAULT_DISCOVERY_TIME_FILTERS,
+      ),
+    )
+  }
+
+  if (!limitProvided && typeof discoveryConfig.resultsPerQuery === "number") {
+    const parsedResults = discoveryConfig.resultsPerQuery
+    if (Number.isFinite(parsedResults) && parsedResults > 0) {
+      args.limit = Math.floor(parsedResults)
+    }
+  }
+
+  if (!pagesProvided) {
+    const envPages = Number(process.env.REDDIT_DISCOVERY_PAGES)
+    if (Number.isFinite(envPages) && envPages > 0) {
+      args.pages = Math.floor(envPages)
+    }
+  }
 
   const minIntentScore =
     args.minIntentScore ??
@@ -236,6 +285,7 @@ async function main() {
   console.log(`Using config file: ${configPath}`)
   console.log(`Queries     : ${queryList.join(", ")}`)
   console.log(`Limit/query : ${args.limit}`)
+  console.log(`Pages/query : ${args.pages}`)
   console.log(`Min subs    : ${args.minSubscribers}`)
   console.log(`Include NSFW: ${args.includeNsfw}`)
   console.log(`Write config: ${args.write}`)
@@ -248,61 +298,59 @@ async function main() {
     `Cooldown    : ${cooldownMs}ms between candidate scoring per worker`,
   )
 
+  const fetchPerCombination = Math.max(
+    1,
+    Math.min(args.limit * Math.max(1, args.pages), 100),
+  )
+  const sortsForLogging = args.sorts.join(", ")
+  console.log(`Sorts       : ${sortsForLogging}`)
+
+  const effectiveTimeFilters = args.timeFilters.length
+    ? args.timeFilters
+    : DEFAULT_DISCOVERY_TIME_FILTERS
+
+  if (args.sorts.some(sortRequiresTimeFilter)) {
+    console.log(`Top windows : ${effectiveTimeFilters.join(", ")}`)
+  }
+
+  console.log(
+    `Fetch cap   : up to ${fetchPerCombination} results per query/sort combo (API cap 100)`,
+  )
+
   const candidateMap = new Map<string, Candidate>()
 
   for (const query of queryList) {
-    console.log(`\nSearching for subreddits matching "${query}"...`)
-    const searchParams: any = {
-      query,
-      limit: args.limit,
-      sort: "relevance",
+    for (const sort of args.sorts) {
+      const applicableTimes = sortRequiresTimeFilter(sort)
+        ? effectiveTimeFilters
+        : [undefined]
+
+      for (const timeFilter of applicableTimes) {
+        const paramsDescription = [
+          `sort=${sort}`,
+          timeFilter ? `time=${timeFilter}` : null,
+        ]
+          .filter(Boolean)
+          .join(", ")
+
+        console.log(
+          `\nSearching for subreddits matching "${query}" (${paramsDescription || "default"})...`,
+        )
+
+        await collectCandidatesForQuery(
+          reddit,
+          candidateMap,
+          query,
+          sort,
+          timeFilter,
+          args,
+          existingNames,
+          fetchPerCombination,
+        )
+
+        await sleep(500)
+      }
     }
-
-    if (args.includeNsfw) {
-      searchParams.include_over_18 = true
-    }
-
-    const listing = (await reddit.searchSubreddits(searchParams)) as any
-
-    const results = Array.from(listing as any[])
-
-    for (const sub of results.slice(0, args.limit)) {
-      const name = sanitizeName(sub.display_name || sub.display_name_prefixed)
-      if (!name) {
-        continue
-      }
-
-      const key = name.toLowerCase()
-      if (args.skipExisting && existingNames.has(key)) {
-        if (!args.quiet) {
-          console.log(`Skipping r/${name} (already in config).`)
-        }
-        recordSkip(name, "already in config")
-        continue
-      }
-
-      if (runContext?.processedNames.has(key)) {
-        if (!args.quiet) {
-          console.log(`Skipping r/${name} (already processed in previous run).`)
-        }
-        recordSkip(name, "already processed", undefined)
-        continue
-      }
-
-      const existing = candidateMap.get(key)
-      if (existing) {
-        existing.queries.add(query)
-        continue
-      }
-
-      candidateMap.set(key, {
-        name,
-        queries: new Set([query]),
-        subreddit: sub,
-      })
-    }
-
-    await sleep(500)
   }
 
   if (!candidateMap.size) {
@@ -373,7 +421,7 @@ async function main() {
 function parseArgs(argv: string[]): DiscoveryArgs {
   const result: DiscoveryArgs = {
     queries: [],
-    limit: 15,
+    limit: DEFAULT_DISCOVERY_RESULTS_PER_QUERY,
     minSubscribers: 500,
     includeNsfw: false,
     write: false,
@@ -385,6 +433,15 @@ function parseArgs(argv: string[]): DiscoveryArgs {
     quiet: false,
     minIntentScore: undefined,
     concurrency: Number(process.env.REDDIT_DISCOVERY_CONCURRENCY || "3"),
+    sorts: [],
+    timeFilters: [],
+    pages: (() => {
+      const value = Number(process.env.REDDIT_DISCOVERY_PAGES || "1")
+      if (!Number.isFinite(value) || value <= 0) {
+        return 1
+      }
+      return Math.floor(value)
+    })(),
   }
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -441,6 +498,41 @@ function parseArgs(argv: string[]): DiscoveryArgs {
       case "--skip-existing":
         result.skipExisting = true
         break
+      case "--sorts": {
+        const value = argv[index + 1]
+        if (!value) {
+          throw new Error("--sorts expects a value")
+        }
+        index += 1
+        const parts = value
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
+        result.sorts.push(...parts)
+        break
+      }
+      case "--time-filters": {
+        const value = argv[index + 1]
+        if (!value) {
+          throw new Error("--time-filters expects a value")
+        }
+        index += 1
+        const parts = value
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
+        result.timeFilters.push(...parts)
+        break
+      }
+      case "--pages": {
+        const value = Number(argv[index + 1])
+        if (Number.isNaN(value) || value <= 0) {
+          throw new Error("--pages expects a positive number")
+        }
+        result.pages = Math.floor(value)
+        index += 1
+        break
+      }
       case "--min-intent-score": {
         const value = Number(argv[index + 1])
         if (Number.isNaN(value) || value < 0) {
@@ -481,11 +573,14 @@ function printHelp() {
 Options:
   --query, -q            Comma-separated search terms (default: config keywords)
   --limit                Max subreddits to fetch per query (default 15)
+  --pages                Multipliers for --limit when fetching each query (default 1)
   --min-subscribers      Minimum subscriber count (default 500)
   --include-nsfw         Include NSFW communities
   --model                OpenAI model for rule analysis (default ENV or gpt-4.1-mini)
   --write                Persist suggested entries to the config file
   --skip-existing        Skip communities that already have a config entry
+  --sorts                Comma-separated subreddit search sorts (default config)
+  --time-filters         Comma-separated time filters for top-sort searches (default config)
   --min-intent-score     Minimum intent keyword matches before AI scoring (default config)
   --quiet                Suppress skip messages
   --help, -h             Show this help message
@@ -888,6 +983,140 @@ function detectLikelyNsfw(details: SubredditDetails): string | null {
   }
 
   return null
+}
+
+function normalizeStringList(values: string[]): string[] {
+  const seen = new Set<string>()
+  const normalized: string[] = []
+
+  for (const value of values) {
+    if (!value) {
+      continue
+    }
+
+    const lowered = value.toLowerCase().trim()
+    if (!lowered || seen.has(lowered)) {
+      continue
+    }
+
+    seen.add(lowered)
+    normalized.push(lowered)
+  }
+
+  return normalized
+}
+
+function sortRequiresTimeFilter(sort: string): boolean {
+  const normalized = sort.toLowerCase()
+  return normalized === "top" || normalized === "controversial"
+}
+
+async function collectCandidatesForQuery(
+  reddit: Snoowrap,
+  candidateMap: Map<string, Candidate>,
+  query: string,
+  sort: string,
+  timeFilter: string | undefined,
+  args: DiscoveryArgs,
+  existingNames: Set<string>,
+  limit: number,
+): Promise<number> {
+  const searchParams: Record<string, any> = {
+    query,
+    limit,
+    sort,
+  }
+
+  if (args.includeNsfw) {
+    searchParams.include_over_18 = true
+  }
+
+  if (timeFilter) {
+    searchParams.time = timeFilter
+  }
+
+  try {
+    const listing = (await reddit.searchSubreddits(searchParams)) as any
+    const results = Array.from(listing as any[]).slice(0, limit)
+    let added = 0
+
+    for (const sub of results) {
+      if (
+        addCandidateFromListing(
+          sub,
+          query,
+          args,
+          candidateMap,
+          existingNames,
+        )
+      ) {
+        added += 1
+      }
+    }
+
+    if (!args.quiet) {
+      console.log(
+        `  -> Found ${added} new candidate(s) (total ${candidateMap.size}).`,
+      )
+    }
+
+    return added
+  } catch (error) {
+    const timePart = timeFilter ? `, time=${timeFilter}` : ""
+    console.warn(
+      `Warning: failed to search subreddits for "${query}" (sort=${sort}${timePart}).`,
+      error,
+    )
+    return 0
+  }
+}
+
+function addCandidateFromListing(
+  subreddit: any,
+  query: string,
+  args: DiscoveryArgs,
+  candidateMap: Map<string, Candidate>,
+  existingNames: Set<string>,
+): boolean {
+  const name = sanitizeName(
+    subreddit.display_name || subreddit.display_name_prefixed,
+  )
+
+  if (!name) {
+    return false
+  }
+
+  const key = name.toLowerCase()
+
+  if (args.skipExisting && existingNames.has(key)) {
+    if (!args.quiet) {
+      console.log(`Skipping r/${name} (already in config).`)
+    }
+    recordSkip(name, "already in config")
+    return false
+  }
+
+  if (runContext?.processedNames.has(key)) {
+    if (!args.quiet) {
+      console.log(`Skipping r/${name} (already processed in previous run).`)
+    }
+    recordSkip(name, "already processed")
+    return false
+  }
+
+  const existing = candidateMap.get(key)
+  if (existing) {
+    existing.queries.add(query)
+    return false
+  }
+
+  candidateMap.set(key, {
+    name,
+    queries: new Set([query]),
+    subreddit,
+  })
+
+  return true
 }
 
 function summarizeIntent(details: SubredditDetails): string {

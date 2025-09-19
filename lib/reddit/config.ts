@@ -27,6 +27,9 @@ export type DiscoveryConfig = {
   includeKeywords?: string[]
   excludeKeywords?: string[]
   minIntentScore?: number
+  sorts?: string[]
+  timeFilters?: string[]
+  resultsPerQuery?: number
 }
 
 export const DEFAULT_CONFIG_FILE = path.join(
@@ -66,11 +69,28 @@ export const DEFAULT_SUBREDDITS = [
 
 export const DEFAULT_KEYWORDS = [
   "launch",
+  "startup",
+  "startups",
+  "founder",
+  "founders",
+  "indie hacker",
+  "indie hackers",
+  "saas",
   "product",
+  "product launch",
+  "product marketing",
   "showcase",
   "feedback",
-  "built",
   "app",
+  "apps",
+  "mvp",
+  "side project",
+  "build in public",
+  "demo",
+  "beta",
+  "distribution",
+  "go to market",
+  "growth marketing",
 ]
 
 export const DEFAULT_ALLOWED_FLAIRS = [
@@ -140,6 +160,18 @@ export const DEFAULT_DISCOVERY_EXCLUDE_KEYWORDS = [
 ]
 
 export const DEFAULT_DISCOVERY_MIN_INTENT_SCORE = 1
+
+export const DEFAULT_DISCOVERY_SORTS = ["relevance", "new", "top"]
+
+export const DEFAULT_DISCOVERY_TIME_FILTERS = [
+  "day",
+  "week",
+  "month",
+  "year",
+  "all",
+]
+
+export const DEFAULT_DISCOVERY_RESULTS_PER_QUERY = 60
 
 export function loadBotFileConfig(
   filePath: string = DEFAULT_CONFIG_FILE,
