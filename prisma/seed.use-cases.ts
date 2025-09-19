@@ -77,6 +77,60 @@ const USE_CASES: UseCaseSeed[] = [
       "ai-machine-learning",
     ],
   },
+  {
+    label: "Launch a Crypto App",
+    slug: "launch-crypto-app",
+    categorySlugs: [
+      "web3-crypto",
+      "crypto-infrastructure",
+      "developer-tools",
+    ],
+  },
+  {
+    label: "Accept Crypto Payments",
+    slug: "accept-crypto-payments",
+    categorySlugs: [
+      "crypto-payments",
+      "e-commerce",
+      "finance-accounting",
+    ],
+  },
+  {
+    label: "Monitor On-Chain Activity",
+    slug: "monitor-on-chain-activity",
+    categorySlugs: [
+      "crypto-analytics",
+      "analytics",
+      "security-privacy",
+    ],
+  },
+  {
+    label: "Secure Your Stack",
+    slug: "secure-your-stack",
+    categorySlugs: [
+      "security-privacy",
+      "devops-ci-cd",
+      "monitoring-observability",
+    ],
+  },
+  {
+    label: "Automate Finance Ops",
+    slug: "automate-finance-ops",
+    categorySlugs: [
+      "finance-accounting",
+      "automation-workflow",
+      "internal-tools",
+    ],
+  },
+  {
+    label: "Empower Remote Teams",
+    slug: "empower-remote-teams",
+    categorySlugs: [
+      "collaboration-community",
+      "productivity",
+      "hr-hiring",
+    ],
+  },
 ]
 
 async function main() {
