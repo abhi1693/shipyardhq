@@ -68,6 +68,8 @@ const dashedCalloutClass =
   "rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3"
 const sectionLabelClass =
   "text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground"
+const actionGroupClass =
+  "flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70"
 
 export default async function ViewUserProductPage({
   params,
@@ -350,37 +352,46 @@ export default async function ViewUserProductPage({
         deletable
         editable
         headingActionsLeft={
-          <div className="flex flex-wrap gap-2">
-            <ProductStatusMenu
-              productId={product.id}
-              status={product.status as any}
-            />
-            <CopyButton
-              text={publicPath}
-              resolveAbsolute
-              size="sm"
-              variant="outline"
-            >
-              <>
-                <CopyIcon className="mr-2 h-4 w-4" /> Copy link
-              </>
-            </CopyButton>
-            <ShareOnXButton
-              path={publicPath}
-              productName={product.name}
-              variant="outline"
-            />
-            <DuplicateProductButton
-              productId={product.id}
-              variant="outline"
-            />
-            {isOwner && canViewAnalytics ? (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={analyticsPath}>
-                  <BarChart3 className="mr-2 h-4 w-4" /> Analytics
-                </Link>
-              </Button>
-            ) : null}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className={actionGroupClass}>
+              <ProductStatusMenu
+                productId={product.id}
+                status={product.status as any}
+                triggerClassName="h-8 px-3"
+              />
+              {isOwner && canViewAnalytics ? (
+                <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
+                  <Link href={analyticsPath}>
+                    <BarChart3 className="mr-2 h-4 w-4" /> Analytics
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
+
+            <div className={actionGroupClass}>
+              <CopyButton
+                text={publicPath}
+                resolveAbsolute
+                size="sm"
+                variant="secondary"
+                className="h-8 px-3"
+              >
+                <>
+                  <CopyIcon className="mr-2 h-4 w-4" /> Copy link
+                </>
+              </CopyButton>
+              <ShareOnXButton
+                path={publicPath}
+                productName={product.name}
+                variant="ghost"
+                className="h-8 px-3"
+              />
+              <DuplicateProductButton
+                productId={product.id}
+                variant="ghost"
+                className="h-8 px-3"
+              />
+            </div>
           </div>
         }
         topRowExtras={[
