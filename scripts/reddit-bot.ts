@@ -150,6 +150,8 @@ reddit.config({ requestDelay: config.requestDelayMs, warnings: false })
 
 const state: BotState = {}
 
+const recentReplies: string[] = []
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -209,7 +211,10 @@ async function processSubreddit(subredditName: string) {
     }
 
     const previousDrafts: string[] = []
-    let draft = await draftReply(submission, { avoid: previousDrafts })
+    const seedAvoid = [...recentReplies.slice(-8)]
+    let draft = await draftReply(submission, {
+      avoid: [...previousDrafts, ...seedAvoid],
+    })
 
     if (!draft) {
       continue
@@ -226,6 +231,14 @@ async function processSubreddit(subredditName: string) {
           console.log(`
 ✅ Replied to https://reddit.com${submission.permalink}`)
           decision = "approved"
+          const trimmed = draft.trim()
+          if (trimmed) {
+            const cleaned = sanitize(trimmed)
+            recentReplies.push(cleaned)
+            if (recentReplies.length > 12) {
+              recentReplies.splice(0, recentReplies.length - 12)
+            }
+          }
         } catch (error) {
           console.error("Failed to post reply:", error)
           console.log(`
@@ -244,8 +257,13 @@ async function processSubreddit(subredditName: string) {
 
       console.log(`
 🔁 Regenerating draft...`)
-      previousDrafts.push(draft)
-      const nextDraft = await draftReply(submission, { avoid: previousDrafts })
+      const trimmedCurrent = draft.trim()
+      if (trimmedCurrent) {
+        previousDrafts.push(trimmedCurrent)
+      }
+      const nextDraft = await draftReply(submission, {
+        avoid: [...previousDrafts, ...recentReplies.slice(-8)],
+      })
 
       if (!nextDraft) {
         console.log("⚠️ Unable to regenerate draft. Skipping this post.")
@@ -285,23 +303,34 @@ async function draftReply(
 
   const guidance = buildSubredditGuidance(submission.subreddit.display_name)
 
-  const avoidedPhrases = (options.avoid || [])
+  const avoidedSet = new Set((options.avoid || []).map((text) => text.trim()))
+  const avoidedPhrases = Array.from(avoidedSet)
     .map((text) => sanitize(text).slice(0, 160))
     .filter(Boolean)
 
   const avoidGuidance = avoidedPhrases.length
-    ? `\n\nYou have previously drafted replies. Ensure the new response feels fresh and does not reuse distinctive phrasing, sentences, or structure from these earlier drafts: ${avoidedPhrases.join(" | ")}. Vary tone, openings, and calls to action when regenerating.`
+    ? `\n\nYou have previously drafted replies. The new response must feel fresh and may not reuse distinctive phrasing, sentences, cadence, or structure from these earlier drafts: ${avoidedPhrases.join(" | ")}. Switch up openings, vary sentence length, and change how you mention Shipyard.`
     : ""
 
   const systemText =
-    "You are a concise, friendly community manager for Shipyard HQ. Draft a short (<=80 words) encouraging reply to founders showcasing their product on Reddit. Invite them to list their product on Shipyard (https://shipyardhq.dev), mention that listing is free, launches in about 30 seconds, and there are no queues or paid slots—just immediate publishing. Offer help if they have questions and keep a positive, founder-to-founder tone without sounding spammy." +
+    "You are a concise, friendly community manager for Shipyard HQ. Draft a short (<=80 words) encouraging reply to founders showcasing their product on Reddit. Each reply must feel bespoke—reference specific details from their product or problem, and vary your tone, sentence structure, and CTA wording every time. Mention that Shipyard listings are free, take roughly thirty seconds, and go live immediately without queues or paid slots, but phrase those facts in fresh language. Offer help if they have questions and keep a positive, founder-to-founder tone without sounding spammy or formulaic." +
     (guidance
       ? `\n\nCommunity guidance for r/${submission.subreddit.display_name}:\n${guidance}`
       : "") +
     avoidGuidance
 
+  const maxTokens = clamp(config.maxDraftTokens, 64, 512)
+  const baseTemperature = clamp(config.temperature, 0, 2)
+  const variedTemperature = clamp(
+    baseTemperature + Math.min(0.4, avoidedPhrases.length * 0.18),
+    0,
+    2,
+  )
+
   const payload = {
     model: config.openAIModel,
+    store: false,
+    parallel_tool_calls: false,
     input: [
       {
         role: "system",
@@ -321,16 +350,20 @@ async function draftReply(
 Title: ${sanitize(submission.title)}
 Author: ${submission.author?.name ? "u/" + submission.author.name : "unknown"}
 Post Body:
-${bodyPreview}`,
+${bodyPreview}
+
+Key requirements:
+- weave in at least one concrete detail from the title or body so the author knows you read their post.
+- restate Shipyard's benefits in your own words (free listing, ~30 second launch, instant publishing, no queues/paid slots) with varied phrasing.
+- offer help or encouragement in a way that matches the product's vibe.
+- keep the reply under 80 words and avoid bullet points.
+- do not repeat wording from earlier drafts listed above.`,
           },
         ],
       },
     ],
-    max_output_tokens: config.maxDraftTokens,
-    temperature: Math.min(
-      1,
-      config.temperature + Math.min(0.5, (options.avoid?.length || 0) * 0.2),
-    ),
+    max_output_tokens: maxTokens,
+    temperature: variedTemperature,
   }
 
   try {
@@ -474,6 +507,13 @@ function ask(question: string): Promise<string> {
 
 function sanitize(value: string): string {
   return value.replace(/[\u0000-\u001F\u007F]/g, "").trim()
+}
+
+function clamp(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value)) {
+    return min
+  }
+  return Math.min(max, Math.max(min, value))
 }
 
 async function waitForNextPoll(durationMs: number): Promise<void> {
