@@ -177,7 +177,22 @@ export const CATEGORIES: SeedCategory[] = [
   {
     name: "Web3 & Crypto",
     icon: "hexagon",
-    description: "Crypto, wallets, on‑chain data, and dApps.",
+    description: "Crypto, wallets, on-chain data, and dApps.",
+  },
+  {
+    name: "Crypto Infrastructure",
+    icon: "hexagon",
+    description: "Nodes, staking, custody, and blockchain infrastructure.",
+  },
+  {
+    name: "Crypto Payments",
+    icon: "coins",
+    description: "On-chain payments, merchant tooling, and stablecoin rails.",
+  },
+  {
+    name: "Crypto Analytics",
+    icon: "chart",
+    description: "On-chain analytics, portfolio tracking, and market data.",
   },
   {
     name: "IoT & Hardware",
