@@ -1,5 +1,9 @@
 import dotenv from "dotenv"
 import Snoowrap from "snoowrap"
+import type {
+  ListingOptions,
+  SortedListingOptions,
+} from "snoowrap/dist/objects/Listing"
 import path from "node:path"
 import { promises as fs } from "node:fs"
 import { pathToFileURL } from "node:url"
@@ -40,10 +44,11 @@ type DiscoveryArgs = {
   model: string
   skipExisting: boolean
   quiet: boolean
+  verbose: boolean
   minIntentScore?: number
   concurrency: number
   sorts: string[]
-  timeFilters: string[]
+  timeFilters: SortedListingOptions["time"][]
   pages: number
 }
 
@@ -115,6 +120,21 @@ const NSFW_KEYWORDS = [
   "adult content",
 ]
 
+const SUPPORTED_TIME_FILTERS = [
+  "hour",
+  "day",
+  "week",
+  "month",
+  "year",
+  "all",
+] as const satisfies ReadonlyArray<SortedListingOptions["time"]>
+
+const SUPPORTED_TIME_FILTER_SET = new Set<SortedListingOptions["time"]>(
+  SUPPORTED_TIME_FILTERS,
+)
+
+const DEFAULT_TIME_FILTER_FALLBACK: SortedListingOptions["time"] = "all"
+
 type IntentEvaluation = {
   score: number
   includeMatches: string[]
@@ -128,6 +148,29 @@ type CandidateProcessingContext = {
   minIntentScore: number
   targetProfile: string
   cooldownMs: number
+}
+
+type SearchTask = {
+  query: string
+  sort: string
+  timeFilter?: SortedListingOptions["time"]
+}
+
+type ProgressBar = {
+  update: (completed: number, label?: string) => void
+  finish: () => void
+}
+
+type SubredditSearchOptions = ListingOptions & {
+  query: string
+  sort?: string
+  include_over_18?: boolean
+  time?: SortedListingOptions["time"]
+}
+
+type OptionTableRow = {
+  label: string
+  value: unknown
 }
 
 type SkipRecord = {
@@ -221,16 +264,25 @@ async function main() {
     args.sorts = ["relevance"]
   }
 
-  args.timeFilters = normalizeStringList(args.timeFilters)
-  if (!args.timeFilters.length) {
-    args.timeFilters = normalizeStringList(
+  const cliTimeFilters = args.timeFilters.length
+    ? Array.from(new Set(args.timeFilters))
+    : []
+
+  const configuredTimeFilters = filterValidTimeFilters(
+    normalizeStringList(
       resolveStringList(
         null,
         discoveryConfig.timeFilters,
         DEFAULT_DISCOVERY_TIME_FILTERS,
       ),
-    )
-  }
+    ),
+  )
+
+  args.timeFilters = cliTimeFilters.length
+    ? cliTimeFilters
+    : configuredTimeFilters.length
+      ? configuredTimeFilters
+      : [DEFAULT_TIME_FILTER_FALLBACK]
 
   if (!limitProvided && typeof discoveryConfig.resultsPerQuery === "number") {
     const parsedResults = discoveryConfig.resultsPerQuery
@@ -282,76 +334,106 @@ async function main() {
   )
 
   console.log("Starting subreddit discovery run.")
-  console.log(`Using config file: ${configPath}`)
-  console.log(`Queries     : ${queryList.join(", ")}`)
-  console.log(`Limit/query : ${args.limit}`)
-  console.log(`Pages/query : ${args.pages}`)
-  console.log(`Min subs    : ${args.minSubscribers}`)
-  console.log(`Include NSFW: ${args.includeNsfw}`)
-  console.log(`Write config: ${args.write}`)
-  console.log(`Target ICP  : ${targetProfile}`)
-  console.log(`Intent match : ${includeKeywords.join(", ")}`)
-  console.log(`Intent deny  : ${excludeKeywords.join(", ")}`)
-  console.log(`Min intent   : ${minIntentScore}`)
-  console.log(`Concurrency : ${concurrencyLimit}`)
-  console.log(
-    `Cooldown    : ${cooldownMs}ms between candidate scoring per worker`,
-  )
-
   const fetchPerCombination = Math.max(
     1,
     Math.min(args.limit * Math.max(1, args.pages), 100),
   )
-  const sortsForLogging = args.sorts.join(", ")
-  console.log(`Sorts       : ${sortsForLogging}`)
-
-  const effectiveTimeFilters = args.timeFilters.length
+  const effectiveTimeFilters = args.sorts.some(sortRequiresTimeFilter)
     ? args.timeFilters
-    : DEFAULT_DISCOVERY_TIME_FILTERS
+    : []
 
-  if (args.sorts.some(sortRequiresTimeFilter)) {
-    console.log(`Top windows : ${effectiveTimeFilters.join(", ")}`)
-  }
+  console.log("")
+  printOptionTable([
+    { label: "Config file", value: configPath },
+    { label: "Queries", value: queryList },
+    { label: "Results/query", value: args.limit },
+    { label: "Pages/query", value: args.pages },
+    { label: "Min subscribers", value: formatNumber(args.minSubscribers) },
+    { label: "Include NSFW", value: args.includeNsfw },
+    { label: "Skip existing", value: args.skipExisting },
+    { label: "Write config", value: args.write },
+    { label: "Verbose", value: args.verbose },
+    { label: "Intent match", value: includeKeywords },
+    { label: "Intent deny", value: excludeKeywords },
+    { label: "Min intent score", value: minIntentScore },
+    { label: "Concurrency", value: concurrencyLimit },
+    { label: "Cooldown (ms)", value: cooldownMs },
+    { label: "Target ICP", value: targetProfile },
+    { label: "Sorts", value: args.sorts },
+    { label: "Top windows", value: effectiveTimeFilters.length ? effectiveTimeFilters : "(n/a)" },
+    {
+      label: "Fetch cap",
+      value: `up to ${fetchPerCombination} results per query/sort combo (API cap 100)`,
+    },
+  ])
+  console.log("")
 
-  console.log(
-    `Fetch cap   : up to ${fetchPerCombination} results per query/sort combo (API cap 100)`,
-  )
-
-  const candidateMap = new Map<string, Candidate>()
-
+  const searchTasks: SearchTask[] = []
   for (const query of queryList) {
     for (const sort of args.sorts) {
-      const applicableTimes = sortRequiresTimeFilter(sort)
+      const timeTargets = sortRequiresTimeFilter(sort)
         ? effectiveTimeFilters
         : [undefined]
 
-      for (const timeFilter of applicableTimes) {
-        const paramsDescription = [
-          `sort=${sort}`,
-          timeFilter ? `time=${timeFilter}` : null,
-        ]
-          .filter(Boolean)
-          .join(", ")
-
-        console.log(
-          `\nSearching for subreddits matching "${query}" (${paramsDescription || "default"})...`,
-        )
-
-        await collectCandidatesForQuery(
-          reddit,
-          candidateMap,
-          query,
-          sort,
-          timeFilter,
-          args,
-          existingNames,
-          fetchPerCombination,
-        )
-
-        await sleep(500)
+      for (const timeFilter of timeTargets) {
+        searchTasks.push({ query, sort, timeFilter })
       }
     }
   }
+
+  const candidateMap = new Map<string, Candidate>()
+  const searchProgress =
+    !args.verbose && searchTasks.length
+      ? createProgressBar(searchTasks.length, "Collecting")
+      : null
+
+  let completedSearches = 0
+
+  for (const task of searchTasks) {
+    const paramsDescription = [
+      `sort=${task.sort}`,
+      task.timeFilter ? `time=${task.timeFilter}` : null,
+    ]
+      .filter(Boolean)
+      .join(", ")
+
+    if (args.verbose) {
+      console.log(
+        `\nSearching for subreddits matching "${task.query}" (${paramsDescription || "default"})...`,
+      )
+    } else {
+      searchProgress?.update(
+        completedSearches,
+        `Searching ${task.query} (${paramsDescription || "default"})`,
+      )
+    }
+
+    await collectCandidatesForQuery(
+      reddit,
+      candidateMap,
+      task.query,
+      task.sort,
+      task.timeFilter,
+      args,
+      existingNames,
+      fetchPerCombination,
+    )
+
+    completedSearches += 1
+
+    if (args.verbose) {
+      // no-op, verbose logs already printed inside collectCandidatesForQuery
+    } else {
+      searchProgress?.update(
+        completedSearches,
+        `Searching ${task.query} (${paramsDescription || "default"})`,
+      )
+    }
+
+    await sleep(500)
+  }
+
+  searchProgress?.finish()
 
   if (!candidateMap.size) {
     console.log("No subreddits found for the supplied queries.")
@@ -368,11 +450,29 @@ async function main() {
     cooldownMs,
   }
 
+  const scoringProgress =
+    !args.verbose && candidates.length
+      ? createProgressBar(candidates.length, "Scoring")
+      : null
+
+  scoringProgress?.update(0, "Scoring candidate subreddits")
+
   const processedResults = await runWithConcurrency(
     candidates,
     concurrencyLimit,
     async (candidate) => processCandidate(candidate, processingContext),
+    (completed, _total, candidate) => {
+      if (args.verbose) {
+        return
+      }
+      scoringProgress?.update(
+        completed,
+        `Scoring r/${candidate.name}`,
+      )
+    },
   )
+
+  scoringProgress?.finish()
 
   const combinedResults = processedResults.filter(
     (result): result is DiscoveryResult => Boolean(result),
@@ -431,6 +531,7 @@ function parseArgs(argv: string[]): DiscoveryArgs {
       "gpt-4.1-mini",
     skipExisting: false,
     quiet: false,
+    verbose: false,
     minIntentScore: undefined,
     concurrency: Number(process.env.REDDIT_DISCOVERY_CONCURRENCY || "3"),
     sorts: [],
@@ -517,11 +618,13 @@ function parseArgs(argv: string[]): DiscoveryArgs {
           throw new Error("--time-filters expects a value")
         }
         index += 1
-        const parts = value
+        const rawParts = value
           .split(",")
           .map((item) => item.trim())
           .filter(Boolean)
-        result.timeFilters.push(...parts)
+        const normalized = normalizeStringList(rawParts)
+        const valid = filterValidTimeFilters(normalized)
+        result.timeFilters.push(...valid)
         break
       }
       case "--pages": {
@@ -544,6 +647,9 @@ function parseArgs(argv: string[]): DiscoveryArgs {
       }
       case "--quiet":
         result.quiet = true
+        break
+      case "--verbose":
+        result.verbose = true
         break
       case "--concurrency": {
         const value = Number(argv[index + 1])
@@ -572,7 +678,7 @@ function printHelp() {
 
 Options:
   --query, -q            Comma-separated search terms (default: config keywords)
-  --limit                Max subreddits to fetch per query (default 15)
+  --limit                Max subreddits to fetch per query (default config or 60)
   --pages                Multipliers for --limit when fetching each query (default 1)
   --min-subscribers      Minimum subscriber count (default 500)
   --include-nsfw         Include NSFW communities
@@ -583,6 +689,7 @@ Options:
   --time-filters         Comma-separated time filters for top-sort searches (default config)
   --min-intent-score     Minimum intent keyword matches before AI scoring (default config)
   --quiet                Suppress skip messages
+  --verbose              Show detailed logs instead of progress bars
   --help, -h             Show this help message
 `)
 }
@@ -1006,9 +1113,152 @@ function normalizeStringList(values: string[]): string[] {
   return normalized
 }
 
+function filterValidTimeFilters(
+  values: string[],
+): SortedListingOptions["time"][] {
+  const filtered: SortedListingOptions["time"][] = []
+
+  for (const value of values) {
+    const candidate = value as SortedListingOptions["time"]
+    if (
+      SUPPORTED_TIME_FILTER_SET.has(candidate) &&
+      !filtered.includes(candidate)
+    ) {
+      filtered.push(candidate)
+    }
+  }
+
+  return filtered
+}
+
 function sortRequiresTimeFilter(sort: string): boolean {
   const normalized = sort.toLowerCase()
   return normalized === "top" || normalized === "controversial"
+}
+
+function createProgressBar(total: number, prefix = "Progress"): ProgressBar {
+  const maxTotal = Math.max(0, total)
+  if (maxTotal === 0) {
+    return {
+      update: () => {},
+      finish: () => {},
+    }
+  }
+
+  if (!process.stderr.isTTY) {
+    let lastPercent = -1
+    const base = prefix ? `${prefix}: ` : ""
+
+    return {
+      update: (completed, label) => {
+        const ratio = Math.min(1, Math.max(0, completed / maxTotal))
+        const percent = Math.round(ratio * 100)
+        if (percent === lastPercent) {
+          return
+        }
+        lastPercent = percent
+        const suffix = label ? ` ${label}` : ""
+        console.log(`${base}${percent}%${suffix}`)
+      },
+      finish: () => {
+        if (lastPercent !== 100) {
+          console.log(`${base}100%`)
+        }
+      },
+    }
+  }
+
+  let renderedLength = 0
+  let lastLabel = ""
+  const columns = typeof process.stderr.columns === "number"
+    ? process.stderr.columns
+    : 80
+  const barWidth = Math.min(40, Math.max(10, Math.floor(columns * 0.4)))
+  const basePrefix = prefix ? `${prefix} ` : ""
+
+  const render = (completed: number, label?: string) => {
+    if (label) {
+      lastLabel = label
+    }
+
+    const ratio = Math.min(1, Math.max(0, completed / maxTotal))
+    const percent = Math.round(ratio * 100)
+    const filled = Math.round(barWidth * ratio)
+    const empty = barWidth - filled
+    const bar = `${"#".repeat(filled)}${"-".repeat(empty)}`
+    const percentText = `${percent}`.padStart(3, " ")
+    const composed = `${basePrefix}[${bar}] ${percentText}% ${lastLabel}`.trimEnd()
+    const maxLen = (process.stderr.columns || columns) - 1
+    const truncated = composed.length > maxLen
+      ? composed.slice(0, Math.max(0, maxLen))
+      : composed
+    const padding = Math.max(0, renderedLength - truncated.length)
+    process.stderr.write(`\r${truncated}${" ".repeat(padding)}`)
+    renderedLength = truncated.length
+  }
+
+  return {
+    update: (completed, label) => {
+      render(completed, label)
+    },
+    finish: () => {
+      render(maxTotal)
+      process.stderr.write("\n")
+    },
+  }
+}
+
+function formatOptionValue(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "(not set)"
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "yes" : "no"
+  }
+
+  if (Array.isArray(value)) {
+    return value.length ? value.join(", ") : "(none)"
+  }
+
+  return `${value}`
+}
+
+function printOptionTable(rows: OptionTableRow[]) {
+  if (!rows.length) {
+    return
+  }
+
+  const normalizedRows = rows.map((row) => ({
+    label: row.label.trim(),
+    value: formatOptionValue(row.value),
+  }))
+
+  const headerLabel = "Option"
+  const headerValue = "Value"
+  const labelWidth = Math.max(
+    headerLabel.length,
+    ...normalizedRows.map((row) => row.label.length),
+  )
+  const valueWidth = Math.max(
+    headerValue.length,
+    ...normalizedRows.map((row) => row.value.length),
+  )
+
+  const horizontal = `+${"-".repeat(labelWidth + 2)}+${"-".repeat(valueWidth + 2)}+`
+  console.log(horizontal)
+  console.log(
+    `| ${headerLabel.padEnd(labelWidth)} | ${headerValue.padEnd(valueWidth)} |`,
+  )
+  console.log(horizontal)
+
+  for (const row of normalizedRows) {
+    console.log(
+      `| ${row.label.padEnd(labelWidth)} | ${row.value.padEnd(valueWidth)} |`,
+    )
+  }
+
+  console.log(horizontal)
 }
 
 async function collectCandidatesForQuery(
@@ -1016,12 +1266,12 @@ async function collectCandidatesForQuery(
   candidateMap: Map<string, Candidate>,
   query: string,
   sort: string,
-  timeFilter: string | undefined,
+  timeFilter: SortedListingOptions["time"] | undefined,
   args: DiscoveryArgs,
   existingNames: Set<string>,
   limit: number,
 ): Promise<number> {
-  const searchParams: Record<string, any> = {
+  const searchParams: SubredditSearchOptions = {
     query,
     limit,
     sort,
@@ -1054,7 +1304,7 @@ async function collectCandidatesForQuery(
       }
     }
 
-    if (!args.quiet) {
+    if (!args.quiet && args.verbose) {
       console.log(
         `  -> Found ${added} new candidate(s) (total ${candidateMap.size}).`,
       )
@@ -1089,7 +1339,7 @@ function addCandidateFromListing(
   const key = name.toLowerCase()
 
   if (args.skipExisting && existingNames.has(key)) {
-    if (!args.quiet) {
+    if (args.verbose && !args.quiet) {
       console.log(`Skipping r/${name} (already in config).`)
     }
     recordSkip(name, "already in config")
@@ -1097,7 +1347,7 @@ function addCandidateFromListing(
   }
 
   if (runContext?.processedNames.has(key)) {
-    if (!args.quiet) {
+    if (args.verbose && !args.quiet) {
       console.log(`Skipping r/${name} (already processed in previous run).`)
     }
     recordSkip(name, "already processed")
@@ -1329,7 +1579,7 @@ async function processCandidate(
 
   const detailsKey = details.name.toLowerCase()
   if (runContext?.processedNames.has(detailsKey)) {
-    if (!args.quiet) {
+    if (args.verbose && !args.quiet) {
       console.log(`Skipping r/${details.name} (already processed).`)
     }
     recordSkip(details.name, "already processed")
@@ -1337,7 +1587,7 @@ async function processCandidate(
   }
 
   if (!args.includeNsfw && details.over18) {
-    if (!args.quiet) {
+    if (args.verbose && !args.quiet) {
       console.log(`Skipping r/${details.name} (marked NSFW).`)
     }
     recordSkip(details.name, "marked NSFW")
@@ -1347,7 +1597,7 @@ async function processCandidate(
   if (!args.includeNsfw) {
     const nsfwSignal = detectLikelyNsfw(details)
     if (nsfwSignal) {
-      if (!args.quiet) {
+      if (args.verbose && !args.quiet) {
         console.log(`Skipping r/${details.name} (${nsfwSignal}).`)
       }
       recordSkip(details.name, nsfwSignal)
@@ -1356,7 +1606,7 @@ async function processCandidate(
   }
 
   if (details.subscribers < args.minSubscribers) {
-    if (!args.quiet) {
+    if (args.verbose && !args.quiet) {
       console.log(
         `Skipping r/${details.name} (${formatNumber(details.subscribers)} subscribers < minimum).`,
       )
@@ -1371,7 +1621,7 @@ async function processCandidate(
   const intent = evaluateIntent(details, includeKeywords, excludeKeywords)
 
   if (intent.excludeMatches.length) {
-    if (!args.quiet) {
+    if (args.verbose && !args.quiet) {
       console.log(
         `Skipping r/${details.name} (excluded keywords: ${intent.excludeMatches.join(", ")}).`,
       )
@@ -1384,7 +1634,7 @@ async function processCandidate(
   }
 
   if (intent.score < minIntentScore) {
-    if (!args.quiet) {
+    if (args.verbose && !args.quiet) {
       console.log(
         `Skipping r/${details.name} (intent score ${intent.score} < ${minIntentScore}).`,
       )
@@ -1591,6 +1841,7 @@ async function runWithConcurrency<T, R>(
   items: T[],
   concurrency: number,
   worker: (item: T) => Promise<R>,
+  onProgress?: (completed: number, total: number, item: T) => void,
 ): Promise<R[]> {
   if (items.length === 0) {
     return []
@@ -1598,6 +1849,7 @@ async function runWithConcurrency<T, R>(
 
   const limit = Math.max(1, Math.floor(concurrency))
   let index = 0
+  let completed = 0
   const results: R[] = []
 
   const runWorker = async () => {
@@ -1611,6 +1863,10 @@ async function runWithConcurrency<T, R>(
       const item = items[currentIndex]
       const value = await worker(item)
       localResults.push(value)
+      completed += 1
+      if (onProgress) {
+        onProgress(completed, items.length, item)
+      }
     }
     return localResults
   }
