@@ -9,16 +9,21 @@ import { Copy } from "lucide-react"
 
 export default function DuplicateProductButton({
   productId,
+  className,
+  variant = "outline",
 }: {
   productId: string
+  className?: string
+  variant?: React.ComponentProps<typeof Button>["variant"]
 }) {
   const [isPending, start] = useTransition()
   const router = useRouter()
   return (
     <Button
-      variant="outline"
+      variant={variant}
       size="sm"
       disabled={isPending}
+      className={className}
       onClick={() => {
         start(async () => {
           const res = (await duplicateProductAction(productId)) as any

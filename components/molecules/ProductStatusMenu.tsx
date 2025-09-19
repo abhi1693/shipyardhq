@@ -12,13 +12,18 @@ import {
 import { setProductStatusAction } from "@/actions/admin/products/actions"
 import { toast } from "sonner"
 import { Settings2, Rocket, EyeOff, Undo2, Archive } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export default function ProductStatusMenu({
   productId,
   status,
+  triggerClassName,
+  variant = "outline",
 }: {
   productId: string
   status: "draft" | "published" | "archived"
+  triggerClassName?: string
+  variant?: React.ComponentProps<typeof Button>["variant"]
 }) {
   const [isPending, start] = useTransition()
   const router = useRouter()
@@ -36,10 +41,11 @@ export default function ProductStatusMenu({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant={variant}
           size="sm"
           disabled={isPending}
           aria-label="Set status"
+          className={cn(triggerClassName)}
         >
           <Settings2 className="h-4 w-4 mr-2" />
           Set Status

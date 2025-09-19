@@ -11,9 +11,7 @@ import {
   formatBoolean,
   formatDate,
   image,
-  linkify,
   placeholder,
-  commaSeparated,
   formatCurrency,
   slug as slugFmt,
 } from "@/lib/ui/formatters"
@@ -36,13 +34,46 @@ import {
   choosePlanAction,
 } from "@/actions/member/products/actions"
 import ShareOnXButton from "@/components/molecules/ShareOnXButton"
-import { ExternalLink, Copy as CopyIcon, BarChart3 } from "lucide-react"
+import {
+  ExternalLink,
+  Copy as CopyIcon,
+  BarChart3,
+  Building2,
+  Globe,
+  Target,
+  Tag,
+  MousePointerClick,
+  Mail,
+  Video,
+  Github as GithubIcon,
+  Twitter as TwitterIcon,
+} from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import { PlanType } from "@/lib/vendor/prisma/client"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
 import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
+import {JSX} from "react";
+
+const surfaceBackdropClass =
+  "relative w-full overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/95 py-10 before:absolute before:inset-0 before:-z-10 before:bg-[radial-gradient(circle_at_top,var(--brand-1)/0.12,transparent_60%)]"
+
+const glassCardClass =
+  "rounded-3xl border border-[color:var(--brand-1)/0.16] bg-background/92 backdrop-blur"
+
+const actionPillClass =
+  "rounded-full border border-[color:var(--brand-1)/0.25] bg-background/90 px-3 py-1.5 text-sm font-medium text-[color:var(--brand-1)] transition-colors hover:border-[color:var(--brand-1)/0.35] hover:bg-[color:var(--brand-1)/0.08]"
+
+const insetPanelClass =
+  "rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/90"
+
+const chipIconClass = "h-3.5 w-3.5"
+const infoChipClass =
+  "inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.25] bg-background/90 px-3 py-1.5 text-sm text-foreground/80"
+const accentChipClass =
+  "inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.3] bg-[color:var(--brand-2)/0.12] px-3 py-1.5 text-sm text-[color:var(--brand-2)]"
+const placeholderTextClass = "text-sm text-muted-foreground"
 
 export default async function ViewUserProductPage({
   params,
@@ -139,6 +170,84 @@ export default async function ViewUserProductPage({
     redirectPath: `/member/products/${productSlug}`,
   })
   const showPlanUI = Boolean(currentPlanPublic)
+
+  const formatHost = (value?: string | null) => {
+    if (!value) return null
+    try {
+      const host = new URL(value).hostname.replace(/^www\./, "")
+      return host || value
+    } catch {
+      return value
+    }
+  }
+
+  const platforms = (product.platforms || []).map((platform) =>
+    platform.replace(/_/g, " "),
+  )
+  const tags = product.keywords || []
+  const organizationName = product.organization?.name ?? ""
+  const organizationUrl = product.organization?.url ?? ""
+  const organizationHost = organizationUrl ? formatHost(organizationUrl) : null
+  const websiteHost = formatHost(product.websiteUrl) ?? product.websiteUrl
+  const ctaLabel = product.ctaLabel ?? ""
+  const ctaUrl = product.ctaUrl ?? ""
+  const hasCtaPair = Boolean(ctaLabel && ctaUrl)
+  const metadata = product.metadata
+
+  const extraLinks: Array<{
+    key: string
+    label: string
+    href: string
+    icon: JSX.Element
+  }> = []
+
+  if (organizationUrl) {
+    extraLinks.push({
+      key: "organization-url",
+      label: organizationHost ?? organizationUrl,
+      href: organizationUrl,
+      icon: <Building2 className={chipIconClass} />,
+    })
+  }
+
+  if (metadata?.githubUrl) {
+    const href = metadata.githubUrl
+    extraLinks.push({
+      key: "github",
+      label: formatHost(href) ?? href,
+      href,
+      icon: <GithubIcon className={chipIconClass} />,
+    })
+  }
+
+  if (metadata?.twitterUrl) {
+    const href = metadata.twitterUrl
+    extraLinks.push({
+      key: "twitter",
+      label: formatHost(href) ?? href,
+      href,
+      icon: <TwitterIcon className={chipIconClass} />,
+    })
+  }
+
+  if (metadata?.demoUrl) {
+    const href = metadata.demoUrl
+    extraLinks.push({
+      key: "demo",
+      label: formatHost(href) ?? href,
+      href,
+      icon: <Video className={chipIconClass} />,
+    })
+  }
+
+  if (metadata?.contactEmail) {
+    extraLinks.push({
+      key: "contact",
+      label: metadata.contactEmail,
+      href: `mailto:${metadata.contactEmail}`,
+      icon: <Mail className={chipIconClass} />,
+    })
+  }
 
   return (
     <>
@@ -246,26 +355,45 @@ export default async function ViewUserProductPage({
         basePath="member/products"
         deletable
         editable
+        surfaceClassName={surfaceBackdropClass}
+        overviewCardClassName={glassCardClass}
         headingActionsLeft={
           <div className="flex items-center gap-2">
             <ProductStatusMenu
               productId={product.id}
               status={product.status as any}
+              variant="ghost"
+              triggerClassName={actionPillClass}
             />
             <CopyButton
               text={publicPath}
               resolveAbsolute
               size="sm"
-              variant="outline"
+              variant="secondary"
+              className={actionPillClass}
             >
               <>
                 <CopyIcon className="h-4 w-4 mr-2" /> Copy link
               </>
             </CopyButton>
-            <ShareOnXButton path={publicPath} productName={product.name} />
-            <DuplicateProductButton productId={product.id} />
+            <ShareOnXButton
+              path={publicPath}
+              productName={product.name}
+              variant="ghost"
+              className={actionPillClass}
+            />
+            <DuplicateProductButton
+              productId={product.id}
+              variant="ghost"
+              className={actionPillClass}
+            />
             {isOwner && canViewAnalytics ? (
-              <Button variant="outline" size="sm" asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={actionPillClass}
+                asChild
+              >
                 <Link href={analyticsPath}>
                   <BarChart3 className="mr-2 h-4 w-4" /> Analytics
                 </Link>
@@ -275,11 +403,11 @@ export default async function ViewUserProductPage({
         }
         topRowExtras={[
           showPlanUI ? (
-            <Card key="plan-top">
+            <Card key="plan-top" className={glassCardClass}>
               <CardHeader>
                 <CardTitle className="text-base">Plan</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 {product.plan ? (
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
@@ -316,7 +444,7 @@ export default async function ViewUserProductPage({
                   const np = nextPlan
                   if (!np) return null
                   return (
-                    <div className="mt-3 rounded-md border p-3 bg-muted/30">
+                    <div className={`${insetPanelClass} mt-3 p-4`}>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div className="text-sm">
                           <span className="font-medium">
@@ -351,7 +479,7 @@ export default async function ViewUserProductPage({
                                     {priceText}
                                   </span>
                                   {pct > 0 ? (
-                                    <span className="text-[11px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1.5 py-0.5">
+                                    <span className="text-[11px] inline-flex items-center gap-1 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-2 py-0.5 text-emerald-500">
                                       Save{" "}
                                       {new Intl.NumberFormat("en-US", {
                                         maximumFractionDigits: 2,
@@ -368,7 +496,7 @@ export default async function ViewUserProductPage({
                           <input type="hidden" name="planId" value={np!.id} />
                           <Button
                             size="sm"
-                            className="transition-transform hover:-translate-y-0.5"
+                            className={`${actionPillClass} transition-transform hover:-translate-y-0.5`}
                           >
                             Buy now
                           </Button>
@@ -430,7 +558,7 @@ export default async function ViewUserProductPage({
                             className="contents"
                           >
                             <input type="hidden" name="planId" value={p.id} />
-                            <div className="rounded-md border p-3 h-full">
+                            <div className={`${insetPanelClass} h-full p-4`}>
                               <div className="flex items-center justify-between">
                                 <div className="text-sm font-semibold truncate">
                                   {p.name}
@@ -472,7 +600,7 @@ export default async function ViewUserProductPage({
                                         {priceText}
                                       </span>
                                       {pct > 0 ? (
-                                        <span className="text-[10px] inline-flex items-center rounded bg-green-100 text-green-800 border border-green-300 px-1 py-0.5">
+                                        <span className="text-[10px] inline-flex items-center gap-1 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-2 py-0.5 text-emerald-500">
                                           Save{" "}
                                           {new Intl.NumberFormat("en-US", {
                                             maximumFractionDigits: 2,
@@ -495,7 +623,8 @@ export default async function ViewUserProductPage({
                               <div className="mt-3">
                                 <Button
                                   size="sm"
-                                  className="w-full transition-transform hover:-translate-y-0.5"
+                                  variant="ghost"
+                                  className={`${actionPillClass} w-full justify-center transition-transform hover:-translate-y-0.5`}
                                 >
                                   Buy now
                                 </Button>
@@ -513,7 +642,7 @@ export default async function ViewUserProductPage({
         ]}
         relationships={
           <div className="grid grid-cols-12 gap-6">
-            <Card className="col-span-12 md:col-span-4">
+            <Card className={`${glassCardClass} col-span-12 md:col-span-4`}>
               <CardHeader>
                 <CardTitle className="text-base">Branding</CardTitle>
               </CardHeader>
@@ -527,139 +656,174 @@ export default async function ViewUserProductPage({
               </CardContent>
             </Card>
 
-            <Card className="col-span-12 md:col-span-4">
+            <Card className={`${glassCardClass} col-span-12 md:col-span-4`}>
               <CardHeader>
                 <CardTitle className="text-base">
                   Organization & Targeting
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <OverviewRow
-                  label="Organization"
-                  value={
-                    product.organization ? (
-                      <div className="flex items-center gap-2">
-                        <span>{product.organization.name}</span>
-                        {product.organization.url
-                          ? linkify({
-                              href: product.organization.url,
-                              isExternal: true,
-                            })
-                          : null}
-                      </div>
-                    ) : (
-                      placeholder()
-                    )
-                  }
-                />
-                <OverviewRow
-                  label="Platforms"
-                  value={
-                    product.platforms && product.platforms.length
-                      ? commaSeparated(
-                          product.platforms.map((p) => p.replaceAll("_", " ")),
-                        )
-                      : placeholder()
-                  }
-                />
-                <OverviewRow
-                  label="Tags"
-                  value={
-                    product.keywords && product.keywords.length
-                      ? commaSeparated(product.keywords)
-                      : placeholder()
-                  }
-                />
+              <CardContent className="space-y-4 text-sm text-foreground/85">
+                <div className="space-y-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                    Organization
+                  </span>
+                  {organizationName ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={infoChipClass}>
+                        <Building2 className={chipIconClass} />
+                        {organizationName}
+                      </span>
+                      {organizationUrl ? (
+                        <Link
+                          href={organizationUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={accentChipClass}
+                        >
+                          <Globe className={chipIconClass} />
+                          <span className="truncate max-w-[12rem]">
+                            {organizationHost ?? organizationUrl}
+                          </span>
+                        </Link>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <span className={placeholderTextClass}>{placeholder()}</span>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                    Platforms
+                  </span>
+                  {platforms.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {platforms.map((platform) => (
+                        <span className={infoChipClass} key={platform}>
+                          <Target className={chipIconClass} />
+                          {platform}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className={placeholderTextClass}>{placeholder()}</span>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                    Keywords
+                  </span>
+                  {tags.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {tags.map((tagValue) => (
+                        <span className={accentChipClass} key={tagValue}>
+                          <Tag className={chipIconClass} />
+                          {tagValue}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className={placeholderTextClass}>{placeholder()}</span>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="col-span-12 md:col-span-4">
+            <Card className={`${glassCardClass} col-span-12 md:col-span-4`}>
               <CardHeader>
                 <CardTitle className="text-base">Links</CardTitle>
               </CardHeader>
-              <CardContent>
-                <OverviewRow
-                  label="Website"
-                  value={linkify({
-                    href: product.websiteUrl,
-                    label: product.websiteUrl,
-                    isExternal: true,
-                  })}
-                />
-                <OverviewRow
-                  label="CTA Label"
-                  value={product.ctaLabel || placeholder()}
-                />
-                <OverviewRow
-                  label="CTA URL"
-                  value={
-                    product.ctaUrl
-                      ? linkify({
-                          href: product.ctaUrl,
-                          label: product.ctaUrl,
-                          isExternal: true,
-                        })
-                      : placeholder()
-                  }
-                />
-                {((product.ctaLabel && !product.ctaUrl) ||
-                  (!product.ctaLabel && product.ctaUrl)) && (
-                  <div className="mt-2 text-xs text-destructive">
-                    Tip: Provide both CTA label and URL for a complete
-                    call-to-action.
-                  </div>
-                )}
-                <OverviewRow
-                  label="Organization URL"
-                  value={
-                    product.organization?.url
-                      ? linkify({
-                          href: product.organization.url,
-                          label: product.organization.url,
-                          isExternal: true,
-                        })
-                      : placeholder()
-                  }
-                />
-                {product.metadata?.githubUrl && (
-                  <OverviewRow
-                    label="GitHub"
-                    value={linkify({
-                      href: product.metadata.githubUrl,
-                      label: product.metadata.githubUrl,
-                      isExternal: true,
-                    })}
-                  />
-                )}
-                {product.metadata?.twitterUrl && (
-                  <OverviewRow
-                    label="Twitter"
-                    value={linkify({
-                      href: product.metadata.twitterUrl,
-                      label: product.metadata.twitterUrl,
-                      isExternal: true,
-                    })}
-                  />
-                )}
-                {product.metadata?.demoUrl && (
-                  <OverviewRow
-                    label="Demo"
-                    value={linkify({
-                      href: product.metadata.demoUrl,
-                      label: product.metadata.demoUrl,
-                      isExternal: true,
-                    })}
-                  />
-                )}
-                {product.metadata?.contactEmail && (
-                  <OverviewRow
-                    label="Contact Email"
-                    value={product.metadata.contactEmail}
-                  />
-                )}
+              <CardContent className="space-y-4 text-sm text-foreground/85">
+                <div className="space-y-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                    Website
+                  </span>
+                  {product.websiteUrl ? (
+                    <div className="space-y-1">
+                      <Link
+                        href={product.websiteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${accentChipClass} max-w-full`}
+                      >
+                        <span className="truncate max-w-[18rem]">{websiteHost}</span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <span className={placeholderTextClass}>{placeholder()}</span>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                    Primary CTA
+                  </span>
+                  {hasCtaPair ? (
+                    <div className="space-y-1">
+                      <span className={infoChipClass}>
+                        <MousePointerClick className={chipIconClass} /> CTA label
+                      </span>
+                      <Link
+                        href={ctaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${accentChipClass} max-w-full`}
+                      >
+                        <span className="truncate max-w-[18rem]">{ctaLabel}</span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <span className={placeholderTextClass}>{placeholder()}</span>
+                      {(ctaLabel && !ctaUrl) || (!ctaLabel && ctaUrl) ? (
+                        <p className="text-xs text-destructive">
+                          Tip: Provide both CTA label and URL for a complete
+                          call-to-action.
+                        </p>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                    Additional Links
+                  </span>
+                  {extraLinks.length ? (
+                    <div className="flex flex-wrap gap-2">
+                      {extraLinks.map(({ key, href, label, icon }) => {
+                        const isExternal = href.startsWith("http")
+                        const content = (
+                          <>
+                            {icon}
+                            <span className="truncate max-w-[12rem]">{label}</span>
+                          </>
+                        )
+                        return isExternal ? (
+                          <Link
+                            key={key}
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`${accentChipClass} max-w-full`}
+                          >
+                            {content}
+                          </Link>
+                        ) : (
+                          <a
+                            key={key}
+                            href={href}
+                            className={`${accentChipClass} max-w-full`}
+                          >
+                            {content}
+                          </a>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <span className={placeholderTextClass}>{placeholder()}</span>
+                  )}
+                </div>
               </CardContent>
             </Card>
-            <Card className="col-span-12 md:col-span-8">
+            <Card className={`${glassCardClass} col-span-12 md:col-span-8`}>
               <CardHeader>
                 <CardTitle className="text-base">Media Gallery</CardTitle>
               </CardHeader>
@@ -693,8 +857,9 @@ export default async function ViewUserProductPage({
               hasBanner={Boolean(product.bannerImage)}
               ogImageUrl={product.bannerImage || product.logo}
               editHref={`/member/products/${product.slug}/edit`}
+              className={glassCardClass}
             />
-            <Card className="col-span-12">
+            <Card className={`${glassCardClass} col-span-12`}>
               <CardHeader>
                 <CardTitle className="text-base">Description</CardTitle>
               </CardHeader>

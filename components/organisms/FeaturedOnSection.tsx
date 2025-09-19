@@ -1,3 +1,4 @@
+import Image from "next/image"
 import PublicContainer from "@/components/layout/PublicContainer"
 
 const featuredBadges = [
@@ -92,13 +93,14 @@ export function FeaturedOnSection() {
             className="transition-transform duration-200 hover:scale-[1.02] hover:opacity-90"
           >
             <div className="flex h-16 w-52 items-center justify-center overflow-hidden rounded-md">
-              <img
+              <Image
                 src={badge.src}
                 alt={badge.alt}
-                width={badge.width}
-                {...(badge.height ? { height: badge.height } : {})}
+                width={badge.width ?? 200}
+                height={badge.height ?? 60}
                 className="max-h-full max-w-full object-contain"
                 loading="lazy"
+                unoptimized
               />
             </div>
           </a>

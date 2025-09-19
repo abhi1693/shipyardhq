@@ -15,7 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/atoms/tooltip"
 import { BADGE_OPTIONS } from "@/lib/constants"
-import { badgeColorMap, TailwindColor } from "@/lib/utils"
+import { TailwindColor, cn } from "@/lib/utils"
 
 type Upvoter = {
   id: string
@@ -34,6 +34,7 @@ export default function PerformanceCard({
   hasBanner,
   ogImageUrl,
   editHref,
+  className,
 }: {
   upvotes?: number
   clicks?: number
@@ -44,6 +45,7 @@ export default function PerformanceCard({
   hasBanner?: boolean
   ogImageUrl?: string | null
   editHref: string
+  className?: string
 }) {
   const daysLeft = (d: Date | string | null | undefined) => {
     if (!d) return null
@@ -53,40 +55,68 @@ export default function PerformanceCard({
     return left
   }
 
+  const statTileClass =
+    "rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/95 px-4 py-4 text-center"
+  const statLabelClass =
+    "inline-flex items-center justify-center gap-1 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-muted-foreground"
+  const statValueClass = "text-3xl font-bold tracking-tight text-foreground"
+  const pillListClass =
+    "rounded-2xl border border-[color:var(--brand-1)/0.16] bg-background/95 px-4 py-3"
+  const badgeChipBaseClass =
+    "inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-medium shadow-sm"
+  const seoPanelClass =
+    "rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/95 px-4 py-3"
+
+  const themedBadgeColorMap: Record<TailwindColor, string> = {
+    blue: "border-blue-400/45 bg-blue-500/12 text-blue-400",
+    green: "border-emerald-400/45 bg-emerald-500/12 text-emerald-400",
+    yellow: "border-amber-400/45 bg-amber-400/15 text-amber-500",
+    red: "border-red-400/45 bg-red-500/12 text-red-400",
+    purple: "border-violet-400/45 bg-violet-500/12 text-violet-400",
+    orange: "border-orange-400/45 bg-orange-500/12 text-orange-400",
+    pink: "border-pink-400/45 bg-pink-500/12 text-pink-400",
+    teal: "border-teal-400/45 bg-teal-500/12 text-teal-400",
+    cyan: "border-cyan-400/45 bg-cyan-500/12 text-cyan-400",
+    gray: "border-zinc-400/45 bg-zinc-500/12 text-zinc-400",
+  }
+
   return (
-    <Card className="col-span-12 md:col-span-4">
+    <Card className={cn("col-span-12 md:col-span-4", className)}>
       <CardHeader>
         <CardTitle className="text-base">Performance</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {/* KPI tiles */}
+      <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-md border p-3 text-center">
-            <div className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
+          <div className={statTileClass}>
+            <div className={statLabelClass}>
               <ThumbsUp className="h-3.5 w-3.5" /> Upvotes
             </div>
-            <div className="text-2xl font-bold leading-tight">{upvotes}</div>
+            <div className={statValueClass}>{upvotes}</div>
           </div>
-          <div className="rounded-md border p-3 text-center">
-            <div className="flex items-center justify-center gap-1 text-muted-foreground text-xs">
+          <div className={statTileClass}>
+            <div className={statLabelClass}>
               <MousePointerClick className="h-3.5 w-3.5" /> Clicks
             </div>
-            <div className="text-2xl font-bold leading-tight">{clicks}</div>
+            <div className={statValueClass}>{clicks}</div>
           </div>
         </div>
 
-        {/* Upvoters */}
-        <div>
-          <div className="text-xs text-muted-foreground mb-1">
-            Recent upvoters
+        <div className={pillListClass}>
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>Recent upvoters</span>
+            {!!upvoters.length && (
+              <span className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
+                {upvoters.length}
+              </span>
+            )}
           </div>
           {upvoters.length ? (
-            <div className="flex -space-x-2">
+            <div className="mt-2 flex -space-x-2">
               {upvoters.slice(0, 8).map((u) => (
                 <Avatar
                   key={u.id}
                   className="ring-2 ring-background"
-                  title={`${u.user.firstName} ${u.user.lastName || ""}`}
+                  title={`${u.user.firstName} ${u.user.lastName || ""}`.trim()}
                 >
                   <AvatarFallback>
                     {u.user.firstName?.[0] || "?"}
@@ -96,32 +126,31 @@ export default function PerformanceCard({
               ))}
             </div>
           ) : (
-            <div className="text-sm text-muted-foreground">
-              No recent upvotes
+            <div className="mt-2 text-xs text-muted-foreground">
+              No upvotes yet - share your product to spark engagement.
             </div>
           )}
         </div>
 
-        {/* Badges */}
-        <div>
-          <div className="text-xs text-muted-foreground mb-1">Badges</div>
+        <div className={pillListClass}>
+          <div className="text-xs text-muted-foreground">Active badges</div>
           {badges.length ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="mt-2 flex flex-wrap gap-2">
               {badges.slice(0, 6).map((b) => {
                 const left = daysLeft(b.expiresAt)
                 const expiryText = b.expiresAt
-                  ? `Expires ${new Date(b.expiresAt).toLocaleDateString()}${left != null ? ` (${left}d left)` : ""}`
+                  ? `Expires ${new Date(b.expiresAt).toLocaleDateString()}${
+                      left != null ? ` (${left}d left)` : ""
+                    }`
                   : "No expiry"
                 const def = BADGE_OPTIONS.find((o) => o.value === b.badge)
                 const colorCls = def?.color
-                  ? badgeColorMap[def.color as TailwindColor]
-                  : "bg-muted text-muted-foreground border"
+                  ? themedBadgeColorMap[def.color as TailwindColor]
+                  : "border-[color:var(--brand-1)/0.22] bg-background/90 text-foreground/80"
                 return (
                   <Tooltip key={b.id}>
                     <TooltipTrigger asChild>
-                      <span
-                        className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-xs ${colorCls}`}
-                      >
+                      <span className={cn(badgeChipBaseClass, colorCls)}>
                         <span aria-hidden>{def?.icon ?? "🏷️"}</span>
                         <span className="truncate max-w-[8rem]">
                           {def?.label ?? b.badge}
@@ -134,40 +163,41 @@ export default function PerformanceCard({
               })}
             </div>
           ) : (
-            <div className="text-sm text-muted-foreground">No badges</div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              No badges assigned yet.
+            </div>
           )}
         </div>
 
-        {/* SEO snippet */}
-        <div>
-          <div className="text-xs text-muted-foreground mb-1">SEO preview</div>
-          <div className="rounded border p-3 bg-muted/30">
-            <div className="text-sm font-medium truncate">{productName}</div>
-            <div className="text-xs text-muted-foreground truncate">
-              {tagline}
-            </div>
-            <div className="mt-1 text-[10px] text-muted-foreground">
-              OG image:{" "}
-              {ogImageUrl ? (
-                <Link
-                  href={ogImageUrl}
-                  target="_blank"
-                  className="underline break-all"
-                >
-                  {hasBanner ? "Banner" : "Logo"}
-                </Link>
-              ) : (
-                <>—</>
-              )}
-            </div>
-            <div className="mt-2">
+        <div className={seoPanelClass}>
+          <div className="text-xs text-muted-foreground">SEO preview</div>
+          <div className="mt-1 text-sm font-medium truncate text-foreground">
+            {productName}
+          </div>
+          <div className="text-xs text-muted-foreground truncate">
+            {tagline || "Craft a punchy tagline to boost clicks."}
+          </div>
+          <div className="mt-2 text-[10px] text-muted-foreground">
+            OG image:{" "}
+            {ogImageUrl ? (
               <Link
-                href={editHref}
-                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                href={ogImageUrl}
+                target="_blank"
+                className="underline decoration-dotted"
               >
-                <Sparkles className="h-3 w-3" /> Improve SEO
+                {hasBanner ? "Banner" : "Logo"}
               </Link>
-            </div>
+            ) : (
+              <>Not set</>
+            )}
+          </div>
+          <div className="mt-3">
+            <Link
+              href={editHref}
+              className="inline-flex items-center gap-1 text-xs text-[color:var(--brand-1)] hover:underline"
+            >
+              <Sparkles className="h-3 w-3" /> Improve SEO
+            </Link>
           </div>
         </div>
       </CardContent>

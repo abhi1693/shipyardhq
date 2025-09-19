@@ -4,16 +4,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
+import { cn } from "@/lib/utils"
 
 export function OverviewCard({
   title,
   children,
+  className,
 }: {
   title: string
   children: React.ReactNode
+  className?: string
 }) {
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader>
         <CardTitle className="text-base">{title}</CardTitle>
       </CardHeader>

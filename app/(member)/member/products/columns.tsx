@@ -17,11 +17,11 @@ import { Button } from "@/components/atoms/button"
 import { Eye, Pencil, Trash2 } from "lucide-react"
 
 const actionButtonClass =
-  "rounded-full border border-[color:var(--brand-1)/0.2] bg-background/90 px-3 py-1.5 text-[color:var(--brand-1)] shadow-[0px_12px_30px_-25px_rgba(7,78,134,0.55)] transition-colors hover:border-[color:var(--brand-1)/0.3] hover:bg-[color:var(--brand-1)/0.14]"
+  "rounded-full border border-[color:var(--brand-1)/0.25] bg-background px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:border-[color:var(--brand-1)/0.35] hover:bg-[color:var(--brand-1)/0.08]"
 const actionLinkClass = "inline-flex items-center gap-2 text-inherit"
 const actionIconClass = "h-4 w-4"
 const destructiveButtonClass =
-  "rounded-full border border-red-500/50 bg-red-500/15 px-3 py-1.5 text-red-500 shadow-[0px_12px_30px_-25px_rgba(220,38,38,0.45)] transition-colors hover:bg-red-500/20"
+  "rounded-full border border-red-500/40 bg-background px-3 py-1.5 text-sm font-medium text-red-500 transition-colors hover:border-red-500/50 hover:bg-red-500/10"
 
 export type MemberProductRow = Product & {
   verification: ProductVerification | null

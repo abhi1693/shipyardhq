@@ -3,6 +3,7 @@ import {
   OverviewRow,
 } from "@/components/layout/object-view/overview"
 import { ClientObjectHeading } from "./client-object-heading"
+import { cn } from "@/lib/utils"
 
 interface ObjectPageLayoutProps {
   heading: {
@@ -20,6 +21,8 @@ interface ObjectPageLayoutProps {
   sidebar?: React.ReactNode
   topRowExtras?: React.ReactNode[]
   headingActionsLeft?: React.ReactNode
+  surfaceClassName?: string
+  overviewCardClassName?: string
 }
 
 export function ObjectPageLayout({
@@ -32,6 +35,8 @@ export function ObjectPageLayout({
   sidebar = null,
   topRowExtras = undefined,
   headingActionsLeft = null,
+  surfaceClassName,
+  overviewCardClassName,
 }: ObjectPageLayoutProps) {
   const hasOverview = Array.isArray(overview) && overview.length > 0
   const extrasList = Array.isArray(topRowExtras)
@@ -49,10 +54,15 @@ export function ObjectPageLayout({
         extraActions={headingActionsLeft}
       />
 
-      <div className="w-full bg-muted py-6">
+      <div
+        className={cn(
+          "w-full bg-muted py-6",
+          surfaceClassName,
+        )}
+      >
         <div className="w-full px-4 md:px-6">
           {extrasList.length === 0 && hasOverview && (
-            <OverviewCard title="Overview">
+            <OverviewCard title="Overview" className={overviewCardClassName}>
               {overview.map((field) => (
                 <OverviewRow
                   key={field.label}
@@ -66,7 +76,10 @@ export function ObjectPageLayout({
             <div className="grid grid-cols-12 gap-6">
               <div className="col-span-12 lg:col-span-8">
                 {hasOverview && (
-                  <OverviewCard title="Overview">
+                  <OverviewCard
+                    title="Overview"
+                    className={overviewCardClassName}
+                  >
                     {overview.map((field) => (
                       <OverviewRow
                         key={field.label}
@@ -89,7 +102,10 @@ export function ObjectPageLayout({
                 <div className="grid grid-cols-12 gap-6">
                   {hasOverview && (
                     <div className="col-span-12 lg:col-span-4">
-                      <OverviewCard title="Overview">
+                      <OverviewCard
+                        title="Overview"
+                        className={overviewCardClassName}
+                      >
                         {overview.map((field) => (
                           <OverviewRow
                             key={field.label}
@@ -113,7 +129,10 @@ export function ObjectPageLayout({
                 <div className="grid grid-cols-12 gap-6">
                   {hasOverview && (
                     <div className="col-span-12 lg:col-span-4">
-                      <OverviewCard title="Overview">
+                      <OverviewCard
+                        title="Overview"
+                        className={overviewCardClassName}
+                      >
                         {overview.map((field) => (
                           <OverviewRow
                             key={field.label}
@@ -144,7 +163,10 @@ export function ObjectPageLayout({
                 <div className="grid grid-cols-12 gap-6">
                   {hasOverview && (
                     <div className="col-span-12 lg:col-span-4">
-                      <OverviewCard title="Overview">
+                      <OverviewCard
+                        title="Overview"
+                        className={overviewCardClassName}
+                      >
                         {overview.map((field) => (
                           <OverviewRow
                             key={field.label}

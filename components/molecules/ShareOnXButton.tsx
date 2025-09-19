@@ -2,13 +2,18 @@
 
 import { Button } from "@/components/atoms/button"
 import { Twitter } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export default function ShareOnXButton({
   path,
   productName,
+  className,
+  variant = "outline",
 }: {
   path: string
   productName: string
+  className?: string
+  variant?: React.ComponentProps<typeof Button>["variant"]
 }) {
   function onShare() {
     try {
@@ -21,7 +26,12 @@ export default function ShareOnXButton({
     } catch {}
   }
   return (
-    <Button variant="outline" size="sm" onClick={onShare}>
+    <Button
+      variant={variant}
+      size="sm"
+      onClick={onShare}
+      className={cn(className)}
+    >
       <Twitter className="h-4 w-4 mr-2" /> Share on X
     </Button>
   )

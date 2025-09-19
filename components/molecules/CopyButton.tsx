@@ -3,6 +3,7 @@
 import { ReactNode, useState } from "react"
 import { Button } from "@/components/atoms/button"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 export default function CopyButton({
   text,
@@ -11,6 +12,7 @@ export default function CopyButton({
   variant = "outline",
   resolveAbsolute = false,
   children,
+  className,
 }: {
   text: string
   label?: string
@@ -18,6 +20,7 @@ export default function CopyButton({
   variant?: "outline" | "secondary" | "default"
   resolveAbsolute?: boolean
   children?: ReactNode
+  className?: string
 }) {
   const [copied, setCopied] = useState(false)
   return (
@@ -25,6 +28,7 @@ export default function CopyButton({
       type="button"
       size={size === "xs" ? "sm" : size}
       variant={variant}
+      className={cn(className)}
       onClick={async () => {
         const toCopy = (() => {
           if (
