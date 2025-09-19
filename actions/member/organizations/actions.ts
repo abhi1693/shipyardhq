@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { requireMemberFeature } from "@/lib/memberFeatures"
 import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import {
   getActiveUserByClerkId,
@@ -273,12 +274,13 @@ export async function attachProductToOrganizationAction(
       where: { id: productId },
       data: { organizationId: ctx.organizationId },
     })
-
-    redirect(ctx.redirectPath)
   } catch (e) {
     console.error("Attach product failed", e)
     return { error: "Failed to connect product" }
   }
+
+  revalidatePath(ctx.redirectPath)
+  redirect(ctx.redirectPath)
 }
 
 export async function createMyOrganizationAction(formData: FormData) {
