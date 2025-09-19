@@ -23,6 +23,10 @@ dotenv.config({
   override: false,
 })
 
+const DEFAULT_RESULTS_FILE =
+  process.env.REDDIT_DISCOVERY_RESULTS_FILE ||
+  path.join(process.cwd(), "tmp", "reddit-discovery-results.json")
+
 type DiscoveryArgs = {
   queries: string[]
   limit: number
@@ -92,6 +96,45 @@ type IntentEvaluation = {
   excludeMatches: string[]
 }
 
+type SkipRecord = {
+  name: string
+  reason: string
+  statusCode?: number
+}
+
+type PersistedResult = {
+  subreddit: string
+  status?: SubredditStatus
+  assessment?: AiAssessment
+  configEntry?: SubredditConfigEntry
+  subscribers?: number
+  queries?: string[]
+  intent?: IntentEvaluation
+  details?: Partial<SubredditDetails>
+}
+
+type PersistedDocument =
+  | PersistedResult[]
+  | {
+      results?: PersistedResult[]
+      skips?: SkipRecord[]
+      generatedAt?: string
+    }
+
+type RunContext = {
+  outputPath: string
+  results: DiscoveryResult[]
+  skips: SkipRecord[]
+  startedAt: string
+  processedNames: Set<string>
+}
+
+let runContext: RunContext | null = null
+let handlingSignal = false
+
+process.on("SIGINT", () => handleInterrupt("SIGINT"))
+process.on("SIGTERM", () => handleInterrupt("SIGTERM"))
+
 async function main() {
   const args = parseArgs(process.argv.slice(2))
 
@@ -130,6 +173,18 @@ async function main() {
       ? discoveryConfig.minIntentScore
       : DEFAULT_DISCOVERY_MIN_INTENT_SCORE)
 
+  const resultsPath = DEFAULT_RESULTS_FILE
+
+  runContext = {
+    outputPath: resultsPath,
+    results: [],
+    skips: [],
+    startedAt: new Date().toISOString(),
+    processedNames: new Set<string>(),
+  }
+
+  await seedRunContextFromExisting(runContext)
+
   if (!queryList.length) {
     console.error("No discovery queries provided. Use --query or add keywords to the config file.")
     process.exit(1)
@@ -151,12 +206,12 @@ async function main() {
 
   for (const query of queryList) {
     console.log(`\nSearching for subreddits matching "${query}"...`)
-    const listing = await reddit.searchSubreddits({
+    const searchParams = {
       query,
       limit: args.limit,
-      include_over_18: args.includeNsfw,
-      sort: "relevance",
-    })
+    } satisfies { query: string; limit: number }
+
+    const listing = (await reddit.searchSubreddits(searchParams)) as any
 
     const results = Array.from(listing as any[])
 
@@ -171,6 +226,15 @@ async function main() {
         if (!args.quiet) {
           console.log(`Skipping r/${name} (already in config).`)
         }
+        recordSkip(name, "already in config")
+        continue
+      }
+
+      if (runContext?.processedNames.has(key)) {
+        if (!args.quiet) {
+          console.log(`Skipping r/${name} (already processed in previous run).`)
+        }
+        recordSkip(name, "already processed", undefined)
         continue
       }
 
@@ -205,10 +269,20 @@ async function main() {
       continue
     }
 
+    const detailsKey = details.name.toLowerCase()
+    if (runContext?.processedNames.has(detailsKey)) {
+      if (!args.quiet) {
+        console.log(`Skipping r/${details.name} (already processed).`)
+      }
+      recordSkip(details.name, "already processed", undefined)
+      continue
+    }
+
     if (!args.includeNsfw && details.over18) {
       if (!args.quiet) {
         console.log(`Skipping r/${details.name} (marked NSFW).`)
       }
+      recordSkip(details.name, "marked NSFW")
       continue
     }
 
@@ -218,6 +292,10 @@ async function main() {
           `Skipping r/${details.name} (${formatNumber(details.subscribers)} subscribers < minimum).`,
         )
       }
+      recordSkip(
+        details.name,
+        `${formatNumber(details.subscribers)} subscribers < minimum`,
+      )
       continue
     }
 
@@ -229,6 +307,10 @@ async function main() {
           `Skipping r/${details.name} (excluded keywords: ${intent.excludeMatches.join(", ")}).`,
         )
       }
+      recordSkip(
+        details.name,
+        `excluded keywords: ${intent.excludeMatches.join(", ")}`,
+      )
       continue
     }
 
@@ -238,6 +320,10 @@ async function main() {
           `Skipping r/${details.name} (intent score ${intent.score} < ${minIntentScore}).`,
         )
       }
+      recordSkip(
+        details.name,
+        `intent score ${intent.score} < ${minIntentScore}`,
+      )
       continue
     }
 
@@ -252,20 +338,24 @@ async function main() {
 
     if (!assessment) {
       console.log(`Unable to score r/${details.name}; skipping.`)
+      recordSkip(details.name, "OpenAI scoring failed")
       continue
     }
 
     const status = verdictToStatus(assessment.verdict)
     const configEntry = buildConfigEntry(details, assessment, intent)
-    combinedResults.push({
+    const result: DiscoveryResult = {
       details,
       assessment,
       status,
       configEntry,
       intent,
-    })
+    }
 
-    displayResult({ details, assessment, status, configEntry, intent })
+    combinedResults.push(result)
+    recordResult(result)
+
+    displayResult(result)
 
     await sleep(400)
   }
@@ -275,15 +365,13 @@ async function main() {
     return
   }
 
-  combinedResults.sort((a, b) => {
-    const order = statusRank(a.status) - statusRank(b.status)
-    if (order !== 0) {
-      return order
-    }
-    return (b.assessment.confidence || 0) - (a.assessment.confidence || 0)
-  })
+  const sortedResults = sortResults(combinedResults)
 
-  const counts = combinedResults.reduce(
+  if (runContext) {
+    runContext.results = sortedResults
+  }
+
+  const counts = sortedResults.reduce(
     (acc, item) => {
       acc[item.status] += 1
       return acc
@@ -295,15 +383,21 @@ async function main() {
     `\nSummary: ${counts.allow} allow / ${counts.review} review / ${counts.deny} deny`,
   )
 
-  await persistResults(combinedResults)
+  await persistResults(
+    sortedResults,
+    runContext?.outputPath,
+    runContext?.skips,
+  )
 
   if (args.write) {
-    await updateConfig(fileConfig, combinedResults, configPath)
+    await updateConfig(fileConfig, sortedResults, configPath)
   } else {
     console.log(
       "\nRun with --write to merge these findings into the discovery config file.",
     )
   }
+
+  runContext = null
 }
 
 function parseArgs(argv: string[]): DiscoveryArgs {
@@ -464,6 +558,7 @@ async function fetchSubredditDetails(
     const redditError = parseRedditError(error)
     const reason = redditError.reason || redditError.message || "unknown error"
     const status = redditError.statusCode ? ` (status ${redditError.statusCode})` : ""
+    recordSkip(candidate.name, reason, redditError.statusCode)
     console.warn(`Skipping r/${candidate.name}: ${reason}${status}`)
     return null
   }
@@ -657,18 +752,19 @@ function displayResult(result: DiscoveryResult) {
   console.log(JSON.stringify(configEntry, null, 2))
 }
 
-async function persistResults(results: DiscoveryResult[]) {
-  const payload = results.map((item) => ({
-    subreddit: item.details.name,
-    status: item.status,
-    assessment: item.assessment,
-    configEntry: item.configEntry,
-    subscribers: item.details.subscribers,
-    queries: item.details.queries,
-    intent: item.intent,
-  }))
+async function persistResults(
+  results: DiscoveryResult[],
+  outputPath?: string,
+  skips?: SkipRecord[],
+) {
+  const resultsPath = outputPath || DEFAULT_RESULTS_FILE
+  const dedupedResults = dedupeResultsByName(results)
+  const payload: PersistedDocument = {
+    generatedAt: new Date().toISOString(),
+    results: dedupedResults.map(serializeResult),
+    skips: dedupeSkips(skips || []),
+  }
 
-  const resultsPath = path.join(process.cwd(), "tmp", "reddit-discovery-results.json")
   await ensureDir(path.dirname(resultsPath))
   await fs.writeFile(resultsPath, JSON.stringify(payload, null, 2))
   console.log(`\nSaved raw results to ${resultsPath}`)
@@ -745,6 +841,17 @@ function statusRank(status: SubredditStatus): number {
     default:
       return 2
   }
+}
+
+function sortResults(results: DiscoveryResult[]): DiscoveryResult[] {
+  return [...results].sort((a, b) => {
+    const order = statusRank(a.status) - statusRank(b.status)
+    if (order !== 0) {
+      return order
+    }
+
+    return (b.assessment.confidence || 0) - (a.assessment.confidence || 0)
+  })
 }
 
 function sanitizeName(value?: string | null): string {
@@ -862,6 +969,56 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
+function recordResult(result: DiscoveryResult) {
+  if (!runContext) {
+    return
+  }
+
+  const key = result.details.name.toLowerCase()
+  runContext.processedNames.add(key)
+
+  const index = runContext.results.findIndex(
+    (entry) => entry.details.name.toLowerCase() === key,
+  )
+
+  if (index >= 0) {
+    runContext.results[index] = result
+  } else {
+    runContext.results.push(result)
+  }
+}
+
+function recordSkip(name: string, reason: string, statusCode?: number) {
+  if (!runContext) {
+    return
+  }
+
+  runContext.skips.push({ name, reason, statusCode })
+}
+
+async function handleInterrupt(signal: NodeJS.Signals) {
+  if (handlingSignal) {
+    console.log(`\nReceived ${signal} again. Forcing exit.`)
+    process.exit(1)
+  }
+
+  handlingSignal = true
+  console.log(`\nReceived ${signal}. Saving discovery progress...`)
+
+  try {
+    if (runContext) {
+      const results = sortResults(runContext.results)
+      await persistResults(results, runContext.outputPath, runContext.skips)
+    } else {
+      console.log("No active discovery run context found; nothing to save.")
+    }
+  } catch (error) {
+    console.error("Failed to save discovery progress:", error)
+  } finally {
+    process.exit(0)
+  }
+}
+
 function parseRedditError(error: unknown): {
   statusCode?: number
   reason?: string
@@ -891,6 +1048,164 @@ function parseRedditError(error: unknown): {
         ? anyError.message
         : undefined,
   }
+}
+
+async function seedRunContextFromExisting(context: RunContext): Promise<void> {
+  try {
+    const raw = await fs.readFile(context.outputPath, "utf-8")
+    const parsed = JSON.parse(raw) as PersistedDocument
+
+    const records = extractPersistedResults(parsed)
+    const skipRecords = extractPersistedSkips(parsed)
+
+    let added = 0
+
+    for (const record of records) {
+      const result = persistedRecordToResult(record)
+      if (!result) {
+        continue
+      }
+
+      const key = result.details.name.toLowerCase()
+      if (context.processedNames.has(key)) {
+        continue
+      }
+
+      context.processedNames.add(key)
+      context.results.push(result)
+      added += 1
+    }
+
+    if (skipRecords.length) {
+      context.skips.push(...skipRecords)
+    }
+
+    if (added) {
+      console.log(`Resuming with ${added} previously saved results.`)
+    }
+  } catch (error: any) {
+    if (error && error.code === "ENOENT") {
+      return
+    }
+
+    console.warn(
+      `Unable to load existing discovery results from ${context.outputPath}:`,
+      error,
+    )
+  }
+}
+
+function extractPersistedResults(parsed: PersistedDocument): PersistedResult[] {
+  if (Array.isArray(parsed)) {
+    return parsed as PersistedResult[]
+  }
+
+  if (parsed && typeof parsed === "object") {
+    return Array.isArray(parsed.results) ? parsed.results : []
+  }
+
+  return []
+}
+
+function extractPersistedSkips(parsed: PersistedDocument): SkipRecord[] {
+  if (Array.isArray(parsed)) {
+    return []
+  }
+
+  if (parsed && typeof parsed === "object" && Array.isArray(parsed.skips)) {
+    return parsed.skips
+  }
+
+  return []
+}
+
+function persistedRecordToResult(
+  record: PersistedResult,
+): DiscoveryResult | null {
+  const name = sanitizeName(record.subreddit || record.details?.name)
+  if (!name) {
+    return null
+  }
+
+  const details: SubredditDetails = {
+    name,
+    title: record.details?.title || "",
+    description: record.details?.description || "",
+    subscribers: record.subscribers ?? record.details?.subscribers ?? 0,
+    activeUserCount: record.details?.activeUserCount,
+    over18: record.details?.over18,
+    url: record.details?.url || `/r/${name}`,
+    queries: record.queries || record.details?.queries || [],
+    rules: record.details?.rules || [],
+    siteRules: record.details?.siteRules || [],
+  }
+
+  const assessment: AiAssessment = record.assessment || {
+    verdict: "manual_review",
+    confidence: 0,
+    summary: "Imported from saved results; review manually.",
+  }
+
+  const status: SubredditStatus = record.status || verdictToStatus(assessment.verdict)
+
+  const configEntry: SubredditConfigEntry = record.configEntry || {
+    name,
+    intent: details.title || undefined,
+  }
+
+  const intent: IntentEvaluation = record.intent || {
+    score: 0,
+    includeMatches: [],
+    excludeMatches: [],
+  }
+
+  return {
+    details,
+    assessment,
+    status,
+    configEntry,
+    intent,
+  }
+}
+
+function serializeResult(result: DiscoveryResult): PersistedResult {
+  return {
+    subreddit: result.details.name,
+    status: result.status,
+    assessment: result.assessment,
+    configEntry: result.configEntry,
+    subscribers: result.details.subscribers,
+    queries: result.details.queries,
+    intent: result.intent,
+    details: {
+      title: result.details.title,
+      description: result.details.description,
+      subscribers: result.details.subscribers,
+      activeUserCount: result.details.activeUserCount,
+      over18: result.details.over18,
+      url: result.details.url,
+      queries: result.details.queries,
+    },
+  }
+}
+
+function dedupeResultsByName(results: DiscoveryResult[]): DiscoveryResult[] {
+  const map = new Map<string, DiscoveryResult>()
+  for (const result of results) {
+    map.set(result.details.name.toLowerCase(), result)
+  }
+  return Array.from(map.values())
+}
+
+function dedupeSkips(skips: SkipRecord[] = []): SkipRecord[] {
+  const map = new Map<string, SkipRecord>()
+  for (const skip of skips) {
+    const key = `${skip.name.toLowerCase()}::${skip.reason}::${skip.statusCode ?? ""}`
+    if (!map.has(key)) {
+      map.set(key, skip)
+    }
+  }
+  return Array.from(map.values())
 }
 
 function extractOutputText(data: any): string | null {
