@@ -103,7 +103,23 @@ export const DEFAULT_DISCOVERY_INCLUDE_KEYWORDS = [
   "side project",
   "maker",
   "launch",
+  "launch feedback",
+  "product launch",
+  "launch your product",
   "product hunt",
+  "app",
+  "apps",
+  "app launch",
+  "beta",
+  "beta tester",
+  "beta testers",
+  "demo",
+  "demo day",
+  "feedback",
+  "product marketing",
+  "go to market",
+  "growth marketing",
+  "distribution",
 ]
 
 export const DEFAULT_DISCOVERY_EXCLUDE_KEYWORDS = [
