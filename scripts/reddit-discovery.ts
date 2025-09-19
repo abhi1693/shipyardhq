@@ -2,6 +2,7 @@ import dotenv from "dotenv"
 import Snoowrap from "snoowrap"
 import path from "node:path"
 import { promises as fs } from "node:fs"
+import { pathToFileURL } from "node:url"
 import {
   DEFAULT_ALLOWED_FLAIRS,
   DEFAULT_CONFIG_FILE,
@@ -51,7 +52,7 @@ type SubredditRule = {
   description?: string
 }
 
-type SubredditDetails = {
+export type SubredditDetails = {
   name: string
   title: string
   description: string
@@ -90,6 +91,23 @@ type SnooRuleResponse = {
 }
 
 const OPENAI_URL = "https://api.openai.com/v1/responses"
+
+const NSFW_KEYWORDS = [
+  "nsfw",
+  "nsfl",
+  "porn",
+  "pornography",
+  "onlyfans",
+  "only fans",
+  "xxx",
+  "sex work",
+  "sexwork",
+  "nude",
+  "nudity",
+  "18+",
+  "18 plus",
+  "adult content",
+]
 
 type IntentEvaluation = {
   score: number
@@ -838,9 +856,38 @@ function sanitizeText(value?: string | null): string {
   }
 
   return value
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
     .replace(/[\u0000-\u001F\u007F]/g, " ")
     .replace(/\s+/g, " ")
     .trim()
+}
+
+function detectLikelyNsfw(details: SubredditDetails): string | null {
+  const fields: Array<{ label: string; value?: string | null }> = [
+    { label: "name", value: details.name },
+    { label: "title", value: details.title },
+    { label: "description", value: details.description },
+  ]
+
+  for (const field of fields) {
+    if (!field.value) {
+      continue
+    }
+
+    const normalized = sanitizeText(field.value).toLowerCase()
+    if (!normalized) {
+      continue
+    }
+
+    for (const keyword of NSFW_KEYWORDS) {
+      if (normalized.includes(keyword)) {
+        return `likely NSFW: ${field.label} contains "${keyword}"`
+      }
+    }
+  }
+
+  return null
 }
 
 function summarizeIntent(details: SubredditDetails): string {
@@ -1066,6 +1113,17 @@ async function processCandidate(
     }
     recordSkip(details.name, "marked NSFW")
     return null
+  }
+
+  if (!args.includeNsfw) {
+    const nsfwSignal = detectLikelyNsfw(details)
+    if (nsfwSignal) {
+      if (!args.quiet) {
+        console.log(`Skipping r/${details.name} (${nsfwSignal}).`)
+      }
+      recordSkip(details.name, nsfwSignal)
+      return null
+    }
   }
 
   if (details.subscribers < args.minSubscribers) {
@@ -1403,7 +1461,15 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-main().catch((error) => {
-  console.error("reddit-discovery failed:", error)
-  process.exit(1)
-})
+const cliEntry = process.argv[1] ? path.resolve(process.argv[1]) : null
+const isDirectExecution =
+  cliEntry && pathToFileURL(cliEntry).href === import.meta.url
+
+if (isDirectExecution) {
+  main().catch((error) => {
+    console.error("reddit-discovery failed:", error)
+    process.exit(1)
+  })
+}
+
+export { detectLikelyNsfw, sanitizeText }
