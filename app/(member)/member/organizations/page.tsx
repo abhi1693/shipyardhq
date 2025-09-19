@@ -199,27 +199,6 @@ export default async function MemberOrganizationsPage({
           </Button>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Active organizations
-            </p>
-            <p className="mt-2 text-3xl font-semibold text-foreground">{total}</p>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Showing per page
-            </p>
-            <p className="mt-2 text-3xl font-semibold text-foreground">{perPage}</p>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Pages available
-            </p>
-            <p className="mt-2 text-3xl font-semibold text-foreground">{pageCount}</p>
-          </div>
-        </div>
-
         <Card className="border border-transparent bg-white/90 shadow-none">
           <CardContent className="space-y-6 px-0">
             <EntityList

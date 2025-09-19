@@ -25,16 +25,21 @@ import {
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
 import SaveButton from "@/components/molecules/SaveButton"
+import { ensureUrlHasSchema } from "@/lib/utils"
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
   url: z
     .string()
     .min(1, "URL is required")
-    .regex(
-      /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i,
-      "Enter a valid domain, e.g. acme.com",
-    ),
+    .refine((value) => {
+      try {
+        new URL(ensureUrlHasSchema(value))
+        return true
+      } catch {
+        return false
+      }
+    }, "Enter a valid URL, e.g. https://acme.com"),
 })
 
 type Values = z.infer<typeof schema>
@@ -56,14 +61,18 @@ export default function EditOrganizationPage() {
         url: string
       } | null
       if (!org) return router.replace("/member/organizations")
-      setInitial({ name: org.name, url: org.url })
-      form.reset({ name: org.name, url: org.url })
+      const normalizedUrl = ensureUrlHasSchema(org.url)
+      setInitial({ name: org.name, url: normalizedUrl })
+      form.reset({ name: org.name, url: normalizedUrl })
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   async function onSubmit(values: Values) {
-    const res = await updateMyOrganizationAction(id as string, values)
+    const res = await updateMyOrganizationAction(id as string, {
+      ...values,
+      url: ensureUrlHasSchema(values.url),
+    })
     if ((res as any)?.error) {
       form.setError("url", { type: "server", message: (res as any).error })
       return
@@ -101,9 +110,9 @@ export default function EditOrganizationPage() {
               name="url"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>URL (domain)</FormLabel>
+                  <FormLabel>URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="acme.com" {...field} />
+                    <Input placeholder="https://acme.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

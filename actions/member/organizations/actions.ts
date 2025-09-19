@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { requireMemberFeature } from "@/lib/memberFeatures"
 import { redirect } from "next/navigation"
+import { ensureUrlHasSchema } from "@/lib/utils"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -117,6 +118,58 @@ export async function getMyOrganizationMembers(orgId: string) {
   }))
 }
 
+export async function getMyOrganizationProducts(orgId: string) {
+  const user = await requireActiveCurrentUser()
+  const gate = await requireMemberFeature("organization")
+  if (!gate.ok) redirect("/member/organizations")
+
+  const membership = await prisma.organizationMembership.findFirst({
+    where: { organizationId: orgId, userId: user.id },
+    select: { id: true },
+  })
+  if (!membership) redirect("/member/organizations")
+
+  return prisma.product.findMany({
+    where: { organizationId: orgId },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      plan: { select: { id: true, name: true } },
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+        },
+      },
+    },
+  })
+}
+
+export async function getMyAvailableProductsForOrganization(orgId: string) {
+  const user = await requireActiveCurrentUser()
+  const gate = await requireMemberFeature("organization")
+  if (!gate.ok) return []
+
+  const membership = await prisma.organizationMembership.findFirst({
+    where: { organizationId: orgId, userId: user.id },
+    select: { id: true },
+  })
+  if (!membership) return []
+
+  return prisma.product.findMany({
+    where: { userId: user.id, organizationId: null },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, name: true, slug: true },
+  })
+}
+
 export async function addMyOrganizationMemberAction(
   orgId: string,
   email: string,
@@ -183,13 +236,63 @@ export async function deleteMyOrganizationMemberAction(membershipId: string) {
   }
 }
 
+export async function attachProductToOrganizationAction(
+  ctx: { organizationId: string; redirectPath: string },
+  formData: FormData,
+) {
+  const productId = formData.get("productId")?.toString()
+  if (!productId) return { error: "Product is required" }
+
+  const { userId: clerkId } = await auth()
+  if (!clerkId) return { error: "Unauthenticated" }
+
+  try {
+    const user = await getActiveUserByClerkId(clerkId)
+    if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
+
+    const gate = await requireMemberFeature("organization")
+    if (!gate.ok) return { error: "Upgrade required for organizations" }
+
+    const org = await prisma.organization.findUnique({
+      where: { id: ctx.organizationId },
+      select: { ownerUserId: true },
+    })
+    if (!org) return { error: "Organization not found" }
+    if (org.ownerUserId !== user.id)
+      return { error: "Only the owner can connect products" }
+
+    const product = await prisma.product.findFirst({
+      where: { id: productId, userId: user.id },
+      select: { organizationId: true },
+    })
+    if (!product) return { error: "Product not found" }
+    if (product.organizationId && product.organizationId !== ctx.organizationId)
+      return { error: "Product already linked to another organization" }
+
+    await prisma.product.update({
+      where: { id: productId },
+      data: { organizationId: ctx.organizationId },
+    })
+
+    redirect(ctx.redirectPath)
+  } catch (e) {
+    console.error("Attach product failed", e)
+    return { error: "Failed to connect product" }
+  }
+}
+
 export async function createMyOrganizationAction(formData: FormData) {
   const { userId: clerkId } = await auth()
   if (!clerkId) return { error: "Unauthenticated" }
   const name = formData.get("name")?.toString().trim()
-  const url = formData.get("url")?.toString().trim()
+  const url = ensureUrlHasSchema(formData.get("url")?.toString() ?? "")
   if (!name) return { error: "Name is required" }
   if (!url) return { error: "URL is required" }
+  try {
+    new URL(url)
+  } catch {
+    return { error: "Invalid URL" }
+  }
   try {
     const user = await getActiveUserByClerkId(clerkId)
     if (!user) return { error: INACTIVE_ACCOUNT_MESSAGE }
@@ -262,9 +365,18 @@ export async function updateMyOrganizationAction(
     if (!org) return { error: "Organization not found" }
     if (org.ownerUserId !== user.id)
       return { error: "Only the owner can edit the organization" }
+    const nextUrl = ensureUrlHasSchema(data.url)
+    try {
+      new URL(nextUrl)
+    } catch {
+      return { error: "Invalid URL" }
+    }
     await prisma.organization.update({
       where: { id },
-      data: { name: data.name.trim(), url: data.url.trim() },
+      data: {
+        name: data.name.trim(),
+        url: nextUrl,
+      },
     })
     return { success: true }
   } catch (e: any) {

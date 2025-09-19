@@ -34,3 +34,11 @@ export const badgeColorMap: Record<TailwindColor, string> = Object.fromEntries(
     `bg-${color}-100 text-${color}-800 border-${color}-300`,
   ]),
 ) as Record<TailwindColor, string>
+
+export function ensureUrlHasSchema(url: string, fallbackScheme: string = "https") {
+  const trimmed = url.trim()
+  if (!trimmed) return trimmed
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  const sanitizedFallback = fallbackScheme.replace(/:\/\/$/, "")
+  return `${sanitizedFallback}://${trimmed.replace(/^\/+/, "")}`
+}
