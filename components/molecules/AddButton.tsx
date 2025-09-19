@@ -16,7 +16,13 @@ export default function AddButton({
   ...props
 }: Props) {
   return (
-    <Button className={cn(className)} {...props}>
+    <Button
+      className={cn(
+        "rounded-full border border-[color:var(--brand-1)/0.3] bg-background/95 px-5 py-2 text-sm font-semibold text-[color:var(--brand-1)] transition-colors hover:border-[color:var(--brand-1)/0.4] hover:bg-[color:var(--brand-1)/0.08]",
+        className,
+      )}
+      {...props}
+    >
       <Plus className="h-4 w-4" />
       {children ?? label}
     </Button>
