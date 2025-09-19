@@ -16,6 +16,14 @@ const featuredBadges = [
     width: 171,
     height: 54,
   },
+  {
+    href: "https://twelve.tools",
+    title: "Featured on Twelve Tools",
+    src: "https://twelve.tools/badge0-white.svg",
+    alt: "Featured on Twelve Tools",
+    width: 200,
+    height: 54,
+  },
 ]
 
 export function FeaturedOnSection() {
