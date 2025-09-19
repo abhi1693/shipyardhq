@@ -84,4 +84,6 @@ Use `npm run reddit:discover -- --query "saas,product feedback" --min-subscriber
 
 Each discovery run filters out communities that clash with your intent heuristics, then prints an AI summary for every remaining candidate (verdict, risk factors, recommended messaging angle) and writes the raw JSON output to `tmp/reddit-discovery-results.json` for auditing before automation.
 
+Discovery assumes the bot only posts reply **comments** on existing threads (never new standalone posts); the AI scorer explicitly checks for comment-level promotion rules and will mark a subreddit as `avoid` if replies are disallowed even when posts are permitted.
+
 Hit `Ctrl+C` at any point and the assistant will persist the progress gathered so far before exiting; the next run automatically resumes from that snapshot, skipping communities you've already evaluated.
