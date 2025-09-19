@@ -208,7 +208,8 @@ async function processSubreddit(subredditName: string) {
       continue
     }
 
-    let draft = await draftReply(submission)
+    const previousDrafts: string[] = []
+    let draft = await draftReply(submission, { avoid: previousDrafts })
 
     if (!draft) {
       continue
@@ -243,7 +244,8 @@ async function processSubreddit(subredditName: string) {
 
       console.log(`
 🔁 Regenerating draft...`)
-      const nextDraft = await draftReply(submission)
+      previousDrafts.push(draft)
+      const nextDraft = await draftReply(submission, { avoid: previousDrafts })
 
       if (!nextDraft) {
         console.log("⚠️ Unable to regenerate draft. Skipping this post.")
@@ -268,8 +270,13 @@ async function processSubreddit(subredditName: string) {
   }
 }
 
+type DraftOptions = {
+  avoid?: string[]
+}
+
 async function draftReply(
   submission: MinimalSubmission,
+  options: DraftOptions = {},
 ): Promise<string | null> {
   const bodyPreview = sanitize((submission.selftext || "").trim()).slice(
     0,
@@ -278,11 +285,20 @@ async function draftReply(
 
   const guidance = buildSubredditGuidance(submission.subreddit.display_name)
 
+  const avoidedPhrases = (options.avoid || [])
+    .map((text) => sanitize(text).slice(0, 160))
+    .filter(Boolean)
+
+  const avoidGuidance = avoidedPhrases.length
+    ? `\n\nYou have previously drafted replies. Ensure the new response feels fresh and does not reuse distinctive phrasing, sentences, or structure from these earlier drafts: ${avoidedPhrases.join(" | ")}. Vary tone, openings, and calls to action when regenerating.`
+    : ""
+
   const systemText =
     "You are a concise, friendly community manager for Shipyard HQ. Draft a short (<=80 words) encouraging reply to founders showcasing their product on Reddit. Invite them to list their product on Shipyard (https://shipyardhq.dev), mention that listing is free, launches in about 30 seconds, and there are no queues or paid slots—just immediate publishing. Offer help if they have questions and keep a positive, founder-to-founder tone without sounding spammy." +
     (guidance
       ? `\n\nCommunity guidance for r/${submission.subreddit.display_name}:\n${guidance}`
-      : "")
+      : "") +
+    avoidGuidance
 
   const payload = {
     model: config.openAIModel,
@@ -311,7 +327,10 @@ ${bodyPreview}`,
       },
     ],
     max_output_tokens: config.maxDraftTokens,
-    temperature: config.temperature,
+    temperature: Math.min(
+      1,
+      config.temperature + Math.min(0.5, (options.avoid?.length || 0) * 0.2),
+    ),
   }
 
   try {
