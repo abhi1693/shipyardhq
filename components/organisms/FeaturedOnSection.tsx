@@ -31,6 +31,14 @@ const featuredBadges = [
     alt: "Fazier badge",
     width: 250,
   },
+  {
+    href: "https://yo.directory/",
+    title: "Featured on yo.directory",
+    src: "https://cdn.prod.website-files.com/65c1546fa73ea974db789e3d/65e1e171f89ebfa7bd0129ac_yodirectory-featured.png",
+    alt: "yo.directory",
+    width: 150,
+    height: 54,
+  },
 ]
 
 export function FeaturedOnSection() {
