@@ -89,10 +89,7 @@ export default async function BrowsePage({
           }
           className="flex-1"
         />
-        <BrowseFeaturedCarousel
-          products={featured}
-          className="lg:max-w-sm"
-        />
+        <BrowseFeaturedCarousel products={featured} className="lg:max-w-sm" />
       </div>
 
       <BrowseFilterBar

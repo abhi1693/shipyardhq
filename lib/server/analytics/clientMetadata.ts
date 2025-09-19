@@ -2,7 +2,8 @@ import { createHmac } from "crypto"
 
 import type { DeviceCategory } from "@/types/analytics"
 
-const TABLET_REGEX = /(?:ipad|tablet|nexus (?:7|9|10)|sm-t\d+|kindle|silk|playbook)/i
+const TABLET_REGEX =
+  /(?:ipad|tablet|nexus (?:7|9|10)|sm-t\d+|kindle|silk|playbook)/i
 const MOBILE_REGEX = /(?:mobile|iphone|ipod|android.*mobile|blackberry|phone)/i
 
 function parseBrandFromHint(brandHint?: string | null) {
@@ -56,8 +57,11 @@ export function parseBrowser(
   return null
 }
 
-export function parseOs(userAgent?: string | null, platformHint?: string | null) {
-  if (platformHint && platformHint !== "\"Not_A Brand\"") {
+export function parseOs(
+  userAgent?: string | null,
+  platformHint?: string | null,
+) {
+  if (platformHint && platformHint !== '"Not_A Brand"') {
     return platformHint.replace(/"/g, "")
   }
 

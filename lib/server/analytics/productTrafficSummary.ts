@@ -9,7 +9,12 @@ interface SummaryOptions {
   previousComparison?: boolean
 }
 
-const DEVICE_ORDER: DeviceCategory[] = ["desktop", "mobile", "tablet", "unknown"]
+const DEVICE_ORDER: DeviceCategory[] = [
+  "desktop",
+  "mobile",
+  "tablet",
+  "unknown",
+]
 
 function calcChange(current: number, previous: number) {
   if (previous === 0) {
@@ -120,7 +125,10 @@ async function buildTrafficSummary(
     countryCounts.set(countryLabel, (countryCounts.get(countryLabel) ?? 0) + 1)
 
     const referrerLabel = labelForReferrer(event.referrer)
-    referrerCounts.set(referrerLabel, (referrerCounts.get(referrerLabel) ?? 0) + 1)
+    referrerCounts.set(
+      referrerLabel,
+      (referrerCounts.get(referrerLabel) ?? 0) + 1,
+    )
 
     if (event.ipHash) {
       uniqueHashes.add(event.ipHash)

@@ -26,15 +26,14 @@ export async function getAllAssignedBadges(
     }
 
     return await prisma.productBadge.findMany({
-      include:
-        include ?? {
-          product: {
-            select: {
-              id: true,
-              name: true,
-            },
+      include: include ?? {
+        product: {
+          select: {
+            id: true,
+            name: true,
           },
         },
+      },
       orderBy: fallbackOrderBy,
       ...rest,
     })

@@ -306,7 +306,10 @@ function RecentProductsCard({ products }: { products: RecentProduct[] }) {
         ))}
       </CardContent>
       <CardFooter>
-        <Link href="/admin/products" className="text-sm text-primary hover:underline">
+        <Link
+          href="/admin/products"
+          className="text-sm text-primary hover:underline"
+        >
           ↗ View all products
         </Link>
       </CardFooter>
@@ -331,7 +334,10 @@ function RecentUsersCard({ users }: { users: RecentUser[] }) {
             <div className="flex justify-between items-center">
               <span className="text-primary font-medium">{u.email}</span>
               <span className="text-muted-foreground text-sm">
-                Joined {formatDistanceToNow(new Date(u.createdAt), { addSuffix: true })}
+                Joined{" "}
+                {formatDistanceToNow(new Date(u.createdAt), {
+                  addSuffix: true,
+                })}
               </span>
             </div>
             <div className="flex gap-3 text-sm text-muted-foreground">
@@ -344,7 +350,10 @@ function RecentUsersCard({ users }: { users: RecentUser[] }) {
         ))}
       </CardContent>
       <CardFooter>
-        <Link href="/admin/users" className="text-sm text-primary hover:underline">
+        <Link
+          href="/admin/users"
+          className="text-sm text-primary hover:underline"
+        >
           ↗ View all users
         </Link>
       </CardFooter>

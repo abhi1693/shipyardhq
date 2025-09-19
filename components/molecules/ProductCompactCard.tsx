@@ -27,14 +27,20 @@ export function ProductCompactCard({
   showCategory = true,
 }: ProductCompactCardProps) {
   return (
-    <form action={clickProductCardAction} className="h-full" data-testid="product-compact-card">
+    <form
+      action={clickProductCardAction}
+      className="h-full"
+      data-testid="product-compact-card"
+    >
       <input type="hidden" name="productId" value={product.id} />
       <input type="hidden" name="productSlug" value={product.slug} />
       <button
         type="submit"
         className="group relative block h-full w-full cursor-pointer rounded-lg border bg-card p-4 text-left text-card-foreground shadow-sm transition-all hover:border-[color:var(--brand-1)/0.35] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.25]"
       >
-        {meta ? <div className="absolute right-4 top-3 sm:top-4">{meta}</div> : null}
+        {meta ? (
+          <div className="absolute right-4 top-3 sm:top-4">{meta}</div>
+        ) : null}
         <div className="flex h-full flex-col gap-3">
           <div className="flex items-start gap-3">
             <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.08]">

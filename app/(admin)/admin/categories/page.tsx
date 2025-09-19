@@ -37,11 +37,7 @@ export default async function CategoryPage({
 
   return (
     <ListPageWrapper title="Categories" addLink="/admin/categories/add">
-      <EntityList
-        columns={columns}
-        data={categories}
-        pageCount={pageCount}
-      />
+      <EntityList columns={columns} data={categories} pageCount={pageCount} />
     </ListPageWrapper>
   )
 }

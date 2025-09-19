@@ -213,7 +213,9 @@ export function categorizeSubreddits(entries: SubredditConfigEntry[]) {
   return { ready, review, deny }
 }
 
-function normalizeStatus(status?: SubredditConfigEntry["status"]): SubredditStatus {
+function normalizeStatus(
+  status?: SubredditConfigEntry["status"],
+): SubredditStatus {
   if (!status) {
     return "review"
   }

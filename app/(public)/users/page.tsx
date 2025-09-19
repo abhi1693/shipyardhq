@@ -69,7 +69,8 @@ export default async function UsersIndexPage() {
                 Makers charting new waters
               </h1>
               <p className="text-base text-muted-foreground sm:text-lg">
-                Explore creators and the products they’ve launched across the harbor.
+                Explore creators and the products they’ve launched across the
+                harbor.
               </p>
             </header>
           </div>

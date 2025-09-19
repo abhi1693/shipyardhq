@@ -96,7 +96,11 @@ export default async function LeaderboardPage({
             </p>
           </div>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]">
+            <Button
+              asChild
+              size="lg"
+              className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
+            >
               <Link href="/member/products/add">Submit your product</Link>
             </Button>
             <Button
@@ -222,10 +226,16 @@ export default async function LeaderboardPage({
                   No additional contenders yet.
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Invite your crew or explore another category to discover more launches.
+                  Invite your crew or explore another category to discover more
+                  launches.
                 </p>
               </div>
-              <Button asChild size="sm" variant="outline" className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]">
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
+              >
                 <Link href="/browse">Browse products</Link>
               </Button>
             </div>
@@ -305,9 +315,9 @@ function TopPlacementCard({
   className?: string
 }) {
   const upvotes = product.analytics?.upvotes ?? 0
-  const authorName = `${product.user.firstName ?? ""} ${
-    product.user.lastName ?? ""
-  }`.trim() || "Unknown maker"
+  const authorName =
+    `${product.user.firstName ?? ""} ${product.user.lastName ?? ""}`.trim() ||
+    "Unknown maker"
   const categoryName = product.category?.name ?? ""
   const gradients = [
     "linear-gradient(140deg, rgba(7, 58, 104, 0.22) 0%, rgba(7, 58, 104, 0.05) 65%)",

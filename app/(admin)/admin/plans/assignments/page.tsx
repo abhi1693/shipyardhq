@@ -36,11 +36,7 @@ export default async function AssignedFeaturePage({
       title="Assigned Features"
       addLink="/admin/plans/assignments/add"
     >
-      <EntityList
-        columns={columns}
-        data={assignments}
-        pageCount={pageCount}
-      />
+      <EntityList columns={columns} data={assignments} pageCount={pageCount} />
     </ListPageWrapper>
   )
 }

@@ -57,8 +57,7 @@ export default async function MemberLayout({
   const items: NavItem[] = [...navItems]
 
   const shouldShowCustomerPortal = !(
-    IS_PROD &&
-    (process.env.DODO_ENV?.trim() || "") === "test_mode"
+    IS_PROD && (process.env.DODO_ENV?.trim() || "") === "test_mode"
   )
 
   if (

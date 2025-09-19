@@ -83,7 +83,10 @@ const {
 } = categorizeSubreddits(fileConfig.subreddits || [])
 
 const subredditConfigMap = new Map(
-  (fileConfig.subreddits || []).map((entry) => [entry.name.toLowerCase(), entry]),
+  (fileConfig.subreddits || []).map((entry) => [
+    entry.name.toLowerCase(),
+    entry,
+  ]),
 )
 
 const envSubreddits = parseList(process.env.REDDIT_SUBREDDITS)
@@ -164,14 +167,10 @@ async function main() {
   console.log(`Config file: ${fileConfig.path || "(none)"}`)
   console.log(`Monitoring subreddits: ${config.subreddits.join(", ")}`)
   if (config.reviewSubreddits.length) {
-    console.log(
-      `Review needed: ${config.reviewSubreddits.join(", ")}`,
-    )
+    console.log(`Review needed: ${config.reviewSubreddits.join(", ")}`)
   }
   if (config.deniedSubreddits.length) {
-    console.log(
-      `Denied in config: ${config.deniedSubreddits.join(", ")}`,
-    )
+    console.log(`Denied in config: ${config.deniedSubreddits.join(", ")}`)
   }
   console.log(`Keywords: ${config.keywords.join(", ")}`)
   console.log(`Allowed flairs: ${config.allowedFlairs.join(", ")}`)
@@ -458,7 +457,6 @@ function sanitize(value: string): string {
   return value.replace(/[\u0000-\u001F\u007F]/g, "").trim()
 }
 
-
 async function waitForNextPoll(durationMs: number): Promise<void> {
   if (durationMs <= 0) {
     return
@@ -484,7 +482,9 @@ async function waitForNextPoll(durationMs: number): Promise<void> {
     frameIndex += 1
 
     readline.cursorTo(process.stdout, 0)
-    process.stdout.write(`Waiting for next poll (${remainingSeconds}s) ${frame}`)
+    process.stdout.write(
+      `Waiting for next poll (${remainingSeconds}s) ${frame}`,
+    )
   }
 
   render()
@@ -498,7 +498,6 @@ async function waitForNextPoll(durationMs: number): Promise<void> {
     readline.clearLine(process.stdout, 0)
   }
 }
-
 
 async function loadState(filePath: string): Promise<BotState> {
   try {

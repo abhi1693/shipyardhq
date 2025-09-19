@@ -47,7 +47,8 @@ export function FeaturedOnSection() {
           Featured On
         </span>
         <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-          ShipYardHQ is making waves across the indie maker community. Explore a few of the platforms that have highlighted our journey.
+          ShipYardHQ is making waves across the indie maker community. Explore a
+          few of the platforms that have highlighted our journey.
         </p>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">

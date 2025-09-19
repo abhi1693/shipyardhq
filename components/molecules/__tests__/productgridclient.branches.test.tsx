@@ -80,7 +80,9 @@ describe("ProductGridClient", () => {
     fireEvent.click(screen.getByRole("button", { name: /Load More/i }))
 
     await waitFor(() => {
-      expect(document.querySelectorAll('[data-testid="product-card"]').length).toBe(2)
+      expect(
+        document.querySelectorAll('[data-testid="product-card"]').length,
+      ).toBe(2)
     })
     await waitFor(() =>
       expect(screen.queryByRole("button", { name: /Load More/i })).toBeNull(),
@@ -113,11 +115,15 @@ describe("ProductGridClient", () => {
     fireEvent.click(screen.getByRole("button", { name: /Load More/i }))
 
     expect(screen.getByText(/Loading.../i)).toBeInTheDocument()
-    expect(screen.getAllByTestId("product-card-skeleton").length).toBeGreaterThan(0)
+    expect(
+      screen.getAllByTestId("product-card-skeleton").length,
+    ).toBeGreaterThan(0)
 
     resolveLoad({ products: [p2], hasMore: true })
     await waitFor(() => {
-      expect(document.querySelectorAll('[data-testid="product-card"]').length).toBe(2)
+      expect(
+        document.querySelectorAll('[data-testid="product-card"]').length,
+      ).toBe(2)
     })
     await waitFor(() =>
       expect(screen.getByRole("button")).toHaveTextContent(/Load More/i),
@@ -142,7 +148,9 @@ describe("ProductGridClient", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Load More/i }))
     await waitFor(() => {
-      expect(document.querySelectorAll('[data-testid="product-card"]').length).toBe(1)
+      expect(
+        document.querySelectorAll('[data-testid="product-card"]').length,
+      ).toBe(1)
     })
 
     rerender(
@@ -154,7 +162,9 @@ describe("ProductGridClient", () => {
       />,
     )
 
-    expect(document.querySelectorAll('[data-testid="product-card"]').length).toBe(1)
+    expect(
+      document.querySelectorAll('[data-testid="product-card"]').length,
+    ).toBe(1)
     expect(screen.queryByRole("button", { name: /Load More/i })).toBeNull()
   })
 })

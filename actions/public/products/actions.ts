@@ -137,7 +137,10 @@ export const getPublicProductsByUseCase = cached(
   "products:public-by-usecase",
   {
     ttl: DEFAULT_TTL.medium,
-    tags: ([useCaseSlug]) => [TAGS.products, TAGS.category(String(useCaseSlug))],
+    tags: ([useCaseSlug]) => [
+      TAGS.products,
+      TAGS.category(String(useCaseSlug)),
+    ],
   },
 )
 

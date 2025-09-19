@@ -51,17 +51,26 @@ describe("PricingCard, PerformanceCard, ProductList", () => {
     expect(screen.getByText("A")).toBeInTheDocument()
     expect(screen.queryByText("B")).not.toBeInTheDocument()
     expect(screen.getByText("Beta labs")).toBeInTheDocument()
-    expect(screen.getByText(/Boosts your launch for 3 days/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Boosts your launch for 3 days/i),
+    ).toBeInTheDocument()
     expect(screen.getByText(/Experimental/i)).toBeInTheDocument()
     const btn = screen.getByRole("link", { name: /start for free/i })
     expect(btn).toHaveAttribute("href", "/go")
 
     // Paid
     rerender(
-      <PricingCard name="Pro" price={12345} features={features} boostForDays={1} />,
+      <PricingCard
+        name="Pro"
+        price={12345}
+        features={features}
+        boostForDays={1}
+      />,
     )
     expect(screen.getByText(/\$123\.45/)).toBeInTheDocument()
-    expect(screen.getByText(/Boosts your launch for 1 day/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Boosts your launch for 1 day/i),
+    ).toBeInTheDocument()
     // Popular badge when paid and isPopular
     rerender(
       <PricingCard name="Pro" price={12345} isPopular features={features} />,

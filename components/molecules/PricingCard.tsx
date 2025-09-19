@@ -162,7 +162,9 @@ export function PricingCard({
           >
             <a href={ctaHref}>
               {isFree ? "Start for free" : ctaLabel}
-              {!isFree && <IconArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
+              {!isFree && (
+                <IconArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              )}
             </a>
           </Button>
         </div>

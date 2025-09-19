@@ -1,9 +1,4 @@
-
-import {
-  IconAnchor,
-  IconCompass,
-  IconSailboat,
-} from "@tabler/icons-react"
+import { IconAnchor, IconCompass, IconSailboat } from "@tabler/icons-react"
 
 const highlights = [
   {
@@ -47,7 +42,9 @@ export default function OnboardingMarketingPanel() {
               Steady winds for your next launch
             </h1>
             <p className="text-sm leading-relaxed text-slate-600">
-              Align your workspace with the mission you&apos;re on today so ShipYardHQ can surface the right dashboards, partners, and playbooks.
+              Align your workspace with the mission you&apos;re on today so
+              ShipYardHQ can surface the right dashboards, partners, and
+              playbooks.
             </p>
           </div>
         </div>

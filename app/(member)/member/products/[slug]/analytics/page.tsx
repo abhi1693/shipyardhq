@@ -100,9 +100,7 @@ function SummaryCards({ summary }: { summary: ProductTrafficSummary }) {
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-semibold">
-                {card.value}
-              </span>
+              <span className="text-2xl font-semibold">{card.value}</span>
               {typeof card.delta === "number" ? (
                 <DeltaBadge value={card.delta} />
               ) : null}
@@ -160,7 +158,10 @@ export default async function ProductAnalyticsPage({
     return notFound()
   }
 
-  const hasAnalyticsFeature = hasPlanFeature(product.plan ?? null, "analytics.advanced")
+  const hasAnalyticsFeature = hasPlanFeature(
+    product.plan ?? null,
+    "analytics.advanced",
+  )
   if (!hasAnalyticsFeature) {
     redirect(`/member/products/${product.slug}`)
   }

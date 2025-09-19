@@ -115,7 +115,6 @@ export default function Hero({ stats }: { stats?: Stats }) {
           </div>
         )}
       </div>
-
     </section>
   )
 }

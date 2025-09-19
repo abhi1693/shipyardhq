@@ -38,7 +38,9 @@ function renderDelta(value?: number) {
   }
   const formatted = `${value > 0 ? "+" : ""}${value.toFixed(1)}%`
   return (
-    <span className={`text-xs font-semibold ${value > 0 ? "text-green-600" : "text-red-600"}`}>
+    <span
+      className={`text-xs font-semibold ${value > 0 ? "text-green-600" : "text-red-600"}`}
+    >
       {formatted}
     </span>
   )
@@ -100,20 +102,25 @@ export default async function AnalyticsPage({
         <CardHeader>
           <CardTitle className="text-base">Snapshot</CardTitle>
           <CardDescription>
-            High-level metrics for the last {summary.rangeDays} days with prior-period deltas.
+            High-level metrics for the last {summary.rangeDays} days with
+            prior-period deltas.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {highlightCards.map((item) => (
               <div key={item.label} className="space-y-1">
-                <div className="text-xs text-muted-foreground">{item.label}</div>
+                <div className="text-xs text-muted-foreground">
+                  {item.label}
+                </div>
                 <div className="flex items-baseline gap-2 text-lg font-semibold">
                   <span>{item.value}</span>
                   {item.delta !== undefined ? renderDelta(item.delta) : null}
                 </div>
                 {item.helper && (
-                  <div className="text-xs text-muted-foreground">{item.helper}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {item.helper}
+                  </div>
                 )}
               </div>
             ))}
@@ -131,12 +138,16 @@ export default async function AnalyticsPage({
           </CardHeader>
           <CardContent>
             {topCountries.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No country data yet.</p>
+              <p className="text-sm text-muted-foreground">
+                No country data yet.
+              </p>
             ) : (
               <ul className="space-y-2 text-sm">
                 {topCountries.map((entry) => (
                   <li key={entry.country} className="flex items-center gap-2">
-                    <span className="flex-1 truncate">{entry.country || "Unknown"}</span>
+                    <span className="flex-1 truncate">
+                      {entry.country || "Unknown"}
+                    </span>
                     <span className="font-medium">
                       {formatNumber(entry.views)}
                     </span>
@@ -154,12 +165,16 @@ export default async function AnalyticsPage({
           </CardHeader>
           <CardContent>
             {topReferrers.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No referrer data yet.</p>
+              <p className="text-sm text-muted-foreground">
+                No referrer data yet.
+              </p>
             ) : (
               <ul className="space-y-2 text-sm">
                 {topReferrers.map((entry) => (
                   <li key={entry.referrer} className="flex items-center gap-2">
-                    <span className="flex-1 truncate">{entry.referrer || "Direct / None"}</span>
+                    <span className="flex-1 truncate">
+                      {entry.referrer || "Direct / None"}
+                    </span>
                     <span className="font-medium">
                       {formatNumber(entry.views)}
                     </span>
@@ -173,11 +188,15 @@ export default async function AnalyticsPage({
         <Card className="lg:col-span-1">
           <CardHeader>
             <CardTitle className="text-base">Device Mix</CardTitle>
-            <CardDescription>Breakdown by detected device type.</CardDescription>
+            <CardDescription>
+              Breakdown by detected device type.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {deviceBreakdown.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No device data captured yet.</p>
+              <p className="text-sm text-muted-foreground">
+                No device data captured yet.
+              </p>
             ) : (
               <ul className="space-y-2 text-sm">
                 {deviceBreakdown.map((entry) => (

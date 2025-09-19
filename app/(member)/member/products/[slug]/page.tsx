@@ -73,7 +73,10 @@ export default async function ViewUserProductPage({
   const isOwner = Boolean(clerkId && product.user?.clerkId === clerkId)
   const publicPath = `/products/${productSlug}`
   const analyticsPath = `/member/products/${productSlug}/analytics`
-  const canViewAnalytics = hasPlanFeature(product.plan ?? null, "analytics.advanced")
+  const canViewAnalytics = hasPlanFeature(
+    product.plan ?? null,
+    "analytics.advanced",
+  )
   const upvoters = await getRecentUpvoters(productId, 5).catch(() => [])
 
   const allPlans = await getPublicPlans({

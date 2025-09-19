@@ -28,9 +28,10 @@ export async function getUserProducts(params?: ListParams) {
     "published",
     "archived",
   ]
-  const status = rawStatus && validStatuses.includes(rawStatus as ProductStatus)
-    ? (rawStatus as ProductStatus)
-    : undefined
+  const status =
+    rawStatus && validStatuses.includes(rawStatus as ProductStatus)
+      ? (rawStatus as ProductStatus)
+      : undefined
   const q = ((params?.q as string) || "").trim()
   const sort = (params?.sort as string) || "new"
   const page = Math.max(1, parseInt((params?.page as string) || "1", 10) || 1)

@@ -32,4 +32,3 @@ export function getWaveBackground(size = "200px 80px"): CSSProperties {
     backgroundRepeat: "repeat",
   }
 }
-

@@ -24,20 +24,17 @@ const CORE_PERKS = [
   {
     icon: IconFlag3,
     title: "Launch-ready guidance",
-    body:
-      "Preflight checklists, asset templates, and launch-day reminders keep every release steady at the helm.",
+    body: "Preflight checklists, asset templates, and launch-day reminders keep every release steady at the helm.",
   },
   {
     icon: IconTargetArrow,
     title: "Flexible exposure",
-    body:
-      "Dial in the reach you need—from free listings to homepage takeovers—with instant plan upgrades.",
+    body: "Dial in the reach you need—from free listings to homepage takeovers—with instant plan upgrades.",
   },
   {
     icon: IconSparkles,
     title: "Crew on standby",
-    body:
-      "Get async support from our harbor crew plus usage analytics that surface what resonates.",
+    body: "Get async support from our harbor crew plus usage analytics that surface what resonates.",
   },
 ]
 
@@ -114,10 +111,19 @@ export default async function PricingPage() {
             </p>
           </div>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]">
+            <Button
+              asChild
+              size="lg"
+              className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
+            >
               <Link href="/register">Start for free</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
+            >
               <Link href="#faq">Talk with the crew</Link>
             </Button>
           </div>
@@ -143,7 +149,8 @@ export default async function PricingPage() {
                 Launch analytics
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Track upvotes, traffic sources, and conversions across every tier.
+                Track upvotes, traffic sources, and conversions across every
+                tier.
               </p>
             </div>
           </div>
@@ -238,7 +245,6 @@ export default async function PricingPage() {
           </Accordion>
         </div>
       </PublicContainer>
-
     </main>
   )
 }

@@ -36,11 +36,7 @@ export default async function UseCaseAssignmentsPage({
       title="Use Case Assignments"
       addLink="/admin/categories/use-cases/assignments/add"
     >
-      <EntityList
-        columns={columns}
-        data={assignments}
-        pageCount={pageCount}
-      />
+      <EntityList columns={columns} data={assignments} pageCount={pageCount} />
     </ListPageWrapper>
   )
 }

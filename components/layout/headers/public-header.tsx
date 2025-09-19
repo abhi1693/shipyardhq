@@ -134,13 +134,20 @@ export default function PublicHeader() {
                       Submit Product
                     </Link>
                     <SignedOut>
-                      <SignInButton mode="modal" forceRedirectUrl="/member" signUpForceRedirectUrl="/member">
+                      <SignInButton
+                        mode="modal"
+                        forceRedirectUrl="/member"
+                        signUpForceRedirectUrl="/member"
+                      >
                         <SignInCtaButton className="w-full" />
                       </SignInButton>
                     </SignedOut>
                     <SignedIn>
                       <Link href="/member" onClick={() => setOpen(false)}>
-                        <MemberAreaButton variant="outline" className="w-full" />
+                        <MemberAreaButton
+                          variant="outline"
+                          className="w-full"
+                        />
                       </Link>
                       <SignOutButton>
                         <SignOutCtaButton className="w-full" />

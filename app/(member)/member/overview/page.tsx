@@ -136,8 +136,7 @@ export default async function OverviewPage({
         stats.draftsCount === 1
           ? "Draft ready to publish"
           : "Drafts ready to publish",
-      href:
-        stats.draftsCount > 0 ? "/member/products?status=draft" : undefined,
+      href: stats.draftsCount > 0 ? "/member/products?status=draft" : undefined,
       icon: <IconPencil className="h-4 w-4" />,
     },
     {

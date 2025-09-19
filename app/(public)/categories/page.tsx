@@ -14,7 +14,10 @@ export const metadata: Metadata = {
 
 export default async function CategoriesPage() {
   const categories = await getCategoriesWithCounts()
-  const totalProducts = categories.reduce((sum, cat) => sum + (cat.count ?? 0), 0)
+  const totalProducts = categories.reduce(
+    (sum, cat) => sum + (cat.count ?? 0),
+    0,
+  )
 
   return (
     <main className="relative isolate overflow-hidden">
@@ -59,7 +62,11 @@ export default async function CategoriesPage() {
             </p>
           </div>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]">
+            <Button
+              asChild
+              size="lg"
+              className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
+            >
               <Link href="/browse">Browse all products</Link>
             </Button>
             <Button

@@ -21,9 +21,7 @@ export async function getCategories(args: Prisma.CategoryFindManyArgs = {}) {
   }
 }
 
-export async function getCategoriesCount(
-  args: Prisma.CategoryCountArgs = {},
-) {
+export async function getCategoriesCount(args: Prisma.CategoryCountArgs = {}) {
   try {
     return await prisma.category.count(args)
   } catch (error) {
@@ -279,12 +277,11 @@ export async function getUseCaseAssignments(
 ) {
   try {
     const { select, include, orderBy, ...rest } = args
-    const fallbackOrderBy =
-      orderBy ?? {
-        useCase: {
-          updatedAt: "desc",
-        },
-      }
+    const fallbackOrderBy = orderBy ?? {
+      useCase: {
+        updatedAt: "desc",
+      },
+    }
 
     if (select) {
       return await prisma.useCaseCategory.findMany({

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useForm } from "react-hook-form"
@@ -26,12 +25,14 @@ const roleIntentOptions = [
   {
     label: "Launch a product",
     value: "launch-product",
-    blurb: "Spin up a launch plan, highlight milestones, and track early adopters.",
+    blurb:
+      "Spin up a launch plan, highlight milestones, and track early adopters.",
   },
   {
     label: "Manage a team",
     value: "manage-team",
-    blurb: "Coordinate your crew with shared dashboards and smoother workflows.",
+    blurb:
+      "Coordinate your crew with shared dashboards and smoother workflows.",
   },
   {
     label: "Just exploring",
@@ -111,10 +112,13 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
             Welcome aboard
           </span>
           <CardTitle className="text-3xl font-semibold tracking-tight text-slate-900">
-            {firstName ? `Hi ${firstName}, let's personalize things` : "Let's personalize things"}
+            {firstName
+              ? `Hi ${firstName}, let's personalize things`
+              : "Let's personalize things"}
           </CardTitle>
           <CardDescription className="max-w-xl text-slate-600">
-            Answer a few quick questions so we can tailor dashboards, checklists, and partner perks for your crew.
+            Answer a few quick questions so we can tailor dashboards,
+            checklists, and partner perks for your crew.
           </CardDescription>
         </CardHeader>
 
@@ -130,11 +134,11 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
                   const active = roleIntent === value
 
                   return (
-                  <button
-                    key={value}
-                    type="button"
-                    className={cn(
-                      "flex h-full cursor-pointer flex-col rounded-2xl border border-slate-200/80 bg-white px-4 py-4 text-left transition-all hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
+                    <button
+                      key={value}
+                      type="button"
+                      className={cn(
+                        "flex h-full cursor-pointer flex-col rounded-2xl border border-slate-200/80 bg-white px-4 py-4 text-left transition-all hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
                         active &&
                           "border-sky-400 bg-sky-50 shadow-[0_18px_45px_-35px_rgba(56,189,248,0.65)]",
                       )}
@@ -146,7 +150,9 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
                         {label}
                       </span>
                       {blurb ? (
-                        <span className="mt-2 text-sm text-slate-500">{blurb}</span>
+                        <span className="mt-2 text-sm text-slate-500">
+                          {blurb}
+                        </span>
                       ) : null}
                     </button>
                   )
@@ -169,11 +175,11 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
                   const active = heardFrom === value
 
                   return (
-                  <button
-                    key={value}
-                    type="button"
-                    className={cn(
-                      "cursor-pointer rounded-full border border-slate-200/80 px-4 py-2 text-sm font-medium text-slate-600 transition-all hover:border-sky-300 hover:bg-sky-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
+                    <button
+                      key={value}
+                      type="button"
+                      className={cn(
+                        "cursor-pointer rounded-full border border-slate-200/80 px-4 py-2 text-sm font-medium text-slate-600 transition-all hover:border-sky-300 hover:bg-sky-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
                         active &&
                           "border-sky-400 bg-sky-100 text-slate-900 shadow-[0_16px_40px_-30px_rgba(56,189,248,0.55)]",
                       )}

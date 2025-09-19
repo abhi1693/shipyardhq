@@ -86,14 +86,13 @@ export async function getPlanFeatures(
     }
 
     return await prisma.planFeature.findMany({
-      include:
-        include ?? {
-          assignments: {
-            include: {
-              plan: true,
-            },
+      include: include ?? {
+        assignments: {
+          include: {
+            plan: true,
           },
         },
+      },
       orderBy: fallbackOrderBy,
       ...rest,
     })

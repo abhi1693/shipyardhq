@@ -36,11 +36,7 @@ export default async function UseCasePage({
       title="Use Cases"
       addLink="/admin/categories/use-cases/add"
     >
-      <EntityList
-        columns={columns}
-        data={useCases}
-        pageCount={pageCount}
-      />
+      <EntityList columns={columns} data={useCases} pageCount={pageCount} />
     </ListPageWrapper>
   )
 }

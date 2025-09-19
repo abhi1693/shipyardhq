@@ -44,12 +44,10 @@ export function ProductCard({
   imagePriority = false,
 }: ProductCardProps) {
   const resolvedBadges = badges
-    .map((value) => BADGE_OPTIONS.find((option) => option.value === value) ?? null)
-    .filter(
-      (
-        badge,
-      ): badge is (typeof BADGE_OPTIONS)[number] => Boolean(badge),
+    .map(
+      (value) => BADGE_OPTIONS.find((option) => option.value === value) ?? null,
     )
+    .filter((badge): badge is (typeof BADGE_OPTIONS)[number] => Boolean(badge))
 
   const compactBadgeLimit = 3
   const compactBadges = resolvedBadges.slice(0, compactBadgeLimit)
@@ -76,16 +74,10 @@ export function ProductCard({
             <div className="absolute right-4 top-4 z-10">{topRight}</div>
           )}
           <CardHeader
-            className={clsx(
-              "relative",
-              compact ? "px-4 pb-2" : "px-6 pb-3",
-            )}
+            className={clsx("relative", compact ? "px-4 pb-2" : "px-6 pb-3")}
           >
             <div
-              className={clsx(
-                "flex items-start",
-                compact ? "gap-3" : "gap-4",
-              )}
+              className={clsx("flex items-start", compact ? "gap-3" : "gap-4")}
             >
               <div
                 className={clsx(
@@ -124,9 +116,7 @@ export function ProductCard({
                 <p
                   className={clsx(
                     "text-muted-foreground",
-                    compact
-                      ? "line-clamp-2 text-xs"
-                      : "line-clamp-2 text-sm",
+                    compact ? "line-clamp-2 text-xs" : "line-clamp-2 text-sm",
                   )}
                 >
                   {product.tagline}
@@ -177,11 +167,7 @@ export function ProductCard({
             </div>
           </CardHeader>
 
-          <CardContent
-            className={clsx(
-              compact ? "px-4 pt-3" : "px-6 pt-4",
-            )}
-          >
+          <CardContent className={clsx(compact ? "px-4 pt-3" : "px-6 pt-4")}>
             <div
               className={clsx(
                 "flex items-center justify-between",

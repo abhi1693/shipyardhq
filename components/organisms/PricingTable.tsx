@@ -15,9 +15,7 @@ export function PricingTable({ plans }: { plans: PublicPlan[] }) {
       <div className="mx-auto max-w-6xl px-4">
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {plans.map((p) => {
-            const recurringSuffix = (p as any).priceSuffix as
-              | string
-              | undefined
+            const recurringSuffix = (p as any).priceSuffix as string | undefined
             const priceSuffix =
               p.price > 0
                 ? recurringSuffix
@@ -75,11 +73,7 @@ function CardWrapper({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <div
-      ref={ref}
-      data-pricing-card-wrapper
-      className="h-full w-full"
-    >
+    <div ref={ref} data-pricing-card-wrapper className="h-full w-full">
       {children}
     </div>
   )

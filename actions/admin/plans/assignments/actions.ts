@@ -19,11 +19,10 @@ export async function getAssignedFeatures(
     }
 
     return await prisma.planFeatureAssignment.findMany({
-      include:
-        include ?? {
-          plan: { select: { id: true, name: true } },
-          feature: { select: { id: true, name: true, key: true } },
-        },
+      include: include ?? {
+        plan: { select: { id: true, name: true } },
+        feature: { select: { id: true, name: true, key: true } },
+      },
       orderBy: fallbackOrderBy,
       ...rest,
     })

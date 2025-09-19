@@ -52,7 +52,9 @@ interface ProductAnalyticsChartsProps {
   summary: ProductTrafficSummary
 }
 
-export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps) {
+export function ProductAnalyticsCharts({
+  summary,
+}: ProductAnalyticsChartsProps) {
   const deviceConfig: ChartConfig = Object.fromEntries(
     summary.deviceBreakdown.map((entry) => [
       entry.device,
@@ -84,8 +86,8 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
                 </span>
               </TooltipTrigger>
               <TooltipContent sideOffset={6}>
-                Daily view counts for the selected window. Use this to spot trends
-                and campaign lift.
+                Daily view counts for the selected window. Use this to spot
+                trends and campaign lift.
               </TooltipContent>
             </Tooltip>
           </CardTitle>
@@ -101,9 +103,18 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
             className="min-h-[280px]"
           >
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={summary.viewsOverTime} margin={{ left: 4, right: 12 }}>
+              <LineChart
+                data={summary.viewsOverTime}
+                margin={{ left: 4, right: 12 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="label" stroke="currentColor" fontSize={12} tickLine={false} axisLine={false} />
+                <XAxis
+                  dataKey="label"
+                  stroke="currentColor"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
                 <YAxis
                   stroke="currentColor"
                   fontSize={12}
@@ -178,7 +189,10 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
                 </ResponsiveContainer>
                 <div className="grid grid-cols-2 gap-3">
                   {summary.deviceBreakdown.map((entry) => (
-                    <div key={entry.device} className="flex items-center gap-2 text-sm">
+                    <div
+                      key={entry.device}
+                      className="flex items-center gap-2 text-sm"
+                    >
                       <span
                         className="h-2.5 w-2.5 rounded-full"
                         style={{
@@ -188,9 +202,15 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
                               : DEVICE_COLORS.unknown,
                         }}
                       />
-                      <span className="text-muted-foreground">{entry.label}</span>
+                      <span className="text-muted-foreground">
+                        {entry.label}
+                      </span>
                       <span className="ml-auto font-medium">
-                        {formatNumber(entry.views)} ({formatPercent((entry.views / Math.max(summary.totalViews, 1)) * 100)})
+                        {formatNumber(entry.views)} (
+                        {formatPercent(
+                          (entry.views / Math.max(summary.totalViews, 1)) * 100,
+                        )}
+                        )
                       </span>
                     </div>
                   ))}
@@ -234,8 +254,17 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={topCountries}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="country" stroke="currentColor" fontSize={12} tickLine={false} axisLine={false} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                  />
+                  <XAxis
+                    dataKey="country"
+                    stroke="currentColor"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
                   <YAxis
                     stroke="currentColor"
                     fontSize={12}
@@ -245,7 +274,10 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
                   />
                   <Bar dataKey="views" radius={[4, 4, 0, 0]}>
                     {topCountries.map((entry, index) => (
-                      <Cell key={entry.country} fill={COUNTRY_COLORS[index % COUNTRY_COLORS.length]} />
+                      <Cell
+                        key={entry.country}
+                        fill={COUNTRY_COLORS[index % COUNTRY_COLORS.length]}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
@@ -276,7 +308,9 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
               </TooltipContent>
             </Tooltip>
           </CardTitle>
-          <CardDescription>Top external sources sending visitors</CardDescription>
+          <CardDescription>
+            Top external sources sending visitors
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {summary.referrerBreakdown.length === 0 ? (
@@ -288,7 +322,9 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
             <ul className="space-y-3 text-sm">
               {summary.referrerBreakdown.slice(0, 6).map((entry) => (
                 <li key={entry.referrer} className="flex items-center gap-2">
-                  <span className="truncate text-muted-foreground">{entry.referrer}</span>
+                  <span className="truncate text-muted-foreground">
+                    {entry.referrer}
+                  </span>
                   <span className="ml-auto font-medium">
                     {formatNumber(entry.views)}
                   </span>
@@ -315,18 +351,20 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
                 </span>
               </TooltipTrigger>
               <TooltipContent sideOffset={6}>
-                Browser mix during the range. Helpful for verifying compatibility
-                and testing coverage.
+                Browser mix during the range. Helpful for verifying
+                compatibility and testing coverage.
               </TooltipContent>
             </Tooltip>
           </CardTitle>
-          <CardDescription>Top user agents observed in this window</CardDescription>
+          <CardDescription>
+            Top user agents observed in this window
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {topBrowsers.length === 0 ? (
             <p className="py-8 text-center text-base text-muted-foreground">
-              No browser fleet on the horizon yet. When the crew grows, we’ll map
-              their vessels here.
+              No browser fleet on the horizon yet. When the crew grows, we’ll
+              map their vessels here.
             </p>
           ) : (
             <ChartContainer
@@ -342,7 +380,11 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
                   layout="vertical"
                   margin={{ left: 12, right: 16, top: 12, bottom: 12 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                    horizontal={false}
+                  />
                   <XAxis
                     type="number"
                     stroke="currentColor"
@@ -358,7 +400,11 @@ export function ProductAnalyticsCharts({ summary }: ProductAnalyticsChartsProps)
                     fontSize={12}
                     width={120}
                   />
-                  <Bar dataKey="views" radius={[0, 4, 4, 0]} fill="var(--chart-views)" />
+                  <Bar
+                    dataKey="views"
+                    radius={[0, 4, 4, 0]}
+                    fill="var(--chart-views)"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>

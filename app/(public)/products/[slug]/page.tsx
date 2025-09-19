@@ -205,9 +205,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       <ExternalBadgeLink
         key="cta"
         href={
-          hasBacklinkFeature
-            ? withUtm(product.ctaUrl, "cta")
-            : product.ctaUrl
+          hasBacklinkFeature ? withUtm(product.ctaUrl, "cta") : product.ctaUrl
         }
         productId={hasBacklinkFeature ? undefined : product.id}
         follow={hasBacklinkFeature}
@@ -361,7 +359,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <Link href={`/categories/${product.category.slug}`} className="inline-flex">
+                  <Link
+                    href={`/categories/${product.category.slug}`}
+                    className="inline-flex"
+                  >
                     <Badge className="flex items-center gap-1 rounded-full border border-[color:var(--brand-1)/0.35] bg-background/80 px-3 py-1 text-xs font-semibold text-[color:var(--brand-1)]">
                       {product.category.name}
                     </Badge>
@@ -375,7 +376,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     </Badge>
                   )}
                   {activeBadgeDefs.map((b) => (
-                    <Badge key={b.value} className={badgeColorMap[b.color as TailwindColor]}>
+                    <Badge
+                      key={b.value}
+                      className={badgeColorMap[b.color as TailwindColor]}
+                    >
                       {b.icon} {b.label}
                     </Badge>
                   ))}
@@ -399,7 +403,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
                 {hasMetadataLinks && (
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">Signal flags:</span>
+                    <span className="font-medium text-foreground">
+                      Signal flags:
+                    </span>
                     {secondaryLinks.map((link) => (
                       <Link
                         key={link.href}
@@ -424,7 +430,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       {useCases.map((uc) => (
                         <Link
                           key={`${uc.useCaseId}-${uc.categoryId}`}
-                          href={{ pathname: "/browse", query: { useCase: uc.useCase.slug } }}
+                          href={{
+                            pathname: "/browse",
+                            query: { useCase: uc.useCase.slug },
+                          }}
                           className="inline-flex"
                         >
                           <Badge className="flex items-center gap-1 rounded-full border border-[color:var(--brand-1)/0.25] bg-background/75 px-3 py-1 text-xs text-[color:var(--brand-1)] shadow-[0_18px_32px_-25px_rgba(7,58,104,0.55)]">
@@ -472,7 +481,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
                 <div className="grid gap-3">
                   {heroStats.map((stat) => (
-                    <VoyageMetric key={stat.label} label={stat.label} value={stat.value} />
+                    <VoyageMetric
+                      key={stat.label}
+                      label={stat.label}
+                      value={stat.value}
+                    />
                   ))}
                 </div>
               </aside>
@@ -492,7 +505,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           {hasMedia && (
             <section className="space-y-4">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-xl font-semibold text-foreground">Cargo hold</h2>
+                <h2 className="text-xl font-semibold text-foreground">
+                  Cargo hold
+                </h2>
                 {product.ProductMedia.length > 3 && (
                   <span className="text-sm text-muted-foreground">
                     A look inside their build
@@ -500,7 +515,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 )}
               </div>
               {hasBanner && (
-                <ImageLightbox src={product.bannerImage!} alt={`${product.name} banner`}>
+                <ImageLightbox
+                  src={product.bannerImage!}
+                  alt={`${product.name} banner`}
+                >
                   <div className="relative w-full overflow-hidden rounded-[28px] border border-[color:var(--brand-1)/0.18] bg-background/75">
                     <div className="relative aspect-[3/1] w-full">
                       <Image
@@ -519,7 +537,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               {hasGallery && (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {product.ProductMedia.map((m) => (
-                    <ImageLightbox key={m.id} src={m.imageUrl} alt={m.altText || product.name}>
+                    <ImageLightbox
+                      key={m.id}
+                      src={m.imageUrl}
+                      alt={m.altText || product.name}
+                    >
                       <div className="relative overflow-hidden rounded-[24px] border border-[color:var(--brand-1)/0.18] bg-background/70 pb-[56%]">
                         <Image
                           src={m.imageUrl}
@@ -539,7 +561,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           {(hasDescription || hasKeywords || hasMetadataLinks) && (
             <section className="rounded-[28px] border border-[color:var(--brand-1)/0.15] bg-background/92 p-8 shadow-[0_30px_80px_-65px_rgba(7,58,104,0.55)] backdrop-blur">
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-foreground">Captain&apos;s log</h2>
+                <h2 className="text-xl font-semibold text-foreground">
+                  Captain&apos;s log
+                </h2>
                 {hasDescription ? (
                   <div className="prose max-w-none prose-neutral dark:prose-invert">
                     <ReactMarkdown
@@ -568,7 +592,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    The crew will be adding their story soon. Check back for their full log entry.
+                    The crew will be adding their story soon. Check back for
+                    their full log entry.
                   </p>
                 )}
               </div>
@@ -578,7 +603,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           {(hasMetadataLinks || hasKeywords) && (
             <section className="rounded-[24px] border border-[color:var(--brand-1)/0.15] bg-background/90 p-6 shadow-[0_25px_70px_-65px_rgba(7,58,104,0.5)] backdrop-blur">
               <div className="flex flex-col gap-4">
-                <h2 className="text-lg font-semibold text-foreground">Harbor signals</h2>
+                <h2 className="text-lg font-semibold text-foreground">
+                  Harbor signals
+                </h2>
                 <div className="grid gap-6 md:grid-cols-2">
                   {hasMetadataLinks && (
                     <div className="space-y-3">
@@ -632,7 +659,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           {hasCrew && (
             <section className="space-y-4">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-xl font-semibold text-foreground">Crew manifest</h2>
+                <h2 className="text-xl font-semibold text-foreground">
+                  Crew manifest
+                </h2>
                 {product.organization?.name && (
                   <span className="text-sm text-muted-foreground">
                     {product.organization.name}
@@ -649,14 +678,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       {m.user.firstName} {m.user.lastName || ""}
                     </div>
                     {m.jobTitle && (
-                      <div className="text-xs text-muted-foreground">{m.jobTitle}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {m.jobTitle}
+                      </div>
                     )}
                   </div>
                 ))}
               </div>
             </section>
           )}
-
         </div>
       </PublicContainer>
 
@@ -679,7 +709,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </h2>
               </div>
               <Link
-                href={{ pathname: "/browse", query: { useCase: primaryUseCaseSlug } }}
+                href={{
+                  pathname: "/browse",
+                  query: { useCase: primaryUseCaseSlug },
+                }}
                 className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.2] px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)] transition-colors hover:border-[color:var(--brand-1)/0.35]"
               >
                 Explore use case <ExternalLink size={14} />

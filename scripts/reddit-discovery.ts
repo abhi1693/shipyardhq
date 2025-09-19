@@ -175,7 +175,9 @@ async function main() {
     DEFAULT_DISCOVERY_EXCLUDE_KEYWORDS,
   ).map((keyword) => keyword.toLowerCase())
 
-  const targetProfile = (discoveryConfig.targetProfile || DEFAULT_DISCOVERY_TARGET_PROFILE).trim()
+  const targetProfile = (
+    discoveryConfig.targetProfile || DEFAULT_DISCOVERY_TARGET_PROFILE
+  ).trim()
 
   const minIntentScore =
     args.minIntentScore ??
@@ -196,7 +198,9 @@ async function main() {
   await seedRunContextFromExisting(runContext)
 
   if (!queryList.length) {
-    console.error("No discovery queries provided. Use --query or add keywords to the config file.")
+    console.error(
+      "No discovery queries provided. Use --query or add keywords to the config file.",
+    )
     process.exit(1)
   }
 
@@ -222,7 +226,9 @@ async function main() {
   console.log(`Intent deny  : ${excludeKeywords.join(", ")}`)
   console.log(`Min intent   : ${minIntentScore}`)
   console.log(`Concurrency : ${concurrencyLimit}`)
-  console.log(`Cooldown    : ${cooldownMs}ms between candidate scoring per worker`)
+  console.log(
+    `Cooldown    : ${cooldownMs}ms between candidate scoring per worker`,
+  )
 
   const candidateMap = new Map<string, Candidate>()
 
@@ -309,7 +315,9 @@ async function main() {
   if (!combinedResults.length) {
     console.log("No candidate subreddits passed the filters.")
   } else {
-    console.log(`\nProcessed ${combinedResults.length} new subreddits in this run.`)
+    console.log(
+      `\nProcessed ${combinedResults.length} new subreddits in this run.`,
+    )
   }
 
   const accumulatedResults = dedupeResultsByName(runContext?.results || [])
@@ -331,11 +339,7 @@ async function main() {
     `\nSummary: ${counts.allow} allow / ${counts.review} review / ${counts.deny} deny`,
   )
 
-  await persistResults(
-    sortedResults,
-    runContext?.outputPath,
-    runContext?.skips,
-  )
+  await persistResults(sortedResults, runContext?.outputPath, runContext?.skips)
 
   if (args.write) {
     await updateConfig(fileConfig, sortedResults, configPath)
@@ -495,7 +499,8 @@ async function fetchSubredditDetails(
 ): Promise<SubredditDetails | null> {
   try {
     const fetched = await candidate.subreddit.fetch()
-    const ruleResponse = (await candidate.subreddit.getRules()) as SnooRuleResponse
+    const ruleResponse =
+      (await candidate.subreddit.getRules()) as SnooRuleResponse
 
     return {
       name: candidate.name,
@@ -515,7 +520,9 @@ async function fetchSubredditDetails(
   } catch (error) {
     const redditError = parseRedditError(error)
     const reason = redditError.reason || redditError.message || "unknown error"
-    const status = redditError.statusCode ? ` (status ${redditError.statusCode})` : ""
+    const status = redditError.statusCode
+      ? ` (status ${redditError.statusCode})`
+      : ""
     recordSkip(candidate.name, reason, redditError.statusCode)
     console.warn(`Skipping r/${candidate.name}: ${reason}${status}`)
     return null
@@ -627,7 +634,8 @@ function buildConfigEntry(
   intent: IntentEvaluation,
 ): SubredditConfigEntry {
   const now = new Date().toISOString()
-  const intentDescription = assessment.suggestedIntent || summarizeIntent(details)
+  const intentDescription =
+    assessment.suggestedIntent || summarizeIntent(details)
   const intentNotes = intent.includeMatches.length
     ? `Intent score ${intent.score}: ${intent.includeMatches.join(", ")}`
     : intent.score > 0
@@ -679,7 +687,9 @@ function displayResult(result: DiscoveryResult) {
   console.log(
     `r/${details.name} — ${verdictLabel} (${confidencePct}% confidence)`,
   )
-  console.log(`Subscribers : ${formatNumber(details.subscribers)} | Active: ${formatNumber(details.activeUserCount || 0)}`)
+  console.log(
+    `Subscribers : ${formatNumber(details.subscribers)} | Active: ${formatNumber(details.activeUserCount || 0)}`,
+  )
   console.log(`Queries     : ${details.queries.join(", ")}`)
   console.log(
     `Intent      : score ${intent.score} | include: ${intent.includeMatches.join(", ") || "(none)"}`,
@@ -827,7 +837,10 @@ function sanitizeText(value?: string | null): string {
     return ""
   }
 
-  return value.replace(/[\u0000-\u001F\u007F]/g, " ").replace(/\s+/g, " ").trim()
+  return value
+    .replace(/[\u0000-\u001F\u007F]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
 }
 
 function summarizeIntent(details: SubredditDetails): string {
@@ -1015,9 +1028,7 @@ function parseRedditError(error: unknown): {
   return {
     statusCode,
     message:
-      typeof anyError.message === "string"
-        ? anyError.message
-        : undefined,
+      typeof anyError.message === "string" ? anyError.message : undefined,
   }
 }
 
@@ -1025,8 +1036,14 @@ async function processCandidate(
   candidate: Candidate,
   context: CandidateProcessingContext,
 ): Promise<DiscoveryResult | null> {
-  const { args, includeKeywords, excludeKeywords, minIntentScore, targetProfile, cooldownMs } =
-    context
+  const {
+    args,
+    includeKeywords,
+    excludeKeywords,
+    minIntentScore,
+    targetProfile,
+    cooldownMs,
+  } = context
 
   const details = await fetchSubredditDetails(candidate)
 
@@ -1085,10 +1102,7 @@ async function processCandidate(
         `Skipping r/${details.name} (intent score ${intent.score} < ${minIntentScore}).`,
       )
     }
-    recordSkip(
-      details.name,
-      `intent score ${intent.score} < ${minIntentScore}`,
-    )
+    recordSkip(details.name, `intent score ${intent.score} < ${minIntentScore}`)
     return null
   }
 
@@ -1223,7 +1237,8 @@ function persistedRecordToResult(
     summary: "Imported from saved results; review manually.",
   }
 
-  const status: SubredditStatus = record.status || verdictToStatus(assessment.verdict)
+  const status: SubredditStatus =
+    record.status || verdictToStatus(assessment.verdict)
 
   const configEntry: SubredditConfigEntry = record.configEntry || {
     name,
@@ -1349,7 +1364,10 @@ function parseAssessmentJson(raw: string): AiAssessment | null {
   let cleaned = raw.trim()
 
   if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```[a-zA-Z0-9]*\s*/i, "").replace(/```$/i, "").trim()
+    cleaned = cleaned
+      .replace(/^```[a-zA-Z0-9]*\s*/i, "")
+      .replace(/```$/i, "")
+      .trim()
   }
 
   const firstBrace = cleaned.indexOf("{")

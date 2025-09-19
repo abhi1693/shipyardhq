@@ -21,7 +21,9 @@ function pickPrimaryIp(header?: string | null) {
   return first?.trim() || null
 }
 
-function coerceDevice(device: DeviceCategory | null | undefined): DeviceCategory {
+function coerceDevice(
+  device: DeviceCategory | null | undefined,
+): DeviceCategory {
   return device ?? "unknown"
 }
 
@@ -34,11 +36,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "invalid json" }, { status: 400 })
   }
 
-  const productId = typeof body?.productId === "string" ? body.productId.trim() : ""
+  const productId =
+    typeof body?.productId === "string" ? body.productId.trim() : ""
   const rawPath = typeof body?.path === "string" ? body.path.trim() : ""
 
   if (!productId || !rawPath) {
-    return NextResponse.json({ error: "productId and path required" }, { status: 400 })
+    return NextResponse.json(
+      { error: "productId and path required" },
+      { status: 400 },
+    )
   }
 
   const headers = request.headers
@@ -52,9 +58,15 @@ export async function POST(request: NextRequest) {
   const os = parseOs(userAgent, secChUaPlatform)
 
   const requestGeo =
-    (request as unknown as {
-      geo?: { country?: string | null; region?: string | null; city?: string | null }
-    }).geo ?? {}
+    (
+      request as unknown as {
+        geo?: {
+          country?: string | null
+          region?: string | null
+          city?: string | null
+        }
+      }
+    ).geo ?? {}
   const requestIp = (request as unknown as { ip?: string | null }).ip ?? null
 
   const country =

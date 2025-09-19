@@ -30,11 +30,7 @@ export default async function AssignedProductBadgesPage({
       title="Assigned Product Badges"
       addLink="/admin/products/assignments/badges/add"
     >
-      <EntityList
-        columns={columns}
-        data={assignments}
-        pageCount={pageCount}
-      />
+      <EntityList columns={columns} data={assignments} pageCount={pageCount} />
     </ListPageWrapper>
   )
 }

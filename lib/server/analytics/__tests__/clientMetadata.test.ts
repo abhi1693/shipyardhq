@@ -39,9 +39,9 @@ describe("clientMetadata helpers", () => {
 
   it("parses os from hints and ua", () => {
     expect(parseOs("", '"Android"')).toEqual("Android")
-    expect(parseOs("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", null)).toEqual(
-      "macOS",
-    )
+    expect(
+      parseOs("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", null),
+    ).toEqual("macOS")
   })
 
   it("hashes IP addresses with provided salt", () => {

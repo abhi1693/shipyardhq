@@ -59,9 +59,7 @@ export async function getProducts(args: Prisma.ProductFindManyArgs = {}) {
   }
 }
 
-export async function getProductsCount(
-  args: Prisma.ProductCountArgs = {},
-) {
+export async function getProductsCount(args: Prisma.ProductCountArgs = {}) {
   try {
     return await prisma.product.count(args)
   } catch (error) {

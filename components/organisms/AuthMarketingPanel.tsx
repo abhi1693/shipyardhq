@@ -1,4 +1,9 @@
-import { IconAnchor, IconCompass, IconLifebuoy, IconSailboat } from "@tabler/icons-react"
+import {
+  IconAnchor,
+  IconCompass,
+  IconLifebuoy,
+  IconSailboat,
+} from "@tabler/icons-react"
 
 const features = [
   {
@@ -44,16 +49,20 @@ export default function AuthMarketingPanel() {
           </span>
 
           <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight text-slate-900">ShipYardHQ</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900">
+              ShipYardHQ
+            </h1>
             <p className="text-sm text-slate-600">A harbor for indie SaaS</p>
           </div>
 
           <div className="space-y-4 text-slate-700">
-            <h2 className="text-3xl font-semibold leading-tight text-slate-900">Set sail. Build boldly.</h2>
+            <h2 className="text-3xl font-semibold leading-tight text-slate-900">
+              Set sail. Build boldly.
+            </h2>
             <p className="text-sm leading-relaxed">
-              ShipYardHQ is where indie products find their sea legs. Dock your project, meet a
-              helpful crew, and catch tailwinds toward your next milestone. Calm waters today,
-              brighter horizons tomorrow.
+              ShipYardHQ is where indie products find their sea legs. Dock your
+              project, meet a helpful crew, and catch tailwinds toward your next
+              milestone. Calm waters today, brighter horizons tomorrow.
             </p>
           </div>
         </div>

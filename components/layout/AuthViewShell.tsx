@@ -10,7 +10,9 @@ export default function AuthViewShell({ children }: PropsWithChildren) {
         <div className="absolute inset-x-[-20%] top-[-40%] h-[28rem] rounded-[55%] bg-[radial-gradient(circle,_rgba(59,130,246,0.2),_transparent_75%)] blur-[80px]" />
       </div>
 
-      <div className="relative grid min-h-screen grid-cols-1 lg:grid-cols-2">{children}</div>
+      <div className="relative grid min-h-screen grid-cols-1 lg:grid-cols-2">
+        {children}
+      </div>
     </div>
   )
 }

@@ -128,10 +128,7 @@ export default function PublicFooter({
           </div>
           <ul className="space-y-2 md:space-y-2.5">
             <li>
-              <Link
-                href="/users"
-                className={textLinkCls + " md:font-medium"}
-              >
+              <Link href="/users" className={textLinkCls + " md:font-medium"}>
                 Makers Directory
               </Link>
             </li>

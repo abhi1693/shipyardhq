@@ -34,10 +34,7 @@ export function UpvoteSquare({
       title={title ?? `${count} upvotes`}
     >
       <ChevronsUp
-        className={clsx(
-          compact ? "h-3 w-3" : "h-4 w-4",
-          pop && "animate-pop",
-        )}
+        className={clsx(compact ? "h-3 w-3" : "h-4 w-4", pop && "animate-pop")}
       />
       <span
         className={clsx(

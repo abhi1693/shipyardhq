@@ -70,7 +70,8 @@ export function CategoryProductsClient({ products, className }: Props) {
         <div className="space-y-1">
           <h2 className="text-lg font-semibold text-foreground">Products</h2>
           <p className="text-xs text-muted-foreground">
-            Sort to surface fresh launches, rising favorites, or the most clicks.
+            Sort to surface fresh launches, rising favorites, or the most
+            clicks.
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm">

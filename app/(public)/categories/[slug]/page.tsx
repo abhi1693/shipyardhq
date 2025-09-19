@@ -77,7 +77,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
                 <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-[color:var(--brand-1)/0.25] bg-[color:var(--brand-1)/0.12] text-[color:var(--brand-1)] shadow-[0px_20px_40px_-30px_rgba(7,58,104,0.55)]">
-                  <CategoryIcon icon={category.icon} size={26} className="text-[color:var(--brand-1)]" />
+                  <CategoryIcon
+                    icon={category.icon}
+                    size={26}
+                    className="text-[color:var(--brand-1)]"
+                  />
                 </span>
                 <div className="space-y-4 max-w-2xl">
                   <div className="space-y-2">
@@ -89,7 +93,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.28em] text-muted-foreground">
-                    <Badge variant="outline" className="border-[color:var(--brand-1)/0.35] bg-background/70 text-[color:var(--brand-1)]">
+                    <Badge
+                      variant="outline"
+                      className="border-[color:var(--brand-1)/0.35] bg-background/70 text-[color:var(--brand-1)]"
+                    >
                       {products.length} product{products.length !== 1 && "s"}
                     </Badge>
                     {featured.length > 0 ? (
@@ -143,7 +150,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   Spotlighted launches currently making waves here.
                 </p>
               </div>
-              <Button asChild size="sm" variant="outline" className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]">
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
+              >
                 <Link href="/pricing">Get featured</Link>
               </Button>
             </div>
