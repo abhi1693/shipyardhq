@@ -1,4 +1,3 @@
-import { Metadata } from "next"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import { columns } from "./columns"
@@ -10,11 +9,13 @@ import {
   resolvePagination,
   type PaginationSearchParams,
 } from "@/lib/pagination"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Categories",
+  section: "Admin",
   description: "Manage categories in the admin panel",
-}
+})
 
 // Ensure this page always reflects the latest DB state
 export const dynamic = "force-dynamic"

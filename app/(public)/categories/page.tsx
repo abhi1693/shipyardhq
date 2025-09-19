@@ -1,16 +1,16 @@
-import { Metadata } from "next"
 import Link from "next/link"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { CategoryCard } from "@/components/molecules/CategoryCard"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { pluralize } from "@/lib/pluralize"
 import { Button } from "@/components/atoms/button"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Categories",
   description:
     "Explore the harbor by category and discover innovative products.",
-}
+})
 
 export default async function CategoriesPage() {
   const categories = await getCategoriesWithCounts()

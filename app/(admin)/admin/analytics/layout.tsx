@@ -1,9 +1,9 @@
-import type { Metadata } from "next"
+import { buildSectionMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
-  title: "Analytics - ShipYardHQ",
+export const metadata = buildSectionMetadata({
+  section: "Admin Analytics",
   description: "Detailed analytics for ShipYardHQ operations.",
-}
+})
 
 export default function AnalyticsLayout({
   children,

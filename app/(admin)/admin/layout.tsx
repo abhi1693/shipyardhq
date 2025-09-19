@@ -1,4 +1,3 @@
-import type { Metadata } from "next"
 import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
 import PrivateHeader from "@/components/layout/headers/private-header"
 import AppSidebar from "@/components/layout/sidebar"
@@ -8,11 +7,12 @@ import AdminFooter from "@/components/layout/footers/admin-footer"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
+import { buildSectionMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
-  title: "Admin - ShipYardHQ",
+export const metadata = buildSectionMetadata({
+  section: "Admin",
   description: "Admin dashboard for managing ShipYardHQ.",
-}
+})
 
 const navItems: NavItem[] = [
   {

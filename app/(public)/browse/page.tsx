@@ -1,4 +1,3 @@
-import { Metadata } from "next"
 export const revalidate = 60
 import Link from "next/link"
 import {
@@ -14,12 +13,13 @@ import { PageHeader } from "@/components/molecules/PageHeader"
 import { pluralize } from "@/lib/pluralize"
 import { getProducts } from "@/actions/public/products/featured"
 import { BrowseFeaturedCarousel } from "@/components/organisms/BrowseFeaturedCarousel"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Browse Products",
   description:
-    "Chart your course through tools, startups, and products by use case or category",
-}
+    "Chart your course through tools, startups, and products by use case or category.",
+})
 
 type StrOrArr = string | string[] | undefined
 interface BrowseSearchParams {

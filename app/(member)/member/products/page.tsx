@@ -1,4 +1,3 @@
-import { Metadata } from "next"
 import Link from "next/link"
 
 import { Card, CardContent } from "@/components/atoms/card"
@@ -17,11 +16,12 @@ import {
   memberProductStatusOptionValues,
   memberProductVerificationOptionValues,
 } from "@/lib/member-products/filter-options"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Products",
   description: "Manage your products, chart growth, and track performance.",
-}
+})
 
 type SearchParams = Record<string, string | string[] | undefined>
 

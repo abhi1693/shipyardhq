@@ -1,4 +1,3 @@
-import type { Metadata } from "next"
 import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
 import PrivateHeader from "@/components/layout/headers/private-header"
 import AppSidebar from "@/components/layout/sidebar"
@@ -10,10 +9,9 @@ import MemberFooter from "@/components/layout/footers/member-footer"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { IS_PROD } from "@/lib/constants"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
+import { buildSectionMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
-  title: "ShipYardHQ",
-}
+export const metadata = buildSectionMetadata({ section: "Member" })
 
 const navItems: NavItem[] = [
   {

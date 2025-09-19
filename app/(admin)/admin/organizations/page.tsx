@@ -1,4 +1,3 @@
-import { Metadata } from "next"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import {
@@ -10,11 +9,13 @@ import {
   resolvePagination,
   type PaginationSearchParams,
 } from "@/lib/pagination"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Organizations",
-  description: "Manage organizations in the admin panel",
-}
+  section: "Admin",
+  description: "Manage organizations in the admin panel.",
+})
 
 export default async function OrganizationsPage({
   searchParams,

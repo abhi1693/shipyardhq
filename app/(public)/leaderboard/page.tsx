@@ -3,7 +3,6 @@ import {
   getTopRankedProducts,
 } from "@/actions/public/leaderboard/actions"
 import Link from "next/link"
-import { Metadata } from "next"
 import type { ComponentType } from "react"
 export const revalidate = 60
 
@@ -24,11 +23,12 @@ import {
 } from "@tabler/icons-react"
 import type { IconProps } from "@tabler/icons-react"
 import Image from "next/image"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Product Leaderboard",
   description: "See the most upvoted products across the platform.",
-}
+})
 
 export default async function LeaderboardPage({
   searchParams,

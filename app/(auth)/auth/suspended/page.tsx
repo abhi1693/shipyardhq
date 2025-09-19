@@ -1,9 +1,9 @@
 import Link from "next/link"
-import { Metadata } from "next"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Account Suspended",
-}
+})
 
 export default function SuspendedAccountPage() {
   return (

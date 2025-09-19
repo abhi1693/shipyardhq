@@ -1,10 +1,11 @@
-import { Metadata } from "next"
 import AddUserForm from "./form"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Add User",
-  description: "Create a new user in the admin panel",
-}
+  section: "Admin",
+  description: "Create a new user in the admin panel.",
+})
 
 export default function AddUserPage() {
   return <AddUserForm />

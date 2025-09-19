@@ -1,4 +1,3 @@
-import { Metadata } from "next"
 import {
   getPlanFeatures,
   getPlanFeaturesCount,
@@ -10,11 +9,13 @@ import {
   resolvePagination,
   type PaginationSearchParams,
 } from "@/lib/pagination"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Plan Features",
-  description: "Manage feature flags for pricing plans",
-}
+  section: "Admin",
+  description: "Manage feature flags for pricing plans.",
+})
 
 export default async function PlanFeatureListPage({
   searchParams,

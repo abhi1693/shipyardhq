@@ -1,9 +1,9 @@
-import type { Metadata } from "next"
 import MemberAccountProfile from "@/components/pages/MemberAccountProfile"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
-  title: "Account Profile - Member",
-}
+export const metadata = buildPageMetadata({
+  title: "Account Profile",
+})
 
 export default function Page() {
   return <MemberAccountProfile />

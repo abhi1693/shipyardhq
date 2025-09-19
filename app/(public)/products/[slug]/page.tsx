@@ -39,6 +39,7 @@ import { hasPlanFeature } from "@/lib/features"
 import { JSX } from "react"
 import ImageLightbox from "@/components/molecules/ImageLightbox"
 import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
+import { buildPageMetadata } from "@/lib/metadata"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -58,32 +59,39 @@ export async function generateMetadata({
       .join(" ")
       .trim() || undefined
 
-  return {
-    title: `${product.name} | Product`,
+  const openGraphExtras = {
+    url: relativeUrl,
+    type: "website" as const,
+    ...(images.length ? { images: images.map((url) => ({ url })) } : {}),
+  }
+
+  const twitterExtras = {
+    card: "summary_large_image" as const,
+    ...(images.length ? { images } : {}),
+  }
+
+  const baseMetadata = buildPageMetadata({
+    title: product.name,
+    section: "Product",
     description: desc,
-    keywords:
-      product.keywords && product.keywords.length
-        ? product.keywords
-        : undefined,
+    openGraph: openGraphExtras,
+    twitter: twitterExtras,
+  })
+
+  const robotsConfig =
+    product.status === "published"
+      ? { index: true, follow: true }
+      : { index: false, follow: false }
+
+  const keywords =
+    product.keywords && product.keywords.length ? product.keywords : undefined
+
+  return {
+    ...baseMetadata,
     alternates: { canonical: relativeUrl },
-    openGraph: {
-      title: product.name,
-      description: desc,
-      url: relativeUrl,
-      type: "website",
-      images: images.length ? images.map((url) => ({ url })) : undefined,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: product.name,
-      description: desc,
-      images: images.length ? images : undefined,
-    },
-    robots:
-      product.status === "published"
-        ? { index: true, follow: true }
-        : { index: false, follow: false },
-    authors: authorName ? [{ name: authorName }] : undefined,
+    robots: robotsConfig,
+    ...(keywords ? { keywords } : {}),
+    ...(authorName ? { authors: [{ name: authorName }] } : {}),
   }
 }
 

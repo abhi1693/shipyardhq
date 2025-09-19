@@ -1,4 +1,3 @@
-import { Metadata } from "next"
 import Link from "next/link"
 import { IconFlag3, IconSparkles, IconTargetArrow } from "@tabler/icons-react"
 import { getPublicPlans } from "@/actions/public/plans/actions"
@@ -14,11 +13,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/atoms/accordion"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Pricing",
   description: "Transparent pricing for every stage.",
-}
+})
 
 const CORE_PERKS = [
   {

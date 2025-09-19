@@ -1,12 +1,12 @@
-import { Metadata } from "next"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
-  title: "Privacy Policy - ShipYardHQ",
+export const metadata = buildPageMetadata({
+  title: "Privacy Policy",
   description:
     "Learn how ShipYardHQ collects, uses, and protects your personal information.",
-}
+})
 
 export default function PrivacyPolicyPage() {
   return (

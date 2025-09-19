@@ -1,26 +1,26 @@
-import type { Metadata } from "next"
 import Link from "next/link"
 import { getPublicUsersWithCounts } from "@/actions/public/users/actions"
 import PublicContainer from "@/components/layout/PublicContainer"
+import type { Metadata } from "next"
+import { buildPageMetadata } from "@/lib/metadata"
 
 export const revalidate = 120
 
-export const metadata: Metadata = {
-  title: "Users | ShipYardHQ",
-  description:
-    "Discover makers and explore their published products on ShipYardHQ.",
-  alternates: { canonical: "/users" },
+const baseMetadata = buildPageMetadata({
+  title: "Users",
+  description: "Discover makers and explore their published products on ShipYardHQ.",
   openGraph: {
-    title: "Users | ShipYardHQ",
-    description: "Discover makers and explore their published products.",
     url: "/users",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Users | ShipYardHQ",
-    description: "Discover makers and explore their published products.",
   },
+})
+
+export const metadata: Metadata = {
+  ...baseMetadata,
+  alternates: { canonical: "/users" },
 }
 
 export default async function UsersIndexPage() {

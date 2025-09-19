@@ -1,4 +1,3 @@
-import { Metadata } from "next"
 import Link from "next/link"
 import { auth } from "@clerk/nextjs/server"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
@@ -19,11 +18,12 @@ import { PlanType } from "@/lib/vendor/prisma/client"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Organizations",
   description: "Manage your organizations.",
-}
+})
 
 type OrgPlan = {
   id: string

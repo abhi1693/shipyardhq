@@ -14,6 +14,7 @@ import { productHasFeature } from "@/lib/features"
 import { Button } from "@/components/atoms/button"
 import FeaturedBanner from "@/components/molecules/FeaturedBanner"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
+import { buildPageMetadata } from "@/lib/metadata"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
@@ -26,10 +27,11 @@ export async function generateMetadata({
   const category = await getCategoryMeta(slug)
   if (!category) return {}
 
-  return {
-    title: `${category.name} | Categories`,
-    description: category.description,
-  }
+  return buildPageMetadata({
+    title: category.name,
+    section: "Categories",
+    description: category.description ?? undefined,
+  })
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {

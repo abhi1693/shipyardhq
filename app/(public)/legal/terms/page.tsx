@@ -1,11 +1,11 @@
-import { Metadata } from "next"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { PageHeader } from "@/components/molecules/PageHeader"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
-  title: "Terms of Service - ShipYardHQ",
+export const metadata = buildPageMetadata({
+  title: "Terms of Service",
   description: "Review the terms and conditions for using ShipYardHQ.",
-}
+})
 
 export default function TermsOfServicePage() {
   return (

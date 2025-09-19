@@ -1,10 +1,11 @@
-import { Metadata } from "next"
 import AddOrganizationForm from "./form"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Add Organization",
-  description: "Create a new organization",
-}
+  section: "Admin",
+  description: "Create a new organization.",
+})
 
 export default function AddOrganizationPage() {
   return <AddOrganizationForm />

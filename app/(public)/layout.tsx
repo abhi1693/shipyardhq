@@ -1,22 +1,11 @@
-import type { Metadata } from "next"
 import PublicHeader from "@/components/layout/headers/public-header"
 import PublicFooter from "@/components/layout/footers/public-footer"
 import FeaturedTicker from "@/components/molecules/FeaturedTicker"
 import { getStickyBannerProducts } from "@/actions/public/products/featured"
 import { getUseCases } from "@/actions/admin/categories/actions"
-import { buildSiteSeo } from "@/lib/siteConfig"
+import { buildSectionMetadata } from "@/lib/metadata"
 
-const siteSeo = buildSiteSeo()
-
-export const metadata: Metadata = {
-  title: {
-    default: siteSeo.defaultTitle,
-    template: siteSeo.titleTemplate,
-  },
-  description: siteSeo.description,
-  openGraph: siteSeo.openGraph,
-  twitter: siteSeo.twitter,
-}
+export const metadata = buildSectionMetadata()
 
 export default async function PublicLayout({
   children,

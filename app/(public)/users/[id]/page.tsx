@@ -7,6 +7,7 @@ import {
 import PublicContainer from "@/components/layout/PublicContainer"
 import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
+import { buildPageMetadata } from "@/lib/metadata"
 
 export const revalidate = 120
 
@@ -24,21 +25,22 @@ export async function generateMetadata({
     `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"
   const relativeUrl = `/users/${id}`
   const desc = `${fullName}'s published products on ShipYardHQ.`
-  return {
-    title: `${fullName} — Profile | ShipYardHQ`,
+  const baseMetadata = buildPageMetadata({
+    title: fullName,
+    section: "Profile",
     description: desc,
-    alternates: { canonical: relativeUrl },
     openGraph: {
-      title: `${fullName} — Profile`,
-      description: desc,
       url: relativeUrl,
       type: "profile",
     },
     twitter: {
       card: "summary",
-      title: `${fullName} — Profile`,
-      description: desc,
     },
+  })
+
+  return {
+    ...baseMetadata,
+    alternates: { canonical: relativeUrl },
   }
 }
 

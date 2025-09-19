@@ -1,4 +1,3 @@
-import { Metadata } from "next"
 import { headers } from "next/headers"
 import AuthViewShell from "@/components/layout/AuthViewShell"
 import AuthMarketingPanel from "@/components/organisms/AuthMarketingPanel"
@@ -7,20 +6,22 @@ import {
   type AuthRedirectSearchParams,
   resolveRedirectUrl,
 } from "@/lib/auth/redirect"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
-  title: "Sign in | ShipYardHQ.dev",
+export const metadata = buildPageMetadata({
+  title: "Sign in",
   description: "Sign in to list, discover, and explore micro-SaaS tools.",
-}
+})
 
 export default async function LoginViewPage({
-  searchParams = {},
+  searchParams,
 }: {
-  searchParams?: AuthRedirectSearchParams
+  searchParams?: Promise<AuthRedirectSearchParams>
 }) {
+  const resolvedSearchParams = searchParams ? await searchParams : {}
   const headerList = await headers()
   const requestHost = headerList.get("host")
-  const redirectUrl = resolveRedirectUrl(searchParams, requestHost)
+  const redirectUrl = resolveRedirectUrl(resolvedSearchParams, requestHost)
 
   return (
     <AuthViewShell>

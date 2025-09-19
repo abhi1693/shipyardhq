@@ -1,13 +1,14 @@
-import { Metadata } from "next"
 import { getUsers, getUsersCount } from "@/actions/admin/users/actions"
 import { columns } from "./columns"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Users",
-  description: "Manage users in the admin panel",
-}
+  section: "Admin",
+  description: "Manage users in the admin panel.",
+})
 
 type SearchParams = {
   page?: string | string[]

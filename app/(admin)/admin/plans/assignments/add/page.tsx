@@ -1,12 +1,13 @@
-import { Metadata } from "next"
 import { getPlans } from "@/actions/admin/plans/actions"
 import { getPlanFeatures } from "@/actions/admin/plans/features/actions"
 import AddAssignmentForm from "./form"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Assign Feature to Plan",
-  description: "Create a new plan-feature assignment",
-}
+  section: "Admin",
+  description: "Create a new plan-feature assignment.",
+})
 
 export default async function AddAssignmentPage() {
   const plans = await getPlans({ select: { id: true, name: true } })

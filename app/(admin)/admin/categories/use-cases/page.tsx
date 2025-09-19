@@ -1,4 +1,3 @@
-import { Metadata } from "next"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import { columns } from "./columns"
@@ -10,11 +9,13 @@ import {
   resolvePagination,
   type PaginationSearchParams,
 } from "@/lib/pagination"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: "Use Cases",
-  description: "Manage functional use-cases in the admin panel",
-}
+  section: "Admin",
+  description: "Manage functional use-cases in the admin panel.",
+})
 
 export default async function UseCasePage({
   searchParams,
