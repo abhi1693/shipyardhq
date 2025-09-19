@@ -23,8 +23,25 @@ const navItems: NavItem[] = [
   },
   {
     title: "Analytics",
-    url: "/admin/analytics",
+    url: "#",
     icon: "analytics",
+    items: [
+      {
+        title: "Traffic",
+        url: "/admin/analytics/traffic",
+        icon: "analytics",
+      },
+      {
+        title: "Onboarding",
+        url: "/admin/analytics/onboarding",
+        icon: "user",
+      },
+      {
+        title: "Growth",
+        url: "/admin/analytics/growth",
+        icon: "dashboard",
+      },
+    ],
   },
   {
     title: "Users",

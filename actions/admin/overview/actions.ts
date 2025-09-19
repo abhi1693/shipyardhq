@@ -46,6 +46,7 @@ export async function getRecentProducts(limit = 10, days?: number) {
       user: true,
       plan: true,
       verification: true,
+      category: true,
     },
   })
 }

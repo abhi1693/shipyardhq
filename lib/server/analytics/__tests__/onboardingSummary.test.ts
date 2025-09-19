@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 
-const { countMock, groupByMock, findFirstMock } = vi.hoisted(() => ({
+const { countMock, groupByMock, findFirstMock, findManyMock } = vi.hoisted(() => ({
   countMock: vi.fn(),
   groupByMock: vi.fn(),
   findFirstMock: vi.fn(),
+  findManyMock: vi.fn(),
 }))
 
 vi.mock("@/lib/prisma", () => ({
@@ -12,11 +13,18 @@ vi.mock("@/lib/prisma", () => ({
       count: countMock,
       groupBy: groupByMock,
       findFirst: findFirstMock,
+      findMany: findManyMock,
     },
   },
 }))
 
-import { getOnboardingAnswersSummary } from "@/lib/server/analytics/onboardingSummary"
+import {
+  getOnboardingAnswersSummary,
+  getPendingOnboardingUsers,
+  getRecentOnboardingCompletions,
+  getRoleIntentLabel,
+  getHeardFromLabel,
+} from "@/lib/server/analytics/onboardingSummary"
 
 describe("getOnboardingAnswersSummary", () => {
   beforeEach(() => {
@@ -25,6 +33,7 @@ describe("getOnboardingAnswersSummary", () => {
     countMock.mockReset()
     groupByMock.mockReset()
     findFirstMock.mockReset()
+    findManyMock.mockReset()
   })
 
   afterEach(() => {
@@ -127,5 +136,59 @@ describe("getOnboardingAnswersSummary", () => {
     expect(summary.roleIntentBreakdown).toEqual([])
     expect(summary.heardFromBreakdown).toEqual([])
     expect(summary.lastResponseAt).toBeNull()
+  })
+
+  it("fetches pending onboarding users", async () => {
+    findManyMock.mockResolvedValueOnce([])
+    await getPendingOnboardingUsers(5)
+    expect(findManyMock).toHaveBeenCalledWith({
+      where: {
+        status: "active",
+        OR: [{ roleIntent: null }, { heardFrom: null }],
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        createdAt: true,
+      },
+    })
+  })
+
+  it("fetches recent onboarding completions", async () => {
+    findManyMock.mockResolvedValueOnce([])
+    await getRecentOnboardingCompletions(8)
+    expect(findManyMock).toHaveBeenCalledWith({
+      where: {
+        status: "active",
+        roleIntent: { not: null },
+        heardFrom: { not: null },
+      },
+      orderBy: [
+        { termsAcceptedAt: "desc" },
+        { updatedAt: "desc" },
+      ],
+      take: 8,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        roleIntent: true,
+        heardFrom: true,
+        termsAcceptedAt: true,
+        updatedAt: true,
+      },
+    })
+  })
+
+  it("maps labels for role intent and heard from values", () => {
+    expect(getRoleIntentLabel("launch-product")).toBe("Launch a product")
+    expect(getRoleIntentLabel("custom_intent")).toBe("Custom Intent")
+    expect(getHeardFromLabel("twitter")).toBe("Twitter / X")
+    expect(getHeardFromLabel("unknown-source")).toBe("Unknown Source")
   })
 })

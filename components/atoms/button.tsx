@@ -5,29 +5,30 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/40 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive cursor-pointer",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+          "rounded-full border border-[color:var(--brand-2)/0.35] bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))] text-white shadow-[0_14px_28px_-18px_rgba(7,78,134,0.55)] transition-shadow hover:shadow-[0_18px_36px_-18px_rgba(7,78,134,0.45)] focus-visible:border-[color:var(--brand-2)/0.55] focus-visible:ring-[color:var(--brand-2)/0.35]",
         destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "rounded-full border border-red-500/40 bg-[linear-gradient(135deg,#f87171,#ef4444)] text-white shadow-[0_14px_30px_-18px_rgba(248,113,113,0.5)] hover:shadow-[0_18px_40px_-20px_rgba(248,113,113,0.45)] focus-visible:ring-red-300/50",
         success:
-          "bg-green-500 text-white shadow-xs hover:bg-green-600 focus-visible:ring-green-200 dark:focus-visible:ring-green-400 dark:bg-green-400 dark:text-black",
+          "rounded-full border border-emerald-500/40 bg-[linear-gradient(135deg,#34d399,#10b981)] text-white shadow-[0_14px_28px_-18px_rgba(52,211,153,0.45)] hover:shadow-[0_18px_36px_-18px_rgba(16,185,129,0.45)] focus-visible:ring-emerald-300/50",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "rounded-full border border-[color:var(--brand-1)/0.32] bg-white/85 text-slate-900 shadow-[0_10px_24px_-18px_rgba(7,58,104,0.35)] hover:bg-[color:var(--brand-1)/0.06] hover:text-slate-900 focus-visible:border-[color:var(--brand-1)/0.55] focus-visible:ring-[color:var(--brand-1)/0.25] dark:bg-input/40 dark:text-white",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+          "rounded-full border border-slate-200/60 bg-slate-100 text-slate-800 shadow-[0_12px_26px_-20px_rgba(15,23,42,0.35)] hover:bg-slate-200 hover:text-slate-900 dark:bg-slate-800/70 dark:border-slate-700 dark:text-slate-100",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
+          "rounded-full border border-transparent bg-transparent text-slate-700 hover:border-slate-200 hover:bg-slate-100/70 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60",
+        link:
+          "underline-offset-[6px] text-[color:var(--brand-1)] hover:underline focus-visible:underline",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
+        sm: "h-8 px-3 has-[>svg]:px-2.5 gap-1.5",
+        lg: "h-11 px-6 has-[>svg]:px-4",
+        icon: "size-9 rounded-full",
       },
     },
     defaultVariants: {

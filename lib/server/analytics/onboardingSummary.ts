@@ -38,6 +38,14 @@ function labelForValue(
     .join(" ")
 }
 
+export function getRoleIntentLabel(value: string) {
+  return labelForValue(value, ROLE_INTENT_LABELS, "Unknown")
+}
+
+export function getHeardFromLabel(value: string) {
+  return labelForValue(value, HEARD_FROM_LABELS, "Unknown")
+}
+
 function buildBreakdown(
   total: number,
   entries: { value: string; count: number }[],
@@ -160,4 +168,47 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     roleIntentBreakdown,
     heardFromBreakdown,
   }
+}
+
+export async function getPendingOnboardingUsers(limit = 12) {
+  return prisma.user.findMany({
+    where: {
+      status: "active",
+      OR: [{ roleIntent: null }, { heardFrom: null }],
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      createdAt: true,
+    },
+  })
+}
+
+export async function getRecentOnboardingCompletions(limit = 12) {
+  return prisma.user.findMany({
+    where: {
+      status: "active",
+      roleIntent: { not: null },
+      heardFrom: { not: null },
+    },
+    orderBy: [
+      { termsAcceptedAt: "desc" },
+      { updatedAt: "desc" },
+    ],
+    take: limit,
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      roleIntent: true,
+      heardFrom: true,
+      termsAcceptedAt: true,
+      updatedAt: true,
+    },
+  })
 }
