@@ -1,7 +1,6 @@
 "use client"
 
 import { Button } from "@/components/atoms/button"
-import SaveButton from "@/components/molecules/SaveButton"
 
 export default function WizardFooter({
   isReview,
@@ -21,32 +20,57 @@ export default function WizardFooter({
   isSubmitting?: boolean
 }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="mt-6 flex flex-col gap-3 border-t border-slate-200/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
       <Button
         type="button"
-        variant="secondary"
+        variant="ghost"
+        className="justify-center text-slate-600 hover:bg-slate-100"
         onClick={onBack}
         disabled={disableBack || !!isSubmitting}
       >
         Back
       </Button>
+
       {isReview ? (
         <div className="flex gap-2">
-          <SaveButton
+          <Button
             type="button"
+            variant="outline"
+            className="border-slate-300 text-slate-700"
             disabled={!!isSubmitting}
             onClick={onSaveDraft}
           >
-            Save as Draft
-          </SaveButton>
-          <Button type="button" disabled={!!isSubmitting} onClick={onPublish}>
+            Save draft
+          </Button>
+          <Button
+            type="button"
+            className="bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))] text-white"
+            disabled={!!isSubmitting}
+            onClick={onPublish}
+          >
             Publish
           </Button>
         </div>
       ) : (
-        <Button type="button" onClick={onNext} disabled={!!isSubmitting}>
-          Next
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="border-slate-300 text-slate-700"
+            disabled={!!isSubmitting}
+            onClick={onSaveDraft}
+          >
+            Save draft
+          </Button>
+          <Button
+            type="button"
+            className="bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))] text-white"
+            onClick={onNext}
+            disabled={!!isSubmitting}
+          >
+            Next
+          </Button>
+        </div>
       )}
     </div>
   )

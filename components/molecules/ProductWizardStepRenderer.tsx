@@ -60,6 +60,7 @@ export function renderStep(
           canEditCTA={args.canEditCTA}
         />
       )
+    case 5:
     default:
       return (
         <Review

@@ -30,8 +30,9 @@ export const PLATFORMS = [
 export const STEPS: { id: number; label: string }[] = [
   { id: 1, label: "Basics" },
   { id: 2, label: "Pricing" },
-  { id: 3, label: "Details" },
-  { id: 4, label: "Review" },
+  { id: 3, label: "Verification" },
+  { id: 4, label: "Details" },
+  { id: 5, label: "Review" },
 ]
 
 // Keep this untyped to avoid coupling to zod types; pages cast when needed.
@@ -48,7 +49,8 @@ export const STEP_FIELDS: Record<number, readonly string[]> = {
     "keywordsText",
   ],
   2: ["pricingModel", "startingPriceCents", "currencyCode"],
-  3: [
+  3: [],
+  4: [
     "organizationId",
     "ctaLabel",
     "ctaUrl",

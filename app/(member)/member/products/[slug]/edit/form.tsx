@@ -7,13 +7,7 @@ import { useForm, FormProvider } from "react-hook-form"
 import { toast } from "sonner"
 
 import { updateProductAction } from "@/actions/admin/products/actions"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/atoms/card"
-import { Separator } from "@/components/atoms/separator"
+import { Card, CardContent } from "@/components/atoms/card"
 
 import WizardStepper from "@/components/molecules/WizardStepper"
 import WizardFooter from "@/components/molecules/WizardFooter"
@@ -92,40 +86,43 @@ export default function EditProductForm({
   }, [wizard.step, categories, organizations, product.id, canEditCTA])
 
   return (
-    <Card className="mx-auto w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle className="text-left text-2xl font-bold">
-          Edit Product
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Stepper */}
-        <WizardStepper steps={STEPS} step={wizard.step} />
+    <div className="mx-auto w-full max-w-4xl space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold tracking-tight text-slate-900">
+            Edit product
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Update launch details, media, and verification settings.
+          </p>
+        </div>
+      </div>
 
-        <FormProvider {...form}>
-          <form
-            onSubmit={form.handleSubmit(() =>
-              wizard.submitWithStatus("published"),
-            )}
-            className="space-y-6"
-          >
-            {StepComponent}
+      <Card className="border border-transparent bg-white/90 shadow-none">
+        <CardContent className="space-y-6 px-0">
+          <WizardStepper steps={STEPS} step={wizard.step} />
 
-            <Separator className="my-4" />
+          <FormProvider {...form}>
+            <form
+              onSubmit={form.handleSubmit(() => wizard.submitWithStatus("published"))}
+              className="space-y-6"
+            >
+              {StepComponent}
 
-            <WizardFooter
-              isReview={wizard.isReview}
-              onBack={wizard.back}
-              onNext={wizard.next}
-              onSaveDraft={() => wizard.submitWithStatus("draft")}
-              onPublish={() => wizard.submitWithStatus("published")}
-              disableBack={wizard.step === 1}
-              isSubmitting={form.formState.isSubmitting}
-            />
-          </form>
-        </FormProvider>
-      </CardContent>
-    </Card>
+              <WizardFooter
+                isReview={wizard.isReview}
+                onBack={wizard.back}
+                onNext={wizard.next}
+                onSaveDraft={() => wizard.submitWithStatus("draft")}
+                onPublish={() => wizard.submitWithStatus("published")}
+                disableBack={wizard.step === 1}
+                isSubmitting={form.formState.isSubmitting}
+              />
+            </form>
+          </FormProvider>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 
