@@ -4,7 +4,7 @@ export const siteConfig = {
   description:
     "ShipYardHQ is a curated hub for micro-SaaS, indie tools, and early-stage products. Submit your product in minutes and reach a community of builders and early adopters.",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  ogImage: "/brand.png",
+  ogImage: "/opengraph.png",
 }
 
 export const absoluteOgImageUrl = new URL(
