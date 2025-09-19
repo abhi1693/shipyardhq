@@ -5,6 +5,7 @@ import { Toaster } from "@/components/atoms/sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import NextTopLoader from "nextjs-toploader"
 import Providers from "@/components/layout/providers"
+import { ClarityAnalytics } from "@/components/layout/ClarityAnalytics"
 import "./globals.css"
 import { IS_PROD } from "@/lib/constants"
 import "./theme.css"
@@ -78,6 +79,7 @@ export default function RootLayout({
           disableTransitionOnChange
           enableColorScheme
         >
+          <ClarityAnalytics />
           <Providers>
             <Toaster position="top-right" />
             {children}
