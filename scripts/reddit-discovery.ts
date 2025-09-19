@@ -727,6 +727,7 @@ function createRedditClient() {
 
 async function fetchSubredditDetails(
   candidate: Candidate,
+  verbose: boolean,
 ): Promise<SubredditDetails | null> {
   try {
     const fetched = await candidate.subreddit.fetch()
@@ -755,7 +756,9 @@ async function fetchSubredditDetails(
       ? ` (status ${redditError.statusCode})`
       : ""
     recordSkip(candidate.name, reason, redditError.statusCode)
-    console.warn(`Skipping r/${candidate.name}: ${reason}${status}`)
+    if (verbose) {
+      console.warn(`Skipping r/${candidate.name}: ${reason}${status}`)
+    }
     return null
   }
 }
@@ -767,6 +770,7 @@ async function assessSubreddit(
   intent: IntentEvaluation,
   includeKeywords: string[],
   excludeKeywords: string[],
+  verbose: boolean,
 ): Promise<AiAssessment | null> {
   const openAIApiKey = process.env.OPENAI_API_KEY
   if (!openAIApiKey) {
@@ -836,7 +840,9 @@ Instruction: Return JSON with keys verdict (allow|manual_review|avoid), confiden
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error("OpenAI API error:", errorText)
+      if (verbose) {
+        console.error("OpenAI API error:", errorText)
+      }
       return null
     }
 
@@ -844,17 +850,23 @@ Instruction: Return JSON with keys verdict (allow|manual_review|avoid), confiden
     const text = extractOutputText(data)
 
     if (!text) {
-      console.error("OpenAI API returned no content.")
+      if (verbose) {
+        console.error("OpenAI API returned no content.")
+      }
       return null
     }
 
-    const parsed = parseAssessmentJson(text)
+    const parsed = parseAssessmentJson(text, verbose)
     if (!parsed) {
-      console.error("Failed to parse OpenAI response. Raw output:", text)
+      if (verbose) {
+        console.error("Failed to parse OpenAI response. Raw output:", text)
+      }
     }
     return parsed
   } catch (error) {
-    console.error("Failed to call OpenAI API:", error)
+    if (verbose) {
+      console.error("Failed to call OpenAI API:", error)
+    }
     return null
   }
 }
@@ -1360,10 +1372,12 @@ async function collectCandidatesForQuery(
     return added
   } catch (error) {
     const timePart = timeFilter ? `, time=${timeFilter}` : ""
-    console.warn(
-      `Warning: failed to search subreddits for "${query}" (sort=${sort}${timePart}).`,
-      error,
-    )
+    if (args.verbose) {
+      console.warn(
+        `Warning: failed to search subreddits for "${query}" (sort=${sort}${timePart}).`,
+        error,
+      )
+    }
     return 0
   }
 }
@@ -1618,7 +1632,7 @@ async function processCandidate(
     cooldownMs,
   } = context
 
-  const details = await fetchSubredditDetails(candidate)
+  const details = await fetchSubredditDetails(candidate, args.verbose)
 
   if (!details) {
     return null
@@ -1697,10 +1711,13 @@ async function processCandidate(
     intent,
     includeKeywords,
     excludeKeywords,
+    args.verbose,
   )
 
   if (!assessment) {
-    console.log(`Unable to score r/${details.name}; skipping.`)
+    if (args.verbose) {
+      console.log(`Unable to score r/${details.name}; skipping.`)
+    }
     recordSkip(details.name, "OpenAI scoring failed")
     return null
   }
@@ -1948,7 +1965,10 @@ function extractOutputText(data: any): string | null {
   return merged || null
 }
 
-function parseAssessmentJson(raw: string): AiAssessment | null {
+function parseAssessmentJson(
+  raw: string,
+  logErrors = false,
+): AiAssessment | null {
   if (!raw) {
     return null
   }
@@ -1974,7 +1994,9 @@ function parseAssessmentJson(raw: string): AiAssessment | null {
   try {
     return JSON.parse(cleaned) as AiAssessment
   } catch (error) {
-    console.error("Failed to parse cleaned OpenAI output:", error)
+    if (logErrors) {
+      console.error("Failed to parse cleaned OpenAI output:", error)
+    }
     return null
   }
 }
