@@ -132,6 +132,10 @@ export default async function GrowthAnalyticsPage({
     mostPopularPlan && stats.totalProducts > 0
       ? Math.round((mostPopularPlan.count / stats.totalProducts) * 100)
       : null
+  const popularPlanSummary =
+    mostPopularPlan && popularPlanShare !== null
+      ? `${mostPopularPlan.name} accounts for approximately ${popularPlanShare}% of live products.`
+      : null
 
   const verificationGap = Math.max(stats.unverifiedProducts, 0)
   const verificationHelper = `${stats.verifiedProducts} verified / ${stats.totalProducts} total`
@@ -247,11 +251,8 @@ export default async function GrowthAnalyticsPage({
                 {formatNumber(stats.usedFeatureAssignments)}
               </span>
             </div>
-            {popularPlanShare !== null ? (
-              <p className="text-xs text-muted-foreground">
-                {mostPopularPlan.name} accounts for approximately {popularPlanShare}% of
-                live products.
-              </p>
+            {popularPlanSummary ? (
+              <p className="text-xs text-muted-foreground">{popularPlanSummary}</p>
             ) : null}
           </CardContent>
         </Card>
