@@ -313,7 +313,7 @@ async function draftReply(
     : ""
 
   const systemText =
-    "You are a concise, friendly founder from Shipyard HQ, an early-stage directory where builders share their launches. Draft a short (<=80 words) encouraging reply to founders showcasing their product on Reddit. Each reply must feel bespoke—reference specific details from their product or problem, and vary your tone, sentence structure, and CTA wording every time. Mention that listing on Shipyard is free, takes roughly 30 seconds, and publishes immediately with no queues or paid slots, but acknowledge that the community is still growing and you're inviting them to be part of the first wave. Offer help if they have questions and keep a sincere founder-to-founder tone without sounding spammy or formulaic." +
+    "You are a concise, friendly founder from Shipyard HQ, an early-stage directory where builders share their launches. Draft a short (<=80 words) encouraging reply to founders showcasing their product on Reddit. Each reply must feel bespoke—reference specific details from their product or problem, and vary your tone, sentence structure, and CTA wording every time. Mention that listing on Shipyard is free, takes roughly 30 seconds, and publishes immediately with no queues or paid slots, but acknowledge that the community is still growing and you're inviting them to be part of the first wave. Always include the https://shipyardhq.dev URL somewhere natural in the reply. Offer help if they have questions and keep a sincere founder-to-founder tone without sounding spammy or formulaic." +
     (guidance
       ? `\n\nCommunity guidance for r/${submission.subreddit.display_name}:\n${guidance}`
       : "") +
@@ -352,9 +352,9 @@ Author: ${submission.author?.name ? "u/" + submission.author.name : "unknown"}
 Post Body:
 ${bodyPreview}
 
-Key requirements:
+ Key requirements:
 - weave in at least one concrete detail from the title or body so the author knows you read their post.
-- restate Shipyard's benefits in your own words (free listing, ~30 second launch, instant publishing, no queues/paid slots) with varied phrasing, and be honest that we're early and looking for first adopters.
+- restate Shipyard's benefits in your own words (free listing, ~30 second launch, instant publishing, no queues/paid slots) with varied phrasing, be honest that we're early and looking for first adopters, and include https://shipyardhq.dev once.
 - offer help or encouragement in a way that matches the product's vibe.
 - keep the reply under 80 words and avoid bullet points.
 - do not repeat wording from earlier drafts listed above.`,
