@@ -183,7 +183,9 @@ async function main() {
   console.log(`Loaded ${Object.keys(state).length} previously processed posts.`)
 
   while (true) {
-    for (const subredditName of config.subreddits) {
+    const subredditOrder = shuffle(config.subreddits)
+
+    for (const subredditName of subredditOrder) {
       try {
         await processSubreddit(subredditName)
       } catch (error) {
@@ -505,7 +507,11 @@ function ask(question: string): Promise<string> {
   })
 }
 
-function sanitize(value: string): string {
+function sanitize(value: unknown): string {
+  if (typeof value !== "string") {
+    return ""
+  }
+
   return value.replace(/[\u0000-\u001F\u007F]/g, "").trim()
 }
 
@@ -514,6 +520,17 @@ function clamp(value: number, min: number, max: number): number {
     return min
   }
   return Math.min(max, Math.max(min, value))
+}
+
+function shuffle<T>(values: T[]): T[] {
+  const copy = [...values]
+
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1))
+    ;[copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]]
+  }
+
+  return copy
 }
 
 async function waitForNextPoll(durationMs: number): Promise<void> {
@@ -619,14 +636,22 @@ function buildSubredditGuidance(name: string): string | undefined {
   const seen = new Set<string>()
 
   for (const part of parts) {
-    const normalized = normalizeGuidancePart(part)
-    if (!normalized) {
+    if (part == null) {
       continue
     }
 
-    if (!seen.has(normalized)) {
-      seen.add(normalized)
-      bullets.push(`- ${normalized}`)
+    const values = Array.isArray(part) ? part : [part]
+
+    for (const value of values) {
+      const normalized = normalizeGuidancePart(value)
+      if (!normalized) {
+        continue
+      }
+
+      if (!seen.has(normalized)) {
+        seen.add(normalized)
+        bullets.push(`- ${normalized}`)
+      }
     }
   }
 
@@ -637,11 +662,7 @@ function buildSubredditGuidance(name: string): string | undefined {
   return bullets.join("\n")
 }
 
-function normalizeGuidancePart(value?: string | null): string | null {
-  if (!value) {
-    return null
-  }
-
+function normalizeGuidancePart(value?: unknown): string | null {
   const cleaned = sanitize(value)
   return cleaned ? cleaned : null
 }
