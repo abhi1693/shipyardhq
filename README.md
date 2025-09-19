@@ -66,6 +66,7 @@ Use `npm exec tsx scripts/reddit-bot.ts` (or `npm run reddit:bot`) to run a CLI 
   - `REDDIT_USERNAME`, `REDDIT_PASSWORD`: the Reddit account the bot posts as.
   - `OPENAI_API_KEY`: API key with access to `gpt-4.1-mini` (`OPENAI_MODEL` overrides the default).
 - Additional knobs: `REDDIT_MAX_POST_AGE_MINUTES`, `REDDIT_MIN_UPVOTES`, `REDDIT_MAX_POSTS_PER_SUB`, `REDDIT_POLL_INTERVAL_SECONDS`, `REDDIT_REQUEST_DELAY_MS`, `OPENAI_MAX_OUTPUT_TOKENS`, `OPENAI_TEMPERATURE`, `REDDIT_STATE_FILE` (cache location, default `tmp/reddit-bot-state.json`), and `REDDIT_DISCOVERY_CONCURRENCY` for parallel discovery batch size.
+- When a subreddit entry includes custom `intent`, `notes`, or `ruleSummary`, the outreach bot automatically weaves that guidance into the drafting prompt so replies respect community norms uncovered during discovery.
 
 The script prints each candidate post, the GPT-generated draft, and pauses for a `y/n` approval before posting (use `r` to regenerate). Decisions (approve/skip) are cached in `tmp/reddit-bot-state.json` so the bot will not repeatedly prompt on the same thread.
 

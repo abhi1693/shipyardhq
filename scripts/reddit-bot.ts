@@ -82,6 +82,10 @@ const {
   deny: deniedSubreddits,
 } = categorizeSubreddits(fileConfig.subreddits || [])
 
+const subredditConfigMap = new Map(
+  (fileConfig.subreddits || []).map((entry) => [entry.name.toLowerCase(), entry]),
+)
+
 const envSubreddits = parseList(process.env.REDDIT_SUBREDDITS)
 
 const config: Config = {
@@ -273,6 +277,14 @@ async function draftReply(
     1200,
   )
 
+  const guidance = buildSubredditGuidance(submission.subreddit.display_name)
+
+  const systemText =
+    "You are a concise, friendly community manager for Shipyard HQ. Draft a short (<=80 words) encouraging reply to founders showcasing their product on Reddit. Invite them to list their product on Shipyard (https://shipyardhq.dev), mention that listing is free, launches in about 30 seconds, and there are no queues or paid slots—just immediate publishing. Offer help if they have questions and keep a positive, founder-to-founder tone without sounding spammy." +
+    (guidance
+      ? `\n\nCommunity guidance for r/${submission.subreddit.display_name}:\n${guidance}`
+      : "")
+
   const payload = {
     model: config.openAIModel,
     input: [
@@ -281,7 +293,7 @@ async function draftReply(
         content: [
           {
             type: "input_text",
-            text: "You are a concise, friendly community manager for Shipyard HQ. Draft a short (<=80 words) encouraging reply to founders showcasing their product on Reddit. Invite them to list their product on Shipyard (https://shipyardhq.dev), mention that listing is free, launches in about 30 seconds, and there are no queues or paid slots—just immediate publishing. Offer help if they have questions and keep a positive, founder-to-founder tone without sounding spammy.",
+            text: systemText,
           },
         ],
       },
@@ -495,6 +507,44 @@ function requireEnv(name: string): string {
     throw new Error(`Missing required environment variable: ${name}`)
   }
   return value
+}
+
+function buildSubredditGuidance(name: string): string | undefined {
+  const entry = subredditConfigMap.get(name.toLowerCase())
+  if (!entry) {
+    return undefined
+  }
+
+  const parts = [entry.intent, entry.notes, entry.ruleSummary]
+  const bullets: string[] = []
+  const seen = new Set<string>()
+
+  for (const part of parts) {
+    const normalized = normalizeGuidancePart(part)
+    if (!normalized) {
+      continue
+    }
+
+    if (!seen.has(normalized)) {
+      seen.add(normalized)
+      bullets.push(`- ${normalized}`)
+    }
+  }
+
+  if (!bullets.length) {
+    return undefined
+  }
+
+  return bullets.join("\n")
+}
+
+function normalizeGuidancePart(value?: string | null): string | null {
+  if (!value) {
+    return null
+  }
+
+  const cleaned = sanitize(value)
+  return cleaned ? cleaned : null
 }
 
 main().catch(async (error) => {
