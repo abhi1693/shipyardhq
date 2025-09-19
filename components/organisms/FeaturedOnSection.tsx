@@ -24,6 +24,13 @@ const featuredBadges = [
     width: 200,
     height: 54,
   },
+  {
+    href: "https://fazier.com/launches/shipyardhq.dev",
+    title: "Featured on Fazier",
+    src: "https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=light",
+    alt: "Fazier badge",
+    width: 250,
+  },
 ]
 
 export function FeaturedOnSection() {
