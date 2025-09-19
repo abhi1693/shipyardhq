@@ -1716,7 +1716,9 @@ async function processCandidate(
   }
 
   recordResult(result)
-  displayResult(result)
+  if (args.verbose) {
+    displayResult(result)
+  }
 
   if (cooldownMs > 0) {
     await sleep(cooldownMs)
