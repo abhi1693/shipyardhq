@@ -39,6 +39,13 @@ const featuredBadges = [
     width: 150,
     height: 54,
   },
+  {
+    href: "https://turbo0.com/item/shipyardhq",
+    title: "Listed on Turbo0",
+    src: "https://img.turbo0.com/badge-listed-light.svg",
+    alt: "Listed on Turbo0",
+    height: 54,
+  },
 ]
 
 export function FeaturedOnSection() {
