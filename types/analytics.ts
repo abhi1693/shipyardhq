@@ -64,3 +64,21 @@ export interface ProductTrafficSummary {
   browserBreakdown: ProductTrafficBrowserBreakdownItem[]
   referrerBreakdown: ProductTrafficReferrerBreakdownItem[]
 }
+
+export interface OnboardingAnswerBreakdownItem {
+  value: string
+  label: string
+  count: number
+  percentage: number
+}
+
+export interface OnboardingAnswersSummary {
+  totalActiveUsers: number
+  completedResponses: number
+  completionRate: number
+  pendingUsers: number
+  completedLast7Days: number
+  lastResponseAt: string | null
+  roleIntentBreakdown: OnboardingAnswerBreakdownItem[]
+  heardFromBreakdown: OnboardingAnswerBreakdownItem[]
+}

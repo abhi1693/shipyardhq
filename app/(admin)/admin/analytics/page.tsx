@@ -8,6 +8,8 @@ import {
 import RangeSelector from "@/components/molecules/RangeSelector"
 import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
 import { getGlobalTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
+import { getOnboardingAnswersSummary } from "@/lib/server/analytics/onboardingSummary"
+import { OnboardingAnswersAnalytics } from "@/components/pages/OnboardingAnswersAnalytics"
 
 export const revalidate = 60
 
@@ -53,7 +55,10 @@ export default async function AnalyticsPage({
 }) {
   const sp = await searchParams
   const days = rangeToDays(sp?.range)
-  const summary = await getGlobalTrafficSummary({ rangeDays: days })
+  const [summary, onboardingSummary] = await Promise.all([
+    getGlobalTrafficSummary({ rangeDays: days }),
+    getOnboardingAnswersSummary(),
+  ])
 
   const highlightCards = [
     {
@@ -211,6 +216,18 @@ export default async function AnalyticsPage({
             )}
           </CardContent>
         </Card>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">
+            Onboarding insights
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Understand why members join and where they discover Shipyard.
+          </p>
+        </div>
+        <OnboardingAnswersAnalytics summary={onboardingSummary} />
       </div>
     </div>
   )
