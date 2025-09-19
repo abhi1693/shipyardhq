@@ -2,6 +2,14 @@ import PublicContainer from "@/components/layout/PublicContainer"
 
 const featuredBadges = [
   {
+    href: "https://launchigniter.com/product/shipyardhq?ref=badge-shipyardhq",
+    title: "Featured on LaunchIgniter",
+    src: "https://launchigniter.com/api/badge/shipyardhq?theme=neutral",
+    alt: "Featured on LaunchIgniter",
+    width: 212,
+    height: 55,
+  },
+  {
     href: "https://firsto.co/projects/shipyardhq",
     title: "Find us on Firsto",
     src: "https://firsto.co/images/badges/find-us-on-firsto.svg",
