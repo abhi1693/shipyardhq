@@ -37,6 +37,7 @@ type DiscoveryArgs = {
   skipExisting: boolean
   quiet: boolean
   minIntentScore?: number
+  concurrency: number
 }
 
 type Candidate = {
@@ -94,6 +95,15 @@ type IntentEvaluation = {
   score: number
   includeMatches: string[]
   excludeMatches: string[]
+}
+
+type CandidateProcessingContext = {
+  args: DiscoveryArgs
+  includeKeywords: string[]
+  excludeKeywords: string[]
+  minIntentScore: number
+  targetProfile: string
+  cooldownMs: number
 }
 
 type SkipRecord = {
@@ -190,6 +200,16 @@ async function main() {
     process.exit(1)
   }
 
+  const concurrencyLimit = Math.max(1, args.concurrency || 1)
+  const envCooldown = process.env.REDDIT_DISCOVERY_CANDIDATE_COOLDOWN_MS
+  const parsedCooldown = envCooldown !== undefined ? Number(envCooldown) : NaN
+  const cooldownMs = Math.max(
+    0,
+    Number.isFinite(parsedCooldown)
+      ? parsedCooldown
+      : Math.round(400 / concurrencyLimit),
+  )
+
   console.log("Starting subreddit discovery run.")
   console.log(`Using config file: ${configPath}`)
   console.log(`Queries     : ${queryList.join(", ")}`)
@@ -201,15 +221,22 @@ async function main() {
   console.log(`Intent match : ${includeKeywords.join(", ")}`)
   console.log(`Intent deny  : ${excludeKeywords.join(", ")}`)
   console.log(`Min intent   : ${minIntentScore}`)
+  console.log(`Concurrency : ${concurrencyLimit}`)
+  console.log(`Cooldown    : ${cooldownMs}ms between candidate scoring per worker`)
 
   const candidateMap = new Map<string, Candidate>()
 
   for (const query of queryList) {
     console.log(`\nSearching for subreddits matching "${query}"...`)
-    const searchParams = {
+    const searchParams: any = {
       query,
       limit: args.limit,
-    } satisfies { query: string; limit: number }
+      sort: "relevance",
+    }
+
+    if (args.includeNsfw) {
+      searchParams.include_over_18 = true
+    }
 
     const listing = (await reddit.searchSubreddits(searchParams)) as any
 
@@ -260,112 +287,33 @@ async function main() {
   }
 
   const candidates = Array.from(candidateMap.values())
-  const combinedResults: DiscoveryResult[] = []
-
-  for (const candidate of candidates) {
-    const details = await fetchSubredditDetails(candidate)
-
-    if (!details) {
-      continue
-    }
-
-    const detailsKey = details.name.toLowerCase()
-    if (runContext?.processedNames.has(detailsKey)) {
-      if (!args.quiet) {
-        console.log(`Skipping r/${details.name} (already processed).`)
-      }
-      recordSkip(details.name, "already processed", undefined)
-      continue
-    }
-
-    if (!args.includeNsfw && details.over18) {
-      if (!args.quiet) {
-        console.log(`Skipping r/${details.name} (marked NSFW).`)
-      }
-      recordSkip(details.name, "marked NSFW")
-      continue
-    }
-
-    if (details.subscribers < args.minSubscribers) {
-      if (!args.quiet) {
-        console.log(
-          `Skipping r/${details.name} (${formatNumber(details.subscribers)} subscribers < minimum).`,
-        )
-      }
-      recordSkip(
-        details.name,
-        `${formatNumber(details.subscribers)} subscribers < minimum`,
-      )
-      continue
-    }
-
-    const intent = evaluateIntent(details, includeKeywords, excludeKeywords)
-
-    if (intent.excludeMatches.length) {
-      if (!args.quiet) {
-        console.log(
-          `Skipping r/${details.name} (excluded keywords: ${intent.excludeMatches.join(", ")}).`,
-        )
-      }
-      recordSkip(
-        details.name,
-        `excluded keywords: ${intent.excludeMatches.join(", ")}`,
-      )
-      continue
-    }
-
-    if (intent.score < minIntentScore) {
-      if (!args.quiet) {
-        console.log(
-          `Skipping r/${details.name} (intent score ${intent.score} < ${minIntentScore}).`,
-        )
-      }
-      recordSkip(
-        details.name,
-        `intent score ${intent.score} < ${minIntentScore}`,
-      )
-      continue
-    }
-
-    const assessment = await assessSubreddit(
-      details,
-      args.model,
-      targetProfile,
-      intent,
-      includeKeywords,
-      excludeKeywords,
-    )
-
-    if (!assessment) {
-      console.log(`Unable to score r/${details.name}; skipping.`)
-      recordSkip(details.name, "OpenAI scoring failed")
-      continue
-    }
-
-    const status = verdictToStatus(assessment.verdict)
-    const configEntry = buildConfigEntry(details, assessment, intent)
-    const result: DiscoveryResult = {
-      details,
-      assessment,
-      status,
-      configEntry,
-      intent,
-    }
-
-    combinedResults.push(result)
-    recordResult(result)
-
-    displayResult(result)
-
-    await sleep(400)
+  const processingContext: CandidateProcessingContext = {
+    args,
+    includeKeywords,
+    excludeKeywords,
+    minIntentScore,
+    targetProfile,
+    cooldownMs,
   }
+
+  const processedResults = await runWithConcurrency(
+    candidates,
+    concurrencyLimit,
+    async (candidate) => processCandidate(candidate, processingContext),
+  )
+
+  const combinedResults = processedResults.filter(
+    (result): result is DiscoveryResult => Boolean(result),
+  )
 
   if (!combinedResults.length) {
     console.log("No candidate subreddits passed the filters.")
-    return
+  } else {
+    console.log(`\nProcessed ${combinedResults.length} new subreddits in this run.`)
   }
 
-  const sortedResults = sortResults(combinedResults)
+  const accumulatedResults = dedupeResultsByName(runContext?.results || [])
+  const sortedResults = sortResults(accumulatedResults)
 
   if (runContext) {
     runContext.results = sortedResults
@@ -414,6 +362,7 @@ function parseArgs(argv: string[]): DiscoveryArgs {
     skipExisting: false,
     quiet: false,
     minIntentScore: undefined,
+    concurrency: Number(process.env.REDDIT_DISCOVERY_CONCURRENCY || "3"),
   }
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -482,6 +431,15 @@ function parseArgs(argv: string[]): DiscoveryArgs {
       case "--quiet":
         result.quiet = true
         break
+      case "--concurrency": {
+        const value = Number(argv[index + 1])
+        if (Number.isNaN(value) || value <= 0) {
+          throw new Error("--concurrency expects a positive number")
+        }
+        result.concurrency = value
+        index += 1
+        break
+      }
       case "--help":
       case "-h":
         printHelp()
@@ -1050,6 +1008,112 @@ function parseRedditError(error: unknown): {
   }
 }
 
+async function processCandidate(
+  candidate: Candidate,
+  context: CandidateProcessingContext,
+): Promise<DiscoveryResult | null> {
+  const { args, includeKeywords, excludeKeywords, minIntentScore, targetProfile, cooldownMs } =
+    context
+
+  const details = await fetchSubredditDetails(candidate)
+
+  if (!details) {
+    return null
+  }
+
+  const detailsKey = details.name.toLowerCase()
+  if (runContext?.processedNames.has(detailsKey)) {
+    if (!args.quiet) {
+      console.log(`Skipping r/${details.name} (already processed).`)
+    }
+    recordSkip(details.name, "already processed")
+    return null
+  }
+
+  if (!args.includeNsfw && details.over18) {
+    if (!args.quiet) {
+      console.log(`Skipping r/${details.name} (marked NSFW).`)
+    }
+    recordSkip(details.name, "marked NSFW")
+    return null
+  }
+
+  if (details.subscribers < args.minSubscribers) {
+    if (!args.quiet) {
+      console.log(
+        `Skipping r/${details.name} (${formatNumber(details.subscribers)} subscribers < minimum).`,
+      )
+    }
+    recordSkip(
+      details.name,
+      `${formatNumber(details.subscribers)} subscribers < minimum`,
+    )
+    return null
+  }
+
+  const intent = evaluateIntent(details, includeKeywords, excludeKeywords)
+
+  if (intent.excludeMatches.length) {
+    if (!args.quiet) {
+      console.log(
+        `Skipping r/${details.name} (excluded keywords: ${intent.excludeMatches.join(", ")}).`,
+      )
+    }
+    recordSkip(
+      details.name,
+      `excluded keywords: ${intent.excludeMatches.join(", ")}`,
+    )
+    return null
+  }
+
+  if (intent.score < minIntentScore) {
+    if (!args.quiet) {
+      console.log(
+        `Skipping r/${details.name} (intent score ${intent.score} < ${minIntentScore}).`,
+      )
+    }
+    recordSkip(
+      details.name,
+      `intent score ${intent.score} < ${minIntentScore}`,
+    )
+    return null
+  }
+
+  const assessment = await assessSubreddit(
+    details,
+    args.model,
+    targetProfile,
+    intent,
+    includeKeywords,
+    excludeKeywords,
+  )
+
+  if (!assessment) {
+    console.log(`Unable to score r/${details.name}; skipping.`)
+    recordSkip(details.name, "OpenAI scoring failed")
+    return null
+  }
+
+  const status = verdictToStatus(assessment.verdict)
+  const configEntry = buildConfigEntry(details, assessment, intent)
+  const result: DiscoveryResult = {
+    details,
+    assessment,
+    status,
+    configEntry,
+    intent,
+  }
+
+  recordResult(result)
+  displayResult(result)
+
+  if (cooldownMs > 0) {
+    await sleep(cooldownMs)
+  }
+
+  return result
+}
+
 async function seedRunContextFromExisting(context: RunContext): Promise<void> {
   try {
     const raw = await fs.readFile(context.outputPath, "utf-8")
@@ -1206,6 +1270,47 @@ function dedupeSkips(skips: SkipRecord[] = []): SkipRecord[] {
     }
   }
   return Array.from(map.values())
+}
+
+async function runWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T) => Promise<R>,
+): Promise<R[]> {
+  if (items.length === 0) {
+    return []
+  }
+
+  const limit = Math.max(1, Math.floor(concurrency))
+  let index = 0
+  const results: R[] = []
+
+  const runWorker = async () => {
+    const localResults: R[] = []
+    while (true) {
+      const currentIndex = index
+      if (currentIndex >= items.length) {
+        break
+      }
+      index += 1
+      const item = items[currentIndex]
+      const value = await worker(item)
+      localResults.push(value)
+    }
+    return localResults
+  }
+
+  const workers: Array<Promise<R[]>> = []
+  for (let i = 0; i < limit; i += 1) {
+    workers.push(runWorker())
+  }
+
+  const workerResults = await Promise.all(workers)
+  for (const chunk of workerResults) {
+    results.push(...chunk)
+  }
+
+  return results
 }
 
 function extractOutputText(data: any): string | null {

@@ -65,7 +65,7 @@ Use `npm exec tsx scripts/reddit-bot.ts` (or `npm run reddit:bot`) to run a CLI 
   - `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`: credentials for your Reddit script app.
   - `REDDIT_USERNAME`, `REDDIT_PASSWORD`: the Reddit account the bot posts as.
   - `OPENAI_API_KEY`: API key with access to `gpt-4.1-mini` (`OPENAI_MODEL` overrides the default).
-- Additional knobs: `REDDIT_MAX_POST_AGE_MINUTES`, `REDDIT_MIN_UPVOTES`, `REDDIT_MAX_POSTS_PER_SUB`, `REDDIT_POLL_INTERVAL_SECONDS`, `REDDIT_REQUEST_DELAY_MS`, `OPENAI_MAX_OUTPUT_TOKENS`, `OPENAI_TEMPERATURE`, and `REDDIT_STATE_FILE` (cache location, default `tmp/reddit-bot-state.json`).
+- Additional knobs: `REDDIT_MAX_POST_AGE_MINUTES`, `REDDIT_MIN_UPVOTES`, `REDDIT_MAX_POSTS_PER_SUB`, `REDDIT_POLL_INTERVAL_SECONDS`, `REDDIT_REQUEST_DELAY_MS`, `OPENAI_MAX_OUTPUT_TOKENS`, `OPENAI_TEMPERATURE`, `REDDIT_STATE_FILE` (cache location, default `tmp/reddit-bot-state.json`), and `REDDIT_DISCOVERY_CONCURRENCY` for parallel discovery batch size.
 
 The script prints each candidate post, the GPT-generated draft, and pauses for a `y/n` approval before posting (use `r` to regenerate). Decisions (approve/skip) are cached in `tmp/reddit-bot-state.json` so the bot will not repeatedly prompt on the same thread.
 
@@ -79,6 +79,7 @@ Use `npm run reddit:discover -- --query "saas,product feedback" --min-subscriber
 - `--include-nsfw`: include NSFW communities in the search.
 - `--skip-existing`: ignore subreddits already listed in the config.
 - `--min-intent-score`: override the minimum number of intent keyword matches required before an AI review (defaults to the config value).
+- `--concurrency`: number of subreddit evaluations to run in parallel (default `3`, respects `REDDIT_DISCOVERY_CONCURRENCY`).
 - `--write`: persist suggested entries into the config (otherwise results are printed and written to `tmp/reddit-discovery-results.json` for review).
 
 Each discovery run filters out communities that clash with your intent heuristics, then prints an AI summary for every remaining candidate (verdict, risk factors, recommended messaging angle) and writes the raw JSON output to `tmp/reddit-discovery-results.json` for auditing before automation.
