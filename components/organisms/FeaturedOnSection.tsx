@@ -46,6 +46,13 @@ const featuredBadges = [
     alt: "Listed on Turbo0",
     height: 54,
   },
+  {
+    href: "https://findly.tools/shipyardhq?utm_source=shipyardhq",
+    title: "Featured on findly.tools",
+    src: "https://findly.tools/badges/findly-tools-badge-light.svg",
+    alt: "Featured on findly.tools",
+    width: 150,
+  },
 ]
 
 export function FeaturedOnSection() {
