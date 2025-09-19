@@ -59,6 +59,7 @@ Use `npm exec tsx scripts/reddit-bot.ts` (or `npm run reddit:bot`) to run a CLI 
 ### Configuration
 
 - `config/reddit-bot.config.json` is the canonical configuration. Each subreddit entry records a `status` (`allow`, `review`, `deny`), intent notes, and the last review date. The outreach bot only monitors entries marked `allow`; communities marked `review` or `deny` are listed for manual follow-up and excluded from automation.
+- The optional `discovery` section sets Shipyard's ideal customer profile (`targetProfile`) plus heuristics for filtering search results before the AI scorer runs. Tune `includeKeywords`, `excludeKeywords`, or `minIntentScore` to bias discovery toward relevant founder communities and ignore false positives like SpaceX or gaming subs.
 - Override the config path with `REDDIT_CONFIG_FILE` if you keep multiple profiles. Environment variables such as `REDDIT_SUBREDDITS`, `REDDIT_KEYWORDS`, or `REDDIT_ALLOWED_FLAIRS` still take precedence when present.
 - Required secrets (set in `.env.local`):
   - `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`: credentials for your Reddit script app.
@@ -77,6 +78,7 @@ Use `npm run reddit:discover -- --query "saas,product feedback" --min-subscriber
 - `--min-subscribers`: minimum subscriber count (default `500`).
 - `--include-nsfw`: include NSFW communities in the search.
 - `--skip-existing`: ignore subreddits already listed in the config.
+- `--min-intent-score`: override the minimum number of intent keyword matches required before an AI review (defaults to the config value).
 - `--write`: persist suggested entries into the config (otherwise results are printed and written to `tmp/reddit-discovery-results.json` for review).
 
-Each discovery run prints an AI summary for every candidate (verdict, risk factors, recommended messaging angle) and writes the raw JSON output to `tmp/reddit-discovery-results.json` for auditing before automation.
+Each discovery run filters out communities that clash with your intent heuristics, then prints an AI summary for every remaining candidate (verdict, risk factors, recommended messaging angle) and writes the raw JSON output to `tmp/reddit-discovery-results.json` for auditing before automation.

@@ -17,9 +17,17 @@ export type FileConfig = {
   subreddits?: SubredditConfigEntry[]
   keywords?: string[]
   allowedFlairs?: string[]
+  discovery?: DiscoveryConfig
 }
 
 export type LoadedFileConfig = FileConfig & { path?: string }
+
+export type DiscoveryConfig = {
+  targetProfile?: string
+  includeKeywords?: string[]
+  excludeKeywords?: string[]
+  minIntentScore?: number
+}
 
 export const DEFAULT_CONFIG_FILE = path.join(
   process.cwd(),
@@ -75,6 +83,47 @@ export const DEFAULT_ALLOWED_FLAIRS = [
   "product",
   "milestone",
 ]
+
+export const DEFAULT_DISCOVERY_TARGET_PROFILE =
+  "founders, indie hackers, and SaaS builders looking for product feedback and distribution"
+
+export const DEFAULT_DISCOVERY_INCLUDE_KEYWORDS = [
+  "founder",
+  "founders",
+  "startup",
+  "startups",
+  "entrepreneur",
+  "indie hacker",
+  "indie hackers",
+  "saas",
+  "bootstrapping",
+  "ship",
+  "build in public",
+  "product feedback",
+  "side project",
+  "maker",
+  "launch",
+  "product hunt",
+]
+
+export const DEFAULT_DISCOVERY_EXCLUDE_KEYWORDS = [
+  "rocket",
+  "space",
+  "spacex",
+  "nasa",
+  "crypto",
+  "bitcoin",
+  "nft",
+  "gambling",
+  "sportsbook",
+  "gaming",
+  "fortnite",
+  "apex",
+  "porn",
+  "nsfw",
+]
+
+export const DEFAULT_DISCOVERY_MIN_INTENT_SCORE = 1
 
 export function loadBotFileConfig(
   filePath: string = DEFAULT_CONFIG_FILE,

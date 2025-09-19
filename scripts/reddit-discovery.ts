@@ -6,6 +6,10 @@ import {
   DEFAULT_ALLOWED_FLAIRS,
   DEFAULT_CONFIG_FILE,
   DEFAULT_KEYWORDS,
+  DEFAULT_DISCOVERY_TARGET_PROFILE,
+  DEFAULT_DISCOVERY_INCLUDE_KEYWORDS,
+  DEFAULT_DISCOVERY_EXCLUDE_KEYWORDS,
+  DEFAULT_DISCOVERY_MIN_INTENT_SCORE,
   SubredditConfigEntry,
   SubredditStatus,
   categorizeSubreddits,
@@ -28,6 +32,7 @@ type DiscoveryArgs = {
   model: string
   skipExisting: boolean
   quiet: boolean
+  minIntentScore?: number
 }
 
 type Candidate = {
@@ -69,6 +74,7 @@ type DiscoveryResult = {
   assessment: AiAssessment
   status: SubredditStatus
   configEntry: SubredditConfigEntry
+  intent: IntentEvaluation
 }
 
 type LoadedConfig = ReturnType<typeof loadBotFileConfig>
@@ -80,6 +86,12 @@ type SnooRuleResponse = {
 
 const OPENAI_URL = "https://api.openai.com/v1/responses"
 
+type IntentEvaluation = {
+  score: number
+  includeMatches: string[]
+  excludeMatches: string[]
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2))
 
@@ -88,6 +100,7 @@ async function main() {
   const existingNames = new Set(
     (fileConfig.subreddits || []).map((entry) => entry.name.toLowerCase()),
   )
+  const discoveryConfig = fileConfig.discovery || {}
   const reddit = createRedditClient()
 
   const defaultQueries = resolveStringList(
@@ -96,6 +109,26 @@ async function main() {
     DEFAULT_KEYWORDS,
   )
   const queryList = args.queries.length ? args.queries : defaultQueries
+
+  const includeKeywords = resolveStringList(
+    null,
+    discoveryConfig.includeKeywords,
+    DEFAULT_DISCOVERY_INCLUDE_KEYWORDS,
+  ).map((keyword) => keyword.toLowerCase())
+
+  const excludeKeywords = resolveStringList(
+    null,
+    discoveryConfig.excludeKeywords,
+    DEFAULT_DISCOVERY_EXCLUDE_KEYWORDS,
+  ).map((keyword) => keyword.toLowerCase())
+
+  const targetProfile = (discoveryConfig.targetProfile || DEFAULT_DISCOVERY_TARGET_PROFILE).trim()
+
+  const minIntentScore =
+    args.minIntentScore ??
+    (typeof discoveryConfig.minIntentScore === "number"
+      ? discoveryConfig.minIntentScore
+      : DEFAULT_DISCOVERY_MIN_INTENT_SCORE)
 
   if (!queryList.length) {
     console.error("No discovery queries provided. Use --query or add keywords to the config file.")
@@ -109,6 +142,10 @@ async function main() {
   console.log(`Min subs    : ${args.minSubscribers}`)
   console.log(`Include NSFW: ${args.includeNsfw}`)
   console.log(`Write config: ${args.write}`)
+  console.log(`Target ICP  : ${targetProfile}`)
+  console.log(`Intent match : ${includeKeywords.join(", ")}`)
+  console.log(`Intent deny  : ${excludeKeywords.join(", ")}`)
+  console.log(`Min intent   : ${minIntentScore}`)
 
   const candidateMap = new Map<string, Candidate>()
 
@@ -184,7 +221,34 @@ async function main() {
       continue
     }
 
-    const assessment = await assessSubreddit(details, args.model)
+    const intent = evaluateIntent(details, includeKeywords, excludeKeywords)
+
+    if (intent.excludeMatches.length) {
+      if (!args.quiet) {
+        console.log(
+          `Skipping r/${details.name} (excluded keywords: ${intent.excludeMatches.join(", ")}).`,
+        )
+      }
+      continue
+    }
+
+    if (intent.score < minIntentScore) {
+      if (!args.quiet) {
+        console.log(
+          `Skipping r/${details.name} (intent score ${intent.score} < ${minIntentScore}).`,
+        )
+      }
+      continue
+    }
+
+    const assessment = await assessSubreddit(
+      details,
+      args.model,
+      targetProfile,
+      intent,
+      includeKeywords,
+      excludeKeywords,
+    )
 
     if (!assessment) {
       console.log(`Unable to score r/${details.name}; skipping.`)
@@ -192,10 +256,16 @@ async function main() {
     }
 
     const status = verdictToStatus(assessment.verdict)
-    const configEntry = buildConfigEntry(details, assessment)
-    combinedResults.push({ details, assessment, status, configEntry })
+    const configEntry = buildConfigEntry(details, assessment, intent)
+    combinedResults.push({
+      details,
+      assessment,
+      status,
+      configEntry,
+      intent,
+    })
 
-    displayResult({ details, assessment, status, configEntry })
+    displayResult({ details, assessment, status, configEntry, intent })
 
     await sleep(400)
   }
@@ -249,6 +319,7 @@ function parseArgs(argv: string[]): DiscoveryArgs {
       "gpt-4.1-mini",
     skipExisting: false,
     quiet: false,
+    minIntentScore: undefined,
   }
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -305,6 +376,15 @@ function parseArgs(argv: string[]): DiscoveryArgs {
       case "--skip-existing":
         result.skipExisting = true
         break
+      case "--min-intent-score": {
+        const value = Number(argv[index + 1])
+        if (Number.isNaN(value) || value < 0) {
+          throw new Error("--min-intent-score expects a non-negative number")
+        }
+        result.minIntentScore = value
+        index += 1
+        break
+      }
       case "--quiet":
         result.quiet = true
         break
@@ -331,7 +411,8 @@ Options:
   --include-nsfw         Include NSFW communities
   --model                OpenAI model for rule analysis (default ENV or gpt-4.1-mini)
   --write                Persist suggested entries to the config file
-  --skip-existing         Skip communities that already have a config entry
+  --skip-existing        Skip communities that already have a config entry
+  --min-intent-score     Minimum intent keyword matches before AI scoring (default config)
   --quiet                Suppress skip messages
   --help, -h             Show this help message
 `)
@@ -380,7 +461,10 @@ async function fetchSubredditDetails(
       siteRules: ruleResponse.site_rules || [],
     }
   } catch (error) {
-    console.warn(`Failed to load data for r/${candidate.name}:`, error)
+    const redditError = parseRedditError(error)
+    const reason = redditError.reason || redditError.message || "unknown error"
+    const status = redditError.statusCode ? ` (status ${redditError.statusCode})` : ""
+    console.warn(`Skipping r/${candidate.name}: ${reason}${status}`)
     return null
   }
 }
@@ -388,6 +472,10 @@ async function fetchSubredditDetails(
 async function assessSubreddit(
   details: SubredditDetails,
   model: string,
+  targetProfile: string,
+  intent: IntentEvaluation,
+  includeKeywords: string[],
+  excludeKeywords: string[],
 ): Promise<AiAssessment | null> {
   const openAIApiKey = process.env.OPENAI_API_KEY
   if (!openAIApiKey) {
@@ -412,7 +500,7 @@ async function assessSubreddit(
         content: [
           {
             type: "input_text",
-            text: "You review subreddit rules to decide if Shipyard HQ can safely reply to posts inviting founders to list their product. Analyse the policies, identify promotion allowances or prohibitions, and respond with ONLY a JSON object.",
+            text: `You review subreddit rules to decide if Shipyard HQ can safely engage founders about listing their product. Shipyard HQ serves ${targetProfile}. If the community audience does not align with this target, set verdict to "avoid" even when promotion is technically allowed. Analyse the policies, identify promotion allowances or prohibitions, and respond with ONLY a JSON object.`,
           },
         ],
       },
@@ -428,6 +516,12 @@ Active accounts: ${details.activeUserCount ?? "unknown"}
 NSFW: ${details.over18 ? "yes" : "no"}
 Queries matched: ${details.queries.join(", ")}
 Description: ${details.description || "(none)"}
+Target profile: ${targetProfile}
+Intent matches: ${intent.includeMatches.join(", ") || "(none)"}
+Intent exclusions: ${intent.excludeMatches.join(", ") || "(none)"}
+Intent score: ${intent.score}
+Preferred include keywords: ${includeKeywords.join(", ")}
+Excluded keywords: ${excludeKeywords.join(", ")}
 Rules:\n${rulesText || "(no rules listed)"}
 Global rules: ${details.siteRules.join(", ") || "(none)"}
 Instruction: Return JSON with keys verdict (allow|manual_review|avoid), confidence (0-1), summary, riskFactors (array), suggestedIntent, messagingTips, referencedRules (array).`,
@@ -477,14 +571,21 @@ Instruction: Return JSON with keys verdict (allow|manual_review|avoid), confiden
 function buildConfigEntry(
   details: SubredditDetails,
   assessment: AiAssessment,
+  intent: IntentEvaluation,
 ): SubredditConfigEntry {
   const now = new Date().toISOString()
-  const intent = assessment.suggestedIntent || summarizeIntent(details)
+  const intentDescription = assessment.suggestedIntent || summarizeIntent(details)
+  const intentNotes = intent.includeMatches.length
+    ? `Intent score ${intent.score}: ${intent.includeMatches.join(", ")}`
+    : intent.score > 0
+      ? `Intent score ${intent.score}`
+      : undefined
   const notes = mergeText(
     assessment.messagingTips,
     assessment.riskFactors?.length
       ? `Risks: ${assessment.riskFactors.join("; ")}`
       : undefined,
+    intentNotes,
   )
   const ruleSummary = mergeText(
     assessment.summary,
@@ -496,7 +597,7 @@ function buildConfigEntry(
   return {
     name: details.name,
     status: verdictToStatus(assessment.verdict),
-    intent,
+    intent: intentDescription,
     notes,
     ruleSummary,
     confidence: assessment.confidence,
@@ -517,7 +618,7 @@ function verdictToStatus(verdict: AiAssessment["verdict"]): SubredditStatus {
 }
 
 function displayResult(result: DiscoveryResult) {
-  const { details, assessment, configEntry } = result
+  const { details, assessment, configEntry, intent } = result
   const divider = "\n────────────────────────────────────────────────────"
   console.log(divider)
   const verdictLabel = assessment.verdict.toUpperCase()
@@ -527,6 +628,12 @@ function displayResult(result: DiscoveryResult) {
   )
   console.log(`Subscribers : ${formatNumber(details.subscribers)} | Active: ${formatNumber(details.activeUserCount || 0)}`)
   console.log(`Queries     : ${details.queries.join(", ")}`)
+  console.log(
+    `Intent      : score ${intent.score} | include: ${intent.includeMatches.join(", ") || "(none)"}`,
+  )
+  if (intent.excludeMatches.length) {
+    console.log(`Intent deny : ${intent.excludeMatches.join(", ")}`)
+  }
   if (details.description) {
     console.log(`About       : ${truncate(details.description, 160)}`)
   }
@@ -558,6 +665,7 @@ async function persistResults(results: DiscoveryResult[]) {
     configEntry: item.configEntry,
     subscribers: item.details.subscribers,
     queries: item.details.queries,
+    intent: item.intent,
   }))
 
   const resultsPath = path.join(process.cwd(), "tmp", "reddit-discovery-results.json")
@@ -661,16 +769,29 @@ function summarizeIntent(details: SubredditDetails): string {
   return `Community for ${details.title || `r/${details.name}`}`
 }
 
-function mergeText(primary?: string, secondary?: string): string | undefined {
-  if (primary && secondary) {
-    if (primary.includes(secondary)) {
-      return primary
+function mergeText(...parts: Array<string | undefined | null>): string | undefined {
+  const unique: string[] = []
+
+  for (const part of parts) {
+    if (!part) {
+      continue
     }
 
-    return `${primary} | ${secondary}`
+    const trimmed = part.trim()
+    if (!trimmed) {
+      continue
+    }
+
+    if (!unique.includes(trimmed)) {
+      unique.push(trimmed)
+    }
   }
 
-  return primary || secondary
+  if (!unique.length) {
+    return undefined
+  }
+
+  return unique.join(" | ")
 }
 
 function formatNumber(value?: number): string {
@@ -695,6 +816,81 @@ function truncate(value: string, maxLength: number): string {
   }
 
   return `${value.slice(0, maxLength - 1)}…`
+}
+
+function evaluateIntent(
+  details: SubredditDetails,
+  includeKeywords: string[],
+  excludeKeywords: string[],
+): IntentEvaluation {
+  const haystack = sanitizeText(
+    `${details.name} ${details.title} ${details.description} ${details.queries.join(" ")}`,
+  ).toLowerCase()
+
+  const includeMatches = matchKeywords(haystack, includeKeywords)
+  const excludeMatches = matchKeywords(haystack, excludeKeywords)
+
+  return {
+    score: includeMatches.length,
+    includeMatches,
+    excludeMatches,
+  }
+}
+
+function matchKeywords(haystack: string, keywords: string[]): string[] {
+  const matches: string[] = []
+  for (const keyword of keywords) {
+    const needle = keyword.toLowerCase()
+    if (!needle) {
+      continue
+    }
+
+    const isWord = /^[a-z0-9]+$/i.test(needle)
+    const pattern = isWord
+      ? new RegExp(`\\b${escapeRegExp(needle)}\\b`, "i")
+      : new RegExp(escapeRegExp(needle), "i")
+
+    if (pattern.test(haystack)) {
+      matches.push(keyword)
+    }
+  }
+
+  return Array.from(new Set(matches))
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+function parseRedditError(error: unknown): {
+  statusCode?: number
+  reason?: string
+  message?: string
+} {
+  if (!error || typeof error !== "object") {
+    return {}
+  }
+
+  const anyError = error as any
+
+  const statusCode: number | undefined = anyError.statusCode
+  const body = anyError.error || anyError.body
+
+  if (body && typeof body === "object") {
+    return {
+      statusCode,
+      reason: body.reason || body.error,
+      message: body.message,
+    }
+  }
+
+  return {
+    statusCode,
+    message:
+      typeof anyError.message === "string"
+        ? anyError.message
+        : undefined,
+  }
 }
 
 function extractOutputText(data: any): string | null {
