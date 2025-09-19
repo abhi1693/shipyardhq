@@ -3,12 +3,13 @@ import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
 import PrivateHeader from "@/components/layout/headers/private-header"
 import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
-import { auth } from "@clerk/nextjs/server"
+import { auth, clerkClient } from "@clerk/nextjs/server"
 import PageContainer from "@/components/layout/page-container"
 import { syncCurrentUserBilling } from "@/lib/server/billing"
 import MemberFooter from "@/components/layout/footers/member-footer"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { IS_PROD } from "@/lib/constants"
+import { syncUserFromClerk } from "@/actions/member/users/actions"
 
 export const metadata: Metadata = {
   title: "ShipYardHQ",
@@ -45,6 +46,9 @@ export default async function MemberLayout({
 }) {
   const { sessionClaims, userId } = await auth()
   if (userId) {
+    const client = await clerkClient()
+    const clerkUser = await client.users.getUser(userId)
+    await syncUserFromClerk(clerkUser)
     await requireActiveUserOrRedirect(userId)
     await syncCurrentUserBilling()
   }
