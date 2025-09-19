@@ -70,7 +70,7 @@ type AiAssessment = {
   summary: string
   riskFactors?: string[]
   suggestedIntent?: string
-  messagingTips?: string
+  messagingTips?: string | string[]
   referencedRules?: string[]
 }
 
@@ -553,7 +553,7 @@ async function assessSubreddit(
         content: [
           {
             type: "input_text",
-            text: `You review subreddit rules to decide if Shipyard HQ can safely engage founders about listing their product. Shipyard HQ serves ${targetProfile}. If the community audience does not align with this target, set verdict to "avoid" even when promotion is technically allowed. Analyse the policies, identify promotion allowances or prohibitions, and respond with ONLY a JSON object.`,
+            text: `You review subreddit rules to decide if Shipyard HQ can safely engage founders about listing their product. Shipyard HQ serves ${targetProfile}. Outreach is limited to posting a single helpful reply comment on an existing thread (never creating a new post). If the community audience does not align with this target, or if rules ban promotional comments or solicitation in replies, set verdict to "avoid" even when standalone posts are permitted. Analyse the policies, call out any comment-specific restrictions, and respond with ONLY a JSON object.`,
           },
         ],
       },
@@ -577,7 +577,7 @@ Preferred include keywords: ${includeKeywords.join(", ")}
 Excluded keywords: ${excludeKeywords.join(", ")}
 Rules:\n${rulesText || "(no rules listed)"}
 Global rules: ${details.siteRules.join(", ") || "(none)"}
-Instruction: Return JSON with keys verdict (allow|manual_review|avoid), confidence (0-1), summary, riskFactors (array), suggestedIntent, messagingTips, referencedRules (array).`,
+Instruction: Return JSON with keys verdict (allow|manual_review|avoid), confidence (0-1), summary, riskFactors (array), suggestedIntent, messagingTips, referencedRules (array). Highlight if comments or replies are disallowed for promotion even when posts are allowed.`,
           },
         ],
       },
@@ -692,7 +692,10 @@ function displayResult(result: DiscoveryResult) {
   }
   console.log(`Summary     : ${assessment.summary}`)
   if (assessment.messagingTips) {
-    console.log(`Messaging   : ${assessment.messagingTips}`)
+    const tips = Array.isArray(assessment.messagingTips)
+      ? assessment.messagingTips.join(" | ")
+      : assessment.messagingTips
+    console.log(`Messaging   : ${tips}`)
   }
   if (assessment.riskFactors?.length) {
     console.log("Risks       :")
@@ -834,7 +837,9 @@ function summarizeIntent(details: SubredditDetails): string {
   return `Community for ${details.title || `r/${details.name}`}`
 }
 
-function mergeText(...parts: Array<string | undefined | null>): string | undefined {
+function mergeText(
+  ...parts: Array<string | string[] | undefined | null>
+): string | undefined {
   const unique: string[] = []
 
   for (const part of parts) {
@@ -842,13 +847,21 @@ function mergeText(...parts: Array<string | undefined | null>): string | undefin
       continue
     }
 
-    const trimmed = part.trim()
-    if (!trimmed) {
-      continue
-    }
+    const values = Array.isArray(part) ? part : [part]
 
-    if (!unique.includes(trimmed)) {
-      unique.push(trimmed)
+    for (const value of values) {
+      if (!value) {
+        continue
+      }
+
+      const trimmed = `${value}`.trim()
+      if (!trimmed) {
+        continue
+      }
+
+      if (!unique.includes(trimmed)) {
+        unique.push(trimmed)
+      }
     }
   }
 
