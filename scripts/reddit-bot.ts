@@ -191,7 +191,7 @@ async function main() {
     }
 
     await saveState(config.stateFile, state)
-    await sleep(config.pollIntervalMs)
+    await waitForNextPoll(config.pollIntervalMs)
   }
 }
 
@@ -456,6 +456,47 @@ function ask(question: string): Promise<string> {
 
 function sanitize(value: string): string {
   return value.replace(/[\u0000-\u001F\u007F]/g, "").trim()
+}
+
+
+async function waitForNextPoll(durationMs: number): Promise<void> {
+  if (durationMs <= 0) {
+    return
+  }
+
+  if (!process.stdout.isTTY) {
+    console.log(`Waiting ${Math.round(durationMs / 1000)}s before next poll...`)
+    await sleep(durationMs)
+    return
+  }
+
+  const frames = [".   ", "..  ", "... ", "....", "....."]
+  let frameIndex = 0
+  const start = Date.now()
+
+  const render = () => {
+    const elapsed = Date.now() - start
+    const remainingSeconds = Math.max(
+      0,
+      Math.ceil((durationMs - elapsed) / 1000),
+    )
+    const frame = frames[frameIndex % frames.length]
+    frameIndex += 1
+
+    readline.cursorTo(process.stdout, 0)
+    process.stdout.write(`Waiting for next poll (${remainingSeconds}s) ${frame}`)
+  }
+
+  render()
+  const interval = setInterval(render, 250)
+
+  try {
+    await sleep(durationMs)
+  } finally {
+    clearInterval(interval)
+    readline.cursorTo(process.stdout, 0)
+    readline.clearLine(process.stdout, 0)
+  }
 }
 
 
