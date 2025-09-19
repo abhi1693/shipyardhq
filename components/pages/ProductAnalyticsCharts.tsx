@@ -70,14 +70,14 @@ export function ProductAnalyticsCharts({
 
   return (
     <div className="grid gap-6 lg:grid-cols-12">
-      <Card className="lg:col-span-7">
-        <CardHeader>
+      <Card className="lg:col-span-7 border border-slate-200 bg-white/95 shadow-sm">
+        <CardHeader className="px-4 pb-0">
           <CardTitle className="flex items-center gap-2">
             Views over time
             <Tooltip>
               <TooltipTrigger asChild>
                 <span
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-help"
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-slate-200/70 focus:ring-offset-2 cursor-help"
                   tabIndex={0}
                   role="button"
                   aria-label="View chart description"
@@ -95,7 +95,7 @@ export function ProductAnalyticsCharts({
             Last {summary.rangeDays} days vs. previous period
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 pb-5 pt-4">
           <ChartContainer
             config={{
               views: { label: "Views", color: "#2563eb" },
@@ -136,14 +136,14 @@ export function ProductAnalyticsCharts({
         </CardContent>
       </Card>
 
-      <Card className="lg:col-span-5">
-        <CardHeader>
+      <Card className="lg:col-span-5 border border-slate-200 bg-white/95 shadow-sm">
+        <CardHeader className="px-4 pb-0">
           <CardTitle className="flex items-center gap-2">
             Device split
             <Tooltip>
               <TooltipTrigger asChild>
                 <span
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-help"
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-slate-200/70 focus:ring-offset-2 cursor-help"
                   tabIndex={0}
                   role="button"
                   aria-label="View device split description"
@@ -159,7 +159,7 @@ export function ProductAnalyticsCharts({
           </CardTitle>
           <CardDescription>Breakdown by detected device type</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 pb-5 pt-4">
           <ChartContainer config={deviceConfig} className="min-h-[280px]">
             {summary.deviceBreakdown.length === 0 ? (
               <p className="py-8 text-center text-base text-muted-foreground">
