@@ -79,6 +79,14 @@ describe("productWizard schema", () => {
     expect(msgs).toContain("Should be empty for free/custom")
   })
 
+  it("accepts website URLs that include a path", () => {
+    const s = makeAddProductSchema()
+    const parsed = s.parse(
+      baseValid({ websiteUrl: "https://example.com/landing/page" }),
+    )
+    expect(parsed.websiteUrl).toBe("https://example.com/landing/page")
+  })
+
   it("allows archived status in edit schema only", () => {
     const add = makeAddProductSchema()
     const edit = makeEditProductSchema()
