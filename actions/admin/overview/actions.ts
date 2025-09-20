@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import type { Prisma } from "@/lib/vendor/prisma/client"
 import { clerkClient } from "@clerk/nextjs/server"
 import { addDays, startOfDay, subDays } from "date-fns"
 
@@ -135,21 +136,27 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
 
   // Determine most used plan within current range
   let mostPopularPlan: { id: string; name: string; count: number } | null = null
-  const grouped = await prisma.product.groupBy({
+  type PlanIdGroup = Pick<
+    Prisma.ProductGroupByOutputType,
+    "planId" | "_count"
+  >
+
+  const grouped = (await prisma.product.groupBy({
     by: ["planId"],
     where: { createdAt: { gte: since }, planId: { not: null } },
     _count: { planId: true },
     orderBy: { _count: { planId: "desc" } },
     take: 1,
-  })
-  if (grouped.length > 0 && grouped[0].planId) {
+  })) as PlanIdGroup[]
+
+  if (grouped.length > 0 && grouped[0]?.planId) {
     const top = grouped[0]
     const plan = await prisma.plan.findUnique({ where: { id: top.planId! } })
     if (plan) {
       mostPopularPlan = {
         id: plan.id,
         name: plan.name,
-        count: top._count.planId,
+        count: top._count?.planId ?? 0,
       }
     }
   } else if (mostPopularPlanAllTime) {

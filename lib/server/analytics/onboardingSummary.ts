@@ -1,6 +1,7 @@
 import { subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
+import type { Prisma } from "@/lib/vendor/prisma/client"
 import type {
   NewsletterIntentBreakdownItem,
   OnboardingAnswerBreakdownItem,
@@ -95,8 +96,8 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   const [
     totalActiveUsers,
     completedResponses,
-    roleIntentGroups,
-    heardFromGroups,
+    rawRoleIntentGroups,
+    rawHeardFromGroups,
     completedLast7Days,
     latestCompleted,
     completedMembers,
@@ -144,18 +145,30 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     }),
   ])
 
+  type RoleIntentGroup = Pick<
+    Prisma.UserGroupByOutputType,
+    "roleIntent" | "_count"
+  >
+  type HeardFromGroup = Pick<
+    Prisma.UserGroupByOutputType,
+    "heardFrom" | "_count"
+  >
+
+  const roleIntentGroups = rawRoleIntentGroups as RoleIntentGroup[]
+  const heardFromGroups = rawHeardFromGroups as HeardFromGroup[]
+
   const roleIntentEntries = roleIntentGroups
     .filter((group) => group.roleIntent)
     .map((group) => ({
       value: group.roleIntent as string,
-      count: group._count.roleIntent,
+      count: group._count?.roleIntent ?? 0,
     }))
 
   const heardFromEntries = heardFromGroups
     .filter((group) => group.heardFrom)
     .map((group) => ({
       value: group.heardFrom as string,
-      count: group._count.heardFrom,
+      count: group._count?.heardFrom ?? 0,
     }))
 
   const roleIntentBreakdown = buildBreakdown(

@@ -1,10 +1,25 @@
 import prisma from "@/lib/prisma"
-import { PlanType } from "@/lib/vendor/prisma/client"
+import { PlanType, type PlanFeature } from "@/lib/vendor/prisma/client"
+import type { Prisma } from "@/lib/vendor/prisma/client"
+import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 
 export type PublicPlan = Awaited<ReturnType<typeof getPublicPlans>>[number]
 
+type PlanWithAssignments = Prisma.PlanGetPayload<{
+  include: {
+    assignments: {
+      include: {
+        feature: true
+      }
+    }
+    _count: { select: { products: true } }
+  }
+}>
+
+type PlanFeatureRecord = PlanFeature
+
 export async function getPublicPlans(opts?: { type?: PlanType }) {
-  const [plans, allFeatures] = await Promise.all([
+  const [planRecords, allFeatures] = (await Promise.all([
     prisma.plan.findMany({
       where: opts?.type ? { type: opts.type } : undefined,
       orderBy: [{ price: "asc" }],
@@ -16,11 +31,26 @@ export async function getPublicPlans(opts?: { type?: PlanType }) {
         },
         _count: { select: { products: true } },
       },
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.slow,
+        swr: DEFAULT_SWR.slow,
+        tags: accelerateTags([
+          TAGS.plans,
+          opts?.type ? `plan-type:${opts.type}` : "plan-type:all",
+        ]),
+      },
     }),
-    prisma.planFeature.findMany({ orderBy: { name: "asc" } }),
-  ])
+    prisma.planFeature.findMany({
+      orderBy: { name: "asc" },
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.slow,
+        swr: DEFAULT_SWR.slow,
+        tags: accelerateTags([TAGS.plans]),
+      },
+    }),
+  ])) as [PlanWithAssignments[], PlanFeatureRecord[]]
 
-  return plans.map((p) => {
+  return planRecords.map((p) => {
     const assigned = new Map(
       p.assignments.map((a) => [
         a.featureId,

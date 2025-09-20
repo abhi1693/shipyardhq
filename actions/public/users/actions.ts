@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { accelerateTags, cached, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 
 export const getPublicUsersWithCounts = cached(
   async (limit = 48) =>
@@ -16,6 +16,11 @@ export const getPublicUsersWithCounts = cached(
       },
       orderBy: { products: { _count: "desc" } },
       take: limit,
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.slow,
+        swr: DEFAULT_SWR.slow,
+        tags: accelerateTags([TAGS.users, TAGS.products]),
+      },
     }),
   "users:with-product-counts",
   { ttl: DEFAULT_TTL.slow, tags: () => [TAGS.users, TAGS.products] },
@@ -28,6 +33,11 @@ export const getPublicUserMeta = cached(
       select: {
         firstName: true,
         lastName: true,
+      },
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.medium,
+        swr: DEFAULT_SWR.medium,
+        tags: accelerateTags([TAGS.users, TAGS.user(String(id))]),
       },
     }),
   "user:public-meta",
@@ -56,6 +66,15 @@ export const getPublicUserProfile = cached(
             ProductBadge: true,
           },
         },
+      },
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.medium,
+        swr: DEFAULT_SWR.medium,
+        tags: accelerateTags([
+          TAGS.users,
+          TAGS.products,
+          TAGS.user(String(id)),
+        ]),
       },
     }),
   "user:public-profile",

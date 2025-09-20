@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { accelerateTags, cached, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 
 export const getCategoriesWithCounts = cached(
   async () => {
@@ -9,6 +9,11 @@ export const getCategoriesWithCounts = cached(
         _count: {
           select: { products: true },
         },
+      },
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.slow,
+        swr: DEFAULT_SWR.slow,
+        tags: accelerateTags([TAGS.categories]),
       },
     })
     return categories.map((cat) => ({
@@ -29,6 +34,11 @@ export const getCategoryMeta = cached(
     prisma.category.findUnique({
       where: { slug },
       select: { name: true, description: true },
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.medium,
+        swr: DEFAULT_SWR.medium,
+        tags: accelerateTags([TAGS.categories, TAGS.category(String(slug))]),
+      },
     }),
   "category:meta",
   {
@@ -41,6 +51,11 @@ export const getCategoryWithProducts = cached(
   async (slug: string) => {
     const category = await prisma.category.findUnique({
       where: { slug },
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.medium,
+        swr: DEFAULT_SWR.medium,
+        tags: accelerateTags([TAGS.categories, TAGS.category(String(slug))]),
+      },
     })
     if (!category) return null
     const products = await prisma.product.findMany({
@@ -63,6 +78,11 @@ export const getCategoryWithProducts = cached(
         },
       },
       orderBy: { createdAt: "desc" },
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.medium,
+        swr: DEFAULT_SWR.medium,
+        tags: accelerateTags([TAGS.products, TAGS.category(String(slug))]),
+      },
     })
     return { category, products }
   },

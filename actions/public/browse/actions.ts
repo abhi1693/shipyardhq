@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { accelerateTags, cached, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 
 interface GetBrowseProductsOptions {
   useCaseSlug?: string
@@ -32,6 +32,14 @@ export const getBrowseProducts = cached(
         include: {
           categories: { select: { categoryId: true } },
         },
+        cacheStrategy: {
+          ttl: DEFAULT_TTL.medium,
+          swr: DEFAULT_SWR.medium,
+          tags: accelerateTags([
+            TAGS.categories,
+            `use-case:${useCaseSlug}`,
+          ]),
+        },
       })
 
       if (!useCase) return { products: [], hasMore: false }
@@ -48,6 +56,14 @@ export const getBrowseProducts = cached(
     if (categorySlug) {
       const category = await prisma.category.findUnique({
         where: { slug: categorySlug },
+        cacheStrategy: {
+          ttl: DEFAULT_TTL.medium,
+          swr: DEFAULT_SWR.medium,
+          tags: accelerateTags([
+            TAGS.categories,
+            TAGS.category(String(categorySlug)),
+          ]),
+        },
       })
       if (!category) return { products: [], hasMore: false }
       categoryIds = [category.id]
@@ -95,6 +111,30 @@ export const getBrowseProducts = cached(
     // Priority feature key
     const PRIORITY_KEY = "priorityPlacement"
 
+    const getBrowseTags = () => {
+      const tagSet = new Set<string>([
+        TAGS.products,
+        TAGS.categories,
+        TAGS.planFeature(PRIORITY_KEY),
+        `sort:${sort}`,
+      ])
+
+      if (useCaseSlug) tagSet.add(`use-case:${useCaseSlug}`)
+      if (categorySlug) tagSet.add(TAGS.category(String(categorySlug)))
+      if (Array.isArray(categoryIds)) {
+        categoryIds.forEach((id) => tagSet.add(TAGS.category(String(id))))
+      }
+      if (verified !== undefined) {
+        tagSet.add(`verified:${verified ? "true" : "false"}`)
+      }
+      if (q) tagSet.add(`q:${q.toLowerCase()}`)
+      tokensLower.forEach((token) => tagSet.add(`token:${token}`))
+      tagSet.add(`pageSize:${pageSize}`)
+      tagSet.add(`page:${page}`)
+
+      return Array.from(tagSet)
+    }
+
     // Build where clauses for priority and regular products
     const priorityWhere: Prisma.ProductWhereInput = {
       ...baseWhere,
@@ -132,9 +172,25 @@ export const getBrowseProducts = cached(
     }
 
     // Compute counts to perform correct merged pagination
+    const browseTags = getBrowseTags()
+
     const [totalPriority, totalRegular] = await Promise.all([
-      prisma.product.count({ where: priorityWhere }),
-      prisma.product.count({ where: regularWhere }),
+      prisma.product.count({
+        where: priorityWhere,
+        cacheStrategy: {
+          ttl: DEFAULT_TTL.medium,
+          swr: DEFAULT_SWR.medium,
+          tags: accelerateTags(browseTags),
+        },
+      }),
+      prisma.product.count({
+        where: regularWhere,
+        cacheStrategy: {
+          ttl: DEFAULT_TTL.medium,
+          swr: DEFAULT_SWR.medium,
+          tags: accelerateTags(browseTags),
+        },
+      }),
     ])
 
     // Determine how many priority items fall into this page window
@@ -171,6 +227,11 @@ export const getBrowseProducts = cached(
               analytics: true,
               ProductBadge: true,
             },
+            cacheStrategy: {
+              ttl: DEFAULT_TTL.medium,
+              swr: DEFAULT_SWR.medium,
+              tags: accelerateTags(browseTags),
+            },
           })
         : Promise.resolve([] as any[]),
       regularTake
@@ -185,6 +246,11 @@ export const getBrowseProducts = cached(
               verification: true,
               analytics: true,
               ProductBadge: true,
+            },
+            cacheStrategy: {
+              ttl: DEFAULT_TTL.medium,
+              swr: DEFAULT_SWR.medium,
+              tags: accelerateTags(browseTags),
             },
           })
         : Promise.resolve([] as any[]),

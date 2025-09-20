@@ -1,16 +1,40 @@
 import prisma from "@/lib/prisma"
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { accelerateTags, cached, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 
 export const getLeaderboardStats = cached(
   async () => {
     const [totalProducts, totalCreators, upvoteAgg, topProduct] =
       await Promise.all([
-        prisma.product.count(),
-        prisma.user.count(),
-        prisma.productAnalytics.aggregate({ _sum: { upvotes: true } }),
+        prisma.product.count({
+          cacheStrategy: {
+            ttl: DEFAULT_TTL.fast,
+            swr: DEFAULT_SWR.fast,
+            tags: accelerateTags([TAGS.products, TAGS.leaderboard]),
+          },
+        }),
+        prisma.user.count({
+          cacheStrategy: {
+            ttl: DEFAULT_TTL.fast,
+            swr: DEFAULT_SWR.fast,
+            tags: accelerateTags([TAGS.users, TAGS.leaderboard]),
+          },
+        }),
+        prisma.productAnalytics.aggregate({
+          _sum: { upvotes: true },
+          cacheStrategy: {
+            ttl: DEFAULT_TTL.fast,
+            swr: DEFAULT_SWR.fast,
+            tags: accelerateTags([TAGS.analytics, TAGS.leaderboard]),
+          },
+        }),
         prisma.productAnalytics.findFirst({
           orderBy: { upvotes: "desc" },
           select: { upvotes: true },
+          cacheStrategy: {
+            ttl: DEFAULT_TTL.fast,
+            swr: DEFAULT_SWR.fast,
+            tags: accelerateTags([TAGS.analytics, TAGS.leaderboard]),
+          },
         }),
       ])
 
@@ -39,6 +63,17 @@ export const getTopRankedProducts = cached(
         analytics: {
           upvotes: "desc",
         },
+      },
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.fast,
+        swr: DEFAULT_SWR.fast,
+        tags: accelerateTags([
+          TAGS.leaderboard,
+          TAGS.products,
+          TAGS.analytics,
+          TAGS.categories,
+          TAGS.category(String(categorySlug ?? "all")),
+        ]),
       },
       include: {
         category: true,
