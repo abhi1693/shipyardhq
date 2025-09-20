@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import Link from "next/link"
 import {
   Card,
@@ -15,12 +15,10 @@ import {
 } from "@/components/atoms/tooltip"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import prisma from "@/lib/prisma"
-import { requireManageableProduct } from "@/lib/server/productAccess"
 import { cn } from "@/lib/utils"
 import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 import type { ProductTrafficSummary } from "@/types/analytics"
 import { ArrowLeft, ExternalLink, Info } from "lucide-react"
-import { hasPlanFeature } from "@/lib/features"
 import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
 import RangeSelector from "@/components/molecules/RangeSelector"
 
@@ -53,7 +51,7 @@ function formatCountryName(country?: string | null) {
       const resolved = countryDisplayNames.of(country)
       if (resolved) return resolved
     } catch {
-      // fall back to the raw country code when lookup fails
+      // fall back to raw code when Intl lookup fails
     }
   }
   return country
@@ -343,24 +341,20 @@ function VisitorLoyaltyCard({
   )
 }
 
-export default async function ProductAnalyticsPage({
+export default async function AdminProductAnalyticsPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ id: string }>
   searchParams: Promise<{ range?: string }>
 }) {
-  const { slug } = await params
+  const { id } = await params
   const sp = await searchParams
   const rangeParam = sp?.range ?? null
   const rangeDays = rangeToDays(rangeParam)
-  const { product: manageableProduct } = await requireManageableProduct(slug, {
-    unauthorizedRedirect: null,
-    missingRedirect: null,
-  })
 
   const product = await prisma.product.findUnique({
-    where: { id: manageableProduct.id },
+    where: { id },
     select: {
       id: true,
       name: true,
@@ -370,18 +364,6 @@ export default async function ProductAnalyticsPage({
       updatedAt: true,
       websiteUrl: true,
       category: { select: { name: true } },
-      plan: {
-        select: {
-          name: true,
-          price: true,
-          assignments: {
-            select: {
-              enabled: true,
-              feature: { select: { key: true } },
-            },
-          },
-        },
-      },
     },
   })
 
@@ -389,25 +371,10 @@ export default async function ProductAnalyticsPage({
     return notFound()
   }
 
-  const hasAdvancedAnalytics = hasPlanFeature(
-    product.plan ?? null,
-    "analytics.advanced",
-  )
-  const hasBasicAnalytics =
-    hasAdvancedAnalytics ||
-    hasPlanFeature(product.plan ?? null, "analytics.basic")
-
-  if (!hasBasicAnalytics) {
-    redirect(`/member/products/${product.slug}`)
-  }
-
   const summary = await getProductTrafficSummary(product.id, { rangeDays })
   const publicPath = `/products/${product.slug}`
   const rangeLabel = `Last ${summary.rangeDays} days`
   const advanced = summary.advanced
-  const countryItems = summary.countryBreakdown
-    .slice(0, 6)
-    .map((item) => ({ label: formatCountryName(item.country), views: item.views }))
   const cityItems = advanced.cityBreakdown
     .map((item) => {
       const parts = [item.city]
@@ -436,22 +403,29 @@ export default async function ProductAnalyticsPage({
   const trafficCategoryItems = advanced.referrerCategoryBreakdown
     .map((item) => ({ label: item.label, views: item.views }))
     .slice(0, 5)
+  const countryItems = summary.countryBreakdown
+    .slice(0, 6)
+    .map((item) => ({
+      label: formatCountryName(item.country),
+      views: item.views,
+    }))
+
   return (
     <ObjectPageLayout
       heading={{
-        id: product.slug,
+        id: product.id,
         title: `${product.name} — Analytics`,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
-        slug: product.id,
+        slug: product.slug,
       }}
       overview={[]}
-      basePath="member/products"
+      basePath="admin/products"
       headingActionsLeft={
         <div className="flex flex-wrap items-center gap-3">
           <div className={actionGroupClass}>
             <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
-              <Link href={`/member/products/${product.slug}`}>
+              <Link href={`/admin/products/${product.id}`}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back to product
               </Link>
             </Button>
@@ -479,11 +453,10 @@ export default async function ProductAnalyticsPage({
             </div>
             <SummaryCards
               summary={summary}
-              includeAdvanced={hasAdvancedAnalytics}
+              includeAdvanced={true}
             />
           </section>
-          {hasAdvancedAnalytics ? (
-            <>
+          <>
               <section className="space-y-4">
                 <div>
                   <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
@@ -560,34 +533,7 @@ export default async function ProductAnalyticsPage({
                   />
                 </div>
               </section>
-            </>
-          ) : (
-            <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">
-              <CardHeader className="px-5 pb-2 pt-5">
-                <CardTitle className="text-base text-slate-900">
-                  Unlock deeper analytics
-                </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
-                  Upgrade to advanced analytics for funnel charts, visitor
-                  device trends, referrers, and country insights.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="px-5 pb-6">
-                <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                  <li>See granular device, browser, and country breakdowns.</li>
-                  <li>Track referral sources and day-over-day momentum.</li>
-                  <li>
-                    Spot trends with interactive charts and historical deltas.
-                  </li>
-                </ul>
-                <div className="mt-4">
-                  <Button asChild>
-                    <Link href="/pricing">Explore upgrade options</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          </>
         </div>
       }
     />

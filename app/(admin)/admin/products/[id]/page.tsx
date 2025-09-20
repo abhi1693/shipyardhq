@@ -37,6 +37,7 @@ import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { BarChart3 } from "lucide-react"
 
 export default async function ViewProductPage({
   params,
@@ -75,6 +76,11 @@ export default async function ViewProductPage({
             productId={product.id}
             status={product.status as any}
           />
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/admin/products/${product.id}/analytics`}>
+              <BarChart3 className="mr-2 h-4 w-4" /> Analytics
+            </Link>
+          </Button>
           <CopyButton
             text={publicPath}
             resolveAbsolute
