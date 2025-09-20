@@ -1,6 +1,7 @@
 import { subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
+import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import type {
   NewsletterIntentBreakdownItem,
@@ -93,6 +94,14 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
 
   const oneWeekAgo = subDays(new Date(), 7)
 
+  const adminSlowCache = {
+    ttl: DEFAULT_TTL.slow,
+    swr: DEFAULT_SWR.slow,
+  }
+
+  const adminTags = (...tags: string[]) =>
+    accelerateTags(["adminAnalytics", ...tags])
+
   const [
     totalActiveUsers,
     completedResponses,
@@ -102,17 +111,37 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     latestCompleted,
     completedMembers,
   ] = await Promise.all([
-    prisma.user.count({ where: activeWhere }),
-    prisma.user.count({ where: completedWhere }),
+    prisma.user.count({
+      where: activeWhere,
+      cacheStrategy: {
+        ...adminSlowCache,
+        tags: adminTags(TAGS.users),
+      },
+    }),
+    prisma.user.count({
+      where: completedWhere,
+      cacheStrategy: {
+        ...adminSlowCache,
+        tags: adminTags(TAGS.users),
+      },
+    }),
     prisma.user.groupBy({
       by: ["roleIntent"],
       where: completedWhere,
       _count: { roleIntent: true },
+      cacheStrategy: {
+        ...adminSlowCache,
+        tags: adminTags(TAGS.users, TAGS.analytics),
+      },
     }),
     prisma.user.groupBy({
       by: ["heardFrom"],
       where: completedWhere,
       _count: { heardFrom: true },
+      cacheStrategy: {
+        ...adminSlowCache,
+        tags: adminTags(TAGS.users, TAGS.analytics),
+      },
     }),
     prisma.user.count({
       where: {
@@ -127,6 +156,10 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
           },
         ],
       },
+      cacheStrategy: {
+        ...adminSlowCache,
+        tags: adminTags(TAGS.users),
+      },
     }),
     prisma.user.findFirst({
       where: completedWhere,
@@ -135,12 +168,20 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
         termsAcceptedAt: true,
         updatedAt: true,
       },
+      cacheStrategy: {
+        ...adminSlowCache,
+        tags: adminTags(TAGS.users),
+      },
     }),
     prisma.user.findMany({
       where: completedWhere,
       select: {
         email: true,
         roleIntent: true,
+      },
+      cacheStrategy: {
+        ...adminSlowCache,
+        tags: adminTags(TAGS.users),
       },
     }),
   ])
@@ -204,6 +245,10 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     ? await prisma.newsletterSubscription.findMany({
         where: { email: { in: completedEmails } },
         select: { email: true },
+        cacheStrategy: {
+          ...adminSlowCache,
+          tags: adminTags(TAGS.users, "newsletter"),
+        },
       })
     : []
 

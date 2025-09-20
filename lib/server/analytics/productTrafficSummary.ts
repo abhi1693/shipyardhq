@@ -1,6 +1,7 @@
 import { format, formatISO, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
+import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 import type {
   DeviceCategory,
   ProductTrafficAdvancedInsights,
@@ -63,6 +64,26 @@ const MAX_CITY_ITEMS = 8
 const MAX_TOP_PRODUCTS = 10
 const MAX_REFERRER_MATRIX_ROWS = 5
 const MAX_PRODUCTS_PER_REFERRER = 5
+
+const trafficCache = {
+  ttl: DEFAULT_TTL.slow,
+  swr: DEFAULT_SWR.slow,
+}
+
+const trafficTags = (...tags: string[]) =>
+  accelerateTags(["adminAnalytics", "traffic", ...tags])
+
+function extractProductId(
+  where: Prisma.ProductTrafficEventWhereInput,
+): string | undefined {
+  const { productId } = where
+  if (!productId) return undefined
+  if (typeof productId === "string") return productId
+  if (typeof (productId as Prisma.StringFilter).equals === "string") {
+    return (productId as Prisma.StringFilter).equals as string
+  }
+  return undefined
+}
 
 function calcChange(current: number, previous: number) {
   if (previous === 0) {
@@ -178,6 +199,12 @@ async function buildTrafficSummary(
   const previousStart = subDays(rangeStart, windowDays)
   const previousEnd = subDays(rangeStart, 1)
 
+  const productId = extractProductId(where)
+  const contextTag = context === "global" ? "traffic_global" : "traffic_product"
+  const baseTags = productId
+    ? trafficTags(TAGS.analytics, contextTag, TAGS.product(productId))
+    : trafficTags(TAGS.analytics, contextTag)
+
   const [events, previousEvents] = await Promise.all([
     prisma.productTrafficEvent.findMany({
       where: {
@@ -197,6 +224,10 @@ async function buildTrafficSummary(
         path: true,
         productId: true,
       },
+      cacheStrategy: {
+        ...trafficCache,
+        tags: baseTags,
+      },
     }),
     previousComparison
       ? prisma.productTrafficEvent.findMany({
@@ -214,6 +245,10 @@ async function buildTrafficSummary(
             country: true,
             referrer: true,
             productId: true,
+          },
+          cacheStrategy: {
+            ...trafficCache,
+            tags: baseTags,
           },
         })
       : Promise.resolve([]),
@@ -482,6 +517,10 @@ async function buildTrafficSummary(
       },
       select: { ipHash: true },
       distinct: ["ipHash"],
+      cacheStrategy: {
+        ...trafficCache,
+        tags: baseTags,
+      },
     })
     returningVisitors = returning.length
   }
@@ -614,6 +653,10 @@ async function buildTrafficSummary(
     const products = await prisma.product.findMany({
       where: { id: { in: Array.from(productLookupIds) } },
       select: { id: true, name: true },
+      cacheStrategy: {
+        ...trafficCache,
+        tags: trafficTags(TAGS.products, TAGS.analytics, "traffic_global"),
+      },
     })
     productNameMap = new Map(
       products.map((product) => [product.id, product.name]),
