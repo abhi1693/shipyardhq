@@ -56,6 +56,8 @@ model Product {
 
   @@index([categoryId, createdAt])
   @@index([status, publishedAt])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 enum ProductType {
@@ -139,6 +141,8 @@ model ProductAnalytics {
   updatedAt DateTime @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([upvotes])
 }
 
 enum DeviceCategory {
@@ -353,6 +357,8 @@ model ProductBadge {
   expiresAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@index([badge])
 }
 
 model UseCase {
