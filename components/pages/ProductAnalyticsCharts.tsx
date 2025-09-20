@@ -79,7 +79,7 @@ export function ProductAnalyticsCharts({
 
   const topCountries = summary.countryBreakdown.slice(0, 5)
   const topBrowsers = summary.browserBreakdown.slice(0, 8)
-  
+
   const hasUniqueSeries = summary.viewsOverTime.some(
     (point) => point.uniqueVisitors > 0,
   )
