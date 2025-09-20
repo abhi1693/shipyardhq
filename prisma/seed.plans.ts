@@ -59,6 +59,7 @@ const PLANS: PlanSeed[] = [
     boostForDays: 30,
     featureKeys: [
       "analytics.basic",
+      "analytics.advanced",
       "featured",
       "priorityPlacement",
       "homepage",
