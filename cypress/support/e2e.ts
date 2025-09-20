@@ -8,6 +8,7 @@
 /// <reference types="cypress" />
 
 declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
     interface Chainable {
       /**
@@ -31,7 +32,7 @@ Cypress.Commands.add("waitForAppIdle", () => {
   cy.get("body", { timeout: 60_000 }).should(($body) => {
     const busy = $body.hasClass("nprogress-busy")
     const hasBar = $body.find("#nprogress").length > 0
-    expect(busy || hasBar).to.be.false
+    expect(busy || hasBar, "loading indicator should be idle").to.equal(false)
   })
   return cy.wrap(null, { log: false })
 })

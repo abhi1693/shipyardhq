@@ -24,6 +24,7 @@
     "coverage": "vitest run --coverage",
     "reddit:bot": "tsx scripts/reddit-bot.ts",
     "reddit:discover": "tsx scripts/reddit-discovery.ts",
+    "reddit:skips": "tsx scripts/reddit-skips.ts",
     "test:e2e": "cypress run",
     "test:e2e:open": "cypress open"
   },

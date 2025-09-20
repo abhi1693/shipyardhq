@@ -55,39 +55,55 @@ function DeltaBadge({ value }: { value: number }) {
   )
 }
 
-function SummaryCards({ summary }: { summary: ProductTrafficSummary }) {
+function SummaryCards({
+  summary,
+  includeAdvanced,
+}: {
+  summary: ProductTrafficSummary
+  includeAdvanced: boolean
+}) {
   const formatter = new Intl.NumberFormat("en-US")
-  const cards = [
-    {
-      title: `Total views (last ${summary.rangeDays}d)`,
-      value: formatter.format(summary.totalViews),
-      delta: summary.totalViewsChange,
-      tooltip:
-        "Total product page views in the current window compared with the previous period.",
-    },
-    {
-      title: "Unique visitors",
-      value: formatter.format(summary.uniqueVisitors),
-      delta: summary.uniqueVisitorsChange,
-      tooltip:
-        "Estimated unique visitors for this period. Useful for gauging reach beyond total views.",
-    },
-    {
-      title: "Views today",
-      value: formatter.format(summary.viewsToday),
-      helper: `${formatter.format(summary.viewsSevenDays)} in the past 7 days`,
-      tooltip:
-        "How many views landed today alongside the trailing seven-day total for momentum checks.",
-    },
-    {
-      title: "Avg. per day",
-      value: summary.averageViewsPerDay.toLocaleString("en-US", {
-        maximumFractionDigits: 1,
-      }),
-      tooltip:
-        "Average daily volume within the window. Handy for benchmarking campaigns.",
-    },
-  ]
+  const cards = includeAdvanced
+    ? [
+        {
+          title: `Total views (last ${summary.rangeDays}d)`,
+          value: formatter.format(summary.totalViews),
+          delta: summary.totalViewsChange,
+          tooltip:
+            "Total product page views in the current window compared with the previous period.",
+        },
+        {
+          title: "Unique visitors",
+          value: formatter.format(summary.uniqueVisitors),
+          delta: summary.uniqueVisitorsChange,
+          tooltip:
+            "Estimated unique visitors for this period. Useful for gauging reach beyond total views.",
+        },
+        {
+          title: "Views today",
+          value: formatter.format(summary.viewsToday),
+          helper: `${formatter.format(summary.viewsSevenDays)} in the past 7 days`,
+          tooltip:
+            "How many views landed today alongside the trailing seven-day total for momentum checks.",
+        },
+        {
+          title: "Avg. per day",
+          value: summary.averageViewsPerDay.toLocaleString("en-US", {
+            maximumFractionDigits: 1,
+          }),
+          tooltip:
+            "Average daily volume within the window. Handy for benchmarking campaigns.",
+        },
+      ]
+    : [
+        {
+          title: `Total views (last ${summary.rangeDays}d)`,
+          value: formatter.format(summary.totalViews),
+          delta: summary.totalViewsChange,
+          tooltip:
+            "Total product page views in the current window compared with the previous period.",
+        },
+      ]
 
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -298,17 +314,32 @@ export default async function ProductAnalyticsPage({
     return notFound()
   }
 
-  const hasAnalyticsFeature = hasPlanFeature(
+  const hasAdvancedAnalytics = hasPlanFeature(
     product.plan ?? null,
     "analytics.advanced",
   )
-  if (!hasAnalyticsFeature) {
+  const hasBasicAnalytics =
+    hasAdvancedAnalytics || hasPlanFeature(product.plan ?? null, "analytics.basic")
+
+  if (!hasBasicAnalytics) {
     redirect(`/member/products/${product.slug}`)
   }
 
   const summary = await getProductTrafficSummary(product.id)
   const publicPath = `/products/${product.slug}`
   const rangeLabel = `Last ${summary.rangeDays} days`
+  const overviewMetrics = [
+    {
+      label: `Total views (${summary.rangeDays}d)`,
+      value: summary.totalViews.toLocaleString("en-US"),
+    },
+  ]
+  if (hasAdvancedAnalytics) {
+    overviewMetrics.push({
+      label: "Unique visitors",
+      value: summary.uniqueVisitors.toLocaleString("en-US"),
+    })
+  }
   const countryItems = summary.countryBreakdown
     .slice(0, 4)
     .map((item) => ({ label: item.country || "Unknown", views: item.views }))
@@ -327,7 +358,7 @@ export default async function ProductAnalyticsPage({
         updatedAt: product.updatedAt,
         slug: product.id,
       }}
-      overview={[]}
+      overview={overviewMetrics}
       basePath="member/products"
       headingActionsLeft={
         <div className="flex flex-wrap items-center gap-3">
@@ -361,40 +392,70 @@ export default async function ProductAnalyticsPage({
                 {rangeLabel}
               </Badge>
             </div>
-            <SummaryCards summary={summary} />
+            <SummaryCards
+              summary={summary}
+              includeAdvanced={hasAdvancedAnalytics}
+            />
           </section>
+          {hasAdvancedAnalytics ? (
+            <>
+              <InsightsPanel summary={summary} />
 
-          <InsightsPanel summary={summary} />
+              <ProductAnalyticsCharts summary={summary} />
 
-          <ProductAnalyticsCharts summary={summary} />
-
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                Audience breakdowns
-              </span>
-            </div>
-            <div className="grid gap-4 lg:grid-cols-3">
-              <BreakdownCard
-                title="Top countries"
-                subtitle={rangeLabel}
-                items={countryItems}
-                empty="We haven't detected country signals yet."
-              />
-              <BreakdownCard
-                title="Top browsers"
-                subtitle={rangeLabel}
-                items={browserItems}
-                empty="Browser data will appear once visitors arrive."
-              />
-              <BreakdownCard
-                title="Leading referrers"
-                subtitle={rangeLabel}
-                items={referrerItems}
-                empty="Referrer data will populate after sharing your product."
-              />
-            </div>
-          </section>
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                    Audience breakdowns
+                  </span>
+                </div>
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <BreakdownCard
+                    title="Top countries"
+                    subtitle={rangeLabel}
+                    items={countryItems}
+                    empty="We haven't detected country signals yet."
+                  />
+                  <BreakdownCard
+                    title="Top browsers"
+                    subtitle={rangeLabel}
+                    items={browserItems}
+                    empty="Browser data will appear once visitors arrive."
+                  />
+                  <BreakdownCard
+                    title="Leading referrers"
+                    subtitle={rangeLabel}
+                    items={referrerItems}
+                    empty="Referrer data will populate after sharing your product."
+                  />
+                </div>
+              </section>
+            </>
+          ) : (
+            <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">
+              <CardHeader className="px-5 pb-2 pt-5">
+                <CardTitle className="text-base text-slate-900">
+                  Unlock deeper analytics
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  Upgrade to advanced analytics for funnel charts, visitor device
+                  trends, referrers, and country insights.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-5 pb-6">
+                <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                  <li>See granular device, browser, and country breakdowns.</li>
+                  <li>Track referral sources and day-over-day momentum.</li>
+                  <li>Spot trends with interactive charts and historical deltas.</li>
+                </ul>
+                <div className="mt-4">
+                  <Button asChild>
+                    <Link href="/pricing">Explore upgrade options</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       }
     />
