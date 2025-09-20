@@ -1,44 +1,44 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import { deleteOrganizationAction } from "@/actions/admin/organizations/actions"
+import { deleteProductAction } from "@/actions/admin/products/actions"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
-export default async function DeleteAdminOrganizationPage({
+export default async function DeleteMemberProductPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ slug: string }>
 }) {
-  const { id } = await params
+  const { slug } = await params
 
-  if (!id) {
-    redirect("/admin/organizations?status=invalid")
+  if (!slug) {
+    redirect("/member/products?status=invalid")
   }
 
-  const organization = await prisma.organization.findUnique({
-    where: { id },
+  const product = await prisma.product.findUnique({
+    where: { slug },
     select: { id: true, name: true },
   })
 
-  if (!organization) {
-    redirect("/admin/organizations?status=not-found")
+  if (!product) {
+    redirect("/member/products?status=not-found")
   }
 
-  const organizationId = organization.id
-  const organizationName = organization.name
+  const productId = product.id
+  const productName = product.name
 
   async function handleDelete() {
     "use server"
 
-    const result = await deleteOrganizationAction(organizationId)
+    const result = await deleteProductAction(productId)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect("/admin/organizations?status=error")
+      redirect("/member/products?status=error")
     }
 
-    redirect("/admin/organizations?status=deleted")
+    redirect("/member/products?status=deleted")
   }
 
   return (
@@ -46,22 +46,20 @@ export default async function DeleteAdminOrganizationPage({
       <Card>
         <CardHeader>
           <CardTitle className="text-left text-2xl font-bold">
-            Delete organization
+            Delete <span className="font-medium">{productName}</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            You are about to delete <span className="font-medium">{organizationName}</span>.
-          </p>
-          <p>This will remove related memberships and product associations.</p>
+          <p>Deleting this product removes it from Shipyard immediately.</p>
+          <p>This action cannot be undone.</p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href="/admin/organizations">Cancel</Link>
+            <Link href="/member/products">Cancel</Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">
-              Delete organization
+              Delete product
             </Button>
           </form>
         </CardFooter>

@@ -1,12 +1,12 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import { deleteUserAction } from "@/actions/admin/users/actions"
+import { deleteProductAction } from "@/actions/admin/products/actions"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
-export default async function DeleteAdminUserPage({
+export default async function DeleteAdminProductPage({
   params,
 }: {
   params: Promise<{ id: string }>
@@ -14,33 +14,31 @@ export default async function DeleteAdminUserPage({
   const { id } = await params
 
   if (!id) {
-    redirect("/admin/users?status=invalid")
+    redirect("/admin/products?status=invalid")
   }
 
-  const user = await prisma.user.findUnique({
+  const product = await prisma.product.findUnique({
     where: { id },
-    select: { id: true, email: true, firstName: true, lastName: true },
+    select: { id: true, name: true, slug: true },
   })
 
-  if (!user) {
-    redirect("/admin/users?status=not-found")
+  if (!product) {
+    redirect("/admin/products?status=not-found")
   }
 
-  const userId = user.id
-
-  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ")
-  const displayName = fullName.length ? fullName : user.email
+  const productId = product.id
+  const productName = product.name
 
   async function handleDelete() {
     "use server"
 
-    const result = await deleteUserAction(userId)
+    const result = await deleteProductAction(productId)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect("/admin/users?status=error")
+      redirect("/admin/products?status=error")
     }
 
-    redirect("/admin/users?status=deleted")
+    redirect("/admin/products?status=deleted")
   }
 
   return (
@@ -48,22 +46,20 @@ export default async function DeleteAdminUserPage({
       <Card>
         <CardHeader>
           <CardTitle className="text-left text-2xl font-bold">
-            Delete user
+            Delete <span className="font-medium">{productName}</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            You are about to delete <span className="font-medium">{displayName}</span>.
-          </p>
-          <p>This will remove the account and any related access immediately.</p>
+          <p>This will permanently remove the product and its related records.</p>
+          <p className="font-medium text-foreground">This action cannot be reversed.</p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href="/admin/users">Cancel</Link>
+            <Link href={`/admin/products/${productId}`}>Cancel</Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">
-              Delete user
+              Delete product
             </Button>
           </form>
         </CardFooter>

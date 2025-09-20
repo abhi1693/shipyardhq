@@ -1,15 +1,76 @@
+import Link from "next/link"
 import { redirect } from "next/navigation"
-import { deleteOrganizationMembershipAction } from "@/actions/admin/organizations/actions"
 
-export default async function DeleteMembershipPage({
+import { deleteOrganizationMembershipAction } from "@/actions/admin/organizations/actions"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import { Button } from "@/components/atoms/button"
+import prisma from "@/lib/prisma"
+
+export default async function DeleteOrganizationMembershipPage({
   params,
 }: {
   params: Promise<{ id: string; membershipId: string }>
 }) {
   const { id, membershipId } = await params
-  const result = await deleteOrganizationMembershipAction(membershipId)
-  if ((result as any)?.error) {
-    throw new Error((result as any).error)
+
+  if (!id || !membershipId) {
+    redirect("/admin/organizations?status=invalid")
   }
-  redirect(`/admin/organizations/${id}`)
+
+  const membership = await prisma.organizationMembership.findUnique({
+    where: { id: membershipId },
+    select: {
+      id: true,
+      organizationId: true,
+      user: { select: { email: true } },
+    },
+  })
+
+  if (!membership || membership.organizationId !== id) {
+    redirect(`/admin/organizations/${id}?status=not-found`)
+  }
+
+  const membershipKey = membership.id
+  const memberEmail = membership.user?.email ?? "this member"
+  const organizationId = id
+
+  async function handleDelete() {
+    "use server"
+
+    const result = await deleteOrganizationMembershipAction(membershipKey)
+
+    if (result && typeof result === "object" && "error" in result) {
+      redirect(`/admin/organizations/${id}?status=error`)
+    }
+
+    redirect(`/admin/organizations/${organizationId}?status=member-removed`)
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-xl py-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-left text-2xl font-bold">
+            Remove organization member
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>
+            This will remove <span className="font-medium">{memberEmail}</span> from the
+            organization immediately.
+          </p>
+        </CardContent>
+        <CardFooter className="flex justify-end gap-2">
+          <Button asChild variant="outline">
+            <Link href={`/admin/organizations/${organizationId}`}>Cancel</Link>
+          </Button>
+          <form action={handleDelete}>
+            <Button type="submit" variant="destructive">
+              Remove member
+            </Button>
+          </form>
+        </CardFooter>
+      </Card>
+    </div>
+  )
 }
