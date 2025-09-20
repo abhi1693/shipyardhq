@@ -1,5 +1,7 @@
 "use server"
 
+import { revalidateTag } from "next/cache"
+
 import prisma from "@/lib/prisma"
 import { slugify } from "@/lib/utils"
 import { Prisma } from "@/lib/vendor/prisma/client"
@@ -8,6 +10,7 @@ import {
   revalidateCategory,
   revalidateProducts,
 } from "@/lib/cache/revalidate"
+import { cached } from "@/lib/cache"
 
 export async function getCategories(args: Prisma.CategoryFindManyArgs = {}) {
   try {
@@ -136,7 +139,7 @@ export async function deleteCategoryAction(id: string) {
   }
 }
 
-export async function getUseCases(args: Prisma.UseCaseFindManyArgs = {}) {
+async function fetchUseCases(args: Prisma.UseCaseFindManyArgs = {}) {
   try {
     return await prisma.useCase.findMany({
       orderBy: { createdAt: "desc" },
@@ -146,6 +149,14 @@ export async function getUseCases(args: Prisma.UseCaseFindManyArgs = {}) {
     console.error("Error fetching use cases:", error)
     throw new Error("Failed to fetch use cases")
   }
+}
+
+const getUseCasesCached = cached(fetchUseCases, "useCases:list", {
+  tags: () => ["use-cases"],
+})
+
+export async function getUseCases(args: Prisma.UseCaseFindManyArgs = {}) {
+  return getUseCasesCached(args)
 }
 
 export async function getUseCasesCount(args: Prisma.UseCaseCountArgs = {}) {
@@ -223,6 +234,8 @@ export async function deleteUseCaseAction(id: string) {
       where: { id },
     })
 
+    revalidateTag("use-cases")
+
     return { success: true }
   } catch (error) {
     console.error("Error deleting use case:", error)
@@ -235,10 +248,12 @@ export async function updateUseCaseAction(id: string, data: { label: string }) {
   const slug = slugify(label)
 
   try {
-    return await prisma.useCase.update({
+    const result = await prisma.useCase.update({
       where: { id },
       data: { label, slug },
     })
+    revalidateTag("use-cases")
+    return result
   } catch (error) {
     console.error("Error updating use case:", error)
     return { error: "Failed to update use case" }
@@ -269,6 +284,7 @@ export async function createUseCaseAction(formData: FormData) {
     await prisma.useCase.create({
       data: { label: cleanLabel, slug },
     })
+    revalidateTag("use-cases")
     return { success: true }
   } catch (error) {
     console.error("Error creating use case:", error)
