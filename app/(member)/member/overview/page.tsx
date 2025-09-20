@@ -25,6 +25,7 @@ import {
   getProductHealthSummary,
 } from "@/actions/member/overview/actions"
 import { cn } from "@/lib/utils"
+import { currentUser } from "@clerk/nextjs/server"
 
 export const revalidate = 60
 
@@ -46,6 +47,8 @@ function rangeToDays(range?: string): number {
   switch (range) {
     case "30d":
       return 30
+    case "14d":
+      return 14
     case "90d":
       return 90
     case "7d":
@@ -56,6 +59,10 @@ function rangeToDays(range?: string): number {
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US").format(value)
+}
+
+function pluralize(count: number, singular: string, plural?: string) {
+  return count === 1 ? singular : plural ?? `${singular}s`
 }
 
 function formatRelative(date: Date | string) {
@@ -162,6 +169,7 @@ export default async function OverviewPage({
     needsMedia,
     activity,
     health,
+    user,
   ] = await Promise.all([
     getUserDashboardStats(days),
     getUserProducts(6, days),
@@ -173,6 +181,7 @@ export default async function OverviewPage({
     getProductsNeedingMedia(2, 4),
     getRecentActivity(days, 8),
     getProductHealthSummary(days),
+    currentUser(),
   ])
 
   if (stats.totalProducts === 0) {
@@ -303,22 +312,164 @@ export default async function OverviewPage({
     },
   ]
 
+  const primaryEmail =
+    user?.primaryEmailAddress?.emailAddress ??
+    user?.emailAddresses?.[0]?.emailAddress ??
+    null
+  const emailHandle = primaryEmail ? primaryEmail.split("@")[0] : null
+  const shortName =
+    user?.firstName ?? user?.username ?? emailHandle ?? "Shipmate"
+  const displayName = user?.fullName ?? shortName
+  const planLabel = stats.plan?.name ? `${stats.plan.name} plan` : null
+
+  const topClickProduct = topByClicks[0]
+
+  const highlight = (() => {
+    if (stats.unverifiedCount > 0) {
+      const count = stats.unverifiedCount
+      return {
+        title: "Verify your domains",
+        body: `You have ${formatNumber(count)} ${pluralize(count, "product")} waiting on domain verification. Keeping them verified boosts trust signals across listings.`,
+        href: "/member/products?verification=unverified",
+        cta: "Review domains",
+      }
+    }
+    if (stats.draftsCount > 0) {
+      const count = stats.draftsCount
+      return {
+        title: "Drafts ready to publish",
+        body: `${count === 1 ? "One" : formatNumber(count)} draft ${pluralize(count, "update")} to polish and share. A quick review keeps momentum.`,
+        href: "/member/products?status=draft",
+        cta: "Finish drafts",
+      }
+    }
+    if (needsMedia.length > 0) {
+      const count = needsMedia.length
+      return {
+        title: "Add fresh visuals",
+        body: `${formatNumber(count)} ${pluralize(count, "product")} could use updated screenshots to lift conversions.`,
+        href: "/member/products",
+        cta: "Update media",
+      }
+    }
+    if (expiringBadges.length > 0) {
+      const count = expiringBadges.length
+      return {
+        title: "Renew expiring badges",
+        body: `${formatNumber(count)} earned ${pluralize(count, "perk")} will lapse soon—refresh them to keep visibility high.`,
+        href: "/member/products",
+        cta: "Review badges",
+      }
+    }
+    if (topClickProduct) {
+      const clicks = formatNumber(topClickProduct.analytics?.clicks ?? 0)
+      return {
+        title: `${topClickProduct.name} is drawing eyes`,
+        body: `It has collected ${clicks} total clicks so far. Consider sharing an update while the spotlight is on.`,
+        href: `/member/products/${topClickProduct.id}`,
+        cta: "Open product",
+      }
+    }
+
+    return {
+      title: "All clear",
+      body: `Nothing urgent on deck. Keep exploring new launches or sizing up your metrics over the last ${days} days.`,
+    }
+  })()
+
+  const heroStats = [
+    {
+      label: "Live products",
+      value: formatNumber(stats.totalProducts),
+    },
+    {
+      label: "Drafts in queue",
+      value: formatNumber(stats.draftsCount),
+    },
+    {
+      label: "Verified rate",
+      value: `${stats.verifiedRate}%`,
+    },
+  ]
+
+  const rangeLabel = (sp?.range ?? "7d").toUpperCase()
+  const rangeDescriptor =
+    days === 7
+      ? "over the past 7 days"
+      : days === 14
+        ? "across the last 14 days"
+        : `across the last ${days} days`
+
+  const lifetimeSummary =
+    stats.totalClicks > 0 || stats.totalUpvotes > 0
+      ? `Your launches have gathered ${formatNumber(stats.totalClicks)} clicks and ${formatNumber(stats.totalUpvotes)} upvotes so far.`
+      : "Invite your audience to explore your listings to start gathering clicks and upvotes."
+
   return (
     <div className="space-y-10">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-2">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900">
-            Member overview
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            Track launches, tidy up tasks, and review engagement trends across
-            the last {days} days.
-          </p>
+      <section className="space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground/80">
+              <span className="rounded-full border border-[color:var(--brand-1)/0.35] px-3 py-1 text-[10px] text-[color:var(--brand-1)]">
+                Member Command Deck
+              </span>
+              <span className="rounded-full border border-[color:var(--brand-1)/0.22] px-3 py-1 text-[10px] text-[color:var(--brand-1)]/80">
+                {rangeLabel}
+              </span>
+              {planLabel ? (
+                <span className="rounded-full border border-[color:var(--brand-1)/0.22] px-3 py-1 text-[10px] text-[color:var(--brand-1)]/80">
+                  {planLabel}
+                </span>
+              ) : null}
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+              Welcome back, {displayName}
+            </h1>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              Here’s what’s happened {rangeDescriptor}. {lifetimeSummary}
+            </p>
+            <div className="rounded-xl border border-[color:var(--brand-1)/0.18] bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)]/80">
+                Next best step
+              </p>
+              <p className="mt-1 text-sm font-medium text-slate-900">
+                {highlight.title}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                {highlight.body}
+              </p>
+              {highlight.href ? (
+                <Link
+                  href={highlight.href}
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[color:var(--brand-1)] hover:underline"
+                >
+                  {highlight.cta ?? "Open"}
+                  <span aria-hidden>→</span>
+                </Link>
+              ) : null}
+            </div>
+          </div>
+          <div className="flex flex-col items-start gap-3 sm:items-end">
+            <RangeSelector />
+            <div className="flex flex-wrap gap-2 sm:justify-end">
+              {heroStats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="min-w-[120px] rounded-lg border border-[color:var(--brand-1)/0.18] bg-white/90 px-3 py-2 text-left shadow-sm"
+                >
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground/80">
+                    {stat.label}
+                  </div>
+                  <div className="text-lg font-semibold text-slate-900">
+                    {stat.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <RangeSelector />
-        </div>
-      </div>
+      </section>
 
       <section className="space-y-4">
         <div>
