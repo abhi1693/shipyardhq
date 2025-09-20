@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation"
 import { useMemo, useState, useTransition } from "react"
-import Image from "next/image"
 import {
   Sidebar,
   SidebarContent,
@@ -30,6 +29,7 @@ import Link from "next/link"
 import { NavItem } from "@/types"
 import { toast } from "sonner"
 import { createCustomerPortalAction } from "@/actions/member/billing/portal"
+import { BrandLogo } from "@/components/atoms/brand-logo"
 
 interface SidebarProps {
   navItems?: NavItem[]
@@ -104,12 +104,10 @@ export default function AppSidebar(props: SidebarProps) {
             className="inline-flex items-center gap-2"
             aria-label="ShipYardHQ admin overview"
           >
-            <Image
-              src="/brand.png"
-              alt="ShipYardHQ"
+            <BrandLogo
               width={28}
               height={28}
-              className="h-7 w-7 object-contain rounded-sm"
+              className="h-7 w-7 rounded-sm"
               priority
             />
             <span className="text-base md:text-lg font-bold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none">

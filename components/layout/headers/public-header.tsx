@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { useState } from "react"
 import { usePathname } from "next/navigation"
-import Image from "next/image"
 import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
 import { Menu } from "lucide-react"
@@ -12,6 +11,7 @@ import MemberAreaButton from "@/components/molecules/MemberAreaButton"
 import SignInCtaButton from "@/components/molecules/SignInCtaButton"
 import clsx from "clsx"
 import { SignOutButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs"
+import { BrandLogo } from "@/components/atoms/brand-logo"
 
 const navLinks = [
   { label: "Browse", href: "/browse" },
@@ -38,13 +38,11 @@ export default function PublicHeader() {
             className="inline-flex items-center gap-2"
             aria-label="ShipYardHQ home"
           >
-            <Image
-              src="/brand.png"
-              alt="ShipYardHQ"
+            <BrandLogo
               width={32}
               height={32}
               sizes="(max-width: 768px) 24px, 32px"
-              className="h-8 w-8 object-contain"
+              className="h-8 w-8"
               priority
             />
             <span className="text-xl font-semibold tracking-tight text-[color:var(--brand-1)]">
