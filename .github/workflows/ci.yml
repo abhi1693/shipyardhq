@@ -2,6 +2,8 @@ name: CI
 
 on:
   push: {}
+  schedule:
+    - cron: '0 0 * * *' # Every day at midnight UTC
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}-${{ github.actor }}
@@ -65,3 +67,36 @@ jobs:
           npx --yes vercel env pull --yes --environment=preview .env.local --token "$VERCEL_TOKEN"
           npm run prisma:init
           npm run test
+
+  submit_sitemap:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'schedule'
+    needs:
+      - tests
+    env:
+      GOOGLE_SVC_ACCOUNT: ${{ secrets.GOOGLE_SVC_ACCOUNT }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Decode and store Google Service Account JSON
+        run: echo "${{ secrets.GOOGLE_SVC_ACCOUNT }}" | base64 -d > scripts/service-account.json
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Submit Sitemap
+        run: node scripts/sitemap-to-google
+
+      - name: Submit to IndexNow
+        env:
+          LASTMOD_THRESHOLD_DAYS: 1
+        run: node scripts/indexnow.js
