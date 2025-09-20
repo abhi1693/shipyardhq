@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Card,
   CardContent,
@@ -5,8 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
+import { ChartContainer, type ChartConfig } from "@/components/atoms/chart"
 import type { OnboardingAnswersSummary } from "@/types/analytics"
 import { formatDistanceToNow } from "date-fns"
+import { Pie, PieChart, ResponsiveContainer, Cell } from "recharts"
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US").format(value)
@@ -56,6 +60,58 @@ function BreakdownList({
   )
 }
 
+function NewsletterIntentBreakdown({
+  items,
+}: {
+  items: OnboardingAnswersSummary["newsletterIntentBreakdown"]
+}) {
+  if (!items.length) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        No onboarded members have newsletter preferences yet.
+      </p>
+    )
+  }
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {items.map((item) => {
+        const clampedPercent = Math.max(
+          0,
+          Math.min(100, item.subscribedPercentage),
+        )
+
+        return (
+          <div
+            key={item.id}
+            className="space-y-2 rounded-xl border border-slate-200/70 bg-white p-4 shadow-[0_12px_30px_-26px_rgba(15,23,42,0.35)]"
+          >
+            <div className="flex items-baseline justify-between gap-3 text-sm">
+              <span className="font-medium text-foreground">{item.label}</span>
+              <span className="text-xs text-muted-foreground">
+                {formatNumber(item.total)} {item.total === 1 ? "member" : "members"}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {formatNumber(item.subscribed)} subscribed • {formatPercent(item.subscribedPercentage)} opt-in
+            </p>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-sky-400 to-sky-500"
+                style={{ width: `${clampedPercent}%` }}
+                aria-hidden
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {formatNumber(item.optedOut)} opted out
+            </p>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export function OnboardingAnswersAnalytics({
   summary,
 }: {
@@ -88,6 +144,35 @@ export function OnboardingAnswersAnalytics({
     },
   ]
 
+  const newsletterTotal =
+    summary.newsletterSubscribed + summary.newsletterOptedOut
+
+  const newsletterConfig: ChartConfig = {
+    subscribed: { label: "Subscribed", color: "#0ea5e9" },
+    optedOut: { label: "Opted out", color: "#e11d48" },
+  }
+
+  const newsletterChartData = [
+    {
+      key: "subscribed",
+      label: "Subscribed",
+      value: summary.newsletterSubscribed,
+      percentage:
+        newsletterTotal === 0
+          ? 0
+          : (summary.newsletterSubscribed / newsletterTotal) * 100,
+    },
+    {
+      key: "optedOut",
+      label: "Opted out",
+      value: summary.newsletterOptedOut,
+      percentage:
+        newsletterTotal === 0
+          ? 0
+          : (summary.newsletterOptedOut / newsletterTotal) * 100,
+    },
+  ]
+
   return (
     <div className="space-y-6">
       <Card>
@@ -113,6 +198,82 @@ export function OnboardingAnswersAnalytics({
               </div>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Newsletter engagement</CardTitle>
+          <CardDescription>
+            Opt-in preferences from onboarded members.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <ChartContainer
+            config={newsletterConfig}
+            className="min-h-[260px] border border-slate-200/70 bg-white/95"
+          >
+            {newsletterTotal === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                No onboarded members have set newsletter preferences yet.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
+                <div className="h-48 w-full lg:h-[220px] lg:w-1/2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={newsletterChartData}
+                        dataKey="value"
+                        nameKey="label"
+                        innerRadius={60}
+                        strokeWidth={2}
+                      >
+                        {newsletterChartData.map((item) => (
+                          <Cell
+                            key={item.key}
+                            fill={`var(--chart-${item.key})`}
+                            name={item.label}
+                          />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex-1 space-y-3">
+                  {newsletterChartData.map((item) => (
+                    <div
+                      key={item.key}
+                      className="flex items-center gap-3 rounded-lg border border-slate-200/70 bg-white px-3 py-2"
+                    >
+                      <span
+                        className="h-2.5 w-2.5 rounded-full"
+                        style={{
+                          backgroundColor:
+                            newsletterConfig[item.key]?.color ?? "#94a3b8",
+                        }}
+                      />
+                      <div className="flex flex-1 flex-col">
+                        <span className="text-sm font-medium text-foreground">
+                          {item.label}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatNumber(item.value)} members
+                        </span>
+                      </div>
+                      <span className="text-sm font-semibold text-foreground">
+                        {formatPercent(item.percentage)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </ChartContainer>
+
+          <NewsletterIntentBreakdown
+            items={summary.newsletterIntentBreakdown}
+          />
         </CardContent>
       </Card>
 

@@ -2,6 +2,7 @@ import { subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
 import type {
+  NewsletterIntentBreakdownItem,
   OnboardingAnswerBreakdownItem,
   OnboardingAnswersSummary,
 } from "@/types/analytics"
@@ -22,6 +23,23 @@ const HEARD_FROM_LABELS: Record<string, string> = {
   friend: "Friend or colleague",
   other: "Other",
 }
+
+const NEWSLETTER_INTENT_GROUPS: {
+  id: string
+  label: string
+  intents: Set<string>
+}[] = [
+  {
+    id: "builder",
+    label: "Builders",
+    intents: new Set(["launch-product", "manage-team"]),
+  },
+  {
+    id: "explorer",
+    label: "Explorers",
+    intents: new Set(["explore"]),
+  },
+]
 
 function labelForValue(
   value: string,
@@ -81,6 +99,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     heardFromGroups,
     completedLast7Days,
     latestCompleted,
+    completedMembers,
   ] = await Promise.all([
     prisma.user.count({ where: activeWhere }),
     prisma.user.count({ where: completedWhere }),
@@ -114,6 +133,13 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
       select: {
         termsAcceptedAt: true,
         updatedAt: true,
+      },
+    }),
+    prisma.user.findMany({
+      where: completedWhere,
+      select: {
+        email: true,
+        roleIntent: true,
       },
     }),
   ])
@@ -157,6 +183,75 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
       )?.toISOString() ?? null)
     : null
 
+  const completedEmails = completedMembers
+    .map((member) => member.email?.toLowerCase())
+    .filter(Boolean) as string[]
+
+  const newsletterSubscriptions = completedEmails.length
+    ? await prisma.newsletterSubscription.findMany({
+        where: { email: { in: completedEmails } },
+        select: { email: true },
+      })
+    : []
+
+  const subscribedEmailSet = new Set(
+    newsletterSubscriptions.map((entry) => entry.email.toLowerCase()),
+  )
+
+  let newsletterSubscribed = 0
+  let newsletterOptedOut = 0
+
+  const intentTallies = new Map<string, NewsletterIntentBreakdownItem>()
+
+  for (const member of completedMembers) {
+    const email = member.email?.toLowerCase()
+    if (!email) continue
+
+    const isSubscribed = subscribedEmailSet.has(email)
+    if (isSubscribed) {
+      newsletterSubscribed += 1
+    } else {
+      newsletterOptedOut += 1
+    }
+
+    const intent = member.roleIntent
+    if (!intent) continue
+
+    const group = NEWSLETTER_INTENT_GROUPS.find((item) =>
+      item.intents.has(intent),
+    )
+
+    if (!group) continue
+
+    const existing = intentTallies.get(group.id) ?? {
+      id: group.id,
+      label: group.label,
+      subscribed: 0,
+      optedOut: 0,
+      total: 0,
+      subscribedPercentage: 0,
+    }
+
+    if (isSubscribed) {
+      existing.subscribed += 1
+    } else {
+      existing.optedOut += 1
+    }
+
+    intentTallies.set(group.id, existing)
+  }
+
+  const newsletterIntentBreakdown = Array.from(intentTallies.values())
+    .map((item) => {
+      const total = item.subscribed + item.optedOut
+      return {
+        ...item,
+        total,
+        subscribedPercentage: total === 0 ? 0 : (item.subscribed / total) * 100,
+      }
+    })
+    .sort((a, b) => b.total - a.total)
+
   return {
     totalActiveUsers,
     completedResponses,
@@ -166,6 +261,9 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     lastResponseAt,
     roleIntentBreakdown,
     heardFromBreakdown,
+    newsletterSubscribed,
+    newsletterOptedOut,
+    newsletterIntentBreakdown,
   }
 }
 

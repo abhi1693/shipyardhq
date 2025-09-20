@@ -4,7 +4,6 @@
 // step logger so our specs read like a story in the Cypress UI.
 // ***********************************************************
 
-// eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference types="cypress" />
 
 declare global {
