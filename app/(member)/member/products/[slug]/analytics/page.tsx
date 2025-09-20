@@ -38,7 +38,12 @@ const deltaPositiveClass = "border-emerald-200 bg-emerald-50 text-emerald-700"
 const deltaNegativeClass = "border-rose-200 bg-rose-50 text-rose-700"
 
 function DeltaBadge({ value }: { value: number }) {
-  const safe = Number.isFinite(value) ? value : 0
+  if (!Number.isFinite(value)) {
+    return (
+      <span className={cn(deltaBaseClass, deltaPositiveClass)}>New</span>
+    )
+  }
+  const safe = value
   if (safe === 0) {
     return <span className="text-xs text-muted-foreground">0%</span>
   }
@@ -273,6 +278,90 @@ function BreakdownCard({
   )
 }
 
+function VisitorLoyaltyCard({
+  data,
+}: {
+  data: ProductTrafficSummary["advanced"]["newVsReturning"]
+}) {
+  const formatter = new Intl.NumberFormat("en-US")
+  const totalKnown = data.newVisitors + data.returningVisitors
+  const totalAll = totalKnown + data.unknownVisitors
+  const returningPercent = data.returningRate * 100
+  const knownShare = totalAll > 0 ? (totalKnown / totalAll) * 100 : 0
+  const returningShare = totalKnown > 0 ? (data.returningVisitors / totalKnown) * 100 : 0
+  const newShare = totalKnown > 0 ? (data.newVisitors / totalKnown) * 100 : 0
+
+  return (
+    <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">
+      <CardHeader className="px-4 pb-0">
+        <CardTitle className="text-base text-slate-900">Visitor loyalty</CardTitle>
+        <CardDescription className="text-xs text-muted-foreground">
+          Returning share among visitors with identifiable sessions
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4 px-4 pb-5 pt-4">
+        <div className="flex items-baseline justify-between">
+          <div className="space-y-1">
+            <span className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+              Returning rate
+            </span>
+            <div className="text-3xl font-semibold text-slate-900">
+              {Number.isFinite(returningPercent)
+                ? `${returningPercent.toFixed(1)}%`
+                : "—"}
+            </div>
+          </div>
+          <div className="text-right text-xs text-muted-foreground">
+            <div>
+              {formatter.format(data.returningVisitors)} returning
+            </div>
+            <div>{formatter.format(data.newVisitors)} new</div>
+            <div>{formatter.format(data.unknownVisitors)} unknown</div>
+          </div>
+        </div>
+        <div className="space-y-3 text-xs text-muted-foreground">
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span>Known vs. unknown</span>
+              <span>{knownShare.toFixed(0)}% known</span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/70">
+              <div
+                className="h-full rounded-full bg-sky-500"
+                style={{ width: `${knownShare}%` }}
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span>Returning vs. new (known visitors)</span>
+              <span>
+                {returningShare.toFixed(0)}% returning · {newShare.toFixed(0)}% new
+              </span>
+            </div>
+            <div className="flex h-2 w-full overflow-hidden rounded-full">
+              <div
+                className="h-full bg-emerald-500"
+                style={{ width: `${returningShare}%` }}
+              />
+              <div
+                className="h-full bg-sky-400"
+                style={{ width: `${Math.max(0, newShare)}%` }}
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-slate-500">Sample size</span>
+            <span className="font-medium text-slate-700">
+              {formatter.format(totalKnown)} known · {formatter.format(totalAll)} total
+            </span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 export default async function ProductAnalyticsPage({
   params,
 }: {
@@ -328,6 +417,7 @@ export default async function ProductAnalyticsPage({
   const summary = await getProductTrafficSummary(product.id)
   const publicPath = `/products/${product.slug}`
   const rangeLabel = `Last ${summary.rangeDays} days`
+  const advanced = summary.advanced
   const overviewMetrics = [
     {
       label: `Total views (${summary.rangeDays}d)`,
@@ -341,14 +431,36 @@ export default async function ProductAnalyticsPage({
     })
   }
   const countryItems = summary.countryBreakdown
-    .slice(0, 4)
+    .slice(0, 6)
     .map((item) => ({ label: item.country || "Unknown", views: item.views }))
+  const regionItems = advanced.regionBreakdown
+    .map((item) => ({
+      label: item.country
+        ? `${item.region} · ${item.country}`
+        : item.region,
+      views: item.views,
+    }))
+    .slice(0, 6)
+  const cityItems = advanced.cityBreakdown
+    .map((item) => {
+      const parts = [item.city]
+      if (item.region) parts.push(item.region)
+      if (item.country) parts.push(item.country)
+      return { label: parts.join(", "), views: item.views }
+    })
+    .slice(0, 6)
   const browserItems = summary.browserBreakdown
-    .slice(0, 4)
+    .slice(0, 6)
     .map((item) => ({ label: item.browser || "Unknown", views: item.views }))
+  const osItems = advanced.osBreakdown
+    .map((item) => ({ label: item.os || "Unknown", views: item.views }))
+    .slice(0, 6)
   const referrerItems = summary.referrerBreakdown
-    .slice(0, 4)
+    .slice(0, 6)
     .map((item) => ({ label: item.referrer || "Direct", views: item.views }))
+  const trafficCategoryItems = advanced.referrerCategoryBreakdown
+    .map((item) => ({ label: item.label, views: item.views }))
+    .slice(0, 5)
   return (
     <ObjectPageLayout
       heading={{
@@ -404,9 +516,52 @@ export default async function ProductAnalyticsPage({
               <ProductAnalyticsCharts summary={summary} />
 
               <section className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div>
                   <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                    Audience breakdowns
+                    Engagement & retention
+                  </span>
+                </div>
+                <VisitorLoyaltyCard data={advanced.newVsReturning} />
+              </section>
+
+              <section className="space-y-4">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                    Acquisition & platforms
+                  </span>
+                </div>
+                <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+                  <BreakdownCard
+                    title="Traffic channel mix"
+                    subtitle="Share of visits by source grouping"
+                    items={trafficCategoryItems}
+                    empty="Source breakdown will populate as referrals arrive."
+                  />
+                  <BreakdownCard
+                    title="Leading referrers"
+                    subtitle={rangeLabel}
+                    items={referrerItems}
+                    empty="Referrer data will populate after sharing your product."
+                  />
+                  <BreakdownCard
+                    title="Top browsers"
+                    subtitle={rangeLabel}
+                    items={browserItems}
+                    empty="Browser data will appear once visitors arrive."
+                  />
+                  <BreakdownCard
+                    title="Top operating systems"
+                    subtitle={rangeLabel}
+                    items={osItems}
+                    empty="Operating system data will appear once visitors arrive."
+                  />
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                    Geography
                   </span>
                 </div>
                 <div className="grid gap-4 lg:grid-cols-3">
@@ -417,19 +572,20 @@ export default async function ProductAnalyticsPage({
                     empty="We haven't detected country signals yet."
                   />
                   <BreakdownCard
-                    title="Top browsers"
+                    title="Top regions"
                     subtitle={rangeLabel}
-                    items={browserItems}
-                    empty="Browser data will appear once visitors arrive."
+                    items={regionItems}
+                    empty="Region data will show as more traffic comes in."
                   />
                   <BreakdownCard
-                    title="Leading referrers"
+                    title="Top cities"
                     subtitle={rangeLabel}
-                    items={referrerItems}
-                    empty="Referrer data will populate after sharing your product."
+                    items={cityItems}
+                    empty="City insights will populate with additional visits."
                   />
                 </div>
               </section>
+
             </>
           ) : (
             <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">

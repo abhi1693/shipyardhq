@@ -18,6 +18,7 @@ export interface ProductTrafficSummaryPoint {
   date: string
   label: string
   views: number
+  uniqueVisitors: number
 }
 
 export interface ProductTrafficBreakdownItem {
@@ -45,6 +46,97 @@ export interface ProductTrafficReferrerBreakdownItem
   referrer: string
 }
 
+export type ProductTrafficReferrerCategory =
+  | "direct"
+  | "search"
+  | "social"
+  | "email"
+  | "other"
+
+export interface ProductTrafficPathBreakdownItem
+  extends ProductTrafficBreakdownItem {
+  path: string
+  previousViews: number
+  viewsChange: number
+}
+
+export interface ProductTrafficOsBreakdownItem
+  extends ProductTrafficBreakdownItem {
+  os: string
+}
+
+export interface ProductTrafficRegionBreakdownItem
+  extends ProductTrafficBreakdownItem {
+  country: string | null
+  region: string
+}
+
+export interface ProductTrafficCityBreakdownItem
+  extends ProductTrafficBreakdownItem {
+  country: string | null
+  region: string | null
+  city: string
+}
+
+export interface ProductTrafficReferrerCategoryBreakdownItem
+  extends ProductTrafficBreakdownItem {
+  category: ProductTrafficReferrerCategory
+  label: string
+}
+
+export interface ProductTrafficNewReturningBreakdown {
+  newVisitors: number
+  returningVisitors: number
+  unknownVisitors: number
+  returningRate: number
+}
+
+export type ProductTrafficAnomalyType =
+  | "ip-spike"
+  | "path-surge"
+  | "geo-surge"
+
+export interface ProductTrafficAnomaly {
+  type: ProductTrafficAnomalyType
+  key: string
+  description: string
+  metric: string
+  magnitude: number
+  share?: number
+}
+
+export interface ProductTrafficReferrerMatrixProduct {
+  productId: string
+  productName?: string
+  views: number
+}
+
+export interface ProductTrafficReferrerMatrixRow {
+  referrer: string
+  views: number
+  topProducts: ProductTrafficReferrerMatrixProduct[]
+}
+
+export interface ProductTrafficTopProduct {
+  productId: string
+  productName?: string
+  views: number
+  share: number
+}
+
+export interface ProductTrafficAdvancedInsights {
+  uniqueVisitorsOverTime: ProductTrafficSummaryPoint[]
+  pathBreakdown: ProductTrafficPathBreakdownItem[]
+  osBreakdown: ProductTrafficOsBreakdownItem[]
+  regionBreakdown: ProductTrafficRegionBreakdownItem[]
+  cityBreakdown: ProductTrafficCityBreakdownItem[]
+  referrerCategoryBreakdown: ProductTrafficReferrerCategoryBreakdownItem[]
+  newVsReturning: ProductTrafficNewReturningBreakdown
+  anomalies: ProductTrafficAnomaly[]
+  topProducts?: ProductTrafficTopProduct[]
+  referrerProductMatrix?: ProductTrafficReferrerMatrixRow[]
+}
+
 export interface ProductTrafficSummary {
   rangeDays: number
   totalViews: number
@@ -63,6 +155,7 @@ export interface ProductTrafficSummary {
   countryBreakdown: ProductTrafficCountryBreakdownItem[]
   browserBreakdown: ProductTrafficBrowserBreakdownItem[]
   referrerBreakdown: ProductTrafficReferrerBreakdownItem[]
+  advanced: ProductTrafficAdvancedInsights
 }
 
 export interface OnboardingAnswerBreakdownItem {

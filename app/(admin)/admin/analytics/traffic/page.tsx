@@ -9,6 +9,7 @@ import RangeSelector from "@/components/molecules/RangeSelector"
 import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
 import { getGlobalTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 import { cn } from "@/lib/utils"
+import type { ProductTrafficAnomaly, ProductTrafficSummary } from "@/types/analytics"
 
 export const revalidate = 60
 
@@ -143,6 +144,228 @@ function BreakdownCard({
   )
 }
 
+function VisitorLoyaltyCard({
+  data,
+}: {
+  data: ProductTrafficSummary["advanced"]["newVsReturning"]
+}) {
+  const totalKnown = data.newVisitors + data.returningVisitors
+  const totalAll = totalKnown + data.unknownVisitors
+  const returningRate = Number.isFinite(data.returningRate)
+    ? (data.returningRate * 100).toFixed(1)
+    : null
+
+  return (
+    <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-base text-slate-900">Visitor loyalty</CardTitle>
+        <CardDescription>
+          Returning share calculated from recognised visitors.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-baseline justify-between">
+          <div className="space-y-1">
+            <span className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+              Returning rate
+            </span>
+            <div className="text-3xl font-semibold text-slate-900">
+              {returningRate ? `${returningRate}%` : "—"}
+            </div>
+          </div>
+          <div className="text-xs text-muted-foreground text-right space-y-1">
+            <div>{formatNumber(data.returningVisitors)} returning</div>
+            <div>{formatNumber(data.newVisitors)} new</div>
+            <div>{formatNumber(data.unknownVisitors)} unknown</div>
+          </div>
+        </div>
+        <div className="grid gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center justify-between">
+            <span>Known visitors</span>
+            <span>{formatNumber(totalKnown)}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Total sessions</span>
+            <span>{formatNumber(totalAll)}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function ProductLeaderboardCard({
+  products,
+}: {
+  products: NonNullable<ProductTrafficSummary["advanced"]["topProducts"]>
+}) {
+  if (!products.length) {
+    return (
+      <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base text-slate-900">
+            Product leaderboard
+          </CardTitle>
+          <CardDescription>
+            Top products by page views for this window.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            No product traffic recorded in this period.
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-base text-slate-900">
+          Product leaderboard
+        </CardTitle>
+        <CardDescription>Share of visits by top destinations.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-3 text-sm">
+          {products.slice(0, 8).map((product) => (
+            <li key={product.productId} className="space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <span className="truncate font-medium text-slate-900">
+                  {product.productName ?? product.productId}
+                </span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {formatNumber(product.views)} · {(product.share * 100).toFixed(1)}%
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  )
+}
+
+function ReferrerMatrixCard({
+  rows,
+}: {
+  rows: NonNullable<ProductTrafficSummary["advanced"]["referrerProductMatrix"]>
+}) {
+  if (!rows.length) {
+    return (
+      <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base text-slate-900">
+            Referrer matrix
+          </CardTitle>
+          <CardDescription>
+            Cross-product contributions from key referrers.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Referral traffic has not surfaced yet for this window.
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-base text-slate-900">Referrer matrix</CardTitle>
+        <CardDescription>
+          Top referrers paired with the products they drive.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {rows.slice(0, 5).map((row) => (
+          <div key={row.referrer} className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium text-slate-900">
+                {row.referrer}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {formatNumber(row.views)} visits
+              </span>
+            </div>
+            <ul className="space-y-1 text-xs text-muted-foreground">
+              {row.topProducts.slice(0, 5).map((product) => (
+                <li key={`${row.referrer}-${product.productId}`}>
+                  <span className="text-slate-700">
+                    {product.productName ?? product.productId}
+                  </span>{" "}
+                  · {formatNumber(product.views)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  )
+}
+
+function AnomalyCard({ anomalies }: { anomalies: ProductTrafficAnomaly[] }) {
+  if (!anomalies.length) {
+    return (
+      <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base text-slate-900">Anomaly watch</CardTitle>
+          <CardDescription>
+            Network-wide spikes and outliers surface here.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            No anomalies detected for the selected window.
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const labels: Record<ProductTrafficAnomaly["type"], string> = {
+    "ip-spike": "IP spike",
+    "path-surge": "Path surge",
+    "geo-surge": "Geo surge",
+  }
+
+  return (
+    <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-base text-slate-900">Anomaly watch</CardTitle>
+        <CardDescription>
+          Focus your reviews on unusual traffic bursts.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {anomalies.map((anomaly) => (
+          <div
+            key={`${anomaly.type}-${anomaly.key}`}
+            className="space-y-1 rounded-lg border border-slate-200/70 bg-white/80 px-3 py-3"
+          >
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span className="uppercase tracking-[0.24em] text-slate-500">
+                {labels[anomaly.type]}
+              </span>
+              {typeof anomaly.share === "number" ? (
+                <span>{Math.round(anomaly.share * 100)}% share</span>
+              ) : null}
+            </div>
+            <div className="text-sm font-medium text-slate-900">
+              {anomaly.key}
+            </div>
+            <p className="text-sm text-slate-700">{anomaly.description}</p>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  )
+}
+
 export default async function TrafficAnalyticsPage({
   searchParams,
 }: {
@@ -151,6 +374,8 @@ export default async function TrafficAnalyticsPage({
   const sp = await searchParams
   const days = rangeToDays(sp?.range)
   const summary = await getGlobalTrafficSummary({ rangeDays: days })
+  const advanced = summary.advanced
+  const loyalty = advanced.newVsReturning
 
   const metrics = [
     {
@@ -171,18 +396,23 @@ export default async function TrafficAnalyticsPage({
       helper: `${formatNumber(summary.viewsSevenDays)} in the past 7 days`,
     },
     {
-      title: "Top referrer",
-      value:
-        summary.topReferrer?.referrer && summary.topReferrer?.referrer.length
-          ? summary.topReferrer.referrer
-          : "Direct / None",
-      helper: `${formatNumber(summary.topReferrer?.views ?? 0)} visits from this source`,
+      title: "Returning rate",
+      value: Number.isFinite(loyalty.returningRate)
+        ? `${(loyalty.returningRate * 100).toFixed(1)}%`
+        : "—",
+      helper: `${formatNumber(loyalty.returningVisitors)} returning · ${formatNumber(loyalty.newVisitors)} new · ${formatNumber(loyalty.unknownVisitors)} unknown`,
     },
   ]
 
   const topCountries = summary.countryBreakdown.slice(0, 5).map((entry) => ({
     key: entry.country || "unknown",
     label: entry.country || "Unknown",
+    views: entry.views,
+  }))
+
+  const topRegions = advanced.regionBreakdown.slice(0, 5).map((entry, index) => ({
+    key: `${entry.region}-${index}`,
+    label: entry.country ? `${entry.region} · ${entry.country}` : entry.region,
     views: entry.views,
   }))
 
@@ -197,6 +427,24 @@ export default async function TrafficAnalyticsPage({
     label: entry.browser || "Unknown",
     views: entry.views,
   }))
+
+  const trafficChannels = advanced.referrerCategoryBreakdown
+    .slice(0, 5)
+    .map((entry) => ({
+      key: entry.category,
+      label: entry.label,
+      views: entry.views,
+    }))
+
+  const topOperatingSystems = advanced.osBreakdown.slice(0, 5).map((entry, index) => ({
+    key: entry.os || `unknown-${index}`,
+    label: entry.os || "Unknown",
+    views: entry.views,
+  }))
+
+  const anomalies = advanced.anomalies
+  const topProducts = advanced.topProducts ?? []
+  const referrerMatrix = advanced.referrerProductMatrix ?? []
 
   return (
     <div className="space-y-10">
@@ -235,6 +483,18 @@ export default async function TrafficAnalyticsPage({
       <section className="space-y-4">
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            Engagement insights
+          </h2>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <VisitorLoyaltyCard data={loyalty} />
+          <AnomalyCard anomalies={anomalies} />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
             Velocity & devices
           </h2>
         </div>
@@ -244,10 +504,22 @@ export default async function TrafficAnalyticsPage({
       <section className="space-y-4">
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            Network hotspots
+          </h2>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <ProductLeaderboardCard products={topProducts} />
+          <ReferrerMatrixCard rows={referrerMatrix} />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
             Audience sources
           </h2>
         </div>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
           <BreakdownCard
             title="Top countries"
             description="Where recent traffic originated."
@@ -255,16 +527,36 @@ export default async function TrafficAnalyticsPage({
             emptyLabel="No country data for this window."
           />
           <BreakdownCard
+            title="Top regions"
+            description="Regional clusters gaining traction."
+            items={topRegions}
+            emptyLabel="No region-level data for this window."
+          />
+          <BreakdownCard
+            title="Traffic channel mix"
+            description="Share of sessions by referrer category."
+            items={trafficChannels}
+            emptyLabel="Referrer categories will appear once data arrives."
+          />
+          <BreakdownCard
             title="Top referrers"
             description="External sources delivering traffic."
             items={topReferrers}
             emptyLabel="No referrer data for this window."
           />
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
           <BreakdownCard
             title="Top browsers"
             description="Dominant user agents observed."
             items={topBrowsers}
             emptyLabel="No browser data for this window."
+          />
+          <BreakdownCard
+            title="Top operating systems"
+            description="Device environments seen across the network."
+            items={topOperatingSystems}
+            emptyLabel="No OS data for this window."
           />
         </div>
       </section>

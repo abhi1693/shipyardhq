@@ -34,32 +34,54 @@ describe("getProductTrafficSummary", () => {
           createdAt: new Date("2025-01-10T08:00:00Z"),
           device: "desktop",
           browser: "Chrome",
+          os: "macOS",
           country: "United States",
+          region: "California",
+          city: "San Francisco",
           referrer: "https://example.com/path",
           ipHash: "hash-1",
+          path: "/products/example",
+          productId: "prod-1",
         },
         {
           createdAt: new Date("2025-01-09T14:00:00Z"),
           device: "mobile",
           browser: "Safari",
+          os: "iOS",
           country: null,
+          region: null,
+          city: null,
           referrer: null,
           ipHash: null,
+          path: "/products/example",
+          productId: "prod-1",
         },
         {
           createdAt: new Date("2025-01-09T10:00:00Z"),
           device: "mobile",
           browser: "Safari",
+          os: "iOS",
           country: null,
+          region: null,
+          city: null,
           referrer: null,
           ipHash: "hash-2",
+          path: "/products/example",
+          productId: "prod-1",
         },
       ])
       .mockResolvedValueOnce([
         {
           createdAt: new Date("2024-12-20T09:00:00Z"),
           ipHash: "hash-prev",
+          path: "/products/example",
+          country: "United States",
+          referrer: "https://example.com/path",
+          productId: "prod-1",
         },
+      ])
+      .mockResolvedValueOnce([
+        { ipHash: "hash-1" },
       ])
 
     const summary = await getProductTrafficSummary("prod-1", { rangeDays: 3 })
@@ -89,6 +111,14 @@ describe("getProductTrafficSummary", () => {
     expect(summary.viewsOverTime[2]).toMatchObject({
       date: "2025-01-10",
       views: 1,
+      uniqueVisitors: 1,
     })
+    expect(summary.advanced.pathBreakdown[0]).toMatchObject({
+      path: "/products/example",
+      views: 3,
+    })
+    expect(summary.advanced.newVsReturning.returningVisitors).toEqual(1)
+    expect(summary.advanced.newVsReturning.newVisitors).toEqual(1)
+    expect(summary.advanced.osBreakdown[0]).toMatchObject({ os: "iOS", views: 2 })
   })
 })

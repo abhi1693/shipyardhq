@@ -38,6 +38,11 @@ const DEVICE_COLORS: Record<string, string> = {
 
 const COUNTRY_COLORS = ["#2563eb", "#f97316", "#16a34a", "#6366f1", "#ef4444"]
 
+const TREND_COLORS = {
+  views: "#2563eb",
+  uniqueVisitors: "#0ea5e9",
+}
+
 function formatPercent(value: number) {
   return `${Math.round(value)}%`
 }
@@ -67,6 +72,10 @@ export function ProductAnalyticsCharts({
 
   const topCountries = summary.countryBreakdown.slice(0, 5)
   const topBrowsers = summary.browserBreakdown.slice(0, 8)
+
+  const hasUniqueSeries = summary.viewsOverTime.some(
+    (point) => point.uniqueVisitors > 0,
+  )
 
   return (
     <div className="grid gap-6 lg:grid-cols-12">
@@ -98,7 +107,11 @@ export function ProductAnalyticsCharts({
         <CardContent className="px-4 pb-5 pt-4">
           <ChartContainer
             config={{
-              views: { label: "Views", color: "#2563eb" },
+              views: { label: "Views", color: TREND_COLORS.views },
+              uniqueVisitors: {
+                label: "Unique visitors",
+                color: TREND_COLORS.uniqueVisitors,
+              },
             }}
             className="min-h-[280px]"
           >
@@ -130,6 +143,17 @@ export function ProductAnalyticsCharts({
                   dot={false}
                   activeDot={{ r: 4 }}
                 />
+                {hasUniqueSeries ? (
+                  <Line
+                    type="monotone"
+                    dataKey="uniqueVisitors"
+                    stroke="var(--chart-uniqueVisitors)"
+                    strokeWidth={2}
+                    strokeDasharray="4 4"
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                  />
+                ) : null}
               </LineChart>
             </ResponsiveContainer>
           </ChartContainer>
