@@ -8,7 +8,11 @@ type BrandLogoProps = Omit<ImageProps, "src" | "alt"> & {
   alt?: string
 }
 
-export function BrandLogo({ className, alt = "ShipYardHQ", ...props }: BrandLogoProps) {
+export function BrandLogo({
+  className,
+  alt = "ShipYardHQ",
+  ...props
+}: BrandLogoProps) {
   const shared = {
     ...props,
     width: props.width ?? 32,
@@ -28,11 +32,7 @@ export function BrandLogo({ className, alt = "ShipYardHQ", ...props }: BrandLogo
         {...shared}
         src="/brand-white.png"
         alt={alt}
-        className={clsx(
-          "object-contain",
-          className,
-          "hidden dark:block",
-        )}
+        className={clsx("object-contain", className, "hidden dark:block")}
       />
     </>
   )

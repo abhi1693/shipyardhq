@@ -91,10 +91,7 @@ export interface ProductTrafficNewReturningBreakdown {
   returningRate: number
 }
 
-export type ProductTrafficAnomalyType =
-  | "ip-spike"
-  | "path-surge"
-  | "geo-surge"
+export type ProductTrafficAnomalyType = "ip-spike" | "path-surge" | "geo-surge"
 
 export interface ProductTrafficAnomaly {
   type: ProductTrafficAnomalyType

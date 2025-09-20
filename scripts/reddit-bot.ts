@@ -941,12 +941,10 @@ async function hasExistingBotComment(
         skipReplies: true,
       })
     } else {
-      const expanded = (await (
-        redditSubmission.expandReplies({
-          limit: 120,
-          depth: 1,
-        }) as unknown as Promise<any>
-      ))
+      const expanded = await (redditSubmission.expandReplies({
+        limit: 120,
+        depth: 1,
+      }) as unknown as Promise<any>)
       const expandedComments: any = expanded?.comments
       rawComments = Array.isArray(expandedComments) ? expandedComments : null
     }

@@ -9,7 +9,10 @@ import RangeSelector from "@/components/molecules/RangeSelector"
 import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
 import { getGlobalTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 import { cn } from "@/lib/utils"
-import type { ProductTrafficAnomaly, ProductTrafficSummary } from "@/types/analytics"
+import type {
+  ProductTrafficAnomaly,
+  ProductTrafficSummary,
+} from "@/types/analytics"
 
 export const revalidate = 60
 
@@ -161,7 +164,9 @@ function VisitorLoyaltyCard({
   return (
     <Card className="border-slate-200/70 bg-white/90 shadow-sm">
       <CardHeader>
-        <CardTitle className="text-base text-slate-900">Visitor loyalty</CardTitle>
+        <CardTitle className="text-base text-slate-900">
+          Visitor loyalty
+        </CardTitle>
         <CardDescription>
           Returning share calculated from recognised visitors.
         </CardDescription>
@@ -239,7 +244,8 @@ function ProductLeaderboardCard({
                   {product.productName ?? product.productId}
                 </span>
                 <span className="shrink-0 text-xs text-muted-foreground">
-                  {formatNumber(product.views)} · {(product.share * 100).toFixed(1)}%
+                  {formatNumber(product.views)} ·{" "}
+                  {(product.share * 100).toFixed(1)}%
                 </span>
               </div>
             </li>
@@ -278,7 +284,9 @@ function ReferrerMatrixCard({
   return (
     <Card className="border-slate-200/70 bg-white/90 shadow-sm">
       <CardHeader>
-        <CardTitle className="text-base text-slate-900">Referrer matrix</CardTitle>
+        <CardTitle className="text-base text-slate-900">
+          Referrer matrix
+        </CardTitle>
         <CardDescription>
           Top referrers paired with the products they drive.
         </CardDescription>
@@ -287,9 +295,7 @@ function ReferrerMatrixCard({
         {rows.slice(0, 5).map((row) => (
           <div key={row.referrer} className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-slate-900">
-                {row.referrer}
-              </span>
+              <span className="font-medium text-slate-900">{row.referrer}</span>
               <span className="text-xs text-muted-foreground">
                 {formatNumber(row.views)} visits
               </span>
@@ -316,7 +322,9 @@ function AnomalyCard({ anomalies }: { anomalies: ProductTrafficAnomaly[] }) {
     return (
       <Card className="border-slate-200/70 bg-white/90 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base text-slate-900">Anomaly watch</CardTitle>
+          <CardTitle className="text-base text-slate-900">
+            Anomaly watch
+          </CardTitle>
           <CardDescription>
             Network-wide spikes and outliers surface here.
           </CardDescription>
@@ -339,7 +347,9 @@ function AnomalyCard({ anomalies }: { anomalies: ProductTrafficAnomaly[] }) {
   return (
     <Card className="border-slate-200/70 bg-white/90 shadow-sm">
       <CardHeader>
-        <CardTitle className="text-base text-slate-900">Anomaly watch</CardTitle>
+        <CardTitle className="text-base text-slate-900">
+          Anomaly watch
+        </CardTitle>
         <CardDescription>
           Focus your reviews on unusual traffic bursts.
         </CardDescription>
@@ -413,11 +423,15 @@ export default async function TrafficAnalyticsPage({
     views: entry.views,
   }))
 
-  const topRegions = advanced.regionBreakdown.slice(0, 5).map((entry, index) => ({
-    key: `${entry.region}-${index}`,
-    label: entry.country ? `${entry.region} · ${entry.country}` : entry.region,
-    views: entry.views,
-  }))
+  const topRegions = advanced.regionBreakdown
+    .slice(0, 5)
+    .map((entry, index) => ({
+      key: `${entry.region}-${index}`,
+      label: entry.country
+        ? `${entry.region} · ${entry.country}`
+        : entry.region,
+      views: entry.views,
+    }))
 
   const topReferrers = summary.referrerBreakdown.slice(0, 5).map((entry) => ({
     key: entry.referrer || "direct",
@@ -439,11 +453,13 @@ export default async function TrafficAnalyticsPage({
       views: entry.views,
     }))
 
-  const topOperatingSystems = advanced.osBreakdown.slice(0, 5).map((entry, index) => ({
-    key: entry.os || `unknown-${index}`,
-    label: entry.os || "Unknown",
-    views: entry.views,
-  }))
+  const topOperatingSystems = advanced.osBreakdown
+    .slice(0, 5)
+    .map((entry, index) => ({
+      key: entry.os || `unknown-${index}`,
+      label: entry.os || "Unknown",
+      views: entry.views,
+    }))
 
   const anomalies = advanced.anomalies
   const topProducts = advanced.topProducts ?? []

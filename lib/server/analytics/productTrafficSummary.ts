@@ -138,9 +138,10 @@ function extractHost(referrer?: string | null) {
   }
 }
 
-function classifyReferrer(
-  referrer?: string | null,
-): { category: ProductTrafficReferrerCategory; label: string } {
+function classifyReferrer(referrer?: string | null): {
+  category: ProductTrafficReferrerCategory
+  label: string
+} {
   const host = extractHost(referrer)
   if (!host) {
     return { category: "direct", label: "Direct / None" }
@@ -219,7 +220,10 @@ async function buildTrafficSummary(
   ])
 
   const totalsByDay = new Map<string, number>()
-  const uniqueByDay = new Map<string, { hashed: Set<string>; anonymous: number }>()
+  const uniqueByDay = new Map<
+    string,
+    { hashed: Set<string>; anonymous: number }
+  >()
   const deviceCounts = new Map<DeviceCategory, number>()
   const browserCounts = new Map<string, number>()
   const osCounts = new Map<string, number>()
@@ -227,11 +231,17 @@ async function buildTrafficSummary(
   const regionCounts = new Map<string, number>()
   const cityCounts = new Map<string, number>()
   const referrerCounts = new Map<string, number>()
-  const referrerCategoryCounts = new Map<ProductTrafficReferrerCategory, number>()
+  const referrerCategoryCounts = new Map<
+    ProductTrafficReferrerCategory,
+    number
+  >()
   const pathCounts = new Map<string, number>()
   const productCounts = new Map<string, number>()
   const referrerProductCounts = new Map<string, Map<string, number>>()
-  const ipCountryCounts = new Map<string, { ipHash: string; country: string | null; count: number }>()
+  const ipCountryCounts = new Map<
+    string,
+    { ipHash: string; country: string | null; count: number }
+  >()
   const uniqueHashes = new Set<string>()
 
   const previousPathCounts = new Map<string, number>()
@@ -249,8 +259,10 @@ async function buildTrafficSummary(
     const dayKey = formatISO(dayStart, { representation: "date" })
     totalsByDay.set(dayKey, (totalsByDay.get(dayKey) ?? 0) + 1)
 
-    const uniqueEntry =
-      uniqueByDay.get(dayKey) ?? { hashed: new Set<string>(), anonymous: 0 }
+    const uniqueEntry = uniqueByDay.get(dayKey) ?? {
+      hashed: new Set<string>(),
+      anonymous: 0,
+    }
     if (event.ipHash) {
       uniqueEntry.hashed.add(event.ipHash)
     } else {
@@ -419,7 +431,10 @@ async function buildTrafficSummary(
     .map(([key, count]) => {
       const [rawCountry, rawRegion] = key.split("::")
       const country = rawCountry.length ? rawCountry : null
-      const region = labelForRegion(country, rawRegion.length ? rawRegion : null)
+      const region = labelForRegion(
+        country,
+        rawRegion.length ? rawRegion : null,
+      )
       return { country, region, views: count }
     })
     .sort((a, b) => b.views - a.views)
@@ -430,15 +445,17 @@ async function buildTrafficSummary(
       const [rawCountry, rawRegion, rawCity] = key.split("::")
       const country = rawCountry.length ? rawCountry : null
       const region = rawRegion.length ? rawRegion : null
-      const city = labelForCity(country, region, rawCity.length ? rawCity : null)
+      const city = labelForCity(
+        country,
+        region,
+        rawCity.length ? rawCity : null,
+      )
       return { country, region, city, views: count }
     })
     .sort((a, b) => b.views - a.views)
     .slice(0, MAX_CITY_ITEMS)
 
-  const referrerCategoryBreakdown = Array.from(
-    referrerCategoryCounts.entries(),
-  )
+  const referrerCategoryBreakdown = Array.from(referrerCategoryCounts.entries())
     .map(([category, count]) => {
       const labelMap: Record<ProductTrafficReferrerCategory, string> = {
         direct: "Direct",
@@ -534,7 +551,8 @@ async function buildTrafficSummary(
   }
 
   let topProducts: ProductTrafficAdvancedInsights["topProducts"] = undefined
-  let referrerProductMatrix: ProductTrafficAdvancedInsights["referrerProductMatrix"] = undefined
+  let referrerProductMatrix: ProductTrafficAdvancedInsights["referrerProductMatrix"] =
+    undefined
 
   const productLookupIds = new Set<string>()
 
@@ -565,7 +583,10 @@ async function buildTrafficSummary(
         const productEntries = productMap
           ? Array.from(productMap.entries()).sort((a, b) => b[1] - a[1])
           : []
-        const topProductEntries = productEntries.slice(0, MAX_PRODUCTS_PER_REFERRER)
+        const topProductEntries = productEntries.slice(
+          0,
+          MAX_PRODUCTS_PER_REFERRER,
+        )
         for (const [productId] of topProductEntries) {
           productLookupIds.add(productId)
         }
@@ -594,7 +615,9 @@ async function buildTrafficSummary(
       where: { id: { in: Array.from(productLookupIds) } },
       select: { id: true, name: true },
     })
-    productNameMap = new Map(products.map((product) => [product.id, product.name]))
+    productNameMap = new Map(
+      products.map((product) => [product.id, product.name]),
+    )
   }
 
   if (topProducts) {

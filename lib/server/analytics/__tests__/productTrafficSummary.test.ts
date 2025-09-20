@@ -80,9 +80,7 @@ describe("getProductTrafficSummary", () => {
           productId: "prod-1",
         },
       ])
-      .mockResolvedValueOnce([
-        { ipHash: "hash-1" },
-      ])
+      .mockResolvedValueOnce([{ ipHash: "hash-1" }])
 
     const summary = await getProductTrafficSummary("prod-1", { rangeDays: 3 })
 
@@ -119,6 +117,9 @@ describe("getProductTrafficSummary", () => {
     })
     expect(summary.advanced.newVsReturning.returningVisitors).toEqual(1)
     expect(summary.advanced.newVsReturning.newVisitors).toEqual(1)
-    expect(summary.advanced.osBreakdown[0]).toMatchObject({ os: "iOS", views: 2 })
+    expect(summary.advanced.osBreakdown[0]).toMatchObject({
+      os: "iOS",
+      views: 2,
+    })
   })
 })

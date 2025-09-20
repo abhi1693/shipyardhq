@@ -89,11 +89,13 @@ function NewsletterIntentBreakdown({
             <div className="flex items-baseline justify-between gap-3 text-sm">
               <span className="font-medium text-foreground">{item.label}</span>
               <span className="text-xs text-muted-foreground">
-                {formatNumber(item.total)} {item.total === 1 ? "member" : "members"}
+                {formatNumber(item.total)}{" "}
+                {item.total === 1 ? "member" : "members"}
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              {formatNumber(item.subscribed)} subscribed • {formatPercent(item.subscribedPercentage)} opt-in
+              {formatNumber(item.subscribed)} subscribed •{" "}
+              {formatPercent(item.subscribedPercentage)} opt-in
             </p>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
               <div

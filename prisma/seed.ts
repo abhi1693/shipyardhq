@@ -557,7 +557,9 @@ async function main() {
   const products = await prisma.product.findMany({
     select: { id: true, slug: true },
   })
-  const productIdBySlug = new Map(products.map((product) => [product.slug, product.id]))
+  const productIdBySlug = new Map(
+    products.map((product) => [product.slug, product.id]),
+  )
 
   const baseDate = new Date()
   baseDate.setUTCHours(12, 0, 0, 0)
@@ -570,7 +572,9 @@ async function main() {
 
   const trafficSeeds: {
     slug: string
-    events: Array<Omit<Prisma.ProductTrafficEventCreateManyInput, "id" | "productId">>
+    events: Array<
+      Omit<Prisma.ProductTrafficEventCreateManyInput, "id" | "productId">
+    >
   }[] = [
     {
       slug: "shitposts",
@@ -776,7 +780,9 @@ async function main() {
   for (const traffic of trafficSeeds) {
     const productId = productIdBySlug.get(traffic.slug)
     if (!productId) {
-      console.warn(`Missing product for slug '${traffic.slug}', skipping traffic seeding`)
+      console.warn(
+        `Missing product for slug '${traffic.slug}', skipping traffic seeding`,
+      )
       continue
     }
     await prisma.productTrafficEvent.deleteMany({ where: { productId } })

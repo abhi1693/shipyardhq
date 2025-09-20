@@ -54,9 +54,7 @@ function rangeToDays(range?: string | null) {
 
 function DeltaBadge({ value }: { value: number }) {
   if (!Number.isFinite(value)) {
-    return (
-      <span className={cn(deltaBaseClass, deltaPositiveClass)}>New</span>
-    )
+    return <span className={cn(deltaBaseClass, deltaPositiveClass)}>New</span>
   }
   const safe = value
   if (safe === 0) {
@@ -236,13 +234,16 @@ function VisitorLoyaltyCard({
   const totalAll = totalKnown + data.unknownVisitors
   const returningPercent = data.returningRate * 100
   const knownShare = totalAll > 0 ? (totalKnown / totalAll) * 100 : 0
-  const returningShare = totalKnown > 0 ? (data.returningVisitors / totalKnown) * 100 : 0
+  const returningShare =
+    totalKnown > 0 ? (data.returningVisitors / totalKnown) * 100 : 0
   const newShare = totalKnown > 0 ? (data.newVisitors / totalKnown) * 100 : 0
 
   return (
     <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">
       <CardHeader className="px-4 pb-0">
-        <CardTitle className="text-base text-slate-900">Visitor loyalty</CardTitle>
+        <CardTitle className="text-base text-slate-900">
+          Visitor loyalty
+        </CardTitle>
         <CardDescription className="text-xs text-muted-foreground">
           Returning share among visitors with identifiable sessions
         </CardDescription>
@@ -260,9 +261,7 @@ function VisitorLoyaltyCard({
             </div>
           </div>
           <div className="text-right text-xs text-muted-foreground">
-            <div>
-              {formatter.format(data.returningVisitors)} returning
-            </div>
+            <div>{formatter.format(data.returningVisitors)} returning</div>
             <div>{formatter.format(data.newVisitors)} new</div>
             <div>{formatter.format(data.unknownVisitors)} unknown</div>
           </div>
@@ -284,7 +283,8 @@ function VisitorLoyaltyCard({
             <div className="flex items-center justify-between">
               <span>Returning vs. new (known visitors)</span>
               <span>
-                {returningShare.toFixed(0)}% returning · {newShare.toFixed(0)}% new
+                {returningShare.toFixed(0)}% returning · {newShare.toFixed(0)}%
+                new
               </span>
             </div>
             <div className="flex h-2 w-full overflow-hidden rounded-full">
@@ -301,7 +301,8 @@ function VisitorLoyaltyCard({
           <div className="flex items-center justify-between text-xs">
             <span className="text-slate-500">Sample size</span>
             <span className="font-medium text-slate-700">
-              {formatter.format(totalKnown)} known · {formatter.format(totalAll)} total
+              {formatter.format(totalKnown)} known ·{" "}
+              {formatter.format(totalAll)} total
             </span>
           </div>
         </div>
@@ -361,7 +362,8 @@ export default async function ProductAnalyticsPage({
     "analytics.advanced",
   )
   const hasBasicAnalytics =
-    hasAdvancedAnalytics || hasPlanFeature(product.plan ?? null, "analytics.basic")
+    hasAdvancedAnalytics ||
+    hasPlanFeature(product.plan ?? null, "analytics.basic")
 
   if (!hasBasicAnalytics) {
     redirect(`/member/products/${product.slug}`)
@@ -376,9 +378,7 @@ export default async function ProductAnalyticsPage({
     .map((item) => ({ label: item.country || "Unknown", views: item.views }))
   const regionItems = advanced.regionBreakdown
     .map((item) => ({
-      label: item.country
-        ? `${item.region} · ${item.country}`
-        : item.region,
+      label: item.country ? `${item.region} · ${item.country}` : item.region,
       views: item.views,
     }))
     .slice(0, 6)
@@ -531,7 +531,6 @@ export default async function ProductAnalyticsPage({
                   />
                 </div>
               </section>
-
             </>
           ) : (
             <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">
@@ -540,15 +539,17 @@ export default async function ProductAnalyticsPage({
                   Unlock deeper analytics
                 </CardTitle>
                 <CardDescription className="text-sm text-muted-foreground">
-                  Upgrade to advanced analytics for funnel charts, visitor device
-                  trends, referrers, and country insights.
+                  Upgrade to advanced analytics for funnel charts, visitor
+                  device trends, referrers, and country insights.
                 </CardDescription>
               </CardHeader>
               <CardContent className="px-5 pb-6">
                 <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                   <li>See granular device, browser, and country breakdowns.</li>
                   <li>Track referral sources and day-over-day momentum.</li>
-                  <li>Spot trends with interactive charts and historical deltas.</li>
+                  <li>
+                    Spot trends with interactive charts and historical deltas.
+                  </li>
                 </ul>
                 <div className="mt-4">
                   <Button asChild>
