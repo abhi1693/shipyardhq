@@ -49,6 +49,7 @@ type BotStateEntry = {
   keywords?: string[]
   topicSignature?: string | null
   skipReason?: string
+  skipSummary?: SkipSummary
 }
 
 type BotState = Record<string, BotStateEntry>
@@ -63,6 +64,7 @@ type RecordDecisionOptions = {
   reason?: string
   source?: "auto" | "manual"
   skipKnowledge?: boolean
+  skipSummary?: SkipSummary | null
 }
 
 type Config = {
@@ -87,6 +89,45 @@ type Config = {
   requestDelayMs: number
   maxDraftTokens: number
   temperature: number
+  skipLogFile: string
+}
+
+type SkipSummaryMetrics = {
+  wordCount?: number
+  linkCount?: number
+  upvotes?: number
+  launchStage?: string
+  audience?: string
+  sentiment?: string
+}
+
+type SkipSummary = {
+  summary: string
+  intent: string
+  metrics?: SkipSummaryMetrics
+  raw?: unknown
+}
+
+type SkipLogEntry = {
+  id: string
+  permalink: string
+  subreddit: string
+  title: string
+  skippedAt: string
+  source: "auto" | "manual"
+  reason?: string
+  keywords?: string[]
+  topicSignature?: string | null
+  summary?: string
+  intent?: string
+  metrics?: SkipSummaryMetrics
+}
+
+type SkipLogOptions = {
+  descriptor: SubmissionDescriptor
+  reason?: string
+  summary?: SkipSummary | null
+  source: "auto" | "manual"
 }
 
 const fileConfig: LoadedFileConfig = loadBotFileConfig(
@@ -153,6 +194,9 @@ const config: Config = {
   requestDelayMs: parseInt(process.env.REDDIT_REQUEST_DELAY_MS || "1100", 10),
   maxDraftTokens: parseInt(process.env.OPENAI_MAX_OUTPUT_TOKENS || "220", 10),
   temperature: Number(process.env.OPENAI_TEMPERATURE || "0.7"),
+  skipLogFile:
+    process.env.REDDIT_SKIP_LOG_FILE ||
+    path.join(process.cwd(), "tmp", "reddit-bot-skips.json"),
 }
 
 const STOP_WORDS = new Set([
@@ -265,6 +309,7 @@ const STOP_WORDS = new Set([
 
 const skipKeywordCounts = new Map<string, number>()
 const skipSignatureCounts = new Map<string, number>()
+const skipLog: SkipLogEntry[] = []
 
 const reddit = new Snoowrap({
   userAgent: config.userAgent,
@@ -315,6 +360,12 @@ async function main() {
   if (skipSummary) {
     console.log(skipSummary)
   }
+  await loadSkipLog(config.skipLogFile)
+  if (skipLog.length) {
+    console.log(
+      `Skip log entries available for review: ${skipLog.length} (use npm run reddit:skips).`,
+    )
+  }
 
   while (true) {
     const subredditOrder = shuffle(config.subreddits)
@@ -352,7 +403,9 @@ async function processSubreddit(subredditName: string) {
     if (alreadyReplied) {
       const permalink =
         buildPermalink(submission.permalink) ||
-        (submission.permalink ? `https://reddit.com${submission.permalink}` : "")
+        (submission.permalink
+          ? `https://reddit.com${submission.permalink}`
+          : "")
       console.log(
         `\n⏭️ Auto-skipped ${permalink} (existing comment by u/${config.redditUsername})`,
       )
@@ -362,23 +415,21 @@ async function processSubreddit(subredditName: string) {
         source: "auto",
         skipKnowledge: false,
       })
-      await saveState(config.stateFile, state)
-      continue
-    }
-
-    const autoSkip = shouldAutoSkipSubmission(descriptor)
-    if (autoSkip) {
-      const permalink =
-        buildPermalink(submission.permalink) ||
-        `https://reddit.com${submission.permalink}`
-      console.log(`\n⏭️ Auto-skipped ${permalink} (${autoSkip.reason})`)
-      recordProcessedSubmission(submission, "skipped", {
+      await appendSkipLog(submission, {
         descriptor,
-        reason: autoSkip.reason,
+        reason: `existing comment by u/${config.redditUsername}`,
+        summary: null,
         source: "auto",
       })
       await saveState(config.stateFile, state)
       continue
+    }
+
+    const similarityNotice = describeSkipSimilarity(descriptor)
+    if (similarityNotice) {
+      console.log(
+        `\nℹ️ Related to previously skipped topics: ${similarityNotice}`,
+      )
     }
 
     const previousDrafts: string[] = []
@@ -393,6 +444,7 @@ async function processSubreddit(subredditName: string) {
 
     let decision: Decision | null = null
     let skipReason: string | undefined
+    let manualSkipSummary: SkipSummary | null = null
 
     for (;;) {
       const choice = await requestApproval(submission, draft)
@@ -426,6 +478,7 @@ async function processSubreddit(subredditName: string) {
 ⏭️ Skipped https://reddit.com${submission.permalink}`)
         decision = "skipped"
         skipReason = "manual skip"
+        manualSkipSummary = await summarizeSkippedPost(submission)
         break
       }
 
@@ -453,11 +506,29 @@ async function processSubreddit(subredditName: string) {
       continue
     }
 
+    if (decision === "skipped" && !manualSkipSummary) {
+      manualSkipSummary = await summarizeSkippedPost(submission)
+    }
+
+    if (decision === "skipped" && manualSkipSummary) {
+      printSkipSummary(submission, manualSkipSummary)
+    }
+
     recordProcessedSubmission(submission, decision, {
       descriptor,
       reason: skipReason,
       source: "manual",
+      skipSummary: manualSkipSummary,
     })
+
+    if (decision === "skipped") {
+      await appendSkipLog(submission, {
+        descriptor,
+        reason: skipReason,
+        summary: manualSkipSummary,
+        source: "manual",
+      })
+    }
     await saveState(config.stateFile, state)
   }
 }
@@ -681,9 +752,9 @@ function describeSubmission(
   }
 }
 
-function shouldAutoSkipSubmission(
+function describeSkipSimilarity(
   descriptor: SubmissionDescriptor,
-): { reason: string } | null {
+): string | null {
   if (!descriptor.keywords.length && !descriptor.topicSignature) {
     return null
   }
@@ -692,50 +763,40 @@ function shouldAutoSkipSubmission(
     .map((keyword) => ({ keyword, count: skipKeywordCounts.get(keyword) || 0 }))
     .filter(({ count }) => count > 0)
 
+  const highlightKeywords = matchedKeywords
+    .filter(({ count }) => count >= 1)
+    .slice(0, 4)
+
   const strongMatches = matchedKeywords.filter(({ count }) => count >= 2)
 
   const signatureMatches = descriptor.topicSignature
     ? skipSignatureCounts.get(descriptor.topicSignature) || 0
     : 0
 
+  const reasons: string[] = []
+
   if (signatureMatches >= 2) {
-    return {
-      reason: `similar to ${signatureMatches} previously skipped posts`,
-    }
+    reasons.push(`topic signature seen in ${signatureMatches} prior skips`)
+  } else if (signatureMatches === 1) {
+    reasons.push("topic signature previously skipped once")
   }
 
-  if (signatureMatches >= 1 && strongMatches.length >= 1) {
+  if (strongMatches.length >= 1) {
     const summary = strongMatches
       .slice(0, 3)
       .map(({ keyword, count }) => `${keyword} (${count})`)
       .join(", ")
-    return {
-      reason: `keywords previously skipped: ${summary}`,
-    }
+    reasons.push(`keywords skipped often: ${summary}`)
+  } else if (highlightKeywords.length >= 3) {
+    const summary = highlightKeywords.map(({ keyword }) => keyword).join(", ")
+    reasons.push(`shares keywords with skips: ${summary}`)
   }
 
-  const mediumMatches = matchedKeywords.filter(({ count }) => count >= 1)
-  if (mediumMatches.length >= 4) {
-    const summary = mediumMatches
-      .slice(0, 4)
-      .map(({ keyword }) => keyword)
-      .join(", ")
-    return {
-      reason: `contains multiple keywords we skip: ${summary}`,
-    }
+  if (!reasons.length) {
+    return null
   }
 
-  if (strongMatches.length >= 2) {
-    const summary = strongMatches
-      .slice(0, 3)
-      .map(({ keyword, count }) => `${keyword} (${count})`)
-      .join(", ")
-    return {
-      reason: `repeatedly skipped keywords: ${summary}`,
-    }
-  }
-
-  return null
+  return reasons.join("; ")
 }
 
 function recordProcessedSubmission(
@@ -748,6 +809,7 @@ function recordProcessedSubmission(
     reason,
     source,
     skipKnowledge = true,
+    skipSummary = null,
   } = options
 
   const permalink =
@@ -777,6 +839,10 @@ function recordProcessedSubmission(
     entry.skipReason = `${source === "auto" ? "auto" : "manual"}: ${reason}`
   }
 
+  if (decision === "skipped" && skipSummary) {
+    entry.skipSummary = skipSummary
+  }
+
   state[submission.id] = entry
 
   if (decision === "skipped" && skipKnowledge) {
@@ -792,10 +858,7 @@ function registerSkipKnowledge(entry: BotStateEntry) {
   let keywords = Array.isArray(entry.keywords) ? entry.keywords : []
 
   if (!keywords.length) {
-    keywords = extractKeywordsFromParts([
-      entry.title,
-      entry.flair || undefined,
-    ])
+    keywords = extractKeywordsFromParts([entry.title, entry.flair || undefined])
   }
 
   const uniqueKeywords = new Set<string>(keywords)
@@ -883,9 +946,7 @@ async function hasExistingBotComment(
         depth: 1,
       })
       const expandedComments: any = expanded?.comments
-      rawComments = Array.isArray(expandedComments)
-        ? expandedComments
-        : null
+      rawComments = Array.isArray(expandedComments) ? expandedComments : null
     }
 
     if (!rawComments || !Array.isArray(rawComments)) {
@@ -922,6 +983,243 @@ async function hasExistingBotComment(
   return false
 }
 
+async function summarizeSkippedPost(
+  submission: MinimalSubmission,
+): Promise<SkipSummary | null> {
+  const title = sanitize(submission.title)
+  const body = sanitize(submission.selftext || "")
+  const flair = sanitize(submission.link_flair_text)
+  const subreddit = submission.subreddit.display_name
+
+  const wordCountEstimate = countWords(body || title)
+  const linkCount = countLinks(body)
+
+  const promptContext = [
+    `Title: ${title || "(no title)"}`,
+    flair ? `Flair: ${flair}` : null,
+    body ? `Body:\n${truncate(body, 2000)}` : "Body: (empty)",
+    `Observed upvotes: ${submission.ups}`,
+    `Approximate word count: ${wordCountEstimate}`,
+    `Detected links: ${linkCount}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n")
+
+  const systemText =
+    'You are an analyst helping a founder understand why they skipped replying to a Reddit launch post. Always respond with STRICT JSON (no markdown) shaped as {"summary": string, "intent": string, "metrics": {"wordCount": number|null, "linkCount": number|null, "upvotes": number|null, "launchStage": string|null, "audience": string|null, "sentiment": string|null}}. Summary (<=60 words) should capture the gist of the product/problem. Intent (<=30 words) should describe what the poster wants (e.g., feedback, awareness, fundraising). Metrics.launchStage should infer how mature the product is (idea, alpha, beta, launched, scaling) if possible. Metrics.audience should describe who they target. Metrics.sentiment should capture tone (optimistic, frustrated, urgent, bragging, etc.). When unsure, use null.'
+
+  const payload = {
+    model: config.openAIModel,
+    store: false,
+    parallel_tool_calls: false,
+    input: [
+      {
+        role: "system",
+        content: [
+          {
+            type: "input_text",
+            text: systemText,
+          },
+        ],
+      },
+      {
+        role: "user",
+        content: [
+          {
+            type: "input_text",
+            text: `Subreddit: r/${subreddit}\n${promptContext}`,
+          },
+        ],
+      },
+    ],
+    max_output_tokens: clamp(Math.max(config.maxDraftTokens, 280), 120, 640),
+    temperature: 0.2,
+  }
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.openAIApiKey}`,
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("OpenAI skip summary error:", errorText)
+      return null
+    }
+
+    const data = await response.json()
+
+    const outputSegments = Array.isArray(data.output)
+      ? data.output.flatMap((segment: any) =>
+          Array.isArray(segment?.content)
+            ? segment.content.filter(
+                (chunk: any) => chunk?.type === "output_text",
+              )
+            : [],
+        )
+      : []
+
+    const jsonText = outputSegments
+      .map((chunk: any) => chunk?.text)
+      .filter(Boolean)
+      .join("\n")
+      .trim()
+
+    if (!jsonText) {
+      console.warn("OpenAI skip summary returned empty payload.")
+      return null
+    }
+
+    const parsed = parseJsonObject(jsonText)
+    if (!parsed || typeof parsed !== "object") {
+      console.warn("Unable to parse skip summary JSON.", jsonText)
+      return null
+    }
+
+    const summaryText = sanitize((parsed as any).summary)
+    const intentText = sanitize((parsed as any).intent)
+    const metricsRaw = (parsed as any).metrics
+
+    if (!summaryText && !intentText) {
+      return null
+    }
+
+    const metrics: SkipSummaryMetrics | undefined = metricsRaw
+      ? {
+          wordCount: normalizeNumber(metricsRaw.wordCount, wordCountEstimate),
+          linkCount: normalizeNumber(metricsRaw.linkCount, linkCount),
+          upvotes: normalizeNumber(metricsRaw.upvotes, submission.ups),
+          launchStage: sanitize(metricsRaw.launchStage) || undefined,
+          audience: sanitize(metricsRaw.audience) || undefined,
+          sentiment: sanitize(metricsRaw.sentiment) || undefined,
+        }
+      : undefined
+
+    return {
+      summary: summaryText || "",
+      intent: intentText || "",
+      metrics,
+      raw: parsed,
+    }
+  } catch (error) {
+    console.error("Failed to summarize skipped post:", error)
+    return null
+  }
+}
+
+function truncate(value: string, maxLength: number): string {
+  if (value.length <= maxLength) {
+    return value
+  }
+  return `${value.slice(0, maxLength - 3)}...`
+}
+
+function countWords(value: string): number {
+  if (!value) {
+    return 0
+  }
+  const tokens = value.trim().split(/\s+/).filter(Boolean)
+  return tokens.length
+}
+
+function countLinks(value: string): number {
+  if (!value) {
+    return 0
+  }
+  const matches = value.match(/https?:\/\//gi)
+  return matches ? matches.length : 0
+}
+
+function parseJsonObject(text: string): unknown {
+  if (!text) {
+    return null
+  }
+
+  const trimmed = text.trim()
+
+  try {
+    return JSON.parse(trimmed)
+  } catch {
+    const match = trimmed.match(/\{[\s\S]*\}/)
+    if (match) {
+      try {
+        return JSON.parse(match[0])
+      } catch {
+        return null
+      }
+    }
+    return null
+  }
+}
+
+function normalizeNumber(
+  value: unknown,
+  fallback?: number,
+): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number.parseFloat(value)
+    if (Number.isFinite(parsed)) {
+      return parsed
+    }
+  }
+
+  if (typeof fallback === "number" && Number.isFinite(fallback)) {
+    return fallback
+  }
+
+  return undefined
+}
+
+function printSkipSummary(
+  submission: MinimalSubmission,
+  summary: SkipSummary,
+): void {
+  const header = `📝 Skip summary for r/${submission.subreddit.display_name}`
+  console.log(`\n${header}`)
+  if (summary.summary) {
+    console.log(`  Summary : ${summary.summary}`)
+  }
+  if (summary.intent) {
+    console.log(`  Intent  : ${summary.intent}`)
+  }
+
+  const metrics = summary.metrics
+  if (metrics) {
+    const parts: string[] = []
+    if (metrics.launchStage) {
+      parts.push(`stage=${metrics.launchStage}`)
+    }
+    if (metrics.audience) {
+      parts.push(`audience=${metrics.audience}`)
+    }
+    if (metrics.sentiment) {
+      parts.push(`sentiment=${metrics.sentiment}`)
+    }
+    if (typeof metrics.wordCount === "number") {
+      parts.push(`words=${metrics.wordCount}`)
+    }
+    if (typeof metrics.linkCount === "number") {
+      parts.push(`links=${metrics.linkCount}`)
+    }
+    if (typeof metrics.upvotes === "number") {
+      parts.push(`upvotes=${metrics.upvotes}`)
+    }
+
+    if (parts.length) {
+      console.log(`  Metrics : ${parts.join(", ")}`)
+    }
+  }
+}
+
 function extractKeywords(submission: MinimalSubmission): string[] {
   return extractKeywordsFromParts([
     submission.title,
@@ -930,7 +1228,9 @@ function extractKeywords(submission: MinimalSubmission): string[] {
   ])
 }
 
-function extractKeywordsFromParts(parts: (string | null | undefined)[]): string[] {
+function extractKeywordsFromParts(
+  parts: (string | null | undefined)[],
+): string[] {
   const collected: string[] = []
 
   for (const part of parts) {
@@ -983,15 +1283,14 @@ function buildTopicSignature(keywords: string[]): string | null {
     return null
   }
 
-  const unique = Array.from(new Set(keywords.map((keyword) => keyword.toLowerCase())))
+  const unique = Array.from(
+    new Set(keywords.map((keyword) => keyword.toLowerCase())),
+  )
   if (!unique.length) {
     return null
   }
 
-  return unique
-    .sort()
-    .slice(0, 8)
-    .join("|")
+  return unique.sort().slice(0, 8).join("|")
 }
 
 function ask(question: string): Promise<string> {
@@ -1089,6 +1388,75 @@ async function loadState(filePath: string): Promise<BotState> {
 async function saveState(filePath: string, value: BotState): Promise<void> {
   await ensureDir(path.dirname(filePath))
   await fs.writeFile(filePath, JSON.stringify(value, null, 2))
+}
+
+async function loadSkipLog(filePath: string): Promise<void> {
+  try {
+    const raw = await fs.readFile(filePath, "utf-8")
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) {
+      console.warn(
+        `Skip log at ${filePath} is not an array. Reinitialising to empty list.`,
+      )
+      skipLog.splice(0, skipLog.length)
+      await saveSkipLog(filePath)
+      return
+    }
+
+    skipLog.splice(0, skipLog.length, ...parsed.filter(Boolean))
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
+      skipLog.splice(0, skipLog.length)
+      await saveSkipLog(filePath)
+      return
+    }
+
+    console.warn(
+      `Failed to load skip log file at ${filePath}. Starting with empty list.`,
+      error,
+    )
+    skipLog.splice(0, skipLog.length)
+  }
+}
+
+async function appendSkipLog(
+  submission: MinimalSubmission,
+  options: SkipLogOptions,
+): Promise<void> {
+  const permalink =
+    buildPermalink(submission.permalink) ||
+    (submission.permalink ? `https://reddit.com${submission.permalink}` : "")
+
+  const entry: SkipLogEntry = {
+    id: submission.id,
+    permalink,
+    subreddit: submission.subreddit.display_name,
+    title: sanitize(submission.title),
+    skippedAt: new Date().toISOString(),
+    source: options.source,
+    reason: options.reason || undefined,
+    keywords: options.descriptor.keywords.length
+      ? options.descriptor.keywords
+      : undefined,
+    topicSignature: options.descriptor.topicSignature || undefined,
+    summary: options.summary?.summary || undefined,
+    intent: options.summary?.intent || undefined,
+    metrics: options.summary?.metrics,
+  }
+
+  const existingIndex = skipLog.findIndex((item) => item.id === submission.id)
+  if (existingIndex >= 0) {
+    skipLog.splice(existingIndex, 1, entry)
+  } else {
+    skipLog.push(entry)
+  }
+
+  await saveSkipLog(config.skipLogFile)
+}
+
+async function saveSkipLog(filePath: string): Promise<void> {
+  await ensureDir(path.dirname(filePath))
+  await fs.writeFile(filePath, JSON.stringify(skipLog, null, 2))
 }
 
 async function ensureDir(dir: string) {
