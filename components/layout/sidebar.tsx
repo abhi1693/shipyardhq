@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useTransition } from "react"
+import { useMemo, useTransition } from "react"
 import {
   Sidebar,
   SidebarContent,
@@ -15,7 +15,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
-  SidebarTrigger,
 } from "@/components/atoms/sidebar"
 import { Icons } from "../icons"
 import {
@@ -78,8 +77,25 @@ export default function AppSidebar(props: SidebarProps) {
 
   const filteredNav = navItems
 
+  const brandHref = useMemo(() => {
+    const queue = [...navItems]
+    while (queue.length) {
+      const candidate = queue.shift()
+      if (!candidate) continue
+      if (candidate.url && candidate.url !== "#") {
+        return candidate.url
+      }
+      if (candidate.items?.length) {
+        queue.push(...candidate.items)
+      }
+    }
+    if (pathname.startsWith("/member")) return "/member/overview"
+    if (pathname.startsWith("/admin")) return "/admin/overview"
+    return "/"
+  }, [navItems, pathname])
+
   const topLevelButtonClasses =
-    "px-3 transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:border data-[active=true]:border-[color:var(--brand-1)/0.4] data-[active=true]:bg-[color:var(--brand-1)/0.22] data-[active=true]:text-[color:var(--brand-1)]"
+    "px-3 transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:border data-[active=true]:border-[color:var(--brand-1)/0.4] data-[active=true]:bg-[color:var(--brand-1)/0.22] data-[active=true]:text-[color:var(--brand-1)] group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0"
 
   const subLevelButtonClasses =
     "transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:bg-[color:var(--brand-1)/0.18] data-[active=true]:text-[color:var(--brand-1)]"
@@ -87,29 +103,26 @@ export default function AppSidebar(props: SidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-1">
-          <SidebarTrigger className="md:hidden" />
-          <Link
-            href="/admin/overview"
-            className="inline-flex items-center gap-2"
-            aria-label="ShipYardHQ admin overview"
-          >
-            <BrandLogo
-              width={28}
-              height={28}
-              className="h-7 w-7 rounded-sm"
-              priority
-            />
-            <span className="text-base md:text-lg font-bold tracking-tight text-[color:var(--brand-1)] group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none">
-              ShipYardHQ
-            </span>
-          </Link>
-        </div>
+        <Link
+          href={brandHref}
+          className="inline-flex items-center gap-2 px-1"
+          aria-label="ShipYardHQ home"
+        >
+          <BrandLogo
+            width={28}
+            height={28}
+            className="h-7 w-7 rounded-sm"
+            priority
+          />
+          <span className="text-base md:text-lg font-bold tracking-tight text-[color:var(--brand-1)] group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none">
+            ShipYardHQ
+          </span>
+        </Link>
         <div className="mx-1 mt-1 h-px rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] opacity-70" />
       </SidebarHeader>
       <SidebarContent className="overflow-x-hidden">
         <SidebarGroup>
-          <SidebarGroupLabel className="px-3 py-1.5 text-sm font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/85">
+          <SidebarGroupLabel className="px-3 py-1.5 text-sm font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/85 group-data-[collapsible=icon]:hidden">
             Admin
           </SidebarGroupLabel>
           <SidebarMenu>
@@ -132,9 +145,11 @@ export default function AppSidebar(props: SidebarProps) {
                         size="lg"
                         className={topLevelButtonClasses}
                       >
-                        {item.icon && <Icon />}
-                        <span>{item.title}</span>
-                        <IconChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        {item.icon && <Icon className="shrink-0 group-data-[collapsible=icon]:size-5" />}
+                        <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
+                          {item.title}
+                        </span>
+                        <IconChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
@@ -187,10 +202,12 @@ export default function AppSidebar(props: SidebarProps) {
                       href={item.url}
                       aria-current={isActivePath(item.url) ? "page" : undefined}
                     >
-                      <Icon />
-                      <span className="flex-1 truncate">{item.title}</span>
+                      <Icon className="shrink-0 group-data-[collapsible=icon]:size-5" />
+                      <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
+                        {item.title}
+                      </span>
                       {item.label && (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
                           {item.label}
                         </span>
                       )}
@@ -208,8 +225,10 @@ export default function AppSidebar(props: SidebarProps) {
                   size="lg"
                   className={topLevelButtonClasses}
                 >
-                  <Icons.billing />
-                  <span className="flex-1 truncate">Customer Portal</span>
+                  <Icons.billing className="shrink-0 group-data-[collapsible=icon]:size-5" />
+                  <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
+                    Customer Portal
+                  </span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )}
