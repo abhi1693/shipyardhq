@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { PlanType, type PlanFeature } from "@/lib/vendor/prisma/client"
+import { PlanType } from "@/lib/vendor/prisma/client"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 
@@ -33,6 +33,17 @@ const planSelect = {
 type PlanWithAssignments = Prisma.PlanGetPayload<{
   select: typeof planSelect
 }>
+
+const planFeatureSelect = {
+  id: true,
+  name: true,
+  key: true,
+  description: true,
+} satisfies Prisma.PlanFeatureSelect
+
+type PlanFeatureRecord = Prisma.PlanFeatureGetPayload<{
+  select: typeof planFeatureSelect
+}>
 const MAX_PUBLIC_PLANS = 5
 
 export async function getPublicPlans(opts?: { type?: PlanType }) {
@@ -51,7 +62,8 @@ export async function getPublicPlans(opts?: { type?: PlanType }) {
     },
   })
 
-  const allFeatures = await prisma.planFeature.findMany({
+  const allFeaturesRaw = await prisma.planFeature.findMany({
+    select: planFeatureSelect,
     orderBy: { name: "asc" },
     cacheStrategy: {
       ttl: DEFAULT_TTL.slow,
@@ -61,6 +73,7 @@ export async function getPublicPlans(opts?: { type?: PlanType }) {
   })
 
   const planRecords = planRecordsRaw as unknown as PlanWithAssignments[]
+  const allFeatures = allFeaturesRaw as unknown as PlanFeatureRecord[]
 
   return planRecords.map((p) => {
     const assigned = new Map(
