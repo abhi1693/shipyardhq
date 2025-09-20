@@ -9,6 +9,7 @@ import {
   sanitizeReferrer,
 } from "@/lib/server/analytics/clientMetadata"
 import { trackProductTraffic } from "@/lib/server/analytics/productTraffic"
+import prisma from "@/lib/prisma"
 import type { DeviceCategory } from "@/types/analytics"
 
 function acceptedResponse() {
@@ -94,6 +95,19 @@ export async function POST(request: NextRequest) {
     region,
     city,
     ipHash,
+  }
+
+  const productExists = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { id: true },
+  })
+
+  if (!productExists) {
+    console.warn(
+      "[analytics] dropping traffic payload for missing product",
+      productId,
+    )
+    return acceptedResponse()
   }
 
   // Fire-and-forget to avoid blocking the response path.
