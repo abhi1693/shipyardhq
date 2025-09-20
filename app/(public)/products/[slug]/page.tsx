@@ -556,7 +556,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                           alt={m.altText || product.name}
                           fill
                           quality={95}
-                          className="object-cover"
+                          className="object-contain object-center"
                         />
                       </div>
                     </ImageLightbox>

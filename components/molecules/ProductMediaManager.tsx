@@ -139,7 +139,7 @@ export default function ProductMediaManager({
                 src={m.imageUrl}
                 alt=""
                 fill
-                className="object-cover"
+                className="object-contain object-center"
                 quality={95}
               />
               {deletingId === m.id ? (
