@@ -2,10 +2,26 @@ import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
 import DiscoverDigestEmail from "@/lib/email/templates/discover/digest"
 import { getAppBaseUrl } from "@/lib/email/utils"
+import { Prisma } from "@/lib/vendor/prisma/client"
 
 const LOOKBACK_DAYS = 7
 const FRESH_LIMIT = 6
 const TRENDING_LIMIT = 6
+
+type DigestProductRow = Prisma.ProductGetPayload<{
+  select: {
+    name: true
+    slug: true
+    tagline: true
+    publishedAt: true
+    category: { select: { name: true } }
+    analytics: { select: { upvotes: true; clicks: true } }
+  }
+}>
+
+type SubscriberEmail = Prisma.NewsletterSubscriptionGetPayload<{
+  select: { email: true }
+}>
 
 function subtractDays(date: Date, days: number) {
   return new Date(date.getTime() - days * 24 * 60 * 60 * 1000)
@@ -43,8 +59,8 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
           analytics: { select: { upvotes: true, clicks: true } },
         },
       })
-      .then((rows) =>
-        rows.map((row) => ({
+      .then((rows: DigestProductRow[]) =>
+        rows.map((row: DigestProductRow) => ({
           name: row.name,
           tagline: row.tagline,
           url: buildProductUrl(row.slug),
@@ -71,8 +87,8 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
           analytics: { select: { upvotes: true, clicks: true } },
         },
       })
-      .then((rows) =>
-        rows.map((row) => ({
+      .then((rows: DigestProductRow[]) =>
+        rows.map((row: DigestProductRow) => ({
           name: row.name,
           tagline: row.tagline,
           url: buildProductUrl(row.slug),
@@ -82,7 +98,9 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
           publishedAt: row.publishedAt,
         })),
       ),
-    prisma.newsletterSubscription.findMany({ select: { email: true } }),
+    prisma.newsletterSubscription.findMany({
+      select: { email: true },
+    }) as Promise<SubscriberEmail[]>,
   ])
 
   if (!subscribers.length) {

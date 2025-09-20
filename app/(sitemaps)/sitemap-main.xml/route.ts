@@ -1,4 +1,9 @@
 import prisma from "@/lib/prisma"
+import { Prisma } from "@/lib/vendor/prisma/client"
+
+type CategorySitemapEntry = Prisma.CategoryGetPayload<{
+  select: { slug: true; updatedAt: true }
+}>
 
 export const dynamic = "force-dynamic"
 
@@ -67,7 +72,7 @@ export async function GET() {
         </url>
       `
     }),
-    ...categories.map((c) => {
+    ...categories.map((c: CategorySitemapEntry) => {
       const last = c.updatedAt || now
       const days = Math.floor(
         (now.getTime() - new Date(last).getTime()) / 86400000,

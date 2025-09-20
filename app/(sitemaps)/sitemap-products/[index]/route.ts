@@ -1,4 +1,9 @@
 import prisma from "@/lib/prisma"
+import { Prisma } from "@/lib/vendor/prisma/client"
+
+type ProductSitemapEntry = Prisma.ProductGetPayload<{
+  select: { slug: true; updatedAt: true; publishedAt: true }
+}>
 
 export const dynamic = "force-dynamic"
 
@@ -31,7 +36,7 @@ export async function GET(
   })
 
   const urls = products
-    .map((p) => {
+    .map((p: ProductSitemapEntry) => {
       const last = p.updatedAt || p.publishedAt || new Date()
       const days = Math.floor(
         (Date.now() - new Date(last).getTime()) / 86400000,

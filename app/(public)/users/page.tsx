@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/users" },
 }
 
+type PublicUserSummary = Awaited<
+  ReturnType<typeof getPublicUsersWithCounts>
+>[number]
+
 export default async function UsersIndexPage() {
   const users = await getPublicUsersWithCounts(48)
 
@@ -82,7 +86,7 @@ export default async function UsersIndexPage() {
             </div>
           ) : (
             <ul className="grid grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-3">
-              {users.map((u) => {
+              {users.map((u: PublicUserSummary) => {
                 const fullName =
                   `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || "User"
                 const count = u.products.length

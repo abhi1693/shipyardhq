@@ -1,6 +1,12 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import { accelerateTags, cached, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
+import {
+  accelerateTags,
+  cached,
+  DEFAULT_TTL,
+  DEFAULT_SWR,
+  TAGS,
+} from "@/lib/cache"
 import type { FeaturedProduct } from "@/types"
 
 export const getProducts = cached(

@@ -1,5 +1,16 @@
 import prisma from "@/lib/prisma"
-import { accelerateTags, cached, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
+import {
+  accelerateTags,
+  cached,
+  DEFAULT_TTL,
+  DEFAULT_SWR,
+  TAGS,
+} from "@/lib/cache"
+import { Prisma } from "@/lib/vendor/prisma/client"
+
+type CategoryWithCount = Prisma.CategoryGetPayload<{
+  include: { _count: { select: { products: true } } }
+}>
 
 export const getCategoriesWithCounts = cached(
   async () => {
@@ -16,7 +27,7 @@ export const getCategoriesWithCounts = cached(
         tags: accelerateTags([TAGS.categories]),
       },
     })
-    return categories.map((cat) => ({
+    return categories.map((cat: CategoryWithCount) => ({
       id: cat.id,
       name: cat.name,
       slug: cat.slug,

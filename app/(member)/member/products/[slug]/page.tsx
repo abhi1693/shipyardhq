@@ -178,7 +178,7 @@ export default async function ViewUserProductPage({
     }
   }
 
-  const platforms = (product.platforms || []).map((platform) =>
+  const platforms = (product.platforms || []).map((platform: string) =>
     platform.replace(/_/g, " "),
   )
   const tags = product.keywords || []
@@ -667,7 +667,7 @@ export default async function ViewUserProductPage({
                   <span className={sectionLabelClass}>Platforms</span>
                   {platforms.length ? (
                     <div className="flex flex-wrap gap-2">
-                      {platforms.map((platform) => (
+                      {platforms.map((platform: string) => (
                         <span className={infoChipClass} key={platform}>
                           <Target className={chipIconClass} />
                           {platform}
@@ -684,7 +684,7 @@ export default async function ViewUserProductPage({
                   <span className={sectionLabelClass}>Keywords</span>
                   {tags.length ? (
                     <div className="flex flex-wrap gap-2">
-                      {tags.map((tagValue) => (
+                      {tags.map((tagValue: string) => (
                         <span className={accentChipClass} key={tagValue}>
                           <Tag className={chipIconClass} />
                           {tagValue}
@@ -817,10 +817,14 @@ export default async function ViewUserProductPage({
                 </div>
                 <ProductMediaManager
                   productId={product.id}
-                  media={(product.ProductMedia || []).map((m) => ({
-                    id: m.id,
-                    imageUrl: m.imageUrl,
-                  }))}
+                  media={
+                    product.ProductMedia?.map(
+                      (m: NonNullable<typeof product.ProductMedia>[number]) => ({
+                        id: m.id,
+                        imageUrl: m.imageUrl,
+                      }),
+                    ) ?? []
+                  }
                   canEdit={canManage}
                   max={6}
                 />

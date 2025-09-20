@@ -20,6 +20,10 @@ interface CategoryPageProps {
   params: Promise<{ slug: string }>
 }
 
+type CategoryProduct = NonNullable<
+  Awaited<ReturnType<typeof getCategoryWithProducts>>
+>["products"][number]
+
 export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
@@ -183,12 +187,16 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       >
         <CategoryProductsClient
           className="border-[color:var(--brand-1)/0.18]"
-          products={products.map((p) => ({
+          products={products.map((p: CategoryProduct) => ({
             ...p,
             priority: productHasFeature(p, "priorityPlacement"),
-            badges: p.ProductBadge?.filter(
-              (pb: any) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
-            ).map((pb: any) => pb.badge),
+            badges:
+              p.ProductBadge?.filter(
+                (pb: CategoryProduct["ProductBadge"][number]) =>
+                  !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
+              ).map(
+                (pb: CategoryProduct["ProductBadge"][number]) => pb.badge,
+              ) ?? [],
           }))}
         />
       </PublicContainer>

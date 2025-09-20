@@ -30,6 +30,9 @@ export const metadata = buildPageMetadata({
   description: "See the most upvoted products across the platform.",
 })
 
+type CategoryListItem = Awaited<ReturnType<typeof getCategoriesWithCounts>>[number]
+type LeaderboardProduct = Awaited<ReturnType<typeof getTopRankedProducts>>[number]
+
 export default async function LeaderboardPage({
   searchParams,
 }: {
@@ -47,7 +50,9 @@ export default async function LeaderboardPage({
   const topThree = products.slice(0, 3)
   const rest = products.slice(3)
   const categoryName = categorySlug
-    ? categories.find((c) => c.slug === categorySlug)?.name
+    ? categories.find(
+        (c: CategoryListItem) => c.slug === categorySlug,
+      )?.name
     : undefined
   const totalCount = products.length
   const restHasEntries = rest.length > 0
@@ -176,7 +181,7 @@ export default async function LeaderboardPage({
         className="relative"
       >
         <div className="grid gap-6 lg:grid-cols-3">
-          {topThree.map((product, index) => (
+          {topThree.map((product: LeaderboardProduct, index: number) => (
             <TopPlacementCard
               key={product.id}
               product={product}
@@ -201,7 +206,7 @@ export default async function LeaderboardPage({
         <div className="rounded-3xl border border-[color:var(--brand-1)/0.16] bg-background/90 px-5 py-6 shadow-[0px_28px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
           {restHasEntries ? (
             <ProductCompactGrid
-              items={rest.map((p) => ({
+              items={rest.map((p: LeaderboardProduct) => ({
                 id: p.id,
                 slug: p.slug,
                 name: p.name,
@@ -212,7 +217,7 @@ export default async function LeaderboardPage({
               }))}
               columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
               className="gap-y-6"
-              renderMeta={(_, index) => (
+              renderMeta={(_, index: number) => (
                 <Badge variant="secondary" className="px-2 py-0.5 text-xs">
                   #{topThree.length + index + 1}
                 </Badge>

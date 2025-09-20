@@ -157,9 +157,13 @@ export async function getUseCasesCount(args: Prisma.UseCaseCountArgs = {}) {
   }
 }
 
+type UseCaseWithCategories = Prisma.UseCaseGetPayload<{
+  include: { categories: { select: { categoryId: true } } }
+}>
+
 export async function getUseCasesWithCounts() {
   try {
-    const useCases = await prisma.useCase.findMany({
+    const useCases: UseCaseWithCategories[] = await prisma.useCase.findMany({
       orderBy: { createdAt: "desc" },
       include: {
         categories: { select: { categoryId: true } },

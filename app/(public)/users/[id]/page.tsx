@@ -15,6 +15,10 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
+type PublicUserProduct = NonNullable<
+  Awaited<ReturnType<typeof getPublicUserProfile>>
+>["products"][number]
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -53,7 +57,7 @@ export default async function PublicUserPage({ params }: PageProps) {
   const fullName =
     `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"
 
-  const items = (user.products || []).map((p) => ({
+  const items = (user.products || []).map((p: PublicUserProduct) => ({
     id: p.id,
     slug: p.slug,
     name: p.name,
@@ -63,9 +67,12 @@ export default async function PublicUserPage({ params }: PageProps) {
     user: { firstName: p.user.firstName, lastName: p.user.lastName },
     category: { name: p.category?.name },
     verification: p.verification,
-    badges: (p.ProductBadge || [])
-      .filter((b) => !b.expiresAt || new Date(b.expiresAt) > new Date())
-      .map((b) => b.badge),
+    badges:
+      (p.ProductBadge || [])
+        .filter((b: PublicUserProduct["ProductBadge"][number]) =>
+          !b.expiresAt || new Date(b.expiresAt) > new Date(),
+        )
+        .map((b: PublicUserProduct["ProductBadge"][number]) => b.badge),
   }))
 
   const base = (

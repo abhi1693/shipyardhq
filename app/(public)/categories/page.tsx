@@ -12,10 +12,12 @@ export const metadata = buildPageMetadata({
     "Explore the harbor by category and discover innovative products.",
 })
 
+type CategoryListItem = Awaited<ReturnType<typeof getCategoriesWithCounts>>[number]
+
 export default async function CategoriesPage() {
   const categories = await getCategoriesWithCounts()
   const totalProducts = categories.reduce(
-    (sum, cat) => sum + (cat.count ?? 0),
+    (sum: number, cat: CategoryListItem) => sum + (cat.count ?? 0),
     0,
   )
 
@@ -108,9 +110,9 @@ export default async function CategoriesPage() {
               </p>
               <p className="mt-1 text-3xl font-semibold text-foreground">
                 {categories
-                  .filter((cat) => (cat.count ?? 0) > 0)
+                  .filter((cat: CategoryListItem) => (cat.count ?? 0) > 0)
                   .slice(0, 1)
-                  .map((cat) => cat.name)
+                  .map((cat: CategoryListItem) => cat.name)
                   .join(" ") || "Daily"}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -129,7 +131,7 @@ export default async function CategoriesPage() {
         className="relative"
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {categories.map((cat) => (
+          {categories.map((cat: CategoryListItem) => (
             <CategoryCard
               key={cat.id}
               href={`/categories/${cat.slug}`}

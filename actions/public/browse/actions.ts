@@ -1,6 +1,12 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import { accelerateTags, cached, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
+import {
+  accelerateTags,
+  cached,
+  DEFAULT_TTL,
+  DEFAULT_SWR,
+  TAGS,
+} from "@/lib/cache"
 
 interface GetBrowseProductsOptions {
   useCaseSlug?: string
@@ -11,6 +17,10 @@ interface GetBrowseProductsOptions {
   pageSize?: number
   query?: string
 }
+
+type UseCaseCategoryRef = Prisma.UseCaseCategoryGetPayload<{
+  select: { categoryId: true }
+}>
 
 export const getBrowseProducts = cached(
   async ({
@@ -35,20 +45,19 @@ export const getBrowseProducts = cached(
         cacheStrategy: {
           ttl: DEFAULT_TTL.medium,
           swr: DEFAULT_SWR.medium,
-          tags: accelerateTags([
-            TAGS.categories,
-            `use-case:${useCaseSlug}`,
-          ]),
+          tags: accelerateTags([TAGS.categories, `use-case:${useCaseSlug}`]),
         },
       })
 
       if (!useCase) return { products: [], hasMore: false }
 
-      categoryIds = useCase.categories.map((uc) => uc.categoryId)
+      categoryIds = useCase.categories.map(
+        (uc: UseCaseCategoryRef) => uc.categoryId,
+      )
 
       // If a use case is selected but has no assigned categories,
       // return no results instead of ignoring the filter.
-      if (categoryIds.length === 0) {
+      if (!categoryIds?.length) {
         return { products: [], hasMore: false }
       }
     }

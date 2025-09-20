@@ -1,14 +1,68 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import { accelerateTags, cached, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
+import {
+  accelerateTags,
+  cached,
+  DEFAULT_TTL,
+  DEFAULT_SWR,
+  TAGS,
+} from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+
+type PublicProduct = Prisma.ProductGetPayload<{
+  include: {
+    category: {
+      include: {
+        useCases: {
+          include: { useCase: true }
+        }
+      }
+    }
+    user: {
+      select: {
+        id: true
+        firstName: true
+        lastName: true
+        email: true
+      }
+    }
+    metadata: true
+    analytics: true
+    verification: true
+    ProductMedia: true
+    ProductBadge: true
+    plan: {
+      include: {
+        assignments: {
+          include: { feature: true }
+        }
+      }
+    }
+    organization: {
+      include: {
+        memberships: {
+          include: {
+            user: {
+              select: {
+                id: true
+                firstName: true
+                lastName: true
+                email: true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}>
 
 async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   const tagSet = new Set<string>([TAGS.products])
   if (where.id) tagSet.add(TAGS.product(String(where.id)))
   if (where.slug) tagSet.add(TAGS.product(String(where.slug)))
 
-  const product = await prisma.product.findUnique({
+  const product: PublicProduct | null = await prisma.product.findUnique({
     where,
     include: {
       category: {
@@ -60,8 +114,9 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   if (!product) return null
 
   const activeBadges = product.ProductBadge.filter(
-    (b) => !b.expiresAt || b.expiresAt > new Date(),
-  ).map((b) => b.badge)
+    (badge: PublicProduct["ProductBadge"][number]) =>
+      !badge.expiresAt || badge.expiresAt > new Date(),
+  ).map((badge) => badge.badge)
 
   return { ...product, badges: activeBadges }
 }
@@ -123,7 +178,10 @@ export const getRelatedProductsByCategory = cached(
       cacheStrategy: {
         ttl: DEFAULT_TTL.medium,
         swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([TAGS.products, TAGS.category(String(categoryId))]),
+        tags: accelerateTags([
+          TAGS.products,
+          TAGS.category(String(categoryId)),
+        ]),
       },
     }),
   "products:related-by-category",
@@ -155,7 +213,10 @@ export const getPublicProductsByUseCase = cached(
       cacheStrategy: {
         ttl: DEFAULT_TTL.medium,
         swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([TAGS.products, TAGS.category(String(useCaseSlug))]),
+        tags: accelerateTags([
+          TAGS.products,
+          TAGS.category(String(useCaseSlug)),
+        ]),
       },
     }),
   "products:public-by-usecase",

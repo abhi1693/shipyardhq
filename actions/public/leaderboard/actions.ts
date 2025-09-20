@@ -1,5 +1,11 @@
 import prisma from "@/lib/prisma"
-import { accelerateTags, cached, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
+import {
+  accelerateTags,
+  cached,
+  DEFAULT_TTL,
+  DEFAULT_SWR,
+  TAGS,
+} from "@/lib/cache"
 
 export const getLeaderboardStats = cached(
   async () => {

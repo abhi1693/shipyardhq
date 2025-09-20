@@ -1,9 +1,98 @@
 import prisma from "@/lib/prisma"
+import { Prisma } from "@/lib/vendor/prisma/client"
 import { auth } from "@clerk/nextjs/server"
 import { subDays } from "date-fns"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 
 type UserRef = { id: string }
+
+type ProductWithAnalytics = Prisma.ProductGetPayload<{
+  include: {
+    verification: { select: { isVerified: true } }
+    analytics: { select: { clicks: true; upvotes: true } }
+    plan: { select: { id: true; name: true; price: true } }
+  }
+}>
+
+type ProductWithMediaCount = Prisma.ProductGetPayload<{
+  select: {
+    id: true
+    name: true
+    slug: true
+    updatedAt: true
+    _count: { select: { ProductMedia: true } }
+  }
+}>
+
+type ProductCreatedActivity = Prisma.ProductGetPayload<{
+  select: { id: true; name: true; slug: true; createdAt: true }
+}>
+
+type ProductUpdatedActivity = Prisma.ProductGetPayload<{
+  select: { id: true; name: true; slug: true; updatedAt: true }
+}>
+
+type ProductVerificationActivity = Prisma.ProductVerificationGetPayload<{
+  select: {
+    product: { select: { id: true; name: true; slug: true } }
+    verifiedAt: true
+  }
+}>
+
+type ProductBadgeActivity = Prisma.ProductBadgeGetPayload<{
+  select: {
+    id: true
+    badge: true
+    createdAt: true
+    product: { select: { id: true; name: true; slug: true } }
+  }
+}>
+
+type ProductUpvoteActivity = Prisma.ProductUpvoteGetPayload<{
+  select: {
+    id: true
+    createdAt: true
+    product: { select: { id: true; name: true; slug: true } }
+  }
+}>
+
+type ProductHealthData = Prisma.ProductGetPayload<{
+  include: {
+    verification: { select: { isVerified: true } }
+    metadata: {
+      select: {
+        githubUrl: true
+        twitterUrl: true
+        demoUrl: true
+        contactEmail: true
+      }
+    }
+    _count: { select: { ProductMedia: true } }
+  }
+}>
+
+type ProductDraft = Prisma.ProductGetPayload<{
+  select: { id: true; name: true; slug: true; updatedAt: true }
+}>
+
+type ProductMetricItem = Prisma.ProductGetPayload<{
+  include: { analytics: { select: { clicks: true; upvotes: true } } }
+}>
+
+type UserProduct = Prisma.ProductGetPayload<{
+  include: {
+    plan: { select: { name: true } }
+    verification: { select: { isVerified: true } }
+    analytics: { select: { clicks: true; upvotes: true } }
+  }
+}>
+
+type UnverifiedProductItem = Prisma.ProductGetPayload<{
+  include: {
+    verification: { select: { isVerified: true; verificationTxt: true } }
+    analytics: { select: { clicks: true; upvotes: true } }
+  }
+}>
 
 async function getCurrentUser(): Promise<UserRef> {
   const { userId } = await auth()
@@ -17,27 +106,31 @@ export async function getUserDashboardStats(days = 7) {
 
   const since = subDays(new Date(), days)
 
-  const [products, productsInRange, draftsCount, unverifiedCount] =
-    await Promise.all([
-      prisma.product.findMany({
-        where: { userId: user.id },
-        include: {
-          verification: { select: { isVerified: true } },
-          analytics: { select: { clicks: true, upvotes: true } },
-          plan: { select: { id: true, name: true, price: true } },
-        },
-      }),
-      prisma.product.count({
-        where: {
-          userId: user.id,
-          createdAt: { gte: since },
-        },
-      }),
-      prisma.product.count({ where: { userId: user.id, status: "draft" } }),
-      prisma.product.count({
-        where: { userId: user.id, verification: { isVerified: false } },
-      }),
-    ])
+  const [
+    products,
+    productsInRange,
+    draftsCount,
+    unverifiedCount,
+  ] = (await Promise.all([
+    prisma.product.findMany({
+      where: { userId: user.id },
+      include: {
+        verification: { select: { isVerified: true } },
+        analytics: { select: { clicks: true, upvotes: true } },
+        plan: { select: { id: true, name: true, price: true } },
+      },
+    }),
+    prisma.product.count({
+      where: {
+        userId: user.id,
+        createdAt: { gte: since },
+      },
+    }),
+    prisma.product.count({ where: { userId: user.id, status: "draft" } }),
+    prisma.product.count({
+      where: { userId: user.id, verification: { isVerified: false } },
+    }),
+  ])) as [ProductWithAnalytics[], number, number, number]
 
   const totalProducts = products.length
   const verifiedDomains = products.filter(
@@ -74,7 +167,10 @@ export async function getUserDashboardStats(days = 7) {
   }
 }
 
-export async function getUserProducts(limit = 10, days?: number) {
+export async function getUserProducts(
+  limit = 10,
+  days?: number,
+): Promise<UserProduct[]> {
   const user = await getCurrentUser()
 
   const where: any = { userId: user.id }
@@ -95,9 +191,11 @@ export async function getUserProducts(limit = 10, days?: number) {
 }
 
 // New: Unverified products (with expected TXT)
-export async function getUnverifiedProducts(limit = 3) {
+export async function getUnverifiedProducts(
+  limit = 3,
+): Promise<UnverifiedProductItem[]> {
   const user = await getCurrentUser()
-  const products = await prisma.product.findMany({
+  const products: UnverifiedProductItem[] = await prisma.product.findMany({
     where: { userId: user.id, verification: { isVerified: false } },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -110,7 +208,7 @@ export async function getUnverifiedProducts(limit = 3) {
 }
 
 // New: Latest drafts
-export async function getUserDrafts(limit = 3) {
+export async function getUserDrafts(limit = 3): Promise<ProductDraft[]> {
   const user = await getCurrentUser()
   return prisma.product.findMany({
     where: { userId: user.id, status: "draft" },
@@ -130,7 +228,7 @@ export async function getTopProductsByMetric(
   metric: "clicks" | "upvotes",
   limit = 3,
   days?: number,
-) {
+): Promise<ProductMetricItem[]> {
   const user = await getCurrentUser()
   const where: any = { userId: user.id }
   if (days) where.createdAt = { gte: subDays(new Date(), days) }
@@ -140,7 +238,7 @@ export async function getTopProductsByMetric(
       ? { analytics: { clicks: "desc" as const } }
       : { analytics: { upvotes: "desc" as const } }
 
-  const products = await prisma.product.findMany({
+  const products: ProductMetricItem[] = await prisma.product.findMany({
     where,
     orderBy,
     take: limit,
@@ -176,7 +274,7 @@ export async function getExpiringBadges(limit = 5, withinDays = 14) {
 // New: Products needing media (lt min images)
 export async function getProductsNeedingMedia(min = 2, limit = 5) {
   const user = await getCurrentUser()
-  const products = await prisma.product.findMany({
+  const products: ProductWithMediaCount[] = await prisma.product.findMany({
     where: { userId: user.id },
     orderBy: { updatedAt: "desc" },
     take: 50, // sample and then filter
@@ -189,7 +287,7 @@ export async function getProductsNeedingMedia(min = 2, limit = 5) {
     },
   })
   return products
-    .filter((p) => (p as any)._count.ProductMedia < min)
+    .filter((p) => p._count.ProductMedia < min)
     .slice(0, limit)
 }
 
@@ -198,7 +296,7 @@ export async function getRecentActivity(days = 7, limit = 10) {
   const user = await getCurrentUser()
   const since = subDays(new Date(), days)
 
-  const [created, updated, verified, badges, upvotes] = await Promise.all([
+  const [created, updated, verified, badges, upvotes] = (await Promise.all([
     prisma.product.findMany({
       where: { userId: user.id, createdAt: { gte: since } },
       select: { id: true, name: true, slug: true, createdAt: true },
@@ -244,7 +342,13 @@ export async function getRecentActivity(days = 7, limit = 10) {
       orderBy: { createdAt: "desc" },
       take: limit,
     }),
-  ])
+  ])) as [
+    ProductCreatedActivity[],
+    ProductUpdatedActivity[],
+    ProductVerificationActivity[],
+    ProductBadgeActivity[],
+    ProductUpvoteActivity[],
+  ]
 
   type Activity = {
     type:
@@ -321,7 +425,7 @@ export async function getProductHealthSummary(days?: number) {
 
   const perProductIssues: Record<string, string[]> = {}
 
-  function scoreProduct(p: (typeof products)[number]) {
+  function scoreProduct(p: ProductHealthData) {
     let score = 0
     const issues: string[] = []
     // Logo
@@ -351,7 +455,7 @@ export async function getProductHealthSummary(days?: number) {
       issuesCount.missingCta++
     }
     // Media
-    const mediaCount = (p as any)._count.ProductMedia as number
+    const mediaCount = p._count.ProductMedia
     if (mediaCount >= 2) score += 15
     else {
       issues.push("Add at least 2 screenshots")
@@ -374,7 +478,10 @@ export async function getProductHealthSummary(days?: number) {
 
   const scores = products.map(scoreProduct)
   const averageScore = products.length
-    ? Math.round(scores.reduce((a, b) => a + b, 0) / products.length)
+    ? Math.round(
+        scores.reduce((sum: number, value: number) => sum + value, 0) /
+          products.length,
+      )
     : 0
 
   const suggestions: { label: string; count: number; href?: string }[] = []
@@ -415,14 +522,21 @@ export async function getProductHealthSummary(days?: number) {
       href: "/member/products",
     })
 
-  const productsNeedingAttention = products
-    .map((p) => ({
+  type ProductIssueSummary = {
+    id: string
+    name: string
+    slug: string
+    issues: string[]
+  }
+
+  const productsNeedingAttention: ProductIssueSummary[] = products
+    .map((p: ProductHealthData) => ({
       id: p.id,
       name: p.name,
       slug: p.slug,
       issues: perProductIssues[p.id],
     }))
-    .filter((p) => p.issues.length)
+    .filter((item: ProductIssueSummary) => item.issues.length > 0)
     .slice(0, 3)
 
   return { averageScore, suggestions, productsNeedingAttention }

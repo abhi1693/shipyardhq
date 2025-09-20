@@ -45,6 +45,10 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
 
+type UseCaseProduct = Awaited<
+  ReturnType<typeof getPublicProductsByUseCase>
+>[number]
+
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
@@ -280,7 +284,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     ? await getPublicProductsByUseCase(primaryUseCaseSlug, product.id)
     : []
 
-  const useCaseItems = useCaseProducts.map((item) => ({
+  const useCaseItems = useCaseProducts.map((item: UseCaseProduct) => ({
     id: item.id,
     slug: item.slug,
     name: item.name,

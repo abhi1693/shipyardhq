@@ -241,7 +241,9 @@ export default async function ViewProductPage({
                   value={
                     product.platforms && product.platforms.length
                       ? commaSeparated(
-                          product.platforms.map((p) => p.replaceAll("_", " ")),
+                          product.platforms.map((p: string) =>
+                            p.replaceAll("_", " "),
+                          ),
                         )
                       : placeholder()
                   }
@@ -340,10 +342,14 @@ export default async function ViewProductPage({
                 </div>
                 <ProductMediaManager
                   productId={product.id}
-                  media={(product.ProductMedia || []).map((m) => ({
-                    id: m.id,
-                    imageUrl: m.imageUrl,
-                  }))}
+                  media={
+                    product.ProductMedia?.map(
+                      (m: NonNullable<typeof product.ProductMedia>[number]) => ({
+                        id: m.id,
+                        imageUrl: m.imageUrl,
+                      }),
+                    ) ?? []
+                  }
                   canEdit
                   max={6}
                 />

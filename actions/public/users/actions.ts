@@ -1,5 +1,41 @@
 import prisma from "@/lib/prisma"
-import { accelerateTags, cached, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
+import {
+  accelerateTags,
+  cached,
+  DEFAULT_TTL,
+  DEFAULT_SWR,
+  TAGS,
+} from "@/lib/cache"
+import { Prisma } from "@/lib/vendor/prisma/client"
+
+type PublicUserProduct = Prisma.ProductGetPayload<{
+  include: {
+    analytics: true
+    verification: true
+    category: true
+    user: true
+    ProductBadge: true
+  }
+}>
+
+type PublicUserProfile = Prisma.UserGetPayload<{
+  select: {
+    id: true
+    firstName: true
+    lastName: true
+    products: {
+      where: { status: "published" }
+      orderBy: { createdAt: "desc" }
+      include: {
+        analytics: true
+        verification: true
+        category: true
+        user: true
+        ProductBadge: true
+      }
+    }
+  }
+}>
 
 export const getPublicUsersWithCounts = cached(
   async (limit = 48) =>
@@ -48,7 +84,7 @@ export const getPublicUserMeta = cached(
 )
 
 export const getPublicUserProfile = cached(
-  async (id: string) =>
+  async (id: string): Promise<PublicUserProfile | null> =>
     prisma.user.findUnique({
       where: { id },
       select: {
@@ -76,7 +112,7 @@ export const getPublicUserProfile = cached(
           TAGS.user(String(id)),
         ]),
       },
-    }),
+    }) as Promise<PublicUserProfile | null>,
   "user:public-profile",
   {
     ttl: DEFAULT_TTL.medium,

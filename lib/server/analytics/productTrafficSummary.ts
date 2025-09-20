@@ -11,6 +11,10 @@ import type {
 } from "@/types/analytics"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
+type ProductIdName = Prisma.ProductGetPayload<{
+  select: { id: true; name: true }
+}>
+
 interface SummaryOptions {
   rangeDays?: number
   previousComparison?: boolean
@@ -650,16 +654,16 @@ async function buildTrafficSummary(
 
   let productNameMap = new Map<string, string>()
   if (productLookupIds.size) {
-    const products = await prisma.product.findMany({
+    const products = (await prisma.product.findMany({
       where: { id: { in: Array.from(productLookupIds) } },
       select: { id: true, name: true },
       cacheStrategy: {
         ...trafficCache,
         tags: trafficTags(TAGS.products, TAGS.analytics, "traffic_global"),
       },
-    })
+    })) as ProductIdName[]
     productNameMap = new Map(
-      products.map((product) => [product.id, product.name]),
+      products.map((product: ProductIdName) => [product.id, product.name]),
     )
   }
 

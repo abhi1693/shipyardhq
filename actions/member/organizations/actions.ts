@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
+import { Prisma } from "@/lib/vendor/prisma/client"
 import { requireMemberFeature } from "@/lib/memberFeatures"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
@@ -12,6 +13,20 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
   requireActiveUserOrRedirect,
 } from "@/lib/server/userStatus"
+
+type OrganizationMembershipWithUser = Prisma.OrganizationMembershipGetPayload<{
+  include: { user: true }
+}>
+
+type OrganizationListItem = Prisma.OrganizationGetPayload<{
+  select: {
+    id: true
+    name: true
+    url: true
+    createdAt: true
+    ownerUserId: true
+  }
+}>
 
 async function requireActiveCurrentUser() {
   const { userId: clerkId } = await auth()
@@ -65,7 +80,12 @@ export async function getMyOrganizationById(id: string) {
 
 export async function getMyOrganizationsPage(
   params?: Record<string, string | string[] | undefined>,
-) {
+): Promise<{
+  rows: OrganizationListItem[]
+  total: number
+  page: number
+  limit: number
+}> {
   const user = await requireActiveCurrentUser()
 
   const gate = await requireMemberFeature("organization")
@@ -87,7 +107,7 @@ export async function getMyOrganizationsPage(
     ]
   }
 
-  const [rows, total] = await Promise.all([
+  const [rows, total] = (await Promise.all([
     prisma.organization.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -102,7 +122,7 @@ export async function getMyOrganizationsPage(
       },
     }),
     prisma.organization.count({ where }),
-  ])
+  ])) as [OrganizationListItem[], number]
 
   return { rows, total, page, limit }
 }
@@ -116,11 +136,12 @@ export async function getMyOrganizationMembers(orgId: string) {
     select: { ownerUserId: true },
   })
   if (!org) throw new Error("Not authorized")
-  const rows = await prisma.organizationMembership.findMany({
-    where: { organizationId: orgId },
-    include: { user: true },
-    orderBy: { createdAt: "desc" },
-  })
+  const rows: OrganizationMembershipWithUser[] =
+    await prisma.organizationMembership.findMany({
+      where: { organizationId: orgId },
+      include: { user: true },
+      orderBy: { createdAt: "desc" },
+    })
   return rows.map((m) => ({
     id: m.id,
     userId: m.userId,

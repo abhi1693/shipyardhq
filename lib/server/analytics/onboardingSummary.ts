@@ -43,6 +43,40 @@ const NEWSLETTER_INTENT_GROUPS: {
   },
 ]
 
+type PendingOnboardingUser = Prisma.UserGetPayload<{
+  select: {
+    id: true
+    firstName: true
+    lastName: true
+    email: true
+    createdAt: true
+  }
+}>
+
+type RecentOnboardingUser = Prisma.UserGetPayload<{
+  select: {
+    id: true
+    firstName: true
+    lastName: true
+    email: true
+    roleIntent: true
+    heardFrom: true
+    termsAcceptedAt: true
+    updatedAt: true
+  }
+}>
+
+type CompletedMember = Prisma.UserGetPayload<{
+  select: {
+    email: true
+    roleIntent: true
+  }
+}>
+
+type NewsletterSubscriptionEmail = Prisma.NewsletterSubscriptionGetPayload<{
+  select: { email: true }
+}>
+
 function labelForValue(
   value: string,
   mapping: Record<string, string>,
@@ -183,7 +217,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
         ...adminSlowCache,
         tags: adminTags(TAGS.users),
       },
-    }),
+    }) as Promise<CompletedMember[]>,
   ])
 
   type RoleIntentGroup = Pick<
@@ -238,22 +272,24 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     : null
 
   const completedEmails = completedMembers
-    .map((member) => member.email?.toLowerCase())
+    .map((member: CompletedMember) => member.email?.toLowerCase())
     .filter(Boolean) as string[]
 
   const newsletterSubscriptions = completedEmails.length
-    ? await prisma.newsletterSubscription.findMany({
+    ? ((await prisma.newsletterSubscription.findMany({
         where: { email: { in: completedEmails } },
         select: { email: true },
         cacheStrategy: {
           ...adminSlowCache,
           tags: adminTags(TAGS.users, "newsletter"),
         },
-      })
+      })) as NewsletterSubscriptionEmail[])
     : []
 
   const subscribedEmailSet = new Set(
-    newsletterSubscriptions.map((entry) => entry.email.toLowerCase()),
+    newsletterSubscriptions.map((entry: NewsletterSubscriptionEmail) =>
+      entry.email.toLowerCase(),
+    ),
   )
 
   let newsletterSubscribed = 0
@@ -325,7 +361,9 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   }
 }
 
-export async function getPendingOnboardingUsers(limit = 12) {
+export async function getPendingOnboardingUsers(
+  limit = 12,
+): Promise<PendingOnboardingUser[]> {
   return prisma.user.findMany({
     where: {
       status: "active",
@@ -343,7 +381,9 @@ export async function getPendingOnboardingUsers(limit = 12) {
   })
 }
 
-export async function getRecentOnboardingCompletions(limit = 12) {
+export async function getRecentOnboardingCompletions(
+  limit = 12,
+): Promise<RecentOnboardingUser[]> {
   return prisma.user.findMany({
     where: {
       status: "active",

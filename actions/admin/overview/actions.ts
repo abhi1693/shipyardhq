@@ -46,7 +46,31 @@ const adminSlowCache = {
 const adminTags = (...tags: string[]) =>
   accelerateTags([ADMIN_ANALYTICS_TAG, ...tags])
 
-export async function getRecentProducts(limit = 10, days?: number) {
+type UserClerkRef = Prisma.UserGetPayload<{
+  select: { clerkId: true }
+}>
+
+type ProductWithPlanPrice = Prisma.ProductGetPayload<{
+  select: { plan: { select: { price: true } } }
+}>
+
+type RecentProduct = Prisma.ProductGetPayload<{
+  include: {
+    user: true
+    plan: true
+    verification: true
+    category: true
+  }
+}>
+
+type RecentUser = Prisma.UserGetPayload<{
+  include: { products: true }
+}>
+
+export async function getRecentProducts(
+  limit = 10,
+  days?: number,
+): Promise<RecentProduct[]> {
   const where = days
     ? { createdAt: { gte: subDays(new Date(), days) } }
     : undefined
@@ -63,7 +87,10 @@ export async function getRecentProducts(limit = 10, days?: number) {
   })
 }
 
-export async function getRecentUsers(limit = 10, days?: number) {
+export async function getRecentUsers(
+  limit = 10,
+  days?: number,
+): Promise<RecentUser[]> {
   const where = days
     ? { createdAt: { gte: subDays(new Date(), days) } }
     : undefined
@@ -215,10 +242,7 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
 
   // Determine most used plan within current range
   let mostPopularPlan: { id: string; name: string; count: number } | null = null
-  type PlanIdGroup = Pick<
-    Prisma.ProductGroupByOutputType,
-    "planId" | "_count"
-  >
+  type PlanIdGroup = Pick<Prisma.ProductGroupByOutputType, "planId" | "_count">
 
   const grouped = (await prisma.product.groupBy({
     by: ["planId"],
@@ -321,7 +345,7 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
   // Fallback/supplement: derive admin count from Clerk public metadata
   let adminCountFromClerk = 0
   try {
-    const ids = await prisma.user.findMany({
+    const ids: UserClerkRef[] = await prisma.user.findMany({
       select: { clerkId: true },
       cacheStrategy: {
         ...adminSlowCache,
@@ -331,6 +355,7 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
     const client = await clerkClient()
     const results = await Promise.all(
       ids.map(async (u) => {
+        if (!u.clerkId) return 0
         try {
           const user = await client.users.getUser(u.clerkId)
           const role = (user.publicMetadata as any)?.role
@@ -369,14 +394,15 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
   const usersDelta = newUsersThisWeek - prevUsers
 
   // Estimate revenue as sum of assigned plan prices across products
-  const productsForRevenue = await prisma.product.findMany({
-    select: { plan: { select: { price: true } } },
-    cacheStrategy: {
-      ...adminSlowCache,
-      tags: adminTags(TAGS.products, TAGS.plans),
-    },
-  })
-  const estimatedRevenueCents = productsForRevenue.reduce((sum, p) => {
+  const productsForRevenue: ProductWithPlanPrice[] =
+    await prisma.product.findMany({
+      select: { plan: { select: { price: true } } },
+      cacheStrategy: {
+        ...adminSlowCache,
+        tags: adminTags(TAGS.products, TAGS.plans),
+      },
+    })
+  const estimatedRevenueCents = productsForRevenue.reduce<number>((sum, p) => {
     return sum + (p.plan?.price ?? 0)
   }, 0)
 

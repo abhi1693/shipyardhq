@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
-import { ProductStatus } from "@/lib/vendor/prisma/client"
+import { Prisma, ProductStatus } from "@/lib/vendor/prisma/client"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -15,11 +15,29 @@ import { redirect } from "next/navigation"
 
 type ListParams = Record<string, string | string[] | undefined>
 
+type OrgMembershipRef = Prisma.OrganizationMembershipGetPayload<{
+  select: { organizationId: true }
+}>
+
+type ProductListItem = Prisma.ProductGetPayload<{
+  include: {
+    category: { select: { id: true; name: true; slug: true } }
+    plan: { select: { id: true; name: true } }
+    verification: { select: { isVerified: true } }
+    analytics: { select: { clicks: true; upvotes: true } }
+  }
+}>
+
+type ProductUpvoteWithUser = Prisma.ProductUpvoteGetPayload<{
+  include: { user: true }
+}>
+
 async function getAccessibleOrganizationIds(userId: string) {
-  const memberships = await prisma.organizationMembership.findMany({
-    where: { userId },
-    select: { organizationId: true },
-  })
+  const memberships: OrgMembershipRef[] =
+    await prisma.organizationMembership.findMany({
+      where: { userId },
+      select: { organizationId: true },
+    })
   return memberships.map((m) => m.organizationId)
 }
 
@@ -102,7 +120,7 @@ export async function getUserProducts(params?: ListParams) {
       orderBy = { createdAt: "desc" }
   }
 
-  const [products, total] = await Promise.all([
+  const [products, total] = (await Promise.all([
     prisma.product.findMany({
       where,
       orderBy,
@@ -116,9 +134,9 @@ export async function getUserProducts(params?: ListParams) {
       },
     }),
     prisma.product.count({ where }),
-  ])
+  ])) as [ProductListItem[], number]
 
-  const productsWithPermissions = products.map((product) => ({
+  const productsWithPermissions = products.map((product: ProductListItem) => ({
     ...product,
     canDelete: product.userId === user.id,
   }))
@@ -142,13 +160,13 @@ export async function getRecentUpvoters(productId: string, limit = 5) {
     select: { id: true },
   })
   if (!ok) throw new Error("Not found")
-  const rows = await prisma.productUpvote.findMany({
-    where: { productId },
-    orderBy: { createdAt: "desc" },
-    take: limit,
-    include: { user: true },
-  })
-  return rows.map((r) => ({
+  const rows: ProductUpvoteWithUser[] = await prisma.productUpvote.findMany({
+      where: { productId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      include: { user: true },
+    })
+  return rows.map((r: ProductUpvoteWithUser) => ({
     id: r.id,
     createdAt: r.createdAt,
     user: {

@@ -29,10 +29,7 @@ const nextConfig: NextConfig = {
       )
     }
 
-    config.ignoreWarnings = [
-      ...(config.ignoreWarnings || []),
-      matchesOtWarning,
-    ]
+    config.ignoreWarnings = [...(config.ignoreWarnings || []), matchesOtWarning]
 
     return config
   },
