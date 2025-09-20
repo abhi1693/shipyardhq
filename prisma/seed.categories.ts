@@ -1,3 +1,6 @@
+import path from "node:path"
+import { pathToFileURL } from "node:url"
+
 import { PrismaClient } from "../lib/vendor/prisma/client"
 import slugifyLib from "slugify"
 
@@ -232,8 +235,7 @@ export const CATEGORIES: SeedCategory[] = [
   },
 ]
 
-async function main() {
-  const prisma = new PrismaClient()
+export async function seedCategories(prisma: PrismaClient) {
   const results = [] as { name: string; slug: string; action: string }[]
 
   for (const item of CATEGORIES) {
@@ -261,12 +263,23 @@ async function main() {
   }
 
   console.table(results)
-
-  await prisma.$disconnect()
+  return results
 }
 
-// Execute the seeding routine
-main().catch((e) => {
-  console.error(e)
-  process.exit(1)
-})
+const invokedDirectly = (() => {
+  if (!process.argv[1]) return false
+  const cliUrl = pathToFileURL(path.resolve(process.argv[1])).href
+  return import.meta.url === cliUrl
+})()
+
+if (invokedDirectly) {
+  const prisma = new PrismaClient()
+  seedCategories(prisma)
+    .catch((e) => {
+      console.error(e)
+      process.exit(1)
+    })
+    .finally(async () => {
+      await prisma.$disconnect()
+    })
+}

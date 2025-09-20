@@ -1,7 +1,9 @@
+import path from "node:path"
+import { pathToFileURL } from "node:url"
+
 import { PrismaClient } from "@/lib/vendor/prisma/client"
 import slugifyLib from "slugify"
 
-const prisma = new PrismaClient()
 const slugify = (text: string) =>
   slugifyLib(text, { lower: true, strict: true })
 
@@ -133,7 +135,7 @@ const USE_CASES: UseCaseSeed[] = [
   },
 ]
 
-async function main() {
+export async function seedUseCases(prisma: PrismaClient) {
   const rows: { label: string; slug: string; action: "create" | "update" }[] =
     []
 
@@ -180,13 +182,23 @@ async function main() {
   }
 
   console.table(rows)
+  return rows
 }
 
-main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+const invokedDirectly = (() => {
+  if (!process.argv[1]) return false
+  const cliUrl = pathToFileURL(path.resolve(process.argv[1])).href
+  return import.meta.url === cliUrl
+})()
+
+if (invokedDirectly) {
+  const prisma = new PrismaClient()
+  seedUseCases(prisma)
+    .catch((e) => {
+      console.error(e)
+      process.exit(1)
+    })
+    .finally(async () => {
+      await prisma.$disconnect()
+    })
+}

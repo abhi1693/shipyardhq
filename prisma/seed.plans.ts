@@ -1,6 +1,7 @@
-import { PlanType, PrismaClient } from "@/lib/vendor/prisma/client"
+import path from "node:path"
+import { pathToFileURL } from "node:url"
 
-const prisma = new PrismaClient()
+import { PlanType, PrismaClient, TimeInterval } from "@/lib/vendor/prisma/client"
 
 type PlanSeed = {
   name: string
@@ -11,6 +12,10 @@ type PlanSeed = {
   isDefault?: boolean
   boostForDays?: number
   featureKeys: string[]
+  paymentFrequencyCount?: number
+  paymentFrequencyInterval?: TimeInterval
+  subscriptionPeriodCount?: number
+  subscriptionPeriodInterval?: TimeInterval
 }
 
 // Prod-safe plans with additive feature assignments; uses upsert and compound unique
@@ -60,9 +65,29 @@ const PLANS: PlanSeed[] = [
       "backlink",
     ],
   },
+  {
+    name: "Crew",
+    slug: "crew",
+    description: "Unlock organizations and collaboration tools",
+    type: PlanType.recurring_price,
+    price: 9900,
+    isDefault: false,
+    boostForDays: 30,
+    featureKeys: [
+      "analytics.basic",
+      "analytics.advanced",
+      "priorityPlacement",
+      "homepage",
+      "organization",
+    ],
+    paymentFrequencyCount: 1,
+    paymentFrequencyInterval: TimeInterval.month,
+    subscriptionPeriodCount: 1,
+    subscriptionPeriodInterval: TimeInterval.month,
+  },
 ]
 
-async function main() {
+export async function seedPlans(prisma: PrismaClient) {
   const rows: { slug: string; action: "create" | "update" }[] = []
 
   // Resolve features once
@@ -84,6 +109,10 @@ async function main() {
         price: p.price,
         isDefault: !!p.isDefault,
         boostForDays: p.boostForDays ?? 1,
+        paymentFrequencyCount: p.paymentFrequencyCount,
+        paymentFrequencyInterval: p.paymentFrequencyInterval,
+        subscriptionPeriodCount: p.subscriptionPeriodCount,
+        subscriptionPeriodInterval: p.subscriptionPeriodInterval,
       },
       create: {
         name: p.name,
@@ -93,6 +122,10 @@ async function main() {
         price: p.price,
         isDefault: !!p.isDefault,
         boostForDays: p.boostForDays ?? 1,
+        paymentFrequencyCount: p.paymentFrequencyCount,
+        paymentFrequencyInterval: p.paymentFrequencyInterval,
+        subscriptionPeriodCount: p.subscriptionPeriodCount,
+        subscriptionPeriodInterval: p.subscriptionPeriodInterval,
       },
     })
 
@@ -115,13 +148,23 @@ async function main() {
   }
 
   console.table(rows)
+  return rows
 }
 
-main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+const invokedDirectly = (() => {
+  if (!process.argv[1]) return false
+  const cliUrl = pathToFileURL(path.resolve(process.argv[1])).href
+  return import.meta.url === cliUrl
+})()
+
+if (invokedDirectly) {
+  const prisma = new PrismaClient()
+  seedPlans(prisma)
+    .catch((e) => {
+      console.error(e)
+      process.exit(1)
+    })
+    .finally(async () => {
+      await prisma.$disconnect()
+    })
+}
