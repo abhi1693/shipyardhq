@@ -8,6 +8,7 @@ import {
   TAGS,
 } from "@/lib/cache"
 import type { FeaturedProduct } from "@/types"
+import { featuredProductSelect } from "@/types"
 
 export const getProducts = cached(
   async (badge: string): Promise<FeaturedProduct[]> => {
@@ -17,22 +18,13 @@ export const getProducts = cached(
         badge,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
+      take: 24,
       cacheStrategy: {
         ttl: DEFAULT_TTL.fast,
         swr: DEFAULT_SWR.fast,
         tags: accelerateTags([TAGS.products, TAGS.badges, `badge:${badge}`]),
       },
-      include: {
-        product: {
-          include: {
-            metadata: true,
-            category: true,
-            analytics: true,
-            user: true,
-            ProductBadge: true,
-          },
-        },
-      },
+      select: featuredProductSelect,
       orderBy: { createdAt: "desc" },
     })
 
@@ -80,31 +72,11 @@ export const getTrendingProducts = cached(
           TAGS.analytics,
         ]),
       },
-      include: {
-        product: {
-          include: {
-            category: true,
-            user: true,
-            analytics: true,
-            ProductBadge: true,
-            metadata: true,
-          },
-        },
-      },
+      select: featuredProductSelect,
     })
 
     return trending satisfies Prisma.ProductBadgeGetPayload<{
-      include: {
-        product: {
-          include: {
-            category: true
-            user: true
-            analytics: true
-            ProductBadge: true
-            metadata: true
-          }
-        }
-      }
+      select: typeof featuredProductSelect
     }>[]
   },
   "products:trending",
@@ -170,17 +142,7 @@ export const getFeaturedByCategorySlug = cached(
           TAGS.category(String(slug)),
         ]),
       },
-      include: {
-        product: {
-          include: {
-            metadata: true,
-            category: true,
-            analytics: true,
-            user: true,
-            ProductBadge: true,
-          },
-        },
-      },
+      select: featuredProductSelect,
       orderBy: { createdAt: "desc" },
       take: limit,
     })

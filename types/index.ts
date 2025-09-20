@@ -12,18 +12,36 @@ export interface NavItem {
   items?: NavItem[]
 }
 
+export const featuredProductSelect = {
+  id: true,
+  badge: true,
+  expiresAt: true,
+  createdAt: true,
+  productId: true,
+  product: {
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      logo: true,
+      tagline: true,
+      bannerImage: true,
+      analytics: { select: { upvotes: true } },
+      user: { select: { firstName: true, lastName: true } },
+      category: { select: { name: true } },
+      ProductBadge: {
+        select: {
+          id: true,
+          badge: true,
+          expiresAt: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.ProductBadgeSelect
+
 export type FeaturedProduct = Prisma.ProductBadgeGetPayload<{
-  include: {
-    product: {
-      include: {
-        metadata: true
-        category: true
-        analytics: true
-        user: true
-        ProductBadge: true
-      }
-    }
-  }
+  select: typeof featuredProductSelect
 }>
 
 export interface BrowseFiltersProps {
