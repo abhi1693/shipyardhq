@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { google } = require("googleapis")
 const path = require("path")
 const axios = require("axios")
