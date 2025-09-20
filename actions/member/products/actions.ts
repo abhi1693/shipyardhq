@@ -161,11 +161,11 @@ export async function getRecentUpvoters(productId: string, limit = 5) {
   })
   if (!ok) throw new Error("Not found")
   const rows: ProductUpvoteWithUser[] = await prisma.productUpvote.findMany({
-      where: { productId },
-      orderBy: { createdAt: "desc" },
-      take: limit,
-      include: { user: true },
-    })
+    where: { productId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: { user: true },
+  })
   return rows.map((r: ProductUpvoteWithUser) => ({
     id: r.id,
     createdAt: r.createdAt,

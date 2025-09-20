@@ -30,8 +30,12 @@ export const metadata = buildPageMetadata({
   description: "See the most upvoted products across the platform.",
 })
 
-type CategoryListItem = Awaited<ReturnType<typeof getCategoriesWithCounts>>[number]
-type LeaderboardProduct = Awaited<ReturnType<typeof getTopRankedProducts>>[number]
+type CategoryListItem = Awaited<
+  ReturnType<typeof getCategoriesWithCounts>
+>[number]
+type LeaderboardProduct = Awaited<
+  ReturnType<typeof getTopRankedProducts>
+>[number]
 
 export default async function LeaderboardPage({
   searchParams,
@@ -50,9 +54,7 @@ export default async function LeaderboardPage({
   const topThree = products.slice(0, 3)
   const rest = products.slice(3)
   const categoryName = categorySlug
-    ? categories.find(
-        (c: CategoryListItem) => c.slug === categorySlug,
-      )?.name
+    ? categories.find((c: CategoryListItem) => c.slug === categorySlug)?.name
     : undefined
   const totalCount = products.length
   const restHasEntries = rest.length > 0

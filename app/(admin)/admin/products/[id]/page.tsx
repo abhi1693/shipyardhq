@@ -344,7 +344,9 @@ export default async function ViewProductPage({
                   productId={product.id}
                   media={
                     product.ProductMedia?.map(
-                      (m: NonNullable<typeof product.ProductMedia>[number]) => ({
+                      (
+                        m: NonNullable<typeof product.ProductMedia>[number],
+                      ) => ({
                         id: m.id,
                         imageUrl: m.imageUrl,
                       }),

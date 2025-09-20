@@ -106,31 +106,27 @@ export async function getUserDashboardStats(days = 7) {
 
   const since = subDays(new Date(), days)
 
-  const [
-    products,
-    productsInRange,
-    draftsCount,
-    unverifiedCount,
-  ] = (await Promise.all([
-    prisma.product.findMany({
-      where: { userId: user.id },
-      include: {
-        verification: { select: { isVerified: true } },
-        analytics: { select: { clicks: true, upvotes: true } },
-        plan: { select: { id: true, name: true, price: true } },
-      },
-    }),
-    prisma.product.count({
-      where: {
-        userId: user.id,
-        createdAt: { gte: since },
-      },
-    }),
-    prisma.product.count({ where: { userId: user.id, status: "draft" } }),
-    prisma.product.count({
-      where: { userId: user.id, verification: { isVerified: false } },
-    }),
-  ])) as [ProductWithAnalytics[], number, number, number]
+  const [products, productsInRange, draftsCount, unverifiedCount] =
+    (await Promise.all([
+      prisma.product.findMany({
+        where: { userId: user.id },
+        include: {
+          verification: { select: { isVerified: true } },
+          analytics: { select: { clicks: true, upvotes: true } },
+          plan: { select: { id: true, name: true, price: true } },
+        },
+      }),
+      prisma.product.count({
+        where: {
+          userId: user.id,
+          createdAt: { gte: since },
+        },
+      }),
+      prisma.product.count({ where: { userId: user.id, status: "draft" } }),
+      prisma.product.count({
+        where: { userId: user.id, verification: { isVerified: false } },
+      }),
+    ])) as [ProductWithAnalytics[], number, number, number]
 
   const totalProducts = products.length
   const verifiedDomains = products.filter(
@@ -286,9 +282,7 @@ export async function getProductsNeedingMedia(min = 2, limit = 5) {
       _count: { select: { ProductMedia: true } },
     },
   })
-  return products
-    .filter((p) => p._count.ProductMedia < min)
-    .slice(0, limit)
+  return products.filter((p) => p._count.ProductMedia < min).slice(0, limit)
 }
 
 // New: Recent activity (derived from existing tables)

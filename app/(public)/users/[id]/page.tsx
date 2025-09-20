@@ -67,12 +67,12 @@ export default async function PublicUserPage({ params }: PageProps) {
     user: { firstName: p.user.firstName, lastName: p.user.lastName },
     category: { name: p.category?.name },
     verification: p.verification,
-    badges:
-      (p.ProductBadge || [])
-        .filter((b: PublicUserProduct["ProductBadge"][number]) =>
+    badges: (p.ProductBadge || [])
+      .filter(
+        (b: PublicUserProduct["ProductBadge"][number]) =>
           !b.expiresAt || new Date(b.expiresAt) > new Date(),
-        )
-        .map((b: PublicUserProduct["ProductBadge"][number]) => b.badge),
+      )
+      .map((b: PublicUserProduct["ProductBadge"][number]) => b.badge),
   }))
 
   const base = (

@@ -12,7 +12,9 @@ export const metadata = buildPageMetadata({
     "Explore the harbor by category and discover innovative products.",
 })
 
-type CategoryListItem = Awaited<ReturnType<typeof getCategoriesWithCounts>>[number]
+type CategoryListItem = Awaited<
+  ReturnType<typeof getCategoriesWithCounts>
+>[number]
 
 export default async function CategoriesPage() {
   const categories = await getCategoriesWithCounts()
