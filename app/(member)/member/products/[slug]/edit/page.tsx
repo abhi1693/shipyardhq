@@ -21,7 +21,7 @@ export default async function EditProductPage({
   if (!product) return notFound()
 
   const [categories, organizations] = await Promise.all([
-    getCategories(),
+    getCategories({ orderBy: { name: "asc" } }),
     getMyOrganizations().catch(() => []),
   ])
 

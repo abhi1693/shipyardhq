@@ -25,7 +25,7 @@ export default async function AddProductPage() {
   }
 
   const [categories, organizations] = await Promise.all([
-    getCategories().catch(() => []),
+    getCategories({ orderBy: { name: "asc" } }).catch(() => []),
     getMyOrganizations().catch(() => []),
   ])
 
