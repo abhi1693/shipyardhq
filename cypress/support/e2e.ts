@@ -25,7 +25,10 @@ declare global {
       /**
        * Boots Clerk and signs in the dedicated Cypress test user.
        */
-      signInTestUser(options?: { homePath?: string; afterSignInPath?: string | null }): Chainable<void>
+      signInTestUser(options?: {
+        homePath?: string
+        afterSignInPath?: string | null
+      }): Chainable<void>
     }
   }
 }

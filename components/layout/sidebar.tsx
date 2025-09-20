@@ -145,7 +145,9 @@ export default function AppSidebar(props: SidebarProps) {
                         size="lg"
                         className={topLevelButtonClasses}
                       >
-                        {item.icon && <Icon className="shrink-0 group-data-[collapsible=icon]:size-5" />}
+                        {item.icon && (
+                          <Icon className="shrink-0 group-data-[collapsible=icon]:size-5" />
+                        )}
                         <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
                           {item.title}
                         </span>

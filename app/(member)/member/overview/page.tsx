@@ -62,7 +62,7 @@ function formatNumber(value: number) {
 }
 
 function pluralize(count: number, singular: string, plural?: string) {
-  return count === 1 ? singular : plural ?? `${singular}s`
+  return count === 1 ? singular : (plural ?? `${singular}s`)
 }
 
 function formatRelative(date: Date | string) {
