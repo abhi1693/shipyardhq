@@ -1,5 +1,5 @@
 import React from "react"
-import { render, screen, fireEvent } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import AppSidebar from "@/components/layout/sidebar"
 import { SidebarProvider } from "@/components/atoms/sidebar"
 import type { NavItem } from "@/types"
@@ -15,8 +15,8 @@ vi.mock("@/components/icons", () => ({
   ),
 }))
 
-describe("AppSidebar filtering", () => {
-  it("filters subitems by query when typing in search", () => {
+describe("AppSidebar structure", () => {
+  it("renders nested items without filtering", () => {
     // Polyfill matchMedia used by use-mobile hook
     Object.defineProperty(window, "matchMedia", {
       writable: true,
@@ -47,10 +47,8 @@ describe("AppSidebar filtering", () => {
         <AppSidebar navItems={nav} />
       </SidebarProvider>,
     )
-    // Type into search to filter to Invites only
-    const input = screen.getByPlaceholderText(/Search navigation/i)
-    fireEvent.change(input, { target: { value: "inv" } })
+    expect(screen.queryByPlaceholderText(/Search navigation/i)).toBeNull()
     expect(screen.getByText("Invites")).toBeInTheDocument()
-    expect(screen.queryByText("All Users")).toBeNull()
+    expect(screen.getByText("All Users")).toBeInTheDocument()
   })
 })

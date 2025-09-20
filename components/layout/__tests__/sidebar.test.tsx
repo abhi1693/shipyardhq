@@ -19,7 +19,7 @@ vi.mock("@/components/icons", () => ({
 }))
 
 describe("AppSidebar", () => {
-  it("renders admin nav items and search input", () => {
+  it("renders admin nav items without search", () => {
     // Polyfill matchMedia used by use-mobile hook
     Object.defineProperty(window, "matchMedia", {
       writable: true,
@@ -56,8 +56,6 @@ describe("AppSidebar", () => {
     expect(screen.getAllByText("Overview")[0]).toBeInTheDocument()
     expect(screen.getAllByText("Users")[0]).toBeInTheDocument()
     // Search input
-    expect(
-      screen.getByPlaceholderText(/Search navigation/i),
-    ).toBeInTheDocument()
+    expect(screen.queryByPlaceholderText(/Search navigation/i)).toBeNull()
   })
 })

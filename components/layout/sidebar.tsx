@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { useMemo, useState, useTransition } from "react"
+import { useTransition } from "react"
 import {
   Sidebar,
   SidebarContent,
@@ -15,7 +15,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
-  SidebarInput,
   SidebarTrigger,
 } from "@/components/atoms/sidebar"
 import { Icons } from "../icons"
@@ -40,7 +39,6 @@ export default function AppSidebar(props: SidebarProps) {
   const pathname = usePathname()
   const { navItems = [], showCustomerPortal = false } = props
 
-  const [query, setQuery] = useState("")
   const [isPortalPending, startPortal] = useTransition()
 
   function openCustomerPortal() {
@@ -78,21 +76,13 @@ export default function AppSidebar(props: SidebarProps) {
     return false
   }
 
-  const filteredNav = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return navItems
-    return navItems
-      .map((item) => {
-        const titleMatch = item.title.toLowerCase().includes(q)
-        const sub = (item.items || []).filter((s) =>
-          `${s.title} ${s.label ?? ""}`.toLowerCase().includes(q),
-        )
-        if (titleMatch) return { ...item }
-        if (sub.length) return { ...item, items: sub }
-        return null
-      })
-      .filter(Boolean) as NavItem[]
-  }, [navItems, query])
+  const filteredNav = navItems
+
+  const topLevelButtonClasses =
+    "px-3 transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:border data-[active=true]:border-[color:var(--brand-1)/0.4] data-[active=true]:bg-[color:var(--brand-1)/0.22] data-[active=true]:text-[color:var(--brand-1)]"
+
+  const subLevelButtonClasses =
+    "transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:bg-[color:var(--brand-1)/0.18] data-[active=true]:text-[color:var(--brand-1)]"
 
   return (
     <Sidebar collapsible="icon">
@@ -110,24 +100,18 @@ export default function AppSidebar(props: SidebarProps) {
               className="h-7 w-7 rounded-sm"
               priority
             />
-            <span className="text-base md:text-lg font-bold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none">
+            <span className="text-base md:text-lg font-bold tracking-tight text-[color:var(--brand-1)] group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none">
               ShipYardHQ
             </span>
           </Link>
-        </div>
-        <div className="px-1">
-          <SidebarInput
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search navigation…"
-            aria-label="Search admin navigation"
-          />
         </div>
         <div className="mx-1 mt-1 h-px rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] opacity-70" />
       </SidebarHeader>
       <SidebarContent className="overflow-x-hidden">
         <SidebarGroup>
-          <SidebarGroupLabel>Admin</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-3 py-1.5 text-sm font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/85">
+            Admin
+          </SidebarGroupLabel>
           <SidebarMenu>
             {filteredNav.map((item) => {
               const Icon = item.icon ? Icons[item.icon] : Icons.logo
@@ -142,7 +126,12 @@ export default function AppSidebar(props: SidebarProps) {
                 >
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip={item.title} isActive={active}>
+                      <SidebarMenuButton
+                        tooltip={item.title}
+                        isActive={active}
+                        size="lg"
+                        className={topLevelButtonClasses}
+                      >
                         {item.icon && <Icon />}
                         <span>{item.title}</span>
                         <IconChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -160,6 +149,7 @@ export default function AppSidebar(props: SidebarProps) {
                               <SidebarMenuSubButton
                                 asChild
                                 isActive={subActive}
+                                className={subLevelButtonClasses}
                               >
                                 <Link
                                   href={subItem.url}
@@ -190,6 +180,8 @@ export default function AppSidebar(props: SidebarProps) {
                     asChild
                     tooltip={item.title}
                     isActive={isActivePath(item.url)}
+                    size="lg"
+                    className={topLevelButtonClasses}
                   >
                     <Link
                       href={item.url}
@@ -213,6 +205,8 @@ export default function AppSidebar(props: SidebarProps) {
                   tooltip="Customer Portal"
                   onClick={openCustomerPortal}
                   disabled={isPortalPending}
+                  size="lg"
+                  className={topLevelButtonClasses}
                 >
                   <Icons.billing />
                   <span className="flex-1 truncate">Customer Portal</span>
