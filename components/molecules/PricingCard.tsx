@@ -156,7 +156,7 @@ export function PricingCard({
             className={clsx(
               "group w-full justify-center gap-2 transition",
               isFree
-                ? "border-[color:var(--brand-1)/0.3] bg-background text-[color:var(--brand-1)] hover:border-[color:var(--brand-1)/0.45] hover:bg-[color:var(--brand-1)/0.08] hover:text-[color:var(--brand-1)]"
+                ? "border-[color:var(--brand-1)/0.4] bg-[color:var(--brand-1)] text-white shadow-[0px_20px_55px_-32px_rgba(7,58,104,0.65)] hover:border-[color:var(--brand-1)/0.55] hover:bg-[color:var(--brand-1)/0.92] hover:shadow-[0px_26px_70px_-34px_rgba(7,78,134,0.7)] focus-visible:border-[color:var(--brand-2)/0.6] focus-visible:ring-[color:var(--brand-2)/0.35]"
                 : "shadow-[0px_22px_55px_-32px_rgba(7,58,104,0.65)] hover:shadow-[0px_30px_70px_-38px_rgba(7,78,134,0.7)]",
             )}
           >
