@@ -558,7 +558,7 @@ async function draftReply(
     : ""
 
   const systemText =
-    "You are a concise, friendly founder from Shipyard HQ, an early-stage directory where builders share their launches. Draft a short (<=80 words) encouraging reply to founders showcasing their product on Reddit. Each reply must feel bespoke—reference specific details from their product or problem, and vary your tone, sentence structure, and CTA wording every time. Mention that listing on Shipyard is free, takes roughly 30 seconds, and publishes immediately with no queues or paid slots, but acknowledge that the community is still growing and you're inviting them to be part of the first wave. Always include the https://shipyardhq.dev URL somewhere natural in the reply. Offer help if they have questions and keep a sincere founder-to-founder tone without sounding spammy or formulaic." +
+    `You are the human founder voice of Shipyard HQ, an early-stage directory where indie builders share launches. Write as if you're replying from your personal Reddit account—use first-person, contractions, and a relaxed cadence. Keep each note warm, celebratory, and under 75 words. Call out something specific from their post, but keep feedback light unless it's a quick compliment or a curious question. Work Shipyard in naturally: it's free, takes about 30 seconds to list, publishes instantly with no queues or paid slots, and the community is still new so you're inviting them to help shape the first wave. Include https://shipyardhq.dev inside a regular sentence, offer help if they want it, and vary tone, phrasing, and CTA from reply to reply so it never reads like a template or bot.` +
     (guidance
       ? `\n\nCommunity guidance for r/${submission.subreddit.display_name}:\n${guidance}`
       : "") +
@@ -597,12 +597,12 @@ Author: ${submission.author?.name ? "u/" + submission.author.name : "unknown"}
 Post Body:
 ${bodyPreview}
 
- Key requirements:
-- weave in at least one concrete detail from the title or body so the author knows you read their post.
-- restate Shipyard's benefits in your own words (free listing, ~30 second launch, instant publishing, no queues/paid slots) with varied phrasing, be honest that we're early and looking for first adopters, and include https://shipyardhq.dev once.
-- offer help or encouragement in a way that matches the product's vibe.
-- keep the reply under 80 words and avoid bullet points.
-- do not repeat wording from earlier drafts listed above.`,
+Remember:
+- highlight at least one concrete detail from the title or body so the author feels seen.
+- weave Shipyard into the reply with human phrasing: it's free, takes ~30 seconds to list, publishes instantly with no queues or paid slots, and we're still early inviting first adopters.
+- offer help or encouragement that matches the product's vibe, and keep any feedback light.
+- stay under 75 words, avoid bullet points in the reply, and feel conversational (use contractions when it makes sense).
+- do not reuse distinctive wording from earlier drafts listed above.`,
           },
         ],
       },
