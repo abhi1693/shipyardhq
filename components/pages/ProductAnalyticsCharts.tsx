@@ -78,8 +78,8 @@ export function ProductAnalyticsCharts({
   )
 
   return (
-    <div className="grid gap-6 lg:grid-cols-12">
-      <Card className="lg:col-span-7 border border-slate-200 bg-white/95 shadow-sm">
+    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-12">
+      <Card className="md:col-span-2 xl:col-span-7 border border-slate-200 bg-white/95 shadow-sm">
         <CardHeader className="px-4 pb-0">
           <CardTitle className="flex items-center gap-2">
             Views over time
@@ -160,7 +160,7 @@ export function ProductAnalyticsCharts({
         </CardContent>
       </Card>
 
-      <Card className="lg:col-span-5 border border-slate-200 bg-white/95 shadow-sm">
+      <Card className="md:col-span-1 xl:col-span-5 border border-slate-200 bg-white/95 shadow-sm">
         <CardHeader className="px-4 pb-0">
           <CardTitle className="flex items-center gap-2">
             Device split

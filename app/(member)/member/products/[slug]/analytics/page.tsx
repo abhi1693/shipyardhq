@@ -22,7 +22,7 @@ import type { ProductTrafficSummary } from "@/types/analytics"
 import { ArrowLeft, ExternalLink, Info } from "lucide-react"
 import { hasPlanFeature } from "@/lib/features"
 import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
-import { Badge } from "@/components/atoms/badge"
+import RangeSelector from "@/components/molecules/RangeSelector"
 
 const actionGroupClass =
   "flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70"
@@ -36,6 +36,21 @@ const deltaBaseClass =
   "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold"
 const deltaPositiveClass = "border-emerald-200 bg-emerald-50 text-emerald-700"
 const deltaNegativeClass = "border-rose-200 bg-rose-50 text-rose-700"
+
+function rangeToDays(range?: string | null) {
+  switch (range) {
+    case "7d":
+      return 7
+    case "14d":
+      return 14
+    case "30d":
+      return 30
+    case "90d":
+      return 90
+    default:
+      return 7
+  }
+}
 
 function DeltaBadge({ value }: { value: number }) {
   if (!Number.isFinite(value)) {
@@ -152,73 +167,6 @@ function SummaryCards({
         </Card>
       ))}
     </div>
-  )
-}
-
-function InsightsPanel({ summary }: { summary: ProductTrafficSummary }) {
-  const formatter = new Intl.NumberFormat("en-US")
-  const insights: {
-    title: string
-    description: string
-  }[] = []
-
-  if (typeof summary.totalViewsChange === "number") {
-    const delta = summary.totalViewsChange
-    const up = delta > 0
-    const magnitude = Math.abs(delta).toFixed(1)
-    insights.push({
-      title: "Traffic trend",
-      description: up
-        ? `Views climbed ${magnitude}% versus the previous ${summary.rangeDays}-day window.`
-        : delta === 0
-          ? "Traffic held steady compared with the prior window."
-          : `Views dipped ${magnitude}% versus the previous ${summary.rangeDays}-day window.`,
-    })
-  }
-
-  if (summary.topCountry) {
-    insights.push({
-      title: "Strongest region",
-      description: `${summary.topCountry.country} delivered ${formatter.format(summary.topCountry.views)} views in this window.`,
-    })
-  }
-
-  if (summary.topReferrer) {
-    const label = summary.topReferrer.referrer || "Direct"
-    insights.push({
-      title: "Leading referral",
-      description: `${label} accounted for ${formatter.format(summary.topReferrer.views)} visits.`,
-    })
-  }
-
-  if (!insights.length) return null
-
-  return (
-    <Card className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-br from-sky-50 via-white to-indigo-50 shadow-[0_28px_60px_-48px_rgba(12,78,134,0.65)]">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-20 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-sky-200/30 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-16 -top-10 h-56 w-56 rounded-full bg-indigo-200/25 blur-3xl"
-      />
-      <CardContent className="relative flex flex-wrap gap-6 px-6 py-6">
-        {insights.map((insight) => (
-          <div
-            key={insight.title}
-            className="max-w-sm space-y-1 text-sm text-slate-700"
-          >
-            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.32em] text-slate-500">
-              {insight.title}
-            </span>
-            <p className="text-sm leading-relaxed text-slate-700">
-              {insight.description}
-            </p>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
   )
 }
 
@@ -364,10 +312,15 @@ function VisitorLoyaltyCard({
 
 export default async function ProductAnalyticsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ range?: string }>
 }) {
   const { slug } = await params
+  const sp = await searchParams
+  const rangeParam = sp?.range ?? null
+  const rangeDays = rangeToDays(rangeParam)
   const { product: manageableProduct } = await requireManageableProduct(slug, {
     unauthorizedRedirect: null,
     missingRedirect: null,
@@ -414,22 +367,10 @@ export default async function ProductAnalyticsPage({
     redirect(`/member/products/${product.slug}`)
   }
 
-  const summary = await getProductTrafficSummary(product.id)
+  const summary = await getProductTrafficSummary(product.id, { rangeDays })
   const publicPath = `/products/${product.slug}`
   const rangeLabel = `Last ${summary.rangeDays} days`
   const advanced = summary.advanced
-  const overviewMetrics = [
-    {
-      label: `Total views (${summary.rangeDays}d)`,
-      value: summary.totalViews.toLocaleString("en-US"),
-    },
-  ]
-  if (hasAdvancedAnalytics) {
-    overviewMetrics.push({
-      label: "Unique visitors",
-      value: summary.uniqueVisitors.toLocaleString("en-US"),
-    })
-  }
   const countryItems = summary.countryBreakdown
     .slice(0, 6)
     .map((item) => ({ label: item.country || "Unknown", views: item.views }))
@@ -470,7 +411,7 @@ export default async function ProductAnalyticsPage({
         updatedAt: product.updatedAt,
         slug: product.id,
       }}
-      overview={overviewMetrics}
+      overview={[]}
       basePath="member/products"
       headingActionsLeft={
         <div className="flex flex-wrap items-center gap-3">
@@ -500,9 +441,7 @@ export default async function ProductAnalyticsPage({
                   Engagement signals across your most recent reporting window.
                 </p>
               </div>
-              <Badge variant="outline" className="rounded-full px-3 py-1">
-                {rangeLabel}
-              </Badge>
+              <RangeSelector className="shrink-0" />
             </div>
             <SummaryCards
               summary={summary}
@@ -511,26 +450,23 @@ export default async function ProductAnalyticsPage({
           </section>
           {hasAdvancedAnalytics ? (
             <>
-              <InsightsPanel summary={summary} />
-
-              <ProductAnalyticsCharts summary={summary} />
-
               <section className="space-y-4">
                 <div>
                   <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                    Engagement & retention
+                    Traffic trends
                   </span>
                 </div>
-                <VisitorLoyaltyCard data={advanced.newVsReturning} />
+                <ProductAnalyticsCharts summary={summary} />
               </section>
 
               <section className="space-y-4">
                 <div>
                   <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                    Acquisition & platforms
+                    Audience & acquisition
                   </span>
                 </div>
-                <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <VisitorLoyaltyCard data={advanced.newVsReturning} />
                   <BreakdownCard
                     title="Traffic channel mix"
                     subtitle="Share of visits by source grouping"
@@ -543,6 +479,16 @@ export default async function ProductAnalyticsPage({
                     items={referrerItems}
                     empty="Referrer data will populate after sharing your product."
                   />
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                    Platform mix
+                  </span>
+                </div>
+                <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
                   <BreakdownCard
                     title="Top browsers"
                     subtitle={rangeLabel}
@@ -555,22 +501,22 @@ export default async function ProductAnalyticsPage({
                     items={osItems}
                     empty="Operating system data will appear once visitors arrive."
                   />
-                </div>
-              </section>
-
-              <section className="space-y-4">
-                <div>
-                  <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                    Geography
-                  </span>
-                </div>
-                <div className="grid gap-4 lg:grid-cols-3">
                   <BreakdownCard
                     title="Top countries"
                     subtitle={rangeLabel}
                     items={countryItems}
                     empty="We haven't detected country signals yet."
                   />
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                    Regional insights
+                  </span>
+                </div>
+                <div className="grid gap-4 lg:grid-cols-2">
                   <BreakdownCard
                     title="Top regions"
                     subtitle={rangeLabel}

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 
 const ranges = [
   { label: "7d", value: "7d" },
+  { label: "14d", value: "14d" },
   { label: "30d", value: "30d" },
   { label: "90d", value: "90d" },
 ]

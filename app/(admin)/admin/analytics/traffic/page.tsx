@@ -17,11 +17,14 @@ type SearchParams = { range?: string }
 
 function rangeToDays(range?: string): number {
   switch (range) {
+    case "7d":
+      return 7
+    case "14d":
+      return 14
     case "30d":
       return 30
     case "90d":
       return 90
-    case "7d":
     default:
       return 7
   }
