@@ -416,40 +416,90 @@ async function buildTrafficSummary(
 
   let clickEvents: { createdAt: Date }[] = []
   let upvoteEvents: { createdAt: Date }[] = []
+  let previousClickCount = 0
+  let previousUpvoteCount = 0
 
   if (productId) {
     const rangeEnd = addDays(today, 1)
-    ;[clickEvents, upvoteEvents] = await Promise.all([
-      prisma.productClickEvent.findMany({
-        where: {
-          productId,
-          createdAt: {
-            gte: rangeStart,
-            lt: rangeEnd,
+    const previousRangeStart = previousStart
+    const previousRangeEnd = rangeStart
+    ;[clickEvents, upvoteEvents, previousClickCount, previousUpvoteCount] =
+      await Promise.all([
+        prisma.productClickEvent.findMany({
+          where: {
+            productId,
+            createdAt: {
+              gte: rangeStart,
+              lt: rangeEnd,
+            },
           },
-        },
-        select: { createdAt: true },
-        cacheStrategy: {
-          ...trafficCache,
-          tags: baseTags,
-        },
-      }),
-      prisma.productUpvote.findMany({
-        where: {
-          productId,
-          createdAt: {
-            gte: rangeStart,
-            lt: rangeEnd,
+          select: { createdAt: true },
+          cacheStrategy: {
+            ...trafficCache,
+            tags: baseTags,
           },
-        },
-        select: { createdAt: true },
-        cacheStrategy: {
-          ...trafficCache,
-          tags: baseTags,
-        },
-      }),
-    ])
+        }),
+        prisma.productUpvote.findMany({
+          where: {
+            productId,
+            createdAt: {
+              gte: rangeStart,
+              lt: rangeEnd,
+            },
+          },
+          select: { createdAt: true },
+          cacheStrategy: {
+            ...trafficCache,
+            tags: baseTags,
+          },
+        }),
+        previousComparison
+          ? prisma.productClickEvent.count({
+              where: {
+                productId,
+                createdAt: {
+                  gte: previousRangeStart,
+                  lt: previousRangeEnd,
+                },
+              },
+            })
+          : Promise.resolve(0),
+        previousComparison
+          ? prisma.productUpvote.count({
+              where: {
+                productId,
+                createdAt: {
+                  gte: previousRangeStart,
+                  lt: previousRangeEnd,
+                },
+              },
+            })
+          : Promise.resolve(0),
+      ])
   }
+
+  const clicksInRange = clickEvents.length
+  const upvotesInRange = upvoteEvents.length
+  const clickThroughRate = totalViews > 0 ? (clicksInRange / totalViews) * 100 : 0
+  const previousClickThroughRate = previousViews > 0
+    ? (previousClickCount / previousViews) * 100
+    : 0
+  const upvoteConversionRate = uniqueVisitors > 0
+    ? (upvotesInRange / uniqueVisitors) * 100
+    : 0
+  const previousUpvoteConversionRate = previousUnique > 0
+    ? (previousUpvoteCount / previousUnique) * 100
+    : 0
+  const clicksChange = calcChange(clicksInRange, previousClickCount)
+  const upvotesChange = calcChange(upvotesInRange, previousUpvoteCount)
+  const clickThroughRateChange = calcChange(
+    clickThroughRate,
+    previousClickThroughRate,
+  )
+  const upvoteConversionRateChange = calcChange(
+    upvoteConversionRate,
+    previousUpvoteConversionRate,
+  )
 
   const engagementCounts = new Map<
     string,
@@ -787,6 +837,16 @@ async function buildTrafficSummary(
     averageViewsPerDay,
     viewsToday,
     viewsSevenDays,
+    clicksInRange,
+    previousClicks: previousClickCount,
+    clicksChange,
+    clickThroughRate,
+    clickThroughRateChange,
+    upvotesInRange,
+    previousUpvotes: previousUpvoteCount,
+    upvotesChange,
+    upvoteConversionRate,
+    upvoteConversionRateChange,
     topCountry: topCountry
       ? { country: topCountry.country, views: topCountry.views }
       : undefined,

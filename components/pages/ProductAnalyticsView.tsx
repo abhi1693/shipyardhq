@@ -90,6 +90,10 @@ function SummaryCards({
   const formatter = new Intl.NumberFormat("en-US")
   const upvotes = analytics?.upvotes ?? 0
   const clicks = analytics?.clicks ?? 0
+  const clicksInRange = summary.clicksInRange
+  const upvotesInRange = summary.upvotesInRange
+  const formatRate = (value: number) =>
+    Number.isFinite(value) ? `${value.toFixed(1)}%` : "—"
 
   const cards: Array<{
     title: string
@@ -123,6 +127,22 @@ function SummaryCards({
 
   if (includeAdvanced) {
     cards.push(
+      {
+        title: `CTA clicks (${summary.rangeDays}d)`,
+        value: formatter.format(clicksInRange),
+        delta: summary.clicksChange,
+        helper: `${formatRate(summary.clickThroughRate)} CTR`,
+        tooltip:
+          "CTA clicks captured during this window compared with the previous period.",
+      },
+      {
+        title: `New upvotes (${summary.rangeDays}d)`,
+        value: formatter.format(upvotesInRange),
+        delta: summary.upvotesChange,
+        helper: `${formatRate(summary.upvoteConversionRate)} conversion`,
+        tooltip:
+          "Net new upvotes recorded during this window compared with the previous period.",
+      },
       {
         title: "Unique visitors",
         value: formatter.format(summary.uniqueVisitors),

@@ -152,6 +152,16 @@ export interface ProductTrafficSummary {
   averageViewsPerDay: number
   viewsToday: number
   viewsSevenDays: number
+  clicksInRange: number
+  previousClicks: number
+  clicksChange: number
+  clickThroughRate: number
+  clickThroughRateChange: number
+  upvotesInRange: number
+  previousUpvotes: number
+  upvotesChange: number
+  upvoteConversionRate: number
+  upvoteConversionRateChange: number
   topCountry?: { country: string; views: number }
   topReferrer?: { referrer: string; views: number }
   viewsOverTime: ProductTrafficSummaryPoint[]
