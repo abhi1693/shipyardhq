@@ -286,6 +286,8 @@ model Plan {
   products    Product[]
   assignments PlanFeatureAssignment[]
   purchases   UserPlanPurchase[]
+
+  @@index([type])
 }
 
 model PlanFeature {
