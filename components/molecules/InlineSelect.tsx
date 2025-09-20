@@ -16,19 +16,26 @@ export function InlineSelect({
   options,
   triggerClassName,
   placeholder,
+  testId,
+  dropdownTestId,
 }: {
   value: string
   onValueChange: (v: string) => void
   options: Option[]
   triggerClassName?: string
   placeholder?: string
+  testId?: string
+  dropdownTestId?: string
 }) {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className={triggerClassName ?? "h-8 w-[200px]"}>
+      <SelectTrigger
+        className={triggerClassName ?? "h-8 w-[200px]"}
+        data-testid={testId}
+      >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent data-testid={dropdownTestId}>
         {options.map((o) => (
           <SelectItem key={o.value} value={o.value}>
             {o.label}

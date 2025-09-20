@@ -35,6 +35,12 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - Curated feeds to find quality tools faster.
 - Simple upvoting to signal what’s useful.
 
+## Testing
+
+- Lint: `npm run lint`
+- Unit: `npm run test`
+- End-to-end: ensure `npm run dev` is running (seed the database first if needed), then execute `npm run test:e2e`; use `npm run test:e2e:open` for the headed runner.
+
 ## Analytics Instrumentation
 
 - Product detail pages now emit client-side beacons to `/api/analytics/ingest`, capturing geo, device, and browser context without blocking rendering.

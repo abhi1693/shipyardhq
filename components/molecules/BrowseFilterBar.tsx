@@ -166,6 +166,7 @@ export default function BrowseFilterBar({
               }}
               placeholder="Search products"
               className="h-8 pr-8"
+              data-testid="browse-search"
             />
             {q ? (
               <button
@@ -198,6 +199,7 @@ export default function BrowseFilterBar({
                   ? "Use Case disabled when Category is selected"
                   : undefined
               }
+              data-testid="filter-use-case-trigger"
             >
               <span className="truncate">
                 {currentUseCaseLabel ?? "Use Case"}
@@ -221,6 +223,7 @@ export default function BrowseFilterBar({
                         useCase: uc.slug,
                         category: "__all__",
                       })}
+                      data-testid={`use-case-option-${uc.slug}`}
                     >
                       {uc.label}
                       {typeof uc.productCount === "number" && (
@@ -249,6 +252,7 @@ export default function BrowseFilterBar({
                   ? "Category disabled when Use Case is selected"
                   : undefined
               }
+              data-testid="filter-category-trigger"
             >
               <span className="truncate">
                 {currentCategoryLabel ?? "Category"}
@@ -272,6 +276,7 @@ export default function BrowseFilterBar({
                         category: cat.slug,
                         useCase: "__all__",
                       })}
+                      data-testid={`category-option-${cat.slug}`}
                     >
                       {cat.name}
                       {typeof cat._count?.products === "number" && (

@@ -7,7 +7,7 @@ import NextTopLoader from "nextjs-toploader"
 import Providers from "@/components/layout/providers"
 import { ClarityAnalytics } from "@/components/layout/ClarityAnalytics"
 import "./globals.css"
-import { IS_PROD } from "@/lib/constants"
+import { HAS_APP_URL, IS_PROD } from "@/lib/constants"
 import "./theme.css"
 import { buildSiteSeo, siteConfig } from "@/lib/siteConfig"
 
@@ -86,7 +86,7 @@ export default function RootLayout({
           </Providers>
         </ThemeProvider>
       </body>
-      {IS_PROD && <GoogleAnalytics gaId="G-D1Q2TF5RZM" />}
+      {IS_PROD && HAS_APP_URL && <GoogleAnalytics gaId="G-D1Q2TF5RZM" />}
     </html>
   )
 }

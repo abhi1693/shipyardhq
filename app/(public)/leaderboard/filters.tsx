@@ -43,6 +43,8 @@ export function LeaderboardFilters({
             ...categories.map((c) => ({ value: c.slug, label: c.name })),
           ]}
           triggerClassName="h-9 w-[200px]"
+          testId="leaderboard-category-select"
+          dropdownTestId="leaderboard-category-dropdown"
         />
 
         <InlineSelect
@@ -53,6 +55,8 @@ export function LeaderboardFilters({
             label: `Top ${n}`,
           }))}
           triggerClassName="h-9 w-[140px]"
+          testId="leaderboard-limit-select"
+          dropdownTestId="leaderboard-limit-dropdown"
         />
       </div>
     </div>

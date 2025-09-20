@@ -23,7 +23,9 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "reddit:bot": "tsx scripts/reddit-bot.ts",
-    "reddit:discover": "tsx scripts/reddit-discovery.ts"
+    "reddit:discover": "tsx scripts/reddit-discovery.ts",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.32.0",
@@ -91,6 +93,7 @@
     "@vitejs/plugin-react": "^5.0.2",
     "@vitest/coverage-v8": "^3.2.4",
     "autoprefixer": "^10.4.21",
+    "cypress": "^15.2.0",
     "eslint": "^9.35.0",
     "eslint-config-next": "^15.5.3",
     "jsdom": "^27.0.0",
