@@ -249,6 +249,10 @@ model User {
   ProductUpvote ProductUpvote[]
   Organization  Organization[]
   purchases     UserPlanPurchase[]
+
+  @@index([status])
+  @@index([roleIntent])
+  @@index([heardFrom])
 }
 
 enum UserStatus {

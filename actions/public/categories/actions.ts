@@ -8,6 +8,34 @@ import {
 } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
 
+const categoryProductSelect = {
+  id: true,
+  slug: true,
+  name: true,
+  logo: true,
+  tagline: true,
+  createdAt: true,
+  analytics: { select: { upvotes: true, clicks: true } },
+  category: { select: { name: true } },
+  ProductBadge: {
+    select: {
+      badge: true,
+      expiresAt: true,
+    },
+  },
+  plan: {
+    select: {
+      assignments: {
+        where: { enabled: true },
+        select: {
+          enabled: true,
+          feature: { select: { key: true } },
+        },
+      },
+    },
+  },
+} satisfies Prisma.ProductSelect
+
 type CategoryWithCount = Prisma.CategoryGetPayload<{
   include: { _count: { select: { products: true } } }
 }>
@@ -62,6 +90,13 @@ export const getCategoryWithProducts = cached(
   async (slug: string) => {
     const category = await prisma.category.findUnique({
       where: { slug },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        icon: true,
+      },
       cacheStrategy: {
         ttl: DEFAULT_TTL.medium,
         swr: DEFAULT_SWR.medium,
@@ -73,21 +108,7 @@ export const getCategoryWithProducts = cached(
       where: {
         category: { slug },
       },
-      include: {
-        category: true,
-        user: true,
-        analytics: true,
-        verification: true,
-        ProductBadge: true,
-        // Include plan assignments to detect priority placement
-        plan: {
-          include: {
-            assignments: {
-              include: { feature: true },
-            },
-          },
-        },
-      },
+      select: categoryProductSelect,
       orderBy: { createdAt: "desc" },
       cacheStrategy: {
         ttl: DEFAULT_TTL.medium,

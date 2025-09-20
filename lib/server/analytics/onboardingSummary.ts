@@ -279,6 +279,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     ? ((await prisma.newsletterSubscription.findMany({
         where: { email: { in: completedEmails } },
         select: { email: true },
+        take: completedEmails.length,
         cacheStrategy: {
           ...adminSlowCache,
           tags: adminTags(TAGS.users, "newsletter"),
