@@ -5,53 +5,62 @@ import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 
 export type PublicPlan = Awaited<ReturnType<typeof getPublicPlans>>[number]
 
+const planSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  description: true,
+  type: true,
+  price: true,
+  discount: true,
+  boostForDays: true,
+  isDefault: true,
+  externalId: true,
+  paymentFrequencyCount: true,
+  paymentFrequencyInterval: true,
+  subscriptionPeriodCount: true,
+  subscriptionPeriodInterval: true,
+  assignments: {
+    select: {
+      featureId: true,
+      enabled: true,
+      isExperimental: true,
+    },
+  },
+  _count: { select: { products: true } },
+} satisfies Prisma.PlanSelect
+
 type PlanWithAssignments = Prisma.PlanGetPayload<{
-  include: {
-    assignments: {
-      include: {
-        feature: true
-      }
-    }
-    _count: { select: { products: true } }
-  }
+  select: typeof planSelect
 }>
-
-type PlanFeatureRecord = PlanFeature
-
 const MAX_PUBLIC_PLANS = 5
 
 export async function getPublicPlans(opts?: { type?: PlanType }) {
-  const [planRecords, allFeatures] = (await Promise.all([
-    prisma.plan.findMany({
-      where: opts?.type ? { type: opts.type } : undefined,
-      orderBy: [{ price: "asc" }],
-      take: MAX_PUBLIC_PLANS,
-      include: {
-        assignments: {
-          include: {
-            feature: true,
-          },
-        },
-        _count: { select: { products: true } },
-      },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.slow,
-        swr: DEFAULT_SWR.slow,
-        tags: accelerateTags([
-          TAGS.plans,
-          opts?.type ? `plan-type:${opts.type}` : "plan-type:all",
-        ]),
-      },
-    }),
-    prisma.planFeature.findMany({
-      orderBy: { name: "asc" },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.slow,
-        swr: DEFAULT_SWR.slow,
-        tags: accelerateTags([TAGS.plans]),
-      },
-    }),
-  ])) as [PlanWithAssignments[], PlanFeatureRecord[]]
+  const planRecordsRaw = await prisma.plan.findMany({
+    where: opts?.type ? { type: opts.type } : undefined,
+    orderBy: [{ price: "asc" }],
+    take: MAX_PUBLIC_PLANS,
+    select: planSelect,
+    cacheStrategy: {
+      ttl: DEFAULT_TTL.slow,
+      swr: DEFAULT_SWR.slow,
+      tags: accelerateTags([
+        TAGS.plans,
+        opts?.type ? `plan-type:${opts.type}` : "plan-type:all",
+      ]),
+    },
+  })
+
+  const allFeatures = await prisma.planFeature.findMany({
+    orderBy: { name: "asc" },
+    cacheStrategy: {
+      ttl: DEFAULT_TTL.slow,
+      swr: DEFAULT_SWR.slow,
+      tags: accelerateTags([TAGS.plans]),
+    },
+  })
+
+  const planRecords = planRecordsRaw as unknown as PlanWithAssignments[]
 
   return planRecords.map((p) => {
     const assigned = new Map(
@@ -81,21 +90,18 @@ export async function getPublicPlans(opts?: { type?: PlanType }) {
       type: p.type,
       price: p.price,
       discount: p.discount,
-      boostForDays: (p as any).boostForDays ?? 1,
+      boostForDays: p.boostForDays ?? 1,
       isDefault: p.isDefault,
       externalId: p.externalId,
-      paymentFrequencyCount: (p as any).paymentFrequencyCount ?? undefined,
-      paymentFrequencyInterval:
-        (p as any).paymentFrequencyInterval ?? undefined,
-      subscriptionPeriodCount: (p as any).subscriptionPeriodCount ?? undefined,
-      subscriptionPeriodInterval:
-        (p as any).subscriptionPeriodInterval ?? undefined,
+      paymentFrequencyCount: p.paymentFrequencyCount ?? undefined,
+      paymentFrequencyInterval: p.paymentFrequencyInterval ?? undefined,
+      subscriptionPeriodCount: p.subscriptionPeriodCount ?? undefined,
+      subscriptionPeriodInterval: p.subscriptionPeriodInterval ?? undefined,
       priceSuffix:
-        (p as any).type === "recurring_price" &&
-        (p as any).paymentFrequencyInterval
+        p.type === "recurring_price" && p.paymentFrequencyInterval
           ? (() => {
-              const c = (p as any).paymentFrequencyCount ?? 1
-              const i = String((p as any).paymentFrequencyInterval)
+              const c = p.paymentFrequencyCount ?? 1
+              const i = String(p.paymentFrequencyInterval)
               const human = c === 1 ? i : `${c} ${i}s`
               return `per ${human}`
             })()
