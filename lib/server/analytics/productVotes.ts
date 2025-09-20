@@ -12,6 +12,7 @@ on("product.upvoted", async ({ productId }) => {
       where: { productId },
       update: { upvotes: { increment: 1 } },
       create: { productId, upvotes: 1, clicks: 0 },
+      select: { productId: true },
     })
     revalidateProduct(productId)
     revalidateLeaderboard()
@@ -26,6 +27,7 @@ on("product.downvoted", async ({ productId }) => {
       where: { productId },
       update: { upvotes: { decrement: 1 } },
       create: { productId, upvotes: 0, clicks: 0 },
+      select: { productId: true },
     })
     revalidateProduct(productId)
     revalidateLeaderboard()

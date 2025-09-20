@@ -10,6 +10,7 @@ on("product.clicked", async ({ productId }) => {
       where: { productId },
       update: { clicks: { increment: 1 } },
       create: { productId, upvotes: 0, clicks: 1 },
+      select: { productId: true },
     })
     // Keep browse/trending pages reasonably fresh
     revalidateProducts()

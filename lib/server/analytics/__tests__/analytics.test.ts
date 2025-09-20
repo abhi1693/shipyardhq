@@ -31,6 +31,7 @@ describe("analytics listeners", () => {
       where: { productId: "p1" },
       update: { clicks: { increment: 1 } },
       create: { productId: "p1", upvotes: 0, clicks: 1 },
+      select: { productId: true },
     })
   })
 
@@ -46,6 +47,7 @@ describe("analytics listeners", () => {
       where: { productId: "p2" },
       update: { upvotes: { increment: 1 } },
       create: { productId: "p2", upvotes: 1, clicks: 0 },
+      select: { productId: true },
     })
     ;(prisma.productAnalytics.upsert as any).mockClear()
     await publish("product.downvoted", { productId: "p2", userId: "u" })
@@ -53,6 +55,7 @@ describe("analytics listeners", () => {
       where: { productId: "p2" },
       update: { upvotes: { decrement: 1 } },
       create: { productId: "p2", upvotes: 0, clicks: 0 },
+      select: { productId: true },
     })
   })
 

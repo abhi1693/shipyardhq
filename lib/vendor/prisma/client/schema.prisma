@@ -180,7 +180,6 @@ model ProductUpvote {
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([productId, userId])
-  @@index([productId])
   @@index([userId])
 }
 
