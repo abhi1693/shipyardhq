@@ -4,7 +4,11 @@ import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { Eye, Pencil, Trash2 } from "lucide-react"
 
-import { Product, ProductAnalytics, ProductVerification } from "@/lib/vendor/prisma/client"
+import {
+  Product,
+  ProductAnalytics,
+  ProductVerification,
+} from "@/lib/vendor/prisma/client"
 import { formatDistanceToNow, linkify, image } from "@/lib/ui/formatters"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
@@ -27,16 +31,23 @@ export type MemberProductRow = Product & {
 export const columns: ColumnDef<MemberProductRow>[] = [
   {
     id: "logo",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Logo</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">Logo</span>
+    ),
     cell: ({ row }) => image(row.original.logo, row.original.name),
     size: 60,
   },
   {
     accessorKey: "name",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Product</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">Product</span>
+    ),
     cell: ({ row }) => (
       <div className="space-y-0.5">
-        {linkify({ label: row.original.name, href: `/member/products/${row.original.slug}` })}
+        {linkify({
+          label: row.original.name,
+          href: `/member/products/${row.original.slug}`,
+        })}
         <p className="text-xs text-muted-foreground">{row.original.slug}</p>
       </div>
     ),
@@ -44,25 +55,37 @@ export const columns: ColumnDef<MemberProductRow>[] = [
   },
   {
     id: "category",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Category</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">
+        Category
+      </span>
+    ),
     cell: ({ row }) =>
-      row.original.category
-        ? linkify({
-            label: row.original.category.name,
-            href: `/categories/${row.original.category.slug}`,
-          })
-        : <span className="text-xs text-muted-foreground">—</span>,
+      row.original.category ? (
+        linkify({
+          label: row.original.category.name,
+          href: `/categories/${row.original.category.slug}`,
+        })
+      ) : (
+        <span className="text-xs text-muted-foreground">—</span>
+      ),
   },
   {
     accessorKey: "plan",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Plan</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">Plan</span>
+    ),
     cell: ({ row }) => (
-      <span className="text-sm text-slate-700">{row.original.plan?.name ?? "—"}</span>
+      <span className="text-sm text-slate-700">
+        {row.original.plan?.name ?? "—"}
+      </span>
     ),
   },
   {
     accessorKey: "verification",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Domain</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">Domain</span>
+    ),
     cell: ({ row }) => (
       <Badge
         variant={row.original.verification?.isVerified ? "success" : "outline"}
@@ -74,21 +97,31 @@ export const columns: ColumnDef<MemberProductRow>[] = [
   },
   {
     accessorKey: "analytics.upvotes",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Upvotes</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">Upvotes</span>
+    ),
     cell: ({ row }) => (
-      <span className="text-sm text-slate-700">{row.original.analytics?.upvotes ?? 0}</span>
+      <span className="text-sm text-slate-700">
+        {row.original.analytics?.upvotes ?? 0}
+      </span>
     ),
   },
   {
     accessorKey: "analytics.clicks",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Clicks</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">Clicks</span>
+    ),
     cell: ({ row }) => (
-      <span className="text-sm text-slate-700">{row.original.analytics?.clicks ?? 0}</span>
+      <span className="text-sm text-slate-700">
+        {row.original.analytics?.clicks ?? 0}
+      </span>
     ),
   },
   {
     accessorKey: "status",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Status</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">Status</span>
+    ),
     cell: ({ row }) => (
       <Badge
         variant={
@@ -106,7 +139,9 @@ export const columns: ColumnDef<MemberProductRow>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Created</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">Created</span>
+    ),
     cell: ({ row }) => (
       <span className="text-sm text-slate-600">
         {formatDistanceToNow(row.original.createdAt)}
@@ -118,19 +153,43 @@ export const columns: ColumnDef<MemberProductRow>[] = [
     header: () => null,
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-2">
-        <Button asChild size="sm" variant="ghost" className={minimalActionButton}>
-          <Link href={`/member/products/${row.original.slug}`} className={minimalActionLink}>
+        <Button
+          asChild
+          size="sm"
+          variant="ghost"
+          className={minimalActionButton}
+        >
+          <Link
+            href={`/member/products/${row.original.slug}`}
+            className={minimalActionLink}
+          >
             <Eye className={minimalActionIcon} /> View
           </Link>
         </Button>
-        <Button asChild size="sm" variant="ghost" className={minimalActionButton}>
-          <Link href={`/member/products/${row.original.slug}/edit`} className={minimalActionLink}>
+        <Button
+          asChild
+          size="sm"
+          variant="ghost"
+          className={minimalActionButton}
+        >
+          <Link
+            href={`/member/products/${row.original.slug}/edit`}
+            className={minimalActionLink}
+          >
             <Pencil className={minimalActionIcon} /> Edit
           </Link>
         </Button>
         {row.original.canDelete ? (
-          <Button asChild size="sm" variant="ghost" className={destructiveActionButton}>
-            <Link href={`/member/products/${row.original.slug}/delete`} className={minimalActionLink}>
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className={destructiveActionButton}
+          >
+            <Link
+              href={`/member/products/${row.original.slug}/delete`}
+              className={minimalActionLink}
+            >
               <Trash2 className={minimalActionIcon} /> Delete
             </Link>
           </Button>

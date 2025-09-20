@@ -87,10 +87,11 @@ export default async function ViewUserProductPage({
     // Clean URL params regardless of outcome
     redirect(`/member/products/${slug}`)
   }
-  const { product: manageableProduct, currentUser } = await requireManageableProduct(slug, {
-    unauthorizedRedirect: null,
-    missingRedirect: null,
-  })
+  const { product: manageableProduct, currentUser } =
+    await requireManageableProduct(slug, {
+      unauthorizedRedirect: null,
+      missingRedirect: null,
+    })
 
   const product = await getProductById(manageableProduct.id)
   if (!product) return notFound()
@@ -477,7 +478,8 @@ export default async function ViewUserProductPage({
                             ) : null}
                           </div>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            Activation is instant. Boost lasts {(np as any).boostForDays ?? 1} day(s).
+                            Activation is instant. Boost lasts{" "}
+                            {(np as any).boostForDays ?? 1} day(s).
                           </p>
                           {np.description ? (
                             <p className="mt-2 text-xs text-muted-foreground">
@@ -494,14 +496,18 @@ export default async function ViewUserProductPage({
                       </div>
                       {deltaTop.length ? (
                         <div className="mt-3 space-y-2 text-xs text-muted-foreground">
-                          <div className="font-medium text-foreground">You also get</div>
+                          <div className="font-medium text-foreground">
+                            You also get
+                          </div>
                           <ul className="space-y-1">
                             {deltaTop.map((f) => (
                               <li key={f.id}>+ {f.name}</li>
                             ))}
                           </ul>
                           {deltaCount > deltaTop.length ? (
-                            <div>…and {deltaCount - deltaTop.length} more benefits</div>
+                            <div>
+                              …and {deltaCount - deltaTop.length} more benefits
+                            </div>
                           ) : null}
                         </div>
                       ) : null}
@@ -544,7 +550,11 @@ export default async function ViewUserProductPage({
                               : null
                           const priceText = nf.format(discountedCents / 100)
                           return (
-                            <form key={p.id} action={choosePlan} className="contents">
+                            <form
+                              key={p.id}
+                              action={choosePlan}
+                              className="contents"
+                            >
                               <input type="hidden" name="planId" value={p.id} />
                               <div className={calloutPanelClass}>
                                 <div className="flex items-center justify-between text-sm font-medium text-foreground">
@@ -555,7 +565,9 @@ export default async function ViewUserProductPage({
                                 </div>
                                 <div className="mt-2 flex flex-wrap items-baseline gap-2 text-xs text-muted-foreground">
                                   {original ? (
-                                    <span className="line-through">{original}</span>
+                                    <span className="line-through">
+                                      {original}
+                                    </span>
                                   ) : null}
                                   <span className="text-lg font-semibold text-foreground">
                                     {priceText}
@@ -571,7 +583,8 @@ export default async function ViewUserProductPage({
                                   ) : null}
                                 </div>
                                 <div className="mt-1 text-[11px] text-muted-foreground">
-                                  Boosts your launch for {(p as any).boostForDays ?? 0} day(s)
+                                  Boosts your launch for{" "}
+                                  {(p as any).boostForDays ?? 0} day(s)
                                 </div>
                                 {p.description ? (
                                   <p className="mt-2 line-clamp-3 text-xs text-muted-foreground">
@@ -579,7 +592,11 @@ export default async function ViewUserProductPage({
                                   </p>
                                 ) : null}
                                 <div className="mt-3">
-                                  <Button variant="outline" size="sm" className="w-full">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full"
+                                  >
                                     Buy now
                                   </Button>
                                 </div>
@@ -619,9 +636,7 @@ export default async function ViewUserProductPage({
               </CardHeader>
               <CardContent className="space-y-4 text-sm text-muted-foreground">
                 <div className="space-y-2">
-                  <span className={sectionLabelClass}>
-                    Organization
-                  </span>
+                  <span className={sectionLabelClass}>Organization</span>
                   {organizationName ? (
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={infoChipClass}>
@@ -643,13 +658,13 @@ export default async function ViewUserProductPage({
                       ) : null}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>{placeholder()}</span>
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <span className={sectionLabelClass}>
-                    Platforms
-                  </span>
+                  <span className={sectionLabelClass}>Platforms</span>
                   {platforms.length ? (
                     <div className="flex flex-wrap gap-2">
                       {platforms.map((platform) => (
@@ -660,13 +675,13 @@ export default async function ViewUserProductPage({
                       ))}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>{placeholder()}</span>
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <span className={sectionLabelClass}>
-                    Keywords
-                  </span>
+                  <span className={sectionLabelClass}>Keywords</span>
                   {tags.length ? (
                     <div className="flex flex-wrap gap-2">
                       {tags.map((tagValue) => (
@@ -677,7 +692,9 @@ export default async function ViewUserProductPage({
                       ))}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>{placeholder()}</span>
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
                   )}
                 </div>
               </CardContent>
@@ -689,9 +706,7 @@ export default async function ViewUserProductPage({
               </CardHeader>
               <CardContent className="space-y-4 text-sm text-muted-foreground">
                 <div className="space-y-2">
-                  <span className={sectionLabelClass}>
-                    Website
-                  </span>
+                  <span className={sectionLabelClass}>Website</span>
                   {product.websiteUrl ? (
                     <div className="space-y-1">
                       <Link
@@ -700,21 +715,24 @@ export default async function ViewUserProductPage({
                         rel="noopener noreferrer"
                         className={`${accentChipClass} max-w-full`}
                       >
-                        <span className="truncate max-w-[18rem]">{websiteHost}</span>
+                        <span className="truncate max-w-[18rem]">
+                          {websiteHost}
+                        </span>
                       </Link>
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>{placeholder()}</span>
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <span className={sectionLabelClass}>
-                    Primary CTA
-                  </span>
+                  <span className={sectionLabelClass}>Primary CTA</span>
                   {hasCtaPair ? (
                     <div className="space-y-1">
                       <span className={infoChipClass}>
-                        <MousePointerClick className={chipIconClass} /> CTA label
+                        <MousePointerClick className={chipIconClass} /> CTA
+                        label
                       </span>
                       <Link
                         href={ctaUrl}
@@ -722,12 +740,16 @@ export default async function ViewUserProductPage({
                         rel="noopener noreferrer"
                         className={`${accentChipClass} max-w-full`}
                       >
-                        <span className="truncate max-w-[18rem]">{ctaLabel}</span>
+                        <span className="truncate max-w-[18rem]">
+                          {ctaLabel}
+                        </span>
                       </Link>
                     </div>
                   ) : (
                     <div className="space-y-1">
-                      <span className={placeholderTextClass}>{placeholder()}</span>
+                      <span className={placeholderTextClass}>
+                        {placeholder()}
+                      </span>
                       {(ctaLabel && !ctaUrl) || (!ctaLabel && ctaUrl) ? (
                         <p className="text-xs text-destructive">
                           Tip: Provide both CTA label and URL for a complete
@@ -738,9 +760,7 @@ export default async function ViewUserProductPage({
                   )}
                 </div>
                 <div className="space-y-2">
-                  <span className={sectionLabelClass}>
-                    Additional Links
-                  </span>
+                  <span className={sectionLabelClass}>Additional Links</span>
                   {extraLinks.length ? (
                     <div className="flex flex-wrap gap-2">
                       {extraLinks.map(({ key, href, label, icon }) => {
@@ -748,7 +768,9 @@ export default async function ViewUserProductPage({
                         const content = (
                           <>
                             {icon}
-                            <span className="truncate max-w-[12rem]">{label}</span>
+                            <span className="truncate max-w-[12rem]">
+                              {label}
+                            </span>
                           </>
                         )
                         return isExternal ? (
@@ -773,7 +795,9 @@ export default async function ViewUserProductPage({
                       })}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>{placeholder()}</span>
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
                   )}
                 </div>
               </CardContent>
@@ -825,7 +849,11 @@ export default async function ViewUserProductPage({
                     return (
                       <div>
                         Quality:{" "}
-                        <span className={good ? "text-emerald-600" : "text-amber-600"}>
+                        <span
+                          className={
+                            good ? "text-emerald-600" : "text-amber-600"
+                          }
+                        >
                           {good ? "Good" : "Needs work"}
                         </span>{" "}
                         ({len} chars)

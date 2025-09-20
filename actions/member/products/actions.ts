@@ -53,10 +53,7 @@ export async function getUserProducts(params?: ListParams) {
 
   const accessFilter = organizationIds.length
     ? {
-        OR: [
-          { userId: user.id },
-          { organizationId: { in: organizationIds } },
-        ],
+        OR: [{ userId: user.id }, { organizationId: { in: organizationIds } }],
       }
     : { userId: user.id }
 

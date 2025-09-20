@@ -128,7 +128,10 @@ export default function PerformanceCard({
           ) : (
             <div className="mt-2 text-xs">
               <span>No recent upvotes</span>
-              <span className="text-muted-foreground/80"> — share your product to spark engagement.</span>
+              <span className="text-muted-foreground/80">
+                {" "}
+                — share your product to spark engagement.
+              </span>
             </div>
           )}
         </div>

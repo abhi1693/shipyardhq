@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 
-const { countMock, groupByMock, findFirstMock, findManyMock } = vi.hoisted(() => ({
-  countMock: vi.fn(),
-  groupByMock: vi.fn(),
-  findFirstMock: vi.fn(),
-  findManyMock: vi.fn(),
-}))
+const { countMock, groupByMock, findFirstMock, findManyMock } = vi.hoisted(
+  () => ({
+    countMock: vi.fn(),
+    groupByMock: vi.fn(),
+    findFirstMock: vi.fn(),
+    findManyMock: vi.fn(),
+  }),
+)
 
 vi.mock("@/lib/prisma", () => ({
   default: {
@@ -167,10 +169,7 @@ describe("getOnboardingAnswersSummary", () => {
         roleIntent: { not: null },
         heardFrom: { not: null },
       },
-      orderBy: [
-        { termsAcceptedAt: "desc" },
-        { updatedAt: "desc" },
-      ],
+      orderBy: [{ termsAcceptedAt: "desc" }, { updatedAt: "desc" }],
       take: 8,
       select: {
         id: true,

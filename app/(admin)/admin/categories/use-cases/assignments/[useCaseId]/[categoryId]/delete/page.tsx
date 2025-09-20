@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deleteUseCaseAssignmentAction } from "@/actions/admin/categories/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -64,8 +70,9 @@ export default async function DeleteUseCaseAssignmentPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            Use case <span className="font-medium">{useCaseLabel}</span> will be detached from
-            category <span className="font-medium">{categoryName}</span>.
+            Use case <span className="font-medium">{useCaseLabel}</span> will be
+            detached from category{" "}
+            <span className="font-medium">{categoryName}</span>.
           </p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">

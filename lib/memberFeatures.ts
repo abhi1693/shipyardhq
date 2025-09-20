@@ -44,10 +44,11 @@ export async function memberHasFeature(key: PlanFeatureKey): Promise<boolean> {
 
     // 3) Organization access can also come from being invited into an existing org
     if (key === "organization") {
-      const memberOfOrganization = await prisma.organizationMembership.findFirst({
-        where: { userId: user.id },
-        select: { id: true },
-      })
+      const memberOfOrganization =
+        await prisma.organizationMembership.findFirst({
+          where: { userId: user.id },
+          select: { id: true },
+        })
 
       if (memberOfOrganization) return true
     }

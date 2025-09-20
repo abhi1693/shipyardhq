@@ -110,10 +110,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     }),
     prisma.user.findFirst({
       where: completedWhere,
-      orderBy: [
-        { termsAcceptedAt: "desc" },
-        { updatedAt: "desc" },
-      ],
+      orderBy: [{ termsAcceptedAt: "desc" }, { updatedAt: "desc" }],
       select: {
         termsAcceptedAt: true,
         updatedAt: true,
@@ -155,7 +152,9 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   const pendingUsers = Math.max(totalActiveUsers - completedResponses, 0)
 
   const lastResponseAt = latestCompleted
-    ? (latestCompleted.termsAcceptedAt ?? latestCompleted.updatedAt)?.toISOString() ?? null
+    ? ((
+        latestCompleted.termsAcceptedAt ?? latestCompleted.updatedAt
+      )?.toISOString() ?? null)
     : null
 
   return {
@@ -195,10 +194,7 @@ export async function getRecentOnboardingCompletions(limit = 12) {
       roleIntent: { not: null },
       heardFrom: { not: null },
     },
-    orderBy: [
-      { termsAcceptedAt: "desc" },
-      { updatedAt: "desc" },
-    ],
+    orderBy: [{ termsAcceptedAt: "desc" }, { updatedAt: "desc" }],
     take: limit,
     select: {
       id: true,

@@ -84,9 +84,7 @@ export function OnboardingAnswersAnalytics({
             addSuffix: true,
           })
         : "No responses yet",
-      helper: summary.lastResponseAt
-        ? "Most recent completion"
-        : undefined,
+      helper: summary.lastResponseAt ? "Most recent completion" : undefined,
     },
   ]
 

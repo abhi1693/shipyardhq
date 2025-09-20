@@ -65,10 +65,10 @@ export default async function MemberProductsPage({
 
   const sortLabel = getMemberProductSortLabel(sort) ?? "Newest"
   const statusLabel = !isAllFilterValue(status)
-    ? getMemberProductStatusLabel(status) ?? status
+    ? (getMemberProductStatusLabel(status) ?? status)
     : undefined
   const verificationLabel = !isAllFilterValue(verification)
-    ? getMemberProductVerificationLabel(verification) ?? verification
+    ? (getMemberProductVerificationLabel(verification) ?? verification)
     : undefined
 
   const activeFilters: string[] = []
@@ -88,10 +88,12 @@ export default async function MemberProductsPage({
           <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-2)] shadow-sm">
             Member Command Deck
           </span>
-          <h1 className="mt-6 text-3xl font-bold tracking-tight">Launch your first product</h1>
+          <h1 className="mt-6 text-3xl font-bold tracking-tight">
+            Launch your first product
+          </h1>
           <p className="mt-3 max-w-md text-sm text-muted-foreground">
-            Shipyard tracks engagement, verification, and health for every launch. Add a
-            product to unlock tailored insights for your crew.
+            Shipyard tracks engagement, verification, and health for every
+            launch. Add a product to unlock tailored insights for your crew.
           </p>
           <CreateButton asChild className="mt-8" label="Add product">
             <Link href="/member/products/add">Add product</Link>
@@ -105,7 +107,9 @@ export default async function MemberProductsPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900">Products</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-slate-900">
+            Products
+          </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
             Keep your launches polished, verified, and ready for discovery.
           </p>
@@ -135,8 +139,8 @@ export default async function MemberProductsPage({
 
           {noResultsWithFilters ? (
             <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-500">
-              No products match the current filters. Adjust them or clear filters to see
-              more of your fleet.
+              No products match the current filters. Adjust them or clear
+              filters to see more of your fleet.
             </div>
           ) : null}
 

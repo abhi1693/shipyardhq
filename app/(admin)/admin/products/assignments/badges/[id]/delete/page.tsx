@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deleteProductBadgeAction } from "@/actions/admin/badges/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -56,8 +62,8 @@ export default async function DeleteProductBadgePage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            Badge <span className="font-medium">{badgeName}</span> will be removed from{" "}
-            <span className="font-medium">{productName}</span>.
+            Badge <span className="font-medium">{badgeName}</span> will be
+            removed from <span className="font-medium">{productName}</span>.
           </p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">

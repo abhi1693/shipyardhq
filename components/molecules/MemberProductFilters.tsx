@@ -26,7 +26,8 @@ export default function MemberProductFilters() {
     ? statusParam
     : MEMBER_PRODUCT_FILTER_ALL
 
-  const verificationParam = params?.get("verification") ?? MEMBER_PRODUCT_FILTER_ALL
+  const verificationParam =
+    params?.get("verification") ?? MEMBER_PRODUCT_FILTER_ALL
   const normalizedVerification = memberProductVerificationOptionValues.has(
     verificationParam,
   )

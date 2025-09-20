@@ -27,8 +27,7 @@ const isSiteName = (value?: string) => {
   const key = toComparable(value)
   if (!key) return false
   if (key === siteComparable) return true
-  if (siteComparableSimplified && key === siteComparableSimplified)
-    return true
+  if (siteComparableSimplified && key === siteComparableSimplified) return true
   return false
 }
 
@@ -64,11 +63,7 @@ const joinTitleSegments = (segments: Array<string | undefined>) => {
     if (!trimmed) continue
     const comparable = toComparable(trimmed)
     if (!comparable) continue
-    if (
-      unique.some(
-        (existing) => toComparable(existing) === comparable,
-      )
-    ) {
+    if (unique.some((existing) => toComparable(existing) === comparable)) {
       continue
     }
     unique.push(trimmed)
@@ -186,7 +181,8 @@ export function buildSectionMetadata(
   } else if (sanitizedSection) {
     openGraphResult.title =
       joinTitleSegments([sanitizedSection, siteConfig.name]) ??
-      baseMetadata.openGraph?.title ?? sectionTitle
+      baseMetadata.openGraph?.title ??
+      sectionTitle
   } else if (!openGraphResult.title) {
     openGraphResult.title = baseMetadata.openGraph?.title ?? sectionTitle
   }
@@ -213,7 +209,8 @@ export function buildSectionMetadata(
   } else if (sanitizedSection) {
     twitterResult.title =
       joinTitleSegments([sanitizedSection, siteConfig.name]) ??
-      baseMetadata.twitter?.title ?? sectionTitle
+      baseMetadata.twitter?.title ??
+      sectionTitle
   } else if (!twitterResult.title) {
     twitterResult.title = baseMetadata.twitter?.title ?? sectionTitle
   }
@@ -230,9 +227,7 @@ export function buildSectionMetadata(
   return metadata
 }
 
-export function buildPageMetadata(
-  options: PageMetadataOptions = {},
-): Metadata {
+export function buildPageMetadata(options: PageMetadataOptions = {}): Metadata {
   const { title, section, description, openGraph, twitter } = options
 
   const sanitizedTitle = cleanupTitleInput(title)

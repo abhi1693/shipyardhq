@@ -63,7 +63,9 @@ function TrendBadge({
 
   const delta = current - previous
   if (delta === 0) {
-    return <span className="text-xs text-muted-foreground">No change vs prior</span>
+    return (
+      <span className="text-xs text-muted-foreground">No change vs prior</span>
+    )
   }
 
   const arrow = delta > 0 ? "▲" : "▼"
@@ -110,7 +112,9 @@ function MetricTile({
           <TrendBadge current={current} previous={previous} />
         ) : null}
         {helper ? (
-          <p className="text-[11px] leading-snug text-muted-foreground">{helper}</p>
+          <p className="text-[11px] leading-snug text-muted-foreground">
+            {helper}
+          </p>
         ) : null}
       </CardContent>
     </Card>
@@ -220,8 +224,8 @@ export default async function OverviewPage({
             Admin overview
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            Monitor launch velocity, membership growth, and operational health in one
-            place.
+            Monitor launch velocity, membership growth, and operational health
+            in one place.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -252,16 +256,28 @@ export default async function OverviewPage({
           <Card className="border-slate-200/70 bg-white/90 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base">Quick actions</CardTitle>
-              <CardDescription>Spin up new assets or invite teammates.</CardDescription>
+              <CardDescription>
+                Spin up new assets or invite teammates.
+              </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               <CreateButton asChild size="sm" label="New product">
                 <Link href="/admin/products/add">New product</Link>
               </CreateButton>
-              <CreateButton asChild size="sm" label="Invite member" variant="outline">
+              <CreateButton
+                asChild
+                size="sm"
+                label="Invite member"
+                variant="outline"
+              >
                 <Link href="/admin/users/add">Invite member</Link>
               </CreateButton>
-              <CreateButton asChild size="sm" label="New plan" variant="outline">
+              <CreateButton
+                asChild
+                size="sm"
+                label="New plan"
+                variant="outline"
+              >
                 <Link href="/admin/plans/add">New plan</Link>
               </CreateButton>
             </CardContent>
@@ -271,7 +287,8 @@ export default async function OverviewPage({
             <CardHeader>
               <CardTitle className="text-base">Verification coverage</CardTitle>
               <CardDescription>
-                {formatNumber(stats.verifiedProducts)} verified / {formatNumber(stats.totalProducts)}
+                {formatNumber(stats.verifiedProducts)} verified /{" "}
+                {formatNumber(stats.totalProducts)}
                 total products.
               </CardDescription>
             </CardHeader>
@@ -324,8 +341,8 @@ export default async function OverviewPage({
               </div>
               {popularPlanShare !== null ? (
                 <p className="text-xs text-muted-foreground">
-                  {mostPopularPlan?.name} accounts for roughly {popularPlanShare}% of live
-                  products.
+                  {mostPopularPlan?.name} accounts for roughly{" "}
+                  {popularPlanShare}% of live products.
                 </p>
               ) : null}
               <Link
@@ -341,13 +358,17 @@ export default async function OverviewPage({
             <CardHeader>
               <CardTitle className="text-base">Member mix</CardTitle>
               <CardDescription>
-                {formatNumber(stats.adminCount)} admins • {formatNumber(stats.memberCount)} members
+                {formatNumber(stats.adminCount)} admins •{" "}
+                {formatNumber(stats.memberCount)} members
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-2xl font-semibold text-slate-900">{memberRatio}% admins</p>
+              <p className="text-2xl font-semibold text-slate-900">
+                {memberRatio}% admins
+              </p>
               <p className="text-xs text-muted-foreground">
-                Keep admin seats purposeful—promote or demote roles from the user list.
+                Keep admin seats purposeful—promote or demote roles from the
+                user list.
               </p>
               <Link
                 href="/admin/users"
@@ -386,11 +407,15 @@ function RecentProductsCard({
     <Card className="border-slate-200/70 bg-white/90 shadow-sm">
       <CardHeader>
         <CardTitle className="text-base">Recent launches</CardTitle>
-        <CardDescription>Products added in the last {days} days.</CardDescription>
+        <CardDescription>
+          Products added in the last {days} days.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {products.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No launches in this window.</p>
+          <p className="text-sm text-muted-foreground">
+            No launches in this window.
+          </p>
         ) : (
           <ul className="space-y-3 text-sm">
             {products.map((product) => {
@@ -417,9 +442,15 @@ function RecentProductsCard({
                   </div>
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     <span>Owner: {product.user.email}</span>
-                    <span>{formatDistanceToNow(new Date(product.createdAt), { addSuffix: true })}</span>
                     <span>
-                      {product.category?.name ? product.category.name : "Uncategorised"}
+                      {formatDistanceToNow(new Date(product.createdAt), {
+                        addSuffix: true,
+                      })}
+                    </span>
+                    <span>
+                      {product.category?.name
+                        ? product.category.name
+                        : "Uncategorised"}
                     </span>
                   </div>
                 </li>
@@ -429,7 +460,10 @@ function RecentProductsCard({
         )}
       </CardContent>
       <CardFooter>
-        <Link href="/admin/products" className="text-sm text-sky-600 hover:underline">
+        <Link
+          href="/admin/products"
+          className="text-sm text-sky-600 hover:underline"
+        >
           View all products →
         </Link>
       </CardFooter>
@@ -448,11 +482,15 @@ function RecentUsersCard({
     <Card className="border-slate-200/70 bg-white/90 shadow-sm">
       <CardHeader>
         <CardTitle className="text-base">Recent members</CardTitle>
-        <CardDescription>Accounts created in the last {days} days.</CardDescription>
+        <CardDescription>
+          Accounts created in the last {days} days.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {users.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No new members in this window.</p>
+          <p className="text-sm text-muted-foreground">
+            No new members in this window.
+          </p>
         ) : (
           <ul className="space-y-3 text-sm">
             {users.map((user) => (
@@ -465,8 +503,14 @@ function RecentUsersCard({
                 </Link>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span>{user.email}</span>
-                  <span>{formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}</span>
-                  <Badge variant={user.role === "admin" ? "default" : "outline"}>
+                  <span>
+                    {formatDistanceToNow(new Date(user.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                  <Badge
+                    variant={user.role === "admin" ? "default" : "outline"}
+                  >
                     {user.role === "admin" ? "Admin" : "Member"}
                   </Badge>
                   <span>{user.products.length} products</span>
@@ -477,7 +521,10 @@ function RecentUsersCard({
         )}
       </CardContent>
       <CardFooter>
-        <Link href="/admin/users" className="text-sm text-sky-600 hover:underline">
+        <Link
+          href="/admin/users"
+          className="text-sm text-sky-600 hover:underline"
+        >
           View all members →
         </Link>
       </CardFooter>

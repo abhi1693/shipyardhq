@@ -86,7 +86,9 @@ export default function RootLayout({
           </Providers>
         </ThemeProvider>
       </body>
-      {IS_PROD && HAS_APP_URL && process.env.GOOGLE_ANALYTICS_ID && <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID} />}
+      {IS_PROD && HAS_APP_URL && process.env.GOOGLE_ANALYTICS_ID && (
+        <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID} />
+      )}
     </html>
   )
 }

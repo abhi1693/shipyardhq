@@ -122,7 +122,10 @@ export default async function GrowthAnalyticsPage({
     getRecentUsers(6, days),
   ])
 
-  const previousProducts = Math.max(stats.productsInRange - stats.productsDelta, 0)
+  const previousProducts = Math.max(
+    stats.productsInRange - stats.productsDelta,
+    0,
+  )
   const previousUsers = Math.max(stats.usersInRange - stats.usersDelta, 0)
   const previousViews = Math.max(stats.viewsInRange - stats.viewsDelta, 0)
   const previousUpvotes = Math.max(stats.upvotesInRange - stats.upvotesDelta, 0)
@@ -213,7 +216,9 @@ export default async function GrowthAnalyticsPage({
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-sky-500 via-sky-400 to-sky-600"
-                  style={{ width: `${Math.max(0, Math.min(stats.verifiedRate, 100))}%` }}
+                  style={{
+                    width: `${Math.max(0, Math.min(stats.verifiedRate, 100))}%`,
+                  }}
                 />
               </div>
             </div>
@@ -252,7 +257,9 @@ export default async function GrowthAnalyticsPage({
               </span>
             </div>
             {popularPlanSummary ? (
-              <p className="text-xs text-muted-foreground">{popularPlanSummary}</p>
+              <p className="text-xs text-muted-foreground">
+                {popularPlanSummary}
+              </p>
             ) : null}
           </CardContent>
         </Card>
@@ -269,8 +276,8 @@ export default async function GrowthAnalyticsPage({
               {formatCurrency(stats.totalRevenue)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {formatNumber(stats.defaultPlanProductCount)} products currently ride the
-              default plan.
+              {formatNumber(stats.defaultPlanProductCount)} products currently
+              ride the default plan.
             </p>
           </CardContent>
         </Card>
@@ -312,7 +319,9 @@ export default async function GrowthAnalyticsPage({
                       </div>
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         <span>Owner: {product.user.firstName}</span>
-                        {product.plan?.name && <span>Plan: {product.plan.name}</span>}
+                        {product.plan?.name && (
+                          <span>Plan: {product.plan.name}</span>
+                        )}
                         <span>{formatRelative(product.createdAt)}</span>
                       </div>
                     </li>

@@ -82,29 +82,17 @@ const USE_CASES: UseCaseSeed[] = [
   {
     label: "Launch a Crypto App",
     slug: "launch-crypto-app",
-    categorySlugs: [
-      "web3-crypto",
-      "crypto-infrastructure",
-      "developer-tools",
-    ],
+    categorySlugs: ["web3-crypto", "crypto-infrastructure", "developer-tools"],
   },
   {
     label: "Accept Crypto Payments",
     slug: "accept-crypto-payments",
-    categorySlugs: [
-      "crypto-payments",
-      "e-commerce",
-      "finance-accounting",
-    ],
+    categorySlugs: ["crypto-payments", "e-commerce", "finance-accounting"],
   },
   {
     label: "Monitor On-Chain Activity",
     slug: "monitor-on-chain-activity",
-    categorySlugs: [
-      "crypto-analytics",
-      "analytics",
-      "security-privacy",
-    ],
+    categorySlugs: ["crypto-analytics", "analytics", "security-privacy"],
   },
   {
     label: "Secure Your Stack",
@@ -127,11 +115,7 @@ const USE_CASES: UseCaseSeed[] = [
   {
     label: "Empower Remote Teams",
     slug: "empower-remote-teams",
-    categorySlugs: [
-      "collaboration-community",
-      "productivity",
-      "hr-hiring",
-    ],
+    categorySlugs: ["collaboration-community", "productivity", "hr-hiring"],
   },
 ]
 

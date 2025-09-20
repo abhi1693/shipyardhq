@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deleteProductAction } from "@/actions/admin/products/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -50,8 +56,12 @@ export default async function DeleteAdminProductPage({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>This will permanently remove the product and its related records.</p>
-          <p className="font-medium text-foreground">This action cannot be reversed.</p>
+          <p>
+            This will permanently remove the product and its related records.
+          </p>
+          <p className="font-medium text-foreground">
+            This action cannot be reversed.
+          </p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">

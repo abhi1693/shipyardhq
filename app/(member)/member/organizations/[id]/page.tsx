@@ -78,9 +78,12 @@ export default async function MemberOrganizationPage({
   const createdLabel = formatDistanceToNow(new Date(org.createdAt), {
     addSuffix: true,
   })
-  const updatedLabel = formatDistanceToNow(new Date(org.updatedAt ?? org.createdAt), {
-    addSuffix: true,
-  })
+  const updatedLabel = formatDistanceToNow(
+    new Date(org.updatedAt ?? org.createdAt),
+    {
+      addSuffix: true,
+    },
+  )
 
   const infoChips = [
     {
@@ -151,8 +154,8 @@ export default async function MemberOrganizationPage({
                 {org.name}
               </h1>
               <p className="max-w-xl text-sm text-muted-foreground md:text-base">
-                Align your crew, billing, and roles inside a dedicated organization built for
-                Shipyard.
+                Align your crew, billing, and roles inside a dedicated
+                organization built for Shipyard.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -189,7 +192,8 @@ export default async function MemberOrganizationPage({
                 Organization overview
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
-                Keep essential metadata handy as you collaborate across Shipyard.
+                Keep essential metadata handy as you collaborate across
+                Shipyard.
               </CardDescription>
             </CardHeader>
             <CardContent className="px-6 pb-6 pt-4">
@@ -223,9 +227,13 @@ export default async function MemberOrganizationPage({
                       <ShieldCheck className="h-4 w-4" />
                     </span>
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold text-slate-900">{ownerName}</p>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {ownerName}
+                      </p>
                       {ownerEmail ? (
-                        <p className="text-xs text-muted-foreground">{ownerEmail}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {ownerEmail}
+                        </p>
                       ) : null}
                       {ownerSince ? (
                         <p className="text-xs text-muted-foreground">
@@ -237,7 +245,8 @@ export default async function MemberOrganizationPage({
                 </div>
               ) : (
                 <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-muted-foreground">
-                  No owner assigned yet. Assign an owner to unlock full controls.
+                  No owner assigned yet. Assign an owner to unlock full
+                  controls.
                 </div>
               )}
 
@@ -346,7 +355,8 @@ function ConnectedProductsCard({
           Connected products
         </CardTitle>
         <CardDescription className="text-sm text-muted-foreground">
-          Surface launches tied to this workspace so your crew has one source of truth.
+          Surface launches tied to this workspace so your crew has one source of
+          truth.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 px-0 pb-6 pt-4">
@@ -362,7 +372,8 @@ function ConnectedProductsCard({
                     Connect existing product
                   </p>
                   <p className="text-xs text-muted-foreground/80">
-                    Choose from your unassigned products to associate it with this organization.
+                    Choose from your unassigned products to associate it with
+                    this organization.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -386,7 +397,8 @@ function ConnectedProductsCard({
               </form>
             ) : (
               <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-sm text-muted-foreground">
-                All of your products are already connected. Launch something new to link it here.
+                All of your products are already connected. Launch something new
+                to link it here.
               </div>
             )}
           </div>
@@ -445,9 +457,13 @@ function ConnectedProductsCard({
                         Plan · {product.plan.name}
                       </Badge>
                     ) : (
-                      <span className="text-slate-500">Plan · Not assigned</span>
+                      <span className="text-slate-500">
+                        Plan · Not assigned
+                      </span>
                     )}
-                    <span className="text-slate-500">Updated {updatedLabel}</span>
+                    <span className="text-slate-500">
+                      Updated {updatedLabel}
+                    </span>
                   </div>
                 </li>
               )

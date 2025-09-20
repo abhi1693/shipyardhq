@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deleteOrganizationMembershipAction } from "@/actions/admin/organizations/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -56,8 +62,8 @@ export default async function DeleteOrganizationMembershipPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            This will remove <span className="font-medium">{memberEmail}</span> from the
-            organization immediately.
+            This will remove <span className="font-medium">{memberEmail}</span>{" "}
+            from the organization immediately.
           </p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">

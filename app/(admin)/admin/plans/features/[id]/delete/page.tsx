@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deletePlanFeatureAction } from "@/actions/admin/plans/features/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -51,7 +57,8 @@ export default async function DeletePlanFeaturePage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            This will delete feature <span className="font-medium">{featureName}</span>.
+            This will delete feature{" "}
+            <span className="font-medium">{featureName}</span>.
           </p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">

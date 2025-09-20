@@ -34,7 +34,9 @@ export const columns: ColumnDef<MemberOrgRow>[] = [
   {
     accessorKey: "name",
     header: () => (
-      <span className="text-xs font-medium text-muted-foreground">Organization</span>
+      <span className="text-xs font-medium text-muted-foreground">
+        Organization
+      </span>
     ),
     cell: ({ row }) => (
       <div className="space-y-0.5">
@@ -51,7 +53,9 @@ export const columns: ColumnDef<MemberOrgRow>[] = [
   },
   {
     accessorKey: "url",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Domain</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">Domain</span>
+    ),
     cell: ({ row }) =>
       linkify({
         label: getDisplayUrl(String(row.original.url)),
@@ -61,7 +65,9 @@ export const columns: ColumnDef<MemberOrgRow>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: () => <span className="text-xs font-medium text-muted-foreground">Created</span>,
+    header: () => (
+      <span className="text-xs font-medium text-muted-foreground">Created</span>
+    ),
     cell: ({ row }) => formatDistanceToNow(row.original.createdAt),
   },
   {
@@ -69,7 +75,12 @@ export const columns: ColumnDef<MemberOrgRow>[] = [
     header: () => null,
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-2">
-        <Button asChild size="sm" variant="ghost" className={minimalActionButton}>
+        <Button
+          asChild
+          size="sm"
+          variant="ghost"
+          className={minimalActionButton}
+        >
           <Link
             href={`/member/organizations/${row.original.id}`}
             className={minimalActionLink}
@@ -77,7 +88,12 @@ export const columns: ColumnDef<MemberOrgRow>[] = [
             <Eye className={minimalActionIcon} /> View
           </Link>
         </Button>
-        <Button asChild size="sm" variant="ghost" className={minimalActionButton}>
+        <Button
+          asChild
+          size="sm"
+          variant="ghost"
+          className={minimalActionButton}
+        >
           <Link
             href={`/member/organizations/${row.original.id}/edit`}
             className={minimalActionLink}
@@ -85,7 +101,12 @@ export const columns: ColumnDef<MemberOrgRow>[] = [
             <Pencil className={minimalActionIcon} /> Edit
           </Link>
         </Button>
-        <Button asChild size="sm" variant="ghost" className={destructiveActionButton}>
+        <Button
+          asChild
+          size="sm"
+          variant="ghost"
+          className={destructiveActionButton}
+        >
           <Link
             href={`/member/organizations/${row.original.id}/delete`}
             className={minimalActionLink}

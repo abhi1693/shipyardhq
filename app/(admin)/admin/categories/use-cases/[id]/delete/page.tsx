@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deleteUseCaseAction } from "@/actions/admin/categories/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -51,7 +57,8 @@ export default async function DeleteUseCasePage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            This will delete use case <span className="font-medium">{useCaseLabel}</span>.
+            This will delete use case{" "}
+            <span className="font-medium">{useCaseLabel}</span>.
           </p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">

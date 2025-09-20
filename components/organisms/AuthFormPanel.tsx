@@ -5,7 +5,10 @@ interface AuthFormPanelProps {
   redirectUrl?: string
 }
 
-export default function AuthFormPanel({ mode, redirectUrl }: AuthFormPanelProps) {
+export default function AuthFormPanel({
+  mode,
+  redirectUrl,
+}: AuthFormPanelProps) {
   const isSignIn = mode === "sign-in"
   const finalRedirectUrl = redirectUrl ?? "/member"
 

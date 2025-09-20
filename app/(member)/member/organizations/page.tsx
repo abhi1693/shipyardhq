@@ -82,8 +82,8 @@ export default async function MemberOrganizationsPage({
               Coordinate every crew with dedicated organizations
             </h1>
             <p className="max-w-3xl text-sm text-muted-foreground md:text-base">
-              Unlock shared workspaces, role-aware access, and billing oversight built for teams
-              that scale with Shipyard.
+              Unlock shared workspaces, role-aware access, and billing oversight
+              built for teams that scale with Shipyard.
             </p>
           </div>
 
@@ -98,7 +98,8 @@ export default async function MemberOrganizationsPage({
                   },
                   {
                     title: "Role-aware access",
-                    description: "Control permissions with clarity across every workspace.",
+                    description:
+                      "Control permissions with clarity across every workspace.",
                   },
                   {
                     title: "Unified billing",
@@ -122,13 +123,19 @@ export default async function MemberOrganizationsPage({
 
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <h2 className="text-lg font-semibold text-foreground">Choose your plan</h2>
+                  <h2 className="text-lg font-semibold text-foreground">
+                    Choose your plan
+                  </h2>
                   <p className="text-sm text-muted-foreground max-w-xl">
-                    Billing updates instantly after checkout—no support tickets or manual enablement.
+                    Billing updates instantly after checkout—no support tickets
+                    or manual enablement.
                   </p>
                 </div>
 
-                <OrganizationPlanOptions eligiblePlans={eligiblePlans} fullWidth />
+                <OrganizationPlanOptions
+                  eligiblePlans={eligiblePlans}
+                  fullWidth
+                />
               </div>
             </CardContent>
           </Card>
@@ -161,7 +168,8 @@ export default async function MemberOrganizationsPage({
               Organizations
             </h1>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Manage shared spaces, member roles, and billing for every crew operating inside Shipyard.
+              Manage shared spaces, member roles, and billing for every crew
+              operating inside Shipyard.
             </p>
           </div>
           <Button asChild size="sm" className="px-4">
@@ -197,8 +205,8 @@ function OrganizationPlanOptions({
   if (!eligiblePlans.length) {
     return (
       <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm text-muted-foreground">
-        Reach out to our team and we&apos;ll help tailor a plan that unlocks organizations for your
-        account.
+        Reach out to our team and we&apos;ll help tailor a plan that unlocks
+        organizations for your account.
         <div className="mt-3">
           <Button asChild variant="outline" className="w-fit">
             <a href="mailto:support@shipyardhq.com">Contact support</a>
@@ -209,7 +217,9 @@ function OrganizationPlanOptions({
   }
 
   return (
-    <div className={`grid gap-4 ${fullWidth ? "sm:grid-cols-2" : "md:grid-cols-2"}`}>
+    <div
+      className={`grid gap-4 ${fullWidth ? "sm:grid-cols-2" : "md:grid-cols-2"}`}
+    >
       {eligiblePlans.map((plan) => (
         <div
           key={plan.id}
@@ -217,7 +227,9 @@ function OrganizationPlanOptions({
         >
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <p className="text-sm font-semibold text-foreground">{plan.name}</p>
+              <p className="text-sm font-semibold text-foreground">
+                {plan.name}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {plan.description ||
                   "Includes all core Shipyard features plus organizations."}

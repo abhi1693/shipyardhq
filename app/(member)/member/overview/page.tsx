@@ -34,9 +34,13 @@ type DraftProduct = Awaited<ReturnType<typeof getUserDrafts>>[number]
 type ActivityItem = Awaited<ReturnType<typeof getRecentActivity>>[number]
 type ExpiringBadge = Awaited<ReturnType<typeof getExpiringBadges>>[number]
 
-type NeedsMediaProduct = Awaited<ReturnType<typeof getProductsNeedingMedia>>[number]
+type NeedsMediaProduct = Awaited<
+  ReturnType<typeof getProductsNeedingMedia>
+>[number]
 
-type UnverifiedProduct = Awaited<ReturnType<typeof getUnverifiedProducts>>[number]
+type UnverifiedProduct = Awaited<
+  ReturnType<typeof getUnverifiedProducts>
+>[number]
 
 function rangeToDays(range?: string): number {
   switch (range) {
@@ -71,7 +75,9 @@ function TrendBadge({
 
   const delta = current - previous
   if (delta === 0) {
-    return <span className="text-xs text-muted-foreground">No change vs prior</span>
+    return (
+      <span className="text-xs text-muted-foreground">No change vs prior</span>
+    )
   }
 
   const arrow = delta > 0 ? "▲" : "▼"
@@ -118,7 +124,9 @@ function MetricTile({
           <TrendBadge current={current} previous={previous} />
         ) : null}
         {helper ? (
-          <p className="text-[11px] leading-snug text-muted-foreground">{helper}</p>
+          <p className="text-[11px] leading-snug text-muted-foreground">
+            {helper}
+          </p>
         ) : null}
       </CardContent>
     </Card>
@@ -177,10 +185,12 @@ export default async function OverviewPage({
         <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm">
           Member Command Deck
         </span>
-        <h1 className="mt-6 text-3xl font-bold tracking-tight">Welcome aboard</h1>
+        <h1 className="mt-6 text-3xl font-bold tracking-tight">
+          Welcome aboard
+        </h1>
         <p className="mt-3 max-w-md text-sm text-muted-foreground">
-          Add your first product to unlock analytics, performance insights, and action
-          prompts tailored to your launches.
+          Add your first product to unlock analytics, performance insights, and
+          action prompts tailored to your launches.
         </p>
         <CreateButton asChild className="mt-8" label="Add product">
           <Link href="/member/products/add">Add product</Link>
@@ -208,7 +218,9 @@ export default async function OverviewPage({
       title: "Verified domains",
       value: `${stats.verifiedRate}%`,
       helper: `${formatNumber(stats.verifiedDomains)} verified`,
-      href: stats.unverifiedCount ? "/member/products?verification=unverified" : undefined,
+      href: stats.unverifiedCount
+        ? "/member/products?verification=unverified"
+        : undefined,
     },
     {
       title: "Total clicks",
@@ -226,13 +238,18 @@ export default async function OverviewPage({
       title: "Unverified products",
       value: formatNumber(stats.unverifiedCount),
       helper: "Securing trust signals",
-      href: stats.unverifiedCount ? "/member/products?verification=unverified" : undefined,
+      href: stats.unverifiedCount
+        ? "/member/products?verification=unverified"
+        : undefined,
     },
   ]
 
   type SimpleTaskItem = { id: string; name: string; timestamp?: Date }
 
-  const taskItems: Record<"unverified" | "drafts" | "media" | "badges", SimpleTaskItem[]> = {
+  const taskItems: Record<
+    "unverified" | "drafts" | "media" | "badges",
+    SimpleTaskItem[]
+  > = {
     unverified: (unverified as UnverifiedProduct[]).map((product) => ({
       id: product.id,
       name: product.name,
@@ -294,8 +311,8 @@ export default async function OverviewPage({
             Member overview
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            Track launches, tidy up tasks, and review engagement trends across the
-            last {days} days.
+            Track launches, tidy up tasks, and review engagement trends across
+            the last {days} days.
           </p>
         </div>
         <div className="flex gap-2">
@@ -329,7 +346,9 @@ export default async function OverviewPage({
           <Card className="border-slate-200/70 bg-white/90 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base">Quick shortcuts</CardTitle>
-              <CardDescription>Jump directly to the work that matters.</CardDescription>
+              <CardDescription>
+                Jump directly to the work that matters.
+              </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               <Button asChild size="sm">
@@ -339,7 +358,9 @@ export default async function OverviewPage({
                 <Link href="/member/products?status=draft">Manage drafts</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/member/products?verification=unverified">Verify domains</Link>
+                <Link href="/member/products?verification=unverified">
+                  Verify domains
+                </Link>
               </Button>
             </CardContent>
           </Card>
@@ -348,7 +369,8 @@ export default async function OverviewPage({
             <CardHeader>
               <CardTitle className="text-base">Verification progress</CardTitle>
               <CardDescription>
-                {formatNumber(stats.verifiedDomains)} verified of {formatNumber(stats.totalProducts)}
+                {formatNumber(stats.verifiedDomains)} verified of{" "}
+                {formatNumber(stats.totalProducts)}
                 products.
               </CardDescription>
             </CardHeader>
@@ -374,7 +396,10 @@ export default async function OverviewPage({
           </Card>
 
           {quickTasks.map((task) => (
-            <Card key={task.title} className="border-slate-200/70 bg-white/90 shadow-sm">
+            <Card
+              key={task.title}
+              className="border-slate-200/70 bg-white/90 shadow-sm"
+            >
               <CardHeader>
                 <CardTitle className="text-base">
                   {task.title}
@@ -390,8 +415,13 @@ export default async function OverviewPage({
                 ) : (
                   <ul className="space-y-1.5 text-sm text-muted-foreground">
                     {task.items?.map((item) => (
-                      <li key={item.id} className="flex items-center justify-between gap-2">
-                        <span className="truncate text-slate-900">{item.name}</span>
+                      <li
+                        key={item.id}
+                        className="flex items-center justify-between gap-2"
+                      >
+                        <span className="truncate text-slate-900">
+                          {item.name}
+                        </span>
                         {item.timestamp ? (
                           <span className="text-xs text-muted-foreground">
                             {formatRelative(item.timestamp)}
@@ -403,7 +433,10 @@ export default async function OverviewPage({
                 )}
               </CardContent>
               <CardFooter>
-                <Link href={task.href} className="text-sm text-sky-600 hover:underline">
+                <Link
+                  href={task.href}
+                  className="text-sm text-sky-600 hover:underline"
+                >
                   Go to list →
                 </Link>
               </CardFooter>
@@ -422,15 +455,22 @@ export default async function OverviewPage({
           <Card className="border-slate-200/70 bg-white/90 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base">Most clicked</CardTitle>
-              <CardDescription>Products winning attention this period.</CardDescription>
+              <CardDescription>
+                Products winning attention this period.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {topByClicks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No click data yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  No click data yet.
+                </p>
               ) : (
                 <ul className="space-y-2 text-sm">
                   {topByClicks.slice(0, 5).map((product) => (
-                    <li key={product.id} className="flex items-center justify-between gap-3">
+                    <li
+                      key={product.id}
+                      className="flex items-center justify-between gap-3"
+                    >
                       <Link
                         href={`/member/products/${product.id}`}
                         className="truncate font-medium text-slate-900 hover:underline"
@@ -450,15 +490,22 @@ export default async function OverviewPage({
           <Card className="border-slate-200/70 bg-white/90 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base">Most upvoted</CardTitle>
-              <CardDescription>Community favorites from the range.</CardDescription>
+              <CardDescription>
+                Community favorites from the range.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {topByUpvotes.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No upvote data yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  No upvote data yet.
+                </p>
               ) : (
                 <ul className="space-y-2 text-sm">
                   {topByUpvotes.slice(0, 5).map((product) => (
-                    <li key={product.id} className="flex items-center justify-between gap-3">
+                    <li
+                      key={product.id}
+                      className="flex items-center justify-between gap-3"
+                    >
                       <Link
                         href={`/member/products/${product.id}`}
                         className="truncate font-medium text-slate-900 hover:underline"
@@ -487,11 +534,15 @@ export default async function OverviewPage({
           <Card className="border-slate-200/70 bg-white/90 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base">Recent launches</CardTitle>
-              <CardDescription>Products launched within the last {days} days.</CardDescription>
+              <CardDescription>
+                Products launched within the last {days} days.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {recentProducts.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No launches in this window.</p>
+                <p className="text-sm text-muted-foreground">
+                  No launches in this window.
+                </p>
               ) : (
                 <ul className="space-y-2 text-sm">
                   {recentProducts.slice(0, 4).map((product) => (
@@ -504,15 +555,26 @@ export default async function OverviewPage({
                           {product.name}
                         </Link>
                         <Badge
-                          variant={product.verification?.isVerified ? "success" : "outline"}
+                          variant={
+                            product.verification?.isVerified
+                              ? "success"
+                              : "outline"
+                          }
                         >
-                          {product.verification?.isVerified ? "Verified" : "Verify"}
+                          {product.verification?.isVerified
+                            ? "Verified"
+                            : "Verify"}
                         </Badge>
                       </div>
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         <span>{formatRelative(product.createdAt)}</span>
-                        <span>{formatNumber(product.analytics?.clicks ?? 0)} clicks</span>
-                        <span>{formatNumber(product.analytics?.upvotes ?? 0)} upvotes</span>
+                        <span>
+                          {formatNumber(product.analytics?.clicks ?? 0)} clicks
+                        </span>
+                        <span>
+                          {formatNumber(product.analytics?.upvotes ?? 0)}{" "}
+                          upvotes
+                        </span>
                       </div>
                     </li>
                   ))}
@@ -520,7 +582,10 @@ export default async function OverviewPage({
               )}
             </CardContent>
             <CardFooter>
-              <Link href="/member/products" className="text-sm text-sky-600 hover:underline">
+              <Link
+                href="/member/products"
+                className="text-sm text-sky-600 hover:underline"
+              >
                 View all products →
               </Link>
             </CardFooter>
@@ -529,11 +594,15 @@ export default async function OverviewPage({
           <Card className="border-slate-200/70 bg-white/90 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base">Recent activity</CardTitle>
-              <CardDescription>Latest events impacting your products.</CardDescription>
+              <CardDescription>
+                Latest events impacting your products.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {activity.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No notable activity yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  No notable activity yet.
+                </p>
               ) : (
                 <ul className="space-y-2 text-sm">
                   {activity.slice(0, 6).map((item) => (
@@ -566,22 +635,30 @@ export default async function OverviewPage({
             <CardHeader>
               <CardTitle className="text-base">Product health</CardTitle>
               <CardDescription>
-                Average completeness across your portfolio: {health.averageScore}%
+                Average completeness across your portfolio:{" "}
+                {health.averageScore}%
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-sky-500"
-                  style={{ width: `${Math.min(100, Math.max(0, health.averageScore))}%` }}
+                  style={{
+                    width: `${Math.min(100, Math.max(0, health.averageScore))}%`,
+                  }}
                 />
               </div>
               {health.suggestions.length === 0 ? (
-                <p className="text-muted-foreground">Everything looks sharp — keep shipping!</p>
+                <p className="text-muted-foreground">
+                  Everything looks sharp — keep shipping!
+                </p>
               ) : (
                 <ul className="space-y-2">
                   {health.suggestions.slice(0, 4).map((suggestion) => (
-                    <li key={suggestion.label} className="flex items-center justify-between gap-3">
+                    <li
+                      key={suggestion.label}
+                      className="flex items-center justify-between gap-3"
+                    >
                       <span className="text-slate-900">{suggestion.label}</span>
                       <Link
                         href={suggestion.href ?? "/member/products"}
@@ -610,7 +687,9 @@ function renderActivityLabel(activity: ActivityItem) {
     case "domain_verified":
       return "Domain verified"
     case "badge_assigned":
-      return activity.meta?.badge ? `Badge earned: ${activity.meta.badge}` : "Badge assigned"
+      return activity.meta?.badge
+        ? `Badge earned: ${activity.meta.badge}`
+        : "Badge assigned"
     case "product_upvoted":
       return "Received an upvote"
     default:

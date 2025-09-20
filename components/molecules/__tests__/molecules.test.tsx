@@ -57,7 +57,11 @@ describe("molecules", () => {
       .spyOn(window, "open")
       .mockImplementation(() => null as any)
     render(
-      <ShareOnXButton path="/p/abc" productName="Cool" tagline="Do more with less" />,
+      <ShareOnXButton
+        path="/p/abc"
+        productName="Cool"
+        tagline="Do more with less"
+      />,
     )
     await screen.getByRole("button", { name: /share on x/i }).click()
     expect(openSpy).toHaveBeenCalled()

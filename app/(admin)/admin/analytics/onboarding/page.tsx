@@ -16,13 +16,11 @@ import {
 } from "@/lib/server/analytics/onboardingSummary"
 import { formatDistanceToNow } from "date-fns"
 
-function formatName(
-  user: {
-    firstName: string | null
-    lastName: string | null
-    email: string | null
-  },
-) {
+function formatName(user: {
+  firstName: string | null
+  lastName: string | null
+  email: string | null
+}) {
   const parts = [user.firstName, user.lastName].filter(Boolean)
   if (parts.length) return parts.join(" ")
   return user.email ?? "Unknown member"

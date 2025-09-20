@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deletePlanAction } from "@/actions/admin/plans/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -51,7 +57,8 @@ export default async function DeletePlanPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            You are about to delete plan <span className="font-medium">{planName}</span>.
+            You are about to delete plan{" "}
+            <span className="font-medium">{planName}</span>.
           </p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">

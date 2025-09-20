@@ -36,7 +36,10 @@ export default function WizardStepper({
               : "bg-slate-100 text-slate-500 border-slate-200"
 
           return (
-            <li key={s.id} className="flex flex-1 flex-col items-center gap-2 text-center">
+            <li
+              key={s.id}
+              className="flex flex-1 flex-col items-center gap-2 text-center"
+            >
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-medium transition-colors ${circleClass}`}
               >

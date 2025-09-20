@@ -10,9 +10,7 @@ describe("Leaderboard showcase journey", () => {
     cy.story("They adjust the list to focus on the top 25 ships.")
     cy.contains("Tune the tides").scrollIntoView()
     cy.contains("Showing top 50 launches").should("be.visible")
-    cy.contains("button", "Top 50")
-      .should("be.visible")
-      .click()
+    cy.contains("button", "Top 50").should("be.visible").click()
     cy.get('[data-slot="select-content"]').should("be.visible")
     cy.get('[data-slot="select-item"]').contains("Top 25").click()
     cy.waitForAppIdle()
@@ -20,7 +18,9 @@ describe("Leaderboard showcase journey", () => {
     cy.url().should("include", "limit=25")
     cy.contains("Showing top 25 launches").should("be.visible")
 
-    cy.story("Riley filters to Social Media Tools to benchmark marketing players.")
+    cy.story(
+      "Riley filters to Social Media Tools to benchmark marketing players.",
+    )
     cy.contains("button", "All categories")
       .scrollIntoView()
       .should("be.visible")
@@ -32,10 +32,14 @@ describe("Leaderboard showcase journey", () => {
     cy.url().should("include", "category=social-media-tools")
     cy.contains("Reset filters").should("be.visible")
 
-    cy.story("They review the flagship card to understand why it's ranking first.")
+    cy.story(
+      "They review the flagship card to understand why it's ranking first.",
+    )
     cy.contains("Flagship").should("be.visible")
     cy.contains("Rank #1").should("be.visible")
-    cy.contains("Ready to climb the leaderboard?").scrollIntoView().should("be.visible")
+    cy.contains("Ready to climb the leaderboard?")
+      .scrollIntoView()
+      .should("be.visible")
 
     cy.story("Riley resets the board before heading back to browsing.")
     cy.contains("Reset filters").click()

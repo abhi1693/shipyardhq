@@ -58,5 +58,10 @@ export function getMemberProductSortLabel(value: string) {
 }
 
 export function isAllFilterValue(value: string | undefined | null) {
-  return value === undefined || value === null || value === "" || value === MEMBER_PRODUCT_FILTER_ALL
+  return (
+    value === undefined ||
+    value === null ||
+    value === "" ||
+    value === MEMBER_PRODUCT_FILTER_ALL
+  )
 }

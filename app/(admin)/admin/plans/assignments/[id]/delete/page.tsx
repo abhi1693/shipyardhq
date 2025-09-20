@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deletePlanFeatureAssignmentAction } from "@/actions/admin/plans/assignments/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -56,7 +62,8 @@ export default async function DeletePlanAssignmentPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            Feature <span className="font-medium">{featureName}</span> will be removed from plan
+            Feature <span className="font-medium">{featureName}</span> will be
+            removed from plan
             <span className="font-medium">{planName}</span>.
           </p>
         </CardContent>

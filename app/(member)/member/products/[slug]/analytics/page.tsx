@@ -117,7 +117,9 @@ function SummaryCards({ summary }: { summary: ProductTrafficSummary }) {
                         <Info className="h-4 w-4" aria-hidden />
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent sideOffset={6}>{card.tooltip}</TooltipContent>
+                    <TooltipContent sideOffset={6}>
+                      {card.tooltip}
+                    </TooltipContent>
                   </Tooltip>
                 ) : null}
               </div>
@@ -182,7 +184,10 @@ function InsightsPanel({ summary }: { summary: ProductTrafficSummary }) {
       />
       <CardContent className="relative flex flex-wrap gap-6 px-6 py-6">
         {insights.map((insight) => (
-          <div key={insight.title} className="max-w-sm space-y-1 text-sm text-slate-700">
+          <div
+            key={insight.title}
+            className="max-w-sm space-y-1 text-sm text-slate-700"
+          >
             <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.32em] text-slate-500">
               {insight.title}
             </span>
@@ -238,7 +243,9 @@ function BreakdownCard({
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/60">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-sky-500 via-sky-400 to-sky-500"
-                    style={{ width: `${Math.max(6, (item.views / max) * 100)}%` }}
+                    style={{
+                      width: `${Math.max(6, (item.views / max) * 100)}%`,
+                    }}
                   />
                 </div>
               </li>
@@ -330,12 +337,7 @@ export default async function ProductAnalyticsPage({
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back to product
               </Link>
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-3"
-              asChild
-            >
+            <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
               <Link href={publicPath} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="mr-2 h-4 w-4" /> View public page
               </Link>

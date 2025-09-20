@@ -8,7 +8,8 @@ export const revalidate = 120
 
 const baseMetadata = buildPageMetadata({
   title: "Users",
-  description: "Discover makers and explore their published products on ShipYardHQ.",
+  description:
+    "Discover makers and explore their published products on ShipYardHQ.",
   openGraph: {
     url: "/users",
     type: "website",

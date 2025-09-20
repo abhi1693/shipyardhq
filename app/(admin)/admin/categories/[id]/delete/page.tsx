@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deleteCategoryAction } from "@/actions/admin/categories/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -51,8 +57,9 @@ export default async function DeleteCategoryPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            This will delete category <span className="font-medium">{categoryName}</span> and
-            detach it from associated products.
+            This will delete category{" "}
+            <span className="font-medium">{categoryName}</span> and detach it
+            from associated products.
           </p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">

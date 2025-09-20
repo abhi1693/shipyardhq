@@ -21,8 +21,7 @@ const buttonVariants = cva(
           "rounded-full border border-slate-200/60 bg-slate-100 text-slate-800 shadow-[0_12px_26px_-20px_rgba(15,23,42,0.35)] hover:bg-slate-200 hover:text-slate-900 dark:bg-slate-800/70 dark:border-slate-700 dark:text-slate-100",
         ghost:
           "rounded-full border border-transparent bg-transparent text-slate-700 hover:border-slate-200 hover:bg-slate-100/70 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60",
-        link:
-          "underline-offset-[6px] text-[color:var(--brand-1)] hover:underline focus-visible:underline",
+        link: "underline-offset-[6px] text-[color:var(--brand-1)] hover:underline focus-visible:underline",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deleteOrganizationAction } from "@/actions/admin/organizations/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -51,7 +57,8 @@ export default async function DeleteAdminOrganizationPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            You are about to delete <span className="font-medium">{organizationName}</span>.
+            You are about to delete{" "}
+            <span className="font-medium">{organizationName}</span>.
           </p>
           <p>This will remove related memberships and product associations.</p>
         </CardContent>

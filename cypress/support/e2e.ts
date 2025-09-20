@@ -12,7 +12,7 @@ declare global {
     interface Chainable {
       /**
        * Adds a human-readable narrative entry to the Cypress command log.
-      */
+       */
       story(message: string): Chainable<null>
       /**
        * Waits until the global top-loader has finished or the timeout (60s) elapses.

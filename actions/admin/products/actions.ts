@@ -324,7 +324,8 @@ export async function updateProductAction(
 ) {
   // Determine role for permission-sensitive updates
   const isAdmin = await checkRole("admin")
-  let currentUser: Awaited<ReturnType<typeof getActiveUserByClerkId>> | null = null
+  let currentUser: Awaited<ReturnType<typeof getActiveUserByClerkId>> | null =
+    null
   if (!isAdmin) {
     const { userId: clerkId } = await auth()
     if (!clerkId) return { error: "Unauthenticated" }
@@ -705,7 +706,8 @@ export async function setProductStatusAction(
 ) {
   try {
     const isAdmin = await checkRole("admin")
-    let currentUser: Awaited<ReturnType<typeof getActiveUserByClerkId>> | null = null
+    let currentUser: Awaited<ReturnType<typeof getActiveUserByClerkId>> | null =
+      null
     if (!isAdmin) {
       const { userId: clerkId } = await auth()
       if (!clerkId) return { error: "Unauthenticated" }

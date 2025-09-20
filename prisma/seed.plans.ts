@@ -1,7 +1,11 @@
 import path from "node:path"
 import { pathToFileURL } from "node:url"
 
-import { PlanType, PrismaClient, TimeInterval } from "@/lib/vendor/prisma/client"
+import {
+  PlanType,
+  PrismaClient,
+  TimeInterval,
+} from "@/lib/vendor/prisma/client"
 
 type PlanSeed = {
   name: string

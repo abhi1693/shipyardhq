@@ -93,7 +93,13 @@ export async function getMyOrganizationsPage(
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
-      select: { id: true, name: true, url: true, createdAt: true, ownerUserId: true },
+      select: {
+        id: true,
+        name: true,
+        url: true,
+        createdAt: true,
+        ownerUserId: true,
+      },
     }),
     prisma.organization.count({ where }),
   ])

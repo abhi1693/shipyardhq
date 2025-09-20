@@ -221,14 +221,19 @@ async function upsertProduct(
   ctx: SeedContext,
   options?: { preserveAnalytics?: boolean },
 ) {
-  const existing = await prisma.product.findUnique({ where: { slug: def.slug } })
+  const existing = await prisma.product.findUnique({
+    where: { slug: def.slug },
+  })
   await prisma.product.upsert({
     where: { slug: def.slug },
     create: buildProductCreateInput(def, ctx),
     update: buildProductUpdateInput(def, ctx, options),
   })
 
-  return { slug: def.slug, action: existing ? ("update" as const) : ("create" as const) }
+  return {
+    slug: def.slug,
+    action: existing ? ("update" as const) : ("create" as const),
+  }
 }
 
 async function main() {
@@ -259,7 +264,9 @@ async function main() {
   const userIdByClerkId = new Map<string, string>()
   const userRows: { clerkId: string; action: "create" | "update" }[] = []
   for (const user of userSeeds) {
-    const existing = await prisma.user.findUnique({ where: { clerkId: user.clerkId } })
+    const existing = await prisma.user.findUnique({
+      where: { clerkId: user.clerkId },
+    })
     const record = await prisma.user.upsert({
       where: { clerkId: user.clerkId },
       update: {
@@ -272,7 +279,10 @@ async function main() {
       create: user,
     })
     userIdByClerkId.set(user.clerkId, record.id)
-    userRows.push({ clerkId: user.clerkId, action: existing ? "update" : "create" })
+    userRows.push({
+      clerkId: user.clerkId,
+      action: existing ? "update" : "create",
+    })
   }
   console.table(userRows)
 
@@ -284,14 +294,19 @@ async function main() {
   const organizationIdByName = new Map<string, string>()
   const organizationRows: { name: string; action: "create" | "update" }[] = []
   for (const org of organizationSeeds) {
-    const existing = await prisma.organization.findUnique({ where: { url: org.url } })
+    const existing = await prisma.organization.findUnique({
+      where: { url: org.url },
+    })
     const record = await prisma.organization.upsert({
       where: { url: org.url },
       update: { name: org.name },
       create: { name: org.name, url: org.url },
     })
     organizationIdByName.set(org.name, record.id)
-    organizationRows.push({ name: org.name, action: existing ? "update" : "create" })
+    organizationRows.push({
+      name: org.name,
+      action: existing ? "update" : "create",
+    })
   }
   console.table(organizationRows)
 
@@ -358,7 +373,9 @@ async function main() {
     prisma.plan.findMany({ select: { id: true, slug: true } }),
   ])
 
-  const categoryIdBySlug = new Map(categoryRows.map((row) => [row.slug, row.id]))
+  const categoryIdBySlug = new Map(
+    categoryRows.map((row) => [row.slug, row.id]),
+  )
   const planIdBySlug = new Map(planRows.map((row) => [row.slug, row.id]))
 
   const ctx: SeedContext = {
@@ -410,7 +427,9 @@ async function main() {
     },
   }
 
-  productRows.push(await upsertProduct(primaryProduct, ctx, { preserveAnalytics: true }))
+  productRows.push(
+    await upsertProduct(primaryProduct, ctx, { preserveAnalytics: true }),
+  )
 
   const productNames = [
     "PostPilot",
@@ -520,14 +539,16 @@ async function main() {
         isVerified: false,
       },
       analytics: {
-        upvotes: 40 + ((index + 1) * 7) % 500,
-        clicks: 150 + ((index + 3) * 13) % 2500,
+        upvotes: 40 + (((index + 1) * 7) % 500),
+        clicks: 150 + (((index + 3) * 13) % 2500),
       },
     }
   })
 
   for (const seed of bulkSeeds) {
-    productRows.push(await upsertProduct(seed, ctx, { preserveAnalytics: true }))
+    productRows.push(
+      await upsertProduct(seed, ctx, { preserveAnalytics: true }),
+    )
   }
 
   console.table(productRows)

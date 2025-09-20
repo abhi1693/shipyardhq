@@ -46,7 +46,9 @@ function TrendBadge({ delta }: { delta?: number }) {
   const tone = delta > 0 ? "text-emerald-600" : "text-rose-600"
 
   return (
-    <span className={cn("text-xs font-medium", tone)}>{formatPercent(delta)}</span>
+    <span className={cn("text-xs font-medium", tone)}>
+      {formatPercent(delta)}
+    </span>
   )
 }
 
@@ -104,7 +106,8 @@ function BreakdownCard({
         ) : (
           <ul className="space-y-3 text-sm">
             {items.map((item) => {
-              const percent = total > 0 ? Math.round((item.views / total) * 100) : 0
+              const percent =
+                total > 0 ? Math.round((item.views / total) * 100) : 0
               return (
                 <li key={item.key} className="space-y-1">
                   <div className="flex items-center justify-between gap-3">
@@ -112,7 +115,9 @@ function BreakdownCard({
                       {item.label ? (
                         item.label
                       ) : (
-                        <span className="italic text-muted-foreground">Unknown</span>
+                        <span className="italic text-muted-foreground">
+                          Unknown
+                        </span>
                       )}
                     </span>
                     <span className="shrink-0 text-xs text-muted-foreground">
@@ -201,8 +206,8 @@ export default async function TrafficAnalyticsPage({
             Traffic analytics
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            Understand how visitors discover Shipyard, what devices they use, and how
-            momentum is trending.
+            Understand how visitors discover Shipyard, what devices they use,
+            and how momentum is trending.
           </p>
         </div>
         <RangeSelector />

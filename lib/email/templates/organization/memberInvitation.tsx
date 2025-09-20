@@ -40,7 +40,9 @@ export default function OrganizationMemberInvitationEmail({
       cta={{ label: "Open organization", href: inviteUrl }}
     >
       <p style={paragraphStyle}>
-        {"You now share access to this workspace, including launches, members, and billing. Only teammates within the organization can see these internal tools."}
+        {
+          "You now share access to this workspace, including launches, members, and billing. Only teammates within the organization can see these internal tools."
+        }
       </p>
       <p style={paragraphStyle}>{"Here are a few things you can do next:"}</p>
       <ol style={listStyle}>

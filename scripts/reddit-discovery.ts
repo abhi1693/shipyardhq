@@ -252,11 +252,7 @@ async function main() {
   args.sorts = normalizeStringList(args.sorts)
   if (!args.sorts.length) {
     args.sorts = normalizeStringList(
-      resolveStringList(
-        null,
-        discoveryConfig.sorts,
-        DEFAULT_DISCOVERY_SORTS,
-      ),
+      resolveStringList(null, discoveryConfig.sorts, DEFAULT_DISCOVERY_SORTS),
     )
   }
 
@@ -361,7 +357,10 @@ async function main() {
       { label: "Cooldown (ms)", value: cooldownMs },
       { label: "Target ICP", value: targetProfile },
       { label: "Sorts", value: args.sorts },
-      { label: "Top windows", value: effectiveTimeFilters.length ? effectiveTimeFilters : "(n/a)" },
+      {
+        label: "Top windows",
+        value: effectiveTimeFilters.length ? effectiveTimeFilters : "(n/a)",
+      },
       {
         label: "Fetch cap",
         value: `up to ${fetchPerCombination} results per query/sort combo (API cap 100)`,
@@ -476,10 +475,7 @@ async function main() {
       if (args.verbose) {
         return
       }
-      scoringProgress?.update(
-        completed,
-        `Scoring r/${candidate.name}`,
-      )
+      scoringProgress?.update(completed, `Scoring r/${candidate.name}`)
     },
   )
 
@@ -1193,9 +1189,8 @@ function createProgressBar(total: number, prefix = "Progress"): ProgressBar {
 
   let renderedLength = 0
   let lastLabel = ""
-  const columns = typeof process.stderr.columns === "number"
-    ? process.stderr.columns
-    : 80
+  const columns =
+    typeof process.stderr.columns === "number" ? process.stderr.columns : 80
   const barWidth = Math.min(40, Math.max(10, Math.floor(columns * 0.4)))
   const basePrefix = prefix ? `${prefix} ` : ""
 
@@ -1210,11 +1205,13 @@ function createProgressBar(total: number, prefix = "Progress"): ProgressBar {
     const empty = barWidth - filled
     const bar = `${"#".repeat(filled)}${"-".repeat(empty)}`
     const percentText = `${percent}`.padStart(3, " ")
-    const composed = `${basePrefix}[${bar}] ${percentText}% ${lastLabel}`.trimEnd()
+    const composed =
+      `${basePrefix}[${bar}] ${percentText}% ${lastLabel}`.trimEnd()
     const maxLen = (process.stderr.columns || columns) - 1
-    const truncated = composed.length > maxLen
-      ? composed.slice(0, Math.max(0, maxLen))
-      : composed
+    const truncated =
+      composed.length > maxLen
+        ? composed.slice(0, Math.max(0, maxLen))
+        : composed
     const padding = Math.max(0, renderedLength - truncated.length)
     process.stderr.write(`\r${truncated}${" ".repeat(padding)}`)
     renderedLength = truncated.length
@@ -1290,9 +1287,10 @@ function printOptionTable(
     ...normalizedRows.map((row) => row.value.length),
   )
 
-  const terminalWidth = typeof process.stdout.columns === "number"
-    ? process.stdout.columns
-    : undefined
+  const terminalWidth =
+    typeof process.stdout.columns === "number"
+      ? process.stdout.columns
+      : undefined
   const maxWidth = options.maxWidth || terminalWidth || 100
   const gutter = 5 // " | " separation
   const tableWidth = Math.min(maxWidth, labelWidth + gutter + rawValueWidth + 4)
@@ -1351,13 +1349,7 @@ async function collectCandidatesForQuery(
 
     for (const sub of results) {
       if (
-        addCandidateFromListing(
-          sub,
-          query,
-          args,
-          candidateMap,
-          existingNames,
-        )
+        addCandidateFromListing(sub, query, args, candidateMap, existingNames)
       ) {
         added += 1
       }

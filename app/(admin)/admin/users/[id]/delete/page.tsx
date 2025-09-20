@@ -2,7 +2,13 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { deleteUserAction } from "@/actions/admin/users/actions"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
 
@@ -53,9 +59,12 @@ export default async function DeleteAdminUserPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            You are about to delete <span className="font-medium">{displayName}</span>.
+            You are about to delete{" "}
+            <span className="font-medium">{displayName}</span>.
           </p>
-          <p>This will remove the account and any related access immediately.</p>
+          <p>
+            This will remove the account and any related access immediately.
+          </p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">

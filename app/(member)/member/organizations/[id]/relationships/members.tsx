@@ -82,7 +82,9 @@ export function MemberOrganizationMembersRelationship({
                       </Badge>
                     ) : null}
                   </div>
-                  <p className="text-xs text-muted-foreground">{row.user.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {row.user.email}
+                  </p>
                 </div>
 
                 <div className="flex flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-6">

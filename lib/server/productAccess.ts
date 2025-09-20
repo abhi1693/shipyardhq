@@ -12,7 +12,9 @@ export type ManageableProductSummary = {
   organizationId: string | null
 }
 
-type ActiveUser = NonNullable<Awaited<ReturnType<typeof getActiveUserByClerkId>>>
+type ActiveUser = NonNullable<
+  Awaited<ReturnType<typeof getActiveUserByClerkId>>
+>
 
 type RequireOptions = {
   unauthorizedRedirect?: string | null

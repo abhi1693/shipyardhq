@@ -54,12 +54,7 @@ export function ObjectPageLayout({
         extraActions={headingActionsLeft}
       />
 
-      <div
-        className={cn(
-          "w-full bg-muted py-6",
-          surfaceClassName,
-        )}
-      >
+      <div className={cn("w-full bg-muted py-6", surfaceClassName)}>
         <div className="w-full px-4 md:px-6">
           {extrasList.length === 0 && hasOverview && (
             <OverviewCard title="Overview" className={overviewCardClassName}>
