@@ -40,8 +40,11 @@ type RegionDisplayNames = {
 }
 
 const countryDisplayNames: RegionDisplayNames | null =
-  typeof Intl !== "undefined" && typeof (Intl as any).DisplayNames === "function"
-    ? (new (Intl as any).DisplayNames(["en"], { type: "region" }) as RegionDisplayNames)
+  typeof Intl !== "undefined" &&
+  typeof (Intl as any).DisplayNames === "function"
+    ? (new (Intl as any).DisplayNames(["en"], {
+        type: "region",
+      }) as RegionDisplayNames)
     : null
 
 function formatCountryName(country?: string | null) {
@@ -403,12 +406,10 @@ export default async function AdminProductAnalyticsPage({
   const trafficCategoryItems = advanced.referrerCategoryBreakdown
     .map((item) => ({ label: item.label, views: item.views }))
     .slice(0, 5)
-  const countryItems = summary.countryBreakdown
-    .slice(0, 6)
-    .map((item) => ({
-      label: formatCountryName(item.country),
-      views: item.views,
-    }))
+  const countryItems = summary.countryBreakdown.slice(0, 6).map((item) => ({
+    label: formatCountryName(item.country),
+    views: item.views,
+  }))
 
   return (
     <ObjectPageLayout
@@ -451,10 +452,7 @@ export default async function AdminProductAnalyticsPage({
               </div>
               <RangeSelector className="shrink-0" />
             </div>
-            <SummaryCards
-              summary={summary}
-              includeAdvanced={true}
-            />
+            <SummaryCards summary={summary} includeAdvanced={true} />
           </section>
           <>
             <section className="space-y-4">
