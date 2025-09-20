@@ -21,6 +21,13 @@ export interface ProductTrafficSummaryPoint {
   uniqueVisitors: number
 }
 
+export interface ProductEngagementSummaryPoint {
+  date: string
+  label: string
+  clicks: number
+  upvotes: number
+}
+
 export interface ProductTrafficBreakdownItem {
   views: number
 }
@@ -152,6 +159,7 @@ export interface ProductTrafficSummary {
   countryBreakdown: ProductTrafficCountryBreakdownItem[]
   browserBreakdown: ProductTrafficBrowserBreakdownItem[]
   referrerBreakdown: ProductTrafficReferrerBreakdownItem[]
+  engagementOverTime: ProductEngagementSummaryPoint[]
   advanced: ProductTrafficAdvancedInsights
 }
 

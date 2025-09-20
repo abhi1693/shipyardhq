@@ -2,8 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 
 vi.mock("@/lib/prisma", () => ({
   default: {
+    $transaction: vi.fn(async (operations: any[]) => Promise.all(operations)),
     productAnalytics: {
       upsert: vi.fn(async () => ({})),
+    },
+    productClickEvent: {
+      create: vi.fn(async () => ({})),
     },
     productTrafficEvent: {
       create: vi.fn(async () => ({})),
@@ -21,7 +25,9 @@ import "@/lib/server/analytics/productTraffic"
 
 describe("analytics listeners", () => {
   beforeEach(() => {
+    ;(prisma.$transaction as any).mockClear()
     ;(prisma.productAnalytics.upsert as any).mockClear()
+    ;(prisma.productClickEvent.create as any).mockClear()
     ;(prisma.productTrafficEvent.create as any).mockClear()
   })
 

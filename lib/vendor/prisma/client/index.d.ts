@@ -39,6 +39,11 @@ export type ProductMetadata = $Result.DefaultSelection<Prisma.$ProductMetadataPa
  */
 export type ProductAnalytics = $Result.DefaultSelection<Prisma.$ProductAnalyticsPayload>
 /**
+ * Model ProductClickEvent
+ * 
+ */
+export type ProductClickEvent = $Result.DefaultSelection<Prisma.$ProductClickEventPayload>
+/**
  * Model ProductTrafficEvent
  * 
  */
@@ -397,6 +402,16 @@ export class PrismaClient<
     * ```
     */
   get productAnalytics(): Prisma.ProductAnalyticsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productClickEvent`: Exposes CRUD operations for the **ProductClickEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductClickEvents
+    * const productClickEvents = await prisma.productClickEvent.findMany()
+    * ```
+    */
+  get productClickEvent(): Prisma.ProductClickEventDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.productTrafficEvent`: Exposes CRUD operations for the **ProductTrafficEvent** model.
@@ -982,6 +997,7 @@ export namespace Prisma {
     ProductVerification: 'ProductVerification',
     ProductMetadata: 'ProductMetadata',
     ProductAnalytics: 'ProductAnalytics',
+    ProductClickEvent: 'ProductClickEvent',
     ProductTrafficEvent: 'ProductTrafficEvent',
     ProductUpvote: 'ProductUpvote',
     Organization: 'Organization',
@@ -1014,7 +1030,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "product" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productTrafficEvent" | "productUpvote" | "organization" | "organizationMembership" | "user" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
+      modelProps: "product" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productUpvote" | "organization" | "organizationMembership" | "user" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1385,6 +1401,80 @@ export namespace Prisma {
           count: {
             args: Prisma.ProductAnalyticsCountArgs<ExtArgs>
             result: $Utils.Optional<ProductAnalyticsCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProductClickEvent: {
+        payload: Prisma.$ProductClickEventPayload<ExtArgs>
+        fields: Prisma.ProductClickEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductClickEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductClickEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductClickEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductClickEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+          }
+          findMany: {
+            args: Prisma.ProductClickEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload>[]
+          }
+          create: {
+            args: Prisma.ProductClickEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+          }
+          createMany: {
+            args: Prisma.ProductClickEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductClickEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductClickEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+          }
+          update: {
+            args: Prisma.ProductClickEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductClickEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductClickEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductClickEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductClickEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductClickEventPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductClickEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductClickEvent>
+          }
+          groupBy: {
+            args: Prisma.ProductClickEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductClickEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductClickEventCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductClickEventCountAggregateOutputType> | number
           }
         }
       }
@@ -2525,6 +2615,7 @@ export namespace Prisma {
     productVerification?: ProductVerificationOmit
     productMetadata?: ProductMetadataOmit
     productAnalytics?: ProductAnalyticsOmit
+    productClickEvent?: ProductClickEventOmit
     productTrafficEvent?: ProductTrafficEventOmit
     productUpvote?: ProductUpvoteOmit
     organization?: OrganizationOmit
@@ -2622,6 +2713,7 @@ export namespace Prisma {
     ProductBadge: number
     ProductMedia: number
     ProductUpvote: number
+    clickEvents: number
     trafficEvents: number
   }
 
@@ -2629,6 +2721,7 @@ export namespace Prisma {
     ProductBadge?: boolean | ProductCountOutputTypeCountProductBadgeArgs
     ProductMedia?: boolean | ProductCountOutputTypeCountProductMediaArgs
     ProductUpvote?: boolean | ProductCountOutputTypeCountProductUpvoteArgs
+    clickEvents?: boolean | ProductCountOutputTypeCountClickEventsArgs
     trafficEvents?: boolean | ProductCountOutputTypeCountTrafficEventsArgs
   }
 
@@ -2662,6 +2755,13 @@ export namespace Prisma {
    */
   export type ProductCountOutputTypeCountProductUpvoteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProductUpvoteWhereInput
+  }
+
+  /**
+   * ProductCountOutputType without action
+   */
+  export type ProductCountOutputTypeCountClickEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductClickEventWhereInput
   }
 
   /**
@@ -3294,6 +3394,7 @@ export namespace Prisma {
     ProductBadge?: boolean | Product$ProductBadgeArgs<ExtArgs>
     ProductMedia?: boolean | Product$ProductMediaArgs<ExtArgs>
     ProductUpvote?: boolean | Product$ProductUpvoteArgs<ExtArgs>
+    clickEvents?: boolean | Product$clickEventsArgs<ExtArgs>
     trafficEvents?: boolean | Product$trafficEventsArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["product"]>
@@ -3402,6 +3503,7 @@ export namespace Prisma {
     ProductBadge?: boolean | Product$ProductBadgeArgs<ExtArgs>
     ProductMedia?: boolean | Product$ProductMediaArgs<ExtArgs>
     ProductUpvote?: boolean | Product$ProductUpvoteArgs<ExtArgs>
+    clickEvents?: boolean | Product$clickEventsArgs<ExtArgs>
     trafficEvents?: boolean | Product$trafficEventsArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -3431,6 +3533,7 @@ export namespace Prisma {
       ProductBadge: Prisma.$ProductBadgePayload<ExtArgs>[]
       ProductMedia: Prisma.$ProductMediaPayload<ExtArgs>[]
       ProductUpvote: Prisma.$ProductUpvotePayload<ExtArgs>[]
+      clickEvents: Prisma.$ProductClickEventPayload<ExtArgs>[]
       trafficEvents: Prisma.$ProductTrafficEventPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -3863,6 +3966,7 @@ export namespace Prisma {
     ProductBadge<T extends Product$ProductBadgeArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductBadgeArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductBadgePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductMedia<T extends Product$ProductMediaArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductMediaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductUpvote<T extends Product$ProductUpvoteArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductUpvoteArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductUpvotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    clickEvents<T extends Product$clickEventsArgs<ExtArgs> = {}>(args?: Subset<T, Product$clickEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     trafficEvents<T extends Product$trafficEventsArgs<ExtArgs> = {}>(args?: Subset<T, Product$trafficEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4478,6 +4582,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProductUpvoteScalarFieldEnum | ProductUpvoteScalarFieldEnum[]
+  }
+
+  /**
+   * Product.clickEvents
+   */
+  export type Product$clickEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
+    where?: ProductClickEventWhereInput
+    orderBy?: ProductClickEventOrderByWithRelationInput | ProductClickEventOrderByWithRelationInput[]
+    cursor?: ProductClickEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProductClickEventScalarFieldEnum | ProductClickEventScalarFieldEnum[]
   }
 
   /**
@@ -8894,6 +9022,1038 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ProductAnalyticsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProductClickEvent
+   */
+
+  export type AggregateProductClickEvent = {
+    _count: ProductClickEventCountAggregateOutputType | null
+    _min: ProductClickEventMinAggregateOutputType | null
+    _max: ProductClickEventMaxAggregateOutputType | null
+  }
+
+  export type ProductClickEventMinAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    createdAt: Date | null
+  }
+
+  export type ProductClickEventMaxAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    createdAt: Date | null
+  }
+
+  export type ProductClickEventCountAggregateOutputType = {
+    id: number
+    productId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ProductClickEventMinAggregateInputType = {
+    id?: true
+    productId?: true
+    createdAt?: true
+  }
+
+  export type ProductClickEventMaxAggregateInputType = {
+    id?: true
+    productId?: true
+    createdAt?: true
+  }
+
+  export type ProductClickEventCountAggregateInputType = {
+    id?: true
+    productId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ProductClickEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductClickEvent to aggregate.
+     */
+    where?: ProductClickEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductClickEvents to fetch.
+     */
+    orderBy?: ProductClickEventOrderByWithRelationInput | ProductClickEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductClickEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductClickEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductClickEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductClickEvents
+    **/
+    _count?: true | ProductClickEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductClickEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductClickEventMaxAggregateInputType
+  }
+
+  export type GetProductClickEventAggregateType<T extends ProductClickEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductClickEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductClickEvent[P]>
+      : GetScalarType<T[P], AggregateProductClickEvent[P]>
+  }
+
+
+
+
+  export type ProductClickEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductClickEventWhereInput
+    orderBy?: ProductClickEventOrderByWithAggregationInput | ProductClickEventOrderByWithAggregationInput[]
+    by: ProductClickEventScalarFieldEnum[] | ProductClickEventScalarFieldEnum
+    having?: ProductClickEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductClickEventCountAggregateInputType | true
+    _min?: ProductClickEventMinAggregateInputType
+    _max?: ProductClickEventMaxAggregateInputType
+  }
+
+  export type ProductClickEventGroupByOutputType = {
+    id: string
+    productId: string
+    createdAt: Date
+    _count: ProductClickEventCountAggregateOutputType | null
+    _min: ProductClickEventMinAggregateOutputType | null
+    _max: ProductClickEventMaxAggregateOutputType | null
+  }
+
+  type GetProductClickEventGroupByPayload<T extends ProductClickEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductClickEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductClickEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductClickEventGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductClickEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductClickEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    createdAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productClickEvent"]>
+
+  export type ProductClickEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    createdAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productClickEvent"]>
+
+  export type ProductClickEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    createdAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productClickEvent"]>
+
+  export type ProductClickEventSelectScalar = {
+    id?: boolean
+    productId?: boolean
+    createdAt?: boolean
+  }
+
+  export type ProductClickEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "createdAt", ExtArgs["result"]["productClickEvent"]>
+  export type ProductClickEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type ProductClickEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type ProductClickEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+
+  export type $ProductClickEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductClickEvent"
+    objects: {
+      product: Prisma.$ProductPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      productId: string
+      createdAt: Date
+    }, ExtArgs["result"]["productClickEvent"]>
+    composites: {}
+  }
+
+  type ProductClickEventGetPayload<S extends boolean | null | undefined | ProductClickEventDefaultArgs> = $Result.GetResult<Prisma.$ProductClickEventPayload, S>
+
+  type ProductClickEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductClickEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductClickEventCountAggregateInputType | true
+    }
+
+  export interface ProductClickEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductClickEvent'], meta: { name: 'ProductClickEvent' } }
+    /**
+     * Find zero or one ProductClickEvent that matches the filter.
+     * @param {ProductClickEventFindUniqueArgs} args - Arguments to find a ProductClickEvent
+     * @example
+     * // Get one ProductClickEvent
+     * const productClickEvent = await prisma.productClickEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductClickEventFindUniqueArgs>(args: SelectSubset<T, ProductClickEventFindUniqueArgs<ExtArgs>>): Prisma__ProductClickEventClient<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductClickEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductClickEventFindUniqueOrThrowArgs} args - Arguments to find a ProductClickEvent
+     * @example
+     * // Get one ProductClickEvent
+     * const productClickEvent = await prisma.productClickEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductClickEventFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductClickEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductClickEventClient<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductClickEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductClickEventFindFirstArgs} args - Arguments to find a ProductClickEvent
+     * @example
+     * // Get one ProductClickEvent
+     * const productClickEvent = await prisma.productClickEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductClickEventFindFirstArgs>(args?: SelectSubset<T, ProductClickEventFindFirstArgs<ExtArgs>>): Prisma__ProductClickEventClient<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductClickEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductClickEventFindFirstOrThrowArgs} args - Arguments to find a ProductClickEvent
+     * @example
+     * // Get one ProductClickEvent
+     * const productClickEvent = await prisma.productClickEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductClickEventFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductClickEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductClickEventClient<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductClickEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductClickEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductClickEvents
+     * const productClickEvents = await prisma.productClickEvent.findMany()
+     * 
+     * // Get first 10 ProductClickEvents
+     * const productClickEvents = await prisma.productClickEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productClickEventWithIdOnly = await prisma.productClickEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductClickEventFindManyArgs>(args?: SelectSubset<T, ProductClickEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductClickEvent.
+     * @param {ProductClickEventCreateArgs} args - Arguments to create a ProductClickEvent.
+     * @example
+     * // Create one ProductClickEvent
+     * const ProductClickEvent = await prisma.productClickEvent.create({
+     *   data: {
+     *     // ... data to create a ProductClickEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductClickEventCreateArgs>(args: SelectSubset<T, ProductClickEventCreateArgs<ExtArgs>>): Prisma__ProductClickEventClient<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductClickEvents.
+     * @param {ProductClickEventCreateManyArgs} args - Arguments to create many ProductClickEvents.
+     * @example
+     * // Create many ProductClickEvents
+     * const productClickEvent = await prisma.productClickEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductClickEventCreateManyArgs>(args?: SelectSubset<T, ProductClickEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductClickEvents and returns the data saved in the database.
+     * @param {ProductClickEventCreateManyAndReturnArgs} args - Arguments to create many ProductClickEvents.
+     * @example
+     * // Create many ProductClickEvents
+     * const productClickEvent = await prisma.productClickEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductClickEvents and only return the `id`
+     * const productClickEventWithIdOnly = await prisma.productClickEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductClickEventCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductClickEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductClickEvent.
+     * @param {ProductClickEventDeleteArgs} args - Arguments to delete one ProductClickEvent.
+     * @example
+     * // Delete one ProductClickEvent
+     * const ProductClickEvent = await prisma.productClickEvent.delete({
+     *   where: {
+     *     // ... filter to delete one ProductClickEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductClickEventDeleteArgs>(args: SelectSubset<T, ProductClickEventDeleteArgs<ExtArgs>>): Prisma__ProductClickEventClient<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductClickEvent.
+     * @param {ProductClickEventUpdateArgs} args - Arguments to update one ProductClickEvent.
+     * @example
+     * // Update one ProductClickEvent
+     * const productClickEvent = await prisma.productClickEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductClickEventUpdateArgs>(args: SelectSubset<T, ProductClickEventUpdateArgs<ExtArgs>>): Prisma__ProductClickEventClient<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductClickEvents.
+     * @param {ProductClickEventDeleteManyArgs} args - Arguments to filter ProductClickEvents to delete.
+     * @example
+     * // Delete a few ProductClickEvents
+     * const { count } = await prisma.productClickEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductClickEventDeleteManyArgs>(args?: SelectSubset<T, ProductClickEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductClickEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductClickEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductClickEvents
+     * const productClickEvent = await prisma.productClickEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductClickEventUpdateManyArgs>(args: SelectSubset<T, ProductClickEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductClickEvents and returns the data updated in the database.
+     * @param {ProductClickEventUpdateManyAndReturnArgs} args - Arguments to update many ProductClickEvents.
+     * @example
+     * // Update many ProductClickEvents
+     * const productClickEvent = await prisma.productClickEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductClickEvents and only return the `id`
+     * const productClickEventWithIdOnly = await prisma.productClickEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductClickEventUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductClickEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductClickEvent.
+     * @param {ProductClickEventUpsertArgs} args - Arguments to update or create a ProductClickEvent.
+     * @example
+     * // Update or create a ProductClickEvent
+     * const productClickEvent = await prisma.productClickEvent.upsert({
+     *   create: {
+     *     // ... data to create a ProductClickEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductClickEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductClickEventUpsertArgs>(args: SelectSubset<T, ProductClickEventUpsertArgs<ExtArgs>>): Prisma__ProductClickEventClient<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductClickEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductClickEventCountArgs} args - Arguments to filter ProductClickEvents to count.
+     * @example
+     * // Count the number of ProductClickEvents
+     * const count = await prisma.productClickEvent.count({
+     *   where: {
+     *     // ... the filter for the ProductClickEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductClickEventCountArgs>(
+      args?: Subset<T, ProductClickEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductClickEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductClickEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductClickEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductClickEventAggregateArgs>(args: Subset<T, ProductClickEventAggregateArgs>): Prisma.PrismaPromise<GetProductClickEventAggregateType<T>>
+
+    /**
+     * Group by ProductClickEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductClickEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductClickEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductClickEventGroupByArgs['orderBy'] }
+        : { orderBy?: ProductClickEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductClickEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductClickEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductClickEvent model
+   */
+  readonly fields: ProductClickEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductClickEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductClickEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    product<T extends ProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductDefaultArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductClickEvent model
+   */
+  interface ProductClickEventFieldRefs {
+    readonly id: FieldRef<"ProductClickEvent", 'String'>
+    readonly productId: FieldRef<"ProductClickEvent", 'String'>
+    readonly createdAt: FieldRef<"ProductClickEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductClickEvent findUnique
+   */
+  export type ProductClickEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductClickEvent to fetch.
+     */
+    where: ProductClickEventWhereUniqueInput
+  }
+
+  /**
+   * ProductClickEvent findUniqueOrThrow
+   */
+  export type ProductClickEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductClickEvent to fetch.
+     */
+    where: ProductClickEventWhereUniqueInput
+  }
+
+  /**
+   * ProductClickEvent findFirst
+   */
+  export type ProductClickEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductClickEvent to fetch.
+     */
+    where?: ProductClickEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductClickEvents to fetch.
+     */
+    orderBy?: ProductClickEventOrderByWithRelationInput | ProductClickEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductClickEvents.
+     */
+    cursor?: ProductClickEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductClickEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductClickEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductClickEvents.
+     */
+    distinct?: ProductClickEventScalarFieldEnum | ProductClickEventScalarFieldEnum[]
+  }
+
+  /**
+   * ProductClickEvent findFirstOrThrow
+   */
+  export type ProductClickEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductClickEvent to fetch.
+     */
+    where?: ProductClickEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductClickEvents to fetch.
+     */
+    orderBy?: ProductClickEventOrderByWithRelationInput | ProductClickEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductClickEvents.
+     */
+    cursor?: ProductClickEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductClickEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductClickEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductClickEvents.
+     */
+    distinct?: ProductClickEventScalarFieldEnum | ProductClickEventScalarFieldEnum[]
+  }
+
+  /**
+   * ProductClickEvent findMany
+   */
+  export type ProductClickEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductClickEvents to fetch.
+     */
+    where?: ProductClickEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductClickEvents to fetch.
+     */
+    orderBy?: ProductClickEventOrderByWithRelationInput | ProductClickEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductClickEvents.
+     */
+    cursor?: ProductClickEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductClickEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductClickEvents.
+     */
+    skip?: number
+    distinct?: ProductClickEventScalarFieldEnum | ProductClickEventScalarFieldEnum[]
+  }
+
+  /**
+   * ProductClickEvent create
+   */
+  export type ProductClickEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProductClickEvent.
+     */
+    data: XOR<ProductClickEventCreateInput, ProductClickEventUncheckedCreateInput>
+  }
+
+  /**
+   * ProductClickEvent createMany
+   */
+  export type ProductClickEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductClickEvents.
+     */
+    data: ProductClickEventCreateManyInput | ProductClickEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductClickEvent createManyAndReturn
+   */
+  export type ProductClickEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductClickEvents.
+     */
+    data: ProductClickEventCreateManyInput | ProductClickEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductClickEvent update
+   */
+  export type ProductClickEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProductClickEvent.
+     */
+    data: XOR<ProductClickEventUpdateInput, ProductClickEventUncheckedUpdateInput>
+    /**
+     * Choose, which ProductClickEvent to update.
+     */
+    where: ProductClickEventWhereUniqueInput
+  }
+
+  /**
+   * ProductClickEvent updateMany
+   */
+  export type ProductClickEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductClickEvents.
+     */
+    data: XOR<ProductClickEventUpdateManyMutationInput, ProductClickEventUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductClickEvents to update
+     */
+    where?: ProductClickEventWhereInput
+    /**
+     * Limit how many ProductClickEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductClickEvent updateManyAndReturn
+   */
+  export type ProductClickEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductClickEvents.
+     */
+    data: XOR<ProductClickEventUpdateManyMutationInput, ProductClickEventUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductClickEvents to update
+     */
+    where?: ProductClickEventWhereInput
+    /**
+     * Limit how many ProductClickEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductClickEvent upsert
+   */
+  export type ProductClickEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProductClickEvent to update in case it exists.
+     */
+    where: ProductClickEventWhereUniqueInput
+    /**
+     * In case the ProductClickEvent found by the `where` argument doesn't exist, create a new ProductClickEvent with this data.
+     */
+    create: XOR<ProductClickEventCreateInput, ProductClickEventUncheckedCreateInput>
+    /**
+     * In case the ProductClickEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductClickEventUpdateInput, ProductClickEventUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductClickEvent delete
+   */
+  export type ProductClickEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
+    /**
+     * Filter which ProductClickEvent to delete.
+     */
+    where: ProductClickEventWhereUniqueInput
+  }
+
+  /**
+   * ProductClickEvent deleteMany
+   */
+  export type ProductClickEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductClickEvents to delete
+     */
+    where?: ProductClickEventWhereInput
+    /**
+     * Limit how many ProductClickEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductClickEvent without action
+   */
+  export type ProductClickEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductClickEvent
+     */
+    select?: ProductClickEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductClickEvent
+     */
+    omit?: ProductClickEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductClickEventInclude<ExtArgs> | null
   }
 
 
@@ -24595,6 +25755,15 @@ export namespace Prisma {
   export type ProductAnalyticsScalarFieldEnum = (typeof ProductAnalyticsScalarFieldEnum)[keyof typeof ProductAnalyticsScalarFieldEnum]
 
 
+  export const ProductClickEventScalarFieldEnum: {
+    id: 'id',
+    productId: 'productId',
+    createdAt: 'createdAt'
+  };
+
+  export type ProductClickEventScalarFieldEnum = (typeof ProductClickEventScalarFieldEnum)[keyof typeof ProductClickEventScalarFieldEnum]
+
+
   export const ProductTrafficEventScalarFieldEnum: {
     id: 'id',
     productId: 'productId',
@@ -25028,6 +26197,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeListRelationFilter
     ProductMedia?: ProductMediaListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
+    clickEvents?: ProductClickEventListRelationFilter
     trafficEvents?: ProductTrafficEventListRelationFilter
   }
 
@@ -25067,6 +26237,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeOrderByRelationAggregateInput
     ProductMedia?: ProductMediaOrderByRelationAggregateInput
     ProductUpvote?: ProductUpvoteOrderByRelationAggregateInput
+    clickEvents?: ProductClickEventOrderByRelationAggregateInput
     trafficEvents?: ProductTrafficEventOrderByRelationAggregateInput
   }
 
@@ -25109,6 +26280,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeListRelationFilter
     ProductMedia?: ProductMediaListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
+    clickEvents?: ProductClickEventListRelationFilter
     trafficEvents?: ProductTrafficEventListRelationFilter
   }, "id" | "slug">
 
@@ -25436,6 +26608,51 @@ export namespace Prisma {
     clicks?: IntWithAggregatesFilter<"ProductAnalytics"> | number
     createdAt?: DateTimeWithAggregatesFilter<"ProductAnalytics"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ProductAnalytics"> | Date | string
+  }
+
+  export type ProductClickEventWhereInput = {
+    AND?: ProductClickEventWhereInput | ProductClickEventWhereInput[]
+    OR?: ProductClickEventWhereInput[]
+    NOT?: ProductClickEventWhereInput | ProductClickEventWhereInput[]
+    id?: StringFilter<"ProductClickEvent"> | string
+    productId?: StringFilter<"ProductClickEvent"> | string
+    createdAt?: DateTimeFilter<"ProductClickEvent"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+  }
+
+  export type ProductClickEventOrderByWithRelationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    createdAt?: SortOrder
+    product?: ProductOrderByWithRelationInput
+  }
+
+  export type ProductClickEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ProductClickEventWhereInput | ProductClickEventWhereInput[]
+    OR?: ProductClickEventWhereInput[]
+    NOT?: ProductClickEventWhereInput | ProductClickEventWhereInput[]
+    productId?: StringFilter<"ProductClickEvent"> | string
+    createdAt?: DateTimeFilter<"ProductClickEvent"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+  }, "id">
+
+  export type ProductClickEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    createdAt?: SortOrder
+    _count?: ProductClickEventCountOrderByAggregateInput
+    _max?: ProductClickEventMaxOrderByAggregateInput
+    _min?: ProductClickEventMinOrderByAggregateInput
+  }
+
+  export type ProductClickEventScalarWhereWithAggregatesInput = {
+    AND?: ProductClickEventScalarWhereWithAggregatesInput | ProductClickEventScalarWhereWithAggregatesInput[]
+    OR?: ProductClickEventScalarWhereWithAggregatesInput[]
+    NOT?: ProductClickEventScalarWhereWithAggregatesInput | ProductClickEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductClickEvent"> | string
+    productId?: StringWithAggregatesFilter<"ProductClickEvent"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ProductClickEvent"> | Date | string
   }
 
   export type ProductTrafficEventWhereInput = {
@@ -26451,6 +27668,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -26486,6 +27704,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -26521,6 +27740,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -26556,6 +27776,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -26913,6 +28134,47 @@ export namespace Prisma {
     clicks?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductClickEventCreateInput = {
+    id?: string
+    createdAt?: Date | string
+    product: ProductCreateNestedOneWithoutClickEventsInput
+  }
+
+  export type ProductClickEventUncheckedCreateInput = {
+    id?: string
+    productId: string
+    createdAt?: Date | string
+  }
+
+  export type ProductClickEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutClickEventsNestedInput
+  }
+
+  export type ProductClickEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductClickEventCreateManyInput = {
+    id?: string
+    productId: string
+    createdAt?: Date | string
+  }
+
+  export type ProductClickEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductClickEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductTrafficEventCreateInput = {
@@ -28127,6 +29389,12 @@ export namespace Prisma {
     none?: ProductUpvoteWhereInput
   }
 
+  export type ProductClickEventListRelationFilter = {
+    every?: ProductClickEventWhereInput
+    some?: ProductClickEventWhereInput
+    none?: ProductClickEventWhereInput
+  }
+
   export type ProductTrafficEventListRelationFilter = {
     every?: ProductTrafficEventWhereInput
     some?: ProductTrafficEventWhereInput
@@ -28147,6 +29415,10 @@ export namespace Prisma {
   }
 
   export type ProductUpvoteOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProductClickEventOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28525,6 +29797,24 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type ProductClickEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProductClickEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProductClickEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type EnumDeviceCategoryFilter<$PrismaModel = never> = {
@@ -29254,6 +30544,13 @@ export namespace Prisma {
     connect?: ProductUpvoteWhereUniqueInput | ProductUpvoteWhereUniqueInput[]
   }
 
+  export type ProductClickEventCreateNestedManyWithoutProductInput = {
+    create?: XOR<ProductClickEventCreateWithoutProductInput, ProductClickEventUncheckedCreateWithoutProductInput> | ProductClickEventCreateWithoutProductInput[] | ProductClickEventUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductClickEventCreateOrConnectWithoutProductInput | ProductClickEventCreateOrConnectWithoutProductInput[]
+    createMany?: ProductClickEventCreateManyProductInputEnvelope
+    connect?: ProductClickEventWhereUniqueInput | ProductClickEventWhereUniqueInput[]
+  }
+
   export type ProductTrafficEventCreateNestedManyWithoutProductInput = {
     create?: XOR<ProductTrafficEventCreateWithoutProductInput, ProductTrafficEventUncheckedCreateWithoutProductInput> | ProductTrafficEventCreateWithoutProductInput[] | ProductTrafficEventUncheckedCreateWithoutProductInput[]
     connectOrCreate?: ProductTrafficEventCreateOrConnectWithoutProductInput | ProductTrafficEventCreateOrConnectWithoutProductInput[]
@@ -29298,6 +30595,13 @@ export namespace Prisma {
     connectOrCreate?: ProductUpvoteCreateOrConnectWithoutProductInput | ProductUpvoteCreateOrConnectWithoutProductInput[]
     createMany?: ProductUpvoteCreateManyProductInputEnvelope
     connect?: ProductUpvoteWhereUniqueInput | ProductUpvoteWhereUniqueInput[]
+  }
+
+  export type ProductClickEventUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<ProductClickEventCreateWithoutProductInput, ProductClickEventUncheckedCreateWithoutProductInput> | ProductClickEventCreateWithoutProductInput[] | ProductClickEventUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductClickEventCreateOrConnectWithoutProductInput | ProductClickEventCreateOrConnectWithoutProductInput[]
+    createMany?: ProductClickEventCreateManyProductInputEnvelope
+    connect?: ProductClickEventWhereUniqueInput | ProductClickEventWhereUniqueInput[]
   }
 
   export type ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput = {
@@ -29461,6 +30765,20 @@ export namespace Prisma {
     deleteMany?: ProductUpvoteScalarWhereInput | ProductUpvoteScalarWhereInput[]
   }
 
+  export type ProductClickEventUpdateManyWithoutProductNestedInput = {
+    create?: XOR<ProductClickEventCreateWithoutProductInput, ProductClickEventUncheckedCreateWithoutProductInput> | ProductClickEventCreateWithoutProductInput[] | ProductClickEventUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductClickEventCreateOrConnectWithoutProductInput | ProductClickEventCreateOrConnectWithoutProductInput[]
+    upsert?: ProductClickEventUpsertWithWhereUniqueWithoutProductInput | ProductClickEventUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: ProductClickEventCreateManyProductInputEnvelope
+    set?: ProductClickEventWhereUniqueInput | ProductClickEventWhereUniqueInput[]
+    disconnect?: ProductClickEventWhereUniqueInput | ProductClickEventWhereUniqueInput[]
+    delete?: ProductClickEventWhereUniqueInput | ProductClickEventWhereUniqueInput[]
+    connect?: ProductClickEventWhereUniqueInput | ProductClickEventWhereUniqueInput[]
+    update?: ProductClickEventUpdateWithWhereUniqueWithoutProductInput | ProductClickEventUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: ProductClickEventUpdateManyWithWhereWithoutProductInput | ProductClickEventUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: ProductClickEventScalarWhereInput | ProductClickEventScalarWhereInput[]
+  }
+
   export type ProductTrafficEventUpdateManyWithoutProductNestedInput = {
     create?: XOR<ProductTrafficEventCreateWithoutProductInput, ProductTrafficEventUncheckedCreateWithoutProductInput> | ProductTrafficEventCreateWithoutProductInput[] | ProductTrafficEventUncheckedCreateWithoutProductInput[]
     connectOrCreate?: ProductTrafficEventCreateOrConnectWithoutProductInput | ProductTrafficEventCreateOrConnectWithoutProductInput[]
@@ -29547,6 +30865,20 @@ export namespace Prisma {
     deleteMany?: ProductUpvoteScalarWhereInput | ProductUpvoteScalarWhereInput[]
   }
 
+  export type ProductClickEventUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<ProductClickEventCreateWithoutProductInput, ProductClickEventUncheckedCreateWithoutProductInput> | ProductClickEventCreateWithoutProductInput[] | ProductClickEventUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: ProductClickEventCreateOrConnectWithoutProductInput | ProductClickEventCreateOrConnectWithoutProductInput[]
+    upsert?: ProductClickEventUpsertWithWhereUniqueWithoutProductInput | ProductClickEventUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: ProductClickEventCreateManyProductInputEnvelope
+    set?: ProductClickEventWhereUniqueInput | ProductClickEventWhereUniqueInput[]
+    disconnect?: ProductClickEventWhereUniqueInput | ProductClickEventWhereUniqueInput[]
+    delete?: ProductClickEventWhereUniqueInput | ProductClickEventWhereUniqueInput[]
+    connect?: ProductClickEventWhereUniqueInput | ProductClickEventWhereUniqueInput[]
+    update?: ProductClickEventUpdateWithWhereUniqueWithoutProductInput | ProductClickEventUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: ProductClickEventUpdateManyWithWhereWithoutProductInput | ProductClickEventUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: ProductClickEventScalarWhereInput | ProductClickEventScalarWhereInput[]
+  }
+
   export type ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput = {
     create?: XOR<ProductTrafficEventCreateWithoutProductInput, ProductTrafficEventUncheckedCreateWithoutProductInput> | ProductTrafficEventCreateWithoutProductInput[] | ProductTrafficEventUncheckedCreateWithoutProductInput[]
     connectOrCreate?: ProductTrafficEventCreateOrConnectWithoutProductInput | ProductTrafficEventCreateOrConnectWithoutProductInput[]
@@ -29627,6 +30959,20 @@ export namespace Prisma {
     upsert?: ProductUpsertWithoutAnalyticsInput
     connect?: ProductWhereUniqueInput
     update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutAnalyticsInput, ProductUpdateWithoutAnalyticsInput>, ProductUncheckedUpdateWithoutAnalyticsInput>
+  }
+
+  export type ProductCreateNestedOneWithoutClickEventsInput = {
+    create?: XOR<ProductCreateWithoutClickEventsInput, ProductUncheckedCreateWithoutClickEventsInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutClickEventsInput
+    connect?: ProductWhereUniqueInput
+  }
+
+  export type ProductUpdateOneRequiredWithoutClickEventsNestedInput = {
+    create?: XOR<ProductCreateWithoutClickEventsInput, ProductUncheckedCreateWithoutClickEventsInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutClickEventsInput
+    upsert?: ProductUpsertWithoutClickEventsInput
+    connect?: ProductWhereUniqueInput
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutClickEventsInput, ProductUpdateWithoutClickEventsInput>, ProductUncheckedUpdateWithoutClickEventsInput>
   }
 
   export type ProductCreateNestedOneWithoutTrafficEventsInput = {
@@ -31054,6 +32400,26 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ProductClickEventCreateWithoutProductInput = {
+    id?: string
+    createdAt?: Date | string
+  }
+
+  export type ProductClickEventUncheckedCreateWithoutProductInput = {
+    id?: string
+    createdAt?: Date | string
+  }
+
+  export type ProductClickEventCreateOrConnectWithoutProductInput = {
+    where: ProductClickEventWhereUniqueInput
+    create: XOR<ProductClickEventCreateWithoutProductInput, ProductClickEventUncheckedCreateWithoutProductInput>
+  }
+
+  export type ProductClickEventCreateManyProductInputEnvelope = {
+    data: ProductClickEventCreateManyProductInput | ProductClickEventCreateManyProductInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ProductTrafficEventCreateWithoutProductInput = {
     id?: string
     path: string
@@ -31437,6 +32803,31 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ProductUpvote"> | Date | string
   }
 
+  export type ProductClickEventUpsertWithWhereUniqueWithoutProductInput = {
+    where: ProductClickEventWhereUniqueInput
+    update: XOR<ProductClickEventUpdateWithoutProductInput, ProductClickEventUncheckedUpdateWithoutProductInput>
+    create: XOR<ProductClickEventCreateWithoutProductInput, ProductClickEventUncheckedCreateWithoutProductInput>
+  }
+
+  export type ProductClickEventUpdateWithWhereUniqueWithoutProductInput = {
+    where: ProductClickEventWhereUniqueInput
+    data: XOR<ProductClickEventUpdateWithoutProductInput, ProductClickEventUncheckedUpdateWithoutProductInput>
+  }
+
+  export type ProductClickEventUpdateManyWithWhereWithoutProductInput = {
+    where: ProductClickEventScalarWhereInput
+    data: XOR<ProductClickEventUpdateManyMutationInput, ProductClickEventUncheckedUpdateManyWithoutProductInput>
+  }
+
+  export type ProductClickEventScalarWhereInput = {
+    AND?: ProductClickEventScalarWhereInput | ProductClickEventScalarWhereInput[]
+    OR?: ProductClickEventScalarWhereInput[]
+    NOT?: ProductClickEventScalarWhereInput | ProductClickEventScalarWhereInput[]
+    id?: StringFilter<"ProductClickEvent"> | string
+    productId?: StringFilter<"ProductClickEvent"> | string
+    createdAt?: DateTimeFilter<"ProductClickEvent"> | Date | string
+  }
+
   export type ProductTrafficEventUpsertWithWhereUniqueWithoutProductInput = {
     where: ProductTrafficEventWhereUniqueInput
     update: XOR<ProductTrafficEventUpdateWithoutProductInput, ProductTrafficEventUncheckedUpdateWithoutProductInput>
@@ -31503,6 +32894,7 @@ export namespace Prisma {
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -31537,6 +32929,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -31587,6 +32980,7 @@ export namespace Prisma {
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -31621,6 +33015,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -31655,6 +33050,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -31689,6 +33085,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -31739,6 +33136,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -31773,6 +33171,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -31807,6 +33206,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -31841,6 +33241,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -31891,6 +33292,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -31925,6 +33327,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -31959,6 +33362,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -31993,6 +33397,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -32043,6 +33448,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -32073,6 +33479,163 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
+    verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
+    ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+    ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductCreateWithoutClickEventsInput = {
+    id?: string
+    name: string
+    slug: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    logo: string
+    planAssignedAt?: Date | string | null
+    type: $Enums.ProductType
+    pricingModel: $Enums.PricingModel
+    status?: $Enums.ProductStatus
+    publishedAt?: Date | string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    keywords?: ProductCreatekeywordsInput | string[]
+    platforms?: ProductCreateplatformsInput | $Enums.Platform[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutProductsInput
+    category: CategoryCreateNestedOneWithoutProductsInput
+    plan?: PlanCreateNestedOneWithoutProductsInput
+    organization?: OrganizationCreateNestedOneWithoutProductInput
+    metadata?: ProductMetadataCreateNestedOneWithoutProductInput
+    analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
+    verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
+    ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
+    ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductUncheckedCreateWithoutClickEventsInput = {
+    id?: string
+    name: string
+    slug: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    logo: string
+    userId: string
+    categoryId: string
+    planId?: string | null
+    planAssignedAt?: Date | string | null
+    type: $Enums.ProductType
+    pricingModel: $Enums.PricingModel
+    status?: $Enums.ProductStatus
+    publishedAt?: Date | string | null
+    organizationId?: string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    keywords?: ProductCreatekeywordsInput | string[]
+    platforms?: ProductCreateplatformsInput | $Enums.Platform[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
+    analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
+    verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
+    ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
+    ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductCreateOrConnectWithoutClickEventsInput = {
+    where: ProductWhereUniqueInput
+    create: XOR<ProductCreateWithoutClickEventsInput, ProductUncheckedCreateWithoutClickEventsInput>
+  }
+
+  export type ProductUpsertWithoutClickEventsInput = {
+    update: XOR<ProductUpdateWithoutClickEventsInput, ProductUncheckedUpdateWithoutClickEventsInput>
+    create: XOR<ProductCreateWithoutClickEventsInput, ProductUncheckedCreateWithoutClickEventsInput>
+    where?: ProductWhereInput
+  }
+
+  export type ProductUpdateToOneWithWhereWithoutClickEventsInput = {
+    where?: ProductWhereInput
+    data: XOR<ProductUpdateWithoutClickEventsInput, ProductUncheckedUpdateWithoutClickEventsInput>
+  }
+
+  export type ProductUpdateWithoutClickEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    tagline?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    websiteUrl?: StringFieldUpdateOperationsInput | string
+    logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+    pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startingPriceCents?: NullableIntFieldUpdateOperationsInput | number | null
+    currencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
+    keywords?: ProductUpdatekeywordsInput | string[]
+    platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutProductsNestedInput
+    category?: CategoryUpdateOneRequiredWithoutProductsNestedInput
+    plan?: PlanUpdateOneWithoutProductsNestedInput
+    organization?: OrganizationUpdateOneWithoutProductNestedInput
+    metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
+    analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
+    verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
+    ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
+    ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductUncheckedUpdateWithoutClickEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    tagline?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    websiteUrl?: StringFieldUpdateOperationsInput | string
+    logo?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    categoryId?: StringFieldUpdateOperationsInput | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+    pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startingPriceCents?: NullableIntFieldUpdateOperationsInput | number | null
+    currencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
+    keywords?: ProductUpdatekeywordsInput | string[]
+    platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
+    analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
@@ -32112,6 +33675,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutTrafficEventsInput = {
@@ -32146,6 +33710,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutTrafficEventsInput = {
@@ -32196,6 +33761,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutTrafficEventsInput = {
@@ -32230,6 +33796,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutProductUpvoteInput = {
@@ -32263,6 +33830,7 @@ export namespace Prisma {
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -32297,6 +33865,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -32396,6 +33965,7 @@ export namespace Prisma {
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -32430,6 +34000,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -32545,6 +34116,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -32579,6 +34151,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -32962,6 +34535,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -32996,6 +34570,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -33248,6 +34823,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -33282,6 +34858,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -33384,6 +34961,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -33418,6 +34996,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -33977,6 +35556,7 @@ export namespace Prisma {
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
   }
 
@@ -34011,6 +35591,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -34061,6 +35642,7 @@ export namespace Prisma {
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -34095,6 +35677,7 @@ export namespace Prisma {
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -34262,6 +35845,11 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type ProductClickEventCreateManyProductInput = {
+    id?: string
+    createdAt?: Date | string
+  }
+
   export type ProductTrafficEventCreateManyProductInput = {
     id?: string
     path: string
@@ -34340,6 +35928,21 @@ export namespace Prisma {
   export type ProductUpvoteUncheckedUpdateManyWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductClickEventUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductClickEventUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductClickEventUncheckedUpdateManyWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -34478,6 +36081,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -34512,6 +36116,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -34630,6 +36235,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -34664,6 +36270,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -34850,6 +36457,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -34884,6 +36492,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -35001,6 +36610,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
   }
 
@@ -35035,6 +36645,7 @@ export namespace Prisma {
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
   }
 

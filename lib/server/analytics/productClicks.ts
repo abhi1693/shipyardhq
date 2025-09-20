@@ -6,12 +6,15 @@ import { revalidateProducts } from "@/lib/cache/revalidate"
 // Import this module anywhere server-side to ensure handlers are active.
 on("product.clicked", async ({ productId }) => {
   try {
-    await prisma.productAnalytics.upsert({
-      where: { productId },
-      update: { clicks: { increment: 1 } },
-      create: { productId, upvotes: 0, clicks: 1 },
-      select: { productId: true },
-    })
+    await prisma.$transaction([
+      prisma.productClickEvent.create({ data: { productId } }),
+      prisma.productAnalytics.upsert({
+        where: { productId },
+        update: { clicks: { increment: 1 } },
+        create: { productId, upvotes: 0, clicks: 1 },
+        select: { productId: true },
+      }),
+    ])
     // Keep browse/trending pages reasonably fresh
     revalidateProducts()
   } catch (err) {

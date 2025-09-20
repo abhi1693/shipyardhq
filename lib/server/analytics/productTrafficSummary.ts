@@ -1,4 +1,4 @@
-import { format, formatISO, startOfDay, subDays } from "date-fns"
+import { addDays, format, formatISO, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
 import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
@@ -8,6 +8,7 @@ import type {
   ProductTrafficAnomaly,
   ProductTrafficReferrerCategory,
   ProductTrafficSummary,
+  ProductEngagementSummaryPoint,
 } from "@/types/analytics"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
@@ -413,6 +414,66 @@ async function buildTrafficSummary(
     previousUnique = prevHashes.size + prevAnonymous
   }
 
+  let clickEvents: { createdAt: Date }[] = []
+  let upvoteEvents: { createdAt: Date }[] = []
+
+  if (productId) {
+    const rangeEnd = addDays(today, 1)
+    ;[clickEvents, upvoteEvents] = await Promise.all([
+      prisma.productClickEvent.findMany({
+        where: {
+          productId,
+          createdAt: {
+            gte: rangeStart,
+            lt: rangeEnd,
+          },
+        },
+        select: { createdAt: true },
+        cacheStrategy: {
+          ...trafficCache,
+          tags: baseTags,
+        },
+      }),
+      prisma.productUpvote.findMany({
+        where: {
+          productId,
+          createdAt: {
+            gte: rangeStart,
+            lt: rangeEnd,
+          },
+        },
+        select: { createdAt: true },
+        cacheStrategy: {
+          ...trafficCache,
+          tags: baseTags,
+        },
+      }),
+    ])
+  }
+
+  const engagementCounts = new Map<
+    string,
+    { clicks: number; upvotes: number }
+  >()
+
+  for (const event of clickEvents) {
+    const key = formatISO(startOfDay(event.createdAt), {
+      representation: "date",
+    })
+    const entry = engagementCounts.get(key) ?? { clicks: 0, upvotes: 0 }
+    entry.clicks += 1
+    engagementCounts.set(key, entry)
+  }
+
+  for (const upvote of upvoteEvents) {
+    const key = formatISO(startOfDay(upvote.createdAt), {
+      representation: "date",
+    })
+    const entry = engagementCounts.get(key) ?? { clicks: 0, upvotes: 0 }
+    entry.upvotes += 1
+    engagementCounts.set(key, entry)
+  }
+
   const viewsOverTime = Array.from({ length: windowDays }).map((_, index) => {
     const date = subDays(today, windowDays - 1 - index)
     const key = formatISO(date, { representation: "date" })
@@ -425,6 +486,20 @@ async function buildTrafficSummary(
       label: format(date, "MMM d"),
       views: totalsByDay.get(key) ?? 0,
       uniqueVisitors: uniqueCount,
+    }
+  })
+
+  const engagementOverTime: ProductEngagementSummaryPoint[] = Array.from({
+    length: windowDays,
+  }).map((_, index) => {
+    const date = subDays(today, windowDays - 1 - index)
+    const key = formatISO(date, { representation: "date" })
+    const counts = engagementCounts.get(key)
+    return {
+      date: key,
+      label: format(date, "MMM d"),
+      clicks: counts?.clicks ?? 0,
+      upvotes: counts?.upvotes ?? 0,
     }
   })
 
@@ -723,6 +798,7 @@ async function buildTrafficSummary(
     browserBreakdown,
     countryBreakdown,
     referrerBreakdown,
+    engagementOverTime,
     advanced,
   }
 }

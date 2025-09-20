@@ -8,16 +8,6 @@ import {
 } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
 
-type PublicUserProduct = Prisma.ProductGetPayload<{
-  include: {
-    analytics: true
-    verification: true
-    category: true
-    user: true
-    ProductBadge: true
-  }
-}>
-
 type PublicUserProfile = Prisma.UserGetPayload<{
   select: {
     id: true

@@ -41,6 +41,13 @@ const COUNTRY_COLORS = ["#2563eb", "#f97316", "#16a34a", "#6366f1", "#ef4444"]
 const TREND_COLORS = {
   views: "#2563eb",
   uniqueVisitors: "#0ea5e9",
+  clicks: "#f97316",
+  upvotes: "#22c55e",
+}
+
+const ENGAGEMENT_COLORS = {
+  clicks: TREND_COLORS.clicks,
+  upvotes: TREND_COLORS.upvotes,
 }
 
 function formatPercent(value: number) {
@@ -72,9 +79,12 @@ export function ProductAnalyticsCharts({
 
   const topCountries = summary.countryBreakdown.slice(0, 5)
   const topBrowsers = summary.browserBreakdown.slice(0, 8)
-
+  
   const hasUniqueSeries = summary.viewsOverTime.some(
     (point) => point.uniqueVisitors > 0,
+  )
+  const hasEngagementSeries = summary.engagementOverTime.some(
+    (point) => point.clicks > 0 || point.upvotes > 0,
   )
 
   return (
@@ -245,6 +255,169 @@ export function ProductAnalyticsCharts({
         </CardContent>
       </Card>
 
+      <Card className="md:col-span-2 xl:col-span-7 border border-slate-200 bg-white/95 shadow-sm">
+        <CardHeader className="px-4 pb-0">
+          <CardTitle className="flex items-center gap-2">
+            Clicks & upvotes
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-slate-200/70 focus:ring-offset-2 cursor-help"
+                  tabIndex={0}
+                  role="button"
+                  aria-label="View engagement chart description"
+                >
+                  <Info className="h-4 w-4" aria-hidden />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>
+                Daily Shipyard engagement—CTA clicks and new upvotes collected
+                during the selected window.
+              </TooltipContent>
+            </Tooltip>
+          </CardTitle>
+          <CardDescription>
+            Last {summary.rangeDays} days of product interactions
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-4 pb-5 pt-4">
+          {hasEngagementSeries ? (
+            <ChartContainer
+              config={{
+                clicks: { label: "Clicks", color: ENGAGEMENT_COLORS.clicks },
+                upvotes: { label: "Upvotes", color: ENGAGEMENT_COLORS.upvotes },
+              }}
+              className="min-h-[280px]"
+            >
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart
+                  data={summary.engagementOverTime}
+                  margin={{ left: 4, right: 12 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                  />
+                  <XAxis
+                    dataKey="label"
+                    stroke="currentColor"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    stroke="currentColor"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={formatNumber}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="clicks"
+                    stroke="var(--chart-clicks)"
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="upvotes"
+                    stroke="var(--chart-upvotes)"
+                    strokeWidth={2}
+                    strokeDasharray="4 4"
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          ) : (
+            <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-10 text-center text-base text-muted-foreground">
+              Engagement lines will appear once Shipyard records fresh clicks or
+              upvotes for this product.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="md:col-span-1 xl:col-span-5 border border-slate-200 bg-white/95 shadow-sm">
+        <CardHeader className="px-4 pb-0">
+          <CardTitle className="flex items-center gap-2">
+            Browsers
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-slate-200/70 focus:ring-offset-2 cursor-help"
+                  tabIndex={0}
+                  role="button"
+                  aria-label="View browser distribution description"
+                >
+                  <Info className="h-4 w-4" aria-hidden />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>
+                Browser mix during the range. Helpful for verifying
+                compatibility and testing coverage.
+              </TooltipContent>
+            </Tooltip>
+          </CardTitle>
+          <CardDescription>
+            Top user agents observed in this window
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-4 pb-5 pt-4">
+          {topBrowsers.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-10 text-center text-base text-muted-foreground">
+              No browser fleet on the horizon yet. When the crew grows, we’ll
+              map their vessels here.
+            </p>
+          ) : (
+            <ChartContainer
+              className="min-h-[300px]"
+              config={{ views: { label: "Views", color: "#8b5cf6" } }}
+            >
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart
+                  data={topBrowsers.map((entry) => ({
+                    ...entry,
+                    browserLabel: entry.browser || "Unknown",
+                  }))}
+                  layout="vertical"
+                  margin={{ left: 12, right: 12, top: 12, bottom: 12 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    stroke="currentColor"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={formatNumber}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="browserLabel"
+                    stroke="currentColor"
+                    fontSize={12}
+                    width={110}
+                  />
+                  <Bar
+                    dataKey="views"
+                    radius={[0, 4, 4, 0]}
+                    fill="var(--chart-views)"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="lg:col-span-7">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -355,83 +528,6 @@ export function ProductAnalyticsCharts({
                 </li>
               ))}
             </ul>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className="lg:col-span-12">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Browsers
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-help"
-                  tabIndex={0}
-                  role="button"
-                  aria-label="View browser distribution description"
-                >
-                  <Info className="h-4 w-4" aria-hidden />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent sideOffset={6}>
-                Browser mix during the range. Helpful for verifying
-                compatibility and testing coverage.
-              </TooltipContent>
-            </Tooltip>
-          </CardTitle>
-          <CardDescription>
-            Top user agents observed in this window
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {topBrowsers.length === 0 ? (
-            <p className="py-8 text-center text-base text-muted-foreground">
-              No browser fleet on the horizon yet. When the crew grows, we’ll
-              map their vessels here.
-            </p>
-          ) : (
-            <ChartContainer
-              className="min-h-[320px]"
-              config={{ views: { label: "Views", color: "#8b5cf6" } }}
-            >
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={topBrowsers.map((entry) => ({
-                    ...entry,
-                    browserLabel: entry.browser || "Unknown",
-                  }))}
-                  layout="vertical"
-                  margin={{ left: 12, right: 16, top: 12, bottom: 12 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    className="stroke-muted"
-                    horizontal={false}
-                  />
-                  <XAxis
-                    type="number"
-                    stroke="currentColor"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={formatNumber}
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="browserLabel"
-                    stroke="currentColor"
-                    fontSize={12}
-                    width={120}
-                  />
-                  <Bar
-                    dataKey="views"
-                    radius={[0, 4, 4, 0]}
-                    fill="var(--chart-views)"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
           )}
         </CardContent>
       </Card>

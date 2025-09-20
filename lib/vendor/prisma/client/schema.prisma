@@ -52,6 +52,7 @@ model Product {
   ProductBadge  ProductBadge[]
   ProductMedia  ProductMedia[]
   ProductUpvote ProductUpvote[]
+  clickEvents   ProductClickEvent[]
   trafficEvents ProductTrafficEvent[]
 
   @@index([categoryId, createdAt])
@@ -143,6 +144,16 @@ model ProductAnalytics {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([upvotes])
+}
+
+model ProductClickEvent {
+  id        String   @id @default(cuid())
+  productId String
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, createdAt])
 }
 
 enum DeviceCategory {

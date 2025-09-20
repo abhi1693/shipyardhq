@@ -23,6 +23,7 @@ import { ArrowLeft, ExternalLink, Info } from "lucide-react"
 import { hasPlanFeature } from "@/lib/features"
 import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
 import RangeSelector from "@/components/molecules/RangeSelector"
+import type { ProductAnalytics } from "@/lib/vendor/prisma/client"
 
 const actionGroupClass =
   "flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70"
@@ -101,52 +102,72 @@ function DeltaBadge({ value }: { value: number }) {
 function SummaryCards({
   summary,
   includeAdvanced,
+  analytics,
 }: {
   summary: ProductTrafficSummary
   includeAdvanced: boolean
+  analytics?: Pick<ProductAnalytics, "upvotes" | "clicks"> | null
 }) {
   const formatter = new Intl.NumberFormat("en-US")
-  const cards = includeAdvanced
-    ? [
-        {
-          title: `Total views (last ${summary.rangeDays}d)`,
-          value: formatter.format(summary.totalViews),
-          delta: summary.totalViewsChange,
-          tooltip:
-            "Total product page views in the current window compared with the previous period.",
-        },
-        {
-          title: "Unique visitors",
-          value: formatter.format(summary.uniqueVisitors),
-          delta: summary.uniqueVisitorsChange,
-          tooltip:
-            "Estimated unique visitors for this period. Useful for gauging reach beyond total views.",
-        },
-        {
-          title: "Views today",
-          value: formatter.format(summary.viewsToday),
-          helper: `${formatter.format(summary.viewsSevenDays)} in the past 7 days`,
-          tooltip:
-            "How many views landed today alongside the trailing seven-day total for momentum checks.",
-        },
-        {
-          title: "Avg. per day",
-          value: summary.averageViewsPerDay.toLocaleString("en-US", {
-            maximumFractionDigits: 1,
-          }),
-          tooltip:
-            "Average daily volume within the window. Handy for benchmarking campaigns.",
-        },
-      ]
-    : [
-        {
-          title: `Total views (last ${summary.rangeDays}d)`,
-          value: formatter.format(summary.totalViews),
-          delta: summary.totalViewsChange,
-          tooltip:
-            "Total product page views in the current window compared with the previous period.",
-        },
-      ]
+  const upvotes = analytics?.upvotes ?? 0
+  const clicks = analytics?.clicks ?? 0
+
+  const cards: Array<{
+    title: string
+    value: string
+    delta?: number
+    helper?: string
+    tooltip?: string
+  }> = [
+    {
+      title: "Lifetime upvotes",
+      value: formatter.format(upvotes),
+      helper: "Total community votes recorded on Shipyard.",
+      tooltip:
+        "All-time Shipyard upvotes for this product, combining public and member activity.",
+    },
+    {
+      title: "Lifetime clicks",
+      value: formatter.format(clicks),
+      helper: "Tracked CTA clicks from your Shipyard product page.",
+      tooltip:
+        "Total clicks captured on Shipyard call-to-action buttons since tracking began.",
+    },
+    {
+      title: `Total views (last ${summary.rangeDays}d)`,
+      value: formatter.format(summary.totalViews),
+      delta: summary.totalViewsChange,
+      tooltip:
+        "Total product page views in the current window compared with the previous period.",
+    },
+  ]
+
+  if (includeAdvanced) {
+    cards.push(
+      {
+        title: "Unique visitors",
+        value: formatter.format(summary.uniqueVisitors),
+        delta: summary.uniqueVisitorsChange,
+        tooltip:
+          "Estimated unique visitors for this period. Useful for gauging reach beyond total views.",
+      },
+      {
+        title: "Views today",
+        value: formatter.format(summary.viewsToday),
+        helper: `${formatter.format(summary.viewsSevenDays)} in the past 7 days`,
+        tooltip:
+          "How many views landed today alongside the trailing seven-day total for momentum checks.",
+      },
+      {
+        title: "Avg. per day",
+        value: summary.averageViewsPerDay.toLocaleString("en-US", {
+          maximumFractionDigits: 1,
+        }),
+        tooltip:
+          "Average daily volume within the window. Handy for benchmarking campaigns.",
+      },
+    )
+  }
 
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -373,6 +394,7 @@ export default async function ProductAnalyticsPage({
       updatedAt: true,
       websiteUrl: true,
       category: { select: { name: true } },
+      analytics: { select: { upvotes: true, clicks: true } },
       plan: {
         select: {
           name: true,
@@ -408,12 +430,10 @@ export default async function ProductAnalyticsPage({
   const publicPath = `/products/${product.slug}`
   const rangeLabel = `Last ${summary.rangeDays} days`
   const advanced = summary.advanced
-  const countryItems = summary.countryBreakdown
-    .slice(0, 6)
-    .map((item) => ({
-      label: formatCountryName(item.country),
-      views: item.views,
-    }))
+  const countryItems = summary.countryBreakdown.slice(0, 6).map((item) => ({
+    label: formatCountryName(item.country),
+    views: item.views,
+  }))
   const cityItems = advanced.cityBreakdown
     .map((item) => {
       const parts = [item.city]
@@ -422,17 +442,6 @@ export default async function ProductAnalyticsPage({
       return { label: parts.join(", "), views: item.views }
     })
     .slice(0, 6)
-  const browserItems = summary.browserBreakdown
-    .slice(0, 6)
-    .map((item) => ({ label: item.browser || "Unknown", views: item.views }))
-  const browserPalette = [
-    "#0284c7",
-    "#10b981",
-    "#6366f1",
-    "#f97316",
-    "#ef4444",
-    "#facc15",
-  ]
   const osItems = advanced.osBreakdown
     .map((item) => ({ label: item.os || "Unknown", views: item.views }))
     .slice(0, 6)
@@ -486,6 +495,7 @@ export default async function ProductAnalyticsPage({
             <SummaryCards
               summary={summary}
               includeAdvanced={hasAdvancedAnalytics}
+              analytics={product.analytics}
             />
           </section>
           {hasAdvancedAnalytics ? (
