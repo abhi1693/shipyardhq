@@ -92,6 +92,10 @@ export async function syncCurrentUserBilling() {
   const removablePids = Array.from(cancelledProducts).filter(
     (pid) => !protectedPids.has(pid),
   )
+  if (removablePids.length === 0) {
+    return { added, removed: 0 }
+  }
+
   const removed = await prisma.userPlanPurchase.deleteMany({
     where: {
       userId: user.id,
