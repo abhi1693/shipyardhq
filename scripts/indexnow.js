@@ -28,17 +28,42 @@ function isRecentlyModified(lastmod) {
 }
 
 async function fetchRecentUrlsFromSitemap(url) {
-	try {
-		const response = await axios.get(url, { timeout: 10000 })
-		const result = await parseStringPromise(response.data)
+	const visitedSitemaps = new Set()
+	const collectedUrls = new Set()
 
-		return result.urlset.url
-			.filter((entry) => isRecentlyModified(entry.lastmod?.[0]))
-			.map((entry) => entry.loc[0].trim())
-	} catch (err) {
-		console.error('[ERROR] Failed to fetch or parse sitemap:', err.message)
-		return []
+	async function traverseSitemap(currentUrl) {
+		if (!currentUrl || visitedSitemaps.has(currentUrl)) return
+		visitedSitemaps.add(currentUrl)
+
+		let parsed
+		try {
+			const response = await axios.get(currentUrl, { timeout: 10000 })
+			parsed = await parseStringPromise(response.data, { trim: true })
+		} catch (err) {
+			console.error(
+				`[ERROR] Failed to fetch or parse sitemap ${currentUrl}: ${err.message}`,
+			)
+			return
+		}
+
+		const urlEntries = parsed?.urlset?.url || []
+		for (const entry of urlEntries) {
+			const loc = entry?.loc?.[0]?.trim()
+			if (!loc) continue
+			if (!isRecentlyModified(entry?.lastmod?.[0])) continue
+			collectedUrls.add(loc)
+		}
+
+		const childSitemaps = parsed?.sitemapindex?.sitemap || []
+		for (const entry of childSitemaps) {
+			const loc = entry?.loc?.[0]?.trim()
+			if (!loc) continue
+			await traverseSitemap(loc)
+		}
 	}
+
+	await traverseSitemap(url)
+	return Array.from(collectedUrls)
 }
 
 async function submitUrlsViaPost(urls) {
