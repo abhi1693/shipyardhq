@@ -18,11 +18,14 @@ type PlanWithAssignments = Prisma.PlanGetPayload<{
 
 type PlanFeatureRecord = PlanFeature
 
+const MAX_PUBLIC_PLANS = 5
+
 export async function getPublicPlans(opts?: { type?: PlanType }) {
   const [planRecords, allFeatures] = (await Promise.all([
     prisma.plan.findMany({
       where: opts?.type ? { type: opts.type } : undefined,
       orderBy: [{ price: "asc" }],
+      take: MAX_PUBLIC_PLANS,
       include: {
         assignments: {
           include: {
