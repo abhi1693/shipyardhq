@@ -39,14 +39,31 @@ type MinimalSubmission = {
   reply: (content: string) => Promise<unknown>
 }
 
-type BotState = Record<
-  string,
-  {
-    decision: Decision
-    permalink: string
-    processedAt: string
-  }
->
+type BotStateEntry = {
+  decision: Decision
+  permalink: string
+  processedAt: string
+  title?: string
+  subreddit?: string
+  flair?: string | null
+  keywords?: string[]
+  topicSignature?: string | null
+  skipReason?: string
+}
+
+type BotState = Record<string, BotStateEntry>
+
+type SubmissionDescriptor = {
+  keywords: string[]
+  topicSignature: string | null
+}
+
+type RecordDecisionOptions = {
+  descriptor?: SubmissionDescriptor
+  reason?: string
+  source?: "auto" | "manual"
+  skipKnowledge?: boolean
+}
 
 type Config = {
   redditClientId: string
@@ -138,6 +155,117 @@ const config: Config = {
   temperature: Number(process.env.OPENAI_TEMPERATURE || "0.7"),
 }
 
+const STOP_WORDS = new Set([
+  "able",
+  "about",
+  "across",
+  "after",
+  "again",
+  "against",
+  "almost",
+  "also",
+  "amid",
+  "and",
+  "another",
+  "any",
+  "around",
+  "because",
+  "been",
+  "being",
+  "between",
+  "both",
+  "bring",
+  "cannot",
+  "come",
+  "could",
+  "daily",
+  "does",
+  "doing",
+  "down",
+  "during",
+  "each",
+  "even",
+  "every",
+  "first",
+  "for",
+  "from",
+  "going",
+  "good",
+  "have",
+  "help",
+  "helps",
+  "here",
+  "however",
+  "into",
+  "its",
+  "just",
+  "keep",
+  "like",
+  "made",
+  "make",
+  "many",
+  "more",
+  "most",
+  "much",
+  "need",
+  "needs",
+  "only",
+  "onto",
+  "other",
+  "our",
+  "ours",
+  "over",
+  "own",
+  "per",
+  "really",
+  "same",
+  "since",
+  "some",
+  "still",
+  "such",
+  "than",
+  "that",
+  "the",
+  "their",
+  "them",
+  "then",
+  "there",
+  "these",
+  "they",
+  "thing",
+  "think",
+  "this",
+  "those",
+  "through",
+  "under",
+  "until",
+  "upon",
+  "use",
+  "used",
+  "using",
+  "very",
+  "want",
+  "well",
+  "were",
+  "what",
+  "when",
+  "where",
+  "which",
+  "while",
+  "with",
+  "within",
+  "would",
+  "you",
+  "your",
+  "yours",
+  "https",
+  "http",
+  "shipyard",
+])
+
+const skipKeywordCounts = new Map<string, number>()
+const skipSignatureCounts = new Map<string, number>()
+
 const reddit = new Snoowrap({
   userAgent: config.userAgent,
   clientId: config.redditClientId,
@@ -180,7 +308,13 @@ async function main() {
 
   const loadedState = await loadState(config.stateFile)
   Object.assign(state, loadedState)
-  console.log(`Loaded ${Object.keys(state).length} previously processed posts.`)
+  rebuildSkipKnowledge()
+  const processedCount = Object.keys(state).length
+  console.log(`Loaded ${processedCount} previously processed posts.`)
+  const skipSummary = summarizeSkipKnowledge()
+  if (skipSummary) {
+    console.log(skipSummary)
+  }
 
   while (true) {
     const subredditOrder = shuffle(config.subreddits)
@@ -212,6 +346,41 @@ async function processSubreddit(subredditName: string) {
       continue
     }
 
+    const descriptor = describeSubmission(submission)
+
+    const alreadyReplied = await hasExistingBotComment(submission)
+    if (alreadyReplied) {
+      const permalink =
+        buildPermalink(submission.permalink) ||
+        (submission.permalink ? `https://reddit.com${submission.permalink}` : "")
+      console.log(
+        `\n⏭️ Auto-skipped ${permalink} (existing comment by u/${config.redditUsername})`,
+      )
+      recordProcessedSubmission(submission, "skipped", {
+        descriptor,
+        reason: `existing comment by u/${config.redditUsername}`,
+        source: "auto",
+        skipKnowledge: false,
+      })
+      await saveState(config.stateFile, state)
+      continue
+    }
+
+    const autoSkip = shouldAutoSkipSubmission(descriptor)
+    if (autoSkip) {
+      const permalink =
+        buildPermalink(submission.permalink) ||
+        `https://reddit.com${submission.permalink}`
+      console.log(`\n⏭️ Auto-skipped ${permalink} (${autoSkip.reason})`)
+      recordProcessedSubmission(submission, "skipped", {
+        descriptor,
+        reason: autoSkip.reason,
+        source: "auto",
+      })
+      await saveState(config.stateFile, state)
+      continue
+    }
+
     const previousDrafts: string[] = []
     const seedAvoid = [...recentReplies.slice(-8)]
     let draft = await draftReply(submission, {
@@ -223,6 +392,7 @@ async function processSubreddit(subredditName: string) {
     }
 
     let decision: Decision | null = null
+    let skipReason: string | undefined
 
     for (;;) {
       const choice = await requestApproval(submission, draft)
@@ -246,6 +416,7 @@ async function processSubreddit(subredditName: string) {
           console.log(`
 ⏭️ Skipped https://reddit.com${submission.permalink}`)
           decision = "skipped"
+          skipReason = "reply failed"
         }
         break
       }
@@ -254,6 +425,7 @@ async function processSubreddit(subredditName: string) {
         console.log(`
 ⏭️ Skipped https://reddit.com${submission.permalink}`)
         decision = "skipped"
+        skipReason = "manual skip"
         break
       }
 
@@ -270,6 +442,7 @@ async function processSubreddit(subredditName: string) {
       if (!nextDraft) {
         console.log("⚠️ Unable to regenerate draft. Skipping this post.")
         decision = "skipped"
+        skipReason = "draft regeneration failed"
         break
       }
 
@@ -280,12 +453,11 @@ async function processSubreddit(subredditName: string) {
       continue
     }
 
-    state[submission.id] = {
-      decision,
-      permalink: buildPermalink(submission.permalink),
-      processedAt: new Date().toISOString(),
-    }
-
+    recordProcessedSubmission(submission, decision, {
+      descriptor,
+      reason: skipReason,
+      source: "manual",
+    })
     await saveState(config.stateFile, state)
   }
 }
@@ -497,6 +669,329 @@ function isRelevant(submission: MinimalSubmission) {
   )
 
   return hasKeyword
+}
+
+function describeSubmission(
+  submission: MinimalSubmission,
+): SubmissionDescriptor {
+  const keywords = extractKeywords(submission)
+  return {
+    keywords,
+    topicSignature: buildTopicSignature(keywords),
+  }
+}
+
+function shouldAutoSkipSubmission(
+  descriptor: SubmissionDescriptor,
+): { reason: string } | null {
+  if (!descriptor.keywords.length && !descriptor.topicSignature) {
+    return null
+  }
+
+  const matchedKeywords = descriptor.keywords
+    .map((keyword) => ({ keyword, count: skipKeywordCounts.get(keyword) || 0 }))
+    .filter(({ count }) => count > 0)
+
+  const strongMatches = matchedKeywords.filter(({ count }) => count >= 2)
+
+  const signatureMatches = descriptor.topicSignature
+    ? skipSignatureCounts.get(descriptor.topicSignature) || 0
+    : 0
+
+  if (signatureMatches >= 2) {
+    return {
+      reason: `similar to ${signatureMatches} previously skipped posts`,
+    }
+  }
+
+  if (signatureMatches >= 1 && strongMatches.length >= 1) {
+    const summary = strongMatches
+      .slice(0, 3)
+      .map(({ keyword, count }) => `${keyword} (${count})`)
+      .join(", ")
+    return {
+      reason: `keywords previously skipped: ${summary}`,
+    }
+  }
+
+  const mediumMatches = matchedKeywords.filter(({ count }) => count >= 1)
+  if (mediumMatches.length >= 4) {
+    const summary = mediumMatches
+      .slice(0, 4)
+      .map(({ keyword }) => keyword)
+      .join(", ")
+    return {
+      reason: `contains multiple keywords we skip: ${summary}`,
+    }
+  }
+
+  if (strongMatches.length >= 2) {
+    const summary = strongMatches
+      .slice(0, 3)
+      .map(({ keyword, count }) => `${keyword} (${count})`)
+      .join(", ")
+    return {
+      reason: `repeatedly skipped keywords: ${summary}`,
+    }
+  }
+
+  return null
+}
+
+function recordProcessedSubmission(
+  submission: MinimalSubmission,
+  decision: Decision,
+  options: RecordDecisionOptions = {},
+) {
+  const {
+    descriptor = describeSubmission(submission),
+    reason,
+    source,
+    skipKnowledge = true,
+  } = options
+
+  const permalink =
+    buildPermalink(submission.permalink) ||
+    (submission.permalink ? `https://reddit.com${submission.permalink}` : "")
+
+  const entry: BotStateEntry = {
+    decision,
+    permalink,
+    processedAt: new Date().toISOString(),
+    title: sanitize(submission.title),
+    subreddit: submission.subreddit.display_name,
+    flair: submission.link_flair_text
+      ? sanitize(submission.link_flair_text)
+      : null,
+  }
+
+  if (descriptor.keywords.length) {
+    entry.keywords = descriptor.keywords
+  }
+
+  if (descriptor.topicSignature) {
+    entry.topicSignature = descriptor.topicSignature
+  }
+
+  if (decision === "skipped" && reason) {
+    entry.skipReason = `${source === "auto" ? "auto" : "manual"}: ${reason}`
+  }
+
+  state[submission.id] = entry
+
+  if (decision === "skipped" && skipKnowledge) {
+    registerSkipKnowledge(entry)
+  }
+}
+
+function registerSkipKnowledge(entry: BotStateEntry) {
+  if (entry.decision !== "skipped") {
+    return
+  }
+
+  let keywords = Array.isArray(entry.keywords) ? entry.keywords : []
+
+  if (!keywords.length) {
+    keywords = extractKeywordsFromParts([
+      entry.title,
+      entry.flair || undefined,
+    ])
+  }
+
+  const uniqueKeywords = new Set<string>(keywords)
+  for (const keyword of uniqueKeywords) {
+    if (!keyword) {
+      continue
+    }
+    const lower = keyword.toLowerCase()
+    skipKeywordCounts.set(lower, (skipKeywordCounts.get(lower) || 0) + 1)
+  }
+
+  const signature =
+    entry.topicSignature ||
+    (keywords.length ? buildTopicSignature(keywords) : null)
+  if (signature) {
+    skipSignatureCounts.set(
+      signature,
+      (skipSignatureCounts.get(signature) || 0) + 1,
+    )
+  }
+}
+
+function rebuildSkipKnowledge() {
+  skipKeywordCounts.clear()
+  skipSignatureCounts.clear()
+
+  for (const entry of Object.values(state)) {
+    registerSkipKnowledge(entry)
+  }
+}
+
+function summarizeSkipKnowledge(): string | null {
+  const skippedCount = Object.values(state).filter(
+    (entry) => entry.decision === "skipped",
+  ).length
+
+  if (!skippedCount) {
+    return null
+  }
+
+  const topKeywords = [...skipKeywordCounts.entries()]
+    .map(([keyword, count]) => ({ keyword, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+
+  const keywordSummary = topKeywords.length
+    ? ` Top skipped keywords: ${topKeywords
+        .map(({ keyword, count }) => `${keyword} (${count})`)
+        .join(", ")}.`
+    : ""
+
+  return `Skip history: ${skippedCount} skipped posts tracked.${keywordSummary}`
+}
+
+async function hasExistingBotComment(
+  submission: MinimalSubmission,
+): Promise<boolean> {
+  const username = config.redditUsername?.toLowerCase()
+  if (!username) {
+    return false
+  }
+
+  try {
+    const redditSubmission = reddit.getSubmission(submission.id)
+    const commentsListing: any = redditSubmission.comments
+
+    let rawComments: any[] | null = null
+
+    if (commentsListing && typeof commentsListing.fetchAll === "function") {
+      rawComments = await commentsListing.fetchAll({
+        amount: 120,
+        skipReplies: true,
+      })
+    } else if (
+      commentsListing &&
+      typeof commentsListing.fetchMore === "function"
+    ) {
+      rawComments = await commentsListing.fetchMore({
+        amount: 120,
+        skipReplies: true,
+      })
+    } else {
+      const expanded = await redditSubmission.expandReplies({
+        limit: 120,
+        depth: 1,
+      })
+      const expandedComments: any = expanded?.comments
+      rawComments = Array.isArray(expandedComments)
+        ? expandedComments
+        : null
+    }
+
+    if (!rawComments || !Array.isArray(rawComments)) {
+      return false
+    }
+
+    for (const comment of rawComments) {
+      if (!comment || typeof comment !== "object") {
+        continue
+      }
+
+      const authorName =
+        typeof comment.author?.name === "string"
+          ? comment.author.name.toLowerCase()
+          : typeof comment.author === "string"
+            ? comment.author.toLowerCase()
+            : null
+
+      if (!authorName) {
+        continue
+      }
+
+      if (authorName === username) {
+        return true
+      }
+    }
+  } catch (error) {
+    console.warn(
+      `Failed to inspect existing comments for submission ${submission.id}:`,
+      error,
+    )
+  }
+
+  return false
+}
+
+function extractKeywords(submission: MinimalSubmission): string[] {
+  return extractKeywordsFromParts([
+    submission.title,
+    submission.selftext,
+    submission.link_flair_text,
+  ])
+}
+
+function extractKeywordsFromParts(parts: (string | null | undefined)[]): string[] {
+  const collected: string[] = []
+
+  for (const part of parts) {
+    if (!part) {
+      continue
+    }
+
+    const normalized = sanitize(part)
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, " ")
+
+    for (const token of normalized.split(/\s+/)) {
+      if (!token) {
+        continue
+      }
+
+      if (token.length < 3) {
+        continue
+      }
+
+      if (STOP_WORDS.has(token)) {
+        continue
+      }
+
+      collected.push(token)
+    }
+  }
+
+  const unique: string[] = []
+  const seen = new Set<string>()
+
+  for (const token of collected) {
+    if (seen.has(token)) {
+      continue
+    }
+
+    seen.add(token)
+    unique.push(token)
+
+    if (unique.length >= 32) {
+      break
+    }
+  }
+
+  return unique
+}
+
+function buildTopicSignature(keywords: string[]): string | null {
+  if (!keywords.length) {
+    return null
+  }
+
+  const unique = Array.from(new Set(keywords.map((keyword) => keyword.toLowerCase())))
+  if (!unique.length) {
+    return null
+  }
+
+  return unique
+    .sort()
+    .slice(0, 8)
+    .join("|")
 }
 
 function ask(question: string): Promise<string> {
