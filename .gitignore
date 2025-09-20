@@ -44,3 +44,5 @@ next-env.d.ts
 # bot scripts
 tmp/
 config/reddit-bot.config.json
+scripts/service-account.json
+cypress/screenshots
