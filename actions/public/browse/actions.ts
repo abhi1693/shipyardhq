@@ -8,6 +8,20 @@ import {
   TAGS,
 } from "@/lib/cache"
 
+const browseProductSelect = {
+  id: true,
+  slug: true,
+  name: true,
+  logo: true,
+  tagline: true,
+  analytics: { select: { upvotes: true } },
+  category: { select: { name: true } },
+} satisfies Prisma.ProductSelect
+
+type BrowseProduct = Prisma.ProductGetPayload<{
+  select: typeof browseProductSelect
+}>
+
 interface GetBrowseProductsOptions {
   useCaseSlug?: string
   categorySlug?: string
@@ -229,13 +243,7 @@ export const getBrowseProducts = cached(
             orderBy,
             skip: prioritySkip,
             take: priorityTake,
-            include: {
-              category: true,
-              user: true,
-              verification: true,
-              analytics: true,
-              ProductBadge: true,
-            },
+            select: browseProductSelect,
             cacheStrategy: {
               ttl: DEFAULT_TTL.medium,
               swr: DEFAULT_SWR.medium,
@@ -249,13 +257,7 @@ export const getBrowseProducts = cached(
             orderBy,
             skip: regularSkip,
             take: regularTake,
-            include: {
-              category: true,
-              user: true,
-              verification: true,
-              analytics: true,
-              ProductBadge: true,
-            },
+            select: browseProductSelect,
             cacheStrategy: {
               ttl: DEFAULT_TTL.medium,
               swr: DEFAULT_SWR.medium,
@@ -265,7 +267,10 @@ export const getBrowseProducts = cached(
         : Promise.resolve([] as any[]),
     ])
 
-    const products = [...priorityProducts, ...regularProducts]
+    const products: BrowseProduct[] = [
+      ...priorityProducts,
+      ...regularProducts,
+    ]
     const total = totalPriority + totalRegular
     const hasMore = skip + products.length < total
 

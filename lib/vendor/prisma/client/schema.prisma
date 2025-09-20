@@ -312,6 +312,7 @@ model PlanFeatureAssignment {
   feature PlanFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
 
   @@unique([planId, featureId]) // Prevent duplicate assignments
+  @@index([enabled])
 }
 
 enum PlanType {

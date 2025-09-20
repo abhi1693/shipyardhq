@@ -5,25 +5,13 @@ import { Button } from "@/components/atoms/button"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 
-import {
-  Category,
-  Product,
-  ProductAnalytics,
-  ProductVerification,
-  User,
-} from "@/lib/vendor/prisma/client"
 import { loadMoreProducts } from "@/actions/public/browse/loadMore"
+import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
 
-type ProductWithMeta = Product & {
-  category: Category
-  user: User
-  analytics: ProductAnalytics | null
-  verification: ProductVerification | null
-  ProductBadge?: { badge: string; expiresAt?: Date | string | null }[]
-}
+type ProductGridItem = CompactProductItem
 
 interface ProductGridClientProps {
-  initialProducts: ProductWithMeta[]
+  initialProducts: ProductGridItem[]
   initialHasMore: boolean
   initialPage: number
   searchParams: {
@@ -46,7 +34,7 @@ export default function ProductGridClient({
   const [page, setPage] = useState(initialPage)
   const [isPending, startTransition] = useTransition()
   const prefetchedRef = useRef<null | {
-    products: ProductWithMeta[]
+    products: ProductGridItem[]
     hasMore: boolean
   }>(null)
 
