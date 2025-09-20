@@ -487,20 +487,10 @@ export default async function ProductAnalyticsPage({
               <section className="space-y-4">
                 <div>
                   <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                    Traffic trends
-                  </span>
-                </div>
-                <ProductAnalyticsCharts summary={summary} />
-              </section>
-
-              <section className="space-y-4">
-                <div>
-                  <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
                     Audience & acquisition
                   </span>
                 </div>
                 <div className="grid gap-4 lg:grid-cols-3">
-                  <VisitorLoyaltyCard data={advanced.newVsReturning} />
                   <BreakdownCard
                     title="Traffic channel mix"
                     subtitle="Share of visits by source grouping"
@@ -513,50 +503,43 @@ export default async function ProductAnalyticsPage({
                     items={referrerItems}
                     empty="Referrer data will populate after sharing your product."
                   />
+                  <VisitorLoyaltyCard data={advanced.newVsReturning} />
                 </div>
               </section>
 
               <section className="space-y-4">
                 <div>
                   <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                    Platform mix
+                    Traffic trends
+                  </span>
+                </div>
+                <ProductAnalyticsCharts summary={summary} />
+              </section>
+
+              <section className="space-y-4">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                    Geography & devices
                   </span>
                 </div>
                 <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-                  <BreakdownCard
-                    title="Top browsers"
-                    subtitle={rangeLabel}
-                    items={browserItems}
-                    colorPalette={browserPalette}
-                    empty="Browser data will appear once visitors arrive."
-                  />
-                  <BreakdownCard
-                    title="Top operating systems"
-                    subtitle={rangeLabel}
-                    items={osItems}
-                    empty="Operating system data will appear once visitors arrive."
-                  />
                   <BreakdownCard
                     title="Top countries"
                     subtitle={rangeLabel}
                     items={countryItems}
                     empty="We haven't detected country signals yet."
                   />
-                </div>
-              </section>
-
-              <section className="space-y-4">
-                <div>
-                  <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                    Regional insights
-                  </span>
-                </div>
-                <div className="grid gap-4">
                   <BreakdownCard
                     title="Top cities"
                     subtitle={rangeLabel}
                     items={cityItems}
                     empty="City insights will populate with additional visits."
+                  />
+                  <BreakdownCard
+                    title="Top operating systems"
+                    subtitle={rangeLabel}
+                    items={osItems}
+                    empty="Operating system data will appear once visitors arrive."
                   />
                 </div>
               </section>
