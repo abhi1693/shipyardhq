@@ -267,10 +267,7 @@ export const getBrowseProducts = cached(
         : Promise.resolve([] as any[]),
     ])
 
-    const products: BrowseProduct[] = [
-      ...priorityProducts,
-      ...regularProducts,
-    ]
+    const products: BrowseProduct[] = [...priorityProducts, ...regularProducts]
     const total = totalPriority + totalRegular
     const hasMore = skip + products.length < total
 
