@@ -74,7 +74,15 @@ export async function POST(request: NextRequest) {
     headers.get("x-vercel-ip-country") ?? requestGeo.country ?? null
   const region =
     headers.get("x-vercel-ip-country-region") ?? requestGeo.region ?? null
-  const city = headers.get("x-vercel-ip-city") ?? requestGeo.city ?? null
+  const decodeNullable = (value: string | null | undefined) => {
+    if (!value) return null
+    try {
+      return decodeURIComponent(value)
+    } catch {
+      return value
+    }
+  }
+  const city = decodeNullable(headers.get("x-vercel-ip-city") ?? requestGeo.city)
   const ip = pickPrimaryIp(headers.get("x-forwarded-for")) ?? requestIp ?? null
   const ipHash = hashIpAddress(ip)
 
