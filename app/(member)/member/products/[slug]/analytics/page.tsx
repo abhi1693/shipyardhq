@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
-import { auth } from "@clerk/nextjs/server"
 import {
   Card,
   CardContent,
@@ -16,6 +15,7 @@ import {
 } from "@/components/atoms/tooltip"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import prisma from "@/lib/prisma"
+import { requireManageableProduct } from "@/lib/server/productAccess"
 import { cn } from "@/lib/utils"
 import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 import type { ProductTrafficSummary } from "@/types/analytics"
@@ -256,13 +256,13 @@ export default async function ProductAnalyticsPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const { userId } = await auth()
+  const { product: manageableProduct } = await requireManageableProduct(slug, {
+    unauthorizedRedirect: null,
+    missingRedirect: null,
+  })
 
-  const product = await prisma.product.findFirst({
-    where: {
-      slug,
-      user: { clerkId: userId ?? undefined },
-    },
+  const product = await prisma.product.findUnique({
+    where: { id: manageableProduct.id },
     select: {
       id: true,
       name: true,

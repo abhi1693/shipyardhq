@@ -19,10 +19,8 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { VerifyDomainButton } from "@/components/molecules/VerifyDomainButton"
 import { getProductById } from "@/actions/admin/products/actions"
-import { auth } from "@clerk/nextjs/server"
 import ProductMediaManager from "@/components/molecules/ProductMediaManager"
-import prisma from "@/lib/prisma"
-import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import { requireManageableProduct } from "@/lib/server/productAccess"
 import ProductStatusMenu from "@/components/molecules/ProductStatusMenu"
 import CopyButton from "@/components/molecules/CopyButton"
 import DuplicateProductButton from "@/components/molecules/DuplicateProductButton"
@@ -89,29 +87,17 @@ export default async function ViewUserProductPage({
     // Clean URL params regardless of outcome
     redirect(`/member/products/${slug}`)
   }
-  const found = await prisma.product.findUnique({
-    where: { slug },
-    select: { id: true },
+  const { product: manageableProduct, currentUser } = await requireManageableProduct(slug, {
+    unauthorizedRedirect: null,
+    missingRedirect: null,
   })
-  const product = found ? await getProductById(found.id) : null
+
+  const product = await getProductById(manageableProduct.id)
   if (!product) return notFound()
-  const productId = product!.id
-  const productSlug = product!.slug
-  const { userId: clerkId } = await auth()
-  const currentUser = clerkId ? await getActiveUserByClerkId(clerkId) : null
-  const isOwner = Boolean(clerkId && product.user?.clerkId === clerkId)
-  let canManage = isOwner
-  if (!canManage && currentUser && product.organization?.id) {
-    const membership = await prisma.organizationMembership.findFirst({
-      where: {
-        organizationId: product.organization.id,
-        userId: currentUser.id,
-      },
-      select: { id: true },
-    })
-    canManage = Boolean(membership)
-  }
-  if (!canManage) return notFound()
+  const productId = product.id
+  const productSlug = product.slug
+  const isOwner = manageableProduct.userId === currentUser.id
+  const canManage = true
   const publicPath = `/products/${productSlug}`
   const analyticsPath = `/member/products/${productSlug}/analytics`
   const canViewAnalytics = hasPlanFeature(

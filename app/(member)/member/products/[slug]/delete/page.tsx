@@ -4,9 +4,7 @@ import { redirect } from "next/navigation"
 import { deleteProductAction } from "@/actions/admin/products/actions"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
-import prisma from "@/lib/prisma"
-import { auth } from "@clerk/nextjs/server"
-import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import { requireManageableProduct } from "@/lib/server/productAccess"
 
 export default async function DeleteMemberProductPage({
   params,
@@ -19,46 +17,9 @@ export default async function DeleteMemberProductPage({
     redirect("/member/products?status=invalid")
   }
 
-  const { userId: clerkId } = await auth()
-  if (!clerkId) {
-    redirect("/member/products?status=unauthorized")
-  }
-
-  const currentUser = await getActiveUserByClerkId(clerkId)
-  if (!currentUser) {
-    redirect("/member/products?status=unauthorized")
-  }
-
-  const product = await prisma.product.findUnique({
-    where: { slug },
-    select: {
-      id: true,
-      name: true,
-      userId: true,
-      organizationId: true,
-    },
+  const { product } = await requireManageableProduct(slug, {
+    missingRedirect: "/member/products?status=not-found",
   })
-
-  if (!product) {
-    redirect("/member/products?status=not-found")
-  }
-
-  const ownsProduct = product.userId === currentUser.id
-  let belongsToOrg = false
-  if (!ownsProduct && product.organizationId) {
-    const membership = await prisma.organizationMembership.findFirst({
-      where: {
-        organizationId: product.organizationId,
-        userId: currentUser.id,
-      },
-      select: { id: true },
-    })
-    belongsToOrg = Boolean(membership)
-  }
-
-  if (!ownsProduct && !belongsToOrg) {
-    redirect("/member/products?status=unauthorized")
-  }
 
   const productId = product.id
   const productName = product.name
