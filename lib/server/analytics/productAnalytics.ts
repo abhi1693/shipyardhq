@@ -35,9 +35,7 @@ export async function getProductAnalyticsRecord(id: string) {
   })
 }
 
-export function toProductAnalyticsViewProduct(
-  product: ProductAnalyticsRecord,
-) {
+export function toProductAnalyticsViewProduct(product: ProductAnalyticsRecord) {
   return {
     id: product.id,
     slug: product.slug,

@@ -114,7 +114,8 @@ export function ChartTooltip({
       const dataKey = String(item.dataKey ?? item.name ?? "value")
       const configEntry = config[dataKey]
       const resolvedColor =
-        (configEntry?.color ?? (item.color as string | undefined)) ??
+        configEntry?.color ??
+        (item.color as string | undefined) ??
         `var(--chart-${dataKey})`
 
       return {

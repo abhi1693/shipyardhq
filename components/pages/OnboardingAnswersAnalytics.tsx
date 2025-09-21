@@ -14,7 +14,13 @@ import {
 } from "@/components/atoms/chart"
 import type { OnboardingAnswersSummary } from "@/types/analytics"
 import { formatDistanceToNow } from "date-fns"
-import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip as RechartsTooltip } from "recharts"
+import {
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Cell,
+  Tooltip as RechartsTooltip,
+} from "recharts"
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US").format(value)
@@ -235,7 +241,8 @@ export function OnboardingAnswersAnalytics({
                             valueFormatter={(value) => {
                               const base = formatNumber(value)
                               if (!newsletterTotal) return base
-                              const percent = (value / Math.max(newsletterTotal, 1)) * 100
+                              const percent =
+                                (value / Math.max(newsletterTotal, 1)) * 100
                               return `${base} (${formatPercent(percent)})`
                             }}
                           />
