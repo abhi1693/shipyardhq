@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
+import Link from "next/link"
 
 import {
   NotificationSegment,
@@ -87,6 +88,7 @@ type NotificationCenterProps = {
   segmentCounts: SegmentCounts
   users: NotificationUser[]
 }
+
 
 export default function NotificationCenter({
   segmentCounts,
@@ -300,6 +302,9 @@ export default function NotificationCenter({
             title="Notification Center"
             description="Send on-demand announcements to the right members."
           />
+          <Button asChild variant="outline">
+            <Link href="/admin/notifications/outreach">Builder outreach</Link>
+          </Button>
         </div>
         <Separator />
         <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">

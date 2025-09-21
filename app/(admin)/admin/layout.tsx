@@ -50,8 +50,20 @@ const navItems: NavItem[] = [
   },
   {
     title: "Notifications",
-    url: "/admin/notifications",
+    url: "#",
     icon: "bell",
+    items: [
+      {
+        title: "Email broadcasts",
+        url: "/admin/notifications",
+        icon: "bell",
+      },
+      {
+        title: "Builder outreach",
+        url: "/admin/notifications/outreach",
+        icon: "link",
+      },
+    ],
   },
   {
     title: "Organizations",

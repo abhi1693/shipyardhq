@@ -7,6 +7,12 @@ import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
+import { parseEmailList } from "@/lib/email/list-parser"
+import {
+  BUILDER_OUTREACH_SUBJECT,
+  BuilderOutreachEmail,
+  buildBuilderOutreachTextBody,
+} from "@/lib/email/templates/outreach/builderOutreach"
 
 const BUILDER_INTENTS = ["launch-product", "manage-team"] as const
 const EXPLORER_INTENT = "explore" as const
@@ -48,6 +54,10 @@ type SendNotificationSuccess = {
 export type SendNotificationResponse =
   | SendNotificationError
   | SendNotificationSuccess
+
+export type SendBuilderOutreachResponse =
+  | SendNotificationError
+  | { success: true; summary: SendNotificationSuccess["summary"] }
 
 const emailParagraphStyle = {
   fontSize: "15px",
@@ -439,6 +449,85 @@ export async function sendNotificationEmailsAction(
         failed.length,
         uniqueRecipients.length,
       ),
+    },
+  }
+}
+
+export async function sendBuilderOutreachEmailsAction(
+  formData: FormData,
+): Promise<SendBuilderOutreachResponse> {
+  try {
+    await requireAdmin()
+  } catch {
+    return { error: "Unauthorized" }
+  }
+
+  const emailsRaw = formData.get("emails")?.toString() ?? ""
+
+  if (!emailsRaw.trim()) {
+    return { error: "Enter at least one email address" }
+  }
+
+  const parsed = parseEmailList(emailsRaw)
+  const recipients = parsed.valid
+  const invalid = parsed.invalid
+
+  if (recipients.length === 0) {
+    return {
+      error: "We couldn't find any valid email addresses",
+      invalidEmails: invalid,
+    }
+  }
+
+  const failed: { email: string; error: string }[] = []
+  let sent = 0
+
+  for (const [index, email] of recipients.entries()) {
+    if (index > 0) {
+      await wait(RATE_LIMIT_INTERVAL_MS)
+    }
+
+    const firstName = deriveFirstNameFromEmail(email)
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: BUILDER_OUTREACH_SUBJECT,
+        text: buildBuilderOutreachTextBody(firstName),
+        react: <BuilderOutreachEmail firstName={firstName} />,
+      })
+      sent += 1
+    } catch (error: any) {
+      console.error(
+        `Failed to send builder outreach email to ${email}`,
+        error,
+      )
+      failed.push({
+        email,
+        error: error?.message ?? "Unknown error",
+      })
+    }
+  }
+
+  if (sent === 0) {
+    return {
+      error: "Failed to send builder outreach emails",
+      invalidEmails: invalid.length > 0 ? invalid : undefined,
+    }
+  }
+
+  const totalRecipients = recipients.length
+
+  return {
+    success: true,
+    summary: {
+      totalRecipients,
+      attempted: totalRecipients,
+      sent,
+      failed,
+      invalidEmails: invalid,
+      sentPercentage: calculatePercentage(sent, totalRecipients),
+      failedPercentage: calculatePercentage(failed.length, totalRecipients),
     },
   }
 }
