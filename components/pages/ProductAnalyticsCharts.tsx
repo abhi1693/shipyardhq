@@ -7,7 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
-import { ChartContainer, type ChartConfig } from "@/components/atoms/chart"
+import {
+  ChartContainer,
+  ChartTooltip,
+  type ChartConfig,
+} from "@/components/atoms/chart"
 import {
   Tooltip,
   TooltipContent,
@@ -22,6 +26,7 @@ import {
   Cell,
   Line,
   LineChart,
+  Tooltip as RechartsTooltip,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -157,6 +162,17 @@ export function ProductAnalyticsCharts({
                   axisLine={false}
                   tickFormatter={formatNumber}
                 />
+                <RechartsTooltip
+                  cursor={{
+                    strokeDasharray: "3 3",
+                    stroke: "var(--chart-views)",
+                  }}
+                  content={
+                    <ChartTooltip
+                      valueFormatter={(value) => formatNumber(value)}
+                    />
+                  }
+                />
                 <Line
                   type="monotone"
                   dataKey="views"
@@ -219,6 +235,20 @@ export function ProductAnalyticsCharts({
             <>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
+                  <RechartsTooltip
+                    content={
+                      <ChartTooltip
+                        valueFormatter={(value) => {
+                          if (!summary.totalViews) {
+                            return formatNumber(value)
+                          }
+                          const percent =
+                            (value / Math.max(summary.totalViews, 1)) * 100
+                          return `${formatNumber(value)} (${formatPercent(percent)})`
+                        }}
+                      />
+                    }
+                  />
                   <Pie
                     data={summary.deviceBreakdown}
                     dataKey="views"
@@ -325,6 +355,17 @@ export function ProductAnalyticsCharts({
                   axisLine={false}
                   tickFormatter={formatNumber}
                 />
+                <RechartsTooltip
+                  cursor={{
+                    strokeDasharray: "3 3",
+                    stroke: "var(--chart-clicks)",
+                  }}
+                  content={
+                    <ChartTooltip
+                      valueFormatter={(value) => formatNumber(value)}
+                    />
+                  }
+                />
                 <Line
                   type="monotone"
                   dataKey="clicks"
@@ -421,6 +462,14 @@ export function ProductAnalyticsCharts({
                   fontSize={12}
                   width={110}
                 />
+                <RechartsTooltip
+                  cursor={{ fill: "rgba(139, 92, 246, 0.12)" }}
+                  content={
+                    <ChartTooltip
+                      valueFormatter={(value) => formatNumber(value)}
+                    />
+                  }
+                />
                 <Bar
                   dataKey="views"
                   radius={[0, 4, 4, 0]}
@@ -459,7 +508,10 @@ export function ProductAnalyticsCharts({
         <CardDescription>Most active visitor locations</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer className="min-h-[280px]">
+        <ChartContainer
+          className="min-h-[280px]"
+          config={{ views: { label: "Views" } }}
+        >
           {topCountries.length === 0 ? (
             <p className="py-8 text-center text-base text-muted-foreground">
               No ports of call yet—when visitors arrive, we’ll chart their map
@@ -482,6 +534,14 @@ export function ProductAnalyticsCharts({
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={formatNumber}
+                />
+                <RechartsTooltip
+                  cursor={{ fill: "rgba(148, 163, 184, 0.12)" }}
+                  content={
+                    <ChartTooltip
+                      valueFormatter={(value) => formatNumber(value)}
+                    />
+                  }
                 />
                 <Bar dataKey="views" radius={[4, 4, 0, 0]}>
                   {topCountries.map((entry, index) => (
