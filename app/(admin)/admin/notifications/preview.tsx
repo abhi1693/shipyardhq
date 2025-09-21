@@ -95,7 +95,7 @@ function PreviewSignature() {
     <div style={{ marginTop: "24px" }}>
       <p style={paragraphStyle}>Wishing you fair winds,</p>
       <p style={paragraphStyle}>
-        The Shipyard HQ Crew
+        Shipyard Crew
         <br />
         <a
           href="https://shipyardhq.dev"

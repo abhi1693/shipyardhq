@@ -113,7 +113,7 @@ function buildTextBody(message: string, recipient: ResolvedRecipient) {
   lines.push(
     "",
     "Wishing you fair winds,",
-    "The Shipyard HQ Crew",
+    "Shipyard Crew",
     "https://shipyardhq.dev",
   )
 

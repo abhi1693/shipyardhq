@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
-import { Eye, Pencil, Trash2 } from "lucide-react"
+import { BarChart3, Eye, Pencil, Trash2 } from "lucide-react"
 
 import {
   Product,
@@ -26,6 +26,7 @@ export type MemberProductRow = Product & {
   category?: { id: string; name: string; slug: string }
   plan?: { id: string; name: string }
   canDelete?: boolean
+  canViewAnalytics?: boolean
 }
 
 export const columns: ColumnDef<MemberProductRow>[] = [
@@ -153,6 +154,21 @@ export const columns: ColumnDef<MemberProductRow>[] = [
     header: () => null,
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-2">
+        {row.original.canViewAnalytics ? (
+          <Button
+            asChild
+            size="sm"
+            variant="ghost"
+            className={minimalActionButton}
+          >
+            <Link
+              href={`/member/products/${row.original.slug}/analytics`}
+              className={minimalActionLink}
+            >
+              <BarChart3 className={minimalActionIcon} /> Analytics
+            </Link>
+          </Button>
+        ) : null}
         <Button
           asChild
           size="sm"

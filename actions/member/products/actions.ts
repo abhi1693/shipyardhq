@@ -9,6 +9,7 @@ import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
+import { hasPlanFeature } from "@/lib/features"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -22,7 +23,18 @@ type OrgMembershipRef = Prisma.OrganizationMembershipGetPayload<{
 type ProductListItem = Prisma.ProductGetPayload<{
   include: {
     category: { select: { id: true; name: true; slug: true } }
-    plan: { select: { id: true; name: true } }
+    plan: {
+      select: {
+        id: true
+        name: true
+        assignments: {
+          select: {
+            enabled: true
+            feature: { select: { key: true } }
+          }
+        }
+      }
+    }
     verification: { select: { isVerified: true } }
     analytics: { select: { clicks: true; upvotes: true } }
   }
@@ -128,7 +140,18 @@ export async function getUserProducts(params?: ListParams) {
       take: limit,
       include: {
         category: { select: { id: true, name: true, slug: true } },
-        plan: { select: { id: true, name: true } },
+        plan: {
+          select: {
+            id: true,
+            name: true,
+            assignments: {
+              select: {
+                enabled: true,
+                feature: { select: { key: true } },
+              },
+            },
+          },
+        },
         verification: { select: { isVerified: true } },
         analytics: { select: { clicks: true, upvotes: true } },
       },
@@ -136,10 +159,30 @@ export async function getUserProducts(params?: ListParams) {
     prisma.product.count({ where }),
   ])) as [ProductListItem[], number]
 
-  const productsWithPermissions = products.map((product: ProductListItem) => ({
-    ...product,
-    canDelete: product.userId === user.id,
-  }))
+  const productsWithPermissions = products.map((product: ProductListItem) => {
+    const hasAdvancedAnalytics = hasPlanFeature(
+      product.plan ?? null,
+      "analytics.advanced",
+    )
+    const canViewAnalytics =
+      hasAdvancedAnalytics ||
+      hasPlanFeature(product.plan ?? null, "analytics.basic")
+
+    const { plan, ...rest } = product
+    const planSummary = plan
+      ? {
+          id: plan.id,
+          name: plan.name,
+        }
+      : undefined
+
+    return {
+      ...rest,
+      plan: planSummary,
+      canDelete: product.userId === user.id,
+      canViewAnalytics,
+    }
+  })
 
   return { products: productsWithPermissions, total, page, limit }
 }
