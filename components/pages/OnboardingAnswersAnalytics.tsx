@@ -7,10 +7,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
-import { ChartContainer, type ChartConfig } from "@/components/atoms/chart"
+import {
+  ChartContainer,
+  ChartTooltip,
+  type ChartConfig,
+} from "@/components/atoms/chart"
 import type { OnboardingAnswersSummary } from "@/types/analytics"
 import { formatDistanceToNow } from "date-fns"
-import { Pie, PieChart, ResponsiveContainer, Cell } from "recharts"
+import { Pie, PieChart, ResponsiveContainer, Cell, Tooltip as RechartsTooltip } from "recharts"
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en-US").format(value)
@@ -213,6 +217,7 @@ export function OnboardingAnswersAnalytics({
         <CardContent className="space-y-6">
           <ChartContainer
             config={newsletterConfig}
+            showLegend
             className="min-h-[260px] border border-slate-200/70 bg-white/95"
           >
             {newsletterTotal === 0 ? (
@@ -224,6 +229,18 @@ export function OnboardingAnswersAnalytics({
                 <div className="h-48 w-full lg:h-[220px] lg:w-1/2">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
+                      <RechartsTooltip
+                        content={
+                          <ChartTooltip
+                            valueFormatter={(value) => {
+                              const base = formatNumber(value)
+                              if (!newsletterTotal) return base
+                              const percent = (value / Math.max(newsletterTotal, 1)) * 100
+                              return `${base} (${formatPercent(percent)})`
+                            }}
+                          />
+                        }
+                      />
                       <Pie
                         data={newsletterChartData}
                         dataKey="value"
