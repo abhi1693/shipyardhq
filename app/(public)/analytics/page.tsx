@@ -46,29 +46,28 @@ const PLAN_HIGHLIGHTS = [
 const MOMENTUM_POINTS = [
   {
     title: "Spot trends early",
-    body:
-      "Overlay views, votes, and clicks to understand how experiments perform in the first critical days of a launch.",
+    body: "Overlay views, votes, and clicks to understand how experiments perform in the first critical days of a launch.",
   },
   {
     title: "Measure channel health",
-    body:
-      "Use referrer, device, and browser splits to see which campaigns bring high intent visitors versus casual traffic.",
+    body: "Use referrer, device, and browser splits to see which campaigns bring high intent visitors versus casual traffic.",
   },
   {
     title: "Plan the next iteration",
-    body:
-      "Retention signals highlight whether visitors come back. Use that insight to prioritize onboarding or outreach work.",
+    body: "Retention signals highlight whether visitors come back. Use that insight to prioritize onboarding or outreach work.",
   },
 ]
 
 const HOW_IT_WORKS_STEPS = [
   {
     title: "Start from Member View",
-    detail: "Open the member dashboard and head to Products to see your live and draft listings.",
+    detail:
+      "Open the member dashboard and head to Products to see your live and draft listings.",
   },
   {
     title: "Pick a product",
-    detail: "Choose the row you want, then select Analytics to launch the detailed view for that tool.",
+    detail:
+      "Choose the row you want, then select Analytics to launch the detailed view for that tool.",
   },
   {
     title: "Share with your crew",
@@ -92,7 +91,8 @@ const ANALYTICS_GALLERY: GalleryItem[] = [
   {
     src: "/analytics-1.png",
     alt: "Screenshot of Shipyard analytics overview with core product metrics",
-    caption: "Track votes, clicks, and total views for every launch at a glance.",
+    caption:
+      "Track votes, clicks, and total views for every launch at a glance.",
     width: 1600,
     height: 860,
     containerClass: "aspect-video",
@@ -101,7 +101,8 @@ const ANALYTICS_GALLERY: GalleryItem[] = [
   {
     src: "/analytics-2.png",
     alt: "Screenshot of Shipyard analytics referrer and device breakdown",
-    caption: "Understand which channels, devices, and browsers drive conversions.",
+    caption:
+      "Understand which channels, devices, and browsers drive conversions.",
     width: 1600,
     height: 929,
     containerClass: "aspect-video",
@@ -199,8 +200,9 @@ export default function AnalyticsPage() {
             See your dashboards in action
           </h2>
           <p className="mx-auto max-w-3xl text-base text-muted-foreground">
-            Each view is designed to surface the questions builders ask most—from
-            high-level traction to channel attribution and team-wide rollups.
+            Each view is designed to surface the questions builders ask
+            most—from high-level traction to channel attribution and team-wide
+            rollups.
           </p>
         </div>
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
@@ -333,7 +335,9 @@ export default function AnalyticsPage() {
                 <h3 className="text-lg font-semibold text-foreground">
                   {point.title}
                 </h3>
-                <p className="mt-2 text-sm text-muted-foreground">{point.body}</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {point.body}
+                </p>
               </div>
             ))}
           </div>

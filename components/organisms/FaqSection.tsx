@@ -61,7 +61,9 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
         <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
           <li>Open the Member View from the main navigation.</li>
           <li>Select Products to see your listings.</li>
-          <li>Use the Analytics action on the product row you want to review.</li>
+          <li>
+            Use the Analytics action on the product row you want to review.
+          </li>
         </ol>
         <p>
           Dashboards refresh in near real time, so give them a quick look after
