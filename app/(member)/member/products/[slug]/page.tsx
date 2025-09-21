@@ -101,10 +101,14 @@ export default async function ViewUserProductPage({
   const canManage = true
   const publicPath = `/products/${productSlug}`
   const analyticsPath = `/member/products/${productSlug}/analytics`
-  const canViewAnalytics = hasPlanFeature(
+  const hasAdvancedAnalytics = hasPlanFeature(
     product.plan ?? null,
     "analytics.advanced",
   )
+  const hasBasicAnalytics =
+    hasAdvancedAnalytics ||
+    hasPlanFeature(product.plan ?? null, "analytics.basic")
+  const canViewAnalytics = hasBasicAnalytics
   const upvoters = await getRecentUpvoters(productId, 5).catch(() => [])
 
   const allPlans = await getPublicPlans({

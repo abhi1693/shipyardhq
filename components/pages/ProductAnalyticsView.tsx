@@ -80,11 +80,11 @@ function DeltaBadge({ value }: { value: number }) {
 
 function SummaryCards({
   summary,
-  includeAdvanced,
+  accessLevel,
   analytics,
 }: {
   summary: ProductTrafficSummary
-  includeAdvanced: boolean
+  accessLevel: "basic" | "advanced"
   analytics?: Pick<ProductAnalytics, "upvotes" | "clicks"> | null
 }) {
   const formatter = new Intl.NumberFormat("en-US")
@@ -125,47 +125,49 @@ function SummaryCards({
     },
   ]
 
-  if (includeAdvanced) {
-    cards.push(
-      {
-        title: `CTA clicks (${summary.rangeDays}d)`,
-        value: formatter.format(clicksInRange),
-        delta: summary.clicksChange,
-        helper: `${formatRate(summary.clickThroughRate)} CTR`,
-        tooltip:
-          "CTA clicks captured during this window compared with the previous period.",
-      },
-      {
-        title: `New upvotes (${summary.rangeDays}d)`,
-        value: formatter.format(upvotesInRange),
-        delta: summary.upvotesChange,
-        helper: `${formatRate(summary.upvoteConversionRate)} conversion`,
-        tooltip:
-          "Net new upvotes recorded during this window compared with the previous period.",
-      },
-      {
-        title: "Unique visitors",
-        value: formatter.format(summary.uniqueVisitors),
-        delta: summary.uniqueVisitorsChange,
-        tooltip:
-          "Estimated unique visitors for this period. Useful for gauging reach beyond total views.",
-      },
-      {
-        title: "Views today",
-        value: formatter.format(summary.viewsToday),
-        helper: `${formatter.format(summary.viewsSevenDays)} in the past 7 days`,
-        tooltip:
-          "How many views landed today alongside the trailing seven-day total for momentum checks.",
-      },
-      {
-        title: "Avg. per day",
-        value: summary.averageViewsPerDay.toLocaleString("en-US", {
-          maximumFractionDigits: 1,
-        }),
-        tooltip:
-          "Average daily volume within the window. Handy for benchmarking campaigns.",
-      },
-    )
+  const advancedOnlyCards: typeof cards = [
+    {
+      title: `CTA clicks (${summary.rangeDays}d)`,
+      value: formatter.format(clicksInRange),
+      delta: summary.clicksChange,
+      helper: `${formatRate(summary.clickThroughRate)} CTR`,
+      tooltip:
+        "CTA clicks captured during this window compared with the previous period.",
+    },
+    {
+      title: `New upvotes (${summary.rangeDays}d)`,
+      value: formatter.format(upvotesInRange),
+      delta: summary.upvotesChange,
+      helper: `${formatRate(summary.upvoteConversionRate)} conversion`,
+      tooltip:
+        "Net new upvotes recorded during this window compared with the previous period.",
+    },
+    {
+      title: "Unique visitors",
+      value: formatter.format(summary.uniqueVisitors),
+      delta: summary.uniqueVisitorsChange,
+      tooltip:
+        "Estimated unique visitors for this period. Useful for gauging reach beyond total views.",
+    },
+    {
+      title: "Views today",
+      value: formatter.format(summary.viewsToday),
+      helper: `${formatter.format(summary.viewsSevenDays)} in the past 7 days`,
+      tooltip:
+        "How many views landed today alongside the trailing seven-day total for momentum checks.",
+    },
+    {
+      title: "Avg. per day",
+      value: summary.averageViewsPerDay.toLocaleString("en-US", {
+        maximumFractionDigits: 1,
+      }),
+      tooltip:
+        "Average daily volume within the window. Handy for benchmarking campaigns.",
+    },
+  ]
+
+  if (accessLevel === "advanced") {
+    cards.push(...advancedOnlyCards)
   }
 
   return (
@@ -442,7 +444,7 @@ export interface ProductAnalyticsViewProps {
   publicHref: string
   headingId: string
   headingSlug: string
-  hasAdvancedAnalytics: boolean
+  accessLevel: "basic" | "advanced"
 }
 
 export function ProductAnalyticsView({
@@ -453,9 +455,10 @@ export function ProductAnalyticsView({
   publicHref,
   headingId,
   headingSlug,
-  hasAdvancedAnalytics,
+  accessLevel,
 }: ProductAnalyticsViewProps) {
   const rangeLabel = `Last ${summary.rangeDays} days`
+  const isAdvanced = accessLevel === "advanced"
   const advanced = summary.advanced
 
   const countryItems = summary.countryBreakdown.slice(0, 6).map((item) => ({
@@ -556,11 +559,11 @@ export function ProductAnalyticsView({
             </div>
             <SummaryCards
               summary={summary}
-              includeAdvanced={hasAdvancedAnalytics}
+              accessLevel={accessLevel}
               analytics={product.analytics}
             />
           </section>
-          {hasAdvancedAnalytics ? (
+          {isAdvanced ? (
             <>
               <section className="space-y-4">
                 <div>
@@ -591,7 +594,7 @@ export function ProductAnalyticsView({
                     Traffic trends
                   </span>
                 </div>
-                <ProductAnalyticsCharts summary={summary} />
+                <ProductAnalyticsCharts summary={summary} mode="advanced" />
               </section>
 
               <section className="space-y-4">
@@ -652,31 +655,45 @@ export function ProductAnalyticsView({
               ) : null}
             </>
           ) : (
-            <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">
-              <CardHeader className="px-5 pb-2 pt-5">
-                <CardTitle className="text-base text-slate-900">
-                  Unlock deeper analytics
-                </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground">
-                  Upgrade to advanced analytics for funnel charts, visitor
-                  device trends, referrers, and country insights.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="px-5 pb-6">
-                <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                  <li>See granular device, browser, and country breakdowns.</li>
-                  <li>Track referral sources and day-over-day momentum.</li>
-                  <li>
-                    Spot trends with interactive charts and historical deltas.
-                  </li>
-                </ul>
-                <div className="mt-4">
-                  <Button asChild>
-                    <Link href="/pricing">Explore upgrade options</Link>
-                  </Button>
+            <>
+              <section className="space-y-4">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                    Traffic insights
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+                <ProductAnalyticsCharts summary={summary} mode="basic" />
+              </section>
+              <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">
+                <CardHeader className="px-5 pb-2 pt-5">
+                  <CardTitle className="text-base text-slate-900">
+                    Unlock deeper analytics
+                  </CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground">
+                    Upgrade to advanced analytics for loyalty signals, channel
+                    mix, and conversion insights tailored to every campaign.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="px-5 pb-6">
+                  <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                    <li>Measure visitor loyalty with new vs. returning trends.</li>
+                    <li>
+                      Break down channels, cities, and browsers with richer
+                      drilldowns.
+                    </li>
+                    <li>
+                      Compare click-through performance with device and browser
+                      conversion insights.
+                    </li>
+                  </ul>
+                  <div className="mt-4">
+                    <Button asChild>
+                      <Link href="/pricing">Explore upgrade options</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
           )}
         </div>
       }

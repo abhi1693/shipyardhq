@@ -61,12 +61,16 @@ export default async function ProductAnalyticsPage({
   const hasBasicAnalytics =
     hasAdvancedAnalytics ||
     hasPlanFeature(product.plan ?? null, "analytics.basic")
+  const accessLevel = hasAdvancedAnalytics ? "advanced" : "basic"
 
   if (!hasBasicAnalytics) {
     redirect(`/member/products/${product.slug}`)
   }
 
-  const summary = await getProductTrafficSummary(product.id, { rangeDays })
+  const summary = await getProductTrafficSummary(product.id, {
+    rangeDays,
+    includeAdvanced: hasAdvancedAnalytics,
+  })
   const publicPath = `/products/${product.slug}`
 
   return (
@@ -85,7 +89,7 @@ export default async function ProductAnalyticsPage({
       publicHref={publicPath}
       headingId={product.slug}
       headingSlug={product.id}
-      hasAdvancedAnalytics={hasAdvancedAnalytics}
+      accessLevel={accessLevel}
     />
   )
 }

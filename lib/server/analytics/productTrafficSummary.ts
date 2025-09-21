@@ -36,6 +36,7 @@ interface SummaryOptions {
   context?: "product" | "global"
   includeProductBreakdown?: boolean
   includeReferrerMatrix?: boolean
+  includeAdvanced?: boolean
 }
 
 const DEVICE_ORDER: DeviceCategory[] = [
@@ -208,9 +209,18 @@ async function buildTrafficSummary(
     rangeDays = 30,
     previousComparison = true,
     context = "product",
-    includeProductBreakdown = context === "global",
-    includeReferrerMatrix = context === "global",
+    includeProductBreakdown: includeProductBreakdownOption,
+    includeReferrerMatrix: includeReferrerMatrixOption,
+    includeAdvanced = true,
   } = options
+
+  const includeAdvancedMetrics = includeAdvanced
+  const includeProductBreakdown =
+    includeAdvancedMetrics &&
+    (includeProductBreakdownOption ?? context === "global")
+  const includeReferrerMatrix =
+    includeAdvancedMetrics &&
+    (includeReferrerMatrixOption ?? context === "global")
 
   const today = startOfDay(new Date())
   const windowDays = Math.max(rangeDays, 1)
@@ -328,50 +338,64 @@ async function buildTrafficSummary(
     }
     uniqueByDay.set(dayKey, uniqueEntry)
 
-    deviceCounts.set(event.device, (deviceCounts.get(event.device) ?? 0) + 1)
+    let referrerLabel: string | null = null
+    let countryLabelForIp: string | null = null
 
-    const browserLabel = labelForBrowser(event.browser)
-    browserCounts.set(browserLabel, (browserCounts.get(browserLabel) ?? 0) + 1)
+    if (includeAdvancedMetrics) {
+      const deviceKey = (event.device ?? "unknown") as DeviceCategory
+      deviceCounts.set(deviceKey, (deviceCounts.get(deviceKey) ?? 0) + 1)
 
-    const osLabel = labelForOs(event.os)
-    osCounts.set(osLabel, (osCounts.get(osLabel) ?? 0) + 1)
+      const browserLabel = labelForBrowser(event.browser)
+      browserCounts.set(browserLabel, (browserCounts.get(browserLabel) ?? 0) + 1)
 
-    const rawCountry = event.country ?? ""
-    const rawRegion = event.region ?? ""
-    const rawCity = event.city ?? ""
-    const countryLabel = labelForCountry(event.country)
-    countryCounts.set(countryLabel, (countryCounts.get(countryLabel) ?? 0) + 1)
+      const osLabel = labelForOs(event.os)
+      osCounts.set(osLabel, (osCounts.get(osLabel) ?? 0) + 1)
 
-    const regionKey = `${rawCountry}::${rawRegion}`
-    regionCounts.set(regionKey, (regionCounts.get(regionKey) ?? 0) + 1)
+      const rawCountry = event.country ?? ""
+      const rawRegion = event.region ?? ""
+      const rawCity = event.city ?? ""
+      countryLabelForIp = labelForCountry(event.country)
+      countryCounts.set(
+        countryLabelForIp,
+        (countryCounts.get(countryLabelForIp) ?? 0) + 1,
+      )
 
-    const cityKey = `${rawCountry}::${rawRegion}::${rawCity}`
-    cityCounts.set(cityKey, (cityCounts.get(cityKey) ?? 0) + 1)
+      const regionKey = `${rawCountry}::${rawRegion}`
+      regionCounts.set(regionKey, (regionCounts.get(regionKey) ?? 0) + 1)
 
-    const { category, label: referrerLabel } = classifyReferrer(event.referrer)
-    referrerCounts.set(
-      referrerLabel,
-      (referrerCounts.get(referrerLabel) ?? 0) + 1,
-    )
-    referrerCategoryCounts.set(
-      category,
-      (referrerCategoryCounts.get(category) ?? 0) + 1,
-    )
+      const cityKey = `${rawCountry}::${rawRegion}::${rawCity}`
+      cityCounts.set(cityKey, (cityCounts.get(cityKey) ?? 0) + 1)
 
-    if (event.path) {
-      pathCounts.set(event.path, (pathCounts.get(event.path) ?? 0) + 1)
+      const classified = classifyReferrer(event.referrer)
+      referrerLabel = classified.label
+      referrerCounts.set(
+        referrerLabel,
+        (referrerCounts.get(referrerLabel) ?? 0) + 1,
+      )
+      referrerCategoryCounts.set(
+        classified.category,
+        (referrerCategoryCounts.get(classified.category) ?? 0) + 1,
+      )
+
+      if (event.path) {
+        pathCounts.set(event.path, (pathCounts.get(event.path) ?? 0) + 1)
+      }
     }
 
     if (event.ipHash) {
       uniqueHashes.add(event.ipHash)
-      const ipKey = `${event.ipHash}|${countryLabel}`
-      const ipEntry = ipCountryCounts.get(ipKey) ?? {
-        ipHash: event.ipHash,
-        country: event.country ?? null,
-        count: 0,
+      if (includeAdvancedMetrics) {
+        const countryLabel =
+          countryLabelForIp ?? labelForCountry(event.country)
+        const ipKey = `${event.ipHash}|${countryLabel}`
+        const ipEntry = ipCountryCounts.get(ipKey) ?? {
+          ipHash: event.ipHash,
+          country: event.country ?? null,
+          count: 0,
+        }
+        ipEntry.count += 1
+        ipCountryCounts.set(ipKey, ipEntry)
       }
-      ipEntry.count += 1
-      ipCountryCounts.set(ipKey, ipEntry)
     } else {
       anonymousUnique += 1
     }
@@ -383,18 +407,19 @@ async function buildTrafficSummary(
       viewsSevenDays += 1
     }
 
-    if (context === "global" && event.productId) {
+    if (includeAdvancedMetrics && context === "global" && event.productId) {
       productCounts.set(
         event.productId,
         (productCounts.get(event.productId) ?? 0) + 1,
       )
       const productMap =
-        referrerProductCounts.get(referrerLabel) ?? new Map<string, number>()
+        referrerProductCounts.get(referrerLabel ?? "Direct / None") ??
+        new Map<string, number>()
       productMap.set(
         event.productId,
         (productMap.get(event.productId) ?? 0) + 1,
       )
-      referrerProductCounts.set(referrerLabel, productMap)
+      referrerProductCounts.set(referrerLabel ?? "Direct / None", productMap)
     }
   }
 
@@ -437,7 +462,7 @@ async function buildTrafficSummary(
   let previousClickCount = 0
   let previousUpvoteCount = 0
 
-  if (productId) {
+  if (productId && includeAdvancedMetrics) {
     const rangeEnd = addDays(today, 1)
     const previousRangeStart = previousStart
     const previousRangeEnd = rangeStart
@@ -596,138 +621,168 @@ async function buildTrafficSummary(
     }
   })
 
-  const deviceBreakdown = DEVICE_ORDER.map((device) => ({
-    device,
-    label: labelForDevice(device),
-    views: deviceCounts.get(device) ?? 0,
-  }))
-    .filter((entry) => entry.views > 0)
-    .sort((a, b) => b.views - a.views)
+  const deviceBreakdown: ProductTrafficSummary["deviceBreakdown"] = includeAdvancedMetrics
+    ? DEVICE_ORDER.map((device) => ({
+        device,
+        label: labelForDevice(device),
+        views: deviceCounts.get(device) ?? 0,
+      }))
+        .filter((entry) => entry.views > 0)
+        .sort((a, b) => b.views - a.views)
+    : []
 
-  const deviceConversionBreakdown = deviceBreakdown.map((entry) => {
-    const clicks = deviceClickCounts.get(entry.device) ?? 0
-    const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
-    return {
-      device: entry.device,
-      label: entry.label,
-      views: entry.views,
-      clicks,
-      clickThroughRate: rate,
-    }
-  })
+  const deviceConversionBreakdown: ProductTrafficSummary["deviceConversionBreakdown"] =
+    includeAdvancedMetrics
+      ? deviceBreakdown.map((entry) => {
+          const clicks = deviceClickCounts.get(entry.device) ?? 0
+          const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
+          return {
+            device: entry.device,
+            label: entry.label,
+            views: entry.views,
+            clicks,
+            clickThroughRate: rate,
+          }
+        })
+      : []
 
-  const countryBreakdown = Array.from(countryCounts.entries())
-    .map(([country, count]) => ({ country, views: count }))
-    .sort((a, b) => b.views - a.views)
+  const countryBreakdown: ProductTrafficSummary["countryBreakdown"] = includeAdvancedMetrics
+    ? Array.from(countryCounts.entries())
+        .map(([country, count]) => ({ country, views: count }))
+        .sort((a, b) => b.views - a.views)
+    : []
 
-  const browserBreakdown = Array.from(browserCounts.entries())
-    .map(([browser, count]) => ({ browser, views: count }))
-    .sort((a, b) => b.views - a.views)
+  const browserBreakdown: ProductTrafficSummary["browserBreakdown"] = includeAdvancedMetrics
+    ? Array.from(browserCounts.entries())
+        .map(([browser, count]) => ({ browser, views: count }))
+        .sort((a, b) => b.views - a.views)
+    : []
 
-  const browserConversionBreakdown = browserBreakdown.map((entry) => {
-    const key = entry.browser || "Unknown"
-    const clicks = browserClickCounts.get(key) ?? 0
-    const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
-    return {
-      browser: entry.browser,
-      views: entry.views,
-      clicks,
-      clickThroughRate: rate,
-    }
-  })
+  const browserConversionBreakdown: ProductTrafficSummary["browserConversionBreakdown"] =
+    includeAdvancedMetrics
+      ? browserBreakdown.map((entry) => {
+          const key = entry.browser || "Unknown"
+          const clicks = browserClickCounts.get(key) ?? 0
+          const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
+          return {
+            browser: entry.browser,
+            views: entry.views,
+            clicks,
+            clickThroughRate: rate,
+          }
+        })
+      : []
 
-  const referrerBreakdown = Array.from(referrerCounts.entries())
-    .map(([referrer, count]) => ({ referrer, views: count }))
-    .sort((a, b) => b.views - a.views)
+  const referrerBreakdown: ProductTrafficSummary["referrerBreakdown"] = includeAdvancedMetrics
+    ? Array.from(referrerCounts.entries())
+        .map(([referrer, count]) => ({ referrer, views: count }))
+        .sort((a, b) => b.views - a.views)
+    : []
 
-  const referrerConversionBreakdown = referrerBreakdown.map((entry) => {
-    const clicks = referrerClickCounts.get(entry.referrer) ?? 0
-    const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
-    return {
-      referrer: entry.referrer,
-      views: entry.views,
-      clicks,
-      clickThroughRate: rate,
-    }
-  })
+  const referrerConversionBreakdown: ProductTrafficSummary["referrerConversionBreakdown"] =
+    includeAdvancedMetrics
+      ? referrerBreakdown.map((entry) => {
+          const clicks = referrerClickCounts.get(entry.referrer) ?? 0
+          const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
+          return {
+            referrer: entry.referrer,
+            views: entry.views,
+            clicks,
+            clickThroughRate: rate,
+          }
+        })
+      : []
 
-  const pathBreakdown = Array.from(pathCounts.entries())
-    .map(([path, count]) => {
-      const previous = previousPathCounts.get(path) ?? 0
-      const change = calcGrowth(count, previous)
+  const pathBreakdown: ProductTrafficAdvancedInsights["pathBreakdown"] = includeAdvancedMetrics
+    ? Array.from(pathCounts.entries())
+        .map(([path, count]) => {
+          const previous = previousPathCounts.get(path) ?? 0
+          const change = calcGrowth(count, previous)
+          return {
+            path,
+            views: count,
+            previousViews: previous,
+            viewsChange: change,
+          }
+        })
+        .sort((a, b) => b.views - a.views)
+        .slice(0, MAX_PATH_BREAKDOWN)
+    : []
+
+  let osBreakdown: ProductTrafficAdvancedInsights["osBreakdown"] = []
+  let osConversionBreakdown: ProductTrafficSummary["osConversionBreakdown"] = []
+  if (includeAdvancedMetrics) {
+    osBreakdown = Array.from(osCounts.entries())
+      .map(([os, count]) => ({ os, views: count }))
+      .sort((a, b) => b.views - a.views)
+
+    osConversionBreakdown = osBreakdown.map((entry) => {
+      const key = entry.os || "Unknown"
+      const clicks = osClickCounts.get(key) ?? 0
+      const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
       return {
-        path,
-        views: count,
-        previousViews: previous,
-        viewsChange: change,
+        os: entry.os,
+        views: entry.views,
+        clicks,
+        clickThroughRate: rate,
       }
     })
-    .sort((a, b) => b.views - a.views)
-    .slice(0, MAX_PATH_BREAKDOWN)
+  }
 
-  const osBreakdown = Array.from(osCounts.entries())
-    .map(([os, count]) => ({ os, views: count }))
-    .sort((a, b) => b.views - a.views)
+  const regionBreakdown: ProductTrafficAdvancedInsights["regionBreakdown"] = includeAdvancedMetrics
+    ? Array.from(regionCounts.entries())
+        .map(([key, count]) => {
+          const [rawCountry, rawRegion] = key.split("::")
+          const country = rawCountry.length ? rawCountry : null
+          const region = labelForRegion(
+            country,
+            rawRegion.length ? rawRegion : null,
+          )
+          return { country, region, views: count }
+        })
+        .sort((a, b) => b.views - a.views)
+        .slice(0, MAX_REGION_ITEMS)
+    : []
 
-  const osConversionBreakdown = osBreakdown.map((entry) => {
-    const key = entry.os || "Unknown"
-    const clicks = osClickCounts.get(key) ?? 0
-    const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
-    return {
-      os: entry.os,
-      views: entry.views,
-      clicks,
-      clickThroughRate: rate,
-    }
-  })
+  const cityBreakdown: ProductTrafficAdvancedInsights["cityBreakdown"] = includeAdvancedMetrics
+    ? Array.from(cityCounts.entries())
+        .map(([key, count]) => {
+          const [rawCountry, rawRegion, rawCity] = key.split("::")
+          const country = rawCountry.length ? rawCountry : null
+          const region = rawRegion.length ? rawRegion : null
+          const city = labelForCity(
+            country,
+            region,
+            rawCity.length ? rawCity : null,
+          )
+          return { country, region, city, views: count }
+        })
+        .sort((a, b) => b.views - a.views)
+        .slice(0, MAX_CITY_ITEMS)
+    : []
 
-  const regionBreakdown = Array.from(regionCounts.entries())
-    .map(([key, count]) => {
-      const [rawCountry, rawRegion] = key.split("::")
-      const country = rawCountry.length ? rawCountry : null
-      const region = labelForRegion(
-        country,
-        rawRegion.length ? rawRegion : null,
-      )
-      return { country, region, views: count }
-    })
-    .sort((a, b) => b.views - a.views)
-    .slice(0, MAX_REGION_ITEMS)
-
-  const cityBreakdown = Array.from(cityCounts.entries())
-    .map(([key, count]) => {
-      const [rawCountry, rawRegion, rawCity] = key.split("::")
-      const country = rawCountry.length ? rawCountry : null
-      const region = rawRegion.length ? rawRegion : null
-      const city = labelForCity(
-        country,
-        region,
-        rawCity.length ? rawCity : null,
-      )
-      return { country, region, city, views: count }
-    })
-    .sort((a, b) => b.views - a.views)
-    .slice(0, MAX_CITY_ITEMS)
-
-  const referrerCategoryBreakdown = Array.from(referrerCategoryCounts.entries())
-    .map(([category, count]) => {
-      const labelMap: Record<ProductTrafficReferrerCategory, string> = {
-        direct: "Direct",
-        search: "Search",
-        social: "Social",
-        email: "Email",
-        other: "Other",
-      }
-      return {
-        category,
-        label: labelMap[category],
-        views: count,
-      }
-    })
-    .sort((a, b) => b.views - a.views)
+  const referrerCategoryBreakdown: ProductTrafficAdvancedInsights["referrerCategoryBreakdown"] =
+    includeAdvancedMetrics
+      ? Array.from(referrerCategoryCounts.entries())
+          .map(([category, count]) => {
+            const labelMap: Record<ProductTrafficReferrerCategory, string> = {
+              direct: "Direct",
+              search: "Search",
+              social: "Social",
+              email: "Email",
+              other: "Other",
+            }
+            return {
+              category,
+              label: labelMap[category],
+              views: count,
+            }
+          })
+          .sort((a, b) => b.views - a.views)
+      : []
 
   let returningVisitors = 0
-  if (uniqueHashes.size) {
+  if (includeAdvancedMetrics && uniqueHashes.size) {
     const returning = await prisma.productTrafficEvent.findMany({
       where: {
         ...where,
@@ -746,64 +801,74 @@ async function buildTrafficSummary(
 
   const hashedUnique = uniqueHashes.size
   const newVisitors = Math.max(hashedUnique - returningVisitors, 0)
-  const newVsReturning = {
-    newVisitors,
-    returningVisitors,
-    unknownVisitors: anonymousUnique,
-    returningRate: hashedUnique > 0 ? returningVisitors / hashedUnique : 0,
-  }
+  const newVsReturning: ProductTrafficAdvancedInsights["newVsReturning"] =
+    includeAdvancedMetrics
+      ? {
+          newVisitors,
+          returningVisitors,
+          unknownVisitors: anonymousUnique,
+          returningRate: hashedUnique > 0 ? returningVisitors / hashedUnique : 0,
+        }
+      : {
+          newVisitors: 0,
+          returningVisitors: 0,
+          unknownVisitors: 0,
+          returningRate: 0,
+        }
 
   const anomalies: ProductTrafficAnomaly[] = []
 
-  for (const entry of ipCountryCounts.values()) {
-    const share = totalViews > 0 ? entry.count / totalViews : 0
-    if (entry.count >= 10 && share >= 0.2) {
-      const countryLabel = labelForCountry(entry.country)
-      anomalies.push({
-        type: "ip-spike",
-        key: `${truncateHash(entry.ipHash)}@${countryLabel}`,
-        description: `IP hash ${truncateHash(entry.ipHash)} from ${countryLabel} generated ${entry.count} views (${Math.round(share * 100)}%).`,
-        metric: "views",
-        magnitude: entry.count,
-        share,
-      })
-    }
-  }
-
-  for (const path of pathBreakdown) {
-    const change = path.viewsChange
-    if (
-      (path.previousViews >= 10 && change >= 150) ||
-      (path.previousViews === 0 && path.views >= 20)
-    ) {
-      const share = totalViews > 0 ? path.views / totalViews : 0
-      anomalies.push({
-        type: "path-surge",
-        key: path.path,
-        description: `Path ${path.path} spiked to ${path.views} views in this window.`,
-        metric: "viewsChange",
-        magnitude: Number.isFinite(change) ? change : Number.POSITIVE_INFINITY,
-        share,
-      })
-    }
-  }
-
-  if (previousComparison && previousEvents.length) {
-    for (const [country, views] of countryCounts.entries()) {
-      if (country === "Unknown") continue
-      const prev = previousCountryCounts.get(country) ?? 0
-      const currentShare = totalViews > 0 ? views / totalViews : 0
-      const previousShare = previousViews > 0 ? prev / previousViews : 0
-      const shareDelta = (currentShare - previousShare) * 100
-      if (views >= 20 && shareDelta >= 30) {
+  if (includeAdvancedMetrics) {
+    for (const entry of ipCountryCounts.values()) {
+      const share = totalViews > 0 ? entry.count / totalViews : 0
+      if (entry.count >= 10 && share >= 0.2) {
+        const countryLabel = labelForCountry(entry.country)
         anomalies.push({
-          type: "geo-surge",
-          key: country,
-          description: `${country} now represents ${Math.round(currentShare * 100)}% of traffic (up ${shareDelta.toFixed(1)} pts).`,
-          metric: "shareDelta",
-          magnitude: shareDelta,
-          share: currentShare,
+          type: "ip-spike",
+          key: `${truncateHash(entry.ipHash)}@${countryLabel}`,
+          description: `IP hash ${truncateHash(entry.ipHash)} from ${countryLabel} generated ${entry.count} views (${Math.round(share * 100)}%).`,
+          metric: "views",
+          magnitude: entry.count,
+          share,
         })
+      }
+    }
+
+    for (const path of pathBreakdown) {
+      const change = path.viewsChange
+      if (
+        (path.previousViews >= 10 && change >= 150) ||
+        (path.previousViews === 0 && path.views >= 20)
+      ) {
+        const share = totalViews > 0 ? path.views / totalViews : 0
+        anomalies.push({
+          type: "path-surge",
+          key: path.path,
+          description: `Path ${path.path} spiked to ${path.views} views in this window.`,
+          metric: "viewsChange",
+          magnitude: Number.isFinite(change) ? change : Number.POSITIVE_INFINITY,
+          share,
+        })
+      }
+    }
+
+    if (previousComparison && previousEvents.length) {
+      for (const [country, views] of countryCounts.entries()) {
+        if (country === "Unknown") continue
+        const prev = previousCountryCounts.get(country) ?? 0
+        const currentShare = totalViews > 0 ? views / totalViews : 0
+        const previousShare = previousViews > 0 ? prev / previousViews : 0
+        const shareDelta = (currentShare - previousShare) * 100
+        if (views >= 20 && shareDelta >= 30) {
+          anomalies.push({
+            type: "geo-surge",
+            key: country,
+            description: `${country} now represents ${Math.round(currentShare * 100)}% of traffic (up ${shareDelta.toFixed(1)} pts).`,
+            metric: "shareDelta",
+            magnitude: shareDelta,
+            share: currentShare,
+          })
+        }
       }
     }
   }
@@ -814,7 +879,7 @@ async function buildTrafficSummary(
 
   const productLookupIds = new Set<string>()
 
-  if (context === "global") {
+  if (context === "global" && includeAdvancedMetrics) {
     const sortedProductEntries = Array.from(productCounts.entries()).sort(
       (a, b) => b[1] - a[1],
     )
@@ -903,18 +968,29 @@ async function buildTrafficSummary(
   const topCountry = countryBreakdown[0]
   const topReferrer = referrerBreakdown[0]
 
-  const advanced: ProductTrafficAdvancedInsights = {
-    uniqueVisitorsOverTime: viewsOverTime,
-    pathBreakdown,
-    osBreakdown,
-    regionBreakdown,
-    cityBreakdown,
-    referrerCategoryBreakdown,
-    newVsReturning,
-    anomalies,
-    topProducts,
-    referrerProductMatrix,
-  }
+  const advanced: ProductTrafficAdvancedInsights = includeAdvancedMetrics
+    ? {
+        uniqueVisitorsOverTime: viewsOverTime,
+        pathBreakdown,
+        osBreakdown,
+        regionBreakdown,
+        cityBreakdown,
+        referrerCategoryBreakdown,
+        newVsReturning,
+        anomalies,
+        topProducts,
+        referrerProductMatrix,
+      }
+    : {
+        uniqueVisitorsOverTime: [],
+        pathBreakdown: [],
+        osBreakdown: [],
+        regionBreakdown: [],
+        cityBreakdown: [],
+        referrerCategoryBreakdown: [],
+        newVsReturning,
+        anomalies: [],
+      }
 
   return {
     rangeDays: windowDays,

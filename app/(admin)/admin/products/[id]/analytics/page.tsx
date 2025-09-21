@@ -36,7 +36,10 @@ export default async function AdminProductAnalyticsPage({
     return notFound()
   }
 
-  const summary = await getProductTrafficSummary(product.id, { rangeDays })
+  const summary = await getProductTrafficSummary(product.id, {
+    rangeDays,
+    includeAdvanced: true,
+  })
   const publicPath = `/products/${product.slug}`
 
   return (
@@ -55,7 +58,7 @@ export default async function AdminProductAnalyticsPage({
       publicHref={publicPath}
       headingId={product.id}
       headingSlug={product.slug}
-      hasAdvancedAnalytics={true}
+      accessLevel="advanced"
     />
   )
 }

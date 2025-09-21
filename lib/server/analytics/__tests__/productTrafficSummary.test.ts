@@ -2,12 +2,24 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
 
 const prismaMocks = vi.hoisted(() => ({
   findMany: vi.fn(),
+  clickFindMany: vi.fn(),
+  upvoteFindMany: vi.fn(),
+  clickCount: vi.fn(),
+  upvoteCount: vi.fn(),
 }))
 
 vi.mock("@/lib/prisma", () => ({
   default: {
     productTrafficEvent: {
       findMany: prismaMocks.findMany,
+    },
+    productClickEvent: {
+      findMany: prismaMocks.clickFindMany,
+      count: prismaMocks.clickCount,
+    },
+    productUpvote: {
+      findMany: prismaMocks.upvoteFindMany,
+      count: prismaMocks.upvoteCount,
     },
   },
 }))
@@ -21,6 +33,10 @@ describe("getProductTrafficSummary", () => {
     vi.useFakeTimers()
     vi.setSystemTime(fixedNow)
     prismaMocks.findMany.mockReset()
+    prismaMocks.clickFindMany.mockReset()
+    prismaMocks.upvoteFindMany.mockReset()
+    prismaMocks.clickCount.mockReset()
+    prismaMocks.upvoteCount.mockReset()
   })
 
   afterEach(() => {
@@ -82,6 +98,23 @@ describe("getProductTrafficSummary", () => {
       ])
       .mockResolvedValueOnce([{ ipHash: "hash-1" }])
 
+    prismaMocks.clickFindMany.mockResolvedValueOnce([
+      {
+        createdAt: new Date("2025-01-10T08:05:00Z"),
+        device: "desktop",
+        browser: "Chrome",
+        os: "macOS",
+        referrer: "https://example.com/path",
+      },
+    ])
+    prismaMocks.upvoteFindMany.mockResolvedValueOnce([
+      {
+        createdAt: new Date("2025-01-09T14:30:00Z"),
+      },
+    ])
+    prismaMocks.clickCount.mockResolvedValueOnce(1)
+    prismaMocks.upvoteCount.mockResolvedValueOnce(0)
+
     const summary = await getProductTrafficSummary("prod-1", { rangeDays: 3 })
 
     expect(summary.totalViews).toEqual(3)
@@ -120,6 +153,50 @@ describe("getProductTrafficSummary", () => {
     expect(summary.advanced.osBreakdown[0]).toMatchObject({
       os: "iOS",
       views: 2,
+    })
+  })
+
+  it("omits advanced metrics when includeAdvanced is false", async () => {
+    prismaMocks.findMany
+      .mockResolvedValueOnce([
+        {
+          createdAt: new Date("2025-01-10T08:00:00Z"),
+          device: "desktop",
+          browser: "Chrome",
+          os: "macOS",
+          country: "United States",
+          region: "California",
+          city: "San Francisco",
+          referrer: "https://example.com/path",
+          ipHash: "hash-1",
+          path: "/products/example",
+          productId: "prod-1",
+        },
+      ])
+      .mockResolvedValueOnce([])
+
+    const summary = await getProductTrafficSummary("prod-1", {
+      rangeDays: 2,
+      includeAdvanced: false,
+    })
+
+    expect(prismaMocks.findMany).toHaveBeenCalledTimes(2)
+    expect(prismaMocks.clickFindMany).not.toHaveBeenCalled()
+    expect(prismaMocks.upvoteFindMany).not.toHaveBeenCalled()
+    expect(prismaMocks.clickCount).not.toHaveBeenCalled()
+    expect(prismaMocks.upvoteCount).not.toHaveBeenCalled()
+
+    expect(summary.totalViews).toEqual(1)
+    expect(summary.deviceBreakdown).toEqual([])
+    expect(summary.countryBreakdown).toEqual([])
+    expect(summary.referrerBreakdown).toEqual([])
+    expect(summary.advanced.uniqueVisitorsOverTime).toEqual([])
+    expect(summary.advanced.pathBreakdown).toEqual([])
+    expect(summary.advanced.newVsReturning).toEqual({
+      newVisitors: 0,
+      returningVisitors: 0,
+      unknownVisitors: 0,
+      returningRate: 0,
     })
   })
 })
