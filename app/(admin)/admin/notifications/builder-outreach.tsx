@@ -39,13 +39,12 @@ import {
 import { parseEmailList } from "@/lib/email/list-parser"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
 
-const builderOutreachFormSchema = z
-  .object({
-    emails: z
-      .string()
-      .min(1, "Enter at least one email address")
-      .max(5000, "Shorten the list to 5,000 characters or fewer"),
-  })
+const builderOutreachFormSchema = z.object({
+  emails: z
+    .string()
+    .min(1, "Enter at least one email address")
+    .max(5000, "Shorten the list to 5,000 characters or fewer"),
+})
 
 type BuilderOutreachFormValues = z.infer<typeof builderOutreachFormSchema>
 
@@ -180,8 +179,8 @@ export default function BuilderOutreachCenter() {
             <CardHeader>
               <CardTitle>Send invites</CardTitle>
               <CardDescription>
-                Paste email addresses—one per line or separated by commas. We will
-                dedupe the list and send the outreach template for you.
+                Paste email addresses—one per line or separated by commas. We
+                will dedupe the list and send the outreach template for you.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -200,8 +199,8 @@ export default function BuilderOutreachCenter() {
                       className="cursor-not-allowed border-slate-200 bg-slate-50 text-slate-600"
                     />
                     <p className="text-xs text-muted-foreground">
-                      The builder outreach template ships with this fixed subject
-                      line.
+                      The builder outreach template ships with this fixed
+                      subject line.
                     </p>
                   </div>
 
@@ -220,18 +219,19 @@ export default function BuilderOutreachCenter() {
                           />
                         </FormControl>
                         <p className="text-xs text-muted-foreground">
-                          Add one or more emails. Separate them with commas or new
-                          lines; we handle formatting and duplicates.
+                          Add one or more emails. Separate them with commas or
+                          new lines; we handle formatting and duplicates.
                         </p>
                         <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
                           <Badge variant="secondary">
                             {parsedEmails.valid.length} recipient
-                            {parsedEmails.valid.length === 1 ? "" : "s"} detected
+                            {parsedEmails.valid.length === 1 ? "" : "s"}{" "}
+                            detected
                           </Badge>
                           {parsedEmails.invalid.length > 0 ? (
                             <span className="text-amber-600">
-                              {parsedEmails.invalid.length} will be skipped unless
-                              corrected.
+                              {parsedEmails.invalid.length} will be skipped
+                              unless corrected.
                             </span>
                           ) : null}
                         </div>
@@ -287,7 +287,9 @@ export default function BuilderOutreachCenter() {
             {combinedInvalidEmails.length > 0 ? (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
                 <p className="font-semibold">These addresses were skipped</p>
-                <p className="break-words">{combinedInvalidEmails.join(", ")}</p>
+                <p className="break-words">
+                  {combinedInvalidEmails.join(", ")}
+                </p>
               </div>
             ) : null}
 

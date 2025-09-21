@@ -6,9 +6,7 @@ function sanitizeToken(token: string): string {
   const trimmed = token.trim()
   if (!trimmed) return ""
 
-  const cleaned = trimmed
-    .replace(/^["'<(`\[]+/, "")
-    .replace(/["'>)\]]+$/, "")
+  const cleaned = trimmed.replace(/^["'<(`\[]+/, "").replace(/["'>)\]]+$/, "")
 
   if (cleaned.includes("<") || cleaned.includes(">")) {
     const match = cleaned.match(EMAIL_EXTRACT_REGEX)

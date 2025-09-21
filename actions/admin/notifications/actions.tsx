@@ -498,10 +498,7 @@ export async function sendBuilderOutreachEmailsAction(
       })
       sent += 1
     } catch (error: any) {
-      console.error(
-        `Failed to send builder outreach email to ${email}`,
-        error,
-      )
+      console.error(`Failed to send builder outreach email to ${email}`, error)
       failed.push({
         email,
         error: error?.message ?? "Unknown error",

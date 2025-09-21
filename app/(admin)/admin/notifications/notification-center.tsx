@@ -89,7 +89,6 @@ type NotificationCenterProps = {
   users: NotificationUser[]
 }
 
-
 export default function NotificationCenter({
   segmentCounts,
   users,

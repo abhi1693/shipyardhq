@@ -11,12 +11,13 @@ import { buildQuery } from "@/lib/urlParams"
 import { FeedbackStatus } from "@/lib/vendor/prisma/client"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
-const STATUS_OPTIONS: Array<{ label: string; value: FeedbackStatus | "all" }> = [
-  { label: "All statuses", value: "all" },
-  { label: "Received", value: "received" },
-  { label: "In review", value: "in_review" },
-  { label: "Closed", value: "closed" },
-]
+const STATUS_OPTIONS: Array<{ label: string; value: FeedbackStatus | "all" }> =
+  [
+    { label: "All statuses", value: "all" },
+    { label: "Received", value: "received" },
+    { label: "In review", value: "in_review" },
+    { label: "Closed", value: "closed" },
+  ]
 
 export default function StatusFilter({
   status,

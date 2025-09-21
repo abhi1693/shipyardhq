@@ -46,10 +46,9 @@ function coerceNumber(
   return boundedMax
 }
 
-function parseStatus(value: string | string[] | undefined):
-  | FeedbackStatus
-  | "all"
-  | undefined {
+function parseStatus(
+  value: string | string[] | undefined,
+): FeedbackStatus | "all" | undefined {
   const raw = Array.isArray(value) ? value[0] : value
   if (!raw) return "all"
   return VALID_STATUSES.includes(raw as any)

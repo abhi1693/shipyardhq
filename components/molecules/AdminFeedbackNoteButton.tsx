@@ -95,7 +95,8 @@ export default function AdminFeedbackNoteButton({
           <DialogHeader>
             <DialogTitle>Admin note</DialogTitle>
             <DialogDescription>
-              Share context the member can see alongside their original feedback.
+              Share context the member can see alongside their original
+              feedback.
             </DialogDescription>
           </DialogHeader>
           <Textarea
@@ -120,11 +121,7 @@ export default function AdminFeedbackNoteButton({
             >
               Cancel
             </Button>
-            <Button
-              type="button"
-              onClick={handleSave}
-              disabled={isPending}
-            >
+            <Button type="button" onClick={handleSave} disabled={isPending}>
               {isPending ? "Saving…" : "Save note"}
             </Button>
           </DialogFooter>

@@ -6,9 +6,12 @@ export const memberFeedbackSchema = z.object({
     .trim()
     .max(120, { message: "Subject cannot exceed 120 characters" })
     .optional()
-    .refine((value) => value == null || value.length === 0 || value.length >= 3, {
-      message: "Subject must be at least 3 characters",
-    }),
+    .refine(
+      (value) => value == null || value.length === 0 || value.length >= 3,
+      {
+        message: "Subject must be at least 3 characters",
+      },
+    ),
   message: z
     .string()
     .trim()

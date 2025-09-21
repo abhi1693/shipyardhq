@@ -2,10 +2,12 @@ import type { CSSProperties } from "react"
 
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 
-export const BUILDER_OUTREACH_SUBJECT = "Showcase your next launch on Shipyard HQ"
+export const BUILDER_OUTREACH_SUBJECT =
+  "Showcase your next launch on Shipyard HQ"
 export const BUILDER_OUTREACH_PREVIEW_TEXT =
   "List your product, tell the story, and grow with fellow indie builders."
-export const BUILDER_OUTREACH_CTA_URL = "https://shipyardhq.dev/member/products/add"
+export const BUILDER_OUTREACH_CTA_URL =
+  "https://shipyardhq.dev/member/products/add"
 
 const paragraphStyle: CSSProperties = {
   fontSize: "15px",
@@ -62,7 +64,10 @@ export function BuilderOutreachEmail({
       </p>
       <ul style={listStyle}>
         <li>Publish instantly with screenshots, story, and tech stack tags.</li>
-        <li>Share product updates and changelog notes anytime without an approval queue.</li>
+        <li>
+          Share product updates and changelog notes anytime without an approval
+          queue.
+        </li>
         <li>
           Reach a curated community of makers hunting for the next wave of
           products.
@@ -73,8 +78,8 @@ export function BuilderOutreachEmail({
         work we admire. Listing is free and only takes a couple of minutes.
       </p>
       <p style={paragraphStyle}>
-        Have questions or want a second set of eyes on your launch copy? Email me
-        at{" "}
+        Have questions or want a second set of eyes on your launch copy? Email
+        me at{" "}
         <a
           href="mailto:shipyardhq.dev@gmail.com"
           style={{ color: "#2563eb", textDecoration: "none" }}
