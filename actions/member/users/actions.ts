@@ -44,7 +44,7 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
 
 export async function getUserByClerkId(clerkId: string) {
   if (!clerkId) {
-    throw new Error("Clerk ID is required but missing.")
+    return null
   }
 
   const user = await prisma.user.findUnique({
@@ -52,9 +52,27 @@ export async function getUserByClerkId(clerkId: string) {
     select: { id: true, status: true },
   })
 
-  if (!user || user.status !== "active") {
-    throw new Error(`User with Clerk ID ${clerkId} not active or not found.`)
+  if (user?.status === "active") {
+    return { id: user.id }
   }
 
-  return { id: user.id }
+  try {
+    const client = await clerkClient()
+    const clerkUser = await client.users.getUser(clerkId)
+    await syncUserFromClerk(clerkUser)
+  } catch (error) {
+    console.error("Failed to sync user from Clerk:", error)
+    return null
+  }
+
+  const refreshedUser = await prisma.user.findUnique({
+    where: { clerkId },
+    select: { id: true, status: true },
+  })
+
+  if (!refreshedUser || refreshedUser.status !== "active") {
+    return null
+  }
+
+  return { id: refreshedUser.id }
 }
