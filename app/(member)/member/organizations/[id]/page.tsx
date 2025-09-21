@@ -22,6 +22,7 @@ import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { MemberOrganizationMembersRelationship } from "./relationships/members"
 import { ensureUrlHasSchema } from "@/lib/utils"
+import { organizationHasAdvancedAnalytics } from "@/lib/server/analytics/organizationAccess"
 import {
   Globe,
   Users,
@@ -30,6 +31,7 @@ import {
   Pencil,
   ShieldCheck,
   Link2,
+  BarChart3,
 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
@@ -60,11 +62,13 @@ export default async function MemberOrganizationPage({
       isOwner = org.ownerUserId === me.id
     }
   }
-  const [members, organizationProducts, availableProducts] = await Promise.all([
-    getMyOrganizationMembers(id),
-    getMyOrganizationProducts(id),
-    getMyAvailableProductsForOrganization(id),
-  ])
+  const [members, organizationProducts, availableProducts, hasAdvancedAnalytics] =
+    await Promise.all([
+      getMyOrganizationMembers(id),
+      getMyOrganizationProducts(id),
+      getMyAvailableProductsForOrganization(id),
+      organizationHasAdvancedAnalytics(org.id),
+    ])
 
   const organizationUrl = ensureUrlHasSchema(org.url)
   const domainDisplay = getDisplayUrl(organizationUrl)
@@ -166,6 +170,13 @@ export default async function MemberOrganizationPage({
           </div>
 
           <div className="flex flex-wrap items-center gap-3 pt-2 md:justify-end">
+            {hasAdvancedAnalytics ? (
+              <Button asChild size="sm">
+                <Link href={`/member/organizations/${org.id}/analytics`}>
+                  <BarChart3 className="h-4 w-4" /> Analytics
+                </Link>
+              </Button>
+            ) : null}
             <Button asChild size="sm" variant="outline">
               <Link
                 href={organizationUrl}

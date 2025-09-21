@@ -33,10 +33,12 @@ type UpvoteEventSelection = Prisma.ProductUpvoteGetPayload<{
 interface SummaryOptions {
   rangeDays?: number
   previousComparison?: boolean
-  context?: "product" | "global"
+  context?: "product" | "global" | "organization"
   includeProductBreakdown?: boolean
   includeReferrerMatrix?: boolean
   includeAdvanced?: boolean
+  productIds?: string[]
+  organizationId?: string
 }
 
 const DEVICE_ORDER: DeviceCategory[] = [
@@ -212,15 +214,19 @@ async function buildTrafficSummary(
     includeProductBreakdown: includeProductBreakdownOption,
     includeReferrerMatrix: includeReferrerMatrixOption,
     includeAdvanced = true,
+    productIds: explicitProductIds,
+    organizationId,
   } = options
 
   const includeAdvancedMetrics = includeAdvanced
+  const autoIncludeBreakdown =
+    context === "global" || context === "organization"
   const includeProductBreakdown =
     includeAdvancedMetrics &&
-    (includeProductBreakdownOption ?? context === "global")
+    (includeProductBreakdownOption ?? autoIncludeBreakdown)
   const includeReferrerMatrix =
     includeAdvancedMetrics &&
-    (includeReferrerMatrixOption ?? context === "global")
+    (includeReferrerMatrixOption ?? autoIncludeBreakdown)
 
   const today = startOfDay(new Date())
   const windowDays = Math.max(rangeDays, 1)
@@ -229,10 +235,29 @@ async function buildTrafficSummary(
   const previousEnd = subDays(rangeStart, 1)
 
   const productId = extractProductId(where)
-  const contextTag = context === "global" ? "traffic_global" : "traffic_product"
-  const baseTags = productId
-    ? trafficTags(TAGS.analytics, contextTag, TAGS.product(productId))
-    : trafficTags(TAGS.analytics, contextTag)
+  const targetProductIds = explicitProductIds?.length
+    ? Array.from(new Set(explicitProductIds))
+    : productId
+      ? [productId]
+      : undefined
+  const contextTag =
+    context === "global"
+      ? "traffic_global"
+      : context === "organization"
+        ? "traffic_organization"
+        : "traffic_product"
+  const tagSeeds: string[] = [TAGS.analytics, contextTag]
+  if (productId) {
+    tagSeeds.push(TAGS.product(productId))
+  } else if (context === "organization" && organizationId) {
+    tagSeeds.push(`organization:${organizationId}`)
+  }
+  if (targetProductIds?.length) {
+    for (const id of targetProductIds.slice(0, 2)) {
+      tagSeeds.push(TAGS.product(id))
+    }
+  }
+  const baseTags = trafficTags(...tagSeeds)
 
   const [events, previousEvents] = await Promise.all([
     prisma.productTrafficEvent.findMany({
@@ -409,7 +434,11 @@ async function buildTrafficSummary(
       viewsSevenDays += 1
     }
 
-    if (includeAdvancedMetrics && context === "global" && event.productId) {
+    if (
+      includeAdvancedMetrics &&
+      (context === "global" || context === "organization") &&
+      event.productId
+    ) {
       productCounts.set(
         event.productId,
         (productCounts.get(event.productId) ?? 0) + 1,
@@ -464,15 +493,19 @@ async function buildTrafficSummary(
   let previousClickCount = 0
   let previousUpvoteCount = 0
 
-  if (productId && includeAdvancedMetrics) {
+  if (includeAdvancedMetrics && targetProductIds?.length) {
     const rangeEnd = addDays(today, 1)
     const previousRangeStart = previousStart
     const previousRangeEnd = rangeStart
+    const productFilter =
+      targetProductIds.length === 1
+        ? targetProductIds[0]
+        : ({ in: targetProductIds } as Prisma.StringFilter)
     ;[clickEvents, upvoteEvents, previousClickCount, previousUpvoteCount] =
       await Promise.all([
         prisma.productClickEvent.findMany({
           where: {
-            productId,
+            productId: productFilter,
             createdAt: {
               gte: rangeStart,
               lt: rangeEnd,
@@ -492,7 +525,7 @@ async function buildTrafficSummary(
         }),
         prisma.productUpvote.findMany({
           where: {
-            productId,
+            productId: productFilter,
             createdAt: {
               gte: rangeStart,
               lt: rangeEnd,
@@ -507,7 +540,7 @@ async function buildTrafficSummary(
         previousComparison
           ? prisma.productClickEvent.count({
               where: {
-                productId,
+                productId: productFilter,
                 createdAt: {
                   gte: previousRangeStart,
                   lt: previousRangeEnd,
@@ -518,7 +551,7 @@ async function buildTrafficSummary(
         previousComparison
           ? prisma.productUpvote.count({
               where: {
-                productId,
+                productId: productFilter,
                 createdAt: {
                   gte: previousRangeStart,
                   lt: previousRangeEnd,
@@ -891,7 +924,10 @@ async function buildTrafficSummary(
 
   const productLookupIds = new Set<string>()
 
-  if (context === "global" && includeAdvancedMetrics) {
+  if (
+    (context === "global" || context === "organization") &&
+    includeAdvancedMetrics
+  ) {
     const sortedProductEntries = Array.from(productCounts.entries()).sort(
       (a, b) => b[1] - a[1],
     )
@@ -951,7 +987,7 @@ async function buildTrafficSummary(
       select: { id: true, name: true },
       cacheStrategy: {
         ...trafficCache,
-        tags: trafficTags(TAGS.products, TAGS.analytics, "traffic_global"),
+        tags: trafficTags(TAGS.products, TAGS.analytics, contextTag),
       },
     })) as ProductIdName[]
     productNameMap = new Map(
@@ -1050,6 +1086,38 @@ export async function getProductTrafficSummary(
   options: SummaryOptions = {},
 ): Promise<ProductTrafficSummary> {
   return buildTrafficSummary({ productId }, { context: "product", ...options })
+}
+
+export async function getOrganizationTrafficSummary(
+  organizationId: string,
+  options: SummaryOptions = {},
+): Promise<ProductTrafficSummary> {
+  const { productIds: explicitProductIds, ...restOptions } = options
+  let productIds = explicitProductIds
+
+  if (!productIds) {
+    const rows = await prisma.product.findMany({
+      where: { organizationId },
+      select: { id: true },
+    })
+    productIds = rows.map((row) => row.id)
+  }
+
+  const includeProductBreakdown =
+    restOptions.includeProductBreakdown ?? true
+  const includeReferrerMatrix = restOptions.includeReferrerMatrix ?? true
+
+  return buildTrafficSummary(
+    { product: { organizationId } },
+    {
+      ...restOptions,
+      context: "organization",
+      organizationId,
+      includeProductBreakdown,
+      includeReferrerMatrix,
+      productIds,
+    },
+  )
 }
 
 export async function getGlobalTrafficSummary(

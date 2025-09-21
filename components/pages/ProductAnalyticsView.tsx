@@ -441,10 +441,12 @@ export interface ProductAnalyticsViewProps {
   summary: ProductTrafficSummary
   basePath: string
   backHref: string
-  publicHref: string
+  publicHref?: string
   headingId: string
   headingSlug: string
   accessLevel: "basic" | "advanced"
+  backLabel?: string
+  publicLabel?: string
 }
 
 export function ProductAnalyticsView({
@@ -456,10 +458,14 @@ export function ProductAnalyticsView({
   headingId,
   headingSlug,
   accessLevel,
+  backLabel,
+  publicLabel,
 }: ProductAnalyticsViewProps) {
   const rangeLabel = `Last ${summary.rangeDays} days`
   const isAdvanced = accessLevel === "advanced"
   const advanced = summary.advanced
+  const resolvedBackLabel = backLabel ?? "Back to product"
+  const resolvedPublicLabel = publicLabel ?? "View public page"
 
   const countryItems = summary.countryBreakdown.slice(0, 6).map((item) => ({
     label: formatCountryName(item.country),
@@ -532,14 +538,26 @@ export function ProductAnalyticsView({
           <div className={actionGroupClass}>
             <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
               <Link href={backHref}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back to product
+                <ArrowLeft className="mr-2 h-4 w-4" /> {resolvedBackLabel}
               </Link>
             </Button>
-            <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
-              <Link href={publicHref} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" /> View public page
-              </Link>
-            </Button>
+            {publicHref ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-3"
+                asChild
+              >
+                <Link
+                  href={publicHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  {resolvedPublicLabel}
+                </Link>
+              </Button>
+            ) : null}
           </div>
         </div>
       }

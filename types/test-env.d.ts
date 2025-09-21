@@ -1,6 +1,6 @@
-/// <reference types="vitest" />
-/// <reference types="@testing-library/jest-dom/vitest" />
-/// <reference types="jest" />
+import "vitest"
+import "@testing-library/jest-dom/vitest"
+import "jest"
 
 import type { expect as vitestExpect, vi as vitestVi } from "vitest"
 import type { TestingLibraryMatchers } from "@testing-library/jest-dom/matchers"
