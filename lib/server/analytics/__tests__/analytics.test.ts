@@ -33,6 +33,9 @@ describe("analytics listeners", () => {
 
   it("increments clicks on product.clicked", async () => {
     await publish("product.clicked", { productId: "p1" })
+    expect(prisma.productClickEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ productId: "p1", device: "unknown" }),
+    })
     expect(prisma.productAnalytics.upsert).toHaveBeenCalledWith({
       where: { productId: "p1" },
       update: { clicks: { increment: 1 } },
@@ -43,8 +46,20 @@ describe("analytics listeners", () => {
 
   it("helper trackProductClicked publishes event", async () => {
     ;(prisma.productAnalytics.upsert as any).mockClear()
-    await trackProductClicked("p1")
+    await trackProductClicked("p1", {
+      device: "mobile",
+      referrer: "https://example.com",
+      browser: "Safari",
+    })
     expect(prisma.productAnalytics.upsert).toHaveBeenCalled()
+    expect(prisma.productClickEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        productId: "p1",
+        device: "mobile",
+        referrer: "https://example.com",
+        browser: "Safari",
+      }),
+    })
   })
 
   it("increments and decrements upvotes on (down)vote", async () => {

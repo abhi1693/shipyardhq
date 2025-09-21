@@ -279,6 +279,61 @@ function BreakdownCard({
   )
 }
 
+type ConversionEntry = {
+  label: string
+  views: number
+  clicks: number
+  rate: number
+}
+
+function ConversionCard({
+  title,
+  subtitle,
+  items,
+  empty,
+}: {
+  title: string
+  subtitle: string
+  items: ConversionEntry[]
+  empty: string
+}) {
+  const formatter = new Intl.NumberFormat("en-US")
+
+  return (
+    <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">
+      <CardHeader className="px-4 pb-0">
+        <CardTitle className="text-base text-slate-900">{title}</CardTitle>
+        <CardDescription className="text-xs text-muted-foreground">
+          {subtitle}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="px-4 pb-5 pt-4">
+        {items.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-4 text-xs text-muted-foreground">
+            {empty}
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {items.map((item) => (
+              <li key={item.label} className="flex items-start justify-between gap-3 text-sm">
+                <div>
+                  <div className="font-medium text-slate-900">{item.label}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {formatter.format(item.views)} views · {formatter.format(item.clicks)} clicks
+                  </div>
+                </div>
+                <div className="shrink-0 text-xs font-semibold text-slate-700">
+                  {Number.isFinite(item.rate) ? `${item.rate.toFixed(1)}% CTR` : "—"}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 function VisitorLoyaltyCard({
   data,
 }: {
@@ -418,6 +473,36 @@ export function ProductAnalyticsView({
   const trafficCategoryItems = advanced.referrerCategoryBreakdown
     .map((item) => ({ label: item.label, views: item.views }))
     .slice(0, 5)
+  const referrerConversionItems: ConversionEntry[] = summary.referrerConversionBreakdown
+    .filter((item) => (item.views ?? 0) > 0 || (item.clicks ?? 0) > 0)
+    .slice(0, 6)
+    .map((item) => ({
+      label: item.referrer || "Direct",
+      views: item.views,
+      clicks: item.clicks,
+      rate: item.clickThroughRate,
+    }))
+  const deviceConversionItems: ConversionEntry[] = summary.deviceConversionBreakdown
+    .filter((item) => item.views > 0 || item.clicks > 0)
+    .map((item) => ({
+      label: item.label,
+      views: item.views,
+      clicks: item.clicks,
+      rate: item.clickThroughRate,
+    }))
+  const browserConversionItems: ConversionEntry[] = summary.browserConversionBreakdown
+    .filter((item) => item.views > 0 || item.clicks > 0)
+    .slice(0, 6)
+    .map((item) => ({
+      label: item.browser || "Unknown",
+      views: item.views,
+      clicks: item.clicks,
+      rate: item.clickThroughRate,
+    }))
+  const hasConversionInsights =
+    referrerConversionItems.length > 0 ||
+    deviceConversionItems.length > 0 ||
+    browserConversionItems.length > 0
 
   return (
     <ObjectPageLayout
@@ -527,6 +612,35 @@ export function ProductAnalyticsView({
                   />
                 </div>
               </section>
+              {hasConversionInsights ? (
+                <section className="space-y-4">
+                  <div>
+                    <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                      Conversion insights
+                    </span>
+                  </div>
+                  <div className="grid gap-4 lg:grid-cols-3">
+                    <ConversionCard
+                      title="Top referrers"
+                      subtitle="CTA clicks by source"
+                      items={referrerConversionItems}
+                      empty="Clicks will appear here once visitors engage."
+                    />
+                    <ConversionCard
+                      title="Devices"
+                      subtitle="Click-through by device"
+                      items={deviceConversionItems}
+                      empty="We need more traffic to compute device-level engagement."
+                    />
+                    <ConversionCard
+                      title="Browsers"
+                      subtitle="Click-through by browser"
+                      items={browserConversionItems}
+                      empty="Browser insights will populate with additional clicks."
+                    />
+                  </div>
+                </section>
+              ) : null}
             </>
           ) : (
             <Card className="rounded-2xl border border-slate-200 bg-white/95 shadow-sm">

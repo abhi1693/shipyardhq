@@ -1,12 +1,27 @@
 // Simple in-memory event bus with typed events
 // Scales to more events and listeners as needed
 
-import type { ProductTrafficPayload } from "@/types/analytics"
+import type { DeviceCategory, ProductTrafficPayload } from "@/types/analytics"
+
+export type ProductClickMetadata = {
+  referrer?: string | null
+  userAgent?: string | null
+  device?: DeviceCategory | null
+  browser?: string | null
+  os?: string | null
+  country?: string | null
+  region?: string | null
+  city?: string | null
+  ipHash?: string | null
+}
 
 export type ProductCreatedEvent = { productId: string }
 export type ProductUpdatedEvent = { productId: string }
 export type ProductDeletedEvent = { productId: string }
-export type ProductClickedEvent = { productId: string }
+export type ProductClickedEvent = {
+  productId: string
+  metadata?: ProductClickMetadata
+}
 export type BadgeAssignedEvent = {
   id: string
   productId: string

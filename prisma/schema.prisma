@@ -149,6 +149,15 @@ model ProductAnalytics {
 model ProductClickEvent {
   id        String   @id @default(cuid())
   productId String
+  referrer  String?
+  userAgent String?
+  device    DeviceCategory @default(unknown)
+  browser   String?
+  os        String?
+  country   String?
+  region    String?
+  city      String?
+  ipHash    String?
   createdAt DateTime @default(now())
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)

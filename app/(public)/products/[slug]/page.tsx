@@ -163,7 +163,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const hasCustomCtaFeature = hasPlanFeature(product.plan, "customCTA")
 
   const heroStats: { label: string; value: string }[] = [
-    { label: "Upvotes logged", value: upvoteCount.toLocaleString() },
     { label: "Clicks recorded", value: clickCount.toLocaleString() },
   ]
   if (pricingDisplay) {
@@ -190,7 +189,31 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const primaryUseCaseSlug = primaryUseCase?.slug || null
   const primaryUseCaseLabel = primaryUseCase?.label || null
 
+  const ctaLabel = product.ctaLabel?.trim() || ""
+  const ctaUrl = product.ctaUrl?.trim() || ""
+  const hasCtaContent = Boolean(ctaLabel || ctaUrl)
+  const showProminentCta = hasCustomCtaFeature && hasCtaContent
+  const normalizedCtaHref = ctaUrl
+    ? hasBacklinkFeature
+      ? withUtm(ctaUrl, "cta")
+      : ctaUrl
+    : null
   const primaryLinks: JSX.Element[] = []
+  if (showProminentCta && normalizedCtaHref) {
+    primaryLinks.push(
+      <ExternalBadgeLink
+        key="cta-primary"
+        href={normalizedCtaHref}
+        productId={hasBacklinkFeature ? undefined : product.id}
+        follow={hasBacklinkFeature}
+        target={hasBacklinkFeature ? "_blank" : undefined}
+        rel={hasBacklinkFeature ? "noopener" : undefined}
+        className="inline-flex h-11 items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.45] bg-[color:var(--brand-2)] px-5 py-2 text-sm font-semibold text-white shadow-[0px_20px_45px_-30px_rgba(7,78,134,0.55)] transition-colors hover:border-[color:var(--brand-2)/0.6] hover:bg-[color:var(--brand-2)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--brand-2)/0.5]"
+      >
+        {ctaLabel || `Get started with ${product.name}`}
+      </ExternalBadgeLink>,
+    )
+  }
   if (product.websiteUrl) {
     primaryLinks.push(
       <ExternalBadgeLink
@@ -209,23 +232,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         <span className="flex items-center gap-1">
           <ExternalLink size={14} /> Visit website
         </span>
-      </ExternalBadgeLink>,
-    )
-  }
-  if (product.ctaUrl && hasCustomCtaFeature) {
-    primaryLinks.push(
-      <ExternalBadgeLink
-        key="cta"
-        href={
-          hasBacklinkFeature ? withUtm(product.ctaUrl, "cta") : product.ctaUrl
-        }
-        productId={hasBacklinkFeature ? undefined : product.id}
-        follow={hasBacklinkFeature}
-        target={hasBacklinkFeature ? "_blank" : undefined}
-        rel={hasBacklinkFeature ? "noopener" : undefined}
-        className="inline-flex h-11 items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-[color:var(--brand-2)/0.15] px-5 py-2 text-sm font-semibold text-[color:var(--brand-2)] shadow-[0px_20px_45px_-30px_rgba(7,78,134,0.45)]"
-      >
-        {product.ctaLabel || "Get started"}
       </ExternalBadgeLink>,
     )
   }

@@ -48,6 +48,35 @@ export interface ProductTrafficBrowserBreakdownItem
   browser: string
 }
 
+export interface ProductTrafficDeviceConversionItem {
+  device: DeviceCategory
+  label: string
+  views: number
+  clicks: number
+  clickThroughRate: number
+}
+
+export interface ProductTrafficBrowserConversionItem {
+  browser: string
+  views: number
+  clicks: number
+  clickThroughRate: number
+}
+
+export interface ProductTrafficOsConversionItem {
+  os: string
+  views: number
+  clicks: number
+  clickThroughRate: number
+}
+
+export interface ProductTrafficReferrerConversionItem {
+  referrer: string
+  views: number
+  clicks: number
+  clickThroughRate: number
+}
+
 export interface ProductTrafficReferrerBreakdownItem
   extends ProductTrafficBreakdownItem {
   referrer: string
@@ -166,9 +195,13 @@ export interface ProductTrafficSummary {
   topReferrer?: { referrer: string; views: number }
   viewsOverTime: ProductTrafficSummaryPoint[]
   deviceBreakdown: ProductTrafficDeviceBreakdownItem[]
+  deviceConversionBreakdown: ProductTrafficDeviceConversionItem[]
   countryBreakdown: ProductTrafficCountryBreakdownItem[]
   browserBreakdown: ProductTrafficBrowserBreakdownItem[]
+  browserConversionBreakdown: ProductTrafficBrowserConversionItem[]
   referrerBreakdown: ProductTrafficReferrerBreakdownItem[]
+  referrerConversionBreakdown: ProductTrafficReferrerConversionItem[]
+  osConversionBreakdown: ProductTrafficOsConversionItem[]
   engagementOverTime: ProductEngagementSummaryPoint[]
   advanced: ProductTrafficAdvancedInsights
 }

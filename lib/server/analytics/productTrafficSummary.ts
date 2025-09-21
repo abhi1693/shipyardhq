@@ -16,6 +16,20 @@ type ProductIdName = Prisma.ProductGetPayload<{
   select: { id: true; name: true }
 }>
 
+type ClickEventSelection = Prisma.ProductClickEventGetPayload<{
+  select: {
+    createdAt: true
+    device: true
+    browser: true
+    os: true
+    referrer: true
+  }
+}>
+
+type UpvoteEventSelection = Prisma.ProductUpvoteGetPayload<{
+  select: { createdAt: true }
+}>
+
 interface SummaryOptions {
   rangeDays?: number
   previousComparison?: boolean
@@ -283,6 +297,10 @@ async function buildTrafficSummary(
     { ipHash: string; country: string | null; count: number }
   >()
   const uniqueHashes = new Set<string>()
+  const deviceClickCounts = new Map<DeviceCategory, number>()
+  const browserClickCounts = new Map<string, number>()
+  const osClickCounts = new Map<string, number>()
+  const referrerClickCounts = new Map<string, number>()
 
   const previousPathCounts = new Map<string, number>()
   const previousCountryCounts = new Map<string, number>()
@@ -414,8 +432,8 @@ async function buildTrafficSummary(
     previousUnique = prevHashes.size + prevAnonymous
   }
 
-  let clickEvents: { createdAt: Date }[] = []
-  let upvoteEvents: { createdAt: Date }[] = []
+  let clickEvents: ClickEventSelection[] = []
+  let upvoteEvents: UpvoteEventSelection[] = []
   let previousClickCount = 0
   let previousUpvoteCount = 0
 
@@ -433,7 +451,13 @@ async function buildTrafficSummary(
               lt: rangeEnd,
             },
           },
-          select: { createdAt: true },
+          select: {
+            createdAt: true,
+            device: true,
+            browser: true,
+            os: true,
+            referrer: true,
+          },
           cacheStrategy: {
             ...trafficCache,
             tags: baseTags,
@@ -513,6 +537,27 @@ async function buildTrafficSummary(
     const entry = engagementCounts.get(key) ?? { clicks: 0, upvotes: 0 }
     entry.clicks += 1
     engagementCounts.set(key, entry)
+
+    const deviceKey = event.device ?? "unknown"
+    deviceClickCounts.set(
+      deviceKey,
+      (deviceClickCounts.get(deviceKey) ?? 0) + 1,
+    )
+
+    const browserLabel = event.browser || "Unknown"
+    browserClickCounts.set(
+      browserLabel,
+      (browserClickCounts.get(browserLabel) ?? 0) + 1,
+    )
+
+    const osLabel = event.os || "Unknown"
+    osClickCounts.set(osLabel, (osClickCounts.get(osLabel) ?? 0) + 1)
+
+    const { label: refLabel } = classifyReferrer(event.referrer)
+    referrerClickCounts.set(
+      refLabel,
+      (referrerClickCounts.get(refLabel) ?? 0) + 1,
+    )
   }
 
   for (const upvote of upvoteEvents) {
@@ -561,6 +606,18 @@ async function buildTrafficSummary(
     .filter((entry) => entry.views > 0)
     .sort((a, b) => b.views - a.views)
 
+  const deviceConversionBreakdown = deviceBreakdown.map((entry) => {
+    const clicks = deviceClickCounts.get(entry.device) ?? 0
+    const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
+    return {
+      device: entry.device,
+      label: entry.label,
+      views: entry.views,
+      clicks,
+      clickThroughRate: rate,
+    }
+  })
+
   const countryBreakdown = Array.from(countryCounts.entries())
     .map(([country, count]) => ({ country, views: count }))
     .sort((a, b) => b.views - a.views)
@@ -569,9 +626,32 @@ async function buildTrafficSummary(
     .map(([browser, count]) => ({ browser, views: count }))
     .sort((a, b) => b.views - a.views)
 
+  const browserConversionBreakdown = browserBreakdown.map((entry) => {
+    const key = entry.browser || "Unknown"
+    const clicks = browserClickCounts.get(key) ?? 0
+    const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
+    return {
+      browser: entry.browser,
+      views: entry.views,
+      clicks,
+      clickThroughRate: rate,
+    }
+  })
+
   const referrerBreakdown = Array.from(referrerCounts.entries())
     .map(([referrer, count]) => ({ referrer, views: count }))
     .sort((a, b) => b.views - a.views)
+
+  const referrerConversionBreakdown = referrerBreakdown.map((entry) => {
+    const clicks = referrerClickCounts.get(entry.referrer) ?? 0
+    const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
+    return {
+      referrer: entry.referrer,
+      views: entry.views,
+      clicks,
+      clickThroughRate: rate,
+    }
+  })
 
   const pathBreakdown = Array.from(pathCounts.entries())
     .map(([path, count]) => {
@@ -590,6 +670,18 @@ async function buildTrafficSummary(
   const osBreakdown = Array.from(osCounts.entries())
     .map(([os, count]) => ({ os, views: count }))
     .sort((a, b) => b.views - a.views)
+
+  const osConversionBreakdown = osBreakdown.map((entry) => {
+    const key = entry.os || "Unknown"
+    const clicks = osClickCounts.get(key) ?? 0
+    const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
+    return {
+      os: entry.os,
+      views: entry.views,
+      clicks,
+      clickThroughRate: rate,
+    }
+  })
 
   const regionBreakdown = Array.from(regionCounts.entries())
     .map(([key, count]) => {
@@ -858,6 +950,10 @@ async function buildTrafficSummary(
     browserBreakdown,
     countryBreakdown,
     referrerBreakdown,
+    referrerConversionBreakdown,
+    deviceConversionBreakdown,
+    browserConversionBreakdown,
+    osConversionBreakdown,
     engagementOverTime,
     advanced,
   }

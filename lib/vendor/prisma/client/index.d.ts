@@ -9038,18 +9038,45 @@ export namespace Prisma {
   export type ProductClickEventMinAggregateOutputType = {
     id: string | null
     productId: string | null
+    referrer: string | null
+    userAgent: string | null
+    device: $Enums.DeviceCategory | null
+    browser: string | null
+    os: string | null
+    country: string | null
+    region: string | null
+    city: string | null
+    ipHash: string | null
     createdAt: Date | null
   }
 
   export type ProductClickEventMaxAggregateOutputType = {
     id: string | null
     productId: string | null
+    referrer: string | null
+    userAgent: string | null
+    device: $Enums.DeviceCategory | null
+    browser: string | null
+    os: string | null
+    country: string | null
+    region: string | null
+    city: string | null
+    ipHash: string | null
     createdAt: Date | null
   }
 
   export type ProductClickEventCountAggregateOutputType = {
     id: number
     productId: number
+    referrer: number
+    userAgent: number
+    device: number
+    browser: number
+    os: number
+    country: number
+    region: number
+    city: number
+    ipHash: number
     createdAt: number
     _all: number
   }
@@ -9058,18 +9085,45 @@ export namespace Prisma {
   export type ProductClickEventMinAggregateInputType = {
     id?: true
     productId?: true
+    referrer?: true
+    userAgent?: true
+    device?: true
+    browser?: true
+    os?: true
+    country?: true
+    region?: true
+    city?: true
+    ipHash?: true
     createdAt?: true
   }
 
   export type ProductClickEventMaxAggregateInputType = {
     id?: true
     productId?: true
+    referrer?: true
+    userAgent?: true
+    device?: true
+    browser?: true
+    os?: true
+    country?: true
+    region?: true
+    city?: true
+    ipHash?: true
     createdAt?: true
   }
 
   export type ProductClickEventCountAggregateInputType = {
     id?: true
     productId?: true
+    referrer?: true
+    userAgent?: true
+    device?: true
+    browser?: true
+    os?: true
+    country?: true
+    region?: true
+    city?: true
+    ipHash?: true
     createdAt?: true
     _all?: true
   }
@@ -9149,6 +9203,15 @@ export namespace Prisma {
   export type ProductClickEventGroupByOutputType = {
     id: string
     productId: string
+    referrer: string | null
+    userAgent: string | null
+    device: $Enums.DeviceCategory
+    browser: string | null
+    os: string | null
+    country: string | null
+    region: string | null
+    city: string | null
+    ipHash: string | null
     createdAt: Date
     _count: ProductClickEventCountAggregateOutputType | null
     _min: ProductClickEventMinAggregateOutputType | null
@@ -9172,6 +9235,15 @@ export namespace Prisma {
   export type ProductClickEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     productId?: boolean
+    referrer?: boolean
+    userAgent?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    country?: boolean
+    region?: boolean
+    city?: boolean
+    ipHash?: boolean
     createdAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["productClickEvent"]>
@@ -9179,6 +9251,15 @@ export namespace Prisma {
   export type ProductClickEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     productId?: boolean
+    referrer?: boolean
+    userAgent?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    country?: boolean
+    region?: boolean
+    city?: boolean
+    ipHash?: boolean
     createdAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["productClickEvent"]>
@@ -9186,6 +9267,15 @@ export namespace Prisma {
   export type ProductClickEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     productId?: boolean
+    referrer?: boolean
+    userAgent?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    country?: boolean
+    region?: boolean
+    city?: boolean
+    ipHash?: boolean
     createdAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["productClickEvent"]>
@@ -9193,10 +9283,19 @@ export namespace Prisma {
   export type ProductClickEventSelectScalar = {
     id?: boolean
     productId?: boolean
+    referrer?: boolean
+    userAgent?: boolean
+    device?: boolean
+    browser?: boolean
+    os?: boolean
+    country?: boolean
+    region?: boolean
+    city?: boolean
+    ipHash?: boolean
     createdAt?: boolean
   }
 
-  export type ProductClickEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "createdAt", ExtArgs["result"]["productClickEvent"]>
+  export type ProductClickEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "referrer" | "userAgent" | "device" | "browser" | "os" | "country" | "region" | "city" | "ipHash" | "createdAt", ExtArgs["result"]["productClickEvent"]>
   export type ProductClickEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }
@@ -9215,6 +9314,15 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       productId: string
+      referrer: string | null
+      userAgent: string | null
+      device: $Enums.DeviceCategory
+      browser: string | null
+      os: string | null
+      country: string | null
+      region: string | null
+      city: string | null
+      ipHash: string | null
       createdAt: Date
     }, ExtArgs["result"]["productClickEvent"]>
     composites: {}
@@ -9642,6 +9750,15 @@ export namespace Prisma {
   interface ProductClickEventFieldRefs {
     readonly id: FieldRef<"ProductClickEvent", 'String'>
     readonly productId: FieldRef<"ProductClickEvent", 'String'>
+    readonly referrer: FieldRef<"ProductClickEvent", 'String'>
+    readonly userAgent: FieldRef<"ProductClickEvent", 'String'>
+    readonly device: FieldRef<"ProductClickEvent", 'DeviceCategory'>
+    readonly browser: FieldRef<"ProductClickEvent", 'String'>
+    readonly os: FieldRef<"ProductClickEvent", 'String'>
+    readonly country: FieldRef<"ProductClickEvent", 'String'>
+    readonly region: FieldRef<"ProductClickEvent", 'String'>
+    readonly city: FieldRef<"ProductClickEvent", 'String'>
+    readonly ipHash: FieldRef<"ProductClickEvent", 'String'>
     readonly createdAt: FieldRef<"ProductClickEvent", 'DateTime'>
   }
     
@@ -25758,6 +25875,15 @@ export namespace Prisma {
   export const ProductClickEventScalarFieldEnum: {
     id: 'id',
     productId: 'productId',
+    referrer: 'referrer',
+    userAgent: 'userAgent',
+    device: 'device',
+    browser: 'browser',
+    os: 'os',
+    country: 'country',
+    region: 'region',
+    city: 'city',
+    ipHash: 'ipHash',
     createdAt: 'createdAt'
   };
 
@@ -26616,6 +26742,15 @@ export namespace Prisma {
     NOT?: ProductClickEventWhereInput | ProductClickEventWhereInput[]
     id?: StringFilter<"ProductClickEvent"> | string
     productId?: StringFilter<"ProductClickEvent"> | string
+    referrer?: StringNullableFilter<"ProductClickEvent"> | string | null
+    userAgent?: StringNullableFilter<"ProductClickEvent"> | string | null
+    device?: EnumDeviceCategoryFilter<"ProductClickEvent"> | $Enums.DeviceCategory
+    browser?: StringNullableFilter<"ProductClickEvent"> | string | null
+    os?: StringNullableFilter<"ProductClickEvent"> | string | null
+    country?: StringNullableFilter<"ProductClickEvent"> | string | null
+    region?: StringNullableFilter<"ProductClickEvent"> | string | null
+    city?: StringNullableFilter<"ProductClickEvent"> | string | null
+    ipHash?: StringNullableFilter<"ProductClickEvent"> | string | null
     createdAt?: DateTimeFilter<"ProductClickEvent"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }
@@ -26623,6 +26758,15 @@ export namespace Prisma {
   export type ProductClickEventOrderByWithRelationInput = {
     id?: SortOrder
     productId?: SortOrder
+    referrer?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    device?: SortOrder
+    browser?: SortOrderInput | SortOrder
+    os?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
+    region?: SortOrderInput | SortOrder
+    city?: SortOrderInput | SortOrder
+    ipHash?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     product?: ProductOrderByWithRelationInput
   }
@@ -26633,6 +26777,15 @@ export namespace Prisma {
     OR?: ProductClickEventWhereInput[]
     NOT?: ProductClickEventWhereInput | ProductClickEventWhereInput[]
     productId?: StringFilter<"ProductClickEvent"> | string
+    referrer?: StringNullableFilter<"ProductClickEvent"> | string | null
+    userAgent?: StringNullableFilter<"ProductClickEvent"> | string | null
+    device?: EnumDeviceCategoryFilter<"ProductClickEvent"> | $Enums.DeviceCategory
+    browser?: StringNullableFilter<"ProductClickEvent"> | string | null
+    os?: StringNullableFilter<"ProductClickEvent"> | string | null
+    country?: StringNullableFilter<"ProductClickEvent"> | string | null
+    region?: StringNullableFilter<"ProductClickEvent"> | string | null
+    city?: StringNullableFilter<"ProductClickEvent"> | string | null
+    ipHash?: StringNullableFilter<"ProductClickEvent"> | string | null
     createdAt?: DateTimeFilter<"ProductClickEvent"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }, "id">
@@ -26640,6 +26793,15 @@ export namespace Prisma {
   export type ProductClickEventOrderByWithAggregationInput = {
     id?: SortOrder
     productId?: SortOrder
+    referrer?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    device?: SortOrder
+    browser?: SortOrderInput | SortOrder
+    os?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
+    region?: SortOrderInput | SortOrder
+    city?: SortOrderInput | SortOrder
+    ipHash?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: ProductClickEventCountOrderByAggregateInput
     _max?: ProductClickEventMaxOrderByAggregateInput
@@ -26652,6 +26814,15 @@ export namespace Prisma {
     NOT?: ProductClickEventScalarWhereWithAggregatesInput | ProductClickEventScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProductClickEvent"> | string
     productId?: StringWithAggregatesFilter<"ProductClickEvent"> | string
+    referrer?: StringNullableWithAggregatesFilter<"ProductClickEvent"> | string | null
+    userAgent?: StringNullableWithAggregatesFilter<"ProductClickEvent"> | string | null
+    device?: EnumDeviceCategoryWithAggregatesFilter<"ProductClickEvent"> | $Enums.DeviceCategory
+    browser?: StringNullableWithAggregatesFilter<"ProductClickEvent"> | string | null
+    os?: StringNullableWithAggregatesFilter<"ProductClickEvent"> | string | null
+    country?: StringNullableWithAggregatesFilter<"ProductClickEvent"> | string | null
+    region?: StringNullableWithAggregatesFilter<"ProductClickEvent"> | string | null
+    city?: StringNullableWithAggregatesFilter<"ProductClickEvent"> | string | null
+    ipHash?: StringNullableWithAggregatesFilter<"ProductClickEvent"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ProductClickEvent"> | Date | string
   }
 
@@ -28138,6 +28309,15 @@ export namespace Prisma {
 
   export type ProductClickEventCreateInput = {
     id?: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
     createdAt?: Date | string
     product: ProductCreateNestedOneWithoutClickEventsInput
   }
@@ -28145,11 +28325,29 @@ export namespace Prisma {
   export type ProductClickEventUncheckedCreateInput = {
     id?: string
     productId: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
     createdAt?: Date | string
   }
 
   export type ProductClickEventUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     product?: ProductUpdateOneRequiredWithoutClickEventsNestedInput
   }
@@ -28157,23 +28355,59 @@ export namespace Prisma {
   export type ProductClickEventUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductClickEventCreateManyInput = {
     id?: string
     productId: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
     createdAt?: Date | string
   }
 
   export type ProductClickEventUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductClickEventUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -29799,29 +30033,66 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type EnumDeviceCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeviceCategory | EnumDeviceCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeviceCategoryFilter<$PrismaModel> | $Enums.DeviceCategory
+  }
+
   export type ProductClickEventCountOrderByAggregateInput = {
     id?: SortOrder
     productId?: SortOrder
+    referrer?: SortOrder
+    userAgent?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    os?: SortOrder
+    country?: SortOrder
+    region?: SortOrder
+    city?: SortOrder
+    ipHash?: SortOrder
     createdAt?: SortOrder
   }
 
   export type ProductClickEventMaxOrderByAggregateInput = {
     id?: SortOrder
     productId?: SortOrder
+    referrer?: SortOrder
+    userAgent?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    os?: SortOrder
+    country?: SortOrder
+    region?: SortOrder
+    city?: SortOrder
+    ipHash?: SortOrder
     createdAt?: SortOrder
   }
 
   export type ProductClickEventMinOrderByAggregateInput = {
     id?: SortOrder
     productId?: SortOrder
+    referrer?: SortOrder
+    userAgent?: SortOrder
+    device?: SortOrder
+    browser?: SortOrder
+    os?: SortOrder
+    country?: SortOrder
+    region?: SortOrder
+    city?: SortOrder
+    ipHash?: SortOrder
     createdAt?: SortOrder
   }
 
-  export type EnumDeviceCategoryFilter<$PrismaModel = never> = {
+  export type EnumDeviceCategoryWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.DeviceCategory | EnumDeviceCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
     notIn?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-    not?: NestedEnumDeviceCategoryFilter<$PrismaModel> | $Enums.DeviceCategory
+    not?: NestedEnumDeviceCategoryWithAggregatesFilter<$PrismaModel> | $Enums.DeviceCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeviceCategoryFilter<$PrismaModel>
+    _max?: NestedEnumDeviceCategoryFilter<$PrismaModel>
   }
 
   export type ProductTrafficEventCountOrderByAggregateInput = {
@@ -29870,16 +30141,6 @@ export namespace Prisma {
     city?: SortOrder
     ipHash?: SortOrder
     createdAt?: SortOrder
-  }
-
-  export type EnumDeviceCategoryWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.DeviceCategory | EnumDeviceCategoryFieldRefInput<$PrismaModel>
-    in?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DeviceCategory[] | ListEnumDeviceCategoryFieldRefInput<$PrismaModel>
-    not?: NestedEnumDeviceCategoryWithAggregatesFilter<$PrismaModel> | $Enums.DeviceCategory
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumDeviceCategoryFilter<$PrismaModel>
-    _max?: NestedEnumDeviceCategoryFilter<$PrismaModel>
   }
 
   export type ProductUpvoteProductIdUserIdCompoundUniqueInput = {
@@ -30967,6 +31228,10 @@ export namespace Prisma {
     connect?: ProductWhereUniqueInput
   }
 
+  export type EnumDeviceCategoryFieldUpdateOperationsInput = {
+    set?: $Enums.DeviceCategory
+  }
+
   export type ProductUpdateOneRequiredWithoutClickEventsNestedInput = {
     create?: XOR<ProductCreateWithoutClickEventsInput, ProductUncheckedCreateWithoutClickEventsInput>
     connectOrCreate?: ProductCreateOrConnectWithoutClickEventsInput
@@ -30979,10 +31244,6 @@ export namespace Prisma {
     create?: XOR<ProductCreateWithoutTrafficEventsInput, ProductUncheckedCreateWithoutTrafficEventsInput>
     connectOrCreate?: ProductCreateOrConnectWithoutTrafficEventsInput
     connect?: ProductWhereUniqueInput
-  }
-
-  export type EnumDeviceCategoryFieldUpdateOperationsInput = {
-    set?: $Enums.DeviceCategory
   }
 
   export type ProductUpdateOneRequiredWithoutTrafficEventsNestedInput = {
@@ -32402,11 +32663,29 @@ export namespace Prisma {
 
   export type ProductClickEventCreateWithoutProductInput = {
     id?: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
     createdAt?: Date | string
   }
 
   export type ProductClickEventUncheckedCreateWithoutProductInput = {
     id?: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
     createdAt?: Date | string
   }
 
@@ -32825,6 +33104,15 @@ export namespace Prisma {
     NOT?: ProductClickEventScalarWhereInput | ProductClickEventScalarWhereInput[]
     id?: StringFilter<"ProductClickEvent"> | string
     productId?: StringFilter<"ProductClickEvent"> | string
+    referrer?: StringNullableFilter<"ProductClickEvent"> | string | null
+    userAgent?: StringNullableFilter<"ProductClickEvent"> | string | null
+    device?: EnumDeviceCategoryFilter<"ProductClickEvent"> | $Enums.DeviceCategory
+    browser?: StringNullableFilter<"ProductClickEvent"> | string | null
+    os?: StringNullableFilter<"ProductClickEvent"> | string | null
+    country?: StringNullableFilter<"ProductClickEvent"> | string | null
+    region?: StringNullableFilter<"ProductClickEvent"> | string | null
+    city?: StringNullableFilter<"ProductClickEvent"> | string | null
+    ipHash?: StringNullableFilter<"ProductClickEvent"> | string | null
     createdAt?: DateTimeFilter<"ProductClickEvent"> | Date | string
   }
 
@@ -35847,6 +36135,15 @@ export namespace Prisma {
 
   export type ProductClickEventCreateManyProductInput = {
     id?: string
+    referrer?: string | null
+    userAgent?: string | null
+    device?: $Enums.DeviceCategory
+    browser?: string | null
+    os?: string | null
+    country?: string | null
+    region?: string | null
+    city?: string | null
+    ipHash?: string | null
     createdAt?: Date | string
   }
 
@@ -35933,16 +36230,43 @@ export namespace Prisma {
 
   export type ProductClickEventUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductClickEventUncheckedUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductClickEventUncheckedUpdateManyWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
+    referrer?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    device?: EnumDeviceCategoryFieldUpdateOperationsInput | $Enums.DeviceCategory
+    browser?: NullableStringFieldUpdateOperationsInput | string | null
+    os?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    region?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    ipHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
