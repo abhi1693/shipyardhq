@@ -32,6 +32,11 @@ const navItems: NavItem[] = [
     icon: "building",
   },
   {
+    title: "Feedback",
+    url: "/member/feedback",
+    icon: "feedback",
+  },
+  {
     title: "Homepage",
     url: "/",
     icon: "dashboard",

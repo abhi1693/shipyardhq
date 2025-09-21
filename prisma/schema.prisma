@@ -257,6 +257,7 @@ model User {
   memberships   OrganizationMembership[]
   ProductUpvote ProductUpvote[]
   Organization  Organization[]
+  feedback      MemberFeedback[]
   purchases     UserPlanPurchase[]
 
   @@index([status])
@@ -268,6 +269,28 @@ enum UserStatus {
   active
   suspended
   terminated
+}
+
+enum FeedbackStatus {
+  received
+  in_review
+  closed
+}
+
+model MemberFeedback {
+  id        String         @id @default(cuid())
+  userId    String
+  subject   String?
+  message   String
+  rating    Int?
+  status    FeedbackStatus @default(received)
+  adminNote String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 model NewsletterSubscription {

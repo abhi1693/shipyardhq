@@ -69,6 +69,11 @@ export type OrganizationMembership = $Result.DefaultSelection<Prisma.$Organizati
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model MemberFeedback
+ * 
+ */
+export type MemberFeedback = $Result.DefaultSelection<Prisma.$MemberFeedbackPayload>
+/**
  * Model NewsletterSubscription
  * 
  */
@@ -184,6 +189,15 @@ export const UserStatus: {
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
 
 
+export const FeedbackStatus: {
+  received: 'received',
+  in_review: 'in_review',
+  closed: 'closed'
+};
+
+export type FeedbackStatus = (typeof FeedbackStatus)[keyof typeof FeedbackStatus]
+
+
 export const PlanType: {
   one_time_price: 'one_time_price',
   recurring_price: 'recurring_price'
@@ -226,6 +240,10 @@ export const DeviceCategory: typeof $Enums.DeviceCategory
 export type UserStatus = $Enums.UserStatus
 
 export const UserStatus: typeof $Enums.UserStatus
+
+export type FeedbackStatus = $Enums.FeedbackStatus
+
+export const FeedbackStatus: typeof $Enums.FeedbackStatus
 
 export type PlanType = $Enums.PlanType
 
@@ -462,6 +480,16 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.memberFeedback`: Exposes CRUD operations for the **MemberFeedback** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MemberFeedbacks
+    * const memberFeedbacks = await prisma.memberFeedback.findMany()
+    * ```
+    */
+  get memberFeedback(): Prisma.MemberFeedbackDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.newsletterSubscription`: Exposes CRUD operations for the **NewsletterSubscription** model.
@@ -1003,6 +1031,7 @@ export namespace Prisma {
     Organization: 'Organization',
     OrganizationMembership: 'OrganizationMembership',
     User: 'User',
+    MemberFeedback: 'MemberFeedback',
     NewsletterSubscription: 'NewsletterSubscription',
     Category: 'Category',
     Plan: 'Plan',
@@ -1030,7 +1059,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "product" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productUpvote" | "organization" | "organizationMembership" | "user" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
+      modelProps: "product" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productUpvote" | "organization" | "organizationMembership" | "user" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1848,6 +1877,80 @@ export namespace Prisma {
           }
         }
       }
+      MemberFeedback: {
+        payload: Prisma.$MemberFeedbackPayload<ExtArgs>
+        fields: Prisma.MemberFeedbackFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MemberFeedbackFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MemberFeedbackFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
+          }
+          findFirst: {
+            args: Prisma.MemberFeedbackFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MemberFeedbackFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
+          }
+          findMany: {
+            args: Prisma.MemberFeedbackFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>[]
+          }
+          create: {
+            args: Prisma.MemberFeedbackCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
+          }
+          createMany: {
+            args: Prisma.MemberFeedbackCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MemberFeedbackCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>[]
+          }
+          delete: {
+            args: Prisma.MemberFeedbackDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
+          }
+          update: {
+            args: Prisma.MemberFeedbackUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
+          }
+          deleteMany: {
+            args: Prisma.MemberFeedbackDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MemberFeedbackUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MemberFeedbackUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>[]
+          }
+          upsert: {
+            args: Prisma.MemberFeedbackUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MemberFeedbackPayload>
+          }
+          aggregate: {
+            args: Prisma.MemberFeedbackAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMemberFeedback>
+          }
+          groupBy: {
+            args: Prisma.MemberFeedbackGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MemberFeedbackGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MemberFeedbackCountArgs<ExtArgs>
+            result: $Utils.Optional<MemberFeedbackCountAggregateOutputType> | number
+          }
+        }
+      }
       NewsletterSubscription: {
         payload: Prisma.$NewsletterSubscriptionPayload<ExtArgs>
         fields: Prisma.NewsletterSubscriptionFieldRefs
@@ -2621,6 +2724,7 @@ export namespace Prisma {
     organization?: OrganizationOmit
     organizationMembership?: OrganizationMembershipOmit
     user?: UserOmit
+    memberFeedback?: MemberFeedbackOmit
     newsletterSubscription?: NewsletterSubscriptionOmit
     category?: CategoryOmit
     plan?: PlanOmit
@@ -2821,6 +2925,7 @@ export namespace Prisma {
     memberships: number
     ProductUpvote: number
     Organization: number
+    feedback: number
     purchases: number
   }
 
@@ -2829,6 +2934,7 @@ export namespace Prisma {
     memberships?: boolean | UserCountOutputTypeCountMembershipsArgs
     ProductUpvote?: boolean | UserCountOutputTypeCountProductUpvoteArgs
     Organization?: boolean | UserCountOutputTypeCountOrganizationArgs
+    feedback?: boolean | UserCountOutputTypeCountFeedbackArgs
     purchases?: boolean | UserCountOutputTypeCountPurchasesArgs
   }
 
@@ -2869,6 +2975,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountOrganizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: OrganizationWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountFeedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MemberFeedbackWhereInput
   }
 
   /**
@@ -14864,6 +14977,7 @@ export namespace Prisma {
     memberships?: boolean | User$membershipsArgs<ExtArgs>
     ProductUpvote?: boolean | User$ProductUpvoteArgs<ExtArgs>
     Organization?: boolean | User$OrganizationArgs<ExtArgs>
+    feedback?: boolean | User$feedbackArgs<ExtArgs>
     purchases?: boolean | User$purchasesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -14928,6 +15042,7 @@ export namespace Prisma {
     memberships?: boolean | User$membershipsArgs<ExtArgs>
     ProductUpvote?: boolean | User$ProductUpvoteArgs<ExtArgs>
     Organization?: boolean | User$OrganizationArgs<ExtArgs>
+    feedback?: boolean | User$feedbackArgs<ExtArgs>
     purchases?: boolean | User$purchasesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -14941,6 +15056,7 @@ export namespace Prisma {
       memberships: Prisma.$OrganizationMembershipPayload<ExtArgs>[]
       ProductUpvote: Prisma.$ProductUpvotePayload<ExtArgs>[]
       Organization: Prisma.$OrganizationPayload<ExtArgs>[]
+      feedback: Prisma.$MemberFeedbackPayload<ExtArgs>[]
       purchases: Prisma.$UserPlanPurchasePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -15357,6 +15473,7 @@ export namespace Prisma {
     memberships<T extends User$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductUpvote<T extends User$ProductUpvoteArgs<ExtArgs> = {}>(args?: Subset<T, User$ProductUpvoteArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductUpvotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     Organization<T extends User$OrganizationArgs<ExtArgs> = {}>(args?: Subset<T, User$OrganizationArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    feedback<T extends User$feedbackArgs<ExtArgs> = {}>(args?: Subset<T, User$feedbackArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     purchases<T extends User$purchasesArgs<ExtArgs> = {}>(args?: Subset<T, User$purchasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPlanPurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -15886,6 +16003,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.feedback
+   */
+  export type User$feedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
+    where?: MemberFeedbackWhereInput
+    orderBy?: MemberFeedbackOrderByWithRelationInput | MemberFeedbackOrderByWithRelationInput[]
+    cursor?: MemberFeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MemberFeedbackScalarFieldEnum | MemberFeedbackScalarFieldEnum[]
+  }
+
+  /**
    * User.purchases
    */
   export type User$purchasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -15925,6 +16066,1150 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MemberFeedback
+   */
+
+  export type AggregateMemberFeedback = {
+    _count: MemberFeedbackCountAggregateOutputType | null
+    _avg: MemberFeedbackAvgAggregateOutputType | null
+    _sum: MemberFeedbackSumAggregateOutputType | null
+    _min: MemberFeedbackMinAggregateOutputType | null
+    _max: MemberFeedbackMaxAggregateOutputType | null
+  }
+
+  export type MemberFeedbackAvgAggregateOutputType = {
+    rating: number | null
+  }
+
+  export type MemberFeedbackSumAggregateOutputType = {
+    rating: number | null
+  }
+
+  export type MemberFeedbackMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    subject: string | null
+    message: string | null
+    rating: number | null
+    status: $Enums.FeedbackStatus | null
+    adminNote: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MemberFeedbackMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    subject: string | null
+    message: string | null
+    rating: number | null
+    status: $Enums.FeedbackStatus | null
+    adminNote: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MemberFeedbackCountAggregateOutputType = {
+    id: number
+    userId: number
+    subject: number
+    message: number
+    rating: number
+    status: number
+    adminNote: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MemberFeedbackAvgAggregateInputType = {
+    rating?: true
+  }
+
+  export type MemberFeedbackSumAggregateInputType = {
+    rating?: true
+  }
+
+  export type MemberFeedbackMinAggregateInputType = {
+    id?: true
+    userId?: true
+    subject?: true
+    message?: true
+    rating?: true
+    status?: true
+    adminNote?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MemberFeedbackMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    subject?: true
+    message?: true
+    rating?: true
+    status?: true
+    adminNote?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MemberFeedbackCountAggregateInputType = {
+    id?: true
+    userId?: true
+    subject?: true
+    message?: true
+    rating?: true
+    status?: true
+    adminNote?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MemberFeedbackAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MemberFeedback to aggregate.
+     */
+    where?: MemberFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MemberFeedbacks to fetch.
+     */
+    orderBy?: MemberFeedbackOrderByWithRelationInput | MemberFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MemberFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MemberFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MemberFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MemberFeedbacks
+    **/
+    _count?: true | MemberFeedbackCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MemberFeedbackAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MemberFeedbackSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MemberFeedbackMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MemberFeedbackMaxAggregateInputType
+  }
+
+  export type GetMemberFeedbackAggregateType<T extends MemberFeedbackAggregateArgs> = {
+        [P in keyof T & keyof AggregateMemberFeedback]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMemberFeedback[P]>
+      : GetScalarType<T[P], AggregateMemberFeedback[P]>
+  }
+
+
+
+
+  export type MemberFeedbackGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MemberFeedbackWhereInput
+    orderBy?: MemberFeedbackOrderByWithAggregationInput | MemberFeedbackOrderByWithAggregationInput[]
+    by: MemberFeedbackScalarFieldEnum[] | MemberFeedbackScalarFieldEnum
+    having?: MemberFeedbackScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MemberFeedbackCountAggregateInputType | true
+    _avg?: MemberFeedbackAvgAggregateInputType
+    _sum?: MemberFeedbackSumAggregateInputType
+    _min?: MemberFeedbackMinAggregateInputType
+    _max?: MemberFeedbackMaxAggregateInputType
+  }
+
+  export type MemberFeedbackGroupByOutputType = {
+    id: string
+    userId: string
+    subject: string | null
+    message: string
+    rating: number | null
+    status: $Enums.FeedbackStatus
+    adminNote: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: MemberFeedbackCountAggregateOutputType | null
+    _avg: MemberFeedbackAvgAggregateOutputType | null
+    _sum: MemberFeedbackSumAggregateOutputType | null
+    _min: MemberFeedbackMinAggregateOutputType | null
+    _max: MemberFeedbackMaxAggregateOutputType | null
+  }
+
+  type GetMemberFeedbackGroupByPayload<T extends MemberFeedbackGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MemberFeedbackGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MemberFeedbackGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MemberFeedbackGroupByOutputType[P]>
+            : GetScalarType<T[P], MemberFeedbackGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MemberFeedbackSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    subject?: boolean
+    message?: boolean
+    rating?: boolean
+    status?: boolean
+    adminNote?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["memberFeedback"]>
+
+  export type MemberFeedbackSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    subject?: boolean
+    message?: boolean
+    rating?: boolean
+    status?: boolean
+    adminNote?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["memberFeedback"]>
+
+  export type MemberFeedbackSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    subject?: boolean
+    message?: boolean
+    rating?: boolean
+    status?: boolean
+    adminNote?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["memberFeedback"]>
+
+  export type MemberFeedbackSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    subject?: boolean
+    message?: boolean
+    rating?: boolean
+    status?: boolean
+    adminNote?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MemberFeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "subject" | "message" | "rating" | "status" | "adminNote" | "createdAt" | "updatedAt", ExtArgs["result"]["memberFeedback"]>
+  export type MemberFeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type MemberFeedbackIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type MemberFeedbackIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $MemberFeedbackPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MemberFeedback"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      subject: string | null
+      message: string
+      rating: number | null
+      status: $Enums.FeedbackStatus
+      adminNote: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["memberFeedback"]>
+    composites: {}
+  }
+
+  type MemberFeedbackGetPayload<S extends boolean | null | undefined | MemberFeedbackDefaultArgs> = $Result.GetResult<Prisma.$MemberFeedbackPayload, S>
+
+  type MemberFeedbackCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MemberFeedbackFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MemberFeedbackCountAggregateInputType | true
+    }
+
+  export interface MemberFeedbackDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MemberFeedback'], meta: { name: 'MemberFeedback' } }
+    /**
+     * Find zero or one MemberFeedback that matches the filter.
+     * @param {MemberFeedbackFindUniqueArgs} args - Arguments to find a MemberFeedback
+     * @example
+     * // Get one MemberFeedback
+     * const memberFeedback = await prisma.memberFeedback.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MemberFeedbackFindUniqueArgs>(args: SelectSubset<T, MemberFeedbackFindUniqueArgs<ExtArgs>>): Prisma__MemberFeedbackClient<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MemberFeedback that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MemberFeedbackFindUniqueOrThrowArgs} args - Arguments to find a MemberFeedback
+     * @example
+     * // Get one MemberFeedback
+     * const memberFeedback = await prisma.memberFeedback.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MemberFeedbackFindUniqueOrThrowArgs>(args: SelectSubset<T, MemberFeedbackFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MemberFeedbackClient<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MemberFeedback that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberFeedbackFindFirstArgs} args - Arguments to find a MemberFeedback
+     * @example
+     * // Get one MemberFeedback
+     * const memberFeedback = await prisma.memberFeedback.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MemberFeedbackFindFirstArgs>(args?: SelectSubset<T, MemberFeedbackFindFirstArgs<ExtArgs>>): Prisma__MemberFeedbackClient<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MemberFeedback that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberFeedbackFindFirstOrThrowArgs} args - Arguments to find a MemberFeedback
+     * @example
+     * // Get one MemberFeedback
+     * const memberFeedback = await prisma.memberFeedback.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MemberFeedbackFindFirstOrThrowArgs>(args?: SelectSubset<T, MemberFeedbackFindFirstOrThrowArgs<ExtArgs>>): Prisma__MemberFeedbackClient<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MemberFeedbacks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberFeedbackFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MemberFeedbacks
+     * const memberFeedbacks = await prisma.memberFeedback.findMany()
+     * 
+     * // Get first 10 MemberFeedbacks
+     * const memberFeedbacks = await prisma.memberFeedback.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const memberFeedbackWithIdOnly = await prisma.memberFeedback.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MemberFeedbackFindManyArgs>(args?: SelectSubset<T, MemberFeedbackFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MemberFeedback.
+     * @param {MemberFeedbackCreateArgs} args - Arguments to create a MemberFeedback.
+     * @example
+     * // Create one MemberFeedback
+     * const MemberFeedback = await prisma.memberFeedback.create({
+     *   data: {
+     *     // ... data to create a MemberFeedback
+     *   }
+     * })
+     * 
+     */
+    create<T extends MemberFeedbackCreateArgs>(args: SelectSubset<T, MemberFeedbackCreateArgs<ExtArgs>>): Prisma__MemberFeedbackClient<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MemberFeedbacks.
+     * @param {MemberFeedbackCreateManyArgs} args - Arguments to create many MemberFeedbacks.
+     * @example
+     * // Create many MemberFeedbacks
+     * const memberFeedback = await prisma.memberFeedback.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MemberFeedbackCreateManyArgs>(args?: SelectSubset<T, MemberFeedbackCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MemberFeedbacks and returns the data saved in the database.
+     * @param {MemberFeedbackCreateManyAndReturnArgs} args - Arguments to create many MemberFeedbacks.
+     * @example
+     * // Create many MemberFeedbacks
+     * const memberFeedback = await prisma.memberFeedback.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MemberFeedbacks and only return the `id`
+     * const memberFeedbackWithIdOnly = await prisma.memberFeedback.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MemberFeedbackCreateManyAndReturnArgs>(args?: SelectSubset<T, MemberFeedbackCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MemberFeedback.
+     * @param {MemberFeedbackDeleteArgs} args - Arguments to delete one MemberFeedback.
+     * @example
+     * // Delete one MemberFeedback
+     * const MemberFeedback = await prisma.memberFeedback.delete({
+     *   where: {
+     *     // ... filter to delete one MemberFeedback
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MemberFeedbackDeleteArgs>(args: SelectSubset<T, MemberFeedbackDeleteArgs<ExtArgs>>): Prisma__MemberFeedbackClient<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MemberFeedback.
+     * @param {MemberFeedbackUpdateArgs} args - Arguments to update one MemberFeedback.
+     * @example
+     * // Update one MemberFeedback
+     * const memberFeedback = await prisma.memberFeedback.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MemberFeedbackUpdateArgs>(args: SelectSubset<T, MemberFeedbackUpdateArgs<ExtArgs>>): Prisma__MemberFeedbackClient<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MemberFeedbacks.
+     * @param {MemberFeedbackDeleteManyArgs} args - Arguments to filter MemberFeedbacks to delete.
+     * @example
+     * // Delete a few MemberFeedbacks
+     * const { count } = await prisma.memberFeedback.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MemberFeedbackDeleteManyArgs>(args?: SelectSubset<T, MemberFeedbackDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MemberFeedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberFeedbackUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MemberFeedbacks
+     * const memberFeedback = await prisma.memberFeedback.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MemberFeedbackUpdateManyArgs>(args: SelectSubset<T, MemberFeedbackUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MemberFeedbacks and returns the data updated in the database.
+     * @param {MemberFeedbackUpdateManyAndReturnArgs} args - Arguments to update many MemberFeedbacks.
+     * @example
+     * // Update many MemberFeedbacks
+     * const memberFeedback = await prisma.memberFeedback.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MemberFeedbacks and only return the `id`
+     * const memberFeedbackWithIdOnly = await prisma.memberFeedback.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MemberFeedbackUpdateManyAndReturnArgs>(args: SelectSubset<T, MemberFeedbackUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MemberFeedback.
+     * @param {MemberFeedbackUpsertArgs} args - Arguments to update or create a MemberFeedback.
+     * @example
+     * // Update or create a MemberFeedback
+     * const memberFeedback = await prisma.memberFeedback.upsert({
+     *   create: {
+     *     // ... data to create a MemberFeedback
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MemberFeedback we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MemberFeedbackUpsertArgs>(args: SelectSubset<T, MemberFeedbackUpsertArgs<ExtArgs>>): Prisma__MemberFeedbackClient<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MemberFeedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberFeedbackCountArgs} args - Arguments to filter MemberFeedbacks to count.
+     * @example
+     * // Count the number of MemberFeedbacks
+     * const count = await prisma.memberFeedback.count({
+     *   where: {
+     *     // ... the filter for the MemberFeedbacks we want to count
+     *   }
+     * })
+    **/
+    count<T extends MemberFeedbackCountArgs>(
+      args?: Subset<T, MemberFeedbackCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MemberFeedbackCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MemberFeedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberFeedbackAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MemberFeedbackAggregateArgs>(args: Subset<T, MemberFeedbackAggregateArgs>): Prisma.PrismaPromise<GetMemberFeedbackAggregateType<T>>
+
+    /**
+     * Group by MemberFeedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MemberFeedbackGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MemberFeedbackGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MemberFeedbackGroupByArgs['orderBy'] }
+        : { orderBy?: MemberFeedbackGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MemberFeedbackGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMemberFeedbackGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MemberFeedback model
+   */
+  readonly fields: MemberFeedbackFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MemberFeedback.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MemberFeedbackClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MemberFeedback model
+   */
+  interface MemberFeedbackFieldRefs {
+    readonly id: FieldRef<"MemberFeedback", 'String'>
+    readonly userId: FieldRef<"MemberFeedback", 'String'>
+    readonly subject: FieldRef<"MemberFeedback", 'String'>
+    readonly message: FieldRef<"MemberFeedback", 'String'>
+    readonly rating: FieldRef<"MemberFeedback", 'Int'>
+    readonly status: FieldRef<"MemberFeedback", 'FeedbackStatus'>
+    readonly adminNote: FieldRef<"MemberFeedback", 'String'>
+    readonly createdAt: FieldRef<"MemberFeedback", 'DateTime'>
+    readonly updatedAt: FieldRef<"MemberFeedback", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MemberFeedback findUnique
+   */
+  export type MemberFeedbackFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which MemberFeedback to fetch.
+     */
+    where: MemberFeedbackWhereUniqueInput
+  }
+
+  /**
+   * MemberFeedback findUniqueOrThrow
+   */
+  export type MemberFeedbackFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which MemberFeedback to fetch.
+     */
+    where: MemberFeedbackWhereUniqueInput
+  }
+
+  /**
+   * MemberFeedback findFirst
+   */
+  export type MemberFeedbackFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which MemberFeedback to fetch.
+     */
+    where?: MemberFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MemberFeedbacks to fetch.
+     */
+    orderBy?: MemberFeedbackOrderByWithRelationInput | MemberFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MemberFeedbacks.
+     */
+    cursor?: MemberFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MemberFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MemberFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MemberFeedbacks.
+     */
+    distinct?: MemberFeedbackScalarFieldEnum | MemberFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * MemberFeedback findFirstOrThrow
+   */
+  export type MemberFeedbackFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which MemberFeedback to fetch.
+     */
+    where?: MemberFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MemberFeedbacks to fetch.
+     */
+    orderBy?: MemberFeedbackOrderByWithRelationInput | MemberFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MemberFeedbacks.
+     */
+    cursor?: MemberFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MemberFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MemberFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MemberFeedbacks.
+     */
+    distinct?: MemberFeedbackScalarFieldEnum | MemberFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * MemberFeedback findMany
+   */
+  export type MemberFeedbackFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which MemberFeedbacks to fetch.
+     */
+    where?: MemberFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MemberFeedbacks to fetch.
+     */
+    orderBy?: MemberFeedbackOrderByWithRelationInput | MemberFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MemberFeedbacks.
+     */
+    cursor?: MemberFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MemberFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MemberFeedbacks.
+     */
+    skip?: number
+    distinct?: MemberFeedbackScalarFieldEnum | MemberFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * MemberFeedback create
+   */
+  export type MemberFeedbackCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MemberFeedback.
+     */
+    data: XOR<MemberFeedbackCreateInput, MemberFeedbackUncheckedCreateInput>
+  }
+
+  /**
+   * MemberFeedback createMany
+   */
+  export type MemberFeedbackCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MemberFeedbacks.
+     */
+    data: MemberFeedbackCreateManyInput | MemberFeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MemberFeedback createManyAndReturn
+   */
+  export type MemberFeedbackCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * The data used to create many MemberFeedbacks.
+     */
+    data: MemberFeedbackCreateManyInput | MemberFeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MemberFeedback update
+   */
+  export type MemberFeedbackUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MemberFeedback.
+     */
+    data: XOR<MemberFeedbackUpdateInput, MemberFeedbackUncheckedUpdateInput>
+    /**
+     * Choose, which MemberFeedback to update.
+     */
+    where: MemberFeedbackWhereUniqueInput
+  }
+
+  /**
+   * MemberFeedback updateMany
+   */
+  export type MemberFeedbackUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MemberFeedbacks.
+     */
+    data: XOR<MemberFeedbackUpdateManyMutationInput, MemberFeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which MemberFeedbacks to update
+     */
+    where?: MemberFeedbackWhereInput
+    /**
+     * Limit how many MemberFeedbacks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MemberFeedback updateManyAndReturn
+   */
+  export type MemberFeedbackUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * The data used to update MemberFeedbacks.
+     */
+    data: XOR<MemberFeedbackUpdateManyMutationInput, MemberFeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which MemberFeedbacks to update
+     */
+    where?: MemberFeedbackWhereInput
+    /**
+     * Limit how many MemberFeedbacks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MemberFeedback upsert
+   */
+  export type MemberFeedbackUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MemberFeedback to update in case it exists.
+     */
+    where: MemberFeedbackWhereUniqueInput
+    /**
+     * In case the MemberFeedback found by the `where` argument doesn't exist, create a new MemberFeedback with this data.
+     */
+    create: XOR<MemberFeedbackCreateInput, MemberFeedbackUncheckedCreateInput>
+    /**
+     * In case the MemberFeedback was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MemberFeedbackUpdateInput, MemberFeedbackUncheckedUpdateInput>
+  }
+
+  /**
+   * MemberFeedback delete
+   */
+  export type MemberFeedbackDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter which MemberFeedback to delete.
+     */
+    where: MemberFeedbackWhereUniqueInput
+  }
+
+  /**
+   * MemberFeedback deleteMany
+   */
+  export type MemberFeedbackDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MemberFeedbacks to delete
+     */
+    where?: MemberFeedbackWhereInput
+    /**
+     * Limit how many MemberFeedbacks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MemberFeedback without action
+   */
+  export type MemberFeedbackDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MemberFeedback
+     */
+    select?: MemberFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MemberFeedback
+     */
+    omit?: MemberFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MemberFeedbackInclude<ExtArgs> | null
   }
 
 
@@ -25964,6 +27249,21 @@ export namespace Prisma {
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+  export const MemberFeedbackScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    subject: 'subject',
+    message: 'message',
+    rating: 'rating',
+    status: 'status',
+    adminNote: 'adminNote',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MemberFeedbackScalarFieldEnum = (typeof MemberFeedbackScalarFieldEnum)[keyof typeof MemberFeedbackScalarFieldEnum]
+
+
   export const NewsletterSubscriptionScalarFieldEnum: {
     id: 'id',
     email: 'email',
@@ -26236,6 +27536,20 @@ export namespace Prisma {
    * Reference to a field of type 'UserStatus[]'
    */
   export type ListEnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'FeedbackStatus'
+   */
+  export type EnumFeedbackStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedbackStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'FeedbackStatus[]'
+   */
+  export type ListEnumFeedbackStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedbackStatus[]'>
     
 
 
@@ -27128,6 +28442,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
     Organization?: OrganizationListRelationFilter
+    feedback?: MemberFeedbackListRelationFilter
     purchases?: UserPlanPurchaseListRelationFilter
   }
 
@@ -27151,6 +28466,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipOrderByRelationAggregateInput
     ProductUpvote?: ProductUpvoteOrderByRelationAggregateInput
     Organization?: OrganizationOrderByRelationAggregateInput
+    feedback?: MemberFeedbackOrderByRelationAggregateInput
     purchases?: UserPlanPurchaseOrderByRelationAggregateInput
   }
 
@@ -27177,6 +28493,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
     Organization?: OrganizationListRelationFilter
+    feedback?: MemberFeedbackListRelationFilter
     purchases?: UserPlanPurchaseListRelationFilter
   }, "id" | "clerkId" | "email">
 
@@ -27220,6 +28537,83 @@ export namespace Prisma {
     terminatedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type MemberFeedbackWhereInput = {
+    AND?: MemberFeedbackWhereInput | MemberFeedbackWhereInput[]
+    OR?: MemberFeedbackWhereInput[]
+    NOT?: MemberFeedbackWhereInput | MemberFeedbackWhereInput[]
+    id?: StringFilter<"MemberFeedback"> | string
+    userId?: StringFilter<"MemberFeedback"> | string
+    subject?: StringNullableFilter<"MemberFeedback"> | string | null
+    message?: StringFilter<"MemberFeedback"> | string
+    rating?: IntNullableFilter<"MemberFeedback"> | number | null
+    status?: EnumFeedbackStatusFilter<"MemberFeedback"> | $Enums.FeedbackStatus
+    adminNote?: StringNullableFilter<"MemberFeedback"> | string | null
+    createdAt?: DateTimeFilter<"MemberFeedback"> | Date | string
+    updatedAt?: DateTimeFilter<"MemberFeedback"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type MemberFeedbackOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    subject?: SortOrderInput | SortOrder
+    message?: SortOrder
+    rating?: SortOrderInput | SortOrder
+    status?: SortOrder
+    adminNote?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type MemberFeedbackWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MemberFeedbackWhereInput | MemberFeedbackWhereInput[]
+    OR?: MemberFeedbackWhereInput[]
+    NOT?: MemberFeedbackWhereInput | MemberFeedbackWhereInput[]
+    userId?: StringFilter<"MemberFeedback"> | string
+    subject?: StringNullableFilter<"MemberFeedback"> | string | null
+    message?: StringFilter<"MemberFeedback"> | string
+    rating?: IntNullableFilter<"MemberFeedback"> | number | null
+    status?: EnumFeedbackStatusFilter<"MemberFeedback"> | $Enums.FeedbackStatus
+    adminNote?: StringNullableFilter<"MemberFeedback"> | string | null
+    createdAt?: DateTimeFilter<"MemberFeedback"> | Date | string
+    updatedAt?: DateTimeFilter<"MemberFeedback"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type MemberFeedbackOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    subject?: SortOrderInput | SortOrder
+    message?: SortOrder
+    rating?: SortOrderInput | SortOrder
+    status?: SortOrder
+    adminNote?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MemberFeedbackCountOrderByAggregateInput
+    _avg?: MemberFeedbackAvgOrderByAggregateInput
+    _max?: MemberFeedbackMaxOrderByAggregateInput
+    _min?: MemberFeedbackMinOrderByAggregateInput
+    _sum?: MemberFeedbackSumOrderByAggregateInput
+  }
+
+  export type MemberFeedbackScalarWhereWithAggregatesInput = {
+    AND?: MemberFeedbackScalarWhereWithAggregatesInput | MemberFeedbackScalarWhereWithAggregatesInput[]
+    OR?: MemberFeedbackScalarWhereWithAggregatesInput[]
+    NOT?: MemberFeedbackScalarWhereWithAggregatesInput | MemberFeedbackScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MemberFeedback"> | string
+    userId?: StringWithAggregatesFilter<"MemberFeedback"> | string
+    subject?: StringNullableWithAggregatesFilter<"MemberFeedback"> | string | null
+    message?: StringWithAggregatesFilter<"MemberFeedback"> | string
+    rating?: IntNullableWithAggregatesFilter<"MemberFeedback"> | number | null
+    status?: EnumFeedbackStatusWithAggregatesFilter<"MemberFeedback"> | $Enums.FeedbackStatus
+    adminNote?: StringNullableWithAggregatesFilter<"MemberFeedback"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"MemberFeedback"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MemberFeedback"> | Date | string
   }
 
   export type NewsletterSubscriptionWhereInput = {
@@ -28720,6 +30114,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutUserInput
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
+    feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
   }
 
@@ -28743,6 +30138,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -28766,6 +30162,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
+    feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
   }
 
@@ -28789,6 +30186,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -28842,6 +30240,89 @@ export namespace Prisma {
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MemberFeedbackCreateInput = {
+    id?: string
+    subject?: string | null
+    message: string
+    rating?: number | null
+    status?: $Enums.FeedbackStatus
+    adminNote?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutFeedbackInput
+  }
+
+  export type MemberFeedbackUncheckedCreateInput = {
+    id?: string
+    userId: string
+    subject?: string | null
+    message: string
+    rating?: number | null
+    status?: $Enums.FeedbackStatus
+    adminNote?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MemberFeedbackUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    rating?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutFeedbackNestedInput
+  }
+
+  export type MemberFeedbackUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    rating?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MemberFeedbackCreateManyInput = {
+    id?: string
+    userId: string
+    subject?: string | null
+    message: string
+    rating?: number | null
+    status?: $Enums.FeedbackStatus
+    adminNote?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MemberFeedbackUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    rating?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MemberFeedbackUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    rating?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -30271,6 +31752,12 @@ export namespace Prisma {
     none?: OrganizationWhereInput
   }
 
+  export type MemberFeedbackListRelationFilter = {
+    every?: MemberFeedbackWhereInput
+    some?: MemberFeedbackWhereInput
+    none?: MemberFeedbackWhereInput
+  }
+
   export type UserPlanPurchaseListRelationFilter = {
     every?: UserPlanPurchaseWhereInput
     some?: UserPlanPurchaseWhereInput
@@ -30278,6 +31765,10 @@ export namespace Prisma {
   }
 
   export type OrganizationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MemberFeedbackOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -30347,6 +31838,67 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumUserStatusFilter<$PrismaModel>
     _max?: NestedEnumUserStatusFilter<$PrismaModel>
+  }
+
+  export type EnumFeedbackStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackStatus | EnumFeedbackStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackStatusFilter<$PrismaModel> | $Enums.FeedbackStatus
+  }
+
+  export type MemberFeedbackCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    subject?: SortOrder
+    message?: SortOrder
+    rating?: SortOrder
+    status?: SortOrder
+    adminNote?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MemberFeedbackAvgOrderByAggregateInput = {
+    rating?: SortOrder
+  }
+
+  export type MemberFeedbackMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    subject?: SortOrder
+    message?: SortOrder
+    rating?: SortOrder
+    status?: SortOrder
+    adminNote?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MemberFeedbackMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    subject?: SortOrder
+    message?: SortOrder
+    rating?: SortOrder
+    status?: SortOrder
+    adminNote?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MemberFeedbackSumOrderByAggregateInput = {
+    rating?: SortOrder
+  }
+
+  export type EnumFeedbackStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackStatus | EnumFeedbackStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackStatusWithAggregatesFilter<$PrismaModel> | $Enums.FeedbackStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFeedbackStatusFilter<$PrismaModel>
+    _max?: NestedEnumFeedbackStatusFilter<$PrismaModel>
   }
 
   export type NewsletterSubscriptionCountOrderByAggregateInput = {
@@ -31438,6 +32990,13 @@ export namespace Prisma {
     connect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
   }
 
+  export type MemberFeedbackCreateNestedManyWithoutUserInput = {
+    create?: XOR<MemberFeedbackCreateWithoutUserInput, MemberFeedbackUncheckedCreateWithoutUserInput> | MemberFeedbackCreateWithoutUserInput[] | MemberFeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MemberFeedbackCreateOrConnectWithoutUserInput | MemberFeedbackCreateOrConnectWithoutUserInput[]
+    createMany?: MemberFeedbackCreateManyUserInputEnvelope
+    connect?: MemberFeedbackWhereUniqueInput | MemberFeedbackWhereUniqueInput[]
+  }
+
   export type UserPlanPurchaseCreateNestedManyWithoutUserInput = {
     create?: XOR<UserPlanPurchaseCreateWithoutUserInput, UserPlanPurchaseUncheckedCreateWithoutUserInput> | UserPlanPurchaseCreateWithoutUserInput[] | UserPlanPurchaseUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UserPlanPurchaseCreateOrConnectWithoutUserInput | UserPlanPurchaseCreateOrConnectWithoutUserInput[]
@@ -31471,6 +33030,13 @@ export namespace Prisma {
     connectOrCreate?: OrganizationCreateOrConnectWithoutOwnerInput | OrganizationCreateOrConnectWithoutOwnerInput[]
     createMany?: OrganizationCreateManyOwnerInputEnvelope
     connect?: OrganizationWhereUniqueInput | OrganizationWhereUniqueInput[]
+  }
+
+  export type MemberFeedbackUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<MemberFeedbackCreateWithoutUserInput, MemberFeedbackUncheckedCreateWithoutUserInput> | MemberFeedbackCreateWithoutUserInput[] | MemberFeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MemberFeedbackCreateOrConnectWithoutUserInput | MemberFeedbackCreateOrConnectWithoutUserInput[]
+    createMany?: MemberFeedbackCreateManyUserInputEnvelope
+    connect?: MemberFeedbackWhereUniqueInput | MemberFeedbackWhereUniqueInput[]
   }
 
   export type UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput = {
@@ -31538,6 +33104,20 @@ export namespace Prisma {
     update?: OrganizationUpdateWithWhereUniqueWithoutOwnerInput | OrganizationUpdateWithWhereUniqueWithoutOwnerInput[]
     updateMany?: OrganizationUpdateManyWithWhereWithoutOwnerInput | OrganizationUpdateManyWithWhereWithoutOwnerInput[]
     deleteMany?: OrganizationScalarWhereInput | OrganizationScalarWhereInput[]
+  }
+
+  export type MemberFeedbackUpdateManyWithoutUserNestedInput = {
+    create?: XOR<MemberFeedbackCreateWithoutUserInput, MemberFeedbackUncheckedCreateWithoutUserInput> | MemberFeedbackCreateWithoutUserInput[] | MemberFeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MemberFeedbackCreateOrConnectWithoutUserInput | MemberFeedbackCreateOrConnectWithoutUserInput[]
+    upsert?: MemberFeedbackUpsertWithWhereUniqueWithoutUserInput | MemberFeedbackUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: MemberFeedbackCreateManyUserInputEnvelope
+    set?: MemberFeedbackWhereUniqueInput | MemberFeedbackWhereUniqueInput[]
+    disconnect?: MemberFeedbackWhereUniqueInput | MemberFeedbackWhereUniqueInput[]
+    delete?: MemberFeedbackWhereUniqueInput | MemberFeedbackWhereUniqueInput[]
+    connect?: MemberFeedbackWhereUniqueInput | MemberFeedbackWhereUniqueInput[]
+    update?: MemberFeedbackUpdateWithWhereUniqueWithoutUserInput | MemberFeedbackUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: MemberFeedbackUpdateManyWithWhereWithoutUserInput | MemberFeedbackUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: MemberFeedbackScalarWhereInput | MemberFeedbackScalarWhereInput[]
   }
 
   export type UserPlanPurchaseUpdateManyWithoutUserNestedInput = {
@@ -31610,6 +33190,20 @@ export namespace Prisma {
     deleteMany?: OrganizationScalarWhereInput | OrganizationScalarWhereInput[]
   }
 
+  export type MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<MemberFeedbackCreateWithoutUserInput, MemberFeedbackUncheckedCreateWithoutUserInput> | MemberFeedbackCreateWithoutUserInput[] | MemberFeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MemberFeedbackCreateOrConnectWithoutUserInput | MemberFeedbackCreateOrConnectWithoutUserInput[]
+    upsert?: MemberFeedbackUpsertWithWhereUniqueWithoutUserInput | MemberFeedbackUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: MemberFeedbackCreateManyUserInputEnvelope
+    set?: MemberFeedbackWhereUniqueInput | MemberFeedbackWhereUniqueInput[]
+    disconnect?: MemberFeedbackWhereUniqueInput | MemberFeedbackWhereUniqueInput[]
+    delete?: MemberFeedbackWhereUniqueInput | MemberFeedbackWhereUniqueInput[]
+    connect?: MemberFeedbackWhereUniqueInput | MemberFeedbackWhereUniqueInput[]
+    update?: MemberFeedbackUpdateWithWhereUniqueWithoutUserInput | MemberFeedbackUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: MemberFeedbackUpdateManyWithWhereWithoutUserInput | MemberFeedbackUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: MemberFeedbackScalarWhereInput | MemberFeedbackScalarWhereInput[]
+  }
+
   export type UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<UserPlanPurchaseCreateWithoutUserInput, UserPlanPurchaseUncheckedCreateWithoutUserInput> | UserPlanPurchaseCreateWithoutUserInput[] | UserPlanPurchaseUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UserPlanPurchaseCreateOrConnectWithoutUserInput | UserPlanPurchaseCreateOrConnectWithoutUserInput[]
@@ -31622,6 +33216,24 @@ export namespace Prisma {
     update?: UserPlanPurchaseUpdateWithWhereUniqueWithoutUserInput | UserPlanPurchaseUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: UserPlanPurchaseUpdateManyWithWhereWithoutUserInput | UserPlanPurchaseUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: UserPlanPurchaseScalarWhereInput | UserPlanPurchaseScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutFeedbackInput = {
+    create?: XOR<UserCreateWithoutFeedbackInput, UserUncheckedCreateWithoutFeedbackInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeedbackInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumFeedbackStatusFieldUpdateOperationsInput = {
+    set?: $Enums.FeedbackStatus
+  }
+
+  export type UserUpdateOneRequiredWithoutFeedbackNestedInput = {
+    create?: XOR<UserCreateWithoutFeedbackInput, UserUncheckedCreateWithoutFeedbackInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeedbackInput
+    upsert?: UserUpsertWithoutFeedbackInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFeedbackInput, UserUpdateWithoutFeedbackInput>, UserUncheckedUpdateWithoutFeedbackInput>
   }
 
   export type ProductCreateNestedManyWithoutCategoryInput = {
@@ -32318,6 +33930,23 @@ export namespace Prisma {
     _max?: NestedEnumUserStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumFeedbackStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackStatus | EnumFeedbackStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackStatusFilter<$PrismaModel> | $Enums.FeedbackStatus
+  }
+
+  export type NestedEnumFeedbackStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FeedbackStatus | EnumFeedbackStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FeedbackStatus[] | ListEnumFeedbackStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumFeedbackStatusWithAggregatesFilter<$PrismaModel> | $Enums.FeedbackStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFeedbackStatusFilter<$PrismaModel>
+    _max?: NestedEnumFeedbackStatusFilter<$PrismaModel>
+  }
+
   export type NestedEnumPlanTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.PlanType | EnumPlanTypeFieldRefInput<$PrismaModel>
     in?: $Enums.PlanType[] | ListEnumPlanTypeFieldRefInput<$PrismaModel>
@@ -32387,6 +34016,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutUserInput
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
+    feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
   }
 
@@ -32409,6 +34039,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -32769,6 +34400,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
+    feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
   }
 
@@ -32791,6 +34423,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -34181,6 +35814,7 @@ export namespace Prisma {
     products?: ProductCreateNestedManyWithoutUserInput
     memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
+    feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
   }
 
@@ -34203,6 +35837,7 @@ export namespace Prisma {
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -34322,6 +35957,7 @@ export namespace Prisma {
     products?: ProductUpdateManyWithoutUserNestedInput
     memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
+    feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
   }
 
@@ -34344,6 +35980,7 @@ export namespace Prisma {
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -34472,6 +36109,7 @@ export namespace Prisma {
     products?: ProductCreateNestedManyWithoutUserInput
     memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutUserInput
+    feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
   }
 
@@ -34494,6 +36132,7 @@ export namespace Prisma {
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
+    feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -34607,6 +36246,7 @@ export namespace Prisma {
     products?: ProductUpdateManyWithoutUserNestedInput
     memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutUserNestedInput
+    feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
   }
 
@@ -34629,6 +36269,7 @@ export namespace Prisma {
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
+    feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -34651,6 +36292,7 @@ export namespace Prisma {
     products?: ProductCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutUserInput
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
+    feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
   }
 
@@ -34673,6 +36315,7 @@ export namespace Prisma {
     products?: ProductUncheckedCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -34736,6 +36379,7 @@ export namespace Prisma {
     products?: ProductUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
+    feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
   }
 
@@ -34758,6 +36402,7 @@ export namespace Prisma {
     products?: ProductUncheckedUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -34950,6 +36595,38 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MemberFeedbackCreateWithoutUserInput = {
+    id?: string
+    subject?: string | null
+    message: string
+    rating?: number | null
+    status?: $Enums.FeedbackStatus
+    adminNote?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MemberFeedbackUncheckedCreateWithoutUserInput = {
+    id?: string
+    subject?: string | null
+    message: string
+    rating?: number | null
+    status?: $Enums.FeedbackStatus
+    adminNote?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MemberFeedbackCreateOrConnectWithoutUserInput = {
+    where: MemberFeedbackWhereUniqueInput
+    create: XOR<MemberFeedbackCreateWithoutUserInput, MemberFeedbackUncheckedCreateWithoutUserInput>
+  }
+
+  export type MemberFeedbackCreateManyUserInputEnvelope = {
+    data: MemberFeedbackCreateManyUserInput | MemberFeedbackCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserPlanPurchaseCreateWithoutUserInput = {
     id?: string
     externalId?: string | null
@@ -35052,6 +36729,37 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Organization"> | Date | string
   }
 
+  export type MemberFeedbackUpsertWithWhereUniqueWithoutUserInput = {
+    where: MemberFeedbackWhereUniqueInput
+    update: XOR<MemberFeedbackUpdateWithoutUserInput, MemberFeedbackUncheckedUpdateWithoutUserInput>
+    create: XOR<MemberFeedbackCreateWithoutUserInput, MemberFeedbackUncheckedCreateWithoutUserInput>
+  }
+
+  export type MemberFeedbackUpdateWithWhereUniqueWithoutUserInput = {
+    where: MemberFeedbackWhereUniqueInput
+    data: XOR<MemberFeedbackUpdateWithoutUserInput, MemberFeedbackUncheckedUpdateWithoutUserInput>
+  }
+
+  export type MemberFeedbackUpdateManyWithWhereWithoutUserInput = {
+    where: MemberFeedbackScalarWhereInput
+    data: XOR<MemberFeedbackUpdateManyMutationInput, MemberFeedbackUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type MemberFeedbackScalarWhereInput = {
+    AND?: MemberFeedbackScalarWhereInput | MemberFeedbackScalarWhereInput[]
+    OR?: MemberFeedbackScalarWhereInput[]
+    NOT?: MemberFeedbackScalarWhereInput | MemberFeedbackScalarWhereInput[]
+    id?: StringFilter<"MemberFeedback"> | string
+    userId?: StringFilter<"MemberFeedback"> | string
+    subject?: StringNullableFilter<"MemberFeedback"> | string | null
+    message?: StringFilter<"MemberFeedback"> | string
+    rating?: IntNullableFilter<"MemberFeedback"> | number | null
+    status?: EnumFeedbackStatusFilter<"MemberFeedback"> | $Enums.FeedbackStatus
+    adminNote?: StringNullableFilter<"MemberFeedback"> | string | null
+    createdAt?: DateTimeFilter<"MemberFeedback"> | Date | string
+    updatedAt?: DateTimeFilter<"MemberFeedback"> | Date | string
+  }
+
   export type UserPlanPurchaseUpsertWithWhereUniqueWithoutUserInput = {
     where: UserPlanPurchaseWhereUniqueInput
     update: XOR<UserPlanPurchaseUpdateWithoutUserInput, UserPlanPurchaseUncheckedUpdateWithoutUserInput>
@@ -35078,6 +36786,114 @@ export namespace Prisma {
     externalId?: StringNullableFilter<"UserPlanPurchase"> | string | null
     createdAt?: DateTimeFilter<"UserPlanPurchase"> | Date | string
     updatedAt?: DateTimeFilter<"UserPlanPurchase"> | Date | string
+  }
+
+  export type UserCreateWithoutFeedbackInput = {
+    id?: string
+    clerkId: string
+    email: string
+    firstName: string
+    lastName: string
+    role?: string
+    roleIntent?: string | null
+    heardFrom?: string | null
+    acceptedTerms?: boolean
+    termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    products?: ProductCreateNestedManyWithoutUserInput
+    memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
+    ProductUpvote?: ProductUpvoteCreateNestedManyWithoutUserInput
+    Organization?: OrganizationCreateNestedManyWithoutOwnerInput
+    purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutFeedbackInput = {
+    id?: string
+    clerkId: string
+    email: string
+    firstName: string
+    lastName: string
+    role?: string
+    roleIntent?: string | null
+    heardFrom?: string | null
+    acceptedTerms?: boolean
+    termsAcceptedAt?: Date | string | null
+    status?: $Enums.UserStatus
+    suspendedAt?: Date | string | null
+    terminatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    products?: ProductUncheckedCreateNestedManyWithoutUserInput
+    memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
+    ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
+    Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutFeedbackInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutFeedbackInput, UserUncheckedCreateWithoutFeedbackInput>
+  }
+
+  export type UserUpsertWithoutFeedbackInput = {
+    update: XOR<UserUpdateWithoutFeedbackInput, UserUncheckedUpdateWithoutFeedbackInput>
+    create: XOR<UserCreateWithoutFeedbackInput, UserUncheckedCreateWithoutFeedbackInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutFeedbackInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutFeedbackInput, UserUncheckedUpdateWithoutFeedbackInput>
+  }
+
+  export type UserUpdateWithoutFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clerkId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
+    heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
+    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    products?: ProductUpdateManyWithoutUserNestedInput
+    memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
+    ProductUpvote?: ProductUpvoteUpdateManyWithoutUserNestedInput
+    Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
+    purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clerkId?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
+    heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
+    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    products?: ProductUncheckedUpdateManyWithoutUserNestedInput
+    memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
+    ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
+    Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ProductCreateWithoutCategoryInput = {
@@ -35629,6 +37445,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutUserInput
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
+    feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPurchasesInput = {
@@ -35651,6 +37468,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipUncheckedCreateNestedManyWithoutUserInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutUserInput
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
+    feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPurchasesInput = {
@@ -35736,6 +37554,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
+    feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPurchasesInput = {
@@ -35758,6 +37577,7 @@ export namespace Prisma {
     memberships?: OrganizationMembershipUncheckedUpdateManyWithoutUserNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
+    feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PlanUpsertWithoutPurchasesInput = {
@@ -36520,6 +38340,17 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type MemberFeedbackCreateManyUserInput = {
+    id?: string
+    subject?: string | null
+    message: string
+    rating?: number | null
+    status?: $Enums.FeedbackStatus
+    adminNote?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UserPlanPurchaseCreateManyUserInput = {
     id?: string
     planId: string
@@ -36691,6 +38522,39 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MemberFeedbackUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    rating?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MemberFeedbackUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    rating?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MemberFeedbackUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subject?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: StringFieldUpdateOperationsInput | string
+    rating?: NullableIntFieldUpdateOperationsInput | number | null
+    status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
+    adminNote?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
