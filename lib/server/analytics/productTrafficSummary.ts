@@ -504,16 +504,14 @@ async function buildTrafficSummary(
 
   const clicksInRange = clickEvents.length
   const upvotesInRange = upvoteEvents.length
-  const clickThroughRate = totalViews > 0 ? (clicksInRange / totalViews) * 100 : 0
-  const previousClickThroughRate = previousViews > 0
-    ? (previousClickCount / previousViews) * 100
-    : 0
-  const upvoteConversionRate = uniqueVisitors > 0
-    ? (upvotesInRange / uniqueVisitors) * 100
-    : 0
-  const previousUpvoteConversionRate = previousUnique > 0
-    ? (previousUpvoteCount / previousUnique) * 100
-    : 0
+  const clickThroughRate =
+    totalViews > 0 ? (clicksInRange / totalViews) * 100 : 0
+  const previousClickThroughRate =
+    previousViews > 0 ? (previousClickCount / previousViews) * 100 : 0
+  const upvoteConversionRate =
+    uniqueVisitors > 0 ? (upvotesInRange / uniqueVisitors) * 100 : 0
+  const previousUpvoteConversionRate =
+    previousUnique > 0 ? (previousUpvoteCount / previousUnique) * 100 : 0
   const clicksChange = calcChange(clicksInRange, previousClickCount)
   const upvotesChange = calcChange(upvotesInRange, previousUpvoteCount)
   const clickThroughRateChange = calcChange(

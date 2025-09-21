@@ -315,15 +315,21 @@ function ConversionCard({
         ) : (
           <ul className="space-y-3">
             {items.map((item) => (
-              <li key={item.label} className="flex items-start justify-between gap-3 text-sm">
+              <li
+                key={item.label}
+                className="flex items-start justify-between gap-3 text-sm"
+              >
                 <div>
                   <div className="font-medium text-slate-900">{item.label}</div>
                   <div className="text-xs text-muted-foreground">
-                    {formatter.format(item.views)} views · {formatter.format(item.clicks)} clicks
+                    {formatter.format(item.views)} views ·{" "}
+                    {formatter.format(item.clicks)} clicks
                   </div>
                 </div>
                 <div className="shrink-0 text-xs font-semibold text-slate-700">
-                  {Number.isFinite(item.rate) ? `${item.rate.toFixed(1)}% CTR` : "—"}
+                  {Number.isFinite(item.rate)
+                    ? `${item.rate.toFixed(1)}% CTR`
+                    : "—"}
                 </div>
               </li>
             ))}
@@ -411,8 +417,8 @@ function VisitorLoyaltyCard({
           <div className="flex items-center justify-between text-xs">
             <span className="text-slate-500">Sample size</span>
             <span className="font-medium text-slate-700">
-              {formatter.format(totalKnown)} known · {formatter.format(totalAll)}
-              {" "}total
+              {formatter.format(totalKnown)} known ·{" "}
+              {formatter.format(totalAll)} total
             </span>
           </div>
         </div>
@@ -473,32 +479,35 @@ export function ProductAnalyticsView({
   const trafficCategoryItems = advanced.referrerCategoryBreakdown
     .map((item) => ({ label: item.label, views: item.views }))
     .slice(0, 5)
-  const referrerConversionItems: ConversionEntry[] = summary.referrerConversionBreakdown
-    .filter((item) => (item.views ?? 0) > 0 || (item.clicks ?? 0) > 0)
-    .slice(0, 6)
-    .map((item) => ({
-      label: item.referrer || "Direct",
-      views: item.views,
-      clicks: item.clicks,
-      rate: item.clickThroughRate,
-    }))
-  const deviceConversionItems: ConversionEntry[] = summary.deviceConversionBreakdown
-    .filter((item) => item.views > 0 || item.clicks > 0)
-    .map((item) => ({
-      label: item.label,
-      views: item.views,
-      clicks: item.clicks,
-      rate: item.clickThroughRate,
-    }))
-  const browserConversionItems: ConversionEntry[] = summary.browserConversionBreakdown
-    .filter((item) => item.views > 0 || item.clicks > 0)
-    .slice(0, 6)
-    .map((item) => ({
-      label: item.browser || "Unknown",
-      views: item.views,
-      clicks: item.clicks,
-      rate: item.clickThroughRate,
-    }))
+  const referrerConversionItems: ConversionEntry[] =
+    summary.referrerConversionBreakdown
+      .filter((item) => (item.views ?? 0) > 0 || (item.clicks ?? 0) > 0)
+      .slice(0, 6)
+      .map((item) => ({
+        label: item.referrer || "Direct",
+        views: item.views,
+        clicks: item.clicks,
+        rate: item.clickThroughRate,
+      }))
+  const deviceConversionItems: ConversionEntry[] =
+    summary.deviceConversionBreakdown
+      .filter((item) => item.views > 0 || item.clicks > 0)
+      .map((item) => ({
+        label: item.label,
+        views: item.views,
+        clicks: item.clicks,
+        rate: item.clickThroughRate,
+      }))
+  const browserConversionItems: ConversionEntry[] =
+    summary.browserConversionBreakdown
+      .filter((item) => item.views > 0 || item.clicks > 0)
+      .slice(0, 6)
+      .map((item) => ({
+        label: item.browser || "Unknown",
+        views: item.views,
+        clicks: item.clicks,
+        rate: item.clickThroughRate,
+      }))
   const hasConversionInsights =
     referrerConversionItems.length > 0 ||
     deviceConversionItems.length > 0 ||
