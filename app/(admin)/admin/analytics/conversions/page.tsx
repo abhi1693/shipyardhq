@@ -13,6 +13,72 @@ import {
   ConversionFunnelChart,
   type ConversionFunnelPoint,
 } from "@/components/pages/admin/analytics/ConversionFunnelChart"
+import { getConversionLeaderboards } from "@/lib/server/analytics/conversionLeaderboards"
+
+type LeaderboardEntry = {
+  id: string
+  label: string
+  value: string
+  delta?: number
+  helper?: string
+}
+
+function LeaderboardCard({
+  title,
+  description,
+  entries,
+  emptyLabel,
+}: {
+  title: string
+  description: string
+  entries: LeaderboardEntry[]
+  emptyLabel: string
+}) {
+  return (
+    <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base text-slate-900">{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {entries.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{emptyLabel}</p>
+        ) : (
+          <ol className="space-y-4 text-sm">
+            {entries.map((entry, index) => (
+              <li
+                key={entry.id}
+                className="flex items-start justify-between gap-3"
+              >
+                <div className="min-w-0 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      #{index + 1}
+                    </span>
+                    <span className="truncate font-medium text-slate-900">
+                      {entry.label}
+                    </span>
+                  </div>
+                  {entry.helper ? (
+                    <div className="text-xs text-muted-foreground">
+                      {entry.helper}
+                    </div>
+                  ) : null}
+                </div>
+                <div className="shrink-0 text-right">
+                  <div className="text-sm font-semibold text-slate-900">
+                    {entry.value}
+                  </div>
+                  <TrendBadge delta={entry.delta} />
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
 
 export const revalidate = 60
 
@@ -179,6 +245,7 @@ export default async function ConversionsAnalyticsPage({
   const sp = await searchParams
   const days = rangeToDays(sp?.range)
   const summary = await getGlobalTrafficSummary({ rangeDays: days })
+  const leaderboards = await getConversionLeaderboards(days)
 
   const funnelSeries = buildFunnelSeries(summary)
   const previousClickThroughRate =
@@ -246,6 +313,99 @@ export default async function ConversionsAnalyticsPage({
       value: formatPercent(summary.upvoteConversionRate),
       delta: summary.upvoteConversionRateChange,
       helper: `Prev ${formatPercent(previousUpvoteConversionRate)}`,
+    },
+  ]
+
+  const productLeaderboardEntries: Array<{
+    title: string
+    description: string
+    entries: LeaderboardEntry[]
+    emptyLabel: string
+  }> = [
+    {
+      title: "Top CTR products",
+      description: "Highest click-through rates this window.",
+      entries: leaderboards.products.topCtr.map((item) => ({
+        id: item.id,
+        label: item.name,
+        value: formatPercent(item.ctr),
+        delta: item.ctrDelta,
+        helper: `${item.categoryName ? `${item.categoryName} · ` : ""}${formatNumber(item.clicks)} clicks from ${formatNumber(item.views)} views`,
+      })),
+      emptyLabel:
+        "We need more product traffic before ranking click-through rates.",
+    },
+    {
+      title: "Top upvote rate products",
+      description: "Products converting visitors into advocates.",
+      entries: leaderboards.products.topUpvoteRate.map((item) => ({
+        id: item.id,
+        label: item.name,
+        value: formatPercent(item.upvoteRate),
+        delta: item.upvoteRateDelta,
+        helper: `${item.categoryName ? `${item.categoryName} · ` : ""}${formatNumber(item.upvotes)} upvotes from ${formatNumber(item.views)} views`,
+      })),
+      emptyLabel:
+        "Collect more upvotes to surface a product-level conversion leaderboard.",
+    },
+    {
+      title: "Fastest-growing products",
+      description: "Products adding views the quickest vs. prior period.",
+      entries: leaderboards.products.fastestGrowing.map((item) => ({
+        id: item.id,
+        label: item.name,
+        value: formatNumber(item.views),
+        delta: item.growth,
+        helper: `${item.categoryName ? `${item.categoryName} · ` : ""}Prev ${formatNumber(item.previousViews)} views`,
+      })),
+      emptyLabel:
+        "Momentum leaderboard will appear once products register more sessions.",
+    },
+  ]
+
+  const categoryLeaderboardEntries: Array<{
+    title: string
+    description: string
+    entries: LeaderboardEntry[]
+    emptyLabel: string
+  }> = [
+    {
+      title: "Top CTR categories",
+      description: "Categories attracting high click-through rates.",
+      entries: leaderboards.categories.topCtr.map((item) => ({
+        id: item.id,
+        label: item.name,
+        value: formatPercent(item.ctr),
+        delta: item.ctrDelta,
+        helper: `${formatNumber(item.clicks)} clicks from ${formatNumber(item.views)} views`,
+      })),
+      emptyLabel:
+        "Once categories gather more data, CTR rankings will populate here.",
+    },
+    {
+      title: "Top upvote rate categories",
+      description: "Where visitors are most likely to upvote.",
+      entries: leaderboards.categories.topUpvoteRate.map((item) => ({
+        id: item.id,
+        label: item.name,
+        value: formatPercent(item.upvoteRate),
+        delta: item.upvoteRateDelta,
+        helper: `${formatNumber(item.upvotes)} upvotes from ${formatNumber(item.views)} views`,
+      })),
+      emptyLabel: "As more categories collect upvotes, this table will unlock.",
+    },
+    {
+      title: "Fastest-growing categories",
+      description: "Segments gaining the most momentum by views.",
+      entries: leaderboards.categories.fastestGrowing.map((item) => ({
+        id: item.id,
+        label: item.name,
+        value: formatNumber(item.views),
+        delta: item.growth,
+        helper: `Prev ${formatNumber(item.previousViews)} views`,
+      })),
+      emptyLabel:
+        "Growth rankings will display after categories accumulate more views.",
     },
   ]
 
@@ -340,6 +500,48 @@ export default async function ConversionsAnalyticsPage({
               />
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            Leaderboards
+          </h2>
+        </div>
+        <div className="space-y-8">
+          <div className="space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+              Product leaderboards
+            </h3>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {productLeaderboardEntries.map((card) => (
+                <LeaderboardCard
+                  key={card.title}
+                  title={card.title}
+                  description={card.description}
+                  entries={card.entries}
+                  emptyLabel={card.emptyLabel}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+              Category leaderboards
+            </h3>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {categoryLeaderboardEntries.map((card) => (
+                <LeaderboardCard
+                  key={card.title}
+                  title={card.title}
+                  description={card.description}
+                  entries={card.entries}
+                  emptyLabel={card.emptyLabel}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </section>
     </div>

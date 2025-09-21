@@ -493,24 +493,59 @@ async function buildTrafficSummary(
   let previousClickCount = 0
   let previousUpvoteCount = 0
 
-  if (includeAdvancedMetrics && targetProductIds?.length) {
+  if (includeAdvancedMetrics) {
     const rangeEnd = addDays(today, 1)
     const previousRangeStart = previousStart
     const previousRangeEnd = rangeStart
-    const productFilter =
-      targetProductIds.length === 1
+    const productFilter = targetProductIds?.length
+      ? targetProductIds.length === 1
         ? targetProductIds[0]
         : ({ in: targetProductIds } as Prisma.StringFilter)
+      : undefined
+
+    const clickWhere: Prisma.ProductClickEventWhereInput = {
+      createdAt: {
+        gte: rangeStart,
+        lt: rangeEnd,
+      },
+    }
+    const previousClickWhere: Prisma.ProductClickEventWhereInput = {
+      createdAt: {
+        gte: previousRangeStart,
+        lt: previousRangeEnd,
+      },
+    }
+
+    const upvoteWhere: Prisma.ProductUpvoteWhereInput = {
+      createdAt: {
+        gte: rangeStart,
+        lt: rangeEnd,
+      },
+    }
+    const previousUpvoteWhere: Prisma.ProductUpvoteWhereInput = {
+      createdAt: {
+        gte: previousRangeStart,
+        lt: previousRangeEnd,
+      },
+    }
+
+    if (productFilter) {
+      clickWhere.productId = productFilter
+      previousClickWhere.productId = productFilter
+      upvoteWhere.productId = productFilter
+      previousUpvoteWhere.productId = productFilter
+    } else if (context === "organization" && organizationId) {
+      // safety: organization summaries should already supply explicit product IDs
+      clickWhere.product = { organizationId }
+      previousClickWhere.product = { organizationId }
+      upvoteWhere.product = { organizationId }
+      previousUpvoteWhere.product = { organizationId }
+    }
+
     ;[clickEvents, upvoteEvents, previousClickCount, previousUpvoteCount] =
       await Promise.all([
         prisma.productClickEvent.findMany({
-          where: {
-            productId: productFilter,
-            createdAt: {
-              gte: rangeStart,
-              lt: rangeEnd,
-            },
-          },
+          where: clickWhere,
           select: {
             createdAt: true,
             device: true,
@@ -524,13 +559,7 @@ async function buildTrafficSummary(
           },
         }),
         prisma.productUpvote.findMany({
-          where: {
-            productId: productFilter,
-            createdAt: {
-              gte: rangeStart,
-              lt: rangeEnd,
-            },
-          },
+          where: upvoteWhere,
           select: { createdAt: true },
           cacheStrategy: {
             ...trafficCache,
@@ -538,26 +567,10 @@ async function buildTrafficSummary(
           },
         }),
         previousComparison
-          ? prisma.productClickEvent.count({
-              where: {
-                productId: productFilter,
-                createdAt: {
-                  gte: previousRangeStart,
-                  lt: previousRangeEnd,
-                },
-              },
-            })
+          ? prisma.productClickEvent.count({ where: previousClickWhere })
           : Promise.resolve(0),
         previousComparison
-          ? prisma.productUpvote.count({
-              where: {
-                productId: productFilter,
-                createdAt: {
-                  gte: previousRangeStart,
-                  lt: previousRangeEnd,
-                },
-              },
-            })
+          ? prisma.productUpvote.count({ where: previousUpvoteWhere })
           : Promise.resolve(0),
       ])
   }
