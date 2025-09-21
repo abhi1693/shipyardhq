@@ -71,8 +71,6 @@ jobs:
   submit_sitemap:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'schedule'
-    needs:
-      - tests
     env:
       GOOGLE_SVC_ACCOUNT: ${{ secrets.GOOGLE_SVC_ACCOUNT }}
     steps:
