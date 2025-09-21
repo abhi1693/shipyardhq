@@ -33,6 +33,11 @@ const baseNavItems: NavItem[] = [
         icon: "analytics",
       },
       {
+        title: "Conversions",
+        url: "/admin/analytics/conversions",
+        icon: "conversions",
+      },
+      {
         title: "Onboarding",
         url: "/admin/analytics/onboarding",
         icon: "user",

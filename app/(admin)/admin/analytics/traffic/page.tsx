@@ -97,7 +97,9 @@ function TrendingPathsCard({
               <tr className="text-xs text-muted-foreground">
                 <th className="py-2 pr-4 text-left font-medium">Path</th>
                 <th className="py-2 pr-4 text-right font-medium">Views</th>
-                <th className="py-2 pr-4 text-right font-medium">Prev window</th>
+                <th className="py-2 pr-4 text-right font-medium">
+                  Prev window
+                </th>
                 <th className="py-2 text-right font-medium">Change</th>
               </tr>
             </thead>
