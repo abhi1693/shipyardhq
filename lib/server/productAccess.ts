@@ -1,9 +1,9 @@
-import {auth} from "@clerk/nextjs/server"
-import {notFound, redirect} from "next/navigation"
+import { auth } from "@clerk/nextjs/server"
+import { notFound, redirect } from "next/navigation"
 
 import prisma from "@/lib/prisma"
-import {getActiveUserByClerkId} from "@/lib/server/userStatus"
-import {PlanType} from "@/lib/vendor/prisma/client"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import { PlanType } from "@/lib/vendor/prisma/client"
 
 export type ManageableProductSummary = {
   id: string
@@ -82,7 +82,10 @@ export async function requireManageableProduct(
           },
           select: { id: true },
         }),
-        resolveOrganizationSubscriptionAccess(currentUser!.id, product!.organizationId),
+        resolveOrganizationSubscriptionAccess(
+          currentUser!.id,
+          product!.organizationId,
+        ),
       ])
       canManage = Boolean(membership || subscriptionAccess)
     } catch (error) {
@@ -143,10 +146,7 @@ async function resolveOrganizationSubscriptionAccess(
     if (!org || org.ownerUserId !== userId) return false
     return Boolean(qualifyingPurchase)
   } catch (error) {
-    console.error(
-      "[productAccess] subscription access check failed",
-      error,
-    )
+    console.error("[productAccess] subscription access check failed", error)
     return false
   }
 }

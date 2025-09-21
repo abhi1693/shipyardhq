@@ -676,7 +676,9 @@ export function ProductAnalyticsView({
                 </CardHeader>
                 <CardContent className="px-5 pb-6">
                   <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    <li>Measure visitor loyalty with new vs. returning trends.</li>
+                    <li>
+                      Measure visitor loyalty with new vs. returning trends.
+                    </li>
                     <li>
                       Break down channels, cities, and browsers with richer
                       drilldowns.

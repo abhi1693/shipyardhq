@@ -236,12 +236,8 @@ function OrganizationPlanOptions({
         const discountedCents = hasDiscount
           ? Math.round(priceCents * (1 - discountPct / 100))
           : priceCents
-        const displayPrice = isFree
-          ? "Free"
-          : USD.format(discountedCents / 100)
-        const originalPrice = hasDiscount
-          ? USD.format(priceCents / 100)
-          : null
+        const displayPrice = isFree ? "Free" : USD.format(discountedCents / 100)
+        const originalPrice = hasDiscount ? USD.format(priceCents / 100) : null
         const formattedDiscount = hasDiscount
           ? new Intl.NumberFormat("en-US", {
               maximumFractionDigits: 2,

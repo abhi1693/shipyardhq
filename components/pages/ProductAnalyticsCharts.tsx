@@ -131,7 +131,10 @@ export function ProductAnalyticsCharts({
           className="min-h-[280px]"
         >
           <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={summary.viewsOverTime} margin={{ left: 4, right: 12 }}>
+            <LineChart
+              data={summary.viewsOverTime}
+              margin={{ left: 4, right: 12 }}
+            >
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
                 dataKey="label"
@@ -227,7 +230,10 @@ export function ProductAnalyticsCharts({
               </ResponsiveContainer>
               <div className="grid grid-cols-2 gap-3">
                 {summary.deviceBreakdown.map((entry) => (
-                  <div key={entry.device} className="flex items-center gap-2 text-sm">
+                  <div
+                    key={entry.device}
+                    className="flex items-center gap-2 text-sm"
+                  >
                     <span
                       className="h-2.5 w-2.5 rounded-full"
                       style={{
@@ -272,8 +278,8 @@ export function ProductAnalyticsCharts({
               </span>
             </TooltipTrigger>
             <TooltipContent sideOffset={6}>
-              Daily Shipyard engagement—CTA clicks and new upvotes collected during
-              the selected window.
+              Daily Shipyard engagement—CTA clicks and new upvotes collected
+              during the selected window.
             </TooltipContent>
           </Tooltip>
         </CardTitle>
@@ -291,7 +297,10 @@ export function ProductAnalyticsCharts({
             className="min-h-[280px]"
           >
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={summary.engagementOverTime} margin={{ left: 4, right: 12 }}>
+              <LineChart
+                data={summary.engagementOverTime}
+                margin={{ left: 4, right: 12 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="label"
@@ -329,8 +338,8 @@ export function ProductAnalyticsCharts({
           </ChartContainer>
         ) : (
           <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-10 text-center text-base text-muted-foreground">
-            Engagement lines will appear once Shipyard records fresh clicks or upvotes for
-            this product.
+            Engagement lines will appear once Shipyard records fresh clicks or
+            upvotes for this product.
           </p>
         )}
       </CardContent>
@@ -354,8 +363,8 @@ export function ProductAnalyticsCharts({
               </span>
             </TooltipTrigger>
             <TooltipContent sideOffset={6}>
-              Browser mix during the range. Helpful for verifying compatibility and
-              testing coverage.
+              Browser mix during the range. Helpful for verifying compatibility
+              and testing coverage.
             </TooltipContent>
           </Tooltip>
         </CardTitle>
@@ -366,8 +375,8 @@ export function ProductAnalyticsCharts({
       <CardContent className="px-4 pb-5 pt-4">
         {topBrowsers.length === 0 ? (
           <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-10 text-center text-base text-muted-foreground">
-            No browser fleet on the horizon yet. When the crew grows, we’ll map their
-            vessels here.
+            No browser fleet on the horizon yet. When the crew grows, we’ll map
+            their vessels here.
           </p>
         ) : (
           <ChartContainer
@@ -433,8 +442,8 @@ export function ProductAnalyticsCharts({
               </span>
             </TooltipTrigger>
             <TooltipContent sideOffset={6}>
-              Leading geographies for recent traffic. Pair with marketing campaigns
-              to localise messaging.
+              Leading geographies for recent traffic. Pair with marketing
+              campaigns to localise messaging.
             </TooltipContent>
           </Tooltip>
         </CardTitle>
@@ -444,8 +453,8 @@ export function ProductAnalyticsCharts({
         <ChartContainer className="min-h-[280px]">
           {topCountries.length === 0 ? (
             <p className="py-8 text-center text-base text-muted-foreground">
-              No ports of call yet—when visitors arrive, we’ll chart their map across
-              the globe.
+              No ports of call yet—when visitors arrive, we’ll chart their map
+              across the globe.
             </p>
           ) : (
             <ResponsiveContainer width="100%" height={260}>
@@ -503,9 +512,7 @@ export function ProductAnalyticsCharts({
             </TooltipContent>
           </Tooltip>
         </CardTitle>
-        <CardDescription>
-          Top external sources sending visitors
-        </CardDescription>
+        <CardDescription>Top external sources sending visitors</CardDescription>
       </CardHeader>
       <CardContent>
         {summary.referrerBreakdown.length === 0 ? (
@@ -532,11 +539,7 @@ export function ProductAnalyticsCharts({
   )
 
   if (!isAdvanced) {
-    return (
-      <div className="grid gap-6">
-        {renderViewsCard()}
-      </div>
-    )
+    return <div className="grid gap-6">{renderViewsCard()}</div>
   }
 
   return (

@@ -66,8 +66,7 @@ export default async function MemberLayout({
     hasBillingPortal = await canOpenDodoBillingPortalByEmail(activeUser.email)
   }
 
-  const shouldShowBillingPortal =
-    isBillingPortalEnvEnabled && hasBillingPortal
+  const shouldShowBillingPortal = isBillingPortalEnvEnabled && hasBillingPortal
 
   if (
     role === "admin" &&

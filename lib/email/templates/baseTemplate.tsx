@@ -2,12 +2,15 @@ import type { ReactNode } from "react"
 import { EmailLayout } from "@/lib/email/components/layout"
 
 export type BaseEmailTemplateProps = {
-  heading: string
+  heading?: string
   intro?: string
   children?: ReactNode
   cta?: { label: string; href: string }
   previewText?: string
   title?: string
+  showHeader?: boolean
+  renderMode?: "document" | "preview"
+  footerNote?: ReactNode
 }
 
 const headingStyle = {
@@ -51,12 +54,21 @@ export function BaseEmailTemplate({
   cta,
   previewText,
   title,
+  showHeader,
+  renderMode,
+  footerNote,
 }: BaseEmailTemplateProps) {
   return (
-    <EmailLayout previewText={previewText} title={title}>
-      <h1 style={headingStyle}>{heading}</h1>
+    <EmailLayout
+      previewText={previewText}
+      title={title}
+      showHeader={showHeader}
+      renderMode={renderMode}
+    >
+      {heading ? <h1 style={headingStyle}>{heading}</h1> : null}
       {intro ? <p style={paragraphStyle}>{intro}</p> : null}
       {children}
+      {footerNote ? footerNote : null}
       {cta ? (
         <div style={buttonWrapperStyle}>
           <a href={cta.href} style={buttonStyle}>

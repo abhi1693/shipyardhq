@@ -346,7 +346,10 @@ async function buildTrafficSummary(
       deviceCounts.set(deviceKey, (deviceCounts.get(deviceKey) ?? 0) + 1)
 
       const browserLabel = labelForBrowser(event.browser)
-      browserCounts.set(browserLabel, (browserCounts.get(browserLabel) ?? 0) + 1)
+      browserCounts.set(
+        browserLabel,
+        (browserCounts.get(browserLabel) ?? 0) + 1,
+      )
 
       const osLabel = labelForOs(event.os)
       osCounts.set(osLabel, (osCounts.get(osLabel) ?? 0) + 1)
@@ -385,8 +388,7 @@ async function buildTrafficSummary(
     if (event.ipHash) {
       uniqueHashes.add(event.ipHash)
       if (includeAdvancedMetrics) {
-        const countryLabel =
-          countryLabelForIp ?? labelForCountry(event.country)
+        const countryLabel = countryLabelForIp ?? labelForCountry(event.country)
         const ipKey = `${event.ipHash}|${countryLabel}`
         const ipEntry = ipCountryCounts.get(ipKey) ?? {
           ipHash: event.ipHash,
@@ -621,15 +623,16 @@ async function buildTrafficSummary(
     }
   })
 
-  const deviceBreakdown: ProductTrafficSummary["deviceBreakdown"] = includeAdvancedMetrics
-    ? DEVICE_ORDER.map((device) => ({
-        device,
-        label: labelForDevice(device),
-        views: deviceCounts.get(device) ?? 0,
-      }))
-        .filter((entry) => entry.views > 0)
-        .sort((a, b) => b.views - a.views)
-    : []
+  const deviceBreakdown: ProductTrafficSummary["deviceBreakdown"] =
+    includeAdvancedMetrics
+      ? DEVICE_ORDER.map((device) => ({
+          device,
+          label: labelForDevice(device),
+          views: deviceCounts.get(device) ?? 0,
+        }))
+          .filter((entry) => entry.views > 0)
+          .sort((a, b) => b.views - a.views)
+      : []
 
   const deviceConversionBreakdown: ProductTrafficSummary["deviceConversionBreakdown"] =
     includeAdvancedMetrics
@@ -646,17 +649,19 @@ async function buildTrafficSummary(
         })
       : []
 
-  const countryBreakdown: ProductTrafficSummary["countryBreakdown"] = includeAdvancedMetrics
-    ? Array.from(countryCounts.entries())
-        .map(([country, count]) => ({ country, views: count }))
-        .sort((a, b) => b.views - a.views)
-    : []
+  const countryBreakdown: ProductTrafficSummary["countryBreakdown"] =
+    includeAdvancedMetrics
+      ? Array.from(countryCounts.entries())
+          .map(([country, count]) => ({ country, views: count }))
+          .sort((a, b) => b.views - a.views)
+      : []
 
-  const browserBreakdown: ProductTrafficSummary["browserBreakdown"] = includeAdvancedMetrics
-    ? Array.from(browserCounts.entries())
-        .map(([browser, count]) => ({ browser, views: count }))
-        .sort((a, b) => b.views - a.views)
-    : []
+  const browserBreakdown: ProductTrafficSummary["browserBreakdown"] =
+    includeAdvancedMetrics
+      ? Array.from(browserCounts.entries())
+          .map(([browser, count]) => ({ browser, views: count }))
+          .sort((a, b) => b.views - a.views)
+      : []
 
   const browserConversionBreakdown: ProductTrafficSummary["browserConversionBreakdown"] =
     includeAdvancedMetrics
@@ -673,11 +678,12 @@ async function buildTrafficSummary(
         })
       : []
 
-  const referrerBreakdown: ProductTrafficSummary["referrerBreakdown"] = includeAdvancedMetrics
-    ? Array.from(referrerCounts.entries())
-        .map(([referrer, count]) => ({ referrer, views: count }))
-        .sort((a, b) => b.views - a.views)
-    : []
+  const referrerBreakdown: ProductTrafficSummary["referrerBreakdown"] =
+    includeAdvancedMetrics
+      ? Array.from(referrerCounts.entries())
+          .map(([referrer, count]) => ({ referrer, views: count }))
+          .sort((a, b) => b.views - a.views)
+      : []
 
   const referrerConversionBreakdown: ProductTrafficSummary["referrerConversionBreakdown"] =
     includeAdvancedMetrics
@@ -693,21 +699,22 @@ async function buildTrafficSummary(
         })
       : []
 
-  const pathBreakdown: ProductTrafficAdvancedInsights["pathBreakdown"] = includeAdvancedMetrics
-    ? Array.from(pathCounts.entries())
-        .map(([path, count]) => {
-          const previous = previousPathCounts.get(path) ?? 0
-          const change = calcGrowth(count, previous)
-          return {
-            path,
-            views: count,
-            previousViews: previous,
-            viewsChange: change,
-          }
-        })
-        .sort((a, b) => b.views - a.views)
-        .slice(0, MAX_PATH_BREAKDOWN)
-    : []
+  const pathBreakdown: ProductTrafficAdvancedInsights["pathBreakdown"] =
+    includeAdvancedMetrics
+      ? Array.from(pathCounts.entries())
+          .map(([path, count]) => {
+            const previous = previousPathCounts.get(path) ?? 0
+            const change = calcGrowth(count, previous)
+            return {
+              path,
+              views: count,
+              previousViews: previous,
+              viewsChange: change,
+            }
+          })
+          .sort((a, b) => b.views - a.views)
+          .slice(0, MAX_PATH_BREAKDOWN)
+      : []
 
   let osBreakdown: ProductTrafficAdvancedInsights["osBreakdown"] = []
   let osConversionBreakdown: ProductTrafficSummary["osConversionBreakdown"] = []
@@ -729,37 +736,39 @@ async function buildTrafficSummary(
     })
   }
 
-  const regionBreakdown: ProductTrafficAdvancedInsights["regionBreakdown"] = includeAdvancedMetrics
-    ? Array.from(regionCounts.entries())
-        .map(([key, count]) => {
-          const [rawCountry, rawRegion] = key.split("::")
-          const country = rawCountry.length ? rawCountry : null
-          const region = labelForRegion(
-            country,
-            rawRegion.length ? rawRegion : null,
-          )
-          return { country, region, views: count }
-        })
-        .sort((a, b) => b.views - a.views)
-        .slice(0, MAX_REGION_ITEMS)
-    : []
+  const regionBreakdown: ProductTrafficAdvancedInsights["regionBreakdown"] =
+    includeAdvancedMetrics
+      ? Array.from(regionCounts.entries())
+          .map(([key, count]) => {
+            const [rawCountry, rawRegion] = key.split("::")
+            const country = rawCountry.length ? rawCountry : null
+            const region = labelForRegion(
+              country,
+              rawRegion.length ? rawRegion : null,
+            )
+            return { country, region, views: count }
+          })
+          .sort((a, b) => b.views - a.views)
+          .slice(0, MAX_REGION_ITEMS)
+      : []
 
-  const cityBreakdown: ProductTrafficAdvancedInsights["cityBreakdown"] = includeAdvancedMetrics
-    ? Array.from(cityCounts.entries())
-        .map(([key, count]) => {
-          const [rawCountry, rawRegion, rawCity] = key.split("::")
-          const country = rawCountry.length ? rawCountry : null
-          const region = rawRegion.length ? rawRegion : null
-          const city = labelForCity(
-            country,
-            region,
-            rawCity.length ? rawCity : null,
-          )
-          return { country, region, city, views: count }
-        })
-        .sort((a, b) => b.views - a.views)
-        .slice(0, MAX_CITY_ITEMS)
-    : []
+  const cityBreakdown: ProductTrafficAdvancedInsights["cityBreakdown"] =
+    includeAdvancedMetrics
+      ? Array.from(cityCounts.entries())
+          .map(([key, count]) => {
+            const [rawCountry, rawRegion, rawCity] = key.split("::")
+            const country = rawCountry.length ? rawCountry : null
+            const region = rawRegion.length ? rawRegion : null
+            const city = labelForCity(
+              country,
+              region,
+              rawCity.length ? rawCity : null,
+            )
+            return { country, region, city, views: count }
+          })
+          .sort((a, b) => b.views - a.views)
+          .slice(0, MAX_CITY_ITEMS)
+      : []
 
   const referrerCategoryBreakdown: ProductTrafficAdvancedInsights["referrerCategoryBreakdown"] =
     includeAdvancedMetrics
@@ -807,7 +816,8 @@ async function buildTrafficSummary(
           newVisitors,
           returningVisitors,
           unknownVisitors: anonymousUnique,
-          returningRate: hashedUnique > 0 ? returningVisitors / hashedUnique : 0,
+          returningRate:
+            hashedUnique > 0 ? returningVisitors / hashedUnique : 0,
         }
       : {
           newVisitors: 0,
@@ -846,7 +856,9 @@ async function buildTrafficSummary(
           key: path.path,
           description: `Path ${path.path} spiked to ${path.views} views in this window.`,
           metric: "viewsChange",
-          magnitude: Number.isFinite(change) ? change : Number.POSITIVE_INFINITY,
+          magnitude: Number.isFinite(change)
+            ? change
+            : Number.POSITIVE_INFINITY,
           share,
         })
       }

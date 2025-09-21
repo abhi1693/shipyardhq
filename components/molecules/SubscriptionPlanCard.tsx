@@ -31,12 +31,8 @@ export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
   const discountedCents = hasDiscount
     ? Math.round(priceCents * (1 - discountPct / 100))
     : priceCents
-  const priceLabel = isFree
-    ? "Free"
-    : USD.format(discountedCents / 100)
-  const originalPrice = hasDiscount
-    ? USD.format(priceCents / 100)
-    : null
+  const priceLabel = isFree ? "Free" : USD.format(discountedCents / 100)
+  const originalPrice = hasDiscount ? USD.format(priceCents / 100) : null
   const formattedDiscount = hasDiscount
     ? new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(
         discountPct,
@@ -78,7 +74,9 @@ export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
               {originalPrice}
             </span>
           ) : null}
-          <span className="text-3xl font-bold tracking-tight">{priceLabel}</span>
+          <span className="text-3xl font-bold tracking-tight">
+            {priceLabel}
+          </span>
           {!isFree ? (
             <span className="text-sm text-muted-foreground">{cadence}</span>
           ) : null}

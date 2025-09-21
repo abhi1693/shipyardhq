@@ -6,6 +6,8 @@ export type EmailLayoutProps = {
   children: ReactNode
   previewText?: string
   title?: string
+  showHeader?: boolean
+  renderMode?: "document" | "preview"
 }
 
 const bodyStyle: CSSProperties = {
@@ -65,11 +67,56 @@ const linkStyle: CSSProperties = {
   textDecoration: "none",
 }
 
+const previewWrapperStyle: CSSProperties = {
+  ...bodyStyle,
+  padding: "24px",
+  minHeight: "100%",
+  boxSizing: "border-box",
+}
+
 export function EmailLayout({
   children,
   previewText,
   title,
+  showHeader,
+  renderMode = "document",
 }: EmailLayoutProps) {
+  const renderHeader = showHeader ?? true
+
+  if (renderMode === "preview") {
+    return (
+      <div style={previewWrapperStyle} data-email-preview>
+        <table
+          width="100%"
+          cellPadding={0}
+          cellSpacing={0}
+          style={containerStyle}
+        >
+          <tbody>
+            <tr>
+              <td align="center">
+                <table
+                  width="100%"
+                  cellPadding={0}
+                  cellSpacing={0}
+                  style={cardStyle}
+                >
+                  <tbody>
+                    {renderHeader ? <EmailHeader /> : null}
+                    <tr>
+                      <td style={contentCellStyle}>{children}</td>
+                    </tr>
+                    <EmailFooter />
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
   return (
     <html lang="en">
       <head>
@@ -95,7 +142,7 @@ export function EmailLayout({
                   style={cardStyle}
                 >
                   <tbody>
-                    <EmailHeader />
+                    {renderHeader ? <EmailHeader /> : null}
                     <tr>
                       <td style={contentCellStyle}>{children}</td>
                     </tr>

@@ -191,8 +191,8 @@ export default async function PricingPage() {
               Keep your crew connected
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Subscriptions unlock shared organizations, advanced analytics,
-              and dedicated collaboration resources.
+              Subscriptions unlock shared organizations, advanced analytics, and
+              dedicated collaboration resources.
             </p>
           </div>
           <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">

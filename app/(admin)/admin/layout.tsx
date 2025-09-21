@@ -49,6 +49,11 @@ const navItems: NavItem[] = [
     icon: "user",
   },
   {
+    title: "Notifications",
+    url: "/admin/notifications",
+    icon: "bell",
+  },
+  {
     title: "Organizations",
     url: "/admin/organizations",
     icon: "building",
