@@ -25,6 +25,8 @@ export default clerkMiddleware(async (auth, req) => {
   const status = metadata?.status
   const onboardingComplete = metadata?.onboardingComplete === true
   const pathname = req.nextUrl.pathname
+  const onboardingOverrideCookie =
+    req.cookies.get("shipyard_onboarding_override")?.value === "1"
   const isSuspended = status && status !== "active"
 
   if (isSuspended) {
@@ -48,6 +50,9 @@ export default clerkMiddleware(async (auth, req) => {
     const isOnboardingPath = pathname.startsWith("/member/onboarding")
 
     if (!onboardingComplete && !isOnboardingPath) {
+      if (onboardingOverrideCookie) {
+        return NextResponse.next()
+      }
       const onboardingUrl = new URL("/member/onboarding", req.url)
       const requestPathWithSearch = `${pathname}${req.nextUrl.search}`
 
@@ -62,7 +67,16 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
 
-  return NextResponse.next()
+  const res = NextResponse.next()
+  if (onboardingComplete && onboardingOverrideCookie) {
+    res.cookies.set({
+      name: "shipyard_onboarding_override",
+      value: "",
+      maxAge: 0,
+      path: "/",
+    })
+  }
+  return res
 })
 
 export const config = {

@@ -11,6 +11,7 @@ import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { IS_PROD } from "@/lib/constants"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { buildSectionMetadata } from "@/lib/metadata"
+import { redirect } from "next/navigation"
 
 export const metadata = buildSectionMetadata({ section: "Member" })
 
@@ -52,11 +53,23 @@ export default async function MemberLayout({
   type ActiveUser = Awaited<ReturnType<typeof requireActiveUserOrRedirect>>
   let activeUser: ActiveUser | null = null
   if (userId) {
-    const client = await clerkClient()
-    const clerkUser = await client.users.getUser(userId)
-    await syncUserFromClerk(clerkUser)
+    const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/"
+    try {
+      const client = await clerkClient()
+      const clerkUser = await client.users.getUser(userId)
+      await syncUserFromClerk(clerkUser)
+    } catch (error) {
+      console.error("Failed to load active member context", error)
+      redirect(signInPath)
+    }
+
     activeUser = await requireActiveUserOrRedirect(userId)
-    await syncCurrentUserBilling()
+
+    try {
+      await syncCurrentUserBilling()
+    } catch (error) {
+      console.error("Failed to sync current user billing", error)
+    }
   }
   const role = sessionClaims?.metadata.role || "member"
 
