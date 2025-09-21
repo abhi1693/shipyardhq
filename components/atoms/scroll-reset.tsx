@@ -12,7 +12,7 @@ export function ScrollReset({ triggerKey }: ScrollResetProps) {
 
     try {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" })
-    } catch (err) {
+    } catch {
       window.scrollTo(0, 0)
     }
   }, [triggerKey])
