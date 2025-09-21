@@ -1,5 +1,7 @@
+import Link from "next/link"
 import { IconCheck } from "@tabler/icons-react"
 import type { PublicPlan } from "@/actions/public/plans/actions"
+import { Button } from "@/components/atoms/button"
 
 const USD = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -32,6 +34,9 @@ export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
       return aIndex - bIndex
     })
     .slice(0, 4)
+  const includesOrganization = enabledFeatures.some(
+    (feature) => feature.key === "organization",
+  )
 
   return (
     <article className="flex h-full flex-col gap-5 rounded-2xl border border-[color:var(--brand-1)/0.22] bg-background/90 p-6 shadow-[0_22px_60px_-45px_rgba(7,58,104,0.6)] backdrop-blur">
@@ -85,6 +90,13 @@ export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
           </p>
         )}
       </div>
+      {includesOrganization ? (
+        <div className="mt-auto pt-2">
+          <Button asChild className="w-full">
+            <Link href="/member/organizations">Get started</Link>
+          </Button>
+        </div>
+      ) : null}
     </article>
   )
 }
