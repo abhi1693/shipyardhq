@@ -38,12 +38,22 @@ function formatNumber(value: number) {
 }
 
 function formatPercent(value: number) {
+  if (!Number.isFinite(value)) {
+    if (Number.isNaN(value)) {
+      return "—"
+    }
+    return `${value > 0 ? "+" : "-"}∞%`
+  }
   return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`
 }
 
 function TrendBadge({ delta }: { delta?: number }) {
-  if (typeof delta !== "number" || !Number.isFinite(delta)) {
+  if (typeof delta !== "number" || Number.isNaN(delta)) {
     return <span className="text-xs text-muted-foreground">—</span>
+  }
+
+  if (!Number.isFinite(delta)) {
+    return <span className="text-xs font-medium text-emerald-600">New</span>
   }
 
   if (delta === 0) {
@@ -56,6 +66,65 @@ function TrendBadge({ delta }: { delta?: number }) {
     <span className={cn("text-xs font-medium", tone)}>
       {formatPercent(delta)}
     </span>
+  )
+}
+
+function TrendingPathsCard({
+  paths,
+}: {
+  paths: ProductTrafficSummary["advanced"]["pathBreakdown"]
+}) {
+  const rows = paths.slice(0, 10)
+
+  return (
+    <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-base text-slate-900">
+          Trending paths
+        </CardTitle>
+        <CardDescription>
+          Paths gaining traction versus the previous window.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="overflow-x-auto">
+        {rows.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No path activity recorded for this window.
+          </p>
+        ) : (
+          <table className="w-full min-w-[520px] text-sm">
+            <thead>
+              <tr className="text-xs text-muted-foreground">
+                <th className="py-2 pr-4 text-left font-medium">Path</th>
+                <th className="py-2 pr-4 text-right font-medium">Views</th>
+                <th className="py-2 pr-4 text-right font-medium">Prev window</th>
+                <th className="py-2 text-right font-medium">Change</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200/70">
+              {rows.map((row, index) => (
+                <tr key={`${row.path}-${index}`}>
+                  <td className="py-3 pr-4 align-top">
+                    <span className="block max-w-[260px] break-words font-medium text-slate-900">
+                      {row.path || "/"}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-4 text-right font-medium text-slate-900 tabular-nums">
+                    {formatNumber(row.views)}
+                  </td>
+                  <td className="py-3 pr-4 text-right tabular-nums text-muted-foreground">
+                    {formatNumber(row.previousViews)}
+                  </td>
+                  <td className="py-3 text-right">
+                    <TrendBadge delta={row.viewsChange} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 
@@ -464,6 +533,7 @@ export default async function TrafficAnalyticsPage({
   const anomalies = advanced.anomalies
   const topProducts = advanced.topProducts ?? []
   const referrerMatrix = advanced.referrerProductMatrix ?? []
+  const trendingPaths = advanced.pathBreakdown
 
   return (
     <div className="space-y-10">
@@ -526,9 +596,12 @@ export default async function TrafficAnalyticsPage({
             Network hotspots
           </h2>
         </div>
-        <div className="grid gap-4 lg:grid-cols-2">
-          <ProductLeaderboardCard products={topProducts} />
-          <ReferrerMatrixCard rows={referrerMatrix} />
+        <div className="space-y-4">
+          <TrendingPathsCard paths={trendingPaths} />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ProductLeaderboardCard products={topProducts} />
+            <ReferrerMatrixCard rows={referrerMatrix} />
+          </div>
         </div>
       </section>
 
