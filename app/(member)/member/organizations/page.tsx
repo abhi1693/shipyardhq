@@ -30,9 +30,16 @@ type OrgPlan = {
   name: string
   description?: string | null
   price: number
+  discount?: number | null
+  priceSuffix?: string | null
   features: Array<{ id: string; name: string; enabled: boolean }>
   externalId?: string | null
 }
+
+const USD = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+})
 
 async function loadEligibleOrgPlans(): Promise<OrgPlan[]> {
   const plans = await getPublicPlans({
@@ -220,49 +227,90 @@ function OrganizationPlanOptions({
     <div
       className={`grid gap-4 ${fullWidth ? "sm:grid-cols-2" : "md:grid-cols-2"}`}
     >
-      {eligiblePlans.map((plan) => (
-        <div
-          key={plan.id}
-          className="space-y-4 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-foreground">
-                {plan.name}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {plan.description ||
-                  "Includes all core Shipyard features plus organizations."}
-              </p>
+      {eligiblePlans.map((plan) => {
+        const priceCents = plan.price ?? 0
+        const isFree = priceCents === 0
+        const discountRaw = plan.discount ?? 0
+        const discountPct = Math.min(Math.max(discountRaw, 0), 100)
+        const hasDiscount = !isFree && discountPct > 0 && discountPct < 100
+        const discountedCents = hasDiscount
+          ? Math.round(priceCents * (1 - discountPct / 100))
+          : priceCents
+        const displayPrice = isFree
+          ? "Free"
+          : USD.format(discountedCents / 100)
+        const originalPrice = hasDiscount
+          ? USD.format(priceCents / 100)
+          : null
+        const formattedDiscount = hasDiscount
+          ? new Intl.NumberFormat("en-US", {
+              maximumFractionDigits: 2,
+            }).format(discountPct)
+          : null
+
+        return (
+          <div
+            key={plan.id}
+            className="space-y-4 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-foreground">
+                  {plan.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {plan.description ||
+                    "Includes all core Shipyard features plus organizations."}
+                </p>
+              </div>
+              <div className="flex flex-col items-end gap-1 text-right">
+                {hasDiscount && originalPrice ? (
+                  <span className="text-xs text-muted-foreground line-through">
+                    {originalPrice}
+                  </span>
+                ) : null}
+                <div className="flex items-baseline gap-1 text-foreground">
+                  <span className="text-sm font-semibold text-foreground">
+                    {displayPrice}
+                  </span>
+                  {!isFree && plan.priceSuffix ? (
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                      {plan.priceSuffix}
+                    </span>
+                  ) : null}
+                </div>
+                {hasDiscount && formattedDiscount ? (
+                  <span className="inline-flex w-fit items-center rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                    Save {formattedDiscount}%
+                  </span>
+                ) : null}
+              </div>
             </div>
-            <span className="text-sm font-semibold text-foreground">
-              {plan.price > 0 ? `$${(plan.price / 100).toFixed(2)}` : "Free"}
-            </span>
+            <ul className="space-y-2 text-xs text-muted-foreground">
+              {plan.features
+                .filter((f) => f.enabled)
+                .map((feature) => (
+                  <li key={feature.id} className="flex items-start gap-2">
+                    <span className="mt-1 h-1 w-1 rounded-full bg-muted-foreground/60" />
+                    <span>{feature.name}</span>
+                  </li>
+                ))}
+            </ul>
+            <div>
+              {plan.externalId && plan.price > 0 ? (
+                <OrgPlanBuyButton externalId={plan.externalId} />
+              ) : (
+                <form action={startOrgCheckoutAction} className="flex">
+                  <input type="hidden" name="planId" value={plan.id} />
+                  <Button type="submit" className="px-6">
+                    Get access
+                  </Button>
+                </form>
+              )}
+            </div>
           </div>
-          <ul className="space-y-2 text-xs text-muted-foreground">
-            {plan.features
-              .filter((f) => f.enabled)
-              .map((feature) => (
-                <li key={feature.id} className="flex items-start gap-2">
-                  <span className="mt-1 h-1 w-1 rounded-full bg-muted-foreground/60" />
-                  <span>{feature.name}</span>
-                </li>
-              ))}
-          </ul>
-          <div>
-            {plan.externalId && plan.price > 0 ? (
-              <OrgPlanBuyButton externalId={plan.externalId} />
-            ) : (
-              <form action={startOrgCheckoutAction} className="flex">
-                <input type="hidden" name="planId" value={plan.id} />
-                <Button type="submit" className="px-6">
-                  Get access
-                </Button>
-              </form>
-            )}
-          </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

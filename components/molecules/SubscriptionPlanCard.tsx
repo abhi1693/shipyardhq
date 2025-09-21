@@ -23,8 +23,25 @@ const highlightIndex = new Map<string, number>(
 )
 
 export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
-  const priceLabel =
-    plan.price === 0 ? "Free" : USD.format((plan.price ?? 0) / 100)
+  const priceCents = plan.price ?? 0
+  const isFree = priceCents === 0
+  const discountRaw = plan.discount ?? 0
+  const discountPct = Math.min(Math.max(discountRaw, 0), 100)
+  const hasDiscount = !isFree && discountPct > 0 && discountPct < 100
+  const discountedCents = hasDiscount
+    ? Math.round(priceCents * (1 - discountPct / 100))
+    : priceCents
+  const priceLabel = isFree
+    ? "Free"
+    : USD.format(discountedCents / 100)
+  const originalPrice = hasDiscount
+    ? USD.format(priceCents / 100)
+    : null
+  const formattedDiscount = hasDiscount
+    ? new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(
+        discountPct,
+      )
+    : null
   const cadence = plan.priceSuffix ?? "per month"
   const enabledFeatures = plan.features.filter((feature) => feature.enabled)
   const prioritizedFeatures = [...enabledFeatures]
@@ -54,9 +71,23 @@ export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
         </div>
       </header>
 
-      <div className="flex flex-wrap items-baseline gap-2 text-[color:var(--brand-1)]">
-        <span className="text-3xl font-bold tracking-tight">{priceLabel}</span>
-        <span className="text-sm text-muted-foreground">{cadence}</span>
+      <div className="space-y-1">
+        <div className="flex flex-wrap items-baseline gap-2 text-[color:var(--brand-1)]">
+          {hasDiscount && originalPrice ? (
+            <span className="text-sm text-foreground/60 line-through">
+              {originalPrice}
+            </span>
+          ) : null}
+          <span className="text-3xl font-bold tracking-tight">{priceLabel}</span>
+          {!isFree ? (
+            <span className="text-sm text-muted-foreground">{cadence}</span>
+          ) : null}
+        </div>
+        {hasDiscount && formattedDiscount ? (
+          <span className="inline-flex w-fit items-center rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+            Save {formattedDiscount}%
+          </span>
+        ) : null}
       </div>
 
       <div className="space-y-3">
