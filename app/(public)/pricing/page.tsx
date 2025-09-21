@@ -5,6 +5,7 @@ import { PricingTable } from "@/components/organisms/PricingTable"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { getProducts } from "@/actions/public/products/featured"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
+import { SubscriptionPlanCard } from "@/components/molecules/SubscriptionPlanCard"
 import { PlanType } from "@/lib/vendor/prisma/client"
 import { Button } from "@/components/atoms/button"
 import {
@@ -62,8 +63,9 @@ const PRICING_FAQS = [
 ]
 
 export default async function PricingPage() {
-  const [plans, featured] = await Promise.all([
+  const [plans, subscriptionPlans, featured] = await Promise.all([
     getPublicPlans({ type: PlanType.one_time_price }),
+    getPublicPlans({ type: PlanType.recurring_price }),
     getProducts("featured"),
   ])
 
@@ -175,6 +177,36 @@ export default async function PricingPage() {
         </div>
         <PricingTable plans={plans} />
       </PublicContainer>
+
+      {subscriptionPlans.length > 0 && (
+        <PublicContainer
+          as="section"
+          max="marketing"
+          paddingY="py-16"
+          className="relative"
+          fillScreen={false}
+        >
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+              Keep your crew connected
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Subscriptions unlock shared organizations, advanced analytics,
+              and dedicated collaboration resources.
+            </p>
+          </div>
+          <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
+            {subscriptionPlans.map((plan) => (
+              <div
+                key={plan.id}
+                className="flex w-full max-w-sm flex-1 basis-full sm:basis-[20rem]"
+              >
+                <SubscriptionPlanCard plan={plan} />
+              </div>
+            ))}
+          </div>
+        </PublicContainer>
+      )}
 
       <PublicContainer
         as="section"

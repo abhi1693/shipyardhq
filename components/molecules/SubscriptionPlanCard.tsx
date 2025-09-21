@@ -1,0 +1,90 @@
+import { IconCheck } from "@tabler/icons-react"
+import type { PublicPlan } from "@/actions/public/plans/actions"
+
+const USD = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+})
+
+const HIGHLIGHT_PRIORITY = [
+  "organization",
+  "analytics.advanced",
+  "analytics.basic",
+  "priorityPlacement",
+  "homepage",
+  "featured",
+  "backlink",
+] as const
+
+const highlightIndex = new Map<string, number>(
+  HIGHLIGHT_PRIORITY.map((key, index) => [key, index] as const),
+)
+
+export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
+  const priceLabel =
+    plan.price === 0 ? "Free" : USD.format((plan.price ?? 0) / 100)
+  const cadence = plan.priceSuffix ?? "per month"
+  const enabledFeatures = plan.features.filter((feature) => feature.enabled)
+  const prioritizedFeatures = [...enabledFeatures]
+    .sort((a, b) => {
+      const aIndex = highlightIndex.get(a.key) ?? Number.MAX_SAFE_INTEGER
+      const bIndex = highlightIndex.get(b.key) ?? Number.MAX_SAFE_INTEGER
+      return aIndex - bIndex
+    })
+    .slice(0, 4)
+
+  return (
+    <article className="flex h-full flex-col gap-5 rounded-2xl border border-[color:var(--brand-1)/0.22] bg-background/90 p-6 shadow-[0_22px_60px_-45px_rgba(7,58,104,0.6)] backdrop-blur">
+      <header className="space-y-2">
+        <span className="inline-flex items-center rounded-full border border-[color:var(--brand-1)/0.28] bg-[color:var(--brand-1)/0.1] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
+          Subscription
+        </span>
+        <div className="space-y-1">
+          <h3 className="text-xl font-semibold text-foreground">{plan.name}</h3>
+          {plan.description ? (
+            <p className="text-sm text-muted-foreground leading-snug">
+              {plan.description}
+            </p>
+          ) : null}
+        </div>
+      </header>
+
+      <div className="flex flex-wrap items-baseline gap-2 text-[color:var(--brand-1)]">
+        <span className="text-3xl font-bold tracking-tight">{priceLabel}</span>
+        <span className="text-sm text-muted-foreground">{cadence}</span>
+      </div>
+
+      <div className="space-y-3">
+        <span className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+          Included resources
+        </span>
+        {prioritizedFeatures.length > 0 ? (
+          <ul className="space-y-3 text-sm text-muted-foreground">
+            {prioritizedFeatures.map((feature) => (
+              <li
+                key={feature.id}
+                className="flex items-start gap-3 rounded-xl border border-[color:var(--brand-1)/0.12] bg-background/70 px-3 py-2"
+              >
+                <span className="mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full border border-[color:var(--brand-1)/0.3] bg-[color:var(--brand-1)/0.1] text-[color:var(--brand-1)]">
+                  <IconCheck className="h-3.5 w-3.5" aria-hidden />
+                </span>
+                <div className="space-y-0.5 leading-tight">
+                  <p className="font-medium text-foreground">{feature.name}</p>
+                  {feature.description ? (
+                    <p className="text-xs text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="rounded-xl border border-dashed border-[color:var(--brand-1)/0.16] bg-background/60 px-3 py-3 text-sm text-muted-foreground">
+            Reach out to our crew for the full subscription lineup.
+          </p>
+        )}
+      </div>
+    </article>
+  )
+}

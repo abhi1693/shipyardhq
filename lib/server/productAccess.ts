@@ -1,8 +1,9 @@
-import { auth } from "@clerk/nextjs/server"
-import { notFound, redirect } from "next/navigation"
+import {auth} from "@clerk/nextjs/server"
+import {notFound, redirect} from "next/navigation"
 
 import prisma from "@/lib/prisma"
-import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import {getActiveUserByClerkId} from "@/lib/server/userStatus"
+import {PlanType} from "@/lib/vendor/prisma/client"
 
 export type ManageableProductSummary = {
   id: string
@@ -69,19 +70,21 @@ export async function requireManageableProduct(
     handleMissing(missingRedirect)
   }
 
-  const ownsProduct = product!.userId === currentUser!.id
-  let canManage = ownsProduct
+  let canManage = product!.userId === currentUser!.id
 
   if (!canManage && product!.organizationId) {
     try {
-      const membership = await prisma.organizationMembership.findFirst({
-        where: {
-          organizationId: product!.organizationId,
-          userId: currentUser!.id,
-        },
-        select: { id: true },
-      })
-      canManage = Boolean(membership)
+      const [membership, subscriptionAccess] = await Promise.all([
+        prisma.organizationMembership.findFirst({
+          where: {
+            organizationId: product!.organizationId,
+            userId: currentUser!.id,
+          },
+          select: { id: true },
+        }),
+        resolveOrganizationSubscriptionAccess(currentUser!.id, product!.organizationId),
+      ])
+      canManage = Boolean(membership || subscriptionAccess)
     } catch (error) {
       console.error("[productAccess] membership check failed", error)
       canManage = false
@@ -95,5 +98,55 @@ export async function requireManageableProduct(
   return {
     product: product!,
     currentUser: currentUser!,
+  }
+}
+
+async function resolveOrganizationSubscriptionAccess(
+  userId: string,
+  organizationId: string,
+): Promise<boolean> {
+  try {
+    const [org, qualifyingPurchase] = await Promise.all([
+      prisma.organization.findUnique({
+        where: { id: organizationId },
+        select: { ownerUserId: true },
+      }),
+      prisma.userPlanPurchase.findFirst({
+        where: {
+          userId,
+          plan: {
+            type: PlanType.recurring_price,
+            AND: [
+              {
+                assignments: {
+                  some: {
+                    enabled: true,
+                    feature: { key: "organization" },
+                  },
+                },
+              },
+              {
+                assignments: {
+                  some: {
+                    enabled: true,
+                    feature: { key: "analytics.advanced" },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        select: { id: true },
+      }),
+    ])
+
+    if (!org || org.ownerUserId !== userId) return false
+    return Boolean(qualifyingPurchase)
+  } catch (error) {
+    console.error(
+      "[productAccess] subscription access check failed",
+      error,
+    )
+    return false
   }
 }
