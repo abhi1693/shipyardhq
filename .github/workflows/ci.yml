@@ -83,7 +83,7 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Decode and store Google Service Account JSON
         run: echo "${{ secrets.GOOGLE_SVC_ACCOUNT }}" | base64 -d > scripts/service-account.json
