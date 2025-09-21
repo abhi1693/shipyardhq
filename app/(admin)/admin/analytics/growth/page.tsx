@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { formatDistanceToNow } from "date-fns"
+import { addDays, format, formatDistanceToNow, subDays } from "date-fns"
 
 import {
   Card,
@@ -10,6 +10,7 @@ import {
 } from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
 import RangeSelector from "@/components/molecules/RangeSelector"
+import { ProductLaunchChart } from "@/components/pages/admin/analytics/ProductLaunchChart"
 import {
   getDashboardStats,
   getRecentProducts,
@@ -146,6 +147,17 @@ export default async function GrowthAnalyticsPage({
   const avgProductsPerDay = stats.productsInRange / days
   const avgUsersPerDay = stats.usersInRange / days
 
+  const rangeStart = subDays(new Date(), days)
+  const launchTrend = stats.dailyProducts.map((count, index) => {
+    const date = addDays(rangeStart, index + 1)
+    const labelFormat = days <= 7 ? "EEE" : "MMM d"
+
+    return {
+      label: format(date, labelFormat),
+      products: count,
+    }
+  })
+
   return (
     <div className="space-y-10">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -197,6 +209,20 @@ export default async function GrowthAnalyticsPage({
             helper={`${formatNumber(stats.totalUpvotes)} lifetime upvotes`}
           />
         </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            Launch trends
+          </h2>
+        </div>
+        <ProductLaunchChart
+          data={launchTrend}
+          days={days}
+          currentTotal={stats.productsInRange}
+          previousTotal={previousProducts}
+        />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-3">
