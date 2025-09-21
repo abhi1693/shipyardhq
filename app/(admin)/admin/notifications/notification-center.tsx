@@ -102,16 +102,13 @@ export default function NotificationCenter({
     firstName: string | null
   } | null>(null)
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
-  const [summaryStats, setSummaryStats] = useState<
-    | {
-        totalRecipients: number
-        sent: number
-        failed: number
-        sentPercentage: number
-        failedPercentage: number
-      }
-    | null
-  >(null)
+  const [summaryStats, setSummaryStats] = useState<{
+    totalRecipients: number
+    sent: number
+    failed: number
+    sentPercentage: number
+    failedPercentage: number
+  } | null>(null)
 
   const form = useForm<NotificationFormValues>({
     resolver: zodResolver(formSchema),

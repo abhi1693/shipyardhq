@@ -426,7 +426,10 @@ export async function sendNotificationEmailsAction(
       failed,
       invalidEmails: [],
       sentPercentage: calculatePercentage(sent, uniqueRecipients.length),
-      failedPercentage: calculatePercentage(failed.length, uniqueRecipients.length),
+      failedPercentage: calculatePercentage(
+        failed.length,
+        uniqueRecipients.length,
+      ),
     },
   }
 }
