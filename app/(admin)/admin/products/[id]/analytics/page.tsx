@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation"
 
-import prisma from "@/lib/prisma"
 import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
+import {
+  getProductAnalyticsRecord,
+  toProductAnalyticsViewProduct,
+} from "@/lib/server/analytics/productAnalytics"
 import {
   ProductAnalyticsView,
   rangeToDays,
@@ -19,18 +22,7 @@ export default async function AdminProductAnalyticsPage({
   const rangeParam = sp?.range ?? null
   const rangeDays = rangeToDays(rangeParam)
 
-  const product = await prisma.product.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      status: true,
-      createdAt: true,
-      updatedAt: true,
-      analytics: { select: { upvotes: true, clicks: true } },
-    },
-  })
+  const product = await getProductAnalyticsRecord(id)
 
   if (!product) {
     return notFound()
@@ -42,16 +34,11 @@ export default async function AdminProductAnalyticsPage({
   })
   const publicPath = `/products/${product.slug}`
 
+  const viewProduct = toProductAnalyticsViewProduct(product)
+
   return (
     <ProductAnalyticsView
-      product={{
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-        analytics: product.analytics,
-      }}
+      product={viewProduct}
       summary={summary}
       basePath="admin/products"
       backHref={`/admin/products/${product.id}`}

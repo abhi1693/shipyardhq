@@ -1,8 +1,11 @@
 import { notFound, redirect } from "next/navigation"
-import prisma from "@/lib/prisma"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 import { hasPlanFeature } from "@/lib/features"
+import {
+  getProductAnalyticsRecord,
+  toProductAnalyticsViewProduct,
+} from "@/lib/server/analytics/productAnalytics"
 import {
   ProductAnalyticsView,
   rangeToDays,
@@ -23,32 +26,7 @@ export default async function ProductAnalyticsPage({
     missingRedirect: null,
   })
 
-  const product = await prisma.product.findUnique({
-    where: { id: manageableProduct.id },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      status: true,
-      createdAt: true,
-      updatedAt: true,
-      websiteUrl: true,
-      category: { select: { name: true } },
-      analytics: { select: { upvotes: true, clicks: true } },
-      plan: {
-        select: {
-          name: true,
-          price: true,
-          assignments: {
-            select: {
-              enabled: true,
-              feature: { select: { key: true } },
-            },
-          },
-        },
-      },
-    },
-  })
+  const product = await getProductAnalyticsRecord(manageableProduct.id)
 
   if (!product) {
     return notFound()
@@ -73,16 +51,11 @@ export default async function ProductAnalyticsPage({
   })
   const publicPath = `/products/${product.slug}`
 
+  const viewProduct = toProductAnalyticsViewProduct(product)
+
   return (
     <ProductAnalyticsView
-      product={{
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-        analytics: product.analytics,
-      }}
+      product={viewProduct}
       summary={summary}
       basePath="member/products"
       backHref={`/member/products/${product.slug}`}
