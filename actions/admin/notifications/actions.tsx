@@ -155,29 +155,34 @@ export async function getNotificationSegmentCounts(): Promise<SegmentCounts> {
       prisma.user.count({
         where: {
           status: "active",
+          role: { not: "admin" },
         },
       }),
       prisma.user.count({
         where: {
           status: "active",
+          role: { not: "admin" },
           roleIntent: { in: [...BUILDER_INTENTS] },
         },
       }),
       prisma.user.count({
         where: {
           status: "active",
+          role: { not: "admin" },
           roleIntent: EXPLORER_INTENT,
         },
       }),
       prisma.user.count({
         where: {
           status: "active",
+          role: { not: "admin" },
           products: { some: {} },
         },
       }),
       prisma.user.count({
         where: {
           status: "active",
+          role: { not: "admin" },
           products: { none: {} },
         },
       }),
@@ -220,7 +225,7 @@ async function resolveSegmentRecipients(
   switch (segment) {
     case "registered": {
       const users = await prisma.user.findMany({
-        where: { status: "active" },
+        where: { status: "active", role: { not: "admin" } },
         select: { email: true, firstName: true },
         orderBy: { createdAt: "asc" },
         take,
@@ -234,6 +239,7 @@ async function resolveSegmentRecipients(
       const users = await prisma.user.findMany({
         where: {
           status: "active",
+          role: { not: "admin" },
           roleIntent: { in: [...BUILDER_INTENTS] },
         },
         select: { email: true, firstName: true },
@@ -249,6 +255,7 @@ async function resolveSegmentRecipients(
       const users = await prisma.user.findMany({
         where: {
           status: "active",
+          role: { not: "admin" },
           roleIntent: EXPLORER_INTENT,
         },
         select: { email: true, firstName: true },
@@ -264,6 +271,7 @@ async function resolveSegmentRecipients(
       const users = await prisma.user.findMany({
         where: {
           status: "active",
+          role: { not: "admin" },
           products: { some: {} },
         },
         select: { email: true, firstName: true },
@@ -279,6 +287,7 @@ async function resolveSegmentRecipients(
       const users = await prisma.user.findMany({
         where: {
           status: "active",
+          role: { not: "admin" },
           products: { none: {} },
         },
         select: { email: true, firstName: true },
