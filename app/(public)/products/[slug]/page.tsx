@@ -40,6 +40,7 @@ import { JSX } from "react"
 import ImageLightbox from "@/components/molecules/ImageLightbox"
 import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
 import { buildPageMetadata } from "@/lib/metadata"
+import { ScrollReset } from "@/components/atoms/scroll-reset"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -307,6 +308,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <main className="relative isolate overflow-hidden">
+      <ScrollReset triggerKey={product.slug} />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(248,252,255,0.95),rgba(232,243,251,0.9)45%,rgba(216,235,247,0.88))] dark:bg-[linear-gradient(180deg,rgba(5,13,24,0.92),rgba(3,22,40,0.9)45%,rgba(6,28,51,0.92))]"
