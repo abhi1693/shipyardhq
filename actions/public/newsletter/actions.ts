@@ -1,7 +1,6 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { Prisma } from "@/lib/vendor/prisma/client"
 import { z } from "zod"
 
 const newsletterSchema = z.object({
@@ -46,17 +45,9 @@ export async function unsubscribeFromNewsletterAction(rawEmail: string) {
   const email = parsed.data.email.toLowerCase()
 
   try {
-    await prisma.newsletterSubscription.delete({ where: { email } })
+    await prisma.newsletterSubscription.deleteMany({ where: { email } })
     return { success: true }
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2025"
-    ) {
-      // Already unsubscribed; treat as success
-      return { success: true }
-    }
-
     console.error("newsletter unsubscribe failed", error)
     return {
       error: "We couldn't update your logbook entry. Try again soon?",
