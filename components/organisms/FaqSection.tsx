@@ -8,9 +8,72 @@ import {
 
 export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
   {
+    question: "What analytics are included on the Free plan?",
+    answer: (
+      <div className="space-y-3">
+        <p>
+          Every listing now ships with baseline analytics so you can watch
+          traction without upgrading.
+        </p>
+        <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+          <li>Lifetime vote and click totals to gauge overall demand</li>
+          <li>Total page views across your launch window</li>
+          <li>Interactive trends with selectable ranges from 7 to 90 days</li>
+        </ul>
+      </div>
+    ),
+  },
+  {
+    question: "What extra insight do paid plans unlock?",
+    answer: (
+      <div className="space-y-3">
+        <p>
+          Paid upgrades layer in richer context so you can pinpoint what drives
+          conversions.
+        </p>
+        <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+          <li>Click-through rates split by referrer, device, and browser</li>
+          <li>Visitor loyalty, retention cohorts, and repeat engagement</li>
+          <li>Operating system and traffic channel breakdowns per campaign</li>
+        </ul>
+      </div>
+    ),
+  },
+  {
+    question: "How does analytics scale for Crew plan organizations?",
+    answer: (
+      <div className="space-y-3">
+        <p>
+          Crew plan members get an organization-wide lens that rolls every
+          product into one analytics workspace.
+        </p>
+        <p className="text-muted-foreground">
+          Compare launches across teams, surface shared momentum, and quickly
+          spot products that need attention without hopping between dashboards.
+        </p>
+      </div>
+    ),
+  },
+  {
+    question: "How do I access analytics for a product?",
+    answer: (
+      <div className="space-y-3">
+        <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
+          <li>Open the Member View from the main navigation.</li>
+          <li>Select Products to see your listings.</li>
+          <li>Use the Analytics action on the product row you want to review.</li>
+        </ol>
+        <p>
+          Dashboards refresh in near real time, so give them a quick look after
+          campaigns or newsletter sends to confirm impact.
+        </p>
+      </div>
+    ),
+  },
+  {
     question: "Is it free to submit a product?",
     answer:
-      "Yes. Listing a product on ShipYardHQ is free—you can publish immediately or keep a draft without paying. Paid upgrades simply layer on extra reach such as featured badges, homepage placement, newsletter promotion, sticky banners, custom CTAs, and priority placement in browse results.",
+      "Yes. Listing a product on ShipyardHQ is free—you can publish immediately or keep a draft without paying. Free listings now include the core analytics dashboard, and you can upgrade anytime for more reach and deeper reporting.",
   },
   {
     question: "How does the product submission flow work?",
@@ -25,12 +88,7 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
   {
     question: "Can I update or relaunch after publishing?",
     answer:
-      "Absolutely. Edit from your member dashboard at any time to refresh copy, swap assets, or re-run verification. You can also flip a live product back to draft while you iterate, then republish when it’s polished.",
-  },
-  {
-    question: "What do paid plans unlock?",
-    answer:
-      "Paid plans unlock additional exposure and tooling—think featured badges, homepage placement, sticky hero banners, newsletter promotion, early access perks, do-follow backlinks, custom CTA buttons, and richer analytics. You can upgrade any product whenever you need a boost.",
+      "Absolutely. Edit from your member dashboard at any time to refresh copy, swap assets, or re-run verification. You can also flip a live product back to draft while you iterate. Analytics retain historical data, so you can relaunch without losing past performance.",
   },
   {
     question: "How do I manage billing or cancel an upgrade?",
@@ -40,7 +98,7 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
   {
     question: "Who can create organizations or invite teammates?",
     answer:
-      "Organizations unlock for makers on plans that include the organization feature. If you don’t have access yet you’ll see an upsell screen with eligible plans, and the collaboration tools stay hidden until a qualifying purchase is active.",
+      "Organizations unlock for makers on plans that include the collaboration feature. Eligible plans instantly expose shared analytics, team roles, and handoff tooling once a qualifying purchase is active.",
   },
   {
     question: "How do upvotes work?",

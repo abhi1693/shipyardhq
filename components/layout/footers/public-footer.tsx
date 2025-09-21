@@ -112,6 +112,14 @@ export default function PublicFooter({
               </Link>
             </li>
             <li>
+              <Link
+                href="/analytics"
+                className={textLinkCls + " md:font-medium"}
+              >
+                Analytics
+              </Link>
+            </li>
+            <li>
               <Link href="/pricing" className={textLinkCls + " md:font-medium"}>
                 Pricing
               </Link>

@@ -37,6 +37,9 @@ describe("PublicHeader", () => {
       screen.getAllByRole("link", { name: /Leaderboard/i })[0],
     ).toBeInTheDocument()
     expect(
+      screen.getAllByRole("link", { name: /Analytics/i })[0],
+    ).toBeInTheDocument()
+    expect(
       screen.getAllByRole("link", { name: /Pricing/i })[0],
     ).toBeInTheDocument()
   })

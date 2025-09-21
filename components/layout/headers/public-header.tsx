@@ -17,6 +17,7 @@ const navLinks = [
   { label: "Browse", href: "/browse" },
   { label: "Categories", href: "/categories" },
   { label: "Leaderboard", href: "/leaderboard" },
+  { label: "Analytics", href: "/analytics" },
   { label: "Makers", href: "/users" },
   { label: "Pricing", href: "/pricing" },
 ]

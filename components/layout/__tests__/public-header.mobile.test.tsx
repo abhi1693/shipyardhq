@@ -68,6 +68,9 @@ describe("PublicHeader mobile menu", () => {
     const leaderboard = screen.getAllByRole("link", { name: /Leaderboard/i })[0]
     expect(leaderboard).toBeInTheDocument()
 
+    const analytics = screen.getAllByRole("link", { name: /Analytics/i })[0]
+    expect(analytics).toBeInTheDocument()
+
     // Link presence inside sheet is sufficient to assert mobile rendering
     expect(leaderboard).toBeInTheDocument()
   })
