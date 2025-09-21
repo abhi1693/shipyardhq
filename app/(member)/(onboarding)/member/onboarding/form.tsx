@@ -94,6 +94,7 @@ export function OnboardingForm({
     redirectTo &&
     redirectTo.startsWith("/") &&
     !redirectTo.startsWith("//") &&
+    !redirectTo.startsWith("/admin") &&
     redirectTo !== "/member/onboarding"
       ? redirectTo
       : "/member/overview"
