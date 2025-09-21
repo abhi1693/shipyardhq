@@ -9,6 +9,7 @@ import {
   FormItem,
   FormLabel,
   FormControl,
+  FormDescription,
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
@@ -137,6 +138,18 @@ export default function Step1({
                 </button>
               </div>
             </div>
+            <FormDescription>
+              Supports Markdown formatting. Preview changes or revisit the{" "}
+              <a
+                href="https://www.markdownguide.org/basic-syntax/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Markdown basics
+              </a>
+              .
+            </FormDescription>
             <FormControl>
               {previewDesc ? (
                 <div className="h-48 rounded border p-3 overflow-auto prose prose-sm max-w-none">
@@ -160,7 +173,7 @@ export default function Step1({
                 <Textarea
                   rows={10}
                   className="h-48"
-                  placeholder="What does your product do? Use markdown for formatting (headings, lists, links)."
+                  placeholder="What does your product do?"
                   {...field}
                 />
               )}
