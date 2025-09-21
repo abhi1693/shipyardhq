@@ -1103,8 +1103,7 @@ export async function getOrganizationTrafficSummary(
     productIds = rows.map((row) => row.id)
   }
 
-  const includeProductBreakdown =
-    restOptions.includeProductBreakdown ?? true
+  const includeProductBreakdown = restOptions.includeProductBreakdown ?? true
   const includeReferrerMatrix = restOptions.includeReferrerMatrix ?? true
 
   return buildTrafficSummary(

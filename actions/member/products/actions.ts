@@ -10,6 +10,7 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { hasPlanFeature } from "@/lib/features"
+import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -38,10 +39,6 @@ type ProductListItem = Prisma.ProductGetPayload<{
     verification: { select: { isVerified: true } }
     analytics: { select: { clicks: true; upvotes: true } }
   }
-}>
-
-type ProductUpvoteWithUser = Prisma.ProductUpvoteGetPayload<{
-  include: { user: true }
 }>
 
 async function getAccessibleOrganizationIds(userId: string) {
@@ -203,22 +200,7 @@ export async function getRecentUpvoters(productId: string, limit = 5) {
     select: { id: true },
   })
   if (!ok) throw new Error("Not found")
-  const rows: ProductUpvoteWithUser[] = await prisma.productUpvote.findMany({
-    where: { productId },
-    orderBy: { createdAt: "desc" },
-    take: limit,
-    include: { user: true },
-  })
-  return rows.map((r: ProductUpvoteWithUser) => ({
-    id: r.id,
-    createdAt: r.createdAt,
-    user: {
-      id: r.user.id,
-      firstName: r.user.firstName,
-      lastName: r.user.lastName,
-      email: r.user.email,
-    },
-  }))
+  return getRecentProductUpvoters(productId, limit)
 }
 
 // Attach or remove a plan from a product owned by the current user

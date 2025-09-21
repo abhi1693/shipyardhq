@@ -62,13 +62,17 @@ export default async function MemberOrganizationPage({
       isOwner = org.ownerUserId === me.id
     }
   }
-  const [members, organizationProducts, availableProducts, hasAdvancedAnalytics] =
-    await Promise.all([
-      getMyOrganizationMembers(id),
-      getMyOrganizationProducts(id),
-      getMyAvailableProductsForOrganization(id),
-      organizationHasAdvancedAnalytics(org.id),
-    ])
+  const [
+    members,
+    organizationProducts,
+    availableProducts,
+    hasAdvancedAnalytics,
+  ] = await Promise.all([
+    getMyOrganizationMembers(id),
+    getMyOrganizationProducts(id),
+    getMyAvailableProductsForOrganization(id),
+    organizationHasAdvancedAnalytics(org.id),
+  ])
 
   const organizationUrl = ensureUrlHasSchema(org.url)
   const domainDisplay = getDisplayUrl(organizationUrl)

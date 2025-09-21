@@ -38,6 +38,7 @@ import { Badge } from "@/components/atoms/badge"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { BarChart3 } from "lucide-react"
+import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
 
 export default async function ViewProductPage({
   params,
@@ -53,6 +54,9 @@ export default async function ViewProductPage({
   const productId = product.id
   const productSlug = product.slug
   const publicPath = `/products/${productSlug}`
+  const recentUpvoters = await getRecentProductUpvoters(productId, 8).catch(
+    () => [],
+  )
 
   async function assignPlan(formData: FormData) {
     "use server"
@@ -367,7 +371,7 @@ export default async function ViewProductPage({
             <PerformanceCard
               upvotes={product.analytics?.upvotes ?? 0}
               clicks={product.analytics?.clicks ?? 0}
-              upvoters={[]}
+              upvoters={recentUpvoters as any}
               badges={(product.ProductBadge || []) as any}
               productName={product.name}
               tagline={product.tagline}

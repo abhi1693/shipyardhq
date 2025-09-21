@@ -542,12 +542,7 @@ export function ProductAnalyticsView({
               </Link>
             </Button>
             {publicHref ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-3"
-                asChild
-              >
+              <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
                 <Link
                   href={publicHref}
                   target="_blank"

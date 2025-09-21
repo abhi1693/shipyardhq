@@ -3,13 +3,8 @@ import "@testing-library/jest-dom/vitest"
 import "jest"
 
 import type { expect as vitestExpect, vi as vitestVi } from "vitest"
-import type { TestingLibraryMatchers } from "@testing-library/jest-dom/matchers"
 
 declare module "@vitest/expect" {
-  interface Assertion<T = any>
-    extends jest.Matchers<void, T>, TestingLibraryMatchers<any, T> {}
-  interface AsymmetricMatchersContaining
-    extends jest.Matchers<void, any>, TestingLibraryMatchers<any, any> {}
 }
 
 declare global {
@@ -33,7 +28,10 @@ declare global {
       toHaveAttribute(name: string, value?: string | RegExp): Assertion<T>
       toContain<E>(item: E): Assertion<T>
       toContainEqual<E>(item: E): Assertion<T>
-      toHaveTextContent(text: string | RegExp, options?: { normalizeWhitespace?: boolean }): Assertion<T>
+      toHaveTextContent(
+        text: string | RegExp,
+        options?: { normalizeWhitespace?: boolean },
+      ): Assertion<T>
       toBeInTheDocument(): Assertion<T>
       toHaveBeenCalled(): Assertion<T>
       toHaveBeenCalledTimes(expected: number): Assertion<T>

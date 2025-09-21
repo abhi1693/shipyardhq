@@ -9,10 +9,10 @@ import {
 } from "@/components/atoms/card"
 import {
   formatBoolean,
+  formatCurrency,
   formatDate,
   image,
   placeholder,
-  formatCurrency,
   slug as slugFmt,
 } from "@/lib/ui/formatters"
 import ReactMarkdown from "react-markdown"
@@ -28,24 +28,23 @@ import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import {
-  getRecentUpvoters,
-  validatePaymentAndAttachPlan,
   choosePlanAction,
+  validatePaymentAndAttachPlan,
 } from "@/actions/member/products/actions"
 import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import {
-  ExternalLink,
-  Copy as CopyIcon,
   BarChart3,
   Building2,
-  Globe,
-  Target,
-  Tag,
-  MousePointerClick,
-  Mail,
-  Video,
+  Copy as CopyIcon,
+  ExternalLink,
   Github as GithubIcon,
+  Globe,
+  Mail,
+  MousePointerClick,
+  Tag,
+  Target,
   Twitter as TwitterIcon,
+  Video,
 } from "lucide-react"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import { getPublicPlans } from "@/actions/public/plans/actions"
@@ -54,6 +53,7 @@ import { PlanType } from "@/lib/vendor/prisma/client"
 import { hasPlanFeature } from "@/lib/features"
 import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
 import { JSX } from "react"
+import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
 
 const chipIconClass = "h-3.5 w-3.5 text-muted-foreground"
 const infoChipClass =
@@ -105,11 +105,10 @@ export default async function ViewUserProductPage({
     product.plan ?? null,
     "analytics.advanced",
   )
-  const hasBasicAnalytics =
+  const canViewAnalytics =
     hasAdvancedAnalytics ||
     hasPlanFeature(product.plan ?? null, "analytics.basic")
-  const canViewAnalytics = hasBasicAnalytics
-  const upvoters = await getRecentUpvoters(productId, 5).catch(() => [])
+  const upvoters = await getRecentProductUpvoters(productId, 8).catch(() => [])
 
   const allPlans = await getPublicPlans({
     type: PlanType.one_time_price,
