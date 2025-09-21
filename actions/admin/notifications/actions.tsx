@@ -40,6 +40,8 @@ type SendNotificationSuccess = {
     sent: number
     failed: { email: string; error: string }[]
     invalidEmails: string[]
+    sentPercentage: number
+    failedPercentage: number
   }
 }
 
@@ -55,6 +57,8 @@ const emailParagraphStyle = {
 } as const
 
 const DEFAULT_GREETING = "shipmate"
+const RATE_LIMIT_REQUESTS_PER_SECOND = 2
+const RATE_LIMIT_INTERVAL_MS = Math.ceil(1000 / RATE_LIMIT_REQUESTS_PER_SECOND)
 
 type ResolvedRecipient = {
   email: string
@@ -383,7 +387,10 @@ export async function sendNotificationEmailsAction(
   const failed: { email: string; error: string }[] = []
   let sent = 0
 
-  for (const recipient of uniqueRecipients) {
+  for (const [index, recipient] of uniqueRecipients.entries()) {
+    if (index > 0) {
+      await wait(RATE_LIMIT_INTERVAL_MS)
+    }
     try {
       await sendEmail({
         to: recipient.email,
@@ -418,6 +425,8 @@ export async function sendNotificationEmailsAction(
       sent,
       failed,
       invalidEmails: [],
+      sentPercentage: calculatePercentage(sent, uniqueRecipients.length),
+      failedPercentage: calculatePercentage(failed.length, uniqueRecipients.length),
     },
   }
 }
@@ -468,7 +477,7 @@ function Signature() {
     <div style={{ marginTop: "24px" }}>
       <p style={emailParagraphStyle}>Wishing you fair winds,</p>
       <p style={emailParagraphStyle}>
-        The Shipyard HQ Crew
+        Shipyard Crew
         <br />
         <a
           href="https://shipyardhq.dev"
@@ -479,4 +488,13 @@ function Signature() {
       </p>
     </div>
   )
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function calculatePercentage(part: number, total: number): number {
+  if (total === 0) return 0
+  return Math.round((part / total) * 100)
 }

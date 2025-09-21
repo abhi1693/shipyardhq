@@ -102,6 +102,16 @@ export default function NotificationCenter({
     firstName: string | null
   } | null>(null)
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
+  const [summaryStats, setSummaryStats] = useState<
+    | {
+        totalRecipients: number
+        sent: number
+        failed: number
+        sentPercentage: number
+        failedPercentage: number
+      }
+    | null
+  >(null)
 
   const form = useForm<NotificationFormValues>({
     resolver: zodResolver(formSchema),
@@ -221,6 +231,7 @@ export default function NotificationCenter({
     setIsSubmitting(true)
     setInvalidEmails([])
     setFailedRecipients([])
+    setSummaryStats(null)
 
     const payload = new FormData()
     payload.append("segment", values.segment)
@@ -258,13 +269,22 @@ export default function NotificationCenter({
     const summary = response.summary
     setInvalidEmails(summary.invalidEmails ?? [])
     setFailedRecipients(summary.failed)
+    setSummaryStats({
+      totalRecipients: summary.totalRecipients,
+      sent: summary.sent,
+      failed: summary.failed.length,
+      sentPercentage: summary.sentPercentage,
+      failedPercentage: summary.failedPercentage,
+    })
 
     const successCount = summary.sent
     const failCount = summary.failed.length
 
     if (successCount > 0) {
       const suffix = successCount === 1 ? "email" : "emails"
-      toast.success(`Sent ${successCount} ${suffix}.`)
+      toast.success(
+        `Sent ${successCount} ${suffix}. ${summary.sentPercentage}% success.`,
+      )
     }
     if (failCount > 0) {
       toast.warning(
@@ -540,6 +560,33 @@ export default function NotificationCenter({
                     </li>
                   ))}
                 </ul>
+              </div>
+            ) : null}
+            {summaryStats ? (
+              <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Delivery summary
+                </p>
+                <dl className="grid grid-cols-2 gap-3">
+                  <div>
+                    <dt className="text-xs text-slate-500">Total recipients</dt>
+                    <dd className="text-base font-semibold text-slate-900">
+                      {summaryStats.totalRecipients}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-slate-500">Sent</dt>
+                    <dd className="text-base font-semibold text-emerald-600">
+                      {summaryStats.sent} ({summaryStats.sentPercentage}%)
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-slate-500">Failed</dt>
+                    <dd className="text-base font-semibold text-rose-600">
+                      {summaryStats.failed} ({summaryStats.failedPercentage}%)
+                    </dd>
+                  </div>
+                </dl>
               </div>
             ) : null}
           </div>
