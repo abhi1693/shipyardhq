@@ -93,88 +93,96 @@ export function ProductAnalyticsCharts({
   const baseCardClasses = "border border-slate-200 bg-white/95 shadow-sm"
   const isAdvanced = mode === "advanced"
 
-  const renderViewsCard = (className?: string) => (
-    <Card className={cn(baseCardClasses, className)}>
-      <CardHeader className="px-4 pb-0">
-        <CardTitle className="flex items-center gap-2">
-          Views over time
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span
-                className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-slate-200/70 focus:ring-offset-2 cursor-help"
-                tabIndex={0}
-                role="button"
-                aria-label="View chart description"
+  const renderViewsCard = (className?: string) => {
+    const chartConfig: ChartConfig = {
+      views: { label: "Views", color: TREND_COLORS.views },
+    }
+
+    if (hasUniqueSeries) {
+      chartConfig.uniqueVisitors = {
+        label: "Unique visitors",
+        color: TREND_COLORS.uniqueVisitors,
+      }
+    }
+
+    return (
+      <Card className={cn(baseCardClasses, className)}>
+        <CardHeader className="px-4 pb-0">
+          <CardTitle className="flex items-center gap-2">
+            Views over time
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-slate-200/70 focus:ring-offset-2 cursor-help"
+                  tabIndex={0}
+                  role="button"
+                  aria-label="View chart description"
+                >
+                  <Info className="h-4 w-4" aria-hidden />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>
+                Daily view counts for the selected window. Use this to spot
+                trends and campaign lift.
+              </TooltipContent>
+            </Tooltip>
+          </CardTitle>
+          <CardDescription>
+            Last {summary.rangeDays} days vs. previous period
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-4 pb-5 pt-4">
+          <ChartContainer
+            config={chartConfig}
+            showLegend
+            className="min-h-[280px]"
+          >
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart
+                data={summary.viewsOverTime}
+                margin={{ left: 4, right: 12 }}
               >
-                <Info className="h-4 w-4" aria-hidden />
-              </span>
-            </TooltipTrigger>
-            <TooltipContent sideOffset={6}>
-              Daily view counts for the selected window. Use this to spot trends
-              and campaign lift.
-            </TooltipContent>
-          </Tooltip>
-        </CardTitle>
-        <CardDescription>
-          Last {summary.rangeDays} days vs. previous period
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="px-4 pb-5 pt-4">
-        <ChartContainer
-          config={{
-            views: { label: "Views", color: TREND_COLORS.views },
-            uniqueVisitors: {
-              label: "Unique visitors",
-              color: TREND_COLORS.uniqueVisitors,
-            },
-          }}
-          className="min-h-[280px]"
-        >
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart
-              data={summary.viewsOverTime}
-              margin={{ left: 4, right: 12 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis
-                dataKey="label"
-                stroke="currentColor"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="currentColor"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={formatNumber}
-              />
-              <Line
-                type="monotone"
-                dataKey="views"
-                stroke="var(--chart-views)"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-              {hasUniqueSeries ? (
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis
+                  dataKey="label"
+                  stroke="currentColor"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="currentColor"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={formatNumber}
+                />
                 <Line
                   type="monotone"
-                  dataKey="uniqueVisitors"
-                  stroke="var(--chart-uniqueVisitors)"
+                  dataKey="views"
+                  stroke="var(--chart-views)"
                   strokeWidth={2}
-                  strokeDasharray="4 4"
                   dot={false}
                   activeDot={{ r: 4 }}
                 />
-              ) : null}
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-      </CardContent>
-    </Card>
-  )
+                {hasUniqueSeries ? (
+                  <Line
+                    type="monotone"
+                    dataKey="uniqueVisitors"
+                    stroke="var(--chart-uniqueVisitors)"
+                    strokeWidth={2}
+                    strokeDasharray="4 4"
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                  />
+                ) : null}
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+    )
+  }
 
   const renderDeviceCard = (className?: string) => (
     <Card className={cn(baseCardClasses, className)}>
@@ -294,6 +302,7 @@ export function ProductAnalyticsCharts({
               clicks: { label: "Clicks", color: ENGAGEMENT_COLORS.clicks },
               upvotes: { label: "Upvotes", color: ENGAGEMENT_COLORS.upvotes },
             }}
+            showLegend
             className="min-h-[280px]"
           >
             <ResponsiveContainer width="100%" height={260}>

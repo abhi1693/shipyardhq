@@ -4,8 +4,7 @@ import "jest"
 
 import type { expect as vitestExpect, vi as vitestVi } from "vitest"
 
-declare module "@vitest/expect" {
-}
+declare module "@vitest/expect" {}
 
 declare global {
   namespace Chai {
