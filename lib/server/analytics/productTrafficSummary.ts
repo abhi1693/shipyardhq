@@ -336,6 +336,8 @@ async function buildTrafficSummary(
   const browserClickCounts = new Map<string, number>()
   const osClickCounts = new Map<string, number>()
   const referrerClickCounts = new Map<string, number>()
+  const referrerAssistedUpvotes = new Map<string, number>()
+  const clickTimeline: Array<{ createdAt: Date; referrer: string }> = []
 
   const previousPathCounts = new Map<string, number>()
   const previousCountryCounts = new Map<string, number>()
@@ -629,6 +631,7 @@ async function buildTrafficSummary(
       refLabel,
       (referrerClickCounts.get(refLabel) ?? 0) + 1,
     )
+    clickTimeline.push({ createdAt: event.createdAt, referrer: refLabel })
   }
 
   for (const upvote of upvoteEvents) {
@@ -638,6 +641,34 @@ async function buildTrafficSummary(
     const entry = engagementCounts.get(key) ?? { clicks: 0, upvotes: 0 }
     entry.upvotes += 1
     engagementCounts.set(key, entry)
+  }
+
+  if (includeAdvancedMetrics && clickTimeline.length && upvoteEvents.length) {
+    const sortedClicks = [...clickTimeline].sort(
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+    )
+    const sortedUpvotes = [...upvoteEvents].sort(
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+    )
+
+    let clickIndex = 0
+    let lastReferrer = "Direct / None"
+
+    for (const upvote of sortedUpvotes) {
+      while (
+        clickIndex < sortedClicks.length &&
+        sortedClicks[clickIndex].createdAt.getTime() <=
+          upvote.createdAt.getTime()
+      ) {
+        lastReferrer = sortedClicks[clickIndex].referrer
+        clickIndex += 1
+      }
+      const assistedKey = lastReferrer || "Direct / None"
+      referrerAssistedUpvotes.set(
+        assistedKey,
+        (referrerAssistedUpvotes.get(assistedKey) ?? 0) + 1,
+      )
+    }
   }
 
   const viewsOverTime = Array.from({ length: windowDays }).map((_, index) => {
@@ -733,16 +764,43 @@ async function buildTrafficSummary(
 
   const referrerConversionBreakdown: ProductTrafficSummary["referrerConversionBreakdown"] =
     includeAdvancedMetrics
-      ? referrerBreakdown.map((entry) => {
-          const clicks = referrerClickCounts.get(entry.referrer) ?? 0
-          const rate = entry.views > 0 ? (clicks / entry.views) * 100 : 0
-          return {
-            referrer: entry.referrer,
-            views: entry.views,
-            clicks,
-            clickThroughRate: rate,
+      ? (() => {
+          const seen = new Set<string>()
+          const items: ProductTrafficSummary["referrerConversionBreakdown"] = []
+
+          const buildEntry = (referrer: string, views: number) => {
+            const clicks = referrerClickCounts.get(referrer) ?? 0
+            const assistedUpvotes = referrerAssistedUpvotes.get(referrer) ?? 0
+            const clickThroughRate = views > 0 ? (clicks / views) * 100 : 0
+            const assistedConversionRate =
+              clicks > 0 ? (assistedUpvotes / clicks) * 100 : 0
+            items.push({
+              referrer,
+              views,
+              clicks,
+              clickThroughRate,
+              assistedUpvotes,
+              assistedConversionRate,
+            })
+            seen.add(referrer)
           }
-        })
+
+          for (const entry of referrerBreakdown) {
+            buildEntry(entry.referrer, entry.views)
+          }
+
+          for (const [referrer] of referrerAssistedUpvotes) {
+            if (seen.has(referrer)) continue
+            const views = referrerCounts.get(referrer) ?? 0
+            buildEntry(referrer, views)
+          }
+
+          return items.sort((a, b) => {
+            const rateDiff = b.assistedConversionRate - a.assistedConversionRate
+            if (rateDiff !== 0) return rateDiff
+            return b.assistedUpvotes - a.assistedUpvotes
+          })
+        })()
       : []
 
   const pathBreakdown: ProductTrafficAdvancedInsights["pathBreakdown"] =

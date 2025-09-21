@@ -14,6 +14,10 @@ import {
   type ConversionFunnelPoint,
 } from "@/components/pages/admin/analytics/ConversionFunnelChart"
 import { getConversionLeaderboards } from "@/lib/server/analytics/conversionLeaderboards"
+import {
+  ReferrerAssistChart,
+  type ReferrerAssistDatum,
+} from "@/components/pages/admin/analytics/ReferrerAssistChart"
 
 type LeaderboardEntry = {
   id: string
@@ -215,6 +219,73 @@ function ConversionRateRow({
         />
       </div>
     </div>
+  )
+}
+
+function ReferrerAssistCard({
+  items,
+}: {
+  items: ProductTrafficSummary["referrerConversionBreakdown"]
+}) {
+  const assisted = items
+    .filter((item) => item.assistedUpvotes > 0)
+    .sort((a, b) => b.assistedConversionRate - a.assistedConversionRate)
+    .slice(0, 6)
+
+  if (assisted.length === 0) {
+    return (
+      <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base text-slate-900">
+            Referrer-assisted conversions
+          </CardTitle>
+          <CardDescription>
+            Clicks that ultimately produced an upvote during this window.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            No assisted conversions detected yet. Share the product to gather
+            click and upvote signals tied to referrers.
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const data: ReferrerAssistDatum[] = assisted.map((entry) => ({
+    referrer: entry.referrer,
+    assistedConversionRate: entry.assistedConversionRate,
+    clickThroughRate: entry.clickThroughRate,
+    assistedUpvotes: entry.assistedUpvotes,
+    clicks: entry.clicks,
+  }))
+
+  return (
+    <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-base text-slate-900">
+          Referrer-assisted conversions
+        </CardTitle>
+        <CardDescription>
+          Ranked by assisted upvote rate for the current window.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <ReferrerAssistChart data={data} />
+        <ul className="space-y-2 text-xs text-muted-foreground">
+          {assisted.map((entry) => (
+            <li key={`${entry.referrer}-meta`} className="flex justify-between">
+              <span className="truncate text-slate-700">{entry.referrer}</span>
+              <span className="ml-3 whitespace-nowrap">
+                {formatNumber(entry.assistedUpvotes)} upvotes ·{" "}
+                {formatNumber(entry.clicks)} clicks
+              </span>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -450,7 +521,7 @@ export default async function ConversionsAnalyticsPage({
             Control tower
           </h2>
         </div>
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="grid gap-4 xl:grid-cols-3">
           <ConversionFunnelChart
             data={funnelSeries}
             rangeDays={summary.rangeDays}
@@ -500,6 +571,8 @@ export default async function ConversionsAnalyticsPage({
               />
             </CardContent>
           </Card>
+
+          <ReferrerAssistCard items={summary.referrerConversionBreakdown} />
         </div>
       </section>
 

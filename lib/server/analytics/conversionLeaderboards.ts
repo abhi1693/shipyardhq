@@ -160,76 +160,76 @@ export const getConversionLeaderboards = cached(
       product: { status: "published" as const },
     }
 
-  const [
-    currentViews,
-    previousViews,
-    currentClicks,
-    previousClicks,
-    currentUpvotes,
-    previousUpvotes,
-  ]: [
-    ProductCountRow[],
-    ProductCountRow[],
-    ProductCountRow[],
-    ProductCountRow[],
-    ProductCountRow[],
-    ProductCountRow[],
-  ] = await Promise.all([
-    prisma.productTrafficEvent.groupBy({
-      by: ["productId"],
-      where: currentTrafficWhere,
-      _count: { _all: true },
-    }) as unknown as Promise<ProductCountRow[]>,
-    prisma.productTrafficEvent.groupBy({
-      by: ["productId"],
-      where: previousTrafficWhere,
-      _count: { _all: true },
-    }) as unknown as Promise<ProductCountRow[]>,
-    prisma.productClickEvent.groupBy({
-      by: ["productId"],
-      where: {
-        createdAt: {
-          gte: rangeStart,
-          lt: rangeEnd,
+    const [
+      currentViews,
+      previousViews,
+      currentClicks,
+      previousClicks,
+      currentUpvotes,
+      previousUpvotes,
+    ]: [
+      ProductCountRow[],
+      ProductCountRow[],
+      ProductCountRow[],
+      ProductCountRow[],
+      ProductCountRow[],
+      ProductCountRow[],
+    ] = await Promise.all([
+      prisma.productTrafficEvent.groupBy({
+        by: ["productId"],
+        where: currentTrafficWhere,
+        _count: { _all: true },
+      }) as unknown as Promise<ProductCountRow[]>,
+      prisma.productTrafficEvent.groupBy({
+        by: ["productId"],
+        where: previousTrafficWhere,
+        _count: { _all: true },
+      }) as unknown as Promise<ProductCountRow[]>,
+      prisma.productClickEvent.groupBy({
+        by: ["productId"],
+        where: {
+          createdAt: {
+            gte: rangeStart,
+            lt: rangeEnd,
+          },
+          product: { status: "published" as const },
         },
-        product: { status: "published" as const },
-      },
-      _count: { _all: true },
-    }) as unknown as Promise<ProductCountRow[]>,
-    prisma.productClickEvent.groupBy({
-      by: ["productId"],
-      where: {
-        createdAt: {
-          gte: previousStart,
-          lt: rangeStart,
+        _count: { _all: true },
+      }) as unknown as Promise<ProductCountRow[]>,
+      prisma.productClickEvent.groupBy({
+        by: ["productId"],
+        where: {
+          createdAt: {
+            gte: previousStart,
+            lt: rangeStart,
+          },
+          product: { status: "published" as const },
         },
-        product: { status: "published" as const },
-      },
-      _count: { _all: true },
-    }) as unknown as Promise<ProductCountRow[]>,
-    prisma.productUpvote.groupBy({
-      by: ["productId"],
-      where: {
-        createdAt: {
-          gte: rangeStart,
-          lt: rangeEnd,
+        _count: { _all: true },
+      }) as unknown as Promise<ProductCountRow[]>,
+      prisma.productUpvote.groupBy({
+        by: ["productId"],
+        where: {
+          createdAt: {
+            gte: rangeStart,
+            lt: rangeEnd,
+          },
+          product: { status: "published" as const },
         },
-        product: { status: "published" as const },
-      },
-      _count: { _all: true },
-    }) as unknown as Promise<ProductCountRow[]>,
-    prisma.productUpvote.groupBy({
-      by: ["productId"],
-      where: {
-        createdAt: {
-          gte: previousStart,
-          lt: rangeStart,
+        _count: { _all: true },
+      }) as unknown as Promise<ProductCountRow[]>,
+      prisma.productUpvote.groupBy({
+        by: ["productId"],
+        where: {
+          createdAt: {
+            gte: previousStart,
+            lt: rangeStart,
+          },
+          product: { status: "published" as const },
         },
-        product: { status: "published" as const },
-      },
-      _count: { _all: true },
-    }) as unknown as Promise<ProductCountRow[]>,
-  ])
+        _count: { _all: true },
+      }) as unknown as Promise<ProductCountRow[]>,
+    ])
 
     const metrics = new Map<string, MetricAccumulator>()
     const ensureMetric = (productId: string) => {
@@ -351,10 +351,10 @@ export const getConversionLeaderboards = cached(
       }
     }
 
-  const resolvedProductEntries = productEntries.filter(
-    (entry): entry is MetricAccumulator & { name: string } =>
-      Boolean(entry.name) && entry.views > 0,
-  )
+    const resolvedProductEntries = productEntries.filter(
+      (entry): entry is MetricAccumulator & { name: string } =>
+        Boolean(entry.name) && entry.views > 0,
+    )
 
     const productCtr = resolvedProductEntries
       .map<ProductCtrEntry>((entry) => {

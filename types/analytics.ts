@@ -75,6 +75,8 @@ export interface ProductTrafficReferrerConversionItem {
   views: number
   clicks: number
   clickThroughRate: number
+  assistedUpvotes: number
+  assistedConversionRate: number
 }
 
 export interface ProductTrafficReferrerBreakdownItem
