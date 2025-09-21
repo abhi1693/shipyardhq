@@ -14,6 +14,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  SidebarMenuBadge,
   SidebarRail,
 } from "@/components/atoms/sidebar"
 import { Icons } from "../icons"
@@ -95,7 +96,7 @@ export default function AppSidebar(props: SidebarProps) {
   }, [navItems, pathname])
 
   const topLevelButtonClasses =
-    "px-3 transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:border data-[active=true]:border-[color:var(--brand-1)/0.4] data-[active=true]:bg-[color:var(--brand-1)/0.22] data-[active=true]:text-[color:var(--brand-1)] group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0"
+    "relative px-3 transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:border data-[active=true]:border-[color:var(--brand-1)/0.4] data-[active=true]:bg-[color:var(--brand-1)/0.22] data-[active=true]:text-[color:var(--brand-1)] group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0"
 
   const subLevelButtonClasses =
     "transition-colors duration-150 hover:bg-[color:var(--brand-1)/0.1] hover:text-[color:var(--brand-1)] data-[active=true]:bg-[color:var(--brand-1)/0.18] data-[active=true]:text-[color:var(--brand-1)]"
@@ -130,6 +131,11 @@ export default function AppSidebar(props: SidebarProps) {
               const Icon = item.icon ? Icons[item.icon] : Icons.logo
               const active = itemActive(item)
               const hasChildren = !!(item.items && item.items.length > 0)
+              const hasBadge = Boolean(item.label)
+              const navLabelAnnouncement =
+                hasBadge && item.title === "Feedback"
+                  ? `${item.label} new feedback received`
+                  : undefined
               return hasChildren ? (
                 <Collapsible
                   key={item.title}
@@ -198,20 +204,39 @@ export default function AppSidebar(props: SidebarProps) {
                     tooltip={item.title}
                     isActive={isActivePath(item.url)}
                     size="lg"
-                    className={topLevelButtonClasses}
+                    className={`${topLevelButtonClasses} ${
+                      hasBadge
+                        ? "border border-[color:var(--brand-1)/0.45] bg-[color:var(--brand-1)/0.08]"
+                        : ""
+                    }`}
                   >
                     <Link
                       href={item.url}
                       aria-current={isActivePath(item.url) ? "page" : undefined}
+                      aria-label={
+                        item.title === "Feedback" && navLabelAnnouncement
+                          ? `${item.title} (${navLabelAnnouncement})`
+                          : undefined
+                      }
                     >
                       <Icon className="shrink-0 group-data-[collapsible=icon]:size-5" />
                       <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
                         {item.title}
                       </span>
                       {item.label && (
-                        <span className="text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-                          {item.label}
-                        </span>
+                        <>
+                          <SidebarMenuBadge
+                            aria-hidden="true"
+                            className="group-data-[collapsible=icon]:hidden rounded-full border border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)]/90 px-2 py-0.5 text-[11px] font-semibold text-white shadow-[0_4px_10px_rgba(15,23,42,0.18)]"
+                          >
+                            {item.label}
+                          </SidebarMenuBadge>
+                          {navLabelAnnouncement && (
+                            <span className="sr-only">
+                              {navLabelAnnouncement}
+                            </span>
+                          )}
+                        </>
                       )}
                     </Link>
                   </SidebarMenuButton>

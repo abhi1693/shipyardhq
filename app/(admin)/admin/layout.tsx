@@ -8,13 +8,14 @@ import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { buildSectionMetadata } from "@/lib/metadata"
+import { getFeedbackCount } from "@/actions/admin/feedback/actions"
 
 export const metadata = buildSectionMetadata({
   section: "Admin",
   description: "Admin dashboard for managing ShipYardHQ.",
 })
 
-const navItems: NavItem[] = [
+const baseNavItems: NavItem[] = [
   {
     title: "Overview",
     url: "/admin/overview",
@@ -153,7 +154,22 @@ export default async function AdminLayout({
     redirect(process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/")
   }
 
+  const pendingFeedbackCountPromise = getFeedbackCount({
+    status: "received",
+  }).catch(() => 0)
+
   await requireActiveUserOrRedirect(userId)
+
+  const pendingFeedbackCount = await pendingFeedbackCountPromise
+
+  const navItems = baseNavItems.map((item) => {
+    if (item.title !== "Feedback") return item
+    return {
+      ...item,
+      label:
+        pendingFeedbackCount > 0 ? String(pendingFeedbackCount) : undefined,
+    }
+  })
 
   return (
     <SidebarProvider defaultOpen>
