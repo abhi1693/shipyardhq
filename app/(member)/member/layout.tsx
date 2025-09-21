@@ -4,6 +4,7 @@ import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
 import { auth, clerkClient } from "@clerk/nextjs/server"
 import PageContainer from "@/components/layout/page-container"
+import { canOpenDodoBillingPortalByEmail } from "@/lib/dodoCustomerPortal"
 import { syncCurrentUserBilling } from "@/lib/server/billing"
 import MemberFooter from "@/components/layout/footers/member-footer"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
@@ -43,20 +44,30 @@ export default async function MemberLayout({
   children: React.ReactNode
 }) {
   const { sessionClaims, userId } = await auth()
+  type ActiveUser = Awaited<ReturnType<typeof requireActiveUserOrRedirect>>
+  let activeUser: ActiveUser | null = null
   if (userId) {
     const client = await clerkClient()
     const clerkUser = await client.users.getUser(userId)
     await syncUserFromClerk(clerkUser)
-    await requireActiveUserOrRedirect(userId)
+    activeUser = await requireActiveUserOrRedirect(userId)
     await syncCurrentUserBilling()
   }
   const role = sessionClaims?.metadata.role || "member"
 
   const items: NavItem[] = [...navItems]
 
-  const shouldShowCustomerPortal = !(
+  const isBillingPortalEnvEnabled = !(
     IS_PROD && (process.env.DODO_ENV?.trim() || "") === "test_mode"
   )
+
+  let hasBillingPortal = false
+  if (activeUser?.email) {
+    hasBillingPortal = await canOpenDodoBillingPortalByEmail(activeUser.email)
+  }
+
+  const shouldShowBillingPortal =
+    isBillingPortalEnvEnabled && hasBillingPortal
 
   if (
     role === "admin" &&
@@ -76,7 +87,7 @@ export default async function MemberLayout({
     <SidebarProvider defaultOpen>
       <AppSidebar
         navItems={items}
-        showCustomerPortal={shouldShowCustomerPortal}
+        showBillingPortal={shouldShowBillingPortal}
       />
       <SidebarInset>
         <PrivateHeader />

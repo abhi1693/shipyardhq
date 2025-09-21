@@ -4,7 +4,7 @@ import type Dodo from "dodopayments"
 
 type PortalOpts = { sendEmail?: boolean }
 
-// Create a Dodo customer portal session and return the link
+// Create a Dodo billing portal (customer portal) session and return the link
 export async function createDodoCustomerPortalLink(
   customerId: string,
   opts: PortalOpts = {},
@@ -32,4 +32,12 @@ export async function createDodoCustomerPortalLinkByEmail(
   const customer = await fetchDodoCustomerByEmail(email)
   if (!customer) return null
   return createDodoCustomerPortalLink(customer.customer_id, opts)
+}
+
+export async function canOpenDodoBillingPortalByEmail(
+  email: string,
+): Promise<boolean> {
+  if (!email) return false
+  const customer = await fetchDodoCustomerByEmail(email)
+  return Boolean(customer?.customer_id)
 }

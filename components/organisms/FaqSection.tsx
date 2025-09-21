@@ -35,7 +35,7 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
   {
     question: "How do I manage billing or cancel an upgrade?",
     answer:
-      "Open the Customer Portal link in the member sidebar. We use Dodo Payments, so the portal lets you download invoices, update payment methods, or cancel future renewals without waiting on support.",
+      "Open the Billing Portal link in the member sidebar. We use Dodo Payments, so the portal lets you download invoices, update payment methods, or cancel future renewals without waiting on support.",
   },
   {
     question: "Who can create organizations or invite teammates?",

@@ -17,13 +17,14 @@ vi.mock("@/lib/fetchDodoCustomer", () => ({
 }))
 
 import {
+  canOpenDodoBillingPortalByEmail,
   createDodoCustomerPortalLink,
   createDodoCustomerPortalLinkByEmail,
 } from "@/lib/dodoCustomerPortal"
 import { dodoClient } from "@/lib/dodo"
 import { fetchDodoCustomerByEmail } from "@/lib/fetchDodoCustomer"
 
-describe("dodo customer portal helpers", () => {
+describe("dodo billing portal helpers", () => {
   beforeEach(() => {
     ;((dodoClient as any).customers.customerPortal.create as any).mockReset()
     ;(fetchDodoCustomerByEmail as any).mockReset()
@@ -85,5 +86,22 @@ describe("dodo customer portal helpers", () => {
       "missing@example.com",
     )
     expect(link).toBeNull()
+  })
+
+  it("detects billing portal availability when customer exists", async () => {
+    ;(fetchDodoCustomerByEmail as any).mockResolvedValue({
+      customer_id: "cus_123",
+    })
+    await expect(
+      canOpenDodoBillingPortalByEmail("a@example.com"),
+    ).resolves.toBe(true)
+    expect(fetchDodoCustomerByEmail).toHaveBeenCalledWith("a@example.com")
+  })
+
+  it("returns false for billing portal when customer missing", async () => {
+    ;(fetchDodoCustomerByEmail as any).mockResolvedValue(null)
+    await expect(
+      canOpenDodoBillingPortalByEmail("missing@example.com"),
+    ).resolves.toBe(false)
   })
 })

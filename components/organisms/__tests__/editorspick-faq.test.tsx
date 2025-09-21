@@ -47,7 +47,7 @@ describe("FaqSection", () => {
       }),
     )
     expect(
-      screen.getByText(/Customer Portal link in the member sidebar/i),
+      screen.getByText(/Billing Portal link in the member sidebar/i),
     ).toBeInTheDocument()
   })
 })

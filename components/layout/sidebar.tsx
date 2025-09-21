@@ -26,29 +26,29 @@ import { IconChevronRight } from "@tabler/icons-react"
 import Link from "next/link"
 import { NavItem } from "@/types"
 import { toast } from "sonner"
-import { createCustomerPortalAction } from "@/actions/member/billing/portal"
+import { createBillingPortalAction } from "@/actions/member/billing/portal"
 import { BrandLogo } from "@/components/atoms/brand-logo"
 
 interface SidebarProps {
   navItems?: NavItem[]
-  showCustomerPortal?: boolean
+  showBillingPortal?: boolean
 }
 
 export default function AppSidebar(props: SidebarProps) {
   const pathname = usePathname()
-  const { navItems = [], showCustomerPortal = false } = props
+  const { navItems = [], showBillingPortal = false } = props
 
   const [isPortalPending, startPortal] = useTransition()
 
-  function openCustomerPortal() {
+  function openBillingPortal() {
     startPortal(async () => {
-      const res = (await createCustomerPortalAction(false)) as any
+      const res = (await createBillingPortalAction(false)) as any
       if (res?.link) {
         try {
           window.open(res.link, "_blank", "noopener,noreferrer")
         } catch {}
       } else {
-        toast.error(res?.error || "Unable to open customer portal")
+        toast.error(res?.error || "Unable to open billing portal")
       }
     })
   }
@@ -218,18 +218,18 @@ export default function AppSidebar(props: SidebarProps) {
                 </SidebarMenuItem>
               )
             })}
-            {showCustomerPortal && (
+            {showBillingPortal && (
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  tooltip="Customer Portal"
-                  onClick={openCustomerPortal}
+                  tooltip="Billing Portal"
+                  onClick={openBillingPortal}
                   disabled={isPortalPending}
                   size="lg"
                   className={topLevelButtonClasses}
                 >
                   <Icons.billing className="shrink-0 group-data-[collapsible=icon]:size-5" />
                   <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
-                    Customer Portal
+                    Billing Portal
                   </span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
