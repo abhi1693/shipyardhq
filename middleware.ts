@@ -23,6 +23,7 @@ export default clerkMiddleware(async (auth, req) => {
 
   const metadata = sessionClaims?.metadata as CustomPublicMetadata
   const status = metadata?.status
+  const onboardingComplete = metadata?.onboardingComplete === true
   const pathname = req.nextUrl.pathname
   const isSuspended = status && status !== "active"
 
@@ -43,6 +44,22 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (isMemberRoute(req)) {
     await auth.protect()
+
+    const isOnboardingPath = pathname.startsWith("/member/onboarding")
+
+    if (!onboardingComplete && !isOnboardingPath) {
+      const onboardingUrl = new URL("/member/onboarding", req.url)
+      const requestPathWithSearch = `${pathname}${req.nextUrl.search}`
+
+      if (
+        requestPathWithSearch &&
+        requestPathWithSearch !== "/member/onboarding"
+      ) {
+        onboardingUrl.searchParams.set("redirectTo", requestPathWithSearch)
+      }
+
+      return NextResponse.redirect(onboardingUrl)
+    }
   }
 
   return NextResponse.next()

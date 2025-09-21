@@ -60,7 +60,13 @@ const onboardingSchema = z.object({
 
 type OnboardingFormInput = z.input<typeof onboardingSchema>
 
-export function OnboardingForm({ firstName }: { firstName?: string | null }) {
+export function OnboardingForm({
+  firstName,
+  redirectTo,
+}: {
+  firstName?: string | null
+  redirectTo?: string
+}) {
   const router = useRouter()
 
   const form = useForm<OnboardingFormInput>({
@@ -84,6 +90,14 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
   const heardFrom = watch("heardFrom")
   const newsletterOptIn = watch("newsletterOptIn")
 
+  const safeRedirectPath =
+    redirectTo &&
+    redirectTo.startsWith("/") &&
+    !redirectTo.startsWith("//") &&
+    redirectTo !== "/member/onboarding"
+      ? redirectTo
+      : "/member/overview"
+
   const onSubmit = async (values: OnboardingFormInput) => {
     const formData = new FormData()
     Object.entries(values).forEach(([key, val]) => {
@@ -96,7 +110,7 @@ export function OnboardingForm({ firstName }: { firstName?: string | null }) {
     const result = await completeOnboarding(formData)
     if ("success" in result) {
       toast.success("Welcome aboard!")
-      router.push("/member/overview")
+      router.push(safeRedirectPath)
     } else {
       toast.error(result.error)
     }
