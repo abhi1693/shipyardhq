@@ -41,7 +41,7 @@ export default clerkMiddleware(async (auth, req) => {
 
   // Admin access control
   if (isAdminRoute(req) && metadata?.role !== "admin") {
-    return NextResponse.redirect(new URL("/", req.url))
+    return NextResponse.redirect(new URL(process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL ?? "/", req.url))
   }
 
   if (isMemberRoute(req)) {
