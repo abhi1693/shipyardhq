@@ -29,6 +29,13 @@ import { NavItem } from "@/types"
 import { toast } from "sonner"
 import { createBillingPortalAction } from "@/actions/member/billing/portal"
 import { BrandLogo } from "@/components/atoms/brand-logo"
+import {
+  ADMIN_BASE_PATH,
+  ADMIN_OVERVIEW_PATH,
+  HOME_PATH,
+  MEMBER_BASE_PATH,
+  MEMBER_OVERVIEW_PATH,
+} from "@/lib/routes"
 
 interface SidebarProps {
   navItems?: NavItem[]
@@ -90,9 +97,9 @@ export default function AppSidebar(props: SidebarProps) {
         queue.push(...candidate.items)
       }
     }
-    if (pathname.startsWith("/member")) return "/member/overview"
-    if (pathname.startsWith("/admin")) return "/admin/overview"
-    return "/"
+    if (pathname.startsWith(MEMBER_BASE_PATH)) return MEMBER_OVERVIEW_PATH
+    if (pathname.startsWith(ADMIN_BASE_PATH)) return ADMIN_OVERVIEW_PATH
+    return HOME_PATH
   }, [navItems, pathname])
 
   const topLevelButtonClasses =

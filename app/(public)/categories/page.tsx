@@ -5,6 +5,7 @@ import PublicContainer from "@/components/layout/PublicContainer"
 import { pluralize } from "@/lib/pluralize"
 import { Button } from "@/components/atoms/button"
 import { buildPageMetadata } from "@/lib/metadata"
+import { BROWSE_PATH, MEMBER_PRODUCTS_PATH, categoryPath } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Categories",
@@ -71,7 +72,7 @@ export default async function CategoriesPage() {
               size="lg"
               className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
             >
-              <Link href="/browse">Browse all products</Link>
+              <Link href={BROWSE_PATH}>Browse all products</Link>
             </Button>
             <Button
               asChild
@@ -79,7 +80,7 @@ export default async function CategoriesPage() {
               variant="outline"
               className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
             >
-              <Link href="/member/products">Submit your launch</Link>
+              <Link href={MEMBER_PRODUCTS_PATH}>Submit your launch</Link>
             </Button>
           </div>
 
@@ -136,7 +137,7 @@ export default async function CategoriesPage() {
           {categories.map((cat: CategoryListItem) => (
             <CategoryCard
               key={cat.id}
-              href={`/categories/${cat.slug}`}
+              href={categoryPath(cat.slug)}
               name={cat.name}
               icon={cat.icon}
               description={cat.description}

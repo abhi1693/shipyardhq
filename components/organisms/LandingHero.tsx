@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"
+import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 import { Ship } from "lucide-react"
 import SubmitProductButton from "@/components/molecules/SubmitProductButton"
 
@@ -66,14 +67,14 @@ export default function Hero({ stats }: { stats?: Stats }) {
         </p>
 
         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-          <Link href="/member/products">
+          <Link href={MEMBER_PRODUCTS_PATH}>
             <SubmitProductButton
               size="lg"
               className="shadow-[0px_25px_50px_-30px_rgba(7,58,104,0.65)]"
               label="Submit Your Product"
             />
           </Link>
-          <Link href="/browse">
+          <Link href={BROWSE_PATH}>
             <Button
               size="lg"
               variant="outline"

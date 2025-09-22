@@ -1,6 +1,7 @@
 import { sendEmail } from "@/lib/email/resend"
 import OrganizationMemberInvitationEmail from "@/lib/email/templates/organization/memberInvitation"
 import { getAppBaseUrl } from "@/lib/email/utils"
+import { memberOrganizationPath } from "@/lib/routes"
 
 type SendOrganizationMemberInviteOptions = {
   to: string
@@ -16,7 +17,7 @@ export async function sendOrganizationMemberInviteEmail({
   inviterName,
 }: SendOrganizationMemberInviteOptions) {
   const baseUrl = getAppBaseUrl()
-  const inviteUrl = `${baseUrl}/member/organizations/${organizationId}`
+  const inviteUrl = `${baseUrl}${memberOrganizationPath(organizationId)}`
   const subjectInviter = inviterName?.trim()?.length
     ? inviterName
     : "A teammate"

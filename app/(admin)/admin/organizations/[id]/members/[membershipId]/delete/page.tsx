@@ -11,6 +11,7 @@ import {
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
+import { adminPath, adminStatusPath } from "@/lib/routes"
 
 export default async function DeleteOrganizationMembershipPage({
   params,
@@ -20,7 +21,7 @@ export default async function DeleteOrganizationMembershipPage({
   const { id, membershipId } = await params
 
   if (!id || !membershipId) {
-    redirect("/admin/organizations?status=invalid")
+    redirect(adminStatusPath(["organizations"], "invalid"))
   }
 
   const membership = await prisma.organizationMembership.findUnique({
@@ -33,7 +34,7 @@ export default async function DeleteOrganizationMembershipPage({
   })
 
   if (!membership || membership.organizationId !== id) {
-    redirect(`/admin/organizations/${id}?status=not-found`)
+    redirect(adminStatusPath(["organizations", id], "not-found"))
   }
 
   const membershipKey = membership.id
@@ -46,10 +47,10 @@ export default async function DeleteOrganizationMembershipPage({
     const result = await deleteOrganizationMembershipAction(membershipKey)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect(`/admin/organizations/${id}?status=error`)
+      redirect(adminStatusPath(["organizations", id], "error"))
     }
 
-    redirect(`/admin/organizations/${organizationId}?status=member-removed`)
+    redirect(adminStatusPath(["organizations", organizationId], "member-removed"))
   }
 
   return (
@@ -68,7 +69,9 @@ export default async function DeleteOrganizationMembershipPage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href={`/admin/organizations/${organizationId}`}>Cancel</Link>
+            <Link href={adminPath("organizations", organizationId)}>
+              Cancel
+            </Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react"
 import PublicFooter from "@/components/layout/footers/public-footer"
+import { BROWSE_PATH, LEADERBOARD_PATH } from "@/lib/routes"
 
 describe("PublicFooter", () => {
   it("renders brand, nav links and CTA", () => {
@@ -17,11 +18,11 @@ describe("PublicFooter", () => {
     // A few representative links
     expect(screen.getByRole("link", { name: /All Products/i })).toHaveAttribute(
       "href",
-      "/browse",
+      BROWSE_PATH,
     )
     expect(screen.getByRole("link", { name: /Leaderboard/i })).toHaveAttribute(
       "href",
-      "/leaderboard",
+      LEADERBOARD_PATH,
     )
     expect(
       screen.getByRole("link", { name: /Privacy Policy/i }),

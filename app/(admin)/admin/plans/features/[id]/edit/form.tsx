@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/atoms/input"
 import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
+import { adminPath } from "@/lib/routes"
 import { updatePlanFeatureAction } from "@/actions/admin/plans/features/actions"
 
 const featureFormSchema = z.object({
@@ -62,7 +63,7 @@ export default function EditPlanFeatureForm({
       return
     }
 
-    router.push("/admin/plans/features")
+    router.push(adminPath("plans", "features"))
   }
 
   return (

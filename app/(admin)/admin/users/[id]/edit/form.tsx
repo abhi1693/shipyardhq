@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
+import { adminPath } from "@/lib/routes"
 
 const userFormSchema = z.object({
   email: z.email("Invalid email"),
@@ -66,7 +67,7 @@ export default function EditUserForm({ user }: { user: User }) {
       return
     }
 
-    router.push(`/admin/users/${user.id}`)
+    router.push(adminPath("users", user.id))
   }
 
   return (

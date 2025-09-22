@@ -37,6 +37,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { Label } from "@/components/atoms/label"
+import { adminPath } from "@/lib/routes"
 
 const schema = makeEditProductSchema()
 
@@ -86,7 +87,7 @@ export default function EditProductForm({
         return
       }
       toast.success("Product updated successfully")
-      router.push(`/admin/products/${product.id}`)
+      router.push(adminPath("products", product.id))
     },
   })
 

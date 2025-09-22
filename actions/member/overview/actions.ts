@@ -3,6 +3,10 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 import { auth } from "@clerk/nextjs/server"
 import { subDays } from "date-fns"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
+import {
+  MEMBER_PRODUCTS_PATH,
+  memberProductsVerificationPath,
+} from "@/lib/routes"
 
 type UserRef = { id: string }
 
@@ -483,37 +487,37 @@ export async function getProductHealthSummary(days?: number) {
     suggestions.push({
       label: `${issuesCount.unverified} product(s) need domain verification`,
       count: issuesCount.unverified,
-      href: "/member/products?verification=unverified",
+      href: memberProductsVerificationPath("unverified"),
     })
   if (issuesCount.lowMedia)
     suggestions.push({
       label: `${issuesCount.lowMedia} product(s) should add screenshots`,
       count: issuesCount.lowMedia,
-      href: "/member/products",
+      href: MEMBER_PRODUCTS_PATH,
     })
   if (issuesCount.missingBanner)
     suggestions.push({
       label: `${issuesCount.missingBanner} product(s) missing a banner`,
       count: issuesCount.missingBanner,
-      href: "/member/products",
+      href: MEMBER_PRODUCTS_PATH,
     })
   if (issuesCount.shortDescription)
     suggestions.push({
       label: `${issuesCount.shortDescription} product(s) with short description`,
       count: issuesCount.shortDescription,
-      href: "/member/products",
+      href: MEMBER_PRODUCTS_PATH,
     })
   if (issuesCount.noKeywords)
     suggestions.push({
       label: `${issuesCount.noKeywords} product(s) should add keywords`,
       count: issuesCount.noKeywords,
-      href: "/member/products",
+      href: MEMBER_PRODUCTS_PATH,
     })
   if (issuesCount.missingCta)
     suggestions.push({
       label: `${issuesCount.missingCta} product(s) missing CTA`,
       count: issuesCount.missingCta,
-      href: "/member/products",
+      href: MEMBER_PRODUCTS_PATH,
     })
 
   type ProductIssueSummary = {

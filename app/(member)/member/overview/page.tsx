@@ -24,6 +24,13 @@ import {
   getRecentActivity,
   getProductHealthSummary,
 } from "@/actions/member/overview/actions"
+import {
+  MEMBER_PRODUCTS_ADD_PATH,
+  MEMBER_PRODUCTS_PATH,
+  memberProductPath,
+  memberProductsStatusPath,
+  memberProductsVerificationPath,
+} from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { currentUser } from "@clerk/nextjs/server"
 
@@ -202,7 +209,7 @@ export default async function OverviewPage({
           action prompts tailored to your launches.
         </p>
         <CreateButton asChild className="mt-8" label="Add product">
-          <Link href="/member/products/add">Add product</Link>
+          <Link href={MEMBER_PRODUCTS_ADD_PATH}>Add product</Link>
         </CreateButton>
       </div>
     )
@@ -215,40 +222,40 @@ export default async function OverviewPage({
       title: `New products (${days}d)`,
       value: formatNumber(stats.productsInRange),
       helper: `${formatNumber(stats.totalProducts)} live products`,
-      href: "/member/products",
+      href: MEMBER_PRODUCTS_PATH,
     },
     {
       title: "Drafts waiting",
       value: formatNumber(stats.draftsCount),
       helper: "Finish polishing and publish",
-      href: "/member/products?status=draft",
+      href: memberProductsStatusPath("draft"),
     },
     {
       title: "Verified domains",
       value: `${stats.verifiedRate}%`,
       helper: `${formatNumber(stats.verifiedDomains)} verified`,
       href: stats.unverifiedCount
-        ? "/member/products?verification=unverified"
+        ? memberProductsVerificationPath("unverified")
         : undefined,
     },
     {
       title: "Total clicks",
       value: formatNumber(stats.totalClicks),
       helper: "Lifetime engagement",
-      href: "/member/products",
+      href: MEMBER_PRODUCTS_PATH,
     },
     {
       title: "Total upvotes",
       value: formatNumber(stats.totalUpvotes),
       helper: "Community support",
-      href: "/member/products",
+      href: MEMBER_PRODUCTS_PATH,
     },
     {
       title: "Unverified products",
       value: formatNumber(stats.unverifiedCount),
       helper: "Securing trust signals",
       href: stats.unverifiedCount
-        ? "/member/products?verification=unverified"
+        ? memberProductsVerificationPath("unverified")
         : undefined,
     },
   ]
@@ -286,28 +293,28 @@ export default async function OverviewPage({
       title: "Verify domains",
       count: stats.unverifiedCount,
       description: "Keep trust signals strong by completing TXT verification.",
-      href: "/member/products?verification=unverified",
+      href: memberProductsVerificationPath("unverified"),
       items: taskItems.unverified,
     },
     {
       title: "Finish drafts",
       count: stats.draftsCount,
       description: "Polish copy and screenshots before launch.",
-      href: "/member/products?status=draft",
+      href: memberProductsStatusPath("draft"),
       items: taskItems.drafts,
     },
     {
       title: "Add visuals",
       count: needsMedia.length,
       description: "Fresh screenshots help conversions.",
-      href: "/member/products",
+      href: MEMBER_PRODUCTS_PATH,
       items: taskItems.media,
     },
     {
       title: "Expiring badges",
       count: expiringBadges.length,
       description: "Renew perks before they lapse.",
-      href: "/member/products",
+      href: MEMBER_PRODUCTS_PATH,
       items: taskItems.badges,
     },
   ]
@@ -330,7 +337,7 @@ export default async function OverviewPage({
       return {
         title: "Verify your domains",
         body: `You have ${formatNumber(count)} ${pluralize(count, "product")} waiting on domain verification. Keeping them verified boosts trust signals across listings.`,
-        href: "/member/products?verification=unverified",
+        href: memberProductsVerificationPath("unverified"),
         cta: "Review domains",
       }
     }
@@ -339,7 +346,7 @@ export default async function OverviewPage({
       return {
         title: "Drafts ready to publish",
         body: `${count === 1 ? "One" : formatNumber(count)} draft ${pluralize(count, "update")} to polish and share. A quick review keeps momentum.`,
-        href: "/member/products?status=draft",
+        href: memberProductsStatusPath("draft"),
         cta: "Finish drafts",
       }
     }
@@ -348,7 +355,7 @@ export default async function OverviewPage({
       return {
         title: "Add fresh visuals",
         body: `${formatNumber(count)} ${pluralize(count, "product")} could use updated screenshots to lift conversions.`,
-        href: "/member/products",
+        href: MEMBER_PRODUCTS_PATH,
         cta: "Update media",
       }
     }
@@ -357,7 +364,7 @@ export default async function OverviewPage({
       return {
         title: "Renew expiring badges",
         body: `${formatNumber(count)} earned ${pluralize(count, "perk")} will lapse soon—refresh them to keep visibility high.`,
-        href: "/member/products",
+        href: MEMBER_PRODUCTS_PATH,
         cta: "Review badges",
       }
     }
@@ -366,7 +373,7 @@ export default async function OverviewPage({
       return {
         title: `${topClickProduct.name} is drawing eyes`,
         body: `It has collected ${clicks} total clicks so far. Consider sharing an update while the spotlight is on.`,
-        href: `/member/products/${topClickProduct.id}`,
+        href: memberProductPath(topClickProduct.id),
         cta: "Open product",
       }
     }
@@ -490,7 +497,7 @@ export default async function OverviewPage({
             Operations
           </h2>
           <CreateButton asChild size="sm" label="Add product">
-            <Link href="/member/products/add">Add product</Link>
+            <Link href={MEMBER_PRODUCTS_ADD_PATH}>Add product</Link>
           </CreateButton>
         </div>
         <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
@@ -503,13 +510,15 @@ export default async function OverviewPage({
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               <Button asChild size="sm">
-                <Link href="/member/products">View products</Link>
+                <Link href={MEMBER_PRODUCTS_PATH}>View products</Link>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/member/products?status=draft">Manage drafts</Link>
+                <Link href={memberProductsStatusPath("draft")}>
+                  Manage drafts
+                </Link>
               </Button>
               <Button asChild variant="outline" size="sm">
-                <Link href="/member/products?verification=unverified">
+                <Link href={memberProductsVerificationPath("unverified")}>
                   Verify domains
                 </Link>
               </Button>
@@ -538,7 +547,7 @@ export default async function OverviewPage({
                   : "Everything verified — nice work."}
               </p>
               <Link
-                href="/member/products?verification=unverified"
+                href={memberProductsVerificationPath("unverified")}
                 className="text-xs font-medium text-sky-600 hover:underline"
               >
                 Review unverified products →
@@ -623,7 +632,7 @@ export default async function OverviewPage({
                       className="flex items-center justify-between gap-3"
                     >
                       <Link
-                        href={`/member/products/${product.id}`}
+                        href={memberProductPath(product.id)}
                         className="truncate font-medium text-slate-900 hover:underline"
                       >
                         {product.name}
@@ -658,7 +667,7 @@ export default async function OverviewPage({
                       className="flex items-center justify-between gap-3"
                     >
                       <Link
-                        href={`/member/products/${product.id}`}
+                        href={memberProductPath(product.id)}
                         className="truncate font-medium text-slate-900 hover:underline"
                       >
                         {product.name}
@@ -700,7 +709,7 @@ export default async function OverviewPage({
                     <li key={product.id} className="space-y-0.5">
                       <div className="flex items-center justify-between gap-3">
                         <Link
-                          href={`/member/products/${product.id}`}
+                          href={memberProductPath(product.id)}
                           className="flex-1 truncate font-medium text-slate-900 hover:underline"
                         >
                           {product.name}
@@ -734,7 +743,7 @@ export default async function OverviewPage({
             </CardContent>
             <CardFooter>
               <Link
-                href="/member/products"
+                href={MEMBER_PRODUCTS_PATH}
                 className="text-sm text-sky-600 hover:underline"
               >
                 View all products →
@@ -763,7 +772,7 @@ export default async function OverviewPage({
                     >
                       <div className="flex flex-col">
                         <Link
-                          href={`/member/products/${item.product.id}`}
+                          href={memberProductPath(item.product.id)}
                           className="font-medium text-slate-900 hover:underline"
                         >
                           {item.product.name}
@@ -812,7 +821,7 @@ export default async function OverviewPage({
                     >
                       <span className="text-slate-900">{suggestion.label}</span>
                       <Link
-                        href={suggestion.href ?? "/member/products"}
+                        href={suggestion.href ?? MEMBER_PRODUCTS_PATH}
                         className="text-xs text-sky-600 hover:underline"
                       >
                         Fix it →

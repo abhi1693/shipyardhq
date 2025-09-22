@@ -1,6 +1,7 @@
 import React from "react"
 import { render } from "@testing-library/react"
 import { vi } from "vitest"
+import { MEMBER_BASE_PATH } from "@/lib/routes"
 
 // Mock ClerkProvider to expose baseTheme presence
 const clerkSpy = vi.fn()
@@ -14,7 +15,7 @@ vi.mock("@clerk/nextjs", () => ({
 
 let currentTheme = "dark"
 vi.mock("next-themes", () => ({ useTheme: () => ({ theme: currentTheme }) }))
-vi.mock("next/navigation", () => ({ usePathname: () => "/member" }))
+vi.mock("next/navigation", () => ({ usePathname: () => MEMBER_BASE_PATH }))
 import Providers from "@/components/layout/providers"
 
 describe("Providers appearance", () => {

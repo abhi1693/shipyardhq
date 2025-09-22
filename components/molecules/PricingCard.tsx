@@ -11,6 +11,7 @@ import { Button } from "@/components/atoms/button"
 import clsx from "clsx"
 import { IconAnchor, IconArrowUpRight, IconBolt } from "@tabler/icons-react"
 import { PricingFeature } from "@/components/molecules/PricingFeature"
+import { MEMBER_OVERVIEW_PATH } from "@/lib/routes"
 
 export type PricingCardProps = {
   name: string
@@ -41,7 +42,7 @@ export function PricingCard({
   isPopular,
   features,
   boostForDays,
-  ctaHref = "/member/overview",
+  ctaHref = MEMBER_OVERVIEW_PATH,
   ctaLabel = "Choose Plan",
 }: PricingCardProps) {
   const isFree = price === 0

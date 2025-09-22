@@ -1,10 +1,11 @@
 import { render, screen } from "@testing-library/react"
 import PublicHeader from "@/components/layout/headers/public-header"
 import { vi } from "vitest"
+import { BROWSE_PATH } from "@/lib/routes"
 
 // Mock next/navigation to control pathname
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/browse",
+  usePathname: () => BROWSE_PATH,
 }))
 
 // Minimal Clerk mocks: render children as-is

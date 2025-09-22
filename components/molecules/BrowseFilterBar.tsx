@@ -17,6 +17,7 @@ import {
 import InlineSelect from "@/components/molecules/InlineSelect"
 import { ScrollArea } from "@/components/atoms/scroll-area"
 import { buildQuery } from "@/lib/urlParams"
+import { BROWSE_PATH } from "@/lib/routes"
 
 type UseCase = {
   id: string
@@ -71,7 +72,7 @@ export default function BrowseFilterBar({
     if (trimmed === currentQ) return
     const t = setTimeout(() => {
       router.push(
-        buildQuery("/browse", qs, { q: trimmed || undefined, page: "1" }),
+        buildQuery(BROWSE_PATH, qs, { q: trimmed || undefined, page: "1" }),
       )
     }, 400)
     return () => clearTimeout(t)
@@ -79,7 +80,7 @@ export default function BrowseFilterBar({
   // Simple lists (search removed for now)
   const buildUrl = useCallback(
     (key: string, value: string | boolean | undefined) => {
-      return buildQuery("/browse", qs, {
+      return buildQuery(BROWSE_PATH, qs, {
         [key]:
           /* c8 ignore next */ value === undefined ||
           value === "__all__" ||
@@ -125,7 +126,7 @@ export default function BrowseFilterBar({
         const v = overrides.verified
         updates.verified = v ? "true" : undefined
       }
-      return buildQuery("/browse", qs, updates)
+      return buildQuery(BROWSE_PATH, qs, updates)
     },
     [qs],
   )
@@ -176,7 +177,7 @@ export default function BrowseFilterBar({
                 onClick={() => {
                   setQ("")
                   router.push(
-                    buildQuery("/browse", qs, { q: undefined, page: "1" }),
+                buildQuery(BROWSE_PATH, qs, { q: undefined, page: "1" }),
                   )
                 }}
               >
@@ -308,7 +309,7 @@ export default function BrowseFilterBar({
             checked={Boolean(current.verified)}
             onCheckedChange={(checked) =>
               router.push(
-                buildQuery("/browse", qs, {
+                buildQuery(BROWSE_PATH, qs, {
                   verified: checked ? "true" : undefined,
                   page: "1",
                 }),
@@ -321,7 +322,7 @@ export default function BrowseFilterBar({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => router.push("/browse")}
+            onClick={() => router.push(BROWSE_PATH)}
             className="ml-auto"
           >
             Clear all

@@ -4,12 +4,13 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import DataTable from "@/components/molecules/DataTable"
 import type { ColumnDef } from "@tanstack/react-table"
+import { ADMIN_BASE_PATH } from "@/lib/routes"
 
 const push = vi.fn()
 let searchStr = ""
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
-  usePathname: () => "/admin",
+  usePathname: () => ADMIN_BASE_PATH,
   useSearchParams: () => new URLSearchParams(searchStr),
 }))
 

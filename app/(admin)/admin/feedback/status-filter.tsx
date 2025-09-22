@@ -10,6 +10,7 @@ import {
 import { buildQuery } from "@/lib/urlParams"
 import { FeedbackStatus } from "@/lib/vendor/prisma/client"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { adminPath } from "@/lib/routes"
 
 const STATUS_OPTIONS: Array<{ label: string; value: FeedbackStatus | "all" }> =
   [
@@ -25,7 +26,7 @@ export default function StatusFilter({
   status: FeedbackStatus | "all"
 }) {
   const router = useRouter()
-  const pathname = usePathname() ?? "/admin/feedback"
+  const pathname = usePathname() ?? adminPath("feedback")
   const searchParams = useSearchParams()
 
   return (

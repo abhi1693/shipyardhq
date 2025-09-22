@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { ProductBadge, Product } from "@/lib/vendor/prisma/client"
 import { formatDate, linkify } from "@/lib/ui/formatters"
+import { adminPath } from "@/lib/routes"
 
 export type ProductBadgeWithDetails = ProductBadge & {
   product: Pick<Product, "id" | "name">
@@ -15,7 +16,7 @@ export const columns: ColumnDef<ProductBadgeWithDetails>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.id,
-        href: `/admin/products/assignments/badges/${row.original.id}`,
+        href: adminPath("products", "assignments", "badges", row.original.id),
       }),
   },
   {
@@ -28,7 +29,7 @@ export const columns: ColumnDef<ProductBadgeWithDetails>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.product.name,
-        href: `/admin/products/${row.original.product.id}`,
+        href: adminPath("products", row.original.product.id),
       }),
   },
   {

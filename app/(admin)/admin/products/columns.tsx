@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/atoms/button"
 import { Eye, Pencil } from "lucide-react"
 import DeleteButton from "@/components/molecules/DeleteButton"
+import { adminPath } from "@/lib/routes"
 
 export type AdminProductRow = Product & {
   category: { id: string; name: string }
@@ -25,7 +26,7 @@ export const columns: ColumnDef<AdminProductRow>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.name,
-        href: `/admin/products/${row.original.id}`,
+        href: adminPath("products", row.original.id),
         subtext: row.original.tagline,
       }),
   },
@@ -59,7 +60,7 @@ export const columns: ColumnDef<AdminProductRow>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.category.name,
-        href: `/admin/categories/${row.original.category.id}`,
+        href: adminPath("categories", row.original.category.id),
       }),
   },
   {
@@ -68,7 +69,7 @@ export const columns: ColumnDef<AdminProductRow>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.user.email,
-        href: `/admin/users/${row.original.user.id}`,
+        href: adminPath("users", row.original.user.id),
       }),
   },
   {
@@ -86,17 +87,17 @@ export const columns: ColumnDef<AdminProductRow>[] = [
     header: () => null,
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-2">
-        <Link href={`/admin/products/${row.original.id}`}>
+        <Link href={adminPath("products", row.original.id)}>
           <Button size="sm" variant="outline">
             <Eye className="h-4 w-4" /> View
           </Button>
         </Link>
-        <Link href={`/admin/products/${row.original.id}/edit`}>
+        <Link href={adminPath("products", row.original.id, "edit")}>
           <Button size="sm" variant="outline">
             <Pencil className="h-4 w-4" /> Edit
           </Button>
         </Link>
-        <Link href={`/admin/products/${row.original.id}/delete`}>
+        <Link href={adminPath("products", row.original.id, "delete")}>
           <DeleteButton size="sm" />
         </Link>
       </div>

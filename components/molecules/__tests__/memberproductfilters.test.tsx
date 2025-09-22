@@ -2,12 +2,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 const push = vi.fn()
 let searchStr = ""
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
-  usePathname: () => "/member/products",
+  usePathname: () => MEMBER_PRODUCTS_PATH,
   useSearchParams: () => new URLSearchParams(searchStr),
 }))
 
@@ -39,7 +40,7 @@ describe("MemberProductFilters", () => {
     await user.type(input, "foo")
     // debounce is immediate due to mocked setTimeout
     const call = (push as any).mock.calls[0][0] as string
-    expect(call).toContain("/member/products?")
+    expect(call).toContain(`${MEMBER_PRODUCTS_PATH}?`)
     // q param may be omitted in immediate debounce; ensure page reset
     expect(call).toContain("page=1")
   })
@@ -53,7 +54,7 @@ describe("MemberProductFilters", () => {
     const call = (push as any).mock.calls[
       (push as any).mock.calls.length - 1
     ][0] as string
-    expect(call).toBe("/member/products")
+    expect(call).toBe(MEMBER_PRODUCTS_PATH)
     unmount()
   })
 })

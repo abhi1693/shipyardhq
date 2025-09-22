@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/atoms/input"
 import CreateButton from "@/components/molecules/CreateButton"
 import { ensureUrlHasSchema } from "@/lib/utils"
+import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -57,7 +58,7 @@ export default function AddOrganizationPage() {
       form.setError("url", { type: "server", message: (res as any).error })
       return
     }
-    router.push("/member/organizations")
+    router.push(MEMBER_ORGANIZATIONS_PATH)
   }
 
   return (

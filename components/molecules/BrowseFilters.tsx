@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Switch } from "@/components/atoms/switch"
 import { Input } from "@/components/atoms/input"
 import { buildQuery } from "@/lib/urlParams"
+import { BROWSE_PATH } from "@/lib/routes"
 
 interface BrowseFiltersProps {
   useCases: { id: string; slug: string; label: string }[]
@@ -42,7 +43,7 @@ export default function BrowseFilters({
   const qs = params?.toString() ?? ""
   const buildUrl = useCallback(
     (key: string, value: string | boolean) => {
-      return buildQuery("/browse", qs, {
+      return buildQuery(BROWSE_PATH, qs, {
         [key]:
           value === "__all__" || value === false ? undefined : String(value),
         page: "1",
@@ -253,7 +254,7 @@ export default function BrowseFilters({
             checked={Boolean(current.verified)}
             onCheckedChange={(checked) =>
               router.push(
-                buildQuery("/browse", qs, {
+                buildQuery(BROWSE_PATH, qs, {
                   verified: checked ? "true" : undefined,
                   page: "1",
                 }),

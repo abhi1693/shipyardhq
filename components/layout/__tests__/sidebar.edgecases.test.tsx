@@ -3,9 +3,10 @@ import AppSidebar from "@/components/layout/sidebar"
 import { SidebarProvider } from "@/components/atoms/sidebar"
 import { vi } from "vitest"
 import type { NavItem } from "@/types"
+import { ADMIN_OVERVIEW_PATH, adminPath } from "@/lib/routes"
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/admin/overview",
+  usePathname: () => ADMIN_OVERVIEW_PATH,
 }))
 
 // Mock Icons map to minimal components
@@ -43,9 +44,9 @@ describe("AppSidebar edge cases", () => {
         icon: "logo" as any,
         items: [
           // Provide an icon on a subitem to render SubIcon branch
-          { title: "All Users", url: "/admin/users", icon: "logo" as any },
+          { title: "All Users", url: adminPath("users"), icon: "logo" as any },
           // Include an active subitem to default open the collapsible
-          { title: "Overview", url: "/admin/overview" },
+          { title: "Overview", url: ADMIN_OVERVIEW_PATH },
         ],
       },
     ]

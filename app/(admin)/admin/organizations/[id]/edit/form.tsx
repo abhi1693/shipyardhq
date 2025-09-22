@@ -24,6 +24,7 @@ import { Input } from "@/components/atoms/input"
 import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 import type { Organization } from "@/lib/vendor/prisma/client"
+import { adminPath } from "@/lib/routes"
 
 const orgSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -50,7 +51,7 @@ export default function EditOrganizationForm({
       form.setError("name", { type: "server", message: (result as any).error })
       return
     }
-    router.push(`/admin/organizations/${organization.id}`)
+    router.push(adminPath("organizations", organization.id))
   }
 
   return (

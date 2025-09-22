@@ -11,6 +11,7 @@ import {
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
+import { adminPath, adminStatusPath } from "@/lib/routes"
 
 export default async function DeleteUseCaseAssignmentPage({
   params,
@@ -20,7 +21,9 @@ export default async function DeleteUseCaseAssignmentPage({
   const { useCaseId, categoryId } = await params
 
   if (!useCaseId || !categoryId) {
-    redirect("/admin/categories/use-cases/assignments?status=invalid")
+    redirect(
+      adminStatusPath(["categories", "use-cases", "assignments"], "invalid"),
+    )
   }
 
   const assignment = await prisma.useCaseCategory.findUnique({
@@ -37,7 +40,9 @@ export default async function DeleteUseCaseAssignmentPage({
   })
 
   if (!assignment) {
-    redirect("/admin/categories/use-cases/assignments?status=not-found")
+    redirect(
+      adminStatusPath(["categories", "use-cases", "assignments"], "not-found"),
+    )
   }
 
   const assignmentUseCaseId = useCaseId
@@ -54,10 +59,14 @@ export default async function DeleteUseCaseAssignmentPage({
     })
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect("/admin/categories/use-cases/assignments?status=error")
+      redirect(
+        adminStatusPath(["categories", "use-cases", "assignments"], "error"),
+      )
     }
 
-    redirect("/admin/categories/use-cases/assignments?status=deleted")
+    redirect(
+      adminStatusPath(["categories", "use-cases", "assignments"], "deleted"),
+    )
   }
 
   return (
@@ -77,7 +86,9 @@ export default async function DeleteUseCaseAssignmentPage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href="/admin/categories/use-cases/assignments">Cancel</Link>
+            <Link href={adminPath("categories", "use-cases", "assignments")}>
+              Cancel
+            </Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

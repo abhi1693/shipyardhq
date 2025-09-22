@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next"
+import { ADMIN_BASE_PATH, MEMBER_BASE_PATH } from "@/lib/routes"
 
 export default function robots(): MetadataRoute.Robots {
   const baseStr = (
@@ -16,7 +17,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/member", "/admin", "/api"],
+        disallow: [MEMBER_BASE_PATH, ADMIN_BASE_PATH, "/api"],
       },
     ],
     sitemap: [`${baseStr}/sitemap.xml`],

@@ -23,6 +23,7 @@ import {
 } from "@/lib/productWizard/mappers"
 import { useProductWizard } from "@/hooks/useProductWizard"
 import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
+import { memberProductPath } from "@/lib/routes"
 
 const schema = makeEditProductSchema()
 
@@ -70,7 +71,7 @@ export default function EditProductForm({
         return
       }
       toast.success("Product updated successfully")
-      router.push(`/member/products/${product.slug}`)
+      router.push(memberProductPath(product.slug))
     },
   })
 

@@ -37,6 +37,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { Label } from "@/components/atoms/label"
+import { adminPath } from "@/lib/routes"
 
 const schema = makeAddProductSchema()
 
@@ -84,7 +85,7 @@ export default function AddProductForm({
       return
     }
     toast.success("Product created successfully!")
-    router.push("/admin/products")
+    router.push(adminPath("products"))
   }
 
   const wizard = useProductWizard<ProductWizardInput>({

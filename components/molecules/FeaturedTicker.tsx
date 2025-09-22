@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Star } from "lucide-react"
 import { useMemo } from "react"
+import { productPath } from "@/lib/routes"
 
 type Item = {
   slug: string
@@ -44,7 +45,7 @@ export default function FeaturedTicker({ items }: { items: Item[] }) {
             {tickerItems.map((p, i) => (
               <Link
                 key={`${p.slug}-${i}`}
-                href={`/products/${p.slug}`}
+                href={productPath(p.slug)}
                 className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.12] bg-background/70 px-3 py-1.5 font-medium text-[color:var(--brand-1)] transition hover:-translate-y-0.5 hover:border-[color:var(--brand-1)/0.3] hover:text-[color:var(--brand-1)]"
               >
                 <Image

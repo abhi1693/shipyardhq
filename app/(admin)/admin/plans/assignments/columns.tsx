@@ -6,6 +6,7 @@ import { PlanFeatureAssignment } from "@/lib/vendor/prisma/client"
 import { formatBoolean, formatDate, linkify } from "@/lib/ui/formatters"
 import { Button } from "@/components/atoms/button"
 import { Eye, Pencil } from "lucide-react"
+import { adminPath } from "@/lib/routes"
 
 type AssignmentWithRelations = PlanFeatureAssignment & {
   plan: { id: string; name: string }
@@ -19,7 +20,7 @@ export const columns: ColumnDef<AssignmentWithRelations>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.id,
-        href: `/admin/plans/assignments/${row.original.id}`,
+        href: adminPath("plans", "assignments", row.original.id),
       }),
   },
   {
@@ -28,7 +29,7 @@ export const columns: ColumnDef<AssignmentWithRelations>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.feature.name,
-        href: `/admin/plans/features/${row.original.feature.id}`,
+        href: adminPath("plans", "features", row.original.feature.id),
         subtext: row.original.feature.key,
       }),
   },
@@ -38,7 +39,7 @@ export const columns: ColumnDef<AssignmentWithRelations>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.plan.name,
-        href: `/admin/plans/${row.original.plan.id}`,
+        href: adminPath("plans", row.original.plan.id),
       }),
   },
   {
@@ -66,12 +67,12 @@ export const columns: ColumnDef<AssignmentWithRelations>[] = [
     header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <Link href={`/admin/plans/assignments/${row.original.id}`}>
+        <Link href={adminPath("plans", "assignments", row.original.id)}>
           <Button size="sm" variant="outline">
             <Eye className="h-4 w-4" /> View
           </Button>
         </Link>
-        <Link href={`/admin/plans/assignments/${row.original.id}/edit`}>
+        <Link href={adminPath("plans", "assignments", row.original.id, "edit")}>
           <Button size="sm" variant="outline">
             <Pencil className="h-4 w-4" /> Edit
           </Button>

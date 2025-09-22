@@ -11,6 +11,7 @@ import {
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
+import { adminPath, adminStatusPath } from "@/lib/routes"
 
 export default async function DeleteUseCasePage({
   params,
@@ -20,7 +21,7 @@ export default async function DeleteUseCasePage({
   const { id } = await params
 
   if (!id) {
-    redirect("/admin/categories/use-cases?status=invalid")
+    redirect(adminStatusPath(["categories", "use-cases"], "invalid"))
   }
 
   const useCase = await prisma.useCase.findUnique({
@@ -29,7 +30,7 @@ export default async function DeleteUseCasePage({
   })
 
   if (!useCase) {
-    redirect("/admin/categories/use-cases?status=not-found")
+    redirect(adminStatusPath(["categories", "use-cases"], "not-found"))
   }
 
   const useCaseId = useCase.id
@@ -41,10 +42,10 @@ export default async function DeleteUseCasePage({
     const result = await deleteUseCaseAction(useCaseId)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect("/admin/categories/use-cases?status=error")
+      redirect(adminStatusPath(["categories", "use-cases"], "error"))
     }
 
-    redirect("/admin/categories/use-cases?status=deleted")
+    redirect(adminStatusPath(["categories", "use-cases"], "deleted"))
   }
 
   return (
@@ -63,7 +64,9 @@ export default async function DeleteUseCasePage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href="/admin/categories/use-cases">Cancel</Link>
+            <Link href={adminPath("categories", "use-cases")}>
+              Cancel
+            </Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

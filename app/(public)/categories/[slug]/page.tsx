@@ -15,6 +15,7 @@ import { Button } from "@/components/atoms/button"
 import FeaturedBanner from "@/components/molecules/FeaturedBanner"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { buildPageMetadata } from "@/lib/metadata"
+import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
@@ -120,7 +121,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   size="lg"
                   className="w-full min-w-[220px] shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)] sm:w-auto"
                 >
-                  <Link href="/member/products">
+                  <Link href={MEMBER_PRODUCTS_PATH}>
                     Launch in this category
                   </Link>
                 </Button>
@@ -130,7 +131,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   variant="outline"
                   className="w-full min-w-[220px] border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)] sm:w-auto"
                 >
-                  <Link href="/pricing">Explore promotion tiers</Link>
+                <Link href={PRICING_PATH}>Explore promotion tiers</Link>
                 </Button>
               </div>
             </div>
@@ -162,7 +163,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 variant="outline"
                 className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
               >
-                <Link href="/pricing">Get featured</Link>
+                <Link href={PRICING_PATH}>Get featured</Link>
               </Button>
             </div>
             <div className="grid gap-6 lg:grid-cols-[1.4fr,1fr]">
@@ -217,7 +218,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             harbor hero feed. Our crew will help polish your spotlight.
           </p>
           <Button asChild size="lg" variant="secondary">
-            <Link href="/pricing">View featured packages</Link>
+            <Link href={PRICING_PATH}>View featured packages</Link>
           </Button>
         </div>
       </PublicContainer>

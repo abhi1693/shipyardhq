@@ -3,9 +3,10 @@ import AppSidebar from "@/components/layout/sidebar"
 import { SidebarProvider } from "@/components/atoms/sidebar"
 import { vi } from "vitest"
 import type { NavItem } from "@/types"
+import { ADMIN_OVERVIEW_PATH, adminPath } from "@/lib/routes"
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/admin/overview",
+  usePathname: () => ADMIN_OVERVIEW_PATH,
 }))
 
 // Mock Icons map to minimal components
@@ -35,13 +36,13 @@ describe("AppSidebar", () => {
       })),
     })
     const nav: NavItem[] = [
-      { title: "Overview", url: "/admin/overview", icon: "logo" as any },
+      { title: "Overview", url: ADMIN_OVERVIEW_PATH, icon: "logo" as any },
       {
         title: "Users",
         icon: "logo" as any,
         items: [
-          { title: "All Users", url: "/admin/users", label: "2" },
-          { title: "Invites", url: "/admin/invites" },
+          { title: "All Users", url: adminPath("users"), label: "2" },
+          { title: "Invites", url: adminPath("invites") },
         ],
       },
     ]

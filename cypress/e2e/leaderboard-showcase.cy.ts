@@ -1,7 +1,9 @@
+import { LEADERBOARD_PATH } from "../../lib/routes"
+
 describe("Leaderboard showcase journey", () => {
   it("walks a maker through the ranking board and its controls", () => {
     cy.story("Riley checks the leaderboard to see who is leading the fleet.")
-    cy.visit("/leaderboard")
+    cy.visit(LEADERBOARD_PATH)
 
     cy.contains("Meet the fleet leading the tide").should("be.visible")
     cy.contains("Products competing").should("be.visible")

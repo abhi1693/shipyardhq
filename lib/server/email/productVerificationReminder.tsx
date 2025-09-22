@@ -3,10 +3,11 @@ import { on } from "@/lib/server/events"
 import DomainVerificationReminderEmail from "@/lib/email/templates/product/domainVerificationReminder"
 import { sendEmail } from "@/lib/email/resend"
 import { getAppBaseUrl } from "@/lib/email/utils"
+import { memberProductEditPath } from "@/lib/routes"
 
 function getProductSettingsUrl(slug: string) {
   const base = getAppBaseUrl()
-  return `${base}/member/products/${slug}/edit`
+  return `${base}${memberProductEditPath(slug)}`
 }
 
 on("product.created", async ({ productId }) => {

@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
+import { MEMBER_FEEDBACK_PATH } from "@/lib/routes"
 
 import prisma from "@/lib/prisma"
 import {
@@ -103,6 +104,6 @@ export async function submitMemberFeedback(formData: FormData) {
     return { error: "Unable to save your feedback right now." }
   }
 
-  revalidatePath("/member/feedback")
+  revalidatePath(MEMBER_FEEDBACK_PATH)
   return { success: true }
 }

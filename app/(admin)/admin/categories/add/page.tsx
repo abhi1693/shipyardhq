@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { CATEGORY_ICON_OPTIONS } from "@/components/molecules/CategoryIcons"
+import { adminPath } from "@/lib/routes"
 
 const categoryFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
@@ -68,7 +69,7 @@ export default function AddCategoryPage() {
       return
     }
 
-    router.push("/admin/categories")
+    router.push(adminPath("categories"))
   }
 
   return (

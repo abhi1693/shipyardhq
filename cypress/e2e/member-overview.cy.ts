@@ -1,10 +1,12 @@
+import { MEMBER_OVERVIEW_PATH } from "../../lib/routes"
+
 describe("Member overview command deck", () => {
   it("lets a signed-in maker review their portfolio health", () => {
     cy.story("Jamie signs in to their member command deck.")
-    cy.signInTestUser({ afterSignInPath: "/member/overview" })
+    cy.signInTestUser({ afterSignInPath: MEMBER_OVERVIEW_PATH })
 
     cy.story("They land on the overview hero with their next best step.")
-    cy.url().should("include", "/member/overview")
+    cy.url().should("include", MEMBER_OVERVIEW_PATH)
     cy.contains("Member Command Deck").should("be.visible")
     cy.contains("Next best step").should("be.visible")
 

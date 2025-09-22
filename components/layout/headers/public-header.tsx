@@ -12,14 +12,25 @@ import SignInCtaButton from "@/components/molecules/SignInCtaButton"
 import clsx from "clsx"
 import { SignOutButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs"
 import { BrandLogo } from "@/components/atoms/brand-logo"
+import {
+  ANALYTICS_PATH,
+  BROWSE_PATH,
+  CATEGORIES_PATH,
+  HOME_PATH,
+  LEADERBOARD_PATH,
+  MEMBER_BASE_PATH,
+  MEMBER_PRODUCTS_PATH,
+  PRICING_PATH,
+  USERS_PATH,
+} from "@/lib/routes"
 
 const navLinks = [
-  { label: "Browse", href: "/browse" },
-  { label: "Categories", href: "/categories" },
-  { label: "Leaderboard", href: "/leaderboard" },
-  { label: "Analytics", href: "/analytics" },
-  { label: "Makers", href: "/users" },
-  { label: "Pricing", href: "/pricing" },
+  { label: "Browse", href: BROWSE_PATH },
+  { label: "Categories", href: CATEGORIES_PATH },
+  { label: "Leaderboard", href: LEADERBOARD_PATH },
+  { label: "Analytics", href: ANALYTICS_PATH },
+  { label: "Makers", href: USERS_PATH },
+  { label: "Pricing", href: PRICING_PATH },
 ]
 
 export default function PublicHeader() {
@@ -35,7 +46,7 @@ export default function PublicHeader() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center gap-4">
           <Link
-            href="/"
+            href={HOME_PATH}
             className="inline-flex items-center gap-2"
             aria-label="ShipYardHQ home"
           >
@@ -70,7 +81,7 @@ export default function PublicHeader() {
 
           <div className="hidden md:flex items-center gap-3 ml-auto">
             <Link
-              href="/member/products"
+              href={MEMBER_PRODUCTS_PATH}
               className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.25] px-3 py-1.5 text-sm font-semibold text-[color:var(--brand-1)] transition hover:border-[color:var(--brand-1)/0.4]"
             >
               Submit Product
@@ -78,14 +89,14 @@ export default function PublicHeader() {
             <SignedOut>
               <SignInButton
                 mode="modal"
-                forceRedirectUrl="/member"
-                signUpForceRedirectUrl="/member"
+                forceRedirectUrl={MEMBER_BASE_PATH}
+                signUpForceRedirectUrl={MEMBER_BASE_PATH}
               >
                 <SignInCtaButton size="sm" />
               </SignInButton>
             </SignedOut>
             <SignedIn>
-              <Link href="/member">
+              <Link href={MEMBER_BASE_PATH}>
                 <MemberAreaButton variant="outline" size="sm" />
               </Link>
               <SignOutButton>
@@ -126,7 +137,7 @@ export default function PublicHeader() {
 
                   <div className="border-t pt-5 space-y-3">
                     <Link
-                      href="/member/products"
+                      href={MEMBER_PRODUCTS_PATH}
                       onClick={() => setOpen(false)}
                       className="inline-flex w-full items-center justify-center rounded-full border border-[color:var(--brand-1)/0.3] px-3 py-2 text-sm font-semibold text-[color:var(--brand-1)]"
                     >
@@ -135,14 +146,17 @@ export default function PublicHeader() {
                     <SignedOut>
                       <SignInButton
                         mode="modal"
-                        forceRedirectUrl="/member"
-                        signUpForceRedirectUrl="/member"
+                        forceRedirectUrl={MEMBER_BASE_PATH}
+                        signUpForceRedirectUrl={MEMBER_BASE_PATH}
                       >
                         <SignInCtaButton className="w-full" />
                       </SignInButton>
                     </SignedOut>
                     <SignedIn>
-                      <Link href="/member" onClick={() => setOpen(false)}>
+                      <Link
+                        href={MEMBER_BASE_PATH}
+                        onClick={() => setOpen(false)}
+                      >
                         <MemberAreaButton
                           variant="outline"
                           className="w-full"

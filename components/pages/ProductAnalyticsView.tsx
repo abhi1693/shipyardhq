@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils"
 import type { ProductTrafficSummary } from "@/types/analytics"
 import type { ProductAnalytics } from "@/lib/vendor/prisma/client"
 import { ArrowLeft, ExternalLink, Info } from "lucide-react"
+import { PRICING_PATH } from "@/lib/routes"
 
 const actionGroupClass =
   "flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70"
@@ -703,7 +704,7 @@ export function ProductAnalyticsView({
                   </ul>
                   <div className="mt-4">
                     <Button asChild>
-                      <Link href="/pricing">Explore upgrade options</Link>
+                      <Link href={PRICING_PATH}>Explore upgrade options</Link>
                     </Button>
                   </div>
                 </CardContent>

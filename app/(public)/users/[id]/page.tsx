@@ -8,6 +8,7 @@ import PublicContainer from "@/components/layout/PublicContainer"
 import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
 import { buildPageMetadata } from "@/lib/metadata"
+import { HOME_PATH, USERS_PATH, productPath, userPath } from "@/lib/routes"
 
 export const revalidate = 120
 
@@ -27,7 +28,7 @@ export async function generateMetadata({
   if (!user) return {}
   const fullName =
     `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"
-  const relativeUrl = `/users/${id}`
+  const relativeUrl = userPath(id)
   const desc = `${fullName}'s published products on ShipYardHQ.`
   const baseMetadata = buildPageMetadata({
     title: fullName,
@@ -78,7 +79,7 @@ export default async function PublicUserPage({ params }: PageProps) {
   const base = (
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   ).replace(/\/$/, "")
-  const profileUrl = `${base}/users/${user.id}`
+  const profileUrl = `${base}${userPath(user.id)}`
   const ldPerson = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -92,7 +93,7 @@ export default async function PublicUserPage({ params }: PageProps) {
     itemListElement: items.map((p, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      item: `${base}/products/${p.slug}`,
+      item: `${base}${productPath(p.slug)}`,
     })),
   }
   const ldBreadcrumb = {
@@ -103,13 +104,13 @@ export default async function PublicUserPage({ params }: PageProps) {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: `${base}/`,
+        item: `${base}${HOME_PATH}`,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Users",
-        item: `${base}/users`,
+        item: `${base}${USERS_PATH}`,
       },
       {
         "@type": "ListItem",

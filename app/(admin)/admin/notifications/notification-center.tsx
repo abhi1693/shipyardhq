@@ -42,6 +42,7 @@ import { Checkbox } from "@/components/atoms/checkbox"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
 import AdminEmailPreview from "./preview"
 import PreviewSkeleton from "./preview-skeleton"
+import { adminPath } from "@/lib/routes"
 
 const SEGMENT_SCHEMA = z.enum([
   "registered",
@@ -302,7 +303,9 @@ export default function NotificationCenter({
             description="Send on-demand announcements to the right members."
           />
           <Button asChild variant="outline">
-            <Link href="/admin/notifications/outreach">Builder outreach</Link>
+            <Link href={adminPath("notifications", "outreach")}>
+              Builder outreach
+            </Link>
           </Button>
         </div>
         <Separator />

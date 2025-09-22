@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server"
 import { notFound, redirect } from "next/navigation"
 
 import prisma from "@/lib/prisma"
+import { memberProductsStatusPath } from "@/lib/routes"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { PlanType } from "@/lib/vendor/prisma/client"
 
@@ -36,7 +37,7 @@ function handleUnauthorized(redirectPath: string | null | undefined) {
   if (redirectPath === null) {
     notFound()
   }
-  redirect(redirectPath ?? "/member/products?status=unauthorized")
+  redirect(redirectPath ?? memberProductsStatusPath("unauthorized"))
 }
 
 export async function requireManageableProduct(

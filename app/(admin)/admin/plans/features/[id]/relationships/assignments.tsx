@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Relationship } from "@/components/molecules/Relationship"
 import { formatBoolean, formatDate, linkify } from "@/lib/ui/formatters"
+import { adminPath } from "@/lib/routes"
 
 type AssignmentRow = {
   id: string
@@ -27,7 +28,7 @@ export function PlanAssignmentRelationship({
       cell: ({ row }) =>
         linkify({
           label: row.original.plan.name,
-          href: `/admin/plans/${row.original.plan.id}`,
+          href: adminPath("plans", row.original.plan.id),
         }),
     },
     {

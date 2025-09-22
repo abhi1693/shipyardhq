@@ -4,6 +4,7 @@ import PublicContainer from "@/components/layout/PublicContainer"
 import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import { Badge } from "@/components/atoms/badge"
 import { getWaveBackground } from "@/lib/nautical"
+import { LEADERBOARD_PATH } from "@/lib/routes"
 
 interface LeaderboardProps {
   products: FeaturedProduct[]
@@ -55,7 +56,7 @@ export function Leaderboard({ products }: LeaderboardProps) {
           subtitle="Vessels pulling ahead on the tide of community upvotes."
           action={
             <a
-              href="/leaderboard"
+              href={LEADERBOARD_PATH}
               className="hidden items-center rounded-md border border-[color:var(--brand-1)/0.35] px-3 py-1.5 text-sm text-[color:var(--brand-1)] shadow-[0px_15px_40px_-30px_rgba(7,58,104,0.85)] transition-colors hover:bg-[color:var(--brand-1)/0.05] md:inline-flex"
             >
               See leaderboard

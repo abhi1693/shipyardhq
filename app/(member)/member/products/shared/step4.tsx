@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
+import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 
 export default function Step4({
   organizations,
@@ -39,7 +40,7 @@ export default function Step4({
               <div className="flex items-center justify-between">
                 <FormLabel>Organization</FormLabel>
                 <a
-                  href="/member/organizations"
+                  href={MEMBER_ORGANIZATIONS_PATH}
                   className="text-xs text-primary hover:underline"
                   target="_blank"
                   rel="noopener noreferrer"

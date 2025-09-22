@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { buildPageMetadata } from "@/lib/metadata"
+import { MEMBER_BASE_PATH, PRICING_PATH } from "@/lib/routes"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { Button } from "@/components/atoms/button"
 import { FaqSection } from "@/components/organisms/FaqSection"
@@ -174,7 +175,7 @@ export default function AnalyticsPage() {
             size="lg"
             className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
           >
-            <Link href="/member">View your dashboard</Link>
+            <Link href={MEMBER_BASE_PATH}>View your dashboard</Link>
           </Button>
           <Button
             asChild
@@ -182,7 +183,7 @@ export default function AnalyticsPage() {
             variant="outline"
             className="border-[color:var(--brand-1)/0.35] bg-background/70 text-[color:var(--brand-1)] shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.75)]"
           >
-            <Link href="/pricing">Compare plans</Link>
+            <Link href={PRICING_PATH}>Compare plans</Link>
           </Button>
         </div>
       </PublicContainer>

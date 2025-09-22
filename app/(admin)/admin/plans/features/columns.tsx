@@ -10,6 +10,7 @@ import { commaSeparated, formatDate, linkify } from "@/lib/ui/formatters"
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"
 import { Eye, Pencil } from "lucide-react"
+import { adminPath } from "@/lib/routes"
 
 export type PlanFeatureWithAssignments = PlanFeature & {
   assignments: (PlanFeatureAssignment & {
@@ -24,7 +25,7 @@ export const columns: ColumnDef<PlanFeatureWithAssignments>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.key,
-        href: `/admin/plans/features/${row.original.id}`,
+        href: adminPath("plans", "features", row.original.id),
       }),
   },
   {
@@ -43,7 +44,7 @@ export const columns: ColumnDef<PlanFeatureWithAssignments>[] = [
         row.original.assignments.map((a) =>
           linkify({
             label: a.plan.name,
-            href: `/admin/plans/${a.plan.id}`,
+            href: adminPath("plans", a.plan.id),
             subtext: a.isExperimental ? (
               <span className="text-yellow-600 text-xs italic">
                 (experimental)
@@ -68,12 +69,12 @@ export const columns: ColumnDef<PlanFeatureWithAssignments>[] = [
     header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <Link href={`/admin/plans/features/${row.original.id}`}>
+        <Link href={adminPath("plans", "features", row.original.id)}>
           <Button size="sm" variant="outline">
             <Eye className="h-4 w-4" /> View
           </Button>
         </Link>
-        <Link href={`/admin/plans/features/${row.original.id}/edit`}>
+        <Link href={adminPath("plans", "features", row.original.id, "edit")}>
           <Button size="sm" variant="outline">
             <Pencil className="h-4 w-4" /> Edit
           </Button>

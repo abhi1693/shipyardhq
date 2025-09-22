@@ -11,6 +11,7 @@ import {
 } from "@/lib/server/userStatus"
 import { hasPlanFeature } from "@/lib/features"
 import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
+import { memberProductPath } from "@/lib/routes"
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
@@ -281,7 +282,7 @@ export async function startPlanCheckoutAction(
     const hdrs = await headers()
     const host = hdrs.get("x-forwarded-host") || hdrs.get("host")
     const proto = (hdrs.get("x-forwarded-proto") || "https").split(",")[0]
-    if (host) returnUrl = `${proto}://${host}/member/products/${product.slug}`
+    if (host) returnUrl = `${proto}://${host}${memberProductPath(product.slug)}`
   } catch {}
 
   const customer = {

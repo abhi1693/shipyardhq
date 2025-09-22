@@ -1,7 +1,9 @@
+import { BROWSE_PATH } from "../../lib/routes"
+
 describe("Browse filtering journey", () => {
   it("helps a researcher explore, expand, and narrow product results", () => {
     cy.story("Jamie opens the browse view to map the landscape.")
-    cy.visit("/browse")
+    cy.visit(BROWSE_PATH)
 
     cy.contains("Chart your course through top startups.").should("be.visible")
 

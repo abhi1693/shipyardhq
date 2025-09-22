@@ -1,5 +1,12 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import {
+  BROWSE_PATH,
+  CATEGORIES_PATH,
+  LEADERBOARD_PATH,
+  PRICING_PATH,
+  categoryPath,
+} from "@/lib/routes"
 
 type CategorySitemapEntry = Prisma.CategoryGetPayload<{
   select: { slug: true; updatedAt: true }
@@ -19,10 +26,10 @@ export async function GET() {
 
   const staticPaths = [
     "/",
-    "/browse",
-    "/leaderboard",
-    "/pricing",
-    "/categories",
+    BROWSE_PATH,
+    LEADERBOARD_PATH,
+    PRICING_PATH,
+    CATEGORIES_PATH,
     "/legal/terms",
     "/legal/privacy-policy",
   ] as const
@@ -41,19 +48,19 @@ export async function GET() {
           changefreq = "daily"
           priority = "1.0"
           break
-        case "/browse":
+        case BROWSE_PATH:
           changefreq = "daily"
           priority = "0.9"
           break
-        case "/leaderboard":
+        case LEADERBOARD_PATH:
           changefreq = "daily"
           priority = "0.8"
           break
-        case "/pricing":
+        case PRICING_PATH:
           changefreq = "monthly"
           priority = "0.6"
           break
-        case "/categories":
+        case CATEGORIES_PATH:
           changefreq = "weekly"
           priority = "0.7"
           break
@@ -81,7 +88,7 @@ export async function GET() {
       const priority = days <= 7 ? "0.7" : days <= 60 ? "0.6" : "0.5"
       return xml`
           <url>
-            <loc>${base}/categories/${c.slug}</loc>
+            <loc>${base}${categoryPath(c.slug)}</loc>
             <lastmod>${new Date(last).toISOString()}</lastmod>
             <changefreq>${changefreq}</changefreq>
             <priority>${priority}</priority>

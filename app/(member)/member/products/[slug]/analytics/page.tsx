@@ -3,6 +3,11 @@ import { requireManageableProduct } from "@/lib/server/productAccess"
 import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 import { hasPlanFeature } from "@/lib/features"
 import {
+  MEMBER_PRODUCTS_PATH,
+  memberProductPath,
+  productPath,
+} from "@/lib/routes"
+import {
   getProductAnalyticsRecord,
   toProductAnalyticsViewProduct,
 } from "@/lib/server/analytics/productAnalytics"
@@ -42,14 +47,14 @@ export default async function ProductAnalyticsPage({
   const accessLevel = hasAdvancedAnalytics ? "advanced" : "basic"
 
   if (!hasBasicAnalytics) {
-    redirect(`/member/products/${product.slug}`)
+    redirect(memberProductPath(product.slug))
   }
 
   const summary = await getProductTrafficSummary(product.id, {
     rangeDays,
     includeAdvanced: hasAdvancedAnalytics,
   })
-  const publicPath = `/products/${product.slug}`
+  const publicPath = productPath(product.slug)
 
   const viewProduct = toProductAnalyticsViewProduct(product)
 
@@ -57,8 +62,8 @@ export default async function ProductAnalyticsPage({
     <ProductAnalyticsView
       product={viewProduct}
       summary={summary}
-      basePath="member/products"
-      backHref={`/member/products/${product.slug}`}
+      basePath={MEMBER_PRODUCTS_PATH.slice(1)}
+      backHref={memberProductPath(product.slug)}
       publicHref={publicPath}
       headingId={product.slug}
       headingSlug={product.id}

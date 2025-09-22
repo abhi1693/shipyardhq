@@ -7,6 +7,7 @@ import {
   type PaginationSearchParams,
 } from "@/lib/pagination"
 import { buildPageMetadata } from "@/lib/metadata"
+import { adminPath } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Products",
@@ -31,7 +32,7 @@ export default async function CategoryPage({
   const pageCount = Math.max(Math.ceil(totalProducts / pageSize), 1)
 
   return (
-    <ListPageWrapper title="Products" addLink="/admin/products/add">
+    <ListPageWrapper title="Products" addLink={adminPath("products", "add")}>
       <EntityList
         columns={columns}
         data={typedProducts}

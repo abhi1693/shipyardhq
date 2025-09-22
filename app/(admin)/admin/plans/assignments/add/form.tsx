@@ -31,6 +31,7 @@ import { Checkbox } from "@/components/atoms/checkbox"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
 import { createPlanFeatureAssignment } from "@/actions/admin/plans/assignments/actions"
+import { adminPath } from "@/lib/routes"
 
 const schema = z.object({
   planId: z.string().min(1, "Select a plan"),
@@ -68,7 +69,7 @@ export default function AddAssignmentForm({
       return
     }
 
-    router.push("/admin/plans/assignments")
+    router.push(adminPath("plans", "assignments"))
   }
 
   return (

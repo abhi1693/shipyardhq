@@ -18,6 +18,7 @@ import {
   getRecentUsers,
 } from "@/actions/admin/overview/actions"
 import { cn } from "@/lib/utils"
+import { adminPath } from "@/lib/routes"
 
 export const revalidate = 60
 
@@ -162,7 +163,7 @@ export default async function OverviewPage({
       current: productsInRange,
       previous: previousProducts,
       helper: `${formatNumber(stats.totalProducts)} live products`,
-      href: "/admin/products",
+      href: adminPath("products"),
     },
     {
       title: `New members (${days}d)`,
@@ -170,7 +171,7 @@ export default async function OverviewPage({
       current: usersInRange,
       previous: previousUsers,
       helper: `${formatNumber(stats.totalUsers)} total accounts`,
-      href: "/admin/users",
+      href: adminPath("users"),
     },
     {
       title: `Views (${days}d)`,
@@ -178,7 +179,7 @@ export default async function OverviewPage({
       current: viewsInRange,
       previous: previousViews,
       helper: `${formatNumber(stats.totalViews)} all-time views`,
-      href: "/admin/analytics/traffic",
+      href: adminPath("analytics", "traffic"),
     },
     {
       title: `Upvotes (${days}d)`,
@@ -186,19 +187,19 @@ export default async function OverviewPage({
       current: upvotesInRange,
       previous: previousUpvotes,
       helper: `${formatNumber(stats.totalUpvotes)} total upvotes`,
-      href: "/admin/analytics/growth",
+      href: adminPath("analytics", "growth"),
     },
     {
       title: "Revenue proxy",
       value: formatCurrency(stats.totalRevenue),
       helper: `${formatNumber(stats.defaultPlanProductCount)} products on default plan`,
-      href: "/admin/plans",
+      href: adminPath("plans"),
     },
     {
       title: "Total clicks",
       value: formatNumber(stats.totalClicks),
       helper: "Aggregated product CTAs",
-      href: "/admin/analytics/growth",
+      href: adminPath("analytics", "growth"),
     },
   ]
 
@@ -262,7 +263,7 @@ export default async function OverviewPage({
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
               <CreateButton asChild size="sm" label="New product">
-                <Link href="/admin/products/add">New product</Link>
+                <Link href={adminPath("products", "add")}>New product</Link>
               </CreateButton>
               <CreateButton
                 asChild
@@ -270,7 +271,7 @@ export default async function OverviewPage({
                 label="Invite member"
                 variant="outline"
               >
-                <Link href="/admin/users/add">Invite member</Link>
+                <Link href={adminPath("users", "add")}>Invite member</Link>
               </CreateButton>
               <CreateButton
                 asChild
@@ -278,7 +279,7 @@ export default async function OverviewPage({
                 label="New plan"
                 variant="outline"
               >
-                <Link href="/admin/plans/add">New plan</Link>
+                <Link href={adminPath("plans", "add")}>New plan</Link>
               </CreateButton>
             </CardContent>
           </Card>
@@ -305,7 +306,7 @@ export default async function OverviewPage({
                   : "All current products are verified."}
               </p>
               <Link
-                href="/admin/products"
+                href={adminPath("products")}
                 className="text-xs font-medium text-sky-600 hover:underline"
               >
                 Review product list →
@@ -346,7 +347,7 @@ export default async function OverviewPage({
                 </p>
               ) : null}
               <Link
-                href="/admin/plans"
+                href={adminPath("plans")}
                 className="text-xs font-medium text-sky-600 hover:underline"
               >
                 Manage plans →
@@ -371,7 +372,7 @@ export default async function OverviewPage({
                 user list.
               </p>
               <Link
-                href="/admin/users"
+                href={adminPath("users")}
                 className="text-xs font-medium text-sky-600 hover:underline"
               >
                 Review members →
@@ -424,7 +425,7 @@ function RecentProductsCard({
                 <li key={product.id} className="space-y-1">
                   <div className="flex items-center justify-between gap-3">
                     <Link
-                      href={`/admin/products/${product.id}`}
+                      href={adminPath("products", product.id)}
                       className="font-medium text-slate-900 hover:underline"
                     >
                       {product.name}
@@ -461,7 +462,7 @@ function RecentProductsCard({
       </CardContent>
       <CardFooter>
         <Link
-          href="/admin/products"
+          href={adminPath("products")}
           className="text-sm text-sky-600 hover:underline"
         >
           View all products →
@@ -496,7 +497,7 @@ function RecentUsersCard({
             {users.map((user) => (
               <li key={user.id} className="space-y-1">
                 <Link
-                  href={`/admin/users/${user.id}`}
+                  href={adminPath("users", user.id)}
                   className="font-medium text-slate-900 hover:underline"
                 >
                   {user.firstName} {user.lastName}
@@ -522,7 +523,7 @@ function RecentUsersCard({
       </CardContent>
       <CardFooter>
         <Link
-          href="/admin/users"
+          href={adminPath("users")}
           className="text-sm text-sky-600 hover:underline"
         >
           View all members →

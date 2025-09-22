@@ -31,6 +31,7 @@ import {
 import CreateButton from "@/components/molecules/CreateButton"
 import PageContainer from "@/components/layout/page-container"
 import { createPlanFeatureAction } from "@/actions/admin/plans/features/actions"
+import { adminPath } from "@/lib/routes"
 import { PLAN_FEATURE_KEYS } from "@/lib/constants"
 
 const featureFormSchema = z.object({
@@ -74,7 +75,7 @@ export default function AddPlanFeatureForm() {
       return
     }
 
-    router.push("/admin/plans/features")
+    router.push(adminPath("plans", "features"))
   }
 
   return (

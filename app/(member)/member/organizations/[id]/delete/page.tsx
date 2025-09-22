@@ -5,6 +5,7 @@ import {
   deleteMyOrganizationAction,
   getMyOrganizationById,
 } from "@/actions/member/organizations/actions"
+import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 import { useEffect, useState } from "react"
 import {
   Card,
@@ -27,7 +28,7 @@ export default function DeleteOrganizationPage() {
         name: string
         url: string
       } | null
-      if (!org) return router.replace("/member/organizations")
+      if (!org) return router.replace(MEMBER_ORGANIZATIONS_PATH)
       setOrgName(org.name)
       setOrgUrl(org.url)
     })()
@@ -36,7 +37,7 @@ export default function DeleteOrganizationPage() {
   async function onDelete() {
     const res = await deleteMyOrganizationAction(id as string)
     if ((res as any)?.error) return alert((res as any).error)
-    router.push("/member/organizations")
+    router.push(MEMBER_ORGANIZATIONS_PATH)
   }
 
   return (

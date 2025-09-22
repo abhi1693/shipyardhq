@@ -14,6 +14,7 @@ import { pluralize } from "@/lib/pluralize"
 import { getProducts } from "@/actions/public/products/featured"
 import { BrowseFeaturedCarousel } from "@/components/organisms/BrowseFeaturedCarousel"
 import { buildPageMetadata } from "@/lib/metadata"
+import { BROWSE_PATH } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Browse Products",
@@ -104,17 +105,17 @@ export default async function BrowsePage({
             title="No results in sight"
             description="Explore categories or adjust filters to spot what you need."
             actionLabel="Reset Filters"
-            actionHref="/browse"
+            actionHref={BROWSE_PATH}
           />
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="/browse?sort=trending"
+              href={`${BROWSE_PATH}?sort=trending`}
               className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.35] bg-background/85 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-1)] shadow-[0_18px_45px_-30px_rgba(7,58,104,0.6)] backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-[color:var(--brand-1)/0.5] hover:bg-[linear-gradient(120deg,rgba(59,130,246,0.18),rgba(14,165,233,0.12))]"
             >
               Try Trending
             </Link>
             <Link
-              href="/browse?verified=true"
+              href={`${BROWSE_PATH}?verified=true`}
               className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.35] bg-background/85 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-1)] shadow-[0_18px_45px_-30px_rgba(7,58,104,0.6)] backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:border-[color:var(--brand-1)/0.5] hover:bg-[linear-gradient(120deg,rgba(59,130,246,0.18),rgba(14,165,233,0.12))]"
             >
               Verified Only

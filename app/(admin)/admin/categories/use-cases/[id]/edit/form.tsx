@@ -25,6 +25,7 @@ import { Input } from "@/components/atoms/input"
 import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 import { updateUseCaseAction } from "@/actions/admin/categories/actions"
+import { adminPath } from "@/lib/routes"
 
 const useCaseFormSchema = z.object({
   label: z.string().min(1, "Label is required").max(100, "Label is too long"),
@@ -56,7 +57,7 @@ export default function EditUseCaseForm({
       }
 
       toast.success("Use case updated")
-      router.push(`/admin/categories/use-cases/${id}`)
+      router.push(adminPath("categories", "use-cases", id))
     })
   }
 

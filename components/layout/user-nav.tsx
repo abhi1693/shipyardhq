@@ -13,6 +13,7 @@ import { UserAvatarProfile } from "@/components/molecules/UserAvatarProfile"
 import { SignOutButton, useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { LogOut, User as UserIcon } from "lucide-react"
+import { MEMBER_ACCOUNT_PROFILE_PATH } from "@/lib/routes"
 export function UserNav() {
   const { user } = useUser()
   const router = useRouter()
@@ -43,7 +44,7 @@ export function UserNav() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem
-              onClick={() => router.push("/member/account/profile")}
+              onClick={() => router.push(MEMBER_ACCOUNT_PROFILE_PATH)}
             >
               <UserIcon className="h-4 w-4" /> Profile
             </DropdownMenuItem>

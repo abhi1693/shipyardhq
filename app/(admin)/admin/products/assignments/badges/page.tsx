@@ -9,6 +9,7 @@ import {
   resolvePagination,
   type PaginationSearchParams,
 } from "@/lib/pagination"
+import { adminPath } from "@/lib/routes"
 
 export default async function AssignedProductBadgesPage({
   searchParams,
@@ -28,7 +29,7 @@ export default async function AssignedProductBadgesPage({
   return (
     <ListPageWrapper
       title="Assigned Product Badges"
-      addLink="/admin/products/assignments/badges/add"
+      addLink={adminPath("products", "assignments", "badges", "add")}
     >
       <EntityList columns={columns} data={assignments} pageCount={pageCount} />
     </ListPageWrapper>

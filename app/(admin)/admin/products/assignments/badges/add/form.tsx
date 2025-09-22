@@ -31,6 +31,7 @@ import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
 import { assignBadgeToProduct } from "@/actions/admin/badges/actions"
 import { BADGE_OPTIONS } from "@/lib/constants"
+import { adminPath } from "@/lib/routes"
 
 const schema = z.object({
   productId: z.string().min(1, "Product is required"),
@@ -62,7 +63,7 @@ export default function AssignProductBadgeForm({
         badge: values.badge,
         expiresAt: values.expiresAt ? new Date(values.expiresAt) : undefined,
       })
-      router.push("/admin/products/assignments/badges")
+      router.push(adminPath("products", "assignments", "badges"))
     } catch {
       form.setError("badge", {
         type: "server",

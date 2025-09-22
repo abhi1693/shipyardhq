@@ -39,6 +39,7 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { BarChart3 } from "lucide-react"
 import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
+import { adminPath, productPath } from "@/lib/routes"
 
 export default async function ViewProductPage({
   params,
@@ -53,7 +54,7 @@ export default async function ViewProductPage({
   if (!product) return notFound()
   const productId = product.id
   const productSlug = product.slug
-  const publicPath = `/products/${productSlug}`
+  const publicPath = productPath(productSlug)
   const recentUpvoters = await getRecentProductUpvoters(productId, 8).catch(
     () => [],
   )
@@ -63,7 +64,7 @@ export default async function ViewProductPage({
     const planIdRaw = formData.get("planId")?.toString() || ""
     const planId = planIdRaw.length ? planIdRaw : null
     await assignProductPlanAction(productId, planId)
-    revalidatePath(`/admin/products/${productId}`)
+    revalidatePath(adminPath("products", productId))
   }
 
   return (
@@ -81,7 +82,7 @@ export default async function ViewProductPage({
             status={product.status as any}
           />
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/admin/products/${product.id}/analytics`}>
+            <Link href={adminPath("products", product.id, "analytics")}>
               <BarChart3 className="mr-2 h-4 w-4" /> Analytics
             </Link>
           </Button>
@@ -107,14 +108,14 @@ export default async function ViewProductPage({
         {
           label: "Category",
           value: linkify({
-            href: `/admin/categories/${product.category.id}`,
+            href: adminPath("categories", product.category.id),
             label: product.category.name,
           }),
         },
         {
           label: "Created By",
           value: linkify({
-            href: `/admin/users/${product.user.id}`,
+            href: adminPath("users", product.user.id),
             label: `${product.user.firstName} ${product.user.lastName}`,
             subtext: product.user.email,
           }),
@@ -170,7 +171,7 @@ export default async function ViewProductPage({
           label: "Plan",
           value: product.plan
             ? linkify({
-                href: `/admin/plans/${product.plan.id}`,
+                href: adminPath("plans", product.plan.id),
                 label: product.plan.name,
               })
             : placeholder(),
@@ -377,7 +378,7 @@ export default async function ViewProductPage({
               tagline={product.tagline}
               hasBanner={Boolean(product.bannerImage)}
               ogImageUrl={product.bannerImage || product.logo}
-              editHref={`/admin/products/${product.id}/edit`}
+              editHref={adminPath("products", product.id, "edit")}
             />
 
             {product.verification && (
@@ -476,7 +477,7 @@ export default async function ViewProductPage({
                     )
                   })()}
                   <Link
-                    href={`/admin/products/${product.id}/edit`}
+                    href={adminPath("products", product.id, "edit")}
                     className="text-xs text-primary hover:underline"
                   >
                     Improve description

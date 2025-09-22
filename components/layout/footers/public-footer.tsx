@@ -5,6 +5,16 @@ import { Mail, Twitter } from "lucide-react"
 import { Button } from "@/components/atoms/button"
 import { getWaveBackground } from "@/lib/nautical"
 import { BrandLogo } from "@/components/atoms/brand-logo"
+import {
+  ANALYTICS_PATH,
+  BROWSE_PATH,
+  CATEGORIES_PATH,
+  HOME_PATH,
+  LEADERBOARD_PATH,
+  MEMBER_PRODUCTS_PATH,
+  PRICING_PATH,
+  USERS_PATH,
+} from "@/lib/routes"
 
 type UseCaseLink = { label: string; slug: string }
 
@@ -44,7 +54,7 @@ export default function PublicFooter({
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16 lg:py-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10 md:gap-12 lg:gap-16 text-foreground">
         {/* Brand */}
         <div className="space-y-3">
-          <Link href="/" className="inline-flex items-center gap-2">
+          <Link href={HOME_PATH} className="inline-flex items-center gap-2">
             <BrandLogo
               width={28}
               height={28}
@@ -61,7 +71,7 @@ export default function PublicFooter({
           </p>
           <div className="pt-3">
             <Button size="sm" asChild>
-              <Link href="/browse" role="button">
+              <Link href={BROWSE_PATH} role="button">
                 Explore Products
               </Link>
             </Button>
@@ -91,13 +101,13 @@ export default function PublicFooter({
           </div>
           <ul className="space-y-2 md:space-y-2.5">
             <li>
-              <Link href="/browse" className={textLinkCls + " md:font-medium"}>
+              <Link href={BROWSE_PATH} className={textLinkCls + " md:font-medium"}>
                 All Products
               </Link>
             </li>
             <li>
               <Link
-                href="/categories"
+                href={CATEGORIES_PATH}
                 className={textLinkCls + " md:font-medium"}
               >
                 Categories
@@ -105,7 +115,7 @@ export default function PublicFooter({
             </li>
             <li>
               <Link
-                href="/leaderboard"
+                href={LEADERBOARD_PATH}
                 className={textLinkCls + " md:font-medium"}
               >
                 Leaderboard
@@ -113,14 +123,14 @@ export default function PublicFooter({
             </li>
             <li>
               <Link
-                href="/analytics"
+                href={ANALYTICS_PATH}
                 className={textLinkCls + " md:font-medium"}
               >
                 Analytics
               </Link>
             </li>
             <li>
-              <Link href="/pricing" className={textLinkCls + " md:font-medium"}>
+              <Link href={PRICING_PATH} className={textLinkCls + " md:font-medium"}>
                 Pricing
               </Link>
             </li>
@@ -134,20 +144,20 @@ export default function PublicFooter({
           </div>
           <ul className="space-y-2 md:space-y-2.5">
             <li>
-              <Link href="/users" className={textLinkCls + " md:font-medium"}>
+              <Link href={USERS_PATH} className={textLinkCls + " md:font-medium"}>
                 Makers Directory
               </Link>
             </li>
             <li>
               <Link
-                href="/member/products"
+                href={MEMBER_PRODUCTS_PATH}
                 className={textLinkCls + " md:font-medium"}
               >
                 Submit Product
               </Link>
             </li>
             <li>
-              <Link href="/pricing" className={textLinkCls + " md:font-medium"}>
+              <Link href={PRICING_PATH} className={textLinkCls + " md:font-medium"}>
                 Feature Your Product
               </Link>
             </li>
@@ -164,7 +174,7 @@ export default function PublicFooter({
               {useCases.map((uc) => (
                 <li key={uc.slug}>
                   <Link
-                    href={`/browse?useCase=${uc.slug}`}
+                    href={`${BROWSE_PATH}?useCase=${uc.slug}`}
                     className={textLinkCls + " md:font-medium"}
                   >
                     {uc.label}

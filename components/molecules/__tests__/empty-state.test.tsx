@@ -3,6 +3,7 @@ import React from "react"
 import { render, screen } from "@testing-library/react"
 
 import { EmptyState } from "@/components/molecules/empty-state"
+import { adminPath } from "@/lib/routes"
 
 describe("EmptyState", () => {
   it("renders title and description without action", () => {
@@ -18,7 +19,7 @@ describe("EmptyState", () => {
         title="No Products"
         description="Create your first product"
         actionLabel="Add Product"
-        actionHref="/admin/products/add"
+        actionHref={adminPath("products", "add")}
       />,
     )
     const btn = screen.getByRole("button", { name: "Add Product" })

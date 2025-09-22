@@ -4,12 +4,13 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import DataTable from "@/components/molecules/DataTable"
 import type { ColumnDef } from "@tanstack/react-table"
+import { ADMIN_BASE_PATH } from "@/lib/routes"
 
 // Mock next/navigation
 const push = vi.fn()
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
-  usePathname: () => "/admin",
+  usePathname: () => ADMIN_BASE_PATH,
   useSearchParams: () => new URLSearchParams(searchStr),
 }))
 
@@ -65,7 +66,7 @@ describe("DataTable", () => {
     await user.click(screen.getByRole("button", { name: "Next page" }))
     const url1 = (push as any).mock.calls.slice(-1)[0][0] as string
     const u1 = new URL("http://x" + (url1.startsWith("/") ? url1 : "/" + url1))
-    expect(u1.pathname).toBe("/admin")
+    expect(u1.pathname).toBe(ADMIN_BASE_PATH)
     expect(u1.searchParams.get("page")).toBe("3")
     expect(u1.searchParams.get("limit")).toBe("20")
 

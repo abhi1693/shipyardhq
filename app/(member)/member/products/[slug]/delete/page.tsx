@@ -11,6 +11,10 @@ import {
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import { requireManageableProduct } from "@/lib/server/productAccess"
+import {
+  MEMBER_PRODUCTS_PATH,
+  memberProductsStatusPath,
+} from "@/lib/routes"
 
 export default async function DeleteMemberProductPage({
   params,
@@ -20,11 +24,11 @@ export default async function DeleteMemberProductPage({
   const { slug } = await params
 
   if (!slug) {
-    redirect("/member/products?status=invalid")
+    redirect(memberProductsStatusPath("invalid"))
   }
 
   const { product } = await requireManageableProduct(slug, {
-    missingRedirect: "/member/products?status=not-found",
+    missingRedirect: memberProductsStatusPath("not-found"),
   })
 
   const productId = product.id
@@ -36,10 +40,10 @@ export default async function DeleteMemberProductPage({
     const result = await deleteProductAction(productId)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect("/member/products?status=error")
+      redirect(memberProductsStatusPath("error"))
     }
 
-    redirect("/member/products?status=deleted")
+    redirect(memberProductsStatusPath("deleted"))
   }
 
   return (
@@ -56,7 +60,7 @@ export default async function DeleteMemberProductPage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href="/member/products">Cancel</Link>
+            <Link href={MEMBER_PRODUCTS_PATH}>Cancel</Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

@@ -29,6 +29,7 @@ import {
 } from "@/components/atoms/select"
 import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
+import { adminPath } from "@/lib/routes"
 
 const schema = z.object({
   useCaseId: z.string().min(1, "Select a use case"),
@@ -66,7 +67,7 @@ export default function EditAssignmentForm({
       form.setError("useCaseId", { type: "server", message: result.error })
       return
     }
-    router.push("/admin/categories/use-cases/assignments")
+    router.push(adminPath("categories", "use-cases", "assignments"))
   }
 
   return (

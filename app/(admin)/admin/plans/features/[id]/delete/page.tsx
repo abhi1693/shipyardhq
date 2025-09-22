@@ -11,6 +11,7 @@ import {
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
+import { adminPath, adminStatusPath } from "@/lib/routes"
 
 export default async function DeletePlanFeaturePage({
   params,
@@ -20,7 +21,7 @@ export default async function DeletePlanFeaturePage({
   const { id } = await params
 
   if (!id) {
-    redirect("/admin/plans/features?status=invalid")
+    redirect(adminStatusPath(["plans", "features"], "invalid"))
   }
 
   const feature = await prisma.planFeature.findUnique({
@@ -29,7 +30,7 @@ export default async function DeletePlanFeaturePage({
   })
 
   if (!feature) {
-    redirect("/admin/plans/features?status=not-found")
+    redirect(adminStatusPath(["plans", "features"], "not-found"))
   }
 
   const featureId = feature.id
@@ -41,10 +42,10 @@ export default async function DeletePlanFeaturePage({
     const result = await deletePlanFeatureAction(featureId)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect("/admin/plans/features?status=error")
+      redirect(adminStatusPath(["plans", "features"], "error"))
     }
 
-    redirect("/admin/plans/features?status=deleted")
+    redirect(adminStatusPath(["plans", "features"], "deleted"))
   }
 
   return (
@@ -63,7 +64,9 @@ export default async function DeletePlanFeaturePage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href="/admin/plans/features">Cancel</Link>
+            <Link href={adminPath("plans", "features")}>
+              Cancel
+            </Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

@@ -10,6 +10,7 @@ import {
   type PaginationSearchParams,
 } from "@/lib/pagination"
 import { buildPageMetadata } from "@/lib/metadata"
+import { adminPath } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Assigned Use Cases",
@@ -35,7 +36,7 @@ export default async function UseCaseAssignmentsPage({
   return (
     <ListPageWrapper
       title="Use Case Assignments"
-      addLink="/admin/categories/use-cases/assignments/add"
+      addLink={adminPath("categories", "use-cases", "assignments", "add")}
     >
       <EntityList columns={columns} data={assignments} pageCount={pageCount} />
     </ListPageWrapper>

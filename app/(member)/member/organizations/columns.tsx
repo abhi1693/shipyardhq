@@ -6,6 +6,11 @@ import { Eye, Pencil, Trash2 } from "lucide-react"
 
 import { linkify, formatDistanceToNow } from "@/lib/ui/formatters"
 import { Button } from "@/components/atoms/button"
+import {
+  memberOrganizationDeletePath,
+  memberOrganizationEditPath,
+  memberOrganizationPath,
+} from "@/lib/routes"
 
 const minimalActionButton =
   "rounded-full border border-slate-200/70 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
@@ -42,7 +47,7 @@ export const columns: ColumnDef<MemberOrgRow>[] = [
       <div className="space-y-0.5">
         {linkify({
           label: row.original.name,
-          href: `/member/organizations/${row.original.id}`,
+          href: memberOrganizationPath(row.original.id),
         })}
         <p className="text-xs text-muted-foreground">
           {getDisplayUrl(String(row.original.url))}
@@ -82,7 +87,7 @@ export const columns: ColumnDef<MemberOrgRow>[] = [
           className={minimalActionButton}
         >
           <Link
-            href={`/member/organizations/${row.original.id}`}
+            href={memberOrganizationPath(row.original.id)}
             className={minimalActionLink}
           >
             <Eye className={minimalActionIcon} /> View
@@ -95,7 +100,7 @@ export const columns: ColumnDef<MemberOrgRow>[] = [
           className={minimalActionButton}
         >
           <Link
-            href={`/member/organizations/${row.original.id}/edit`}
+            href={memberOrganizationEditPath(row.original.id)}
             className={minimalActionLink}
           >
             <Pencil className={minimalActionIcon} /> Edit
@@ -108,7 +113,7 @@ export const columns: ColumnDef<MemberOrgRow>[] = [
           className={destructiveActionButton}
         >
           <Link
-            href={`/member/organizations/${row.original.id}/delete`}
+            href={memberOrganizationDeletePath(row.original.id)}
             className={minimalActionLink}
           >
             <Trash2 className={minimalActionIcon} /> Delete

@@ -1,6 +1,7 @@
 "use client"
 
 import { UserProfile } from "@clerk/nextjs"
+import { MEMBER_ACCOUNT_PROFILE_PATH } from "@/lib/routes"
 
 export default function MemberAccountProfile() {
   return (
@@ -8,7 +9,7 @@ export default function MemberAccountProfile() {
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-2 sm:p-4">
         <UserProfile
           routing="path"
-          path="/member/account/profile"
+          path={MEMBER_ACCOUNT_PROFILE_PATH}
           appearance={{
             variables: {
               colorPrimary: "oklch(0.52 0.24 262)",

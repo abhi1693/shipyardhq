@@ -24,6 +24,13 @@ import {
 import type { IconProps } from "@tabler/icons-react"
 import Image from "next/image"
 import { buildPageMetadata } from "@/lib/metadata"
+import {
+  BROWSE_PATH,
+  LEADERBOARD_PATH,
+  MEMBER_PRODUCTS_PATH,
+  PRICING_PATH,
+  productPath,
+} from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Product Leaderboard",
@@ -108,7 +115,7 @@ export default async function LeaderboardPage({
               size="lg"
               className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
             >
-              <Link href="/member/products">Submit your product</Link>
+              <Link href={MEMBER_PRODUCTS_PATH}>Submit your product</Link>
             </Button>
             <Button
               asChild
@@ -116,7 +123,7 @@ export default async function LeaderboardPage({
               variant="outline"
               className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
             >
-              <Link href="/pricing">Boost with featured slots</Link>
+              <Link href={PRICING_PATH}>Boost with featured slots</Link>
             </Button>
           </div>
 
@@ -165,7 +172,7 @@ export default async function LeaderboardPage({
             </span>
             {categorySlug || limit !== 50 ? (
               <Link
-                href="/leaderboard"
+                href={LEADERBOARD_PATH}
                 className="inline-flex items-center font-semibold text-[color:var(--brand-1)] hover:underline"
               >
                 Reset filters
@@ -243,7 +250,7 @@ export default async function LeaderboardPage({
                 variant="outline"
                 className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
               >
-                <Link href="/browse">Browse products</Link>
+                <Link href={BROWSE_PATH}>Browse products</Link>
               </Button>
             </div>
           )}
@@ -267,7 +274,7 @@ export default async function LeaderboardPage({
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg">
-              <Link href="/browse">Explore the fleet</Link>
+              <Link href={BROWSE_PATH}>Explore the fleet</Link>
             </Button>
             <Button
               asChild
@@ -275,7 +282,7 @@ export default async function LeaderboardPage({
               variant="outline"
               className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
             >
-              <Link href="/pricing">See promotion options</Link>
+              <Link href={PRICING_PATH}>See promotion options</Link>
             </Button>
           </div>
         </div>
@@ -334,7 +341,7 @@ function TopPlacementCard({
 
   return (
     <Link
-      href={`/products/${product.slug}`}
+      href={productPath(product.slug)}
       className={cn(
         "group relative flex h-full flex-col gap-6 overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/92 p-6 shadow-[0px_28px_70px_-48px_rgba(7,58,104,0.6)] backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-[0px_32px_90px_-60px_rgba(7,78,134,0.55)]",
         className,

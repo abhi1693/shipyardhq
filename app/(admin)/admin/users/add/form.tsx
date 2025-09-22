@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/atoms/input"
 import CreateButton from "@/components/molecules/CreateButton"
 import PageContainer from "@/components/layout/page-container"
+import { adminPath } from "@/lib/routes"
 import {
   Select,
   SelectContent,
@@ -73,7 +74,7 @@ export default function AddUserForm() {
       return
     }
 
-    router.push("/admin/users")
+    router.push(adminPath("users"))
   }
 
   return (

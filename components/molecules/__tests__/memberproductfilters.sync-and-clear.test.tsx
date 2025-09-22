@@ -2,12 +2,13 @@ import { describe, it, expect, vi } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
 import MemberProductFilters from "@/components/molecules/MemberProductFilters"
+import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 const push = vi.fn()
 let searchStr = ""
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
-  usePathname: () => "/member/products",
+  usePathname: () => MEMBER_PRODUCTS_PATH,
   useSearchParams: () => new URLSearchParams(searchStr),
 }))
 

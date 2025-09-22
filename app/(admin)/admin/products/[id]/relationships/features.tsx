@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Relationship } from "@/components/molecules/Relationship"
 import { PlanFeatureAssignment, PlanFeature } from "@/lib/vendor/prisma/client"
 import { formatBoolean, linkify } from "@/lib/ui/formatters"
+import { adminPath } from "@/lib/routes"
 
 type AssignmentWithFeature = PlanFeatureAssignment & {
   feature: PlanFeature
@@ -20,7 +21,7 @@ export function AssignedFeatureOfPlanRelationship({
       header: "Feature",
       cell: ({ row }) =>
         linkify({
-          href: `/admin/features/${row.original.feature.id}`,
+          href: adminPath("plans", "features", row.original.feature.id),
           label: row.original.feature.name,
         }),
     },

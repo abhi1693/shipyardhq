@@ -19,6 +19,10 @@ import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { buildPageMetadata } from "@/lib/metadata"
+import {
+  MEMBER_ORGANIZATIONS_ADD_PATH,
+  MEMBER_ORGANIZATIONS_PATH,
+} from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Organizations",
@@ -62,13 +66,13 @@ export default async function MemberOrganizationsPage({
 
   if (paymentId && status) {
     await validateOrgPaymentAction(paymentId)
-    redirect("/member/organizations")
+    redirect(MEMBER_ORGANIZATIONS_PATH)
   }
 
   // Handle subscription-based redirects: status=active&subscription_id=...
   if (subscriptionId && status) {
     await validateOrgSubscriptionAction(subscriptionId, status)
-    redirect("/member/organizations")
+    redirect(MEMBER_ORGANIZATIONS_PATH)
   }
 
   const hasOrgs = await memberHasFeature("organization")
@@ -180,7 +184,7 @@ export default async function MemberOrganizationsPage({
             </p>
           </div>
           <Button asChild size="sm" className="px-4">
-            <Link href="/member/organizations/add">New organization</Link>
+            <Link href={MEMBER_ORGANIZATIONS_ADD_PATH}>New organization</Link>
           </Button>
         </div>
 

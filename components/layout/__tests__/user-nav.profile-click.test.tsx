@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { UserNav } from "@/components/layout/user-nav"
 import { vi } from "vitest"
+import { MEMBER_ACCOUNT_PROFILE_PATH } from "@/lib/routes"
 
 // Mock dropdown menu so that onClick is preserved on the item
 vi.mock("@/components/atoms/dropdown-menu", () => ({
@@ -31,10 +32,10 @@ vi.mock("next/navigation", () => ({
 }))
 
 describe("UserNav profile click", () => {
-  it("navigates to /member/account/profile when Profile is clicked", () => {
+  it("navigates to the profile settings when clicked", () => {
     render(<UserNav />)
     const profile = screen.getByText(/Profile/)
     fireEvent.click(profile)
-    expect(push).toHaveBeenCalledWith("/member/account/profile")
+    expect(push).toHaveBeenCalledWith(MEMBER_ACCOUNT_PROFILE_PATH)
   })
 })

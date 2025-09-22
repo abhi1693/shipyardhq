@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import InlineSelect from "@/components/molecules/InlineSelect"
 import { buildQuery } from "@/lib/urlParams"
+import { LEADERBOARD_PATH } from "@/lib/routes"
 
 export function LeaderboardFilters({
   categories,
@@ -17,7 +18,7 @@ export function LeaderboardFilters({
   const search = useSearchParams()
 
   const updateQuery = (updates: Record<string, string | undefined>) => {
-    router.push(buildQuery("/leaderboard", search?.toString() ?? "", updates))
+    router.push(buildQuery(LEADERBOARD_PATH, search?.toString() ?? "", updates))
   }
 
   return (

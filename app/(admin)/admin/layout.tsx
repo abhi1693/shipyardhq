@@ -9,6 +9,7 @@ import { redirect } from "next/navigation"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { buildSectionMetadata } from "@/lib/metadata"
 import { getFeedbackCount } from "@/actions/admin/feedback/actions"
+import { ADMIN_OVERVIEW_PATH, adminPath, MEMBER_OVERVIEW_PATH } from "@/lib/routes"
 
 export const metadata = buildSectionMetadata({
   section: "Admin",
@@ -18,7 +19,7 @@ export const metadata = buildSectionMetadata({
 const baseNavItems: NavItem[] = [
   {
     title: "Overview",
-    url: "/admin/overview",
+    url: ADMIN_OVERVIEW_PATH,
     icon: "dashboard",
     isActive: false,
   },
@@ -29,29 +30,29 @@ const baseNavItems: NavItem[] = [
     items: [
       {
         title: "Traffic",
-        url: "/admin/analytics/traffic",
+        url: adminPath("analytics", "traffic"),
         icon: "analytics",
       },
       {
         title: "Conversions",
-        url: "/admin/analytics/conversions",
+        url: adminPath("analytics", "conversions"),
         icon: "conversions",
       },
       {
         title: "Onboarding",
-        url: "/admin/analytics/onboarding",
+        url: adminPath("analytics", "onboarding"),
         icon: "user",
       },
       {
         title: "Growth",
-        url: "/admin/analytics/growth",
+        url: adminPath("analytics", "growth"),
         icon: "dashboard",
       },
     ],
   },
   {
     title: "Users",
-    url: "/admin/users",
+    url: adminPath("users"),
     icon: "user",
   },
   {
@@ -61,24 +62,24 @@ const baseNavItems: NavItem[] = [
     items: [
       {
         title: "Email broadcasts",
-        url: "/admin/notifications",
+        url: adminPath("notifications"),
         icon: "bell",
       },
       {
         title: "Builder outreach",
-        url: "/admin/notifications/outreach",
+        url: adminPath("notifications", "outreach"),
         icon: "link",
       },
     ],
   },
   {
     title: "Feedback",
-    url: "/admin/feedback",
+    url: adminPath("feedback"),
     icon: "feedback",
   },
   {
     title: "Organizations",
-    url: "/admin/organizations",
+    url: adminPath("organizations"),
     icon: "building",
   },
   {
@@ -88,17 +89,17 @@ const baseNavItems: NavItem[] = [
     items: [
       {
         title: "Categories",
-        url: "/admin/categories",
+        url: adminPath("categories"),
         icon: "category",
       },
       {
         title: "Use Cases",
-        url: "/admin/categories/use-cases",
+        url: adminPath("categories", "use-cases"),
         icon: "link",
       },
       {
         title: "Assigned Use Cases",
-        url: "/admin/categories/use-cases/assignments",
+        url: adminPath("categories", "use-cases", "assignments"),
         icon: "link",
       },
     ],
@@ -110,12 +111,12 @@ const baseNavItems: NavItem[] = [
     items: [
       {
         title: "Products",
-        url: "/admin/products",
+        url: adminPath("products"),
         icon: "product",
       },
       {
         title: "Assigned Badges",
-        url: "/admin/products/assignments/badges",
+        url: adminPath("products", "assignments", "badges"),
         icon: "link",
       },
     ],
@@ -127,24 +128,24 @@ const baseNavItems: NavItem[] = [
     items: [
       {
         title: "Plans",
-        url: "/admin/plans",
+        url: adminPath("plans"),
         icon: "product",
       },
       {
         title: "Features",
-        url: "/admin/plans/features",
+        url: adminPath("plans", "features"),
         icon: "settings",
       },
       {
         title: "Assignments",
-        url: "/admin/plans/assignments",
+        url: adminPath("plans", "assignments"),
         icon: "link",
       },
     ],
   },
   {
     title: "Member Area",
-    url: "/member/overview",
+    url: MEMBER_OVERVIEW_PATH,
     icon: "member",
   },
 ]

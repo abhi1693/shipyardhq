@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { BROWSE_PATH } from "@/lib/routes"
 
 const push = vi.fn()
 let searchStr = ""
@@ -38,7 +39,7 @@ describe("BrowseFilterBar branches", () => {
     await user.click(triggers[1] as HTMLElement)
     const link = screen.getByText("Analytics").closest("a") as HTMLAnchorElement
     const url = new URL(link.href)
-    expect(url.pathname).toBe("/browse")
+    expect(url.pathname).toBe(BROWSE_PATH)
     const sp = url.searchParams
     expect(sp.get("category")).toBe("analytics")
     expect(sp.get("sort")).toBe("trending")
@@ -63,7 +64,7 @@ describe("BrowseFilterBar branches", () => {
     await user.click(triggers[0] as HTMLElement)
     const link = screen.getByText("Scoring").closest("a") as HTMLAnchorElement
     const url = new URL(link.href)
-    expect(url.pathname).toBe("/browse")
+    expect(url.pathname).toBe(BROWSE_PATH)
     const sp = url.searchParams
     expect(sp.get("useCase")).toBe("scoring")
     expect(sp.get("page")).toBe("1")
@@ -83,7 +84,7 @@ describe("BrowseFilterBar branches", () => {
     const sw = document.querySelector('[data-slot="switch"]') as HTMLElement
     await user.click(sw)
     const call = (push as any).mock.calls[0][0] as string
-    expect(call).toContain("/browse?")
+    expect(call).toContain(`${BROWSE_PATH}?`)
     expect(call).not.toContain("verified=")
     expect(call).toContain("page=1")
   })

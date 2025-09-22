@@ -2,6 +2,7 @@ import Link from "next/link"
 import { IconCheck } from "@tabler/icons-react"
 import type { PublicPlan } from "@/actions/public/plans/actions"
 import { Button } from "@/components/atoms/button"
+import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 
 const USD = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -122,7 +123,7 @@ export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
       {includesOrganization ? (
         <div className="mt-auto pt-2">
           <Button asChild className="w-full">
-            <Link href="/member/organizations">Get started</Link>
+            <Link href={MEMBER_ORGANIZATIONS_PATH}>Get started</Link>
           </Button>
         </div>
       ) : null}

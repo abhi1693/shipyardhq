@@ -11,6 +11,7 @@ import {
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
+import { adminPath, adminStatusPath } from "@/lib/routes"
 
 export default async function DeleteAdminUserPage({
   params,
@@ -20,7 +21,7 @@ export default async function DeleteAdminUserPage({
   const { id } = await params
 
   if (!id) {
-    redirect("/admin/users?status=invalid")
+    redirect(adminStatusPath(["users"], "invalid"))
   }
 
   const user = await prisma.user.findUnique({
@@ -29,7 +30,7 @@ export default async function DeleteAdminUserPage({
   })
 
   if (!user) {
-    redirect("/admin/users?status=not-found")
+    redirect(adminStatusPath(["users"], "not-found"))
   }
 
   const userId = user.id
@@ -43,10 +44,10 @@ export default async function DeleteAdminUserPage({
     const result = await deleteUserAction(userId)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect("/admin/users?status=error")
+      redirect(adminStatusPath(["users"], "error"))
     }
 
-    redirect("/admin/users?status=deleted")
+    redirect(adminStatusPath(["users"], "deleted"))
   }
 
   return (
@@ -68,7 +69,9 @@ export default async function DeleteAdminUserPage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href="/admin/users">Cancel</Link>
+            <Link href={adminPath("users")}>
+              Cancel
+            </Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

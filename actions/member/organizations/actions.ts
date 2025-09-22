@@ -8,6 +8,7 @@ import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { sendOrganizationMemberInviteEmail } from "@/lib/server/email/organizationMemberInvite"
+import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -89,7 +90,7 @@ export async function getMyOrganizationsPage(
   const user = await requireActiveCurrentUser()
 
   const gate = await requireMemberFeature("organization")
-  if (!gate.ok) redirect("/member/organizations")
+  if (!gate.ok) redirect(MEMBER_ORGANIZATIONS_PATH)
 
   const q = ((params?.q as string) || "").trim()
   const page = Math.max(1, parseInt((params?.page as string) || "1", 10) || 1)
@@ -130,7 +131,7 @@ export async function getMyOrganizationsPage(
 export async function getMyOrganizationMembers(orgId: string) {
   const user = await requireActiveCurrentUser()
   const gate = await requireMemberFeature("organization")
-  if (!gate.ok) redirect("/member/organizations")
+  if (!gate.ok) redirect(MEMBER_ORGANIZATIONS_PATH)
   const org = await prisma.organization.findFirst({
     where: { id: orgId, memberships: { some: { userId: user.id } } },
     select: { ownerUserId: true },
@@ -159,7 +160,7 @@ export async function getMyOrganizationMembers(orgId: string) {
 export async function getMyOrganizationsWithProducts() {
   const user = await requireActiveCurrentUser()
   const gate = await requireMemberFeature("organization")
-  if (!gate.ok) redirect("/member/organizations")
+  if (!gate.ok) redirect(MEMBER_ORGANIZATIONS_PATH)
 
   return prisma.organization.findMany({
     where: { memberships: { some: { userId: user.id } } },
@@ -188,13 +189,13 @@ export async function getMyOrganizationsWithProducts() {
 export async function getMyOrganizationProducts(orgId: string) {
   const user = await requireActiveCurrentUser()
   const gate = await requireMemberFeature("organization")
-  if (!gate.ok) redirect("/member/organizations")
+  if (!gate.ok) redirect(MEMBER_ORGANIZATIONS_PATH)
 
   const membership = await prisma.organizationMembership.findFirst({
     where: { organizationId: orgId, userId: user.id },
     select: { id: true },
   })
-  if (!membership) redirect("/member/organizations")
+  if (!membership) redirect(MEMBER_ORGANIZATIONS_PATH)
 
   return prisma.product.findMany({
     where: { organizationId: orgId },

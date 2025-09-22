@@ -11,6 +11,7 @@ import {
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
+import { adminPath, adminStatusPath } from "@/lib/routes"
 
 export default async function DeleteProductBadgePage({
   params,
@@ -20,7 +21,7 @@ export default async function DeleteProductBadgePage({
   const { id } = await params
 
   if (!id) {
-    redirect("/admin/products/assignments/badges?status=invalid")
+    redirect(adminStatusPath(["products", "assignments", "badges"], "invalid"))
   }
 
   const badge = await prisma.productBadge.findUnique({
@@ -33,7 +34,7 @@ export default async function DeleteProductBadgePage({
   })
 
   if (!badge) {
-    redirect("/admin/products/assignments/badges?status=not-found")
+    redirect(adminStatusPath(["products", "assignments", "badges"], "not-found"))
   }
 
   const badgeId = badge.id
@@ -46,10 +47,12 @@ export default async function DeleteProductBadgePage({
     const result = await deleteProductBadgeAction(badgeId)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect("/admin/products/assignments/badges?status=error")
+      redirect(
+        adminStatusPath(["products", "assignments", "badges"], "error"),
+      )
     }
 
-    redirect("/admin/products/assignments/badges?status=deleted")
+    redirect(adminStatusPath(["products", "assignments", "badges"], "deleted"))
   }
 
   return (
@@ -68,7 +71,9 @@ export default async function DeleteProductBadgePage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href="/admin/products/assignments/badges">Cancel</Link>
+            <Link href={adminPath("products", "assignments", "badges")}>
+              Cancel
+            </Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

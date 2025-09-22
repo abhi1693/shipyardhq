@@ -11,6 +11,7 @@ import {
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import prisma from "@/lib/prisma"
+import { adminPath, adminStatusPath } from "@/lib/routes"
 
 export default async function DeleteCategoryPage({
   params,
@@ -20,7 +21,7 @@ export default async function DeleteCategoryPage({
   const { id } = await params
 
   if (!id) {
-    redirect("/admin/categories?status=invalid")
+    redirect(adminStatusPath(["categories"], "invalid"))
   }
 
   const category = await prisma.category.findUnique({
@@ -29,7 +30,7 @@ export default async function DeleteCategoryPage({
   })
 
   if (!category) {
-    redirect("/admin/categories?status=not-found")
+    redirect(adminStatusPath(["categories"], "not-found"))
   }
 
   const categoryId = category.id
@@ -41,10 +42,10 @@ export default async function DeleteCategoryPage({
     const result = await deleteCategoryAction(categoryId)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect("/admin/categories?status=error")
+      redirect(adminStatusPath(["categories"], "error"))
     }
 
-    redirect("/admin/categories?status=deleted")
+    redirect(adminStatusPath(["categories"], "deleted"))
   }
 
   return (
@@ -64,7 +65,9 @@ export default async function DeleteCategoryPage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href="/admin/categories">Cancel</Link>
+            <Link href={adminPath("categories")}>
+              Cancel
+            </Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

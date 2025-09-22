@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
+import { adminPath } from "@/lib/routes"
 
 const schema = z.object({
   organizationId: z.string().min(1),
@@ -70,7 +71,7 @@ export default function AddOrgMemberForm({
       })
       return
     }
-    router.push(`/admin/organizations/${organizationId}`)
+    router.push(adminPath("organizations", organizationId))
   }
 
   return (

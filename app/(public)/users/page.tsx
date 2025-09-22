@@ -3,6 +3,7 @@ import { getPublicUsersWithCounts } from "@/actions/public/users/actions"
 import PublicContainer from "@/components/layout/PublicContainer"
 import type { Metadata } from "next"
 import { buildPageMetadata } from "@/lib/metadata"
+import { USERS_PATH, userPath } from "@/lib/routes"
 
 export const revalidate = 120
 
@@ -11,7 +12,7 @@ const baseMetadata = buildPageMetadata({
   description:
     "Discover makers and explore their published products on ShipYardHQ.",
   openGraph: {
-    url: "/users",
+    url: USERS_PATH,
     type: "website",
   },
   twitter: {
@@ -21,7 +22,7 @@ const baseMetadata = buildPageMetadata({
 
 export const metadata: Metadata = {
   ...baseMetadata,
-  alternates: { canonical: "/users" },
+  alternates: { canonical: USERS_PATH },
 }
 
 type PublicUserSummary = Awaited<
@@ -93,7 +94,7 @@ export default async function UsersIndexPage() {
                 return (
                   <li key={u.id} className="group">
                     <Link
-                      href={`/users/${u.id}`}
+                      href={userPath(u.id)}
                       className="group relative block overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/85 px-6 py-5 shadow-[0_30px_75px_-60px_rgba(7,58,104,0.65)] backdrop-blur transition duration-200 hover:-translate-y-1 hover:border-[color:var(--brand-1)/0.35] hover:shadow-[0_35px_85px_-55px_rgba(7,58,104,0.7)]"
                     >
                       <div className="text-lg font-semibold text-foreground transition-colors group-hover:text-[color:var(--brand-1)]">

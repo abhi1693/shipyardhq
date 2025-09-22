@@ -34,6 +34,7 @@ import { Separator } from "@/components/atoms/separator"
 
 import PageContainer from "@/components/layout/page-container"
 import { createPlanAction } from "@/actions/admin/plans/actions"
+import { adminPath } from "@/lib/routes"
 
 const planFormSchema = z
   .object({
@@ -113,7 +114,7 @@ export default function AddPlanForm() {
       form.setError("name", { type: "server", message: result.error })
       return
     }
-    router.push("/admin/plans")
+    router.push(adminPath("plans"))
   }
 
   return (

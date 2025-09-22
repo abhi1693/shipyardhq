@@ -8,6 +8,7 @@ import { Button } from "@/components/atoms/button"
 import { Eye, Pencil } from "lucide-react"
 import { Badge } from "@/components/atoms/badge"
 import UserStatusMenu from "@/components/molecules/UserStatusMenu"
+import { adminPath } from "@/lib/routes"
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -16,7 +17,7 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) =>
       linkify({
         label: row.original.email,
-        href: `/admin/users/${row.original.id}`,
+        href: adminPath("users", row.original.id),
       }),
   },
   {
@@ -66,12 +67,12 @@ export const columns: ColumnDef<User>[] = [
           clerkId={row.original.clerkId}
           status={row.original.status}
         />
-        <Link href={`/admin/users/${row.original.id}`}>
+        <Link href={adminPath("users", row.original.id)}>
           <Button size="sm" variant="outline">
             <Eye className="h-4 w-4" /> View
           </Button>
         </Link>
-        <Link href={`/admin/users/${row.original.id}/edit`}>
+        <Link href={adminPath("users", row.original.id, "edit")}>
           <Button size="sm" variant="outline">
             <Pencil className="h-4 w-4" /> Edit
           </Button>

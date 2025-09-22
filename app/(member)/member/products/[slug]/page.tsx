@@ -31,6 +31,12 @@ import {
   choosePlanAction,
   validatePaymentAndAttachPlan,
 } from "@/actions/member/products/actions"
+import {
+  memberProductAnalyticsPath,
+  memberProductEditPath,
+  memberProductPath,
+  productPath,
+} from "@/lib/routes"
 import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import {
   BarChart3,
@@ -85,7 +91,7 @@ export default async function ViewUserProductPage({
   if (paymentId && status) {
     await validatePaymentAndAttachPlan(paymentId)
     // Clean URL params regardless of outcome
-    redirect(`/member/products/${slug}`)
+    redirect(memberProductPath(slug))
   }
   const { product: manageableProduct, currentUser } =
     await requireManageableProduct(slug, {
@@ -99,8 +105,8 @@ export default async function ViewUserProductPage({
   const productSlug = product.slug
   const isOwner = manageableProduct.userId === currentUser.id
   const canManage = true
-  const publicPath = `/products/${productSlug}`
-  const analyticsPath = `/member/products/${productSlug}/analytics`
+  const publicPath = productPath(productSlug)
+  const analyticsPath = memberProductAnalyticsPath(productSlug)
   const hasAdvancedAnalytics = hasPlanFeature(
     product.plan ?? null,
     "analytics.advanced",
@@ -167,7 +173,7 @@ export default async function ViewUserProductPage({
 
   const choosePlan = choosePlanAction.bind(null, {
     productId,
-    redirectPath: `/member/products/${productSlug}`,
+    redirectPath: memberProductPath(productSlug),
   })
   const showPlanUI = Boolean(currentPlanPublic)
 
@@ -844,7 +850,7 @@ export default async function ViewUserProductPage({
               tagline={product.tagline}
               hasBanner={Boolean(product.bannerImage)}
               ogImageUrl={product.bannerImage || product.logo}
-              editHref={`/member/products/${product.slug}/edit`}
+              editHref={memberProductEditPath(product.slug)}
             />
             <Card className="col-span-12">
               <CardHeader className="pb-0">
@@ -870,7 +876,7 @@ export default async function ViewUserProductPage({
                     )
                   })()}
                   <Link
-                    href={`/member/products/${product.slug}/edit`}
+                    href={memberProductEditPath(product.slug)}
                     className="text-xs text-primary hover:underline"
                   >
                     Improve description

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
+import { adminPath } from "@/lib/routes"
 
 export default function AnalyticsIndexPage() {
-  redirect("/admin/analytics/traffic")
+  redirect(adminPath("analytics", "traffic"))
 }

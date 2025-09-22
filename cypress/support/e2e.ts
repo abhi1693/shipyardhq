@@ -7,6 +7,7 @@
 /// <reference types="cypress" />
 
 import { addClerkCommands } from "@clerk/testing/cypress"
+import { HOME_PATH, MEMBER_BASE_PATH } from "../../lib/routes"
 
 addClerkCommands({ Cypress, cy })
 
@@ -53,7 +54,7 @@ Cypress.Commands.add("waitForAppIdle", () => {
 })
 
 Cypress.Commands.add("signInTestUser", (options = {}) => {
-  const { homePath = "/", afterSignInPath = "/member" } = options
+  const { homePath = HOME_PATH, afterSignInPath = MEMBER_BASE_PATH } = options
 
   cy.story(`Boot Clerk on ${homePath}`)
   cy.visit(homePath)

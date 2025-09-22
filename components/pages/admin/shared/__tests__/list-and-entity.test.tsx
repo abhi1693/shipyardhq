@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import { vi } from "vitest"
+import { adminPath } from "@/lib/routes"
 
 vi.mock("@/components/molecules/DataTable", () => ({
   default: ({ data, columns, pageCount }: any) => (
@@ -14,7 +15,7 @@ vi.mock("@/components/molecules/DataTable", () => ({
 describe("ListPageWrapper", () => {
   it("renders title, description and optional add link", () => {
     render(
-      <ListPageWrapper title="Users" addLink="/admin/users/add">
+      <ListPageWrapper title="Users" addLink={adminPath("users", "add")}>
         <div>Child</div>
       </ListPageWrapper>,
     )
@@ -24,7 +25,7 @@ describe("ListPageWrapper", () => {
     ).toBeInTheDocument()
     expect(screen.getByRole("link", { name: /Add New/i })).toHaveAttribute(
       "href",
-      "/admin/users/add",
+      adminPath("users", "add"),
     )
     expect(screen.getByText("Child")).toBeInTheDocument()
   })

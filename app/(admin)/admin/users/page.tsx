@@ -3,6 +3,7 @@ import { columns } from "./columns"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import { buildPageMetadata } from "@/lib/metadata"
+import { adminPath } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Users",
@@ -62,7 +63,7 @@ export default async function UserPage({
   const pageCount = Math.max(Math.ceil(totalUsers / pageSize), 1)
 
   return (
-    <ListPageWrapper title="Users" addLink="/admin/users/add">
+    <ListPageWrapper title="Users" addLink={adminPath("users", "add")}>
       <EntityList columns={columns} data={users} pageCount={pageCount} />
     </ListPageWrapper>
   )

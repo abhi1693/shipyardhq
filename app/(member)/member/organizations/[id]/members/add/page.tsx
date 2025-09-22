@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { addMyOrganizationMemberAction } from "@/actions/member/organizations/actions"
+import { memberOrganizationPath } from "@/lib/routes"
 import {
   Card,
   CardContent,
@@ -42,7 +43,7 @@ export default function AddMemberPage() {
       form.setError("email", { type: "server", message: (res as any).error })
       return
     }
-    router.push(`/member/organizations/${id}`)
+    router.push(memberOrganizationPath(id as string))
   }
 
   return (

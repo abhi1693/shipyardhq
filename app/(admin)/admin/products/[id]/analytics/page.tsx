@@ -9,6 +9,7 @@ import {
   ProductAnalyticsView,
   rangeToDays,
 } from "@/components/pages/ProductAnalyticsView"
+import { adminPath, productPath } from "@/lib/routes"
 
 export default async function AdminProductAnalyticsPage({
   params,
@@ -32,7 +33,7 @@ export default async function AdminProductAnalyticsPage({
     rangeDays,
     includeAdvanced: true,
   })
-  const publicPath = `/products/${product.slug}`
+  const publicPath = productPath(product.slug)
 
   const viewProduct = toProductAnalyticsViewProduct(product)
 
@@ -41,7 +42,7 @@ export default async function AdminProductAnalyticsPage({
       product={viewProduct}
       summary={summary}
       basePath="admin/products"
-      backHref={`/admin/products/${product.id}`}
+      backHref={adminPath("products", product.id)}
       publicHref={publicPath}
       headingId={product.id}
       headingSlug={product.slug}

@@ -12,6 +12,13 @@ import {
 import { formatDistanceToNow, linkify, image } from "@/lib/ui/formatters"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
+import {
+  memberProductAnalyticsPath,
+  memberProductDeletePath,
+  memberProductEditPath,
+  memberProductPath,
+  categoryPath,
+} from "@/lib/routes"
 
 const minimalActionButton =
   "rounded-full border border-slate-200/70 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
@@ -47,7 +54,7 @@ export const columns: ColumnDef<MemberProductRow>[] = [
       <div className="space-y-0.5">
         {linkify({
           label: row.original.name,
-          href: `/member/products/${row.original.slug}`,
+          href: memberProductPath(row.original.slug),
         })}
         <p className="text-xs text-muted-foreground">{row.original.slug}</p>
       </div>
@@ -65,7 +72,7 @@ export const columns: ColumnDef<MemberProductRow>[] = [
       row.original.category ? (
         linkify({
           label: row.original.category.name,
-          href: `/categories/${row.original.category.slug}`,
+          href: categoryPath(row.original.category.slug),
         })
       ) : (
         <span className="text-xs text-muted-foreground">—</span>
@@ -162,7 +169,7 @@ export const columns: ColumnDef<MemberProductRow>[] = [
             className={minimalActionButton}
           >
             <Link
-              href={`/member/products/${row.original.slug}/analytics`}
+              href={memberProductAnalyticsPath(row.original.slug)}
               className={minimalActionLink}
             >
               <BarChart3 className={minimalActionIcon} /> Analytics
@@ -176,7 +183,7 @@ export const columns: ColumnDef<MemberProductRow>[] = [
           className={minimalActionButton}
         >
           <Link
-            href={`/member/products/${row.original.slug}`}
+            href={memberProductPath(row.original.slug)}
             className={minimalActionLink}
           >
             <Eye className={minimalActionIcon} /> View
@@ -189,7 +196,7 @@ export const columns: ColumnDef<MemberProductRow>[] = [
           className={minimalActionButton}
         >
           <Link
-            href={`/member/products/${row.original.slug}/edit`}
+            href={memberProductEditPath(row.original.slug)}
             className={minimalActionLink}
           >
             <Pencil className={minimalActionIcon} /> Edit
@@ -203,7 +210,7 @@ export const columns: ColumnDef<MemberProductRow>[] = [
             className={destructiveActionButton}
           >
             <Link
-              href={`/member/products/${row.original.slug}/delete`}
+              href={memberProductDeletePath(row.original.slug)}
               className={minimalActionLink}
             >
               <Trash2 className={minimalActionIcon} /> Delete

@@ -4,6 +4,7 @@ import { Relationship } from "@/components/molecules/Relationship"
 import { ColumnDef } from "@tanstack/react-table"
 import { Product } from "@/lib/vendor/prisma/client"
 import { formatDate, linkify } from "@/lib/ui/formatters"
+import { adminPath } from "@/lib/routes"
 
 type ProductWithUser = Product & {
   user: { id: string; email: string }
@@ -21,7 +22,7 @@ export function CategoryProductRelationship({
       cell: ({ row }) =>
         linkify({
           label: row.original.name,
-          href: `/admin/products/${row.original.id}`,
+          href: adminPath("products", row.original.id),
         }),
     },
     {
@@ -30,7 +31,7 @@ export function CategoryProductRelationship({
       cell: ({ row }) =>
         linkify({
           label: row.original.user.email,
-          href: `/admin/users/${row.original.user.id}`,
+          href: adminPath("users", row.original.user.id),
         }),
     },
     {

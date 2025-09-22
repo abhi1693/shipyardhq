@@ -8,6 +8,7 @@ import {
   getMyOrganizationMembers,
   updateOrganizationOwnerAction,
 } from "@/actions/member/organizations/actions"
+import { memberOrganizationPath } from "@/lib/routes"
 import {
   Card,
   CardContent,
@@ -54,7 +55,7 @@ export default function ChangeOwnerPage() {
     e.preventDefault()
     const res = await updateOrganizationOwnerAction(id as string, ownerId)
     if ((res as any)?.error) return alert((res as any).error)
-    router.push(`/member/organizations/${id}`)
+    router.push(memberOrganizationPath(id as string))
   }
 
   return (

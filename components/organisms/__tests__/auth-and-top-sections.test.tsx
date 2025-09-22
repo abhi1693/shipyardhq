@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
+import {
+  LEADERBOARD_PATH,
+  MEMBER_BASE_PATH,
+  categoryPath,
+} from "@/lib/routes"
 
 const signInMock = vi.fn()
 const signUpMock = vi.fn()
@@ -45,8 +50,8 @@ describe("AuthFormPanel", () => {
     expect(screen.getByTestId("sign-up")).toBeInTheDocument()
     expect(signUpMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        forceRedirectUrl: "/member",
-        fallbackRedirectUrl: "/member",
+        forceRedirectUrl: MEMBER_BASE_PATH,
+        fallbackRedirectUrl: MEMBER_BASE_PATH,
       }),
     )
     expect(signInMock).not.toHaveBeenCalled()
@@ -94,7 +99,7 @@ describe("Top sections", () => {
     expect(screen.getByText("Analytics")).toBeInTheDocument()
     const links = screen.getAllByRole("link")
     expect(
-      links.some((a) => a.getAttribute("href") === "/categories/analytics"),
+      links.some((a) => a.getAttribute("href") === categoryPath("analytics")),
     ).toBe(true)
   })
 
@@ -142,6 +147,6 @@ describe("Top sections", () => {
     expect(screen.getByText("Fleet Standings")).toBeInTheDocument()
     expect(
       screen.getByRole("link", { name: "See leaderboard" }),
-    ).toHaveAttribute("href", "/leaderboard")
+    ).toHaveAttribute("href", LEADERBOARD_PATH)
   })
 })

@@ -1,3 +1,5 @@
+import { BROWSE_PATH } from "../../lib/routes"
+
 describe("Public catalog journey", () => {
   it("guides an indie maker from landing to a confident product decision", () => {
     cy.story(
@@ -12,7 +14,7 @@ describe("Public catalog journey", () => {
     cy.contains("Explore Products").click()
     cy.waitForAppIdle()
 
-    cy.url().should("include", "/browse")
+    cy.url().should("include", BROWSE_PATH)
     cy.contains("Chart your course through top startups.").should("be.visible")
 
     cy.story(

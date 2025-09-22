@@ -30,6 +30,7 @@ import { Checkbox } from "@/components/atoms/checkbox"
 import SaveButton from "@/components/molecules/SaveButton"
 import PageContainer from "@/components/layout/page-container"
 import { updatePlanFeatureAssignmentAction } from "@/actions/admin/plans/assignments/actions"
+import { adminPath } from "@/lib/routes"
 import {
   PlanFeatureAssignment,
   Plan,
@@ -80,7 +81,7 @@ export default function EditAssignmentForm({
       return
     }
 
-    router.push(`/admin/plans/assignments/${assignment.id}`)
+    router.push(adminPath("plans", "assignments", assignment.id))
   }
 
   return (

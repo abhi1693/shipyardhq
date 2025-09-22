@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest"
 import React from "react"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { memberProductEditPath } from "@/lib/routes"
 
 // Mock action and router
 vi.mock("@/actions/admin/products/actions", () => ({
@@ -32,7 +33,7 @@ describe("DuplicateProductButton", () => {
     await user.click(btn)
     await waitFor(() => expect(toast.success).toHaveBeenCalled())
     await waitFor(() =>
-      expect(push).toHaveBeenCalledWith("/member/products/copy/edit"),
+      expect(push).toHaveBeenCalledWith(memberProductEditPath("copy")),
     )
 
     // Error path

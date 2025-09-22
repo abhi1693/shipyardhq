@@ -1,19 +1,20 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect, vi } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
 
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
+import { ADMIN_BASE_PATH, adminPath } from "@/lib/routes"
 
 // Mock next/navigation for usePathname used by useBreadcrumbs fallback
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/admin/products",
+  usePathname: () => adminPath("products"),
 }))
 
 describe("Breadcrumbs branches", () => {
   it("injects Home when first is not home and renders links/separators correctly", () => {
     render(
       <Breadcrumbs
-        items={[{ title: "Admin", link: "/admin" }, { title: "Products" }]}
+        items={[{ title: "Admin", link: ADMIN_BASE_PATH }, { title: "Products" }]}
       />,
     )
 
@@ -24,7 +25,7 @@ describe("Breadcrumbs branches", () => {
     // Intermediate item rendered as link
     expect(screen.getByRole("link", { name: "Admin" })).toHaveAttribute(
       "href",
-      "/admin",
+      ADMIN_BASE_PATH,
     )
 
     // Last item rendered as breadcrumb-page (current page)

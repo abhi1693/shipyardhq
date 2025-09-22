@@ -7,6 +7,7 @@ import {
   type PaginationSearchParams,
 } from "@/lib/pagination"
 import { buildPageMetadata } from "@/lib/metadata"
+import { adminPath } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Plans",
@@ -30,7 +31,7 @@ export default async function PlanPage({
   const pageCount = Math.max(Math.ceil(totalPlans / pageSize), 1)
 
   return (
-    <ListPageWrapper title="Plans" addLink="/admin/plans/add">
+    <ListPageWrapper title="Plans" addLink={adminPath("plans", "add")}>
       <EntityList columns={columns} data={plans} pageCount={pageCount} />
     </ListPageWrapper>
   )

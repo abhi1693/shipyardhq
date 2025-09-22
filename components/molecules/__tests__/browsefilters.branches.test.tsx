@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { BROWSE_PATH } from "@/lib/routes"
 
 const push = vi.fn()
 let searchStr = ""
@@ -68,7 +69,7 @@ describe("BrowseFilters branches", () => {
     const link = screen.getByText("Cat9").closest("a") as HTMLAnchorElement
     expect(link).toBeTruthy()
     const url = new URL(link.href)
-    expect(url.pathname).toBe("/browse")
+    expect(url.pathname).toBe(BROWSE_PATH)
     expect(url.searchParams.get("category")).toBe("cat9")
     expect(url.searchParams.get("page")).toBe("1")
   })

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import prisma from "@/lib/prisma"
 import { formatBoolean, linkify } from "@/lib/ui/formatters"
+import { adminPath } from "@/lib/routes"
 
 export default async function AssignedFeaturePage({
   params,
@@ -32,14 +33,14 @@ export default async function AssignedFeaturePage({
         {
           label: "Feature",
           value: linkify({
-            href: `/admin/features/${assignment.feature.id}`,
+            href: adminPath("plans", "features", assignment.feature.id),
             label: assignment.feature.name,
           }),
         },
         {
           label: "Plan",
           value: linkify({
-            href: `/admin/plans/${assignment.plan.id}`,
+            href: adminPath("plans", assignment.plan.id),
             label: assignment.plan.name,
           }),
         },

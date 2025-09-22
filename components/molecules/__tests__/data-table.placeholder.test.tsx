@@ -3,12 +3,13 @@ import React from "react"
 import { render, screen } from "@testing-library/react"
 import DataTable from "@/components/molecules/DataTable"
 import type { ColumnDef } from "@tanstack/react-table"
+import { ADMIN_BASE_PATH } from "@/lib/routes"
 
 // Mock next/navigation hooks
 const push = vi.fn()
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
-  usePathname: () => "/admin",
+  usePathname: () => ADMIN_BASE_PATH,
   useSearchParams: () => new URLSearchParams("page=1&limit=10"),
 }))
 

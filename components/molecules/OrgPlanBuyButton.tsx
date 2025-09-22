@@ -2,6 +2,7 @@
 
 import { useUser } from "@clerk/nextjs"
 import { CheckoutButton } from "@/components/molecules/CheckoutButton"
+import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 
 export function OrgPlanBuyButton({ externalId }: { externalId: string }) {
   const { user } = useUser()
@@ -16,7 +17,7 @@ export function OrgPlanBuyButton({ externalId }: { externalId: string }) {
       email={email || undefined}
       name={name}
       label="Buy Now"
-      redirectPath="/member/organizations"
+      redirectPath={MEMBER_ORGANIZATIONS_PATH}
       disabled={!email}
     />
   )

@@ -2,6 +2,7 @@ import { CategoryCard } from "@/components/molecules/CategoryCard"
 import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { getWaveBackground } from "@/lib/nautical"
+import { categoryPath } from "@/lib/routes"
 
 interface CategoryWithCount {
   id: string
@@ -71,7 +72,7 @@ export function TopCategories({ categories }: TopCategoriesProps) {
           {nonEmpty.map((cat) => (
             <CategoryCard
               key={cat.id}
-              href={`/categories/${cat.slug}`}
+              href={categoryPath(cat.slug)}
               name={cat.name}
               icon={cat.icon}
               description={cat.description}

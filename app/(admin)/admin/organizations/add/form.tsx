@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/atoms/input"
 import CreateButton from "@/components/molecules/CreateButton"
 import PageContainer from "@/components/layout/page-container"
+import { adminPath } from "@/lib/routes"
 
 const orgSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -48,7 +49,7 @@ export default function AddOrganizationForm() {
       form.setError("name", { type: "server", message: (result as any).error })
       return
     }
-    router.push("/admin/organizations")
+    router.push(adminPath("organizations"))
   }
 
   return (

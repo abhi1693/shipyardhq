@@ -3,10 +3,15 @@ import { auth, clerkClient } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
+import {
+  HOME_PATH,
+  MEMBER_ONBOARDING_PATH,
+  MEMBER_OVERVIEW_PATH,
+} from "@/lib/routes"
 
 export default async function MemberIndexPage() {
   const { userId } = await auth()
-  const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/"
+  const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? HOME_PATH
 
   if (!userId) {
     redirect(signInPath)
@@ -28,5 +33,5 @@ export default async function MemberIndexPage() {
   const onboardingComplete =
     clerkUser.publicMetadata?.onboardingComplete === true
 
-  redirect(onboardingComplete ? "/member/overview" : "/member/onboarding")
+  redirect(onboardingComplete ? MEMBER_OVERVIEW_PATH : MEMBER_ONBOARDING_PATH)
 }

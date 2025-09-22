@@ -4,6 +4,7 @@ import {
   resolveRedirectUrl,
   sanitizeRedirectUrl,
 } from "@/lib/auth/redirect"
+import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL
 
@@ -17,16 +18,16 @@ afterEach(() => {
 
 describe("sanitizeRedirectUrl", () => {
   it("returns relative paths untouched", () => {
-    expect(sanitizeRedirectUrl("/member/products", "app.shipyardhq.com"))
-      .toBe("/member/products")
+    expect(sanitizeRedirectUrl(MEMBER_PRODUCTS_PATH, "app.shipyardhq.com"))
+      .toBe(MEMBER_PRODUCTS_PATH)
   })
 
   it("allows absolute URLs matching configured or request host", () => {
     const url = sanitizeRedirectUrl(
-      "https://app.shipyardhq.com/member/products",
+      `https://app.shipyardhq.com${MEMBER_PRODUCTS_PATH}`,
       null,
     )
-    expect(url).toBe("/member/products")
+    expect(url).toBe(MEMBER_PRODUCTS_PATH)
   })
 
   it("rejects URLs with non-http protocols", () => {

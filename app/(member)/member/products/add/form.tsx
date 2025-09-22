@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, FormProvider } from "react-hook-form"
 import { toast } from "sonner"
+import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 import { createProductAction } from "@/actions/admin/products/actions"
 import {
@@ -74,7 +75,7 @@ export default function AddProductForm({
         return
       }
       toast.success("Product created successfully!")
-      router.push("/member/products")
+      router.push(MEMBER_PRODUCTS_PATH)
     } catch (e: any) {
       toast.error(e?.message || "Failed to create product")
     }

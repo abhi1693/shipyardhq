@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { formatDate, linkify } from "@/lib/ui/formatters"
 import { getBadgeAssignmentById } from "@/actions/admin/badges/actions"
+import { adminPath } from "@/lib/routes"
 
 export default async function ViewProductBadgeAssignmentPage({
   params,
@@ -27,7 +28,7 @@ export default async function ViewProductBadgeAssignmentPage({
           label: "Product",
           value: linkify({
             label: product.name,
-            href: `/admin/products/${product.id}`,
+            href: adminPath("products", product.id),
           }),
         },
         {

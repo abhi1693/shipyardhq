@@ -41,6 +41,7 @@ import ImageLightbox from "@/components/molecules/ImageLightbox"
 import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ScrollReset } from "@/components/atoms/scroll-reset"
+import { BROWSE_PATH, categoryPath, productPath, userPath } from "@/lib/routes"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -56,7 +57,7 @@ export async function generateMetadata({
   const { slug } = await params
   const product = await getPublicProductMetaBySlug(slug)
   if (!product) return {}
-  const relativeUrl = `/products/${product.slug}`
+  const relativeUrl = productPath(product.slug)
   const desc = product.tagline || product.description || undefined
   const images = [product.bannerImage, product.logo].filter(Boolean) as string[]
   const authorName =
@@ -363,7 +364,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
                       <span>Charted for</span>
                       <Link
-                        href={`/categories/${product.category.slug}`}
+                        href={categoryPath(product.category.slug)}
                         className="font-semibold tracking-[0.2em] underline decoration-[color:var(--brand-1)/0.45] underline-offset-4"
                       >
                         {product.category.name}
@@ -380,7 +381,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
                 <div className="flex flex-wrap items-center gap-2">
                   <Link
-                    href={`/categories/${product.category.slug}`}
+                    href={categoryPath(product.category.slug)}
                     className="inline-flex"
                   >
                     <Badge className="flex items-center gap-1 rounded-full border border-[color:var(--brand-1)/0.35] bg-background/80 px-3 py-1 text-xs font-semibold text-[color:var(--brand-1)]">
@@ -408,7 +409,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 <div className="text-sm text-muted-foreground">
                   Skippered by{" "}
                   <Link
-                    href={`/users/${product.user.id}`}
+                    href={userPath(product.user.id)}
                     className="font-medium text-foreground underline decoration-dotted underline-offset-4"
                   >
                     {product.user.firstName} {product.user.lastName || ""}
@@ -451,7 +452,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                         <Link
                           key={`${uc.useCaseId}-${uc.categoryId}`}
                           href={{
-                            pathname: "/browse",
+                            pathname: BROWSE_PATH,
                             query: { useCase: uc.useCase.slug },
                           }}
                           className="inline-flex"
@@ -660,7 +661,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                         {product.keywords.map((k) => (
                           <Link
                             key={`${k}-harbor`}
-                            href={{ pathname: "/browse", query: { q: k } }}
+                            href={{ pathname: BROWSE_PATH, query: { q: k } }}
                             className="inline-flex"
                           >
                             <Badge className="rounded-full border-[color:var(--brand-1)/0.3] bg-background/75 px-3 py-1 text-xs text-[color:var(--brand-1)]">
@@ -730,7 +731,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               </div>
               <Link
                 href={{
-                  pathname: "/browse",
+                  pathname: BROWSE_PATH,
                   query: { useCase: primaryUseCaseSlug },
                 }}
                 className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.2] px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)] transition-colors hover:border-[color:var(--brand-1)/0.35]"

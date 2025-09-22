@@ -38,6 +38,11 @@ describe("revalidate helpers", () => {
     expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "categories")
   })
 
+  it("revalidates categories collection", () => {
+    revalidateCategories()
+    expect(revalidateTagMock).toHaveBeenCalledWith("categories")
+  })
+
   it("revalidates leaderboard family", () => {
     revalidateLeaderboard()
     expect(revalidateTagMock).toHaveBeenCalledWith("leaderboard")

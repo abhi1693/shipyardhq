@@ -20,6 +20,8 @@ import { Label } from "@/components/atoms/label"
 import { Checkbox } from "@/components/atoms/checkbox"
 import { Separator } from "@/components/atoms/separator"
 import { cn } from "@/lib/utils"
+import { ADMIN_BASE_PATH } from "@/lib/routes"
+import { MEMBER_ONBOARDING_PATH, MEMBER_OVERVIEW_PATH } from "@/lib/routes"
 
 const roleIntentOptions = [
   {
@@ -94,10 +96,10 @@ export function OnboardingForm({
     redirectTo &&
     redirectTo.startsWith("/") &&
     !redirectTo.startsWith("//") &&
-    !redirectTo.startsWith("/admin") &&
-    redirectTo !== "/member/onboarding"
+    !redirectTo.startsWith(ADMIN_BASE_PATH) &&
+    redirectTo !== MEMBER_ONBOARDING_PATH
       ? redirectTo
-      : "/member/overview"
+      : MEMBER_OVERVIEW_PATH
 
   const onSubmit = async (values: OnboardingFormInput) => {
     const formData = new FormData()

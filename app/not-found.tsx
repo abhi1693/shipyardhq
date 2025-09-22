@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/atoms/button"
+import { BROWSE_PATH, HOME_PATH } from "@/lib/routes"
 
 export default function NotFound() {
   const router = useRouter()
@@ -31,12 +32,12 @@ export default function NotFound() {
           <Button size="lg" onClick={() => router.back()}>
             Go Back
           </Button>
-          <Link href="/" passHref>
+          <Link href={HOME_PATH} passHref>
             <Button asChild size="lg" variant="outline">
               <a aria-label="Back to home">Back to Home</a>
             </Button>
           </Link>
-          <Link href="/browse" passHref>
+          <Link href={BROWSE_PATH} passHref>
             <Button asChild size="lg" variant="ghost">
               <a aria-label="Browse products">Browse Products</a>
             </Button>

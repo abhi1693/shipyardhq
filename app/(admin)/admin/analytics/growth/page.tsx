@@ -17,6 +17,7 @@ import {
   getRecentUsers,
 } from "@/actions/admin/overview/actions"
 import { cn } from "@/lib/utils"
+import { adminPath } from "@/lib/routes"
 
 export const revalidate = 60
 
@@ -334,7 +335,7 @@ export default async function GrowthAnalyticsPage({
                     <li key={product.id} className="space-y-1">
                       <div className="flex items-center justify-between gap-3">
                         <Link
-                          href={`/admin/products/${product.id}`}
+                          href={adminPath("products", product.id)}
                           className="font-medium text-slate-900 hover:underline"
                         >
                           {product.name}
@@ -374,7 +375,7 @@ export default async function GrowthAnalyticsPage({
                   {recentUsers.map((user) => (
                     <li key={user.id} className="space-y-1">
                       <Link
-                        href={`/admin/users/${user.id}`}
+                        href={adminPath("users", user.id)}
                         className="font-medium text-slate-900 hover:underline"
                       >
                         {user.firstName} {user.lastName}

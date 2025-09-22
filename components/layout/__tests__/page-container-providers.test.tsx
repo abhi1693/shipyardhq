@@ -2,13 +2,14 @@ import { render, screen } from "@testing-library/react"
 import PageContainer from "@/components/layout/page-container"
 import Providers from "@/components/layout/providers"
 import { vi } from "vitest"
+import { MEMBER_BASE_PATH } from "@/lib/routes"
 
 vi.mock("next-themes", () => ({
   useTheme: () => ({ theme: "dark" }),
 }))
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/member",
+  usePathname: () => MEMBER_BASE_PATH,
 }))
 
 // Stub ClerkProvider to a pass-through for this test

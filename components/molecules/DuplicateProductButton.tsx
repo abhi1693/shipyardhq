@@ -6,6 +6,7 @@ import { Button } from "@/components/atoms/button"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Copy } from "lucide-react"
+import { memberProductEditPath } from "@/lib/routes"
 
 export default function DuplicateProductButton({
   productId,
@@ -31,7 +32,7 @@ export default function DuplicateProductButton({
             toast.error(res.error)
           } else {
             toast.success("Duplicated. Opening draft…")
-            router.push(`/member/products/${res.slug}/edit`)
+            router.push(memberProductEditPath(res.slug))
           }
         })
       }}

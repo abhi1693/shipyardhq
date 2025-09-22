@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { FeaturedProduct } from "@/types"
 import { cn } from "@/lib/utils"
+import { productPath } from "@/lib/routes"
 
 export default function FeaturedBanner({
   item,
@@ -13,7 +14,7 @@ export default function FeaturedBanner({
   const p = item.product
   return (
     <Link
-      href={`/products/${p.slug}`}
+      href={productPath(p.slug)}
       className={cn(
         "relative block overflow-hidden rounded-xl border bg-background",
         className,

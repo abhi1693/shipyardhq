@@ -10,6 +10,7 @@ import {
   type PaginationSearchParams,
 } from "@/lib/pagination"
 import { buildPageMetadata } from "@/lib/metadata"
+import { adminPath } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Assigned Features",
@@ -35,7 +36,7 @@ export default async function AssignedFeaturePage({
   return (
     <ListPageWrapper
       title="Assigned Features"
-      addLink="/admin/plans/assignments/add"
+      addLink={adminPath("plans", "assignments", "add")}
     >
       <EntityList columns={columns} data={assignments} pageCount={pageCount} />
     </ListPageWrapper>

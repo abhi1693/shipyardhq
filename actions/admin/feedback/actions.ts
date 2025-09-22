@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import { FeedbackStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
+import { adminPath } from "@/lib/routes"
 
 const feedbackSelect = {
   id: true,
@@ -27,6 +28,8 @@ const feedbackSelect = {
 export type AdminFeedbackEntry = Prisma.MemberFeedbackGetPayload<{
   select: typeof feedbackSelect
 }>
+
+const ADMIN_FEEDBACK_PATH = adminPath("feedback")
 
 export async function getFeedbackEntries({
   skip = 0,
@@ -91,7 +94,7 @@ export async function updateFeedbackStatus({
       data: { status },
     })
 
-    revalidatePath("/admin/feedback")
+    revalidatePath(ADMIN_FEEDBACK_PATH)
     return { success: true }
   } catch (error) {
     console.error("updateFeedbackStatus failed", error)
@@ -122,7 +125,7 @@ export async function updateFeedbackAdminNote({
       data: { adminNote },
     })
 
-    revalidatePath("/admin/feedback")
+    revalidatePath(ADMIN_FEEDBACK_PATH)
     return { success: true }
   } catch (error) {
     console.error("updateFeedbackAdminNote failed", error)

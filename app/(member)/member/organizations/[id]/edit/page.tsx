@@ -8,6 +8,10 @@ import {
   updateMyOrganizationAction,
   getMyOrganizationById,
 } from "@/actions/member/organizations/actions"
+import {
+  MEMBER_ORGANIZATIONS_PATH,
+  memberOrganizationPath,
+} from "@/lib/routes"
 import { useEffect, useState } from "react"
 import {
   Card,
@@ -60,7 +64,7 @@ export default function EditOrganizationPage() {
         name: string
         url: string
       } | null
-      if (!org) return router.replace("/member/organizations")
+      if (!org) return router.replace(MEMBER_ORGANIZATIONS_PATH)
       const normalizedUrl = ensureUrlHasSchema(org.url)
       setInitial({ name: org.name, url: normalizedUrl })
       form.reset({ name: org.name, url: normalizedUrl })
@@ -77,7 +81,7 @@ export default function EditOrganizationPage() {
       form.setError("url", { type: "server", message: (res as any).error })
       return
     }
-    router.push(`/member/organizations/${id}`)
+    router.push(memberOrganizationPath(id as string))
   }
 
   if (!initial) return null

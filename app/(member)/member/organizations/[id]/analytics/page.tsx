@@ -11,6 +11,10 @@ import { ensureUrlHasSchema } from "@/lib/utils"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { getOrganizationTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 import { organizationHasAdvancedAnalytics } from "@/lib/server/analytics/organizationAccess"
+import {
+  MEMBER_ORGANIZATIONS_PATH,
+  memberOrganizationPath,
+} from "@/lib/routes"
 
 export default async function OrganizationAnalyticsPage({
   params,
@@ -26,7 +30,7 @@ export default async function OrganizationAnalyticsPage({
 
   const { userId: clerkId } = await auth()
   if (!clerkId) {
-    redirect("/member/organizations")
+    redirect(MEMBER_ORGANIZATIONS_PATH)
   }
   const currentUser = await requireActiveUserOrRedirect(clerkId)
 
@@ -35,7 +39,7 @@ export default async function OrganizationAnalyticsPage({
     select: { id: true },
   })
   if (!membership) {
-    redirect("/member/organizations")
+    redirect(MEMBER_ORGANIZATIONS_PATH)
   }
 
   const [organization, products, hasAdvancedAnalytics] = await Promise.all([
@@ -64,7 +68,7 @@ export default async function OrganizationAnalyticsPage({
   }
 
   if (!hasAdvancedAnalytics) {
-    redirect(`/member/organizations/${id}`)
+    redirect(memberOrganizationPath(id))
   }
 
   const productIds = products.map((product) => product.id)
@@ -99,8 +103,8 @@ export default async function OrganizationAnalyticsPage({
           analytics: aggregatedAnalytics,
         }}
         summary={summary}
-        basePath="member/organizations"
-        backHref={`/member/organizations/${organization.id}`}
+        basePath={MEMBER_ORGANIZATIONS_PATH.slice(1)}
+        backHref={memberOrganizationPath(organization.id)}
         backLabel="Back to organization"
         publicHref={publicHref}
         publicLabel="Visit organization site"

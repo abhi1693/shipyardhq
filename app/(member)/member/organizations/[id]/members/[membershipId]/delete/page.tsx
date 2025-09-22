@@ -5,6 +5,10 @@ import {
   deleteMyOrganizationMemberAction,
   getMyOrganizationMembers,
 } from "@/actions/member/organizations/actions"
+import {
+  memberOrganizationMembersPath,
+  memberOrganizationPath,
+} from "@/lib/routes"
 import { useEffect, useState } from "react"
 import {
   Card,
@@ -24,7 +28,8 @@ export default function DeleteMemberPage() {
       if (!id || !membershipId) return
       const rows = await getMyOrganizationMembers(id as string)
       const found = rows.find((r: any) => r.id === membershipId)
-      if (!found) return router.replace(`/member/organizations/${id}/members`)
+      if (!found)
+        return router.replace(memberOrganizationMembersPath(id as string))
       setMemberEmail(found.user.email)
     })()
   }, [id, membershipId, router])
@@ -32,7 +37,7 @@ export default function DeleteMemberPage() {
   async function onDelete() {
     const res = await deleteMyOrganizationMemberAction(membershipId as string)
     if ((res as any)?.error) return alert((res as any).error)
-    router.push(`/member/organizations/${id}`)
+    router.push(memberOrganizationPath(id as string))
   }
 
   return (

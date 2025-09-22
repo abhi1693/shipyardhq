@@ -17,6 +17,7 @@ import {
   memberProductVerificationOptionValues,
 } from "@/lib/member-products/filter-options"
 import { buildPageMetadata } from "@/lib/metadata"
+import { MEMBER_PRODUCTS_ADD_PATH } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Products",
@@ -96,7 +97,7 @@ export default async function MemberProductsPage({
             launch. Add a product to unlock tailored insights for your crew.
           </p>
           <CreateButton asChild className="mt-8" label="Add product">
-            <Link href="/member/products/add">Add product</Link>
+            <Link href={MEMBER_PRODUCTS_ADD_PATH}>Add product</Link>
           </CreateButton>
         </div>
       </div>
@@ -115,7 +116,7 @@ export default async function MemberProductsPage({
           </p>
         </div>
         <CreateButton asChild size="sm" label="Add product">
-          <Link href="/member/products/add">Add product</Link>
+          <Link href={MEMBER_PRODUCTS_ADD_PATH}>Add product</Link>
         </CreateButton>
       </div>
 

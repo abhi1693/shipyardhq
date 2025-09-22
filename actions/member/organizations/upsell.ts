@@ -9,6 +9,7 @@ import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
+import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 
 // Start a user-level checkout for a plan that includes the organization feature
 export async function startOrgCheckoutAction(formData: FormData) {
@@ -34,12 +35,12 @@ export async function startOrgCheckoutAction(formData: FormData) {
       update: {},
       create: { userId: user.id, planId: plan.id },
     })
-    redirect("/member/organizations?upgraded=1")
+    redirect(`${MEMBER_ORGANIZATIONS_PATH}?upgraded=1`)
   }
 
   // Paid plans without a configured externalId should not grant access
   if (plan.price > 0 && !plan.externalId) {
-    redirect("/member/organizations?error=plan_not_configured")
+    redirect(`${MEMBER_ORGANIZATIONS_PATH}?error=plan_not_configured`)
   }
 
   // Build return URL using current host if available
@@ -48,7 +49,7 @@ export async function startOrgCheckoutAction(formData: FormData) {
     const hdrs = await headers()
     const host = hdrs.get("x-forwarded-host") || hdrs.get("host")
     const proto = (hdrs.get("x-forwarded-proto") || "https").split(",")[0]
-    if (host) returnUrl = `${proto}://${host}/member/organizations`
+    if (host) returnUrl = `${proto}://${host}${MEMBER_ORGANIZATIONS_PATH}`
   } catch {}
 
   const customer = {

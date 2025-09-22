@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Compass, Anchor } from "lucide-react"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { Button } from "@/components/atoms/button"
+import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 import { getWaveBackground } from "@/lib/nautical"
 
 export function JoinCrewCTA() {
@@ -57,7 +58,7 @@ export function JoinCrewCTA() {
           </p>
         </div>
         <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <Link href="/member/products">
+          <Link href={MEMBER_PRODUCTS_PATH}>
             <Button
               size="lg"
               className="gap-2 shadow-[0px_25px_55px_-35px_rgba(7,58,104,0.85)]"
@@ -66,7 +67,7 @@ export function JoinCrewCTA() {
             </Button>
           </Link>
           <Link
-            href="/browse"
+            href={BROWSE_PATH}
             className="inline-flex items-center gap-2 rounded-md border border-[color:var(--brand-1)/0.35] bg-background/75 px-4 py-2 text-sm font-medium text-[color:var(--brand-1)] shadow-[0px_20px_45px_-32px_rgba(7,58,104,0.75)] transition-colors hover:bg-[color:var(--brand-1)/0.05]"
           >
             Explore the fleet

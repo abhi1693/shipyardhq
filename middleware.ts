@@ -1,8 +1,13 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
+import {
+  ADMIN_BASE_PATH,
+  MEMBER_BASE_PATH,
+  MEMBER_ONBOARDING_PATH,
+} from "@/lib/routes"
 
-const isAdminRoute = createRouteMatcher(["/admin(.*)"])
-const isMemberRoute = createRouteMatcher(["/member(.*)"])
+const isAdminRoute = createRouteMatcher([`${ADMIN_BASE_PATH}(.*)`])
+const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
 
 interface CustomPublicMetadata {
   role?: "admin" | "member"
@@ -47,18 +52,18 @@ export default clerkMiddleware(async (auth, req) => {
   if (isMemberRoute(req)) {
     await auth.protect()
 
-    const isOnboardingPath = pathname.startsWith("/member/onboarding")
+    const isOnboardingPath = pathname.startsWith(MEMBER_ONBOARDING_PATH)
 
     if (!onboardingComplete && !isOnboardingPath) {
       if (onboardingOverrideCookie) {
         return NextResponse.next()
       }
-      const onboardingUrl = new URL("/member/onboarding", req.url)
+      const onboardingUrl = new URL(MEMBER_ONBOARDING_PATH, req.url)
       const requestPathWithSearch = `${pathname}${req.nextUrl.search}`
 
       if (
         requestPathWithSearch &&
-        requestPathWithSearch !== "/member/onboarding"
+        requestPathWithSearch !== MEMBER_ONBOARDING_PATH
       ) {
         onboardingUrl.searchParams.set("redirectTo", requestPathWithSearch)
       }

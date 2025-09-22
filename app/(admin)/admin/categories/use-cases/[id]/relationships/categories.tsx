@@ -4,6 +4,7 @@ import { Relationship } from "@/components/molecules/Relationship"
 import { ColumnDef } from "@tanstack/react-table"
 import { UseCaseCategory } from "@/lib/vendor/prisma/client"
 import { linkify } from "@/lib/ui/formatters"
+import { adminPath } from "@/lib/routes"
 
 type CategoryJoin = UseCaseCategory & {
   category: { id: string; name: string; slug: string }
@@ -21,7 +22,7 @@ export function UseCaseCategoryRelationship({
       cell: ({ row }) =>
         linkify({
           label: row.original.category.name,
-          href: `/admin/categories/${row.original.category.id}`,
+          href: adminPath("categories", row.original.category.id),
           subtext: row.original.category.slug,
         }),
     },

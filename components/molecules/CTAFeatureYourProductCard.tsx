@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import SubmitProductButton from "@/components/molecules/SubmitProductButton"
+import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 export default function CTAFeatureYourProductCard() {
   return (
@@ -19,7 +20,7 @@ export default function CTAFeatureYourProductCard() {
         <p className="text-sm text-muted-foreground">
           Boost visibility by getting featured on our homepage.
         </p>
-        <Link href="/member/products">
+        <Link href={MEMBER_PRODUCTS_PATH}>
           <SubmitProductButton
             size="sm"
             variant="outline"

@@ -30,6 +30,7 @@ import {
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
 import { createUseCaseAssignmentAction } from "@/actions/admin/categories/actions"
+import { adminPath } from "@/lib/routes"
 
 const schema = z.object({
   useCaseId: z.string().min(1, "Select a use case"),
@@ -58,7 +59,7 @@ export default function AddAssignmentForm({
       form.setError("useCaseId", { type: "server", message: result.error })
       return
     }
-    router.push("/admin/categories/use-cases/assignments")
+    router.push(adminPath("categories", "use-cases", "assignments"))
   }
 
   return (

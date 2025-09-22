@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/atoms/input"
 import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
+import { adminPath } from "@/lib/routes"
 
 const useCaseFormSchema = z.object({
   label: z.string().min(1, "Label is required").max(100, "Label is too long"),
@@ -48,7 +49,7 @@ export default function AddUseCasePage() {
       return
     }
 
-    router.push("/admin/categories/use-cases")
+    router.push(adminPath("categories", "use-cases"))
   }
 
   return (

@@ -35,6 +35,7 @@ import { Separator } from "@/components/atoms/separator"
 import PageContainer from "@/components/layout/page-container"
 import { updatePlanAction } from "@/actions/admin/plans/actions"
 import { Plan } from "@/lib/vendor/prisma/client"
+import { adminPath } from "@/lib/routes"
 
 const planFormSchema = z
   .object({
@@ -115,7 +116,7 @@ export default function EditPlanForm({ plan }: { plan: Plan }) {
       return
     }
 
-    router.push(`/admin/plans/${plan.id}`)
+    router.push(adminPath("plans", plan.id))
   }
 
   return (

@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { BROWSE_PATH } from "@/lib/routes"
 
 const push = vi.fn()
 vi.mock("next/navigation", () => ({
@@ -44,7 +45,7 @@ describe("BrowseFilterBar", () => {
     const sw = document.querySelector('[data-slot="switch"]') as HTMLElement
     await user.click(sw)
     const call = (push as any).mock.calls[0][0] as string
-    expect(call).toContain("/browse?")
+    expect(call).toContain(`${BROWSE_PATH}?`)
     expect(call).toContain("verified=true")
     expect(call).toContain("page=1")
 
@@ -54,6 +55,6 @@ describe("BrowseFilterBar", () => {
     ).toBeInTheDocument()
     ;(push as any).mockClear()
     await user.click(screen.getByRole("button", { name: /clear all/i }))
-    expect(push).toHaveBeenCalledWith("/browse")
+    expect(push).toHaveBeenCalledWith(BROWSE_PATH)
   })
 })

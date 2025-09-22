@@ -6,6 +6,7 @@ import { Input } from "@/components/atoms/input"
 import InlineSelect from "@/components/molecules/InlineSelect"
 import { Button } from "@/components/atoms/button"
 import { buildQuery } from "@/lib/urlParams"
+import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 import {
   MEMBER_PRODUCT_FILTER_ALL,
   memberProductSortOptions,
@@ -56,7 +57,7 @@ export default function MemberProductFilters() {
   useEffect(() => {
     const id = setTimeout(() => {
       const url = buildQuery(
-        pathname ?? "/member/products",
+        pathname ?? MEMBER_PRODUCTS_PATH,
         params?.toString() ?? "",
         {
           q: q.length ? q : undefined,
@@ -72,7 +73,7 @@ export default function MemberProductFilters() {
     (key: "status" | "verification" | "sort", value: string) => {
       const v = value === MEMBER_PRODUCT_FILTER_ALL ? undefined : value
       const url = buildQuery(
-        pathname ?? "/member/products",
+        pathname ?? MEMBER_PRODUCTS_PATH,
         params?.toString() ?? "",
         {
           [key]: v,
@@ -128,7 +129,7 @@ export default function MemberProductFilters() {
             variant="outline"
             size="sm"
             className="shrink-0 whitespace-nowrap border border-[color:var(--brand-1)/0.25] bg-background/80"
-            onClick={() => router.push(pathname ?? "/member/products")}
+            onClick={() => router.push(pathname ?? MEMBER_PRODUCTS_PATH)}
           >
             Clear
           </Button>

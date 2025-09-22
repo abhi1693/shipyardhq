@@ -1,13 +1,14 @@
 import type { CSSProperties } from "react"
 
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
+import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 export const BUILDER_OUTREACH_SUBJECT =
   "Showcase your next launch on Shipyard HQ"
 export const BUILDER_OUTREACH_PREVIEW_TEXT =
   "List your product, tell the story, and grow with fellow indie builders."
 export const BUILDER_OUTREACH_CTA_URL =
-  "https://shipyardhq.dev/member/products"
+  `https://shipyardhq.dev${MEMBER_PRODUCTS_PATH}`
 
 const paragraphStyle: CSSProperties = {
   fontSize: "15px",

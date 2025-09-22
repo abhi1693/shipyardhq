@@ -6,6 +6,7 @@ import type { OrganizationMembership, User } from "@/lib/vendor/prisma/client"
 import { linkify, formatDate } from "@/lib/ui/formatters"
 import Link from "next/link"
 import AddButton from "@/components/molecules/AddButton"
+import { adminPath } from "@/lib/routes"
 
 type MembershipWithUser = OrganizationMembership & {
   user: User
@@ -26,7 +27,7 @@ export function OrganizationMembersRelationship({
         linkify({
           label:
             `${row.original.user.firstName} ${row.original.user.lastName}`.trim(),
-          href: `/admin/users/${row.original.user.id}`,
+          href: adminPath("users", row.original.user.id),
           subtext: row.original.user.email,
         }),
     },
@@ -45,7 +46,13 @@ export function OrganizationMembersRelationship({
       header: "Actions",
       cell: ({ row }) => (
         <Link
-          href={`/admin/organizations/${organizationId}/members/${row.original.id}/delete`}
+          href={adminPath(
+            "organizations",
+            organizationId,
+            "members",
+            row.original.id,
+            "delete",
+          )}
           className="text-red-600 hover:underline text-xs"
         >
           Remove
@@ -60,7 +67,7 @@ export function OrganizationMembersRelationship({
       rows={rows}
       columns={columns}
       action={
-        <Link href={`/admin/organizations/${organizationId}/members/add`}>
+        <Link href={adminPath("organizations", organizationId, "members", "add")}>
           <AddButton size="sm" label="Add Member" />
         </Link>
       }

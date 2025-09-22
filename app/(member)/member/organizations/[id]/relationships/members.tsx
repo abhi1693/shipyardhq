@@ -12,6 +12,10 @@ import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { Users, Clock, UserPlus } from "lucide-react"
 import { formatDistanceToNow } from "@/lib/ui/formatters"
+import {
+  memberOrganizationMemberAddPath,
+  memberOrganizationMemberDeletePath,
+} from "@/lib/routes"
 
 type MemberRow = {
   id: string
@@ -47,7 +51,7 @@ export function MemberOrganizationMembersRelationship({
         </div>
         {canManage ? (
           <Button asChild size="sm">
-            <Link href={`/member/organizations/${organizationId}/members/add`}>
+            <Link href={memberOrganizationMemberAddPath(organizationId)}>
               <UserPlus className="h-4 w-4" /> Invite member
             </Link>
           </Button>
@@ -94,7 +98,10 @@ export function MemberOrganizationMembersRelationship({
                   </span>
                   {!row.isOwner && canManage ? (
                     <Link
-                      href={`/member/organizations/${organizationId}/members/${row.id}/delete`}
+                      href={memberOrganizationMemberDeletePath(
+                        organizationId,
+                        row.id,
+                      )}
                       className="text-xs font-semibold text-red-600 transition hover:text-red-700 hover:underline"
                     >
                       Remove

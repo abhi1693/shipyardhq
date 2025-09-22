@@ -45,6 +45,7 @@ vi.mock("next/navigation", () => ({
 }))
 
 import { requireManageableProduct } from "@/lib/server/productAccess"
+import { memberProductsStatusPath } from "@/lib/routes"
 
 const activeUser = {
   id: "user-1",
@@ -71,7 +72,9 @@ describe("requireManageableProduct", () => {
     authMock.mockResolvedValue({ userId: null })
 
     await expect(requireManageableProduct("prod-unauth"))
-      .rejects.toThrow("redirect:/member/products?status=unauthorized")
+      .rejects.toThrow(
+        `redirect:${memberProductsStatusPath("unauthorized")}`,
+      )
 
     expect(getActiveUserByClerkIdMock).not.toHaveBeenCalled()
   })
@@ -81,7 +84,9 @@ describe("requireManageableProduct", () => {
     getActiveUserByClerkIdMock.mockResolvedValue(null)
 
     await expect(requireManageableProduct("prod-inactive"))
-      .rejects.toThrow("redirect:/member/products?status=unauthorized")
+      .rejects.toThrow(
+        `redirect:${memberProductsStatusPath("unauthorized")}`,
+      )
   })
 
   it("returns product when current user is the owner", async () => {
@@ -166,7 +171,9 @@ describe("requireManageableProduct", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
     await expect(requireManageableProduct("org-product-error"))
-      .rejects.toThrow("redirect:/member/products?status=unauthorized")
+      .rejects.toThrow(
+        `redirect:${memberProductsStatusPath("unauthorized")}`,
+      )
 
     expect(errorSpy).toHaveBeenCalledWith(
       "[productAccess] membership check failed",
@@ -194,7 +201,9 @@ describe("requireManageableProduct", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
     await expect(requireManageableProduct("org-product-sub-error"))
-      .rejects.toThrow("redirect:/member/products?status=unauthorized")
+      .rejects.toThrow(
+        `redirect:${memberProductsStatusPath("unauthorized")}`,
+      )
 
     expect(errorSpy).toHaveBeenCalledWith(
       "[productAccess] subscription access check failed",

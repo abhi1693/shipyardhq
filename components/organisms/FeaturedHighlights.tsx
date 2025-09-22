@@ -4,6 +4,7 @@ import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
 import PublicContainer from "@/components/layout/PublicContainer"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { getWaveBackground } from "@/lib/nautical"
+import { BROWSE_PATH } from "@/lib/routes"
 
 export function FeaturedHighlights({
   products,
@@ -53,7 +54,7 @@ export function FeaturedHighlights({
           subtitle="Curated launches making waves across the community."
           action={
             <a
-              href="/browse"
+              href={BROWSE_PATH}
               className="hidden items-center rounded-md border border-[color:var(--brand-1)/0.35] px-3 py-1.5 text-sm text-[color:var(--brand-1)] shadow-[0px_15px_35px_-28px_rgba(7,58,104,0.9)] transition-colors hover:bg-[color:var(--brand-1)/0.05] md:inline-flex"
             >
               View all

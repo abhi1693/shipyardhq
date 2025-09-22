@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { BROWSE_PATH } from "@/lib/routes"
 
 const push = vi.fn()
 let searchStr = ""
@@ -40,7 +41,7 @@ describe("BrowseFilterBar buildUrl undefined branch", () => {
     )
     await user.click(screen.getByLabelText("Sort Select"))
     const url = (push as any).mock.calls[0][0] as string
-    expect(url).toContain("/browse?")
+    expect(url).toContain(`${BROWSE_PATH}?`)
     expect(url).not.toContain("sort=")
     expect(url).toContain("page=1")
   })

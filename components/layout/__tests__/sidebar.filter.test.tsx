@@ -3,9 +3,11 @@ import { render, screen } from "@testing-library/react"
 import AppSidebar from "@/components/layout/sidebar"
 import { SidebarProvider } from "@/components/atoms/sidebar"
 import type { NavItem } from "@/types"
+import { vi } from "vitest"
+import { ADMIN_OVERVIEW_PATH, adminPath } from "@/lib/routes"
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/admin/users",
+  usePathname: () => adminPath("users"),
 }))
 
 vi.mock("@/components/icons", () => ({
@@ -32,13 +34,13 @@ describe("AppSidebar structure", () => {
       })),
     })
     const nav: NavItem[] = [
-      { title: "Overview", url: "/admin/overview", icon: "logo" as any },
+      { title: "Overview", url: ADMIN_OVERVIEW_PATH, icon: "logo" as any },
       {
         title: "Users",
         icon: "logo" as any,
         items: [
-          { title: "All Users", url: "/admin/users", label: "2" },
-          { title: "Invites", url: "/admin/invites" },
+          { title: "All Users", url: adminPath("users"), label: "2" },
+          { title: "Invites", url: adminPath("invites") },
         ],
       },
     ]

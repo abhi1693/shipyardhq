@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/atoms/button"
 import { initDodoCheckout, openDodoCheckout } from "@/lib/dodoCheckout"
+import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
 
 type Props = {
   productId: string
@@ -73,7 +74,7 @@ export function CheckoutButton({
       setIsLoading(true)
       const finalRedirectUrl =
         redirectUrl ??
-        `${window.location.origin}${redirectPath ?? "/member/organizations"}`
+        `${window.location.origin}${redirectPath ?? MEMBER_ORGANIZATIONS_PATH}`
       await openDodoCheckout({
         products: [{ productId }],
         redirectUrl: finalRedirectUrl,

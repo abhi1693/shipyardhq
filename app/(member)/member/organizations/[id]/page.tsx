@@ -24,6 +24,14 @@ import { MemberOrganizationMembersRelationship } from "./relationships/members"
 import { ensureUrlHasSchema } from "@/lib/utils"
 import { organizationHasAdvancedAnalytics } from "@/lib/server/analytics/organizationAccess"
 import {
+  MEMBER_ORGANIZATIONS_PATH,
+  memberOrganizationAnalyticsPath,
+  memberOrganizationEditPath,
+  memberOrganizationOwnerPath,
+  memberOrganizationPath,
+  memberProductPath,
+} from "@/lib/routes"
+import {
   Globe,
   Users,
   CalendarClock,
@@ -50,7 +58,7 @@ export default async function MemberOrganizationPage({
     ownerUserId?: string | null
   } | null
   if (!org) {
-    redirect("/member/organizations")
+    redirect(MEMBER_ORGANIZATIONS_PATH)
   }
 
   // Determine if current user is the owner
@@ -143,7 +151,7 @@ export default async function MemberOrganizationPage({
 
   const attachProductAction = attachProductToOrganizationAction.bind(null, {
     organizationId: org.id,
-    redirectPath: `/member/organizations/${org.id}`,
+    redirectPath: memberOrganizationPath(org.id),
   })
 
   return (
@@ -176,7 +184,7 @@ export default async function MemberOrganizationPage({
           <div className="flex flex-wrap items-center gap-3 pt-2 md:justify-end">
             {hasAdvancedAnalytics ? (
               <Button asChild size="sm">
-                <Link href={`/member/organizations/${org.id}/analytics`}>
+                <Link href={memberOrganizationAnalyticsPath(org.id)}>
                   <BarChart3 className="h-4 w-4" /> Analytics
                 </Link>
               </Button>
@@ -192,7 +200,7 @@ export default async function MemberOrganizationPage({
             </Button>
             {isOwner ? (
               <Button asChild size="sm" variant="secondary">
-                <Link href={`/member/organizations/${org.id}/edit`}>
+                <Link href={memberOrganizationEditPath(org.id)}>
                   <Pencil className="h-4 w-4" /> Edit details
                 </Link>
               </Button>
@@ -267,7 +275,7 @@ export default async function MemberOrganizationPage({
 
               {isOwner ? (
                 <Button asChild size="sm" variant="outline" className="w-full">
-                  <Link href={`/member/organizations/${org.id}/owner`}>
+                  <Link href={memberOrganizationOwnerPath(org.id)}>
                     <ShieldCheck className="h-4 w-4" /> Update ownership
                   </Link>
                 </Button>
@@ -441,7 +449,7 @@ function ConnectedProductsCard({
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <Link
-                        href={`/member/products/${product.slug}`}
+                        href={memberProductPath(product.slug)}
                         className="text-sm font-semibold text-slate-900 transition hover:text-[color:var(--brand-1)]"
                       >
                         {product.name}

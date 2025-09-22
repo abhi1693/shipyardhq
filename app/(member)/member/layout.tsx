@@ -11,6 +11,14 @@ import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { IS_PROD } from "@/lib/constants"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { buildSectionMetadata } from "@/lib/metadata"
+import {
+  ADMIN_OVERVIEW_PATH,
+  HOME_PATH,
+  MEMBER_FEEDBACK_PATH,
+  MEMBER_ORGANIZATIONS_PATH,
+  MEMBER_OVERVIEW_PATH,
+  MEMBER_PRODUCTS_PATH,
+} from "@/lib/routes"
 import { redirect } from "next/navigation"
 
 export const metadata = buildSectionMetadata({ section: "Member" })
@@ -18,28 +26,28 @@ export const metadata = buildSectionMetadata({ section: "Member" })
 const navItems: NavItem[] = [
   {
     title: "Overview",
-    url: "/member/overview",
+    url: MEMBER_OVERVIEW_PATH,
     icon: "dashboard",
     isActive: false,
   },
   {
     title: "Products",
-    url: "/member/products",
+    url: MEMBER_PRODUCTS_PATH,
     icon: "product",
   },
   {
     title: "Organizations",
-    url: "/member/organizations",
+    url: MEMBER_ORGANIZATIONS_PATH,
     icon: "building",
   },
   {
     title: "Feedback",
-    url: "/member/feedback",
+    url: MEMBER_FEEDBACK_PATH,
     icon: "feedback",
   },
   {
     title: "Homepage",
-    url: "/",
+    url: HOME_PATH,
     icon: "dashboard",
   },
 ]
@@ -53,7 +61,7 @@ export default async function MemberLayout({
   type ActiveUser = Awaited<ReturnType<typeof requireActiveUserOrRedirect>>
   let activeUser: ActiveUser | null = null
   if (userId) {
-    const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/"
+    const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? HOME_PATH
     try {
       const client = await clerkClient()
       const clerkUser = await client.users.getUser(userId)
@@ -89,12 +97,12 @@ export default async function MemberLayout({
   if (
     role === "admin" &&
     !items.some(
-      (item) => item.title === "Admin" || item.url === "/admin/overview",
+      (item) => item.title === "Admin" || item.url === ADMIN_OVERVIEW_PATH,
     )
   ) {
     items.push({
       title: "Admin",
-      url: "/admin/overview",
+      url: ADMIN_OVERVIEW_PATH,
       icon: "settings",
       isActive: false,
     })

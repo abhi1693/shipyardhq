@@ -7,6 +7,7 @@ import { trackProductClicked } from "@/lib/server/analytics/productClicks"
 import "@/lib/server/analytics/productClicks" // ensure listeners are registered
 import { allowOncePerWindow } from "@/lib/server/rateLimit"
 import { getClientIp } from "@/lib/server/ip"
+import { productPath } from "@/lib/routes"
 import {
   hashIpAddress,
   inferDeviceCategory,
@@ -63,7 +64,7 @@ export async function clickProductCardAction(formData: FormData) {
   } catch (err) {
     console.error("click publish failed", err)
   }
-  redirect(`/products/${productSlug}`)
+  redirect(productPath(productSlug))
 }
 
 // For future use: track outbound link clicks distinctly if needed

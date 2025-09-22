@@ -7,6 +7,7 @@ import {
   ProductType,
   PricingModel,
 } from "@/lib/vendor/prisma/client"
+import { PRICING_PATH } from "@/lib/routes"
 
 import { seedCategories } from "./seed.categories"
 import { seedPlanFeatures } from "./seed.plan-features"
@@ -592,7 +593,7 @@ async function main() {
           createdAt: trafficTimestamp(0, -3),
         },
         {
-          path: "/pricing",
+          path: PRICING_PATH,
           referrer: "https://www.google.com/search?q=shitposts+ai",
           device: DeviceCategory.desktop,
           browser: "Chrome",
@@ -627,7 +628,7 @@ async function main() {
           createdAt: trafficTimestamp(3, -5),
         },
         {
-          path: "/pricing",
+          path: PRICING_PATH,
           referrer: "https://mail.google.com/mail/u/0/#newsletter",
           device: DeviceCategory.desktop,
           browser: "Chrome",
@@ -663,7 +664,7 @@ async function main() {
           createdAt: trafficTimestamp(6, 4),
         },
         {
-          path: "/pricing",
+          path: PRICING_PATH,
           device: DeviceCategory.mobile,
           browser: "Mobile Safari",
           os: "iOS",
@@ -726,7 +727,7 @@ async function main() {
           createdAt: trafficTimestamp(1, 2),
         },
         {
-          path: "/pricing",
+          path: PRICING_PATH,
           device: DeviceCategory.desktop,
           browser: "Firefox",
           os: "Linux",
