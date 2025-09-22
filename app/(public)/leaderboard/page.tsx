@@ -189,7 +189,7 @@ export default async function LeaderboardPage({
         fillScreen={false}
         className="relative"
       >
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-12">
           {topThree.map((product: LeaderboardProduct, index: number) => (
             <TopPlacementCard
               key={product.id}
@@ -197,8 +197,7 @@ export default async function LeaderboardPage({
               rank={index + 1}
               label={rankLabels[index] ?? `Top ${index + 1}`}
               className={cn(
-                index === 0 && "lg:col-span-2",
-                topThree.length < 3 && index === 0 && "lg:col-span-3",
+                getTopPlacementGridClasses(index, topThree.length),
               )}
             />
           ))}
@@ -313,6 +312,38 @@ function HeroStat({
       </div>
     </div>
   )
+}
+
+function getTopPlacementGridClasses(index: number, total: number) {
+  if (total >= 3) {
+    if (index === 0) {
+      return "lg:col-span-6 lg:col-start-4 lg:row-start-1"
+    }
+
+    if (index === 1) {
+      return "lg:col-span-3 lg:col-start-1 lg:row-start-1 lg:self-end"
+    }
+
+    if (index === 2) {
+      return "lg:col-span-3 lg:col-start-10 lg:row-start-1 lg:self-end"
+    }
+  }
+
+  if (total === 2) {
+    if (index === 0) {
+      return "lg:col-span-6 lg:col-start-1 lg:row-start-1"
+    }
+
+    if (index === 1) {
+      return "lg:col-span-6 lg:col-start-7 lg:row-start-1"
+    }
+  }
+
+  if (total === 1 && index === 0) {
+    return "lg:col-span-8 lg:col-start-3 lg:row-start-1"
+  }
+
+  return undefined
 }
 
 type RankedProduct = Awaited<ReturnType<typeof getTopRankedProducts>>[number]
