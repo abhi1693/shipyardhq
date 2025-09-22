@@ -29,6 +29,7 @@ Shipyard HQ uses a Next.js App Router stack with Prisma and Tailwind; follow the
 - No runner yet, but prefer Vitest or Jest when adding tests.
 - Place specs as `*.test.ts` / `*.test.tsx` near sources or in `__tests__/`.
 - Keep `npm run lint` passing and add targeted unit coverage for reusable logic or critical UI paths.
+- Agents must update, add, or delete all unit tests affected by their changes, run the updated suite, and ensure it passes with 100% coverage.
 
 ## Commit & Pull Request Guidelines
 
