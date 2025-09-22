@@ -17,6 +17,13 @@ const DEVICE_COLORS: Record<string, string> = {
   unknown: "#94a3b8",
 }
 
+const DEVICE_LABELS: Record<string, string> = {
+  desktop: "Desktop",
+  mobile: "Mobile",
+  tablet: "Tablet",
+  unknown: "Unknown device",
+}
+
 const COUNTRY_COLORS = ["#2563eb", "#f97316", "#16a34a", "#6366f1", "#ef4444"]
 
 const TREND_COLORS = {
@@ -44,11 +51,13 @@ function formatNumber(value: number) {
 interface ProductAnalyticsChartsProps {
   summary: ProductTrafficSummary
   mode?: "basic" | "advanced"
+  showUserAgents?: boolean
 }
 
 export function ProductAnalyticsCharts({
   summary,
   mode = "advanced",
+  showUserAgents = true,
 }: ProductAnalyticsChartsProps) {
   const deviceConfig: ChartConfig = Object.fromEntries(
     summary.deviceBreakdown.map((entry) => [
@@ -62,6 +71,9 @@ export function ProductAnalyticsCharts({
 
   const topCountries = summary.countryBreakdown.slice(0, 5)
   const topBrowsers = summary.browserBreakdown.slice(0, 8)
+  const topUserAgents = showUserAgents
+    ? summary.userAgentBreakdown.slice(0, 6)
+    : []
 
   const hasUniqueSeries = summary.viewsOverTime.some(
     (point) => point.uniqueVisitors > 0,
@@ -270,6 +282,62 @@ export function ProductAnalyticsCharts({
     )
   }
 
+  const renderUserAgentCard = (className?: string) => {
+    const userAgentChartData = topUserAgents.map((entry, index) => {
+      const labelParts: string[] = []
+      if (entry.browser) labelParts.push(entry.browser)
+      if (entry.os) labelParts.push(entry.os)
+      const baseLabel =
+        labelParts.length > 0 ? labelParts.join(" · ") : "Unknown stack"
+      const deviceLabel = DEVICE_LABELS[entry.device] ?? DEVICE_LABELS.unknown
+      const combinedLabel =
+        entry.device && entry.device !== "unknown"
+          ? `${baseLabel} (${deviceLabel})`
+          : baseLabel
+      return {
+        key: `ua-${entry.browser ?? "unknown"}-${entry.os ?? "unknown"}-${entry.device}-${index}`,
+        label: combinedLabel,
+        views: entry.views,
+      }
+    })
+
+    return (
+      <AnalyticsChartCard
+        className={className}
+        title="User agents"
+        description="Most common browser and OS combinations"
+        tooltip="Cross-reference browser and OS pairs to spot compatibility clusters worth testing."
+        infoLabel="View user agent distribution description"
+        headerClassName="px-4 pb-0"
+        contentClassName="px-4 pb-5 pt-4"
+      >
+        {topUserAgents.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-10 text-center text-base text-muted-foreground">
+            User agent combinations will appear as Shipyard records browser and
+            OS details for your traffic.
+          </p>
+        ) : (
+          <AnalyticsBarChart
+            className="min-h-[300px]"
+            data={userAgentChartData}
+            config={{ views: { label: "Views", color: "#0ea5e9" } }}
+            layout="vertical"
+            height={280}
+            margin={{ left: 12, right: 12, top: 12, bottom: 12 }}
+            xAxis={{ type: "number", tickFormatter: formatNumber }}
+            yAxis={{ type: "category", dataKey: "label", width: 160 }}
+            grid={{ horizontal: false }}
+            tooltip={{
+              cursor: { fill: "rgba(14, 165, 233, 0.12)" },
+              valueFormatter: formatNumber,
+            }}
+            bars={[{ dataKey: "views", barProps: { radius: [0, 4, 4, 0] } }]}
+          />
+        )}
+      </AnalyticsChartCard>
+    )
+  }
+
   const renderCountriesCard = (className?: string) => (
     <AnalyticsChartCard
       className={className}
@@ -349,6 +417,7 @@ export function ProductAnalyticsCharts({
       {renderDeviceCard("md:col-span-1 xl:col-span-5")}
       {renderClicksCard("md:col-span-2 xl:col-span-7")}
       {renderBrowserCard("md:col-span-1 xl:col-span-5")}
+      {showUserAgents ? renderUserAgentCard("md:col-span-1 xl:col-span-5") : null}
       {renderCountriesCard("lg:col-span-7")}
       {renderReferrersCard("lg:col-span-5")}
     </div>

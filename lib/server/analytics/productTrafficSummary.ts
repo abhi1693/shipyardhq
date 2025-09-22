@@ -315,6 +315,10 @@ async function buildTrafficSummary(
   >()
   const deviceCounts = new Map<DeviceCategory, number>()
   const browserCounts = new Map<string, number>()
+  const userAgentProfiles = new Map<
+    string,
+    { browser: string | null; os: string | null; device: DeviceCategory; views: number }
+  >()
   const osCounts = new Map<string, number>()
   const countryCounts = new Map<string, number>()
   const regionCounts = new Map<string, number>()
@@ -380,6 +384,19 @@ async function buildTrafficSummary(
 
       const osLabel = labelForOs(event.os)
       osCounts.set(osLabel, (osCounts.get(osLabel) ?? 0) + 1)
+
+      const userAgentKey = `${browserLabel}|${osLabel}|${deviceKey}`
+      const existingProfile = userAgentProfiles.get(userAgentKey)
+      if (existingProfile) {
+        existingProfile.views += 1
+      } else {
+        userAgentProfiles.set(userAgentKey, {
+          browser: browserLabel === "Unknown" ? null : browserLabel,
+          os: osLabel === "Unknown" ? null : osLabel,
+          device: deviceKey,
+          views: 1,
+        })
+      }
 
       const rawCountry = event.country ?? ""
       const rawRegion = event.region ?? ""
@@ -738,6 +755,11 @@ async function buildTrafficSummary(
       ? Array.from(browserCounts.entries())
           .map(([browser, count]) => ({ browser, views: count }))
           .sort((a, b) => b.views - a.views)
+      : []
+
+  const userAgentBreakdown: ProductTrafficSummary["userAgentBreakdown"] =
+    includeAdvancedMetrics
+      ? Array.from(userAgentProfiles.values()).sort((a, b) => b.views - a.views)
       : []
 
   const browserConversionBreakdown: ProductTrafficSummary["browserConversionBreakdown"] =
@@ -1141,6 +1163,7 @@ async function buildTrafficSummary(
     viewsOverTime,
     deviceBreakdown,
     browserBreakdown,
+    userAgentBreakdown,
     countryBreakdown,
     referrerBreakdown,
     referrerConversionBreakdown,

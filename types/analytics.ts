@@ -48,6 +48,13 @@ export interface ProductTrafficBrowserBreakdownItem
   browser: string
 }
 
+export interface ProductTrafficUserAgentBreakdownItem
+  extends ProductTrafficBreakdownItem {
+  browser: string | null
+  os: string | null
+  device: DeviceCategory
+}
+
 export interface ProductTrafficDeviceConversionItem {
   device: DeviceCategory
   label: string
@@ -200,6 +207,7 @@ export interface ProductTrafficSummary {
   deviceConversionBreakdown: ProductTrafficDeviceConversionItem[]
   countryBreakdown: ProductTrafficCountryBreakdownItem[]
   browserBreakdown: ProductTrafficBrowserBreakdownItem[]
+  userAgentBreakdown: ProductTrafficUserAgentBreakdownItem[]
   browserConversionBreakdown: ProductTrafficBrowserConversionItem[]
   referrerBreakdown: ProductTrafficReferrerBreakdownItem[]
   referrerConversionBreakdown: ProductTrafficReferrerConversionItem[]

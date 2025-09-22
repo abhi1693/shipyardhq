@@ -47,6 +47,19 @@ function formatPercent(value: number) {
   return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`
 }
 
+function labelForDevice(device?: string | null) {
+  switch (device) {
+    case "desktop":
+      return "Desktop"
+    case "mobile":
+      return "Mobile"
+    case "tablet":
+      return "Tablet"
+    default:
+      return "Unknown device"
+  }
+}
+
 function TrendBadge({ delta }: { delta?: number }) {
   if (typeof delta !== "number" || Number.isNaN(delta)) {
     return <span className="text-xs text-muted-foreground">—</span>
@@ -516,6 +529,17 @@ export default async function TrafficAnalyticsPage({
     views: entry.views,
   }))
 
+  const topUserAgents = summary.userAgentBreakdown.slice(0, 5).map((entry, index) => {
+    const browser = entry.browser ?? "Unknown browser"
+    const os = entry.os ?? "Unknown OS"
+    const deviceLabel = labelForDevice(entry.device)
+    return {
+      key: `${browser}-${os}-${entry.device ?? "unknown"}-${index}`,
+      label: `${browser} · ${os} (${deviceLabel})`,
+      views: entry.views,
+    }
+  })
+
   const trafficChannels = advanced.referrerCategoryBreakdown
     .slice(0, 5)
     .map((entry) => ({
@@ -589,7 +613,7 @@ export default async function TrafficAnalyticsPage({
             Velocity & devices
           </h2>
         </div>
-        <ProductAnalyticsCharts summary={summary} />
+        <ProductAnalyticsCharts summary={summary} showUserAgents={false} />
       </section>
 
       <section className="space-y-4">
@@ -639,12 +663,18 @@ export default async function TrafficAnalyticsPage({
             emptyLabel="No referrer data for this window."
           />
         </div>
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-3">
           <BreakdownCard
             title="Top browsers"
             description="Dominant user agents observed."
             items={topBrowsers}
             emptyLabel="No browser data for this window."
+          />
+          <BreakdownCard
+            title="Top user agents"
+            description="Most common browser, OS, and device combinations."
+            items={topUserAgents}
+            emptyLabel="No user agent signatures recorded yet."
           />
           <BreakdownCard
             title="Top operating systems"
