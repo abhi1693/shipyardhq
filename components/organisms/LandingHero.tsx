@@ -2,8 +2,12 @@
 
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"
-import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
-import { Ship } from "lucide-react"
+import {
+  BROWSE_PATH,
+  MEMBER_PRODUCTS_PATH,
+  WHY_SHIPYARD_PATH,
+} from "@/lib/routes"
+import { ArrowUpRight, Ship } from "lucide-react"
 import SubmitProductButton from "@/components/molecules/SubmitProductButton"
 
 type Stats = {
@@ -66,7 +70,7 @@ export default function Hero({ stats }: { stats?: Stats }) {
           makers charting the next horizon.
         </p>
 
-        <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+        <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap">
           <Link href={MEMBER_PRODUCTS_PATH}>
             <SubmitProductButton
               size="lg"
@@ -115,6 +119,17 @@ export default function Hero({ stats }: { stats?: Stats }) {
             </div>
           </div>
         )}
+
+        <div className="mt-10 flex flex-col items-center gap-4 text-sm text-muted-foreground sm:mt-12">
+          <span>Curious how we compare?</span>
+          <Link
+            href={WHY_SHIPYARD_PATH}
+            className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.4] bg-background/80 px-4 py-2 font-semibold text-[color:var(--brand-1)] shadow-[0px_16px_40px_-28px_rgba(7,58,104,0.65)] transition-colors hover:bg-[color:var(--brand-2)/0.08]"
+          >
+            See why founders list with Shipyard
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
     </section>
   )

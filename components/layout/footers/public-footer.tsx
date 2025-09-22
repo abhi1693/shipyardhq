@@ -14,6 +14,8 @@ import {
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   USERS_PATH,
+  WHY_SHIPYARD_PATH,
+  SHIPYARD_TWITTER_URL,
 } from "@/lib/routes"
 
 type UseCaseLink = { label: string; slug: string }
@@ -84,7 +86,7 @@ export default function PublicFooter({
               <Mail className="w-5 h-5 md:w-5 md:h-5" />
             </Link>
             <Link
-              href="https://x.com/abhi16_93"
+              href={SHIPYARD_TWITTER_URL}
               target="_blank"
               rel="noreferrer"
               className={iconLinkCls}
@@ -101,7 +103,10 @@ export default function PublicFooter({
           </div>
           <ul className="space-y-2 md:space-y-2.5">
             <li>
-              <Link href={BROWSE_PATH} className={textLinkCls + " md:font-medium"}>
+              <Link
+                href={BROWSE_PATH}
+                className={textLinkCls + " md:font-medium"}
+              >
                 All Products
               </Link>
             </li>
@@ -130,7 +135,10 @@ export default function PublicFooter({
               </Link>
             </li>
             <li>
-              <Link href={PRICING_PATH} className={textLinkCls + " md:font-medium"}>
+              <Link
+                href={PRICING_PATH}
+                className={textLinkCls + " md:font-medium"}
+              >
                 Pricing
               </Link>
             </li>
@@ -144,7 +152,10 @@ export default function PublicFooter({
           </div>
           <ul className="space-y-2 md:space-y-2.5">
             <li>
-              <Link href={USERS_PATH} className={textLinkCls + " md:font-medium"}>
+              <Link
+                href={USERS_PATH}
+                className={textLinkCls + " md:font-medium"}
+              >
                 Makers Directory
               </Link>
             </li>
@@ -157,7 +168,10 @@ export default function PublicFooter({
               </Link>
             </li>
             <li>
-              <Link href={PRICING_PATH} className={textLinkCls + " md:font-medium"}>
+              <Link
+                href={PRICING_PATH}
+                className={textLinkCls + " md:font-medium"}
+              >
                 Feature Your Product
               </Link>
             </li>
@@ -193,6 +207,14 @@ export default function PublicFooter({
           <ul className="space-y-2 md:space-y-2.5">
             <li>
               <Link
+                href={WHY_SHIPYARD_PATH}
+                className={textLinkCls + " md:font-medium"}
+              >
+                Why Shipyard
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="mailto:shipyardhq.dev@gmail.com"
                 className={textLinkCls + " md:font-medium"}
               >
@@ -201,7 +223,7 @@ export default function PublicFooter({
             </li>
             <li>
               <Link
-                href="https://x.com/abhi16_93"
+                href={SHIPYARD_TWITTER_URL}
                 target="_blank"
                 rel="noreferrer"
                 className={textLinkCls + " md:font-medium"}

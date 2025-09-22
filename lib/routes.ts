@@ -4,13 +4,16 @@ export const MEMBER_BASE_PATH = "/member" as const
 export const MEMBER_OVERVIEW_PATH = `${MEMBER_BASE_PATH}/overview` as const
 export const MEMBER_FEEDBACK_PATH = `${MEMBER_BASE_PATH}/feedback` as const
 export const MEMBER_ONBOARDING_PATH = `${MEMBER_BASE_PATH}/onboarding` as const
-export const MEMBER_ACCOUNT_PROFILE_PATH = `${MEMBER_BASE_PATH}/account/profile` as const
+export const MEMBER_ACCOUNT_PROFILE_PATH =
+  `${MEMBER_BASE_PATH}/account/profile` as const
 
 export const MEMBER_PRODUCTS_PATH = `${MEMBER_BASE_PATH}/products` as const
 export const MEMBER_PRODUCTS_ADD_PATH = `${MEMBER_PRODUCTS_PATH}/add` as const
 
-export const MEMBER_ORGANIZATIONS_PATH = `${MEMBER_BASE_PATH}/organizations` as const
-export const MEMBER_ORGANIZATIONS_ADD_PATH = `${MEMBER_ORGANIZATIONS_PATH}/add` as const
+export const MEMBER_ORGANIZATIONS_PATH =
+  `${MEMBER_BASE_PATH}/organizations` as const
+export const MEMBER_ORGANIZATIONS_ADD_PATH =
+  `${MEMBER_ORGANIZATIONS_PATH}/add` as const
 
 export const ADMIN_BASE_PATH = "/admin" as const
 
@@ -39,6 +42,7 @@ export const adminStatusPath = (segments: string[], status: string) =>
 export const BROWSE_PATH = "/browse" as const
 export const LEADERBOARD_PATH = "/leaderboard" as const
 export const PRICING_PATH = "/pricing" as const
+export const WHY_SHIPYARD_PATH = "/why-shipyard" as const
 export const ANALYTICS_PATH = "/analytics" as const
 export const CATEGORIES_PATH = "/categories" as const
 export const USERS_PATH = "/users" as const
