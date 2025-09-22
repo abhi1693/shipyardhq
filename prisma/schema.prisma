@@ -78,6 +78,8 @@ model MonthlyProductRanking {
   @@unique([month, rank])
   @@index([productId, month])
   @@index([month])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model MonthlyLeaderboardNotification {
@@ -85,6 +87,9 @@ model MonthlyLeaderboardNotification {
   month     DateTime @unique // normalized month date
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 enum ProductType {
@@ -131,6 +136,9 @@ model ProductMedia {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model ProductVerification {
@@ -143,6 +151,9 @@ model ProductVerification {
   updatedAt       DateTime  @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model ProductMetadata {
@@ -157,6 +168,9 @@ model ProductMetadata {
   updatedAt    DateTime @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model ProductAnalytics {
@@ -170,6 +184,8 @@ model ProductAnalytics {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([upvotes])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model ProductClickEvent {
@@ -189,6 +205,7 @@ model ProductClickEvent {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId, createdAt])
+  @@index([createdAt])
 }
 
 enum DeviceCategory {
@@ -216,6 +233,7 @@ model ProductTrafficEvent {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId, createdAt])
+  @@index([createdAt])
   @@index([country])
   @@index([device])
 }
@@ -231,6 +249,7 @@ model ProductUpvote {
 
   @@unique([productId, userId])
   @@index([userId])
+  @@index([createdAt])
 }
 
 model Organization {
@@ -245,6 +264,9 @@ model Organization {
   Product Product[]
 
   owner User? @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model OrganizationMembership {
@@ -259,6 +281,8 @@ model OrganizationMembership {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([userId, organizationId])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model User {
@@ -289,6 +313,8 @@ model User {
   @@index([status])
   @@index([roleIntent])
   @@index([heardFrom])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 enum UserStatus {
@@ -317,6 +343,8 @@ model MemberFeedback {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model NewsletterSubscription {
@@ -339,6 +367,9 @@ model Category {
 
   products Product[] // reverse relation
   useCases UseCaseCategory[]
+
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model Plan {
@@ -365,6 +396,8 @@ model Plan {
   purchases   UserPlanPurchase[]
 
   @@index([type])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model PlanFeature {
@@ -376,6 +409,9 @@ model PlanFeature {
   updatedAt   DateTime @updatedAt
 
   assignments PlanFeatureAssignment[]
+
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model PlanFeatureAssignment {
@@ -392,6 +428,8 @@ model PlanFeatureAssignment {
 
   @@unique([planId, featureId]) // Prevent duplicate assignments
   @@index([enabled])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 enum PlanType {
@@ -420,6 +458,8 @@ model UserPlanPurchase {
   plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   @@unique([userId, planId])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model ProductBadge {
@@ -432,6 +472,8 @@ model ProductBadge {
   updatedAt DateTime  @updatedAt
 
   @@index([badge])
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model UseCase {
@@ -442,6 +484,9 @@ model UseCase {
   updatedAt DateTime @updatedAt
 
   categories UseCaseCategory[]
+
+  @@index([createdAt])
+  @@index([updatedAt])
 }
 
 model UseCaseCategory {
