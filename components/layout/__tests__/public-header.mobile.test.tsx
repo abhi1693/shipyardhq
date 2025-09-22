@@ -22,6 +22,7 @@ vi.mock("next/link", () => ({
 // Mock pathname for active state
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
 }))
 
 // Simplified Sheet mock with context to control open state

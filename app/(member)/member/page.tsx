@@ -9,7 +9,18 @@ import {
   MEMBER_OVERVIEW_PATH,
 } from "@/lib/routes"
 
-export default async function MemberIndexPage() {
+type MemberIndexPageSearchParams = {
+  redirectTo?: string | string[]
+  source?: string | string[]
+}
+
+export default async function MemberIndexPage({
+  searchParams,
+}: {
+  searchParams?: Promise<MemberIndexPageSearchParams | undefined>
+}) {
+  const resolvedSearchParams = await searchParams
+
   const { userId } = await auth()
   const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? HOME_PATH
 
@@ -33,5 +44,31 @@ export default async function MemberIndexPage() {
   const onboardingComplete =
     clerkUser.publicMetadata?.onboardingComplete === true
 
-  redirect(onboardingComplete ? MEMBER_OVERVIEW_PATH : MEMBER_ONBOARDING_PATH)
+  if (onboardingComplete) {
+    redirect(MEMBER_OVERVIEW_PATH)
+  }
+
+  const redirectToValue = resolvedSearchParams?.redirectTo
+  const redirectSourceValue = resolvedSearchParams?.source
+
+  const redirectToParam = Array.isArray(redirectToValue)
+    ? redirectToValue[0]
+    : redirectToValue
+  const redirectSourceParam = Array.isArray(redirectSourceValue)
+    ? redirectSourceValue[0]
+    : redirectSourceValue
+
+  const onboardingSearch = new URLSearchParams()
+  if (redirectToParam) {
+    onboardingSearch.set("redirectTo", redirectToParam)
+  }
+  if (redirectSourceParam) {
+    onboardingSearch.set("source", redirectSourceParam)
+  }
+
+  const onboardingDestination = onboardingSearch.toString()
+    ? `${MEMBER_ONBOARDING_PATH}?${onboardingSearch.toString()}`
+    : MEMBER_ONBOARDING_PATH
+
+  redirect(onboardingDestination)
 }

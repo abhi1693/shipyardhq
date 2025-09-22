@@ -99,26 +99,36 @@ export async function completeOnboarding(formData: FormData) {
         ? BUILDER_INTENTS.has(roleIntent)
         : false
 
-      try {
-        const baseUrl = getAppBaseUrl()
-        const emailProps = {
-          firstName: user.firstName,
-          dashboardUrl: `${baseUrl}${MEMBER_OVERVIEW_PATH}`,
-          isBuilder: isBuilderIntent,
-          leaderboardUrl: `${baseUrl}${LEADERBOARD_PATH}`,
-          monthlyUrl: `${baseUrl}${LEADERBOARD_MONTHLY_PATH}`,
-          guideUrl: `${baseUrl}${LEADERBOARD_GUIDE_PATH}`,
-          feedbackUrl: `${baseUrl}${MEMBER_FEEDBACK_PATH}`,
-        }
+      const onboardingEmailEnabled = Boolean(
+        process.env.NEXT_PUBLIC_APP_URL?.trim()?.length,
+      )
 
-        await sendEmail({
-          to: user.email,
-          subject: WELCOME_EMAIL_SUBJECT,
-          react: WelcomeEmail(emailProps),
-          text: buildWelcomeTextBody(emailProps),
-        })
-      } catch (error) {
-        console.error("Failed to send onboarding welcome email:", error)
+      if (!onboardingEmailEnabled) {
+        console.info(
+          "Skipping onboarding welcome email because NEXT_PUBLIC_APP_URL is not configured.",
+        )
+      } else {
+        try {
+          const baseUrl = getAppBaseUrl()
+          const emailProps = {
+            firstName: user.firstName,
+            dashboardUrl: `${baseUrl}${MEMBER_OVERVIEW_PATH}`,
+            isBuilder: isBuilderIntent,
+            leaderboardUrl: `${baseUrl}${LEADERBOARD_PATH}`,
+            monthlyUrl: `${baseUrl}${LEADERBOARD_MONTHLY_PATH}`,
+            guideUrl: `${baseUrl}${LEADERBOARD_GUIDE_PATH}`,
+            feedbackUrl: `${baseUrl}${MEMBER_FEEDBACK_PATH}`,
+          }
+
+          await sendEmail({
+            to: user.email,
+            subject: WELCOME_EMAIL_SUBJECT,
+            react: WelcomeEmail(emailProps),
+            text: buildWelcomeTextBody(emailProps),
+          })
+        } catch (error) {
+          console.error("Failed to send onboarding welcome email:", error)
+        }
       }
     }
 

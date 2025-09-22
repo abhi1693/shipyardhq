@@ -21,7 +21,11 @@ import { Checkbox } from "@/components/atoms/checkbox"
 import { Separator } from "@/components/atoms/separator"
 import { cn } from "@/lib/utils"
 import { ADMIN_BASE_PATH } from "@/lib/routes"
-import { MEMBER_ONBOARDING_PATH, MEMBER_OVERVIEW_PATH } from "@/lib/routes"
+import {
+  MEMBER_BASE_PATH,
+  MEMBER_ONBOARDING_PATH,
+  MEMBER_OVERVIEW_PATH,
+} from "@/lib/routes"
 
 const roleIntentOptions = [
   {
@@ -65,9 +69,11 @@ type OnboardingFormInput = z.input<typeof onboardingSchema>
 export function OnboardingForm({
   firstName,
   redirectTo,
+  redirectSource,
 }: {
   firstName?: string | null
   redirectTo?: string
+  redirectSource?: string
 }) {
   const router = useRouter()
 
@@ -92,14 +98,20 @@ export function OnboardingForm({
   const heardFrom = watch("heardFrom")
   const newsletterOptIn = watch("newsletterOptIn")
 
-  const safeRedirectPath =
+  const sanitizedRedirectTarget =
     redirectTo &&
     redirectTo.startsWith("/") &&
     !redirectTo.startsWith("//") &&
     !redirectTo.startsWith(ADMIN_BASE_PATH) &&
-    redirectTo !== MEMBER_ONBOARDING_PATH
+    !redirectTo.startsWith(MEMBER_ONBOARDING_PATH)
       ? redirectTo
-      : MEMBER_OVERVIEW_PATH
+      : undefined
+  const redirectTargetPathname = sanitizedRedirectTarget
+    ? sanitizedRedirectTarget.replace(/[?#].*$/, "")
+    : ""
+  const redirectPointsToMember =
+    redirectTargetPathname.startsWith(MEMBER_BASE_PATH)
+  const fromNavbar = redirectSource === "navbar"
 
   const onSubmit = async (values: OnboardingFormInput) => {
     const formData = new FormData()
@@ -114,7 +126,14 @@ export function OnboardingForm({
     if ("success" in result) {
       document.cookie = "shipyard_onboarding_override=1; path=/; max-age=60"
       toast.success("Welcome aboard!")
-      router.replace(safeRedirectPath)
+      const shouldUseRedirectTarget =
+        Boolean(sanitizedRedirectTarget) &&
+        (redirectPointsToMember ||
+          (fromNavbar && values.roleIntent === "explore"))
+      const destination = shouldUseRedirectTarget
+        ? (sanitizedRedirectTarget ?? MEMBER_OVERVIEW_PATH)
+        : MEMBER_OVERVIEW_PATH
+      router.replace(destination)
       router.refresh()
     } else {
       toast.error(result.error)

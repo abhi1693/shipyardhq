@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
 import { Menu } from "lucide-react"
@@ -35,9 +35,20 @@ const navLinks = [
 
 export default function PublicHeader() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
 
   const isActive = (href: string) => pathname === href
+
+  const searchParamsString = searchParams.toString()
+  const currentLocation = searchParamsString
+    ? `${pathname}?${searchParamsString}`
+    : pathname
+  const navbarAuthSearch = new URLSearchParams({
+    redirectTo: currentLocation,
+    source: "navbar",
+  }).toString()
+  const navbarAuthRedirectUrl = `${MEMBER_BASE_PATH}?${navbarAuthSearch}`
 
   return (
     <header className="sticky top-0 z-50 border-b border-[color:var(--brand-1)/0.12] bg-background/75 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -89,8 +100,8 @@ export default function PublicHeader() {
             <SignedOut>
               <SignInButton
                 mode="modal"
-                forceRedirectUrl={MEMBER_BASE_PATH}
-                signUpForceRedirectUrl={MEMBER_BASE_PATH}
+                forceRedirectUrl={navbarAuthRedirectUrl}
+                signUpForceRedirectUrl={navbarAuthRedirectUrl}
               >
                 <SignInCtaButton size="sm" />
               </SignInButton>
@@ -146,8 +157,8 @@ export default function PublicHeader() {
                     <SignedOut>
                       <SignInButton
                         mode="modal"
-                        forceRedirectUrl={MEMBER_BASE_PATH}
-                        signUpForceRedirectUrl={MEMBER_BASE_PATH}
+                        forceRedirectUrl={navbarAuthRedirectUrl}
+                        signUpForceRedirectUrl={navbarAuthRedirectUrl}
                       >
                         <SignInCtaButton className="w-full" />
                       </SignInButton>

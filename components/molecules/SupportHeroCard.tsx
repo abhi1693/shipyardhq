@@ -45,7 +45,9 @@ export function SupportHeroCard({
           </div>
         </div>
 
-        <p className="max-w-md text-sm text-muted-foreground">{supporterCopy}</p>
+        <p className="max-w-md text-sm text-muted-foreground">
+          {supporterCopy}
+        </p>
 
         <div className="flex flex-col gap-3">
           <div className="flex justify-center">

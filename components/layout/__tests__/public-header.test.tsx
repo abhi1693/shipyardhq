@@ -6,6 +6,7 @@ import { BROWSE_PATH } from "@/lib/routes"
 // Mock next/navigation to control pathname
 vi.mock("next/navigation", () => ({
   usePathname: () => BROWSE_PATH,
+  useSearchParams: () => new URLSearchParams(),
 }))
 
 // Minimal Clerk mocks: render children as-is

@@ -129,4 +129,18 @@ describe("completeOnboarding", () => {
     expect(emailArgs.text).not.toContain("Scoring guide")
     expect(emailArgs.text).toContain("/member/feedback")
   })
+
+  it("skips the welcome email when NEXT_PUBLIC_APP_URL is not set", async () => {
+    delete process.env.NEXT_PUBLIC_APP_URL
+    sendEmailMock.mockClear()
+
+    const formData = new FormData()
+    formData.append("roleIntent", "explore")
+    formData.append("heardFrom", "google")
+
+    const result = await completeOnboarding(formData)
+
+    expect(result).toEqual({ success: true })
+    expect(sendEmailMock).not.toHaveBeenCalled()
+  })
 })
