@@ -19,7 +19,7 @@
     "prisma:seed:plans": "tsx prisma/seed.plans.ts",
     "prisma:seed:prod": "npm run prisma:seed:categories && npm run prisma:seed:usecases && npm run prisma:seed:plan-features",
     "postinstall": "npm run prisma:deploy",
-    "test": "vitest run --reporter=verbose",
+    "test": "vitest run --coverage --reporter=verbose",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "test:e2e": "cypress run",
