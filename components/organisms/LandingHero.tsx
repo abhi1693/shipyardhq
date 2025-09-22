@@ -66,7 +66,7 @@ export default function Hero({ stats }: { stats?: Stats }) {
         </p>
 
         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-          <Link href="/member/products/add">
+          <Link href="/member/products">
             <SubmitProductButton
               size="lg"
               className="shadow-[0px_25px_50px_-30px_rgba(7,58,104,0.65)]"

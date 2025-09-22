@@ -70,7 +70,7 @@ export default function PublicHeader() {
 
           <div className="hidden md:flex items-center gap-3 ml-auto">
             <Link
-              href="/member/products/add"
+              href="/member/products"
               className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.25] px-3 py-1.5 text-sm font-semibold text-[color:var(--brand-1)] transition hover:border-[color:var(--brand-1)/0.4]"
             >
               Submit Product
@@ -126,7 +126,7 @@ export default function PublicHeader() {
 
                   <div className="border-t pt-5 space-y-3">
                     <Link
-                      href="/member/products/add"
+                      href="/member/products"
                       onClick={() => setOpen(false)}
                       className="inline-flex w-full items-center justify-center rounded-full border border-[color:var(--brand-1)/0.3] px-3 py-2 text-sm font-semibold text-[color:var(--brand-1)]"
                     >

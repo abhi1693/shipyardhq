@@ -11,7 +11,7 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 
 ## How It Works
 
-1. Submit your product: Share the basics (name, description, link, category) at `/member/products/add`.
+1. Submit your product: Share the basics (name, description, link, category) from `/member/products`.
 2. Publish and verify: Go live immediately; optional domain verification adds trust.
 3. Get discovered: Appear across feeds like Featured Highlights, Latest Launches, and Editors’ Picks.
 4. Grow: Collect upvotes, climb the leaderboard, and upgrade to featured for extra reach.
@@ -22,7 +22,7 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - Leaderboard: `/leaderboard` — see the most upvoted products.
 - Categories: `/categories` — explore top verticals.
 - Pricing: `/pricing` — free listing plus optional featured plans.
-- Submit Product: `/member/products/add` — start your launch.
+- Submit Product: `/member/products` — start your launch.
 
 ## For Makers
 

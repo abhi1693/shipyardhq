@@ -108,7 +108,7 @@ export default async function LeaderboardPage({
               size="lg"
               className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
             >
-              <Link href="/member/products/add">Submit your product</Link>
+              <Link href="/member/products">Submit your product</Link>
             </Button>
             <Button
               asChild

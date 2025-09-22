@@ -120,7 +120,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   size="lg"
                   className="w-full min-w-[220px] shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)] sm:w-auto"
                 >
-                  <Link href={`/member/products/add?category=${slug}`}>
+                  <Link href="/member/products">
                     Launch in this category
                   </Link>
                 </Button>

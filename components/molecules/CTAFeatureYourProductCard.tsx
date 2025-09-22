@@ -19,7 +19,7 @@ export default function CTAFeatureYourProductCard() {
         <p className="text-sm text-muted-foreground">
           Boost visibility by getting featured on our homepage.
         </p>
-        <Link href="/member/products/add">
+        <Link href="/member/products">
           <SubmitProductButton
             size="sm"
             variant="outline"

@@ -57,7 +57,7 @@ export function JoinCrewCTA() {
           </p>
         </div>
         <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <Link href="/member/products/add">
+          <Link href="/member/products">
             <Button
               size="lg"
               className="gap-2 shadow-[0px_25px_55px_-35px_rgba(7,58,104,0.85)]"

@@ -79,7 +79,7 @@ export default async function CategoriesPage() {
               variant="outline"
               className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
             >
-              <Link href="/member/products/add">Submit your launch</Link>
+              <Link href="/member/products">Submit your launch</Link>
             </Button>
           </div>
 

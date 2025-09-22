@@ -140,7 +140,7 @@ export default function PublicFooter({
             </li>
             <li>
               <Link
-                href="/member/products/add"
+                href="/member/products"
                 className={textLinkCls + " md:font-medium"}
               >
                 Submit Product

@@ -7,7 +7,7 @@ export const BUILDER_OUTREACH_SUBJECT =
 export const BUILDER_OUTREACH_PREVIEW_TEXT =
   "List your product, tell the story, and grow with fellow indie builders."
 export const BUILDER_OUTREACH_CTA_URL =
-  "https://shipyardhq.dev/member/products/add"
+  "https://shipyardhq.dev/member/products"
 
 const paragraphStyle: CSSProperties = {
   fontSize: "15px",
