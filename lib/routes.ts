@@ -47,6 +47,8 @@ export const ANALYTICS_PATH = "/analytics" as const
 export const CATEGORIES_PATH = "/categories" as const
 export const USERS_PATH = "/users" as const
 
+export const SHIPYARD_TWITTER_URL = "https://x.com/shipyardhq" as const
+
 export const categoryPath = (slug: string) => `${CATEGORIES_PATH}/${slug}`
 export const productPath = (slug: string) => `/products/${slug}`
 export const userPath = (id: string) => `${USERS_PATH}/${id}`
