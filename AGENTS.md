@@ -17,6 +17,7 @@ Shipyard HQ uses a Next.js App Router stack with Prisma and Tailwind; follow the
 - `npm run lint` executes ESLint with the Next.js config; fix all warnings.
 - `npm run format` applies the repository Prettier settings.
 - Prisma workflows: `npm run prisma:init`, `npm run prisma:deploy`, `npm run prisma:generate`, `npm run prisma:seed`.
+- After every big feature update, run `npm run lint`, then `npm run format`, and finally `npm run build`; resolve issues before continuing to ensure a clean state, and only then add or update the required unit tests.
 
 ## Coding Style & Naming Conventions
 
