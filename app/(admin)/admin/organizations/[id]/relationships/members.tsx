@@ -67,7 +67,9 @@ export function OrganizationMembersRelationship({
       rows={rows}
       columns={columns}
       action={
-        <Link href={adminPath("organizations", organizationId, "members", "add")}>
+        <Link
+          href={adminPath("organizations", organizationId, "members", "add")}
+        >
           <AddButton size="sm" label="Add Member" />
         </Link>
       }

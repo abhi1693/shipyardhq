@@ -71,10 +71,9 @@ describe("requireManageableProduct", () => {
   it("redirects when user is not authenticated", async () => {
     authMock.mockResolvedValue({ userId: null })
 
-    await expect(requireManageableProduct("prod-unauth"))
-      .rejects.toThrow(
-        `redirect:${memberProductsStatusPath("unauthorized")}`,
-      )
+    await expect(requireManageableProduct("prod-unauth")).rejects.toThrow(
+      `redirect:${memberProductsStatusPath("unauthorized")}`,
+    )
 
     expect(getActiveUserByClerkIdMock).not.toHaveBeenCalled()
   })
@@ -83,10 +82,9 @@ describe("requireManageableProduct", () => {
     authMock.mockResolvedValue({ userId: "clerk-1" })
     getActiveUserByClerkIdMock.mockResolvedValue(null)
 
-    await expect(requireManageableProduct("prod-inactive"))
-      .rejects.toThrow(
-        `redirect:${memberProductsStatusPath("unauthorized")}`,
-      )
+    await expect(requireManageableProduct("prod-inactive")).rejects.toThrow(
+      `redirect:${memberProductsStatusPath("unauthorized")}`,
+    )
   })
 
   it("returns product when current user is the owner", async () => {
@@ -117,7 +115,9 @@ describe("requireManageableProduct", () => {
       organizationId: "org-1",
     })
     prismaMock.organizationMembership.findFirst.mockResolvedValue({ id: "m-1" })
-    prismaMock.organization.findUnique.mockResolvedValue({ ownerUserId: activeUser.id })
+    prismaMock.organization.findUnique.mockResolvedValue({
+      ownerUserId: activeUser.id,
+    })
     prismaMock.userPlanPurchase.findFirst.mockResolvedValue(null)
 
     const result = await requireManageableProduct("org-product")
@@ -136,8 +136,12 @@ describe("requireManageableProduct", () => {
       organizationId: "org-2",
     })
     prismaMock.organizationMembership.findFirst.mockResolvedValue(null)
-    prismaMock.organization.findUnique.mockResolvedValue({ ownerUserId: activeUser.id })
-    prismaMock.userPlanPurchase.findFirst.mockResolvedValue({ id: "purchase-1" })
+    prismaMock.organization.findUnique.mockResolvedValue({
+      ownerUserId: activeUser.id,
+    })
+    prismaMock.userPlanPurchase.findFirst.mockResolvedValue({
+      id: "purchase-1",
+    })
 
     const result = await requireManageableProduct("org-product-sub")
 
@@ -149,8 +153,9 @@ describe("requireManageableProduct", () => {
     getActiveUserByClerkIdMock.mockResolvedValue(activeUser)
     prismaMock.product.findUnique.mockResolvedValue(null)
 
-    await expect(requireManageableProduct("missing"))
-      .rejects.toThrow("notFound")
+    await expect(requireManageableProduct("missing")).rejects.toThrow(
+      "notFound",
+    )
   })
 
   it("redirects when membership checks fail", async () => {
@@ -166,14 +171,15 @@ describe("requireManageableProduct", () => {
     prismaMock.organizationMembership.findFirst.mockRejectedValueOnce(
       new Error("membership failure"),
     )
-    prismaMock.organization.findUnique.mockResolvedValue({ ownerUserId: activeUser.id })
+    prismaMock.organization.findUnique.mockResolvedValue({
+      ownerUserId: activeUser.id,
+    })
     prismaMock.userPlanPurchase.findFirst.mockResolvedValue(null)
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-    await expect(requireManageableProduct("org-product-error"))
-      .rejects.toThrow(
-        `redirect:${memberProductsStatusPath("unauthorized")}`,
-      )
+    await expect(requireManageableProduct("org-product-error")).rejects.toThrow(
+      `redirect:${memberProductsStatusPath("unauthorized")}`,
+    )
 
     expect(errorSpy).toHaveBeenCalledWith(
       "[productAccess] membership check failed",
@@ -200,10 +206,9 @@ describe("requireManageableProduct", () => {
     prismaMock.userPlanPurchase.findFirst.mockResolvedValue(null)
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-    await expect(requireManageableProduct("org-product-sub-error"))
-      .rejects.toThrow(
-        `redirect:${memberProductsStatusPath("unauthorized")}`,
-      )
+    await expect(
+      requireManageableProduct("org-product-sub-error"),
+    ).rejects.toThrow(`redirect:${memberProductsStatusPath("unauthorized")}`)
 
     expect(errorSpy).toHaveBeenCalledWith(
       "[productAccess] subscription access check failed",

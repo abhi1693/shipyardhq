@@ -13,15 +13,15 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./vitest.setup.tsx"],
     globals: true,
-  coverage: {
-    provider: "v8",
-    reportsDirectory: "./coverage",
-    reporter: ["text", "html", "lcov"],
+    coverage: {
+      provider: "v8",
+      reportsDirectory: "./coverage",
+      reporter: ["text", "html", "lcov"],
       include: ["lib/coverageTarget.ts", "components/atoms/chart.tsx"],
-    exclude: [
-      "node_modules/**",
-      ".next/**",
-      "prisma/**",
+      exclude: [
+        "node_modules/**",
+        ".next/**",
+        "prisma/**",
         "next.config.ts",
         "postcss.config.mjs",
         "tailwind.config.js",

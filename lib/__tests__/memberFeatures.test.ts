@@ -26,10 +26,7 @@ vi.mock("@/lib/server/userStatus", () => ({
   getActiveUserByClerkId: getActiveUserMock,
 }))
 
-import {
-  memberHasFeature,
-  requireMemberFeature,
-} from "@/lib/memberFeatures"
+import { memberHasFeature, requireMemberFeature } from "@/lib/memberFeatures"
 
 const activeUser = {
   id: "user-1",
@@ -70,7 +67,9 @@ describe("memberHasFeature", () => {
     authMock.mockResolvedValue({ userId: "clerk-user" })
     getActiveUserMock.mockResolvedValue(activeUser)
     prismaMock.product.findFirst.mockResolvedValue(null)
-    prismaMock.userPlanPurchase.findFirst.mockResolvedValue({ id: "purchase-1" })
+    prismaMock.userPlanPurchase.findFirst.mockResolvedValue({
+      id: "purchase-1",
+    })
 
     const result = await memberHasFeature("featured")
     expect(result).toBe(true)
@@ -81,7 +80,9 @@ describe("memberHasFeature", () => {
     getActiveUserMock.mockResolvedValue(activeUser)
     prismaMock.product.findFirst.mockResolvedValue(null)
     prismaMock.userPlanPurchase.findFirst.mockResolvedValue(null)
-    prismaMock.organizationMembership.findFirst.mockResolvedValue({ id: "membership-1" })
+    prismaMock.organizationMembership.findFirst.mockResolvedValue({
+      id: "membership-1",
+    })
 
     const result = await memberHasFeature("organization")
     expect(result).toBe(true)

@@ -14,7 +14,10 @@ describe("Breadcrumbs branches", () => {
   it("injects Home when first is not home and renders links/separators correctly", () => {
     render(
       <Breadcrumbs
-        items={[{ title: "Admin", link: ADMIN_BASE_PATH }, { title: "Products" }]}
+        items={[
+          { title: "Admin", link: ADMIN_BASE_PATH },
+          { title: "Products" },
+        ]}
       />,
     )
 

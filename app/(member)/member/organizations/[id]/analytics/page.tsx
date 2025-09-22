@@ -11,10 +11,7 @@ import { ensureUrlHasSchema } from "@/lib/utils"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { getOrganizationTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 import { organizationHasAdvancedAnalytics } from "@/lib/server/analytics/organizationAccess"
-import {
-  MEMBER_ORGANIZATIONS_PATH,
-  memberOrganizationPath,
-} from "@/lib/routes"
+import { MEMBER_ORGANIZATIONS_PATH, memberOrganizationPath } from "@/lib/routes"
 
 export default async function OrganizationAnalyticsPage({
   params,

@@ -65,9 +65,7 @@ export default async function DeleteCategoryPage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href={adminPath("categories")}>
-              Cancel
-            </Link>
+            <Link href={adminPath("categories")}>Cancel</Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

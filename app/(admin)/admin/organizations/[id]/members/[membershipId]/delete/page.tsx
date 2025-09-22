@@ -50,7 +50,9 @@ export default async function DeleteOrganizationMembershipPage({
       redirect(adminStatusPath(["organizations", id], "error"))
     }
 
-    redirect(adminStatusPath(["organizations", organizationId], "member-removed"))
+    redirect(
+      adminStatusPath(["organizations", organizationId], "member-removed"),
+    )
   }
 
   return (

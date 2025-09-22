@@ -1,11 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
-import {
-  LEADERBOARD_PATH,
-  MEMBER_BASE_PATH,
-  categoryPath,
-} from "@/lib/routes"
+import { LEADERBOARD_PATH, MEMBER_BASE_PATH, categoryPath } from "@/lib/routes"
 
 const signInMock = vi.fn()
 const signUpMock = vi.fn()

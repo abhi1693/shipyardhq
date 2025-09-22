@@ -131,7 +131,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   variant="outline"
                   className="w-full min-w-[220px] border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)] sm:w-auto"
                 >
-                <Link href={PRICING_PATH}>Explore promotion tiers</Link>
+                  <Link href={PRICING_PATH}>Explore promotion tiers</Link>
                 </Button>
               </div>
             </div>

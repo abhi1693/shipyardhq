@@ -51,7 +51,7 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 
 ## Contact
 
-Questions or feedback? Email `shipyardhq.dev@gmail.com` or say hi on X: https://x.com/abhi16_93
+Questions or feedback? Email `shipyardhq.dev@gmail.com` or say hi on X: https://x.com/shipyardhq
 
 ## Feature Gating
 

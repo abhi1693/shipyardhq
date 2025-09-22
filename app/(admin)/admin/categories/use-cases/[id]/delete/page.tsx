@@ -64,9 +64,7 @@ export default async function DeleteUseCasePage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href={adminPath("categories", "use-cases")}>
-              Cancel
-            </Link>
+            <Link href={adminPath("categories", "use-cases")}>Cancel</Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

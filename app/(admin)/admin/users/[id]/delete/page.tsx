@@ -69,9 +69,7 @@ export default async function DeleteAdminUserPage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href={adminPath("users")}>
-              Cancel
-            </Link>
+            <Link href={adminPath("users")}>Cancel</Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

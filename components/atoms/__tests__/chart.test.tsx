@@ -45,7 +45,11 @@ describe("ChartContainer", () => {
   it("forwards refs and merges custom styles without config", () => {
     const ref = React.createRef<HTMLDivElement>()
     const { container } = render(
-      <ChartContainer ref={ref} className="extra" style={{ backgroundColor: "rgb(255, 0, 0)" }}>
+      <ChartContainer
+        ref={ref}
+        className="extra"
+        style={{ backgroundColor: "rgb(255, 0, 0)" }}
+      >
         <div>content</div>
       </ChartContainer>,
     )
@@ -128,8 +132,12 @@ describe("ChartTooltip", () => {
     const rows = container.querySelectorAll(".flex.items-center.gap-2")
     expect(rows).toHaveLength(2)
 
-    const revenueSwatch = rows[0].querySelector("span[aria-hidden='true']") as HTMLElement
-    const visitorsSwatch = rows[1].querySelector("span[aria-hidden='true']") as HTMLElement
+    const revenueSwatch = rows[0].querySelector(
+      "span[aria-hidden='true']",
+    ) as HTMLElement
+    const visitorsSwatch = rows[1].querySelector(
+      "span[aria-hidden='true']",
+    ) as HTMLElement
 
     expect(revenueSwatch.style.backgroundColor).toBe(
       hexToRgb(config.revenue.color),
@@ -157,17 +165,21 @@ describe("ChartTooltip", () => {
 
     for (const scenario of scenarios) {
       const { container, unmount } = render(
-        <ChartContainer config={{ visitors: { label: "Visitors", color: "#654321" } }}>
+        <ChartContainer
+          config={{ visitors: { label: "Visitors", color: "#654321" } }}
+        >
           <ChartTooltip
             active
-            payload={[
-              {
-                dataKey: "visitors",
-                name: "Visitors",
-                value: 75,
-                payload: scenario.payloadMeta,
-              },
-            ] as any}
+            payload={
+              [
+                {
+                  dataKey: "visitors",
+                  name: "Visitors",
+                  value: 75,
+                  payload: scenario.payloadMeta,
+                },
+              ] as any
+            }
             label={undefined}
             labelFormatter={(derivedLabel) => `Label: ${derivedLabel}`}
           />

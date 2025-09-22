@@ -34,7 +34,9 @@ export default async function DeleteProductBadgePage({
   })
 
   if (!badge) {
-    redirect(adminStatusPath(["products", "assignments", "badges"], "not-found"))
+    redirect(
+      adminStatusPath(["products", "assignments", "badges"], "not-found"),
+    )
   }
 
   const badgeId = badge.id
@@ -47,9 +49,7 @@ export default async function DeleteProductBadgePage({
     const result = await deleteProductBadgeAction(badgeId)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect(
-        adminStatusPath(["products", "assignments", "badges"], "error"),
-      )
+      redirect(adminStatusPath(["products", "assignments", "badges"], "error"))
     }
 
     redirect(adminStatusPath(["products", "assignments", "badges"], "deleted"))

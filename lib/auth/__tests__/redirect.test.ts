@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 
-import {
-  resolveRedirectUrl,
-  sanitizeRedirectUrl,
-} from "@/lib/auth/redirect"
+import { resolveRedirectUrl, sanitizeRedirectUrl } from "@/lib/auth/redirect"
 import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL
@@ -18,8 +15,9 @@ afterEach(() => {
 
 describe("sanitizeRedirectUrl", () => {
   it("returns relative paths untouched", () => {
-    expect(sanitizeRedirectUrl(MEMBER_PRODUCTS_PATH, "app.shipyardhq.com"))
-      .toBe(MEMBER_PRODUCTS_PATH)
+    expect(
+      sanitizeRedirectUrl(MEMBER_PRODUCTS_PATH, "app.shipyardhq.com"),
+    ).toBe(MEMBER_PRODUCTS_PATH)
   })
 
   it("allows absolute URLs matching configured or request host", () => {
@@ -31,9 +29,9 @@ describe("sanitizeRedirectUrl", () => {
   })
 
   it("rejects URLs with non-http protocols", () => {
-    expect(sanitizeRedirectUrl("javascript:alert(1)", "app.shipyardhq.com")).toBe(
-      undefined,
-    )
+    expect(
+      sanitizeRedirectUrl("javascript:alert(1)", "app.shipyardhq.com"),
+    ).toBe(undefined)
   })
 
   it("rejects URLs pointing to disallowed hosts", () => {

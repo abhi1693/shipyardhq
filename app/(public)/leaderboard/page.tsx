@@ -196,9 +196,7 @@ export default async function LeaderboardPage({
               product={product}
               rank={index + 1}
               label={rankLabels[index] ?? `Top ${index + 1}`}
-              className={cn(
-                getTopPlacementGridClasses(index, topThree.length),
-              )}
+              className={cn(getTopPlacementGridClasses(index, topThree.length))}
             />
           ))}
         </div>

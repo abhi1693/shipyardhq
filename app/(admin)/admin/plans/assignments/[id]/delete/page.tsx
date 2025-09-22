@@ -70,9 +70,7 @@ export default async function DeletePlanAssignmentPage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href={adminPath("plans", "assignments")}>
-              Cancel
-            </Link>
+            <Link href={adminPath("plans", "assignments")}>Cancel</Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

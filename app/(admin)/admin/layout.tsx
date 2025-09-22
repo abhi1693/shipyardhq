@@ -9,7 +9,11 @@ import { redirect } from "next/navigation"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { buildSectionMetadata } from "@/lib/metadata"
 import { getFeedbackCount } from "@/actions/admin/feedback/actions"
-import { ADMIN_OVERVIEW_PATH, adminPath, MEMBER_OVERVIEW_PATH } from "@/lib/routes"
+import {
+  ADMIN_OVERVIEW_PATH,
+  adminPath,
+  MEMBER_OVERVIEW_PATH,
+} from "@/lib/routes"
 
 export const metadata = buildSectionMetadata({
   section: "Admin",

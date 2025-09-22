@@ -11,10 +11,7 @@ import {
 } from "@/components/atoms/card"
 import { Button } from "@/components/atoms/button"
 import { requireManageableProduct } from "@/lib/server/productAccess"
-import {
-  MEMBER_PRODUCTS_PATH,
-  memberProductsStatusPath,
-} from "@/lib/routes"
+import { MEMBER_PRODUCTS_PATH, memberProductsStatusPath } from "@/lib/routes"
 
 export default async function DeleteMemberProductPage({
   params,

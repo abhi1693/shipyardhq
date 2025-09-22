@@ -177,7 +177,7 @@ export default function BrowseFilterBar({
                 onClick={() => {
                   setQ("")
                   router.push(
-                buildQuery(BROWSE_PATH, qs, { q: undefined, page: "1" }),
+                    buildQuery(BROWSE_PATH, qs, { q: undefined, page: "1" }),
                   )
                 }}
               >

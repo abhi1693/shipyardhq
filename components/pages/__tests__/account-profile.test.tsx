@@ -27,7 +27,9 @@ describe("Account Profile pages", () => {
     render(<MemberAccountProfile />)
     expect(
       screen.getByText(
-        new RegExp(`ProfilePath:${MEMBER_ACCOUNT_PROFILE_PATH.replace(/\//g, "\\/")}`),
+        new RegExp(
+          `ProfilePath:${MEMBER_ACCOUNT_PROFILE_PATH.replace(/\//g, "\\/")}`,
+        ),
       ),
     ).toBeInTheDocument()
   })

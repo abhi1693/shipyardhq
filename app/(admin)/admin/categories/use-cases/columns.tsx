@@ -43,7 +43,9 @@ export const columns: ColumnDef<UseCase>[] = [
             <Eye className="h-4 w-4" /> View
           </Button>
         </Link>
-        <Link href={adminPath("categories", "use-cases", row.original.id, "edit")}>
+        <Link
+          href={adminPath("categories", "use-cases", row.original.id, "edit")}
+        >
           <Button size="sm" variant="outline">
             <Pencil className="h-4 w-4" /> Edit
           </Button>

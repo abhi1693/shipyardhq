@@ -8,10 +8,7 @@ import {
   updateMyOrganizationAction,
   getMyOrganizationById,
 } from "@/actions/member/organizations/actions"
-import {
-  MEMBER_ORGANIZATIONS_PATH,
-  memberOrganizationPath,
-} from "@/lib/routes"
+import { MEMBER_ORGANIZATIONS_PATH, memberOrganizationPath } from "@/lib/routes"
 import { useEffect, useState } from "react"
 import {
   Card,

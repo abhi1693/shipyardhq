@@ -64,9 +64,13 @@ describe("cached", () => {
     const cachedFn = cached(baseFn, "default")
     await cachedFn()
 
-    expect(unstableCacheMock).toHaveBeenCalledWith(expect.any(Function), ["default"], {
-      revalidate: DEFAULT_TTL.fast,
-      tags: ["default"],
-    })
+    expect(unstableCacheMock).toHaveBeenCalledWith(
+      expect.any(Function),
+      ["default"],
+      {
+        revalidate: DEFAULT_TTL.fast,
+        tags: ["default"],
+      },
+    )
   })
 })

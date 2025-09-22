@@ -33,7 +33,9 @@ describe("organizationHasAdvancedAnalytics", () => {
         ],
       },
     })
-    prismaMock.organization.findUnique.mockResolvedValue({ ownerUserId: "owner" })
+    prismaMock.organization.findUnique.mockResolvedValue({
+      ownerUserId: "owner",
+    })
 
     const result = await organizationHasAdvancedAnalytics("org-1")
 
@@ -42,9 +44,15 @@ describe("organizationHasAdvancedAnalytics", () => {
   })
 
   it("checks owner subscription when no product plan qualifies", async () => {
-    prismaMock.product.findFirst.mockResolvedValue({ plan: { assignments: [] } })
-    prismaMock.organization.findUnique.mockResolvedValue({ ownerUserId: "owner" })
-    prismaMock.userPlanPurchase.findFirst.mockResolvedValue({ id: "purchase-1" })
+    prismaMock.product.findFirst.mockResolvedValue({
+      plan: { assignments: [] },
+    })
+    prismaMock.organization.findUnique.mockResolvedValue({
+      ownerUserId: "owner",
+    })
+    prismaMock.userPlanPurchase.findFirst.mockResolvedValue({
+      id: "purchase-1",
+    })
 
     const result = await organizationHasAdvancedAnalytics("org-2")
 
