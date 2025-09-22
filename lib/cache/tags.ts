@@ -9,6 +9,9 @@ export const TAGS = {
   featured: "featured",
   trending: "trending",
   leaderboard: "leaderboard",
+  monthlyLeaderboard: "leaderboard:monthly",
+  monthlyLeaderboardMonth: (monthKey: string) =>
+    `leaderboard:monthly:${monthKey}`,
   analytics: "analytics",
   plans: "plans",
   planFeature: (key: string) => `plan-feature:${key}`,

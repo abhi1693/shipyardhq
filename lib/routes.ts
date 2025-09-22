@@ -41,6 +41,8 @@ export const adminStatusPath = (segments: string[], status: string) =>
 
 export const BROWSE_PATH = "/browse" as const
 export const LEADERBOARD_PATH = "/leaderboard" as const
+export const LEADERBOARD_MONTHLY_PATH = `${LEADERBOARD_PATH}/monthly` as const
+export const LEADERBOARD_GUIDE_PATH = `${LEADERBOARD_PATH}/about` as const
 export const PRICING_PATH = "/pricing" as const
 export const WHY_SHIPYARD_PATH = "/why-shipyard" as const
 export const ANALYTICS_PATH = "/analytics" as const

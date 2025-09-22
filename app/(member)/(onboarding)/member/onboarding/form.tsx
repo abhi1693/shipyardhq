@@ -112,8 +112,10 @@ export function OnboardingForm({
 
     const result = await completeOnboarding(formData)
     if ("success" in result) {
+      document.cookie = "shipyard_onboarding_override=1; path=/; max-age=60"
       toast.success("Welcome aboard!")
-      router.push(safeRedirectPath)
+      router.replace(safeRedirectPath)
+      router.refresh()
     } else {
       toast.error(result.error)
     }

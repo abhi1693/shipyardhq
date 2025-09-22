@@ -12,6 +12,22 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
+import { sendEmail } from "@/lib/email/resend"
+import {
+  WelcomeEmail,
+  buildWelcomeTextBody,
+} from "@/lib/email/templates/onboarding/welcome"
+import { getAppBaseUrl } from "@/lib/email/utils"
+import {
+  LEADERBOARD_GUIDE_PATH,
+  LEADERBOARD_MONTHLY_PATH,
+  LEADERBOARD_PATH,
+  MEMBER_FEEDBACK_PATH,
+  MEMBER_OVERVIEW_PATH,
+} from "@/lib/routes"
+
+const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
+const WELCOME_EMAIL_SUBJECT = "Welcome aboard ShipYardHQ"
 
 export async function completeOnboarding(formData: FormData) {
   const { userId } = await auth()
@@ -19,7 +35,8 @@ export async function completeOnboarding(formData: FormData) {
 
   const roleIntent = formData.get("roleIntent")?.toString()
   const heardFrom = formData.get("heardFrom")?.toString()
-  const acceptedTerms = formData.get("acceptedTerms") === "on"
+  const acceptedTermsRaw = formData.get("acceptedTerms")?.toString()
+  const acceptedTerms = acceptedTermsRaw === "on" || acceptedTermsRaw === "true"
   const newsletterOptInRaw = formData.get("newsletterOptIn")?.toString()
   const newsletterOptIn =
     newsletterOptInRaw === "true" || newsletterOptInRaw === "on"
@@ -76,6 +93,32 @@ export async function completeOnboarding(formData: FormData) {
             result.error,
           )
         }
+      }
+
+      const isBuilderIntent = roleIntent
+        ? BUILDER_INTENTS.has(roleIntent)
+        : false
+
+      try {
+        const baseUrl = getAppBaseUrl()
+        const emailProps = {
+          firstName: user.firstName,
+          dashboardUrl: `${baseUrl}${MEMBER_OVERVIEW_PATH}`,
+          isBuilder: isBuilderIntent,
+          leaderboardUrl: `${baseUrl}${LEADERBOARD_PATH}`,
+          monthlyUrl: `${baseUrl}${LEADERBOARD_MONTHLY_PATH}`,
+          guideUrl: `${baseUrl}${LEADERBOARD_GUIDE_PATH}`,
+          feedbackUrl: `${baseUrl}${MEMBER_FEEDBACK_PATH}`,
+        }
+
+        await sendEmail({
+          to: user.email,
+          subject: WELCOME_EMAIL_SUBJECT,
+          react: WelcomeEmail(emailProps),
+          text: buildWelcomeTextBody(emailProps),
+        })
+      } catch (error) {
+        console.error("Failed to send onboarding welcome email:", error)
       }
     }
 

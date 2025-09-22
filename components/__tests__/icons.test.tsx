@@ -16,6 +16,7 @@ describe("Icons mapping", () => {
         "conversions",
         "dashboard",
         "feedback",
+        "leaderboard",
         "link",
         "logo",
         "media",

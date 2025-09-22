@@ -19,6 +19,16 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type Product = $Result.DefaultSelection<Prisma.$ProductPayload>
 /**
+ * Model MonthlyProductRanking
+ * 
+ */
+export type MonthlyProductRanking = $Result.DefaultSelection<Prisma.$MonthlyProductRankingPayload>
+/**
+ * Model MonthlyLeaderboardNotification
+ * 
+ */
+export type MonthlyLeaderboardNotification = $Result.DefaultSelection<Prisma.$MonthlyLeaderboardNotificationPayload>
+/**
  * Model ProductMedia
  * 
  */
@@ -380,6 +390,26 @@ export class PrismaClient<
     * ```
     */
   get product(): Prisma.ProductDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.monthlyProductRanking`: Exposes CRUD operations for the **MonthlyProductRanking** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MonthlyProductRankings
+    * const monthlyProductRankings = await prisma.monthlyProductRanking.findMany()
+    * ```
+    */
+  get monthlyProductRanking(): Prisma.MonthlyProductRankingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.monthlyLeaderboardNotification`: Exposes CRUD operations for the **MonthlyLeaderboardNotification** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MonthlyLeaderboardNotifications
+    * const monthlyLeaderboardNotifications = await prisma.monthlyLeaderboardNotification.findMany()
+    * ```
+    */
+  get monthlyLeaderboardNotification(): Prisma.MonthlyLeaderboardNotificationDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.productMedia`: Exposes CRUD operations for the **ProductMedia** model.
@@ -1021,6 +1051,8 @@ export namespace Prisma {
 
   export const ModelName: {
     Product: 'Product',
+    MonthlyProductRanking: 'MonthlyProductRanking',
+    MonthlyLeaderboardNotification: 'MonthlyLeaderboardNotification',
     ProductMedia: 'ProductMedia',
     ProductVerification: 'ProductVerification',
     ProductMetadata: 'ProductMetadata',
@@ -1059,7 +1091,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "product" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productUpvote" | "organization" | "organizationMembership" | "user" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
+      modelProps: "product" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productUpvote" | "organization" | "organizationMembership" | "user" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1134,6 +1166,154 @@ export namespace Prisma {
           count: {
             args: Prisma.ProductCountArgs<ExtArgs>
             result: $Utils.Optional<ProductCountAggregateOutputType> | number
+          }
+        }
+      }
+      MonthlyProductRanking: {
+        payload: Prisma.$MonthlyProductRankingPayload<ExtArgs>
+        fields: Prisma.MonthlyProductRankingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MonthlyProductRankingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MonthlyProductRankingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
+          }
+          findFirst: {
+            args: Prisma.MonthlyProductRankingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MonthlyProductRankingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
+          }
+          findMany: {
+            args: Prisma.MonthlyProductRankingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>[]
+          }
+          create: {
+            args: Prisma.MonthlyProductRankingCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
+          }
+          createMany: {
+            args: Prisma.MonthlyProductRankingCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MonthlyProductRankingCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>[]
+          }
+          delete: {
+            args: Prisma.MonthlyProductRankingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
+          }
+          update: {
+            args: Prisma.MonthlyProductRankingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
+          }
+          deleteMany: {
+            args: Prisma.MonthlyProductRankingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MonthlyProductRankingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MonthlyProductRankingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>[]
+          }
+          upsert: {
+            args: Prisma.MonthlyProductRankingUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyProductRankingPayload>
+          }
+          aggregate: {
+            args: Prisma.MonthlyProductRankingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMonthlyProductRanking>
+          }
+          groupBy: {
+            args: Prisma.MonthlyProductRankingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MonthlyProductRankingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MonthlyProductRankingCountArgs<ExtArgs>
+            result: $Utils.Optional<MonthlyProductRankingCountAggregateOutputType> | number
+          }
+        }
+      }
+      MonthlyLeaderboardNotification: {
+        payload: Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>
+        fields: Prisma.MonthlyLeaderboardNotificationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MonthlyLeaderboardNotificationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MonthlyLeaderboardNotificationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
+          }
+          findFirst: {
+            args: Prisma.MonthlyLeaderboardNotificationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MonthlyLeaderboardNotificationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
+          }
+          findMany: {
+            args: Prisma.MonthlyLeaderboardNotificationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>[]
+          }
+          create: {
+            args: Prisma.MonthlyLeaderboardNotificationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
+          }
+          createMany: {
+            args: Prisma.MonthlyLeaderboardNotificationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MonthlyLeaderboardNotificationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>[]
+          }
+          delete: {
+            args: Prisma.MonthlyLeaderboardNotificationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
+          }
+          update: {
+            args: Prisma.MonthlyLeaderboardNotificationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
+          }
+          deleteMany: {
+            args: Prisma.MonthlyLeaderboardNotificationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MonthlyLeaderboardNotificationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MonthlyLeaderboardNotificationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>[]
+          }
+          upsert: {
+            args: Prisma.MonthlyLeaderboardNotificationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MonthlyLeaderboardNotificationPayload>
+          }
+          aggregate: {
+            args: Prisma.MonthlyLeaderboardNotificationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMonthlyLeaderboardNotification>
+          }
+          groupBy: {
+            args: Prisma.MonthlyLeaderboardNotificationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MonthlyLeaderboardNotificationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MonthlyLeaderboardNotificationCountArgs<ExtArgs>
+            result: $Utils.Optional<MonthlyLeaderboardNotificationCountAggregateOutputType> | number
           }
         }
       }
@@ -2714,6 +2894,8 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     product?: ProductOmit
+    monthlyProductRanking?: MonthlyProductRankingOmit
+    monthlyLeaderboardNotification?: MonthlyLeaderboardNotificationOmit
     productMedia?: ProductMediaOmit
     productVerification?: ProductVerificationOmit
     productMetadata?: ProductMetadataOmit
@@ -2819,6 +3001,7 @@ export namespace Prisma {
     ProductUpvote: number
     clickEvents: number
     trafficEvents: number
+    MonthlyProductRanking: number
   }
 
   export type ProductCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2827,6 +3010,7 @@ export namespace Prisma {
     ProductUpvote?: boolean | ProductCountOutputTypeCountProductUpvoteArgs
     clickEvents?: boolean | ProductCountOutputTypeCountClickEventsArgs
     trafficEvents?: boolean | ProductCountOutputTypeCountTrafficEventsArgs
+    MonthlyProductRanking?: boolean | ProductCountOutputTypeCountMonthlyProductRankingArgs
   }
 
   // Custom InputTypes
@@ -2873,6 +3057,13 @@ export namespace Prisma {
    */
   export type ProductCountOutputTypeCountTrafficEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProductTrafficEventWhereInput
+  }
+
+  /**
+   * ProductCountOutputType without action
+   */
+  export type ProductCountOutputTypeCountMonthlyProductRankingArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MonthlyProductRankingWhereInput
   }
 
 
@@ -3509,6 +3700,7 @@ export namespace Prisma {
     ProductUpvote?: boolean | Product$ProductUpvoteArgs<ExtArgs>
     clickEvents?: boolean | Product$clickEventsArgs<ExtArgs>
     trafficEvents?: boolean | Product$trafficEventsArgs<ExtArgs>
+    MonthlyProductRanking?: boolean | Product$MonthlyProductRankingArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["product"]>
 
@@ -3618,6 +3810,7 @@ export namespace Prisma {
     ProductUpvote?: boolean | Product$ProductUpvoteArgs<ExtArgs>
     clickEvents?: boolean | Product$clickEventsArgs<ExtArgs>
     trafficEvents?: boolean | Product$trafficEventsArgs<ExtArgs>
+    MonthlyProductRanking?: boolean | Product$MonthlyProductRankingArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProductIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3648,6 +3841,7 @@ export namespace Prisma {
       ProductUpvote: Prisma.$ProductUpvotePayload<ExtArgs>[]
       clickEvents: Prisma.$ProductClickEventPayload<ExtArgs>[]
       trafficEvents: Prisma.$ProductTrafficEventPayload<ExtArgs>[]
+      MonthlyProductRanking: Prisma.$MonthlyProductRankingPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4081,6 +4275,7 @@ export namespace Prisma {
     ProductUpvote<T extends Product$ProductUpvoteArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductUpvoteArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductUpvotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     clickEvents<T extends Product$clickEventsArgs<ExtArgs> = {}>(args?: Subset<T, Product$clickEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     trafficEvents<T extends Product$trafficEventsArgs<ExtArgs> = {}>(args?: Subset<T, Product$trafficEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    MonthlyProductRanking<T extends Product$MonthlyProductRankingArgs<ExtArgs> = {}>(args?: Subset<T, Product$MonthlyProductRankingArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4746,6 +4941,30 @@ export namespace Prisma {
   }
 
   /**
+   * Product.MonthlyProductRanking
+   */
+  export type Product$MonthlyProductRankingArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+    where?: MonthlyProductRankingWhereInput
+    orderBy?: MonthlyProductRankingOrderByWithRelationInput | MonthlyProductRankingOrderByWithRelationInput[]
+    cursor?: MonthlyProductRankingWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MonthlyProductRankingScalarFieldEnum | MonthlyProductRankingScalarFieldEnum[]
+  }
+
+  /**
    * Product without action
    */
   export type ProductDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4761,6 +4980,2127 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ProductInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MonthlyProductRanking
+   */
+
+  export type AggregateMonthlyProductRanking = {
+    _count: MonthlyProductRankingCountAggregateOutputType | null
+    _avg: MonthlyProductRankingAvgAggregateOutputType | null
+    _sum: MonthlyProductRankingSumAggregateOutputType | null
+    _min: MonthlyProductRankingMinAggregateOutputType | null
+    _max: MonthlyProductRankingMaxAggregateOutputType | null
+  }
+
+  export type MonthlyProductRankingAvgAggregateOutputType = {
+    rank: number | null
+    score: number | null
+    upvotes: number | null
+  }
+
+  export type MonthlyProductRankingSumAggregateOutputType = {
+    rank: number | null
+    score: number | null
+    upvotes: number | null
+  }
+
+  export type MonthlyProductRankingMinAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    month: Date | null
+    rank: number | null
+    score: number | null
+    upvotes: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MonthlyProductRankingMaxAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    month: Date | null
+    rank: number | null
+    score: number | null
+    upvotes: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MonthlyProductRankingCountAggregateOutputType = {
+    id: number
+    productId: number
+    month: number
+    rank: number
+    score: number
+    upvotes: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MonthlyProductRankingAvgAggregateInputType = {
+    rank?: true
+    score?: true
+    upvotes?: true
+  }
+
+  export type MonthlyProductRankingSumAggregateInputType = {
+    rank?: true
+    score?: true
+    upvotes?: true
+  }
+
+  export type MonthlyProductRankingMinAggregateInputType = {
+    id?: true
+    productId?: true
+    month?: true
+    rank?: true
+    score?: true
+    upvotes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MonthlyProductRankingMaxAggregateInputType = {
+    id?: true
+    productId?: true
+    month?: true
+    rank?: true
+    score?: true
+    upvotes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MonthlyProductRankingCountAggregateInputType = {
+    id?: true
+    productId?: true
+    month?: true
+    rank?: true
+    score?: true
+    upvotes?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MonthlyProductRankingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MonthlyProductRanking to aggregate.
+     */
+    where?: MonthlyProductRankingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MonthlyProductRankings to fetch.
+     */
+    orderBy?: MonthlyProductRankingOrderByWithRelationInput | MonthlyProductRankingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MonthlyProductRankingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MonthlyProductRankings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MonthlyProductRankings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MonthlyProductRankings
+    **/
+    _count?: true | MonthlyProductRankingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MonthlyProductRankingAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MonthlyProductRankingSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MonthlyProductRankingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MonthlyProductRankingMaxAggregateInputType
+  }
+
+  export type GetMonthlyProductRankingAggregateType<T extends MonthlyProductRankingAggregateArgs> = {
+        [P in keyof T & keyof AggregateMonthlyProductRanking]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMonthlyProductRanking[P]>
+      : GetScalarType<T[P], AggregateMonthlyProductRanking[P]>
+  }
+
+
+
+
+  export type MonthlyProductRankingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MonthlyProductRankingWhereInput
+    orderBy?: MonthlyProductRankingOrderByWithAggregationInput | MonthlyProductRankingOrderByWithAggregationInput[]
+    by: MonthlyProductRankingScalarFieldEnum[] | MonthlyProductRankingScalarFieldEnum
+    having?: MonthlyProductRankingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MonthlyProductRankingCountAggregateInputType | true
+    _avg?: MonthlyProductRankingAvgAggregateInputType
+    _sum?: MonthlyProductRankingSumAggregateInputType
+    _min?: MonthlyProductRankingMinAggregateInputType
+    _max?: MonthlyProductRankingMaxAggregateInputType
+  }
+
+  export type MonthlyProductRankingGroupByOutputType = {
+    id: string
+    productId: string
+    month: Date
+    rank: number
+    score: number | null
+    upvotes: number | null
+    createdAt: Date
+    updatedAt: Date
+    _count: MonthlyProductRankingCountAggregateOutputType | null
+    _avg: MonthlyProductRankingAvgAggregateOutputType | null
+    _sum: MonthlyProductRankingSumAggregateOutputType | null
+    _min: MonthlyProductRankingMinAggregateOutputType | null
+    _max: MonthlyProductRankingMaxAggregateOutputType | null
+  }
+
+  type GetMonthlyProductRankingGroupByPayload<T extends MonthlyProductRankingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MonthlyProductRankingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MonthlyProductRankingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MonthlyProductRankingGroupByOutputType[P]>
+            : GetScalarType<T[P], MonthlyProductRankingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MonthlyProductRankingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    month?: boolean
+    rank?: boolean
+    score?: boolean
+    upvotes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["monthlyProductRanking"]>
+
+  export type MonthlyProductRankingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    month?: boolean
+    rank?: boolean
+    score?: boolean
+    upvotes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["monthlyProductRanking"]>
+
+  export type MonthlyProductRankingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    month?: boolean
+    rank?: boolean
+    score?: boolean
+    upvotes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["monthlyProductRanking"]>
+
+  export type MonthlyProductRankingSelectScalar = {
+    id?: boolean
+    productId?: boolean
+    month?: boolean
+    rank?: boolean
+    score?: boolean
+    upvotes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MonthlyProductRankingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "month" | "rank" | "score" | "upvotes" | "createdAt" | "updatedAt", ExtArgs["result"]["monthlyProductRanking"]>
+  export type MonthlyProductRankingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type MonthlyProductRankingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type MonthlyProductRankingIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+
+  export type $MonthlyProductRankingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MonthlyProductRanking"
+    objects: {
+      product: Prisma.$ProductPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      productId: string
+      month: Date
+      rank: number
+      score: number | null
+      upvotes: number | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["monthlyProductRanking"]>
+    composites: {}
+  }
+
+  type MonthlyProductRankingGetPayload<S extends boolean | null | undefined | MonthlyProductRankingDefaultArgs> = $Result.GetResult<Prisma.$MonthlyProductRankingPayload, S>
+
+  type MonthlyProductRankingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MonthlyProductRankingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MonthlyProductRankingCountAggregateInputType | true
+    }
+
+  export interface MonthlyProductRankingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MonthlyProductRanking'], meta: { name: 'MonthlyProductRanking' } }
+    /**
+     * Find zero or one MonthlyProductRanking that matches the filter.
+     * @param {MonthlyProductRankingFindUniqueArgs} args - Arguments to find a MonthlyProductRanking
+     * @example
+     * // Get one MonthlyProductRanking
+     * const monthlyProductRanking = await prisma.monthlyProductRanking.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MonthlyProductRankingFindUniqueArgs>(args: SelectSubset<T, MonthlyProductRankingFindUniqueArgs<ExtArgs>>): Prisma__MonthlyProductRankingClient<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MonthlyProductRanking that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MonthlyProductRankingFindUniqueOrThrowArgs} args - Arguments to find a MonthlyProductRanking
+     * @example
+     * // Get one MonthlyProductRanking
+     * const monthlyProductRanking = await prisma.monthlyProductRanking.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MonthlyProductRankingFindUniqueOrThrowArgs>(args: SelectSubset<T, MonthlyProductRankingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MonthlyProductRankingClient<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MonthlyProductRanking that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyProductRankingFindFirstArgs} args - Arguments to find a MonthlyProductRanking
+     * @example
+     * // Get one MonthlyProductRanking
+     * const monthlyProductRanking = await prisma.monthlyProductRanking.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MonthlyProductRankingFindFirstArgs>(args?: SelectSubset<T, MonthlyProductRankingFindFirstArgs<ExtArgs>>): Prisma__MonthlyProductRankingClient<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MonthlyProductRanking that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyProductRankingFindFirstOrThrowArgs} args - Arguments to find a MonthlyProductRanking
+     * @example
+     * // Get one MonthlyProductRanking
+     * const monthlyProductRanking = await prisma.monthlyProductRanking.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MonthlyProductRankingFindFirstOrThrowArgs>(args?: SelectSubset<T, MonthlyProductRankingFindFirstOrThrowArgs<ExtArgs>>): Prisma__MonthlyProductRankingClient<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MonthlyProductRankings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyProductRankingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MonthlyProductRankings
+     * const monthlyProductRankings = await prisma.monthlyProductRanking.findMany()
+     * 
+     * // Get first 10 MonthlyProductRankings
+     * const monthlyProductRankings = await prisma.monthlyProductRanking.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const monthlyProductRankingWithIdOnly = await prisma.monthlyProductRanking.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MonthlyProductRankingFindManyArgs>(args?: SelectSubset<T, MonthlyProductRankingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MonthlyProductRanking.
+     * @param {MonthlyProductRankingCreateArgs} args - Arguments to create a MonthlyProductRanking.
+     * @example
+     * // Create one MonthlyProductRanking
+     * const MonthlyProductRanking = await prisma.monthlyProductRanking.create({
+     *   data: {
+     *     // ... data to create a MonthlyProductRanking
+     *   }
+     * })
+     * 
+     */
+    create<T extends MonthlyProductRankingCreateArgs>(args: SelectSubset<T, MonthlyProductRankingCreateArgs<ExtArgs>>): Prisma__MonthlyProductRankingClient<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MonthlyProductRankings.
+     * @param {MonthlyProductRankingCreateManyArgs} args - Arguments to create many MonthlyProductRankings.
+     * @example
+     * // Create many MonthlyProductRankings
+     * const monthlyProductRanking = await prisma.monthlyProductRanking.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MonthlyProductRankingCreateManyArgs>(args?: SelectSubset<T, MonthlyProductRankingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MonthlyProductRankings and returns the data saved in the database.
+     * @param {MonthlyProductRankingCreateManyAndReturnArgs} args - Arguments to create many MonthlyProductRankings.
+     * @example
+     * // Create many MonthlyProductRankings
+     * const monthlyProductRanking = await prisma.monthlyProductRanking.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MonthlyProductRankings and only return the `id`
+     * const monthlyProductRankingWithIdOnly = await prisma.monthlyProductRanking.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MonthlyProductRankingCreateManyAndReturnArgs>(args?: SelectSubset<T, MonthlyProductRankingCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MonthlyProductRanking.
+     * @param {MonthlyProductRankingDeleteArgs} args - Arguments to delete one MonthlyProductRanking.
+     * @example
+     * // Delete one MonthlyProductRanking
+     * const MonthlyProductRanking = await prisma.monthlyProductRanking.delete({
+     *   where: {
+     *     // ... filter to delete one MonthlyProductRanking
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MonthlyProductRankingDeleteArgs>(args: SelectSubset<T, MonthlyProductRankingDeleteArgs<ExtArgs>>): Prisma__MonthlyProductRankingClient<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MonthlyProductRanking.
+     * @param {MonthlyProductRankingUpdateArgs} args - Arguments to update one MonthlyProductRanking.
+     * @example
+     * // Update one MonthlyProductRanking
+     * const monthlyProductRanking = await prisma.monthlyProductRanking.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MonthlyProductRankingUpdateArgs>(args: SelectSubset<T, MonthlyProductRankingUpdateArgs<ExtArgs>>): Prisma__MonthlyProductRankingClient<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MonthlyProductRankings.
+     * @param {MonthlyProductRankingDeleteManyArgs} args - Arguments to filter MonthlyProductRankings to delete.
+     * @example
+     * // Delete a few MonthlyProductRankings
+     * const { count } = await prisma.monthlyProductRanking.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MonthlyProductRankingDeleteManyArgs>(args?: SelectSubset<T, MonthlyProductRankingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MonthlyProductRankings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyProductRankingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MonthlyProductRankings
+     * const monthlyProductRanking = await prisma.monthlyProductRanking.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MonthlyProductRankingUpdateManyArgs>(args: SelectSubset<T, MonthlyProductRankingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MonthlyProductRankings and returns the data updated in the database.
+     * @param {MonthlyProductRankingUpdateManyAndReturnArgs} args - Arguments to update many MonthlyProductRankings.
+     * @example
+     * // Update many MonthlyProductRankings
+     * const monthlyProductRanking = await prisma.monthlyProductRanking.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MonthlyProductRankings and only return the `id`
+     * const monthlyProductRankingWithIdOnly = await prisma.monthlyProductRanking.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MonthlyProductRankingUpdateManyAndReturnArgs>(args: SelectSubset<T, MonthlyProductRankingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MonthlyProductRanking.
+     * @param {MonthlyProductRankingUpsertArgs} args - Arguments to update or create a MonthlyProductRanking.
+     * @example
+     * // Update or create a MonthlyProductRanking
+     * const monthlyProductRanking = await prisma.monthlyProductRanking.upsert({
+     *   create: {
+     *     // ... data to create a MonthlyProductRanking
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MonthlyProductRanking we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MonthlyProductRankingUpsertArgs>(args: SelectSubset<T, MonthlyProductRankingUpsertArgs<ExtArgs>>): Prisma__MonthlyProductRankingClient<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MonthlyProductRankings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyProductRankingCountArgs} args - Arguments to filter MonthlyProductRankings to count.
+     * @example
+     * // Count the number of MonthlyProductRankings
+     * const count = await prisma.monthlyProductRanking.count({
+     *   where: {
+     *     // ... the filter for the MonthlyProductRankings we want to count
+     *   }
+     * })
+    **/
+    count<T extends MonthlyProductRankingCountArgs>(
+      args?: Subset<T, MonthlyProductRankingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MonthlyProductRankingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MonthlyProductRanking.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyProductRankingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MonthlyProductRankingAggregateArgs>(args: Subset<T, MonthlyProductRankingAggregateArgs>): Prisma.PrismaPromise<GetMonthlyProductRankingAggregateType<T>>
+
+    /**
+     * Group by MonthlyProductRanking.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyProductRankingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MonthlyProductRankingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MonthlyProductRankingGroupByArgs['orderBy'] }
+        : { orderBy?: MonthlyProductRankingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MonthlyProductRankingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMonthlyProductRankingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MonthlyProductRanking model
+   */
+  readonly fields: MonthlyProductRankingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MonthlyProductRanking.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MonthlyProductRankingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    product<T extends ProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductDefaultArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MonthlyProductRanking model
+   */
+  interface MonthlyProductRankingFieldRefs {
+    readonly id: FieldRef<"MonthlyProductRanking", 'String'>
+    readonly productId: FieldRef<"MonthlyProductRanking", 'String'>
+    readonly month: FieldRef<"MonthlyProductRanking", 'DateTime'>
+    readonly rank: FieldRef<"MonthlyProductRanking", 'Int'>
+    readonly score: FieldRef<"MonthlyProductRanking", 'Int'>
+    readonly upvotes: FieldRef<"MonthlyProductRanking", 'Int'>
+    readonly createdAt: FieldRef<"MonthlyProductRanking", 'DateTime'>
+    readonly updatedAt: FieldRef<"MonthlyProductRanking", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MonthlyProductRanking findUnique
+   */
+  export type MonthlyProductRankingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+    /**
+     * Filter, which MonthlyProductRanking to fetch.
+     */
+    where: MonthlyProductRankingWhereUniqueInput
+  }
+
+  /**
+   * MonthlyProductRanking findUniqueOrThrow
+   */
+  export type MonthlyProductRankingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+    /**
+     * Filter, which MonthlyProductRanking to fetch.
+     */
+    where: MonthlyProductRankingWhereUniqueInput
+  }
+
+  /**
+   * MonthlyProductRanking findFirst
+   */
+  export type MonthlyProductRankingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+    /**
+     * Filter, which MonthlyProductRanking to fetch.
+     */
+    where?: MonthlyProductRankingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MonthlyProductRankings to fetch.
+     */
+    orderBy?: MonthlyProductRankingOrderByWithRelationInput | MonthlyProductRankingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MonthlyProductRankings.
+     */
+    cursor?: MonthlyProductRankingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MonthlyProductRankings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MonthlyProductRankings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MonthlyProductRankings.
+     */
+    distinct?: MonthlyProductRankingScalarFieldEnum | MonthlyProductRankingScalarFieldEnum[]
+  }
+
+  /**
+   * MonthlyProductRanking findFirstOrThrow
+   */
+  export type MonthlyProductRankingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+    /**
+     * Filter, which MonthlyProductRanking to fetch.
+     */
+    where?: MonthlyProductRankingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MonthlyProductRankings to fetch.
+     */
+    orderBy?: MonthlyProductRankingOrderByWithRelationInput | MonthlyProductRankingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MonthlyProductRankings.
+     */
+    cursor?: MonthlyProductRankingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MonthlyProductRankings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MonthlyProductRankings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MonthlyProductRankings.
+     */
+    distinct?: MonthlyProductRankingScalarFieldEnum | MonthlyProductRankingScalarFieldEnum[]
+  }
+
+  /**
+   * MonthlyProductRanking findMany
+   */
+  export type MonthlyProductRankingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+    /**
+     * Filter, which MonthlyProductRankings to fetch.
+     */
+    where?: MonthlyProductRankingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MonthlyProductRankings to fetch.
+     */
+    orderBy?: MonthlyProductRankingOrderByWithRelationInput | MonthlyProductRankingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MonthlyProductRankings.
+     */
+    cursor?: MonthlyProductRankingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MonthlyProductRankings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MonthlyProductRankings.
+     */
+    skip?: number
+    distinct?: MonthlyProductRankingScalarFieldEnum | MonthlyProductRankingScalarFieldEnum[]
+  }
+
+  /**
+   * MonthlyProductRanking create
+   */
+  export type MonthlyProductRankingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MonthlyProductRanking.
+     */
+    data: XOR<MonthlyProductRankingCreateInput, MonthlyProductRankingUncheckedCreateInput>
+  }
+
+  /**
+   * MonthlyProductRanking createMany
+   */
+  export type MonthlyProductRankingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MonthlyProductRankings.
+     */
+    data: MonthlyProductRankingCreateManyInput | MonthlyProductRankingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MonthlyProductRanking createManyAndReturn
+   */
+  export type MonthlyProductRankingCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * The data used to create many MonthlyProductRankings.
+     */
+    data: MonthlyProductRankingCreateManyInput | MonthlyProductRankingCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MonthlyProductRanking update
+   */
+  export type MonthlyProductRankingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MonthlyProductRanking.
+     */
+    data: XOR<MonthlyProductRankingUpdateInput, MonthlyProductRankingUncheckedUpdateInput>
+    /**
+     * Choose, which MonthlyProductRanking to update.
+     */
+    where: MonthlyProductRankingWhereUniqueInput
+  }
+
+  /**
+   * MonthlyProductRanking updateMany
+   */
+  export type MonthlyProductRankingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MonthlyProductRankings.
+     */
+    data: XOR<MonthlyProductRankingUpdateManyMutationInput, MonthlyProductRankingUncheckedUpdateManyInput>
+    /**
+     * Filter which MonthlyProductRankings to update
+     */
+    where?: MonthlyProductRankingWhereInput
+    /**
+     * Limit how many MonthlyProductRankings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MonthlyProductRanking updateManyAndReturn
+   */
+  export type MonthlyProductRankingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * The data used to update MonthlyProductRankings.
+     */
+    data: XOR<MonthlyProductRankingUpdateManyMutationInput, MonthlyProductRankingUncheckedUpdateManyInput>
+    /**
+     * Filter which MonthlyProductRankings to update
+     */
+    where?: MonthlyProductRankingWhereInput
+    /**
+     * Limit how many MonthlyProductRankings to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MonthlyProductRanking upsert
+   */
+  export type MonthlyProductRankingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MonthlyProductRanking to update in case it exists.
+     */
+    where: MonthlyProductRankingWhereUniqueInput
+    /**
+     * In case the MonthlyProductRanking found by the `where` argument doesn't exist, create a new MonthlyProductRanking with this data.
+     */
+    create: XOR<MonthlyProductRankingCreateInput, MonthlyProductRankingUncheckedCreateInput>
+    /**
+     * In case the MonthlyProductRanking was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MonthlyProductRankingUpdateInput, MonthlyProductRankingUncheckedUpdateInput>
+  }
+
+  /**
+   * MonthlyProductRanking delete
+   */
+  export type MonthlyProductRankingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+    /**
+     * Filter which MonthlyProductRanking to delete.
+     */
+    where: MonthlyProductRankingWhereUniqueInput
+  }
+
+  /**
+   * MonthlyProductRanking deleteMany
+   */
+  export type MonthlyProductRankingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MonthlyProductRankings to delete
+     */
+    where?: MonthlyProductRankingWhereInput
+    /**
+     * Limit how many MonthlyProductRankings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MonthlyProductRanking without action
+   */
+  export type MonthlyProductRankingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyProductRanking
+     */
+    select?: MonthlyProductRankingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyProductRanking
+     */
+    omit?: MonthlyProductRankingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MonthlyProductRankingInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MonthlyLeaderboardNotification
+   */
+
+  export type AggregateMonthlyLeaderboardNotification = {
+    _count: MonthlyLeaderboardNotificationCountAggregateOutputType | null
+    _min: MonthlyLeaderboardNotificationMinAggregateOutputType | null
+    _max: MonthlyLeaderboardNotificationMaxAggregateOutputType | null
+  }
+
+  export type MonthlyLeaderboardNotificationMinAggregateOutputType = {
+    id: string | null
+    month: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MonthlyLeaderboardNotificationMaxAggregateOutputType = {
+    id: string | null
+    month: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MonthlyLeaderboardNotificationCountAggregateOutputType = {
+    id: number
+    month: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MonthlyLeaderboardNotificationMinAggregateInputType = {
+    id?: true
+    month?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MonthlyLeaderboardNotificationMaxAggregateInputType = {
+    id?: true
+    month?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MonthlyLeaderboardNotificationCountAggregateInputType = {
+    id?: true
+    month?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MonthlyLeaderboardNotificationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MonthlyLeaderboardNotification to aggregate.
+     */
+    where?: MonthlyLeaderboardNotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MonthlyLeaderboardNotifications to fetch.
+     */
+    orderBy?: MonthlyLeaderboardNotificationOrderByWithRelationInput | MonthlyLeaderboardNotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MonthlyLeaderboardNotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MonthlyLeaderboardNotifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MonthlyLeaderboardNotifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MonthlyLeaderboardNotifications
+    **/
+    _count?: true | MonthlyLeaderboardNotificationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MonthlyLeaderboardNotificationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MonthlyLeaderboardNotificationMaxAggregateInputType
+  }
+
+  export type GetMonthlyLeaderboardNotificationAggregateType<T extends MonthlyLeaderboardNotificationAggregateArgs> = {
+        [P in keyof T & keyof AggregateMonthlyLeaderboardNotification]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMonthlyLeaderboardNotification[P]>
+      : GetScalarType<T[P], AggregateMonthlyLeaderboardNotification[P]>
+  }
+
+
+
+
+  export type MonthlyLeaderboardNotificationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MonthlyLeaderboardNotificationWhereInput
+    orderBy?: MonthlyLeaderboardNotificationOrderByWithAggregationInput | MonthlyLeaderboardNotificationOrderByWithAggregationInput[]
+    by: MonthlyLeaderboardNotificationScalarFieldEnum[] | MonthlyLeaderboardNotificationScalarFieldEnum
+    having?: MonthlyLeaderboardNotificationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MonthlyLeaderboardNotificationCountAggregateInputType | true
+    _min?: MonthlyLeaderboardNotificationMinAggregateInputType
+    _max?: MonthlyLeaderboardNotificationMaxAggregateInputType
+  }
+
+  export type MonthlyLeaderboardNotificationGroupByOutputType = {
+    id: string
+    month: Date
+    createdAt: Date
+    updatedAt: Date
+    _count: MonthlyLeaderboardNotificationCountAggregateOutputType | null
+    _min: MonthlyLeaderboardNotificationMinAggregateOutputType | null
+    _max: MonthlyLeaderboardNotificationMaxAggregateOutputType | null
+  }
+
+  type GetMonthlyLeaderboardNotificationGroupByPayload<T extends MonthlyLeaderboardNotificationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MonthlyLeaderboardNotificationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MonthlyLeaderboardNotificationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MonthlyLeaderboardNotificationGroupByOutputType[P]>
+            : GetScalarType<T[P], MonthlyLeaderboardNotificationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MonthlyLeaderboardNotificationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    month?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["monthlyLeaderboardNotification"]>
+
+  export type MonthlyLeaderboardNotificationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    month?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["monthlyLeaderboardNotification"]>
+
+  export type MonthlyLeaderboardNotificationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    month?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["monthlyLeaderboardNotification"]>
+
+  export type MonthlyLeaderboardNotificationSelectScalar = {
+    id?: boolean
+    month?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MonthlyLeaderboardNotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "month" | "createdAt" | "updatedAt", ExtArgs["result"]["monthlyLeaderboardNotification"]>
+
+  export type $MonthlyLeaderboardNotificationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MonthlyLeaderboardNotification"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      month: Date
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["monthlyLeaderboardNotification"]>
+    composites: {}
+  }
+
+  type MonthlyLeaderboardNotificationGetPayload<S extends boolean | null | undefined | MonthlyLeaderboardNotificationDefaultArgs> = $Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload, S>
+
+  type MonthlyLeaderboardNotificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MonthlyLeaderboardNotificationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MonthlyLeaderboardNotificationCountAggregateInputType | true
+    }
+
+  export interface MonthlyLeaderboardNotificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MonthlyLeaderboardNotification'], meta: { name: 'MonthlyLeaderboardNotification' } }
+    /**
+     * Find zero or one MonthlyLeaderboardNotification that matches the filter.
+     * @param {MonthlyLeaderboardNotificationFindUniqueArgs} args - Arguments to find a MonthlyLeaderboardNotification
+     * @example
+     * // Get one MonthlyLeaderboardNotification
+     * const monthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MonthlyLeaderboardNotificationFindUniqueArgs>(args: SelectSubset<T, MonthlyLeaderboardNotificationFindUniqueArgs<ExtArgs>>): Prisma__MonthlyLeaderboardNotificationClient<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MonthlyLeaderboardNotification that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MonthlyLeaderboardNotificationFindUniqueOrThrowArgs} args - Arguments to find a MonthlyLeaderboardNotification
+     * @example
+     * // Get one MonthlyLeaderboardNotification
+     * const monthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MonthlyLeaderboardNotificationFindUniqueOrThrowArgs>(args: SelectSubset<T, MonthlyLeaderboardNotificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MonthlyLeaderboardNotificationClient<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MonthlyLeaderboardNotification that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyLeaderboardNotificationFindFirstArgs} args - Arguments to find a MonthlyLeaderboardNotification
+     * @example
+     * // Get one MonthlyLeaderboardNotification
+     * const monthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MonthlyLeaderboardNotificationFindFirstArgs>(args?: SelectSubset<T, MonthlyLeaderboardNotificationFindFirstArgs<ExtArgs>>): Prisma__MonthlyLeaderboardNotificationClient<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MonthlyLeaderboardNotification that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyLeaderboardNotificationFindFirstOrThrowArgs} args - Arguments to find a MonthlyLeaderboardNotification
+     * @example
+     * // Get one MonthlyLeaderboardNotification
+     * const monthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MonthlyLeaderboardNotificationFindFirstOrThrowArgs>(args?: SelectSubset<T, MonthlyLeaderboardNotificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__MonthlyLeaderboardNotificationClient<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MonthlyLeaderboardNotifications that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyLeaderboardNotificationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MonthlyLeaderboardNotifications
+     * const monthlyLeaderboardNotifications = await prisma.monthlyLeaderboardNotification.findMany()
+     * 
+     * // Get first 10 MonthlyLeaderboardNotifications
+     * const monthlyLeaderboardNotifications = await prisma.monthlyLeaderboardNotification.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const monthlyLeaderboardNotificationWithIdOnly = await prisma.monthlyLeaderboardNotification.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MonthlyLeaderboardNotificationFindManyArgs>(args?: SelectSubset<T, MonthlyLeaderboardNotificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MonthlyLeaderboardNotification.
+     * @param {MonthlyLeaderboardNotificationCreateArgs} args - Arguments to create a MonthlyLeaderboardNotification.
+     * @example
+     * // Create one MonthlyLeaderboardNotification
+     * const MonthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.create({
+     *   data: {
+     *     // ... data to create a MonthlyLeaderboardNotification
+     *   }
+     * })
+     * 
+     */
+    create<T extends MonthlyLeaderboardNotificationCreateArgs>(args: SelectSubset<T, MonthlyLeaderboardNotificationCreateArgs<ExtArgs>>): Prisma__MonthlyLeaderboardNotificationClient<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MonthlyLeaderboardNotifications.
+     * @param {MonthlyLeaderboardNotificationCreateManyArgs} args - Arguments to create many MonthlyLeaderboardNotifications.
+     * @example
+     * // Create many MonthlyLeaderboardNotifications
+     * const monthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MonthlyLeaderboardNotificationCreateManyArgs>(args?: SelectSubset<T, MonthlyLeaderboardNotificationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MonthlyLeaderboardNotifications and returns the data saved in the database.
+     * @param {MonthlyLeaderboardNotificationCreateManyAndReturnArgs} args - Arguments to create many MonthlyLeaderboardNotifications.
+     * @example
+     * // Create many MonthlyLeaderboardNotifications
+     * const monthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MonthlyLeaderboardNotifications and only return the `id`
+     * const monthlyLeaderboardNotificationWithIdOnly = await prisma.monthlyLeaderboardNotification.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MonthlyLeaderboardNotificationCreateManyAndReturnArgs>(args?: SelectSubset<T, MonthlyLeaderboardNotificationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MonthlyLeaderboardNotification.
+     * @param {MonthlyLeaderboardNotificationDeleteArgs} args - Arguments to delete one MonthlyLeaderboardNotification.
+     * @example
+     * // Delete one MonthlyLeaderboardNotification
+     * const MonthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.delete({
+     *   where: {
+     *     // ... filter to delete one MonthlyLeaderboardNotification
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MonthlyLeaderboardNotificationDeleteArgs>(args: SelectSubset<T, MonthlyLeaderboardNotificationDeleteArgs<ExtArgs>>): Prisma__MonthlyLeaderboardNotificationClient<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MonthlyLeaderboardNotification.
+     * @param {MonthlyLeaderboardNotificationUpdateArgs} args - Arguments to update one MonthlyLeaderboardNotification.
+     * @example
+     * // Update one MonthlyLeaderboardNotification
+     * const monthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MonthlyLeaderboardNotificationUpdateArgs>(args: SelectSubset<T, MonthlyLeaderboardNotificationUpdateArgs<ExtArgs>>): Prisma__MonthlyLeaderboardNotificationClient<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MonthlyLeaderboardNotifications.
+     * @param {MonthlyLeaderboardNotificationDeleteManyArgs} args - Arguments to filter MonthlyLeaderboardNotifications to delete.
+     * @example
+     * // Delete a few MonthlyLeaderboardNotifications
+     * const { count } = await prisma.monthlyLeaderboardNotification.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MonthlyLeaderboardNotificationDeleteManyArgs>(args?: SelectSubset<T, MonthlyLeaderboardNotificationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MonthlyLeaderboardNotifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyLeaderboardNotificationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MonthlyLeaderboardNotifications
+     * const monthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MonthlyLeaderboardNotificationUpdateManyArgs>(args: SelectSubset<T, MonthlyLeaderboardNotificationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MonthlyLeaderboardNotifications and returns the data updated in the database.
+     * @param {MonthlyLeaderboardNotificationUpdateManyAndReturnArgs} args - Arguments to update many MonthlyLeaderboardNotifications.
+     * @example
+     * // Update many MonthlyLeaderboardNotifications
+     * const monthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MonthlyLeaderboardNotifications and only return the `id`
+     * const monthlyLeaderboardNotificationWithIdOnly = await prisma.monthlyLeaderboardNotification.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MonthlyLeaderboardNotificationUpdateManyAndReturnArgs>(args: SelectSubset<T, MonthlyLeaderboardNotificationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MonthlyLeaderboardNotification.
+     * @param {MonthlyLeaderboardNotificationUpsertArgs} args - Arguments to update or create a MonthlyLeaderboardNotification.
+     * @example
+     * // Update or create a MonthlyLeaderboardNotification
+     * const monthlyLeaderboardNotification = await prisma.monthlyLeaderboardNotification.upsert({
+     *   create: {
+     *     // ... data to create a MonthlyLeaderboardNotification
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MonthlyLeaderboardNotification we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MonthlyLeaderboardNotificationUpsertArgs>(args: SelectSubset<T, MonthlyLeaderboardNotificationUpsertArgs<ExtArgs>>): Prisma__MonthlyLeaderboardNotificationClient<$Result.GetResult<Prisma.$MonthlyLeaderboardNotificationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MonthlyLeaderboardNotifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyLeaderboardNotificationCountArgs} args - Arguments to filter MonthlyLeaderboardNotifications to count.
+     * @example
+     * // Count the number of MonthlyLeaderboardNotifications
+     * const count = await prisma.monthlyLeaderboardNotification.count({
+     *   where: {
+     *     // ... the filter for the MonthlyLeaderboardNotifications we want to count
+     *   }
+     * })
+    **/
+    count<T extends MonthlyLeaderboardNotificationCountArgs>(
+      args?: Subset<T, MonthlyLeaderboardNotificationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MonthlyLeaderboardNotificationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MonthlyLeaderboardNotification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyLeaderboardNotificationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MonthlyLeaderboardNotificationAggregateArgs>(args: Subset<T, MonthlyLeaderboardNotificationAggregateArgs>): Prisma.PrismaPromise<GetMonthlyLeaderboardNotificationAggregateType<T>>
+
+    /**
+     * Group by MonthlyLeaderboardNotification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MonthlyLeaderboardNotificationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MonthlyLeaderboardNotificationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MonthlyLeaderboardNotificationGroupByArgs['orderBy'] }
+        : { orderBy?: MonthlyLeaderboardNotificationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MonthlyLeaderboardNotificationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMonthlyLeaderboardNotificationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MonthlyLeaderboardNotification model
+   */
+  readonly fields: MonthlyLeaderboardNotificationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MonthlyLeaderboardNotification.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MonthlyLeaderboardNotificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MonthlyLeaderboardNotification model
+   */
+  interface MonthlyLeaderboardNotificationFieldRefs {
+    readonly id: FieldRef<"MonthlyLeaderboardNotification", 'String'>
+    readonly month: FieldRef<"MonthlyLeaderboardNotification", 'DateTime'>
+    readonly createdAt: FieldRef<"MonthlyLeaderboardNotification", 'DateTime'>
+    readonly updatedAt: FieldRef<"MonthlyLeaderboardNotification", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MonthlyLeaderboardNotification findUnique
+   */
+  export type MonthlyLeaderboardNotificationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * Filter, which MonthlyLeaderboardNotification to fetch.
+     */
+    where: MonthlyLeaderboardNotificationWhereUniqueInput
+  }
+
+  /**
+   * MonthlyLeaderboardNotification findUniqueOrThrow
+   */
+  export type MonthlyLeaderboardNotificationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * Filter, which MonthlyLeaderboardNotification to fetch.
+     */
+    where: MonthlyLeaderboardNotificationWhereUniqueInput
+  }
+
+  /**
+   * MonthlyLeaderboardNotification findFirst
+   */
+  export type MonthlyLeaderboardNotificationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * Filter, which MonthlyLeaderboardNotification to fetch.
+     */
+    where?: MonthlyLeaderboardNotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MonthlyLeaderboardNotifications to fetch.
+     */
+    orderBy?: MonthlyLeaderboardNotificationOrderByWithRelationInput | MonthlyLeaderboardNotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MonthlyLeaderboardNotifications.
+     */
+    cursor?: MonthlyLeaderboardNotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MonthlyLeaderboardNotifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MonthlyLeaderboardNotifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MonthlyLeaderboardNotifications.
+     */
+    distinct?: MonthlyLeaderboardNotificationScalarFieldEnum | MonthlyLeaderboardNotificationScalarFieldEnum[]
+  }
+
+  /**
+   * MonthlyLeaderboardNotification findFirstOrThrow
+   */
+  export type MonthlyLeaderboardNotificationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * Filter, which MonthlyLeaderboardNotification to fetch.
+     */
+    where?: MonthlyLeaderboardNotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MonthlyLeaderboardNotifications to fetch.
+     */
+    orderBy?: MonthlyLeaderboardNotificationOrderByWithRelationInput | MonthlyLeaderboardNotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MonthlyLeaderboardNotifications.
+     */
+    cursor?: MonthlyLeaderboardNotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MonthlyLeaderboardNotifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MonthlyLeaderboardNotifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MonthlyLeaderboardNotifications.
+     */
+    distinct?: MonthlyLeaderboardNotificationScalarFieldEnum | MonthlyLeaderboardNotificationScalarFieldEnum[]
+  }
+
+  /**
+   * MonthlyLeaderboardNotification findMany
+   */
+  export type MonthlyLeaderboardNotificationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * Filter, which MonthlyLeaderboardNotifications to fetch.
+     */
+    where?: MonthlyLeaderboardNotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MonthlyLeaderboardNotifications to fetch.
+     */
+    orderBy?: MonthlyLeaderboardNotificationOrderByWithRelationInput | MonthlyLeaderboardNotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MonthlyLeaderboardNotifications.
+     */
+    cursor?: MonthlyLeaderboardNotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MonthlyLeaderboardNotifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MonthlyLeaderboardNotifications.
+     */
+    skip?: number
+    distinct?: MonthlyLeaderboardNotificationScalarFieldEnum | MonthlyLeaderboardNotificationScalarFieldEnum[]
+  }
+
+  /**
+   * MonthlyLeaderboardNotification create
+   */
+  export type MonthlyLeaderboardNotificationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * The data needed to create a MonthlyLeaderboardNotification.
+     */
+    data: XOR<MonthlyLeaderboardNotificationCreateInput, MonthlyLeaderboardNotificationUncheckedCreateInput>
+  }
+
+  /**
+   * MonthlyLeaderboardNotification createMany
+   */
+  export type MonthlyLeaderboardNotificationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MonthlyLeaderboardNotifications.
+     */
+    data: MonthlyLeaderboardNotificationCreateManyInput | MonthlyLeaderboardNotificationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MonthlyLeaderboardNotification createManyAndReturn
+   */
+  export type MonthlyLeaderboardNotificationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * The data used to create many MonthlyLeaderboardNotifications.
+     */
+    data: MonthlyLeaderboardNotificationCreateManyInput | MonthlyLeaderboardNotificationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MonthlyLeaderboardNotification update
+   */
+  export type MonthlyLeaderboardNotificationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * The data needed to update a MonthlyLeaderboardNotification.
+     */
+    data: XOR<MonthlyLeaderboardNotificationUpdateInput, MonthlyLeaderboardNotificationUncheckedUpdateInput>
+    /**
+     * Choose, which MonthlyLeaderboardNotification to update.
+     */
+    where: MonthlyLeaderboardNotificationWhereUniqueInput
+  }
+
+  /**
+   * MonthlyLeaderboardNotification updateMany
+   */
+  export type MonthlyLeaderboardNotificationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MonthlyLeaderboardNotifications.
+     */
+    data: XOR<MonthlyLeaderboardNotificationUpdateManyMutationInput, MonthlyLeaderboardNotificationUncheckedUpdateManyInput>
+    /**
+     * Filter which MonthlyLeaderboardNotifications to update
+     */
+    where?: MonthlyLeaderboardNotificationWhereInput
+    /**
+     * Limit how many MonthlyLeaderboardNotifications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MonthlyLeaderboardNotification updateManyAndReturn
+   */
+  export type MonthlyLeaderboardNotificationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * The data used to update MonthlyLeaderboardNotifications.
+     */
+    data: XOR<MonthlyLeaderboardNotificationUpdateManyMutationInput, MonthlyLeaderboardNotificationUncheckedUpdateManyInput>
+    /**
+     * Filter which MonthlyLeaderboardNotifications to update
+     */
+    where?: MonthlyLeaderboardNotificationWhereInput
+    /**
+     * Limit how many MonthlyLeaderboardNotifications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MonthlyLeaderboardNotification upsert
+   */
+  export type MonthlyLeaderboardNotificationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * The filter to search for the MonthlyLeaderboardNotification to update in case it exists.
+     */
+    where: MonthlyLeaderboardNotificationWhereUniqueInput
+    /**
+     * In case the MonthlyLeaderboardNotification found by the `where` argument doesn't exist, create a new MonthlyLeaderboardNotification with this data.
+     */
+    create: XOR<MonthlyLeaderboardNotificationCreateInput, MonthlyLeaderboardNotificationUncheckedCreateInput>
+    /**
+     * In case the MonthlyLeaderboardNotification was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MonthlyLeaderboardNotificationUpdateInput, MonthlyLeaderboardNotificationUncheckedUpdateInput>
+  }
+
+  /**
+   * MonthlyLeaderboardNotification delete
+   */
+  export type MonthlyLeaderboardNotificationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
+    /**
+     * Filter which MonthlyLeaderboardNotification to delete.
+     */
+    where: MonthlyLeaderboardNotificationWhereUniqueInput
+  }
+
+  /**
+   * MonthlyLeaderboardNotification deleteMany
+   */
+  export type MonthlyLeaderboardNotificationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MonthlyLeaderboardNotifications to delete
+     */
+    where?: MonthlyLeaderboardNotificationWhereInput
+    /**
+     * Limit how many MonthlyLeaderboardNotifications to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MonthlyLeaderboardNotification without action
+   */
+  export type MonthlyLeaderboardNotificationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MonthlyLeaderboardNotification
+     */
+    select?: MonthlyLeaderboardNotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MonthlyLeaderboardNotification
+     */
+    omit?: MonthlyLeaderboardNotificationOmit<ExtArgs> | null
   }
 
 
@@ -27105,6 +29445,30 @@ export namespace Prisma {
   export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
 
 
+  export const MonthlyProductRankingScalarFieldEnum: {
+    id: 'id',
+    productId: 'productId',
+    month: 'month',
+    rank: 'rank',
+    score: 'score',
+    upvotes: 'upvotes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MonthlyProductRankingScalarFieldEnum = (typeof MonthlyProductRankingScalarFieldEnum)[keyof typeof MonthlyProductRankingScalarFieldEnum]
+
+
+  export const MonthlyLeaderboardNotificationScalarFieldEnum: {
+    id: 'id',
+    month: 'month',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MonthlyLeaderboardNotificationScalarFieldEnum = (typeof MonthlyLeaderboardNotificationScalarFieldEnum)[keyof typeof MonthlyLeaderboardNotificationScalarFieldEnum]
+
+
   export const ProductMediaScalarFieldEnum: {
     id: 'id',
     productId: 'productId',
@@ -27639,6 +30003,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteListRelationFilter
     clickEvents?: ProductClickEventListRelationFilter
     trafficEvents?: ProductTrafficEventListRelationFilter
+    MonthlyProductRanking?: MonthlyProductRankingListRelationFilter
   }
 
   export type ProductOrderByWithRelationInput = {
@@ -27679,6 +30044,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteOrderByRelationAggregateInput
     clickEvents?: ProductClickEventOrderByRelationAggregateInput
     trafficEvents?: ProductTrafficEventOrderByRelationAggregateInput
+    MonthlyProductRanking?: MonthlyProductRankingOrderByRelationAggregateInput
   }
 
   export type ProductWhereUniqueInput = Prisma.AtLeast<{
@@ -27722,6 +30088,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteListRelationFilter
     clickEvents?: ProductClickEventListRelationFilter
     trafficEvents?: ProductTrafficEventListRelationFilter
+    MonthlyProductRanking?: MonthlyProductRankingListRelationFilter
   }, "id" | "slug">
 
   export type ProductOrderByWithAggregationInput = {
@@ -27786,6 +30153,127 @@ export namespace Prisma {
     platforms?: EnumPlatformNullableListFilter<"Product">
     createdAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
+  }
+
+  export type MonthlyProductRankingWhereInput = {
+    AND?: MonthlyProductRankingWhereInput | MonthlyProductRankingWhereInput[]
+    OR?: MonthlyProductRankingWhereInput[]
+    NOT?: MonthlyProductRankingWhereInput | MonthlyProductRankingWhereInput[]
+    id?: StringFilter<"MonthlyProductRanking"> | string
+    productId?: StringFilter<"MonthlyProductRanking"> | string
+    month?: DateTimeFilter<"MonthlyProductRanking"> | Date | string
+    rank?: IntFilter<"MonthlyProductRanking"> | number
+    score?: IntNullableFilter<"MonthlyProductRanking"> | number | null
+    upvotes?: IntNullableFilter<"MonthlyProductRanking"> | number | null
+    createdAt?: DateTimeFilter<"MonthlyProductRanking"> | Date | string
+    updatedAt?: DateTimeFilter<"MonthlyProductRanking"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+  }
+
+  export type MonthlyProductRankingOrderByWithRelationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    month?: SortOrder
+    rank?: SortOrder
+    score?: SortOrderInput | SortOrder
+    upvotes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    product?: ProductOrderByWithRelationInput
+  }
+
+  export type MonthlyProductRankingWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    month_productId?: MonthlyProductRankingMonthProductIdCompoundUniqueInput
+    month_rank?: MonthlyProductRankingMonthRankCompoundUniqueInput
+    AND?: MonthlyProductRankingWhereInput | MonthlyProductRankingWhereInput[]
+    OR?: MonthlyProductRankingWhereInput[]
+    NOT?: MonthlyProductRankingWhereInput | MonthlyProductRankingWhereInput[]
+    productId?: StringFilter<"MonthlyProductRanking"> | string
+    month?: DateTimeFilter<"MonthlyProductRanking"> | Date | string
+    rank?: IntFilter<"MonthlyProductRanking"> | number
+    score?: IntNullableFilter<"MonthlyProductRanking"> | number | null
+    upvotes?: IntNullableFilter<"MonthlyProductRanking"> | number | null
+    createdAt?: DateTimeFilter<"MonthlyProductRanking"> | Date | string
+    updatedAt?: DateTimeFilter<"MonthlyProductRanking"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+  }, "id" | "month_productId" | "month_rank">
+
+  export type MonthlyProductRankingOrderByWithAggregationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    month?: SortOrder
+    rank?: SortOrder
+    score?: SortOrderInput | SortOrder
+    upvotes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MonthlyProductRankingCountOrderByAggregateInput
+    _avg?: MonthlyProductRankingAvgOrderByAggregateInput
+    _max?: MonthlyProductRankingMaxOrderByAggregateInput
+    _min?: MonthlyProductRankingMinOrderByAggregateInput
+    _sum?: MonthlyProductRankingSumOrderByAggregateInput
+  }
+
+  export type MonthlyProductRankingScalarWhereWithAggregatesInput = {
+    AND?: MonthlyProductRankingScalarWhereWithAggregatesInput | MonthlyProductRankingScalarWhereWithAggregatesInput[]
+    OR?: MonthlyProductRankingScalarWhereWithAggregatesInput[]
+    NOT?: MonthlyProductRankingScalarWhereWithAggregatesInput | MonthlyProductRankingScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MonthlyProductRanking"> | string
+    productId?: StringWithAggregatesFilter<"MonthlyProductRanking"> | string
+    month?: DateTimeWithAggregatesFilter<"MonthlyProductRanking"> | Date | string
+    rank?: IntWithAggregatesFilter<"MonthlyProductRanking"> | number
+    score?: IntNullableWithAggregatesFilter<"MonthlyProductRanking"> | number | null
+    upvotes?: IntNullableWithAggregatesFilter<"MonthlyProductRanking"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"MonthlyProductRanking"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MonthlyProductRanking"> | Date | string
+  }
+
+  export type MonthlyLeaderboardNotificationWhereInput = {
+    AND?: MonthlyLeaderboardNotificationWhereInput | MonthlyLeaderboardNotificationWhereInput[]
+    OR?: MonthlyLeaderboardNotificationWhereInput[]
+    NOT?: MonthlyLeaderboardNotificationWhereInput | MonthlyLeaderboardNotificationWhereInput[]
+    id?: StringFilter<"MonthlyLeaderboardNotification"> | string
+    month?: DateTimeFilter<"MonthlyLeaderboardNotification"> | Date | string
+    createdAt?: DateTimeFilter<"MonthlyLeaderboardNotification"> | Date | string
+    updatedAt?: DateTimeFilter<"MonthlyLeaderboardNotification"> | Date | string
+  }
+
+  export type MonthlyLeaderboardNotificationOrderByWithRelationInput = {
+    id?: SortOrder
+    month?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MonthlyLeaderboardNotificationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    month?: Date | string
+    AND?: MonthlyLeaderboardNotificationWhereInput | MonthlyLeaderboardNotificationWhereInput[]
+    OR?: MonthlyLeaderboardNotificationWhereInput[]
+    NOT?: MonthlyLeaderboardNotificationWhereInput | MonthlyLeaderboardNotificationWhereInput[]
+    createdAt?: DateTimeFilter<"MonthlyLeaderboardNotification"> | Date | string
+    updatedAt?: DateTimeFilter<"MonthlyLeaderboardNotification"> | Date | string
+  }, "id" | "month">
+
+  export type MonthlyLeaderboardNotificationOrderByWithAggregationInput = {
+    id?: SortOrder
+    month?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MonthlyLeaderboardNotificationCountOrderByAggregateInput
+    _max?: MonthlyLeaderboardNotificationMaxOrderByAggregateInput
+    _min?: MonthlyLeaderboardNotificationMinOrderByAggregateInput
+  }
+
+  export type MonthlyLeaderboardNotificationScalarWhereWithAggregatesInput = {
+    AND?: MonthlyLeaderboardNotificationScalarWhereWithAggregatesInput | MonthlyLeaderboardNotificationScalarWhereWithAggregatesInput[]
+    OR?: MonthlyLeaderboardNotificationScalarWhereWithAggregatesInput[]
+    NOT?: MonthlyLeaderboardNotificationScalarWhereWithAggregatesInput | MonthlyLeaderboardNotificationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MonthlyLeaderboardNotification"> | string
+    month?: DateTimeWithAggregatesFilter<"MonthlyLeaderboardNotification"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"MonthlyLeaderboardNotification"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MonthlyLeaderboardNotification"> | Date | string
   }
 
   export type ProductMediaWhereInput = {
@@ -29235,6 +31723,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateInput = {
@@ -29271,6 +31760,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductUpdateInput = {
@@ -29307,6 +31797,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateInput = {
@@ -29343,6 +31834,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateManyInput = {
@@ -29421,6 +31913,131 @@ export namespace Prisma {
     bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     keywords?: ProductUpdatekeywordsInput | string[]
     platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MonthlyProductRankingCreateInput = {
+    id?: string
+    month: Date | string
+    rank: number
+    score?: number | null
+    upvotes?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    product: ProductCreateNestedOneWithoutMonthlyProductRankingInput
+  }
+
+  export type MonthlyProductRankingUncheckedCreateInput = {
+    id?: string
+    productId: string
+    month: Date | string
+    rank: number
+    score?: number | null
+    upvotes?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MonthlyProductRankingUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
+    rank?: IntFieldUpdateOperationsInput | number
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    upvotes?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutMonthlyProductRankingNestedInput
+  }
+
+  export type MonthlyProductRankingUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
+    rank?: IntFieldUpdateOperationsInput | number
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    upvotes?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MonthlyProductRankingCreateManyInput = {
+    id?: string
+    productId: string
+    month: Date | string
+    rank: number
+    score?: number | null
+    upvotes?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MonthlyProductRankingUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
+    rank?: IntFieldUpdateOperationsInput | number
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    upvotes?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MonthlyProductRankingUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
+    rank?: IntFieldUpdateOperationsInput | number
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    upvotes?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MonthlyLeaderboardNotificationCreateInput = {
+    id?: string
+    month: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MonthlyLeaderboardNotificationUncheckedCreateInput = {
+    id?: string
+    month: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MonthlyLeaderboardNotificationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MonthlyLeaderboardNotificationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MonthlyLeaderboardNotificationCreateManyInput = {
+    id?: string
+    month: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MonthlyLeaderboardNotificationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MonthlyLeaderboardNotificationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -31116,6 +33733,12 @@ export namespace Prisma {
     none?: ProductTrafficEventWhereInput
   }
 
+  export type MonthlyProductRankingListRelationFilter = {
+    every?: MonthlyProductRankingWhereInput
+    some?: MonthlyProductRankingWhereInput
+    none?: MonthlyProductRankingWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -31138,6 +33761,10 @@ export namespace Prisma {
   }
 
   export type ProductTrafficEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MonthlyProductRankingOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -31339,9 +33966,112 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type ProductScalarRelationFilter = {
     is?: ProductWhereInput
     isNot?: ProductWhereInput
+  }
+
+  export type MonthlyProductRankingMonthProductIdCompoundUniqueInput = {
+    month: Date | string
+    productId: string
+  }
+
+  export type MonthlyProductRankingMonthRankCompoundUniqueInput = {
+    month: Date | string
+    rank: number
+  }
+
+  export type MonthlyProductRankingCountOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    month?: SortOrder
+    rank?: SortOrder
+    score?: SortOrder
+    upvotes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MonthlyProductRankingAvgOrderByAggregateInput = {
+    rank?: SortOrder
+    score?: SortOrder
+    upvotes?: SortOrder
+  }
+
+  export type MonthlyProductRankingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    month?: SortOrder
+    rank?: SortOrder
+    score?: SortOrder
+    upvotes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MonthlyProductRankingMinOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    month?: SortOrder
+    rank?: SortOrder
+    score?: SortOrder
+    upvotes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MonthlyProductRankingSumOrderByAggregateInput = {
+    rank?: SortOrder
+    score?: SortOrder
+    upvotes?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type MonthlyLeaderboardNotificationCountOrderByAggregateInput = {
+    id?: SortOrder
+    month?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MonthlyLeaderboardNotificationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    month?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MonthlyLeaderboardNotificationMinOrderByAggregateInput = {
+    id?: SortOrder
+    month?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ProductMediaCountOrderByAggregateInput = {
@@ -31450,17 +34180,6 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type ProductAnalyticsCountOrderByAggregateInput = {
     id?: SortOrder
     productId?: SortOrder
@@ -31496,22 +34215,6 @@ export namespace Prisma {
   export type ProductAnalyticsSumOrderByAggregateInput = {
     upvotes?: SortOrder
     clicks?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type EnumDeviceCategoryFilter<$PrismaModel = never> = {
@@ -32371,6 +35074,13 @@ export namespace Prisma {
     connect?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
   }
 
+  export type MonthlyProductRankingCreateNestedManyWithoutProductInput = {
+    create?: XOR<MonthlyProductRankingCreateWithoutProductInput, MonthlyProductRankingUncheckedCreateWithoutProductInput> | MonthlyProductRankingCreateWithoutProductInput[] | MonthlyProductRankingUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: MonthlyProductRankingCreateOrConnectWithoutProductInput | MonthlyProductRankingCreateOrConnectWithoutProductInput[]
+    createMany?: MonthlyProductRankingCreateManyProductInputEnvelope
+    connect?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
+  }
+
   export type ProductMetadataUncheckedCreateNestedOneWithoutProductInput = {
     create?: XOR<ProductMetadataCreateWithoutProductInput, ProductMetadataUncheckedCreateWithoutProductInput>
     connectOrCreate?: ProductMetadataCreateOrConnectWithoutProductInput
@@ -32422,6 +35132,13 @@ export namespace Prisma {
     connectOrCreate?: ProductTrafficEventCreateOrConnectWithoutProductInput | ProductTrafficEventCreateOrConnectWithoutProductInput[]
     createMany?: ProductTrafficEventCreateManyProductInputEnvelope
     connect?: ProductTrafficEventWhereUniqueInput | ProductTrafficEventWhereUniqueInput[]
+  }
+
+  export type MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<MonthlyProductRankingCreateWithoutProductInput, MonthlyProductRankingUncheckedCreateWithoutProductInput> | MonthlyProductRankingCreateWithoutProductInput[] | MonthlyProductRankingUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: MonthlyProductRankingCreateOrConnectWithoutProductInput | MonthlyProductRankingCreateOrConnectWithoutProductInput[]
+    createMany?: MonthlyProductRankingCreateManyProductInputEnvelope
+    connect?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -32606,6 +35323,20 @@ export namespace Prisma {
     deleteMany?: ProductTrafficEventScalarWhereInput | ProductTrafficEventScalarWhereInput[]
   }
 
+  export type MonthlyProductRankingUpdateManyWithoutProductNestedInput = {
+    create?: XOR<MonthlyProductRankingCreateWithoutProductInput, MonthlyProductRankingUncheckedCreateWithoutProductInput> | MonthlyProductRankingCreateWithoutProductInput[] | MonthlyProductRankingUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: MonthlyProductRankingCreateOrConnectWithoutProductInput | MonthlyProductRankingCreateOrConnectWithoutProductInput[]
+    upsert?: MonthlyProductRankingUpsertWithWhereUniqueWithoutProductInput | MonthlyProductRankingUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: MonthlyProductRankingCreateManyProductInputEnvelope
+    set?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
+    disconnect?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
+    delete?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
+    connect?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
+    update?: MonthlyProductRankingUpdateWithWhereUniqueWithoutProductInput | MonthlyProductRankingUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: MonthlyProductRankingUpdateManyWithWhereWithoutProductInput | MonthlyProductRankingUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: MonthlyProductRankingScalarWhereInput | MonthlyProductRankingScalarWhereInput[]
+  }
+
   export type ProductMetadataUncheckedUpdateOneWithoutProductNestedInput = {
     create?: XOR<ProductMetadataCreateWithoutProductInput, ProductMetadataUncheckedCreateWithoutProductInput>
     connectOrCreate?: ProductMetadataCreateOrConnectWithoutProductInput
@@ -32706,6 +35437,42 @@ export namespace Prisma {
     deleteMany?: ProductTrafficEventScalarWhereInput | ProductTrafficEventScalarWhereInput[]
   }
 
+  export type MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<MonthlyProductRankingCreateWithoutProductInput, MonthlyProductRankingUncheckedCreateWithoutProductInput> | MonthlyProductRankingCreateWithoutProductInput[] | MonthlyProductRankingUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: MonthlyProductRankingCreateOrConnectWithoutProductInput | MonthlyProductRankingCreateOrConnectWithoutProductInput[]
+    upsert?: MonthlyProductRankingUpsertWithWhereUniqueWithoutProductInput | MonthlyProductRankingUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: MonthlyProductRankingCreateManyProductInputEnvelope
+    set?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
+    disconnect?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
+    delete?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
+    connect?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
+    update?: MonthlyProductRankingUpdateWithWhereUniqueWithoutProductInput | MonthlyProductRankingUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: MonthlyProductRankingUpdateManyWithWhereWithoutProductInput | MonthlyProductRankingUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: MonthlyProductRankingScalarWhereInput | MonthlyProductRankingScalarWhereInput[]
+  }
+
+  export type ProductCreateNestedOneWithoutMonthlyProductRankingInput = {
+    create?: XOR<ProductCreateWithoutMonthlyProductRankingInput, ProductUncheckedCreateWithoutMonthlyProductRankingInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutMonthlyProductRankingInput
+    connect?: ProductWhereUniqueInput
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type ProductUpdateOneRequiredWithoutMonthlyProductRankingNestedInput = {
+    create?: XOR<ProductCreateWithoutMonthlyProductRankingInput, ProductUncheckedCreateWithoutMonthlyProductRankingInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutMonthlyProductRankingInput
+    upsert?: ProductUpsertWithoutMonthlyProductRankingInput
+    connect?: ProductWhereUniqueInput
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutMonthlyProductRankingInput, ProductUpdateWithoutMonthlyProductRankingInput>, ProductUncheckedUpdateWithoutMonthlyProductRankingInput>
+  }
+
   export type ProductCreateNestedOneWithoutProductMediaInput = {
     create?: XOR<ProductCreateWithoutProductMediaInput, ProductUncheckedCreateWithoutProductMediaInput>
     connectOrCreate?: ProductCreateOrConnectWithoutProductMediaInput
@@ -32756,14 +35523,6 @@ export namespace Prisma {
     create?: XOR<ProductCreateWithoutAnalyticsInput, ProductUncheckedCreateWithoutAnalyticsInput>
     connectOrCreate?: ProductCreateOrConnectWithoutAnalyticsInput
     connect?: ProductWhereUniqueInput
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type ProductUpdateOneRequiredWithoutAnalyticsNestedInput = {
@@ -33856,19 +36615,6 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -33894,6 +36640,19 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedEnumDeviceCategoryFilter<$PrismaModel = never> = {
@@ -34370,6 +37129,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MonthlyProductRankingCreateWithoutProductInput = {
+    id?: string
+    month: Date | string
+    rank: number
+    score?: number | null
+    upvotes?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MonthlyProductRankingUncheckedCreateWithoutProductInput = {
+    id?: string
+    month: Date | string
+    rank: number
+    score?: number | null
+    upvotes?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MonthlyProductRankingCreateOrConnectWithoutProductInput = {
+    where: MonthlyProductRankingWhereUniqueInput
+    create: XOR<MonthlyProductRankingCreateWithoutProductInput, MonthlyProductRankingUncheckedCreateWithoutProductInput>
+  }
+
+  export type MonthlyProductRankingCreateManyProductInputEnvelope = {
+    data: MonthlyProductRankingCreateManyProductInput | MonthlyProductRankingCreateManyProductInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutProductsInput = {
     update: XOR<UserUpdateWithoutProductsInput, UserUncheckedUpdateWithoutProductsInput>
     create: XOR<UserCreateWithoutProductsInput, UserUncheckedCreateWithoutProductsInput>
@@ -34784,6 +37573,196 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ProductTrafficEvent"> | Date | string
   }
 
+  export type MonthlyProductRankingUpsertWithWhereUniqueWithoutProductInput = {
+    where: MonthlyProductRankingWhereUniqueInput
+    update: XOR<MonthlyProductRankingUpdateWithoutProductInput, MonthlyProductRankingUncheckedUpdateWithoutProductInput>
+    create: XOR<MonthlyProductRankingCreateWithoutProductInput, MonthlyProductRankingUncheckedCreateWithoutProductInput>
+  }
+
+  export type MonthlyProductRankingUpdateWithWhereUniqueWithoutProductInput = {
+    where: MonthlyProductRankingWhereUniqueInput
+    data: XOR<MonthlyProductRankingUpdateWithoutProductInput, MonthlyProductRankingUncheckedUpdateWithoutProductInput>
+  }
+
+  export type MonthlyProductRankingUpdateManyWithWhereWithoutProductInput = {
+    where: MonthlyProductRankingScalarWhereInput
+    data: XOR<MonthlyProductRankingUpdateManyMutationInput, MonthlyProductRankingUncheckedUpdateManyWithoutProductInput>
+  }
+
+  export type MonthlyProductRankingScalarWhereInput = {
+    AND?: MonthlyProductRankingScalarWhereInput | MonthlyProductRankingScalarWhereInput[]
+    OR?: MonthlyProductRankingScalarWhereInput[]
+    NOT?: MonthlyProductRankingScalarWhereInput | MonthlyProductRankingScalarWhereInput[]
+    id?: StringFilter<"MonthlyProductRanking"> | string
+    productId?: StringFilter<"MonthlyProductRanking"> | string
+    month?: DateTimeFilter<"MonthlyProductRanking"> | Date | string
+    rank?: IntFilter<"MonthlyProductRanking"> | number
+    score?: IntNullableFilter<"MonthlyProductRanking"> | number | null
+    upvotes?: IntNullableFilter<"MonthlyProductRanking"> | number | null
+    createdAt?: DateTimeFilter<"MonthlyProductRanking"> | Date | string
+    updatedAt?: DateTimeFilter<"MonthlyProductRanking"> | Date | string
+  }
+
+  export type ProductCreateWithoutMonthlyProductRankingInput = {
+    id?: string
+    name: string
+    slug: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    logo: string
+    planAssignedAt?: Date | string | null
+    type: $Enums.ProductType
+    pricingModel: $Enums.PricingModel
+    status?: $Enums.ProductStatus
+    publishedAt?: Date | string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    keywords?: ProductCreatekeywordsInput | string[]
+    platforms?: ProductCreateplatformsInput | $Enums.Platform[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutProductsInput
+    category: CategoryCreateNestedOneWithoutProductsInput
+    plan?: PlanCreateNestedOneWithoutProductsInput
+    organization?: OrganizationCreateNestedOneWithoutProductInput
+    metadata?: ProductMetadataCreateNestedOneWithoutProductInput
+    analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
+    verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
+    ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
+    ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductUncheckedCreateWithoutMonthlyProductRankingInput = {
+    id?: string
+    name: string
+    slug: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    logo: string
+    userId: string
+    categoryId: string
+    planId?: string | null
+    planAssignedAt?: Date | string | null
+    type: $Enums.ProductType
+    pricingModel: $Enums.PricingModel
+    status?: $Enums.ProductStatus
+    publishedAt?: Date | string | null
+    organizationId?: string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    keywords?: ProductCreatekeywordsInput | string[]
+    platforms?: ProductCreateplatformsInput | $Enums.Platform[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
+    analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
+    verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
+    ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
+    ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductCreateOrConnectWithoutMonthlyProductRankingInput = {
+    where: ProductWhereUniqueInput
+    create: XOR<ProductCreateWithoutMonthlyProductRankingInput, ProductUncheckedCreateWithoutMonthlyProductRankingInput>
+  }
+
+  export type ProductUpsertWithoutMonthlyProductRankingInput = {
+    update: XOR<ProductUpdateWithoutMonthlyProductRankingInput, ProductUncheckedUpdateWithoutMonthlyProductRankingInput>
+    create: XOR<ProductCreateWithoutMonthlyProductRankingInput, ProductUncheckedCreateWithoutMonthlyProductRankingInput>
+    where?: ProductWhereInput
+  }
+
+  export type ProductUpdateToOneWithWhereWithoutMonthlyProductRankingInput = {
+    where?: ProductWhereInput
+    data: XOR<ProductUpdateWithoutMonthlyProductRankingInput, ProductUncheckedUpdateWithoutMonthlyProductRankingInput>
+  }
+
+  export type ProductUpdateWithoutMonthlyProductRankingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    tagline?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    websiteUrl?: StringFieldUpdateOperationsInput | string
+    logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+    pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startingPriceCents?: NullableIntFieldUpdateOperationsInput | number | null
+    currencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
+    keywords?: ProductUpdatekeywordsInput | string[]
+    platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutProductsNestedInput
+    category?: CategoryUpdateOneRequiredWithoutProductsNestedInput
+    plan?: PlanUpdateOneWithoutProductsNestedInput
+    organization?: OrganizationUpdateOneWithoutProductNestedInput
+    metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
+    analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
+    verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
+    ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
+    ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductUncheckedUpdateWithoutMonthlyProductRankingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    tagline?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    websiteUrl?: StringFieldUpdateOperationsInput | string
+    logo?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    categoryId?: StringFieldUpdateOperationsInput | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+    pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startingPriceCents?: NullableIntFieldUpdateOperationsInput | number | null
+    currencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
+    keywords?: ProductUpdatekeywordsInput | string[]
+    platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
+    analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
+    verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
+    ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+    ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+  }
+
   export type ProductCreateWithoutProductMediaInput = {
     id?: string
     name: string
@@ -34817,6 +37796,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductMediaInput = {
@@ -34852,6 +37832,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductMediaInput = {
@@ -34903,6 +37884,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductMediaInput = {
@@ -34938,6 +37920,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutVerificationInput = {
@@ -34973,6 +37956,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutVerificationInput = {
@@ -35008,6 +37992,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutVerificationInput = {
@@ -35059,6 +38044,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutVerificationInput = {
@@ -35094,6 +38080,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutMetadataInput = {
@@ -35129,6 +38116,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutMetadataInput = {
@@ -35164,6 +38152,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutMetadataInput = {
@@ -35215,6 +38204,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutMetadataInput = {
@@ -35250,6 +38240,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutAnalyticsInput = {
@@ -35285,6 +38276,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutAnalyticsInput = {
@@ -35320,6 +38312,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutAnalyticsInput = {
@@ -35371,6 +38364,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutAnalyticsInput = {
@@ -35406,6 +38400,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutClickEventsInput = {
@@ -35441,6 +38436,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutClickEventsInput = {
@@ -35476,6 +38472,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutClickEventsInput = {
@@ -35527,6 +38524,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutClickEventsInput = {
@@ -35562,6 +38560,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutTrafficEventsInput = {
@@ -35597,6 +38596,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutTrafficEventsInput = {
@@ -35632,6 +38632,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutTrafficEventsInput = {
@@ -35683,6 +38684,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutTrafficEventsInput = {
@@ -35718,6 +38720,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductCreateWithoutProductUpvoteInput = {
@@ -35753,6 +38756,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductUpvoteInput = {
@@ -35788,6 +38792,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductUpvoteInput = {
@@ -35890,6 +38895,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductUpvoteInput = {
@@ -35925,6 +38931,7 @@ export namespace Prisma {
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type UserUpsertWithoutProductUpvoteInput = {
@@ -36043,6 +39050,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutOrganizationInput = {
@@ -36078,6 +39086,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutOrganizationInput = {
@@ -36470,6 +39479,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutUserInput = {
@@ -36505,6 +39515,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutUserInput = {
@@ -36929,6 +39940,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutCategoryInput = {
@@ -36964,6 +39976,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutCategoryInput = {
@@ -37067,6 +40080,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutPlanInput = {
@@ -37102,6 +40116,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutPlanInput = {
@@ -37666,6 +40681,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
   export type ProductUncheckedCreateWithoutProductBadgeInput = {
@@ -37701,6 +40717,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProductCreateOrConnectWithoutProductBadgeInput = {
@@ -37752,6 +40769,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutProductBadgeInput = {
@@ -37787,6 +40805,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type UseCaseCategoryCreateWithoutUseCaseInput = {
@@ -37982,6 +41001,16 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type MonthlyProductRankingCreateManyProductInput = {
+    id?: string
+    month: Date | string
+    rank: number
+    score?: number | null
+    upvotes?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type ProductBadgeUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     badge?: StringFieldUpdateOperationsInput | string
@@ -38135,6 +41164,36 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MonthlyProductRankingUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
+    rank?: IntFieldUpdateOperationsInput | number
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    upvotes?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MonthlyProductRankingUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
+    rank?: IntFieldUpdateOperationsInput | number
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    upvotes?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MonthlyProductRankingUncheckedUpdateManyWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: DateTimeFieldUpdateOperationsInput | Date | string
+    rank?: IntFieldUpdateOperationsInput | number
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    upvotes?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrganizationMembershipCreateManyOrganizationInput = {
     id?: string
     userId: string
@@ -38227,6 +41286,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutOrganizationInput = {
@@ -38262,6 +41322,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutOrganizationInput = {
@@ -38392,6 +41453,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutUserInput = {
@@ -38427,6 +41489,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutUserInput = {
@@ -38647,6 +41710,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutCategoryInput = {
@@ -38682,6 +41746,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutCategoryInput = {
@@ -38800,6 +41865,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateWithoutPlanInput = {
@@ -38835,6 +41901,7 @@ export namespace Prisma {
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProductUncheckedUpdateManyWithoutPlanInput = {

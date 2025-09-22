@@ -42,23 +42,49 @@ model Product {
   updatedAt          DateTime      @updatedAt
 
   // Relations
-  user          User                  @relation(fields: [userId], references: [id])
-  category      Category              @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  plan          Plan?                 @relation(fields: [planId], references: [id], onDelete: SetNull)
-  organization  Organization?         @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  metadata      ProductMetadata?
-  analytics     ProductAnalytics?
-  verification  ProductVerification?
-  ProductBadge  ProductBadge[]
-  ProductMedia  ProductMedia[]
-  ProductUpvote ProductUpvote[]
-  clickEvents   ProductClickEvent[]
-  trafficEvents ProductTrafficEvent[]
+  user                  User                    @relation(fields: [userId], references: [id])
+  category              Category                @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  plan                  Plan?                   @relation(fields: [planId], references: [id], onDelete: SetNull)
+  organization          Organization?           @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  metadata              ProductMetadata?
+  analytics             ProductAnalytics?
+  verification          ProductVerification?
+  ProductBadge          ProductBadge[]
+  ProductMedia          ProductMedia[]
+  ProductUpvote         ProductUpvote[]
+  clickEvents           ProductClickEvent[]
+  trafficEvents         ProductTrafficEvent[]
+  MonthlyProductRanking MonthlyProductRanking[]
 
   @@index([categoryId, createdAt])
   @@index([status, publishedAt])
   @@index([createdAt])
   @@index([updatedAt])
+}
+
+model MonthlyProductRanking {
+  id        String   @id @default(cuid())
+  productId String
+  month     DateTime // Normalized to the first day of the month in UTC
+  rank      Int
+  score     Int?
+  upvotes   Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([month, productId])
+  @@unique([month, rank])
+  @@index([productId, month])
+  @@index([month])
+}
+
+model MonthlyLeaderboardNotification {
+  id        String   @id @default(cuid())
+  month     DateTime @unique // normalized month date
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum ProductType {
@@ -147,7 +173,7 @@ model ProductAnalytics {
 }
 
 model ProductClickEvent {
-  id        String   @id @default(cuid())
+  id        String         @id @default(cuid())
   productId String
   referrer  String?
   userAgent String?
@@ -158,7 +184,7 @@ model ProductClickEvent {
   region    String?
   city      String?
   ipHash    String?
-  createdAt DateTime @default(now())
+  createdAt DateTime       @default(now())
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 

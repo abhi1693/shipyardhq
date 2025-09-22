@@ -562,6 +562,106 @@ async function main() {
     products.map((product) => [product.slug, product.id]),
   )
 
+  const monthlyRankingSeeds: {
+    month: Date
+    rankings: {
+      slug: string
+      rank: number
+      score?: number
+      upvotes?: number
+    }[]
+  }[] = [
+    {
+      month: new Date(Date.UTC(2024, 3, 1)),
+      rankings: [
+        { slug: "shitposts", rank: 1, score: 98, upvotes: 640 },
+        { slug: "launchify", rank: 2, score: 93, upvotes: 590 },
+        { slug: "growthforge", rank: 3, score: 89, upvotes: 560 },
+        { slug: "promptify", rank: 4, score: 86, upvotes: 540 },
+        { slug: "stackhatch", rank: 5, score: 82, upvotes: 520 },
+        { slug: "zapsync", rank: 6, score: 79, upvotes: 505 },
+        { slug: "metricflow", rank: 7, score: 77, upvotes: 492 },
+        { slug: "sharespark", rank: 8, score: 74, upvotes: 476 },
+        { slug: "deployflow", rank: 9, score: 72, upvotes: 463 },
+        { slug: "crowdmagnet", rank: 10, score: 70, upvotes: 451 },
+      ],
+    },
+    {
+      month: new Date(Date.UTC(2024, 2, 1)),
+      rankings: [
+        { slug: "launchify", rank: 1, score: 95, upvotes: 610 },
+        { slug: "shitposts", rank: 2, score: 92, upvotes: 580 },
+        { slug: "growthforge", rank: 3, score: 88, upvotes: 552 },
+        { slug: "promowiz", rank: 4, score: 84, upvotes: 530 },
+        { slug: "tasktrove", rank: 5, score: 81, upvotes: 498 },
+        { slug: "promptforge", rank: 6, score: 79, upvotes: 480 },
+        { slug: "stathero", rank: 7, score: 77, upvotes: 468 },
+        { slug: "byteboard", rank: 8, score: 74, upvotes: 455 },
+        { slug: "autotweet", rank: 9, score: 72, upvotes: 440 },
+        { slug: "planstack", rank: 10, score: 70, upvotes: 428 },
+      ],
+    },
+    {
+      month: new Date(Date.UTC(2024, 1, 1)),
+      rankings: [
+        { slug: "growthforge", rank: 1, score: 92, upvotes: 580 },
+        { slug: "launchify", rank: 2, score: 90, upvotes: 560 },
+        { slug: "shitposts", rank: 3, score: 87, upvotes: 540 },
+        { slug: "metricflow", rank: 4, score: 84, upvotes: 520 },
+        { slug: "promptify", rank: 5, score: 82, upvotes: 505 },
+        { slug: "formfrenzy", rank: 6, score: 79, upvotes: 488 },
+        { slug: "stackhatch", rank: 7, score: 77, upvotes: 470 },
+        { slug: "leadloop", rank: 8, score: 75, upvotes: 455 },
+        { slug: "deployflow", rank: 9, score: 73, upvotes: 440 },
+        { slug: "funnelbeam", rank: 10, score: 71, upvotes: 428 },
+      ],
+    },
+  ]
+
+  await prisma.monthlyProductRanking.deleteMany({})
+
+  const monthlyRankingRows: { month: string; entries: number }[] = []
+  for (const monthSeed of monthlyRankingSeeds) {
+    const normalizedMonth = new Date(
+      Date.UTC(
+        monthSeed.month.getUTCFullYear(),
+        monthSeed.month.getUTCMonth(),
+        1,
+      ),
+    )
+
+    const rankings: Prisma.MonthlyProductRankingCreateManyInput[] = []
+    for (const ranking of monthSeed.rankings) {
+      const productId = productIdBySlug.get(ranking.slug)
+      if (!productId) {
+        console.warn(
+          `Missing product for monthly ranking slug '${ranking.slug}'`,
+        )
+        continue
+      }
+
+      rankings.push({
+        productId,
+        month: normalizedMonth,
+        rank: ranking.rank,
+        score: ranking.score ?? null,
+        upvotes: ranking.upvotes ?? null,
+      })
+    }
+
+    if (!rankings.length) {
+      continue
+    }
+
+    await prisma.monthlyProductRanking.createMany({ data: rankings })
+    monthlyRankingRows.push({
+      month: normalizedMonth.toISOString().slice(0, 7),
+      entries: rankings.length,
+    })
+  }
+
+  console.table(monthlyRankingRows)
+
   const baseDate = new Date()
   baseDate.setUTCHours(12, 0, 0, 0)
   const trafficTimestamp = (daysAgo: number, hourOffset = 0) => {

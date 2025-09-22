@@ -25,6 +25,13 @@ export function revalidateLeaderboard() {
   revalidateTag(TAGS.analytics)
 }
 
+export function revalidateMonthlyLeaderboard(monthKey?: string) {
+  revalidateTag(TAGS.monthlyLeaderboard)
+  if (monthKey) {
+    revalidateTag(TAGS.monthlyLeaderboardMonth(monthKey))
+  }
+}
+
 export function revalidateBadges() {
   revalidateTag(TAGS.badges)
   revalidateProducts()

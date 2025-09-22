@@ -11,6 +11,7 @@ import {
   CATEGORIES_PATH,
   HOME_PATH,
   LEADERBOARD_PATH,
+  LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   USERS_PATH,
@@ -124,6 +125,14 @@ export default function PublicFooter({
                 className={textLinkCls + " md:font-medium"}
               >
                 Leaderboard
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={LEADERBOARD_GUIDE_PATH}
+                className={textLinkCls + " md:font-medium"}
+              >
+                How scoring works
               </Link>
             </li>
             <li>

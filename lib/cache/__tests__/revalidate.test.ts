@@ -11,6 +11,7 @@ import {
   revalidateCategories,
   revalidateCategory,
   revalidateLeaderboard,
+  revalidateMonthlyLeaderboard,
   revalidatePlanFeature,
   revalidateProduct,
   revalidateProducts,
@@ -48,6 +49,21 @@ describe("revalidate helpers", () => {
     expect(revalidateTagMock).toHaveBeenCalledWith("leaderboard")
     expect(revalidateTagMock).toHaveBeenCalledWith("trending")
     expect(revalidateTagMock).toHaveBeenCalledWith("analytics")
+  })
+
+  it("revalidates monthly leaderboard tags with month key", () => {
+    revalidateMonthlyLeaderboard("2024-04")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "leaderboard:monthly")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(
+      2,
+      "leaderboard:monthly:2024-04",
+    )
+  })
+
+  it("revalidates monthly leaderboard base tag when no key provided", () => {
+    revalidateMonthlyLeaderboard()
+    expect(revalidateTagMock).toHaveBeenCalledWith("leaderboard:monthly")
+    expect(revalidateTagMock).toHaveBeenCalledTimes(1)
   })
 
   it("revalidates badges and products", () => {
