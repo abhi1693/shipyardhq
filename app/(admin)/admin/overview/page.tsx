@@ -11,7 +11,6 @@ import {
 } from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
 import RangeSelector from "@/components/molecules/RangeSelector"
-import CreateButton from "@/components/molecules/CreateButton"
 import {
   getDashboardStats,
   getRecentProducts,
@@ -212,10 +211,28 @@ export default async function OverviewPage({
       ? Math.round((mostPopularPlan.count / stats.totalProducts) * 100)
       : null
 
-  const memberRatio =
-    stats.totalUsers > 0
-      ? Math.round((stats.adminCount / stats.totalUsers) * 100)
+  const totalLaunches = stats.dailyProducts.reduce(
+    (total, count) => total + count,
+    0,
+  )
+  const averageLaunchesPerDay =
+    stats.dailyProducts.length > 0
+      ? totalLaunches / stats.dailyProducts.length
       : 0
+  const averageLaunchesDisplay = averageLaunchesPerDay.toLocaleString("en-US", {
+    maximumFractionDigits: 1,
+  })
+  const busiestLaunchDay = Math.max(0, ...stats.dailyProducts)
+  const activeLaunchDays = stats.dailyProducts.filter(
+    (count) => count > 0,
+  ).length
+  const upvoteRate =
+    stats.viewsInRange > 0
+      ? (stats.upvotesInRange / stats.viewsInRange) * 100
+      : 0
+  const upvoteRateDisplay = upvoteRate.toLocaleString("en-US", {
+    maximumFractionDigits: 1,
+  })
 
   return (
     <div className="space-y-10">
@@ -256,31 +273,55 @@ export default async function OverviewPage({
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Card className="border-slate-200/70 bg-white/90 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-base">Quick actions</CardTitle>
+              <CardTitle className="text-base">Engagement pulse</CardTitle>
               <CardDescription>
-                Spin up new assets or invite teammates.
+                Traffic and reactions in the last {days} days.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              <CreateButton asChild size="sm" label="New product">
-                <Link href={adminPath("products", "add")}>New product</Link>
-              </CreateButton>
-              <CreateButton
-                asChild
-                size="sm"
-                label="Invite member"
-                variant="outline"
+            <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                  Traffic
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-semibold text-slate-900">
+                    {formatNumber(stats.viewsInRange)}
+                  </span>
+                  <TrendBadge
+                    current={stats.viewsInRange}
+                    previous={stats.previousViews}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                  Upvotes
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-semibold text-slate-900">
+                    {formatNumber(stats.upvotesInRange)}
+                  </span>
+                  <TrendBadge
+                    current={stats.upvotesInRange}
+                    previous={stats.previousUpvotes}
+                  />
+                </div>
+              </div>
+              <div className="rounded-lg border border-slate-200/70 bg-slate-50 px-3 py-2 text-sm">
+                <p className="font-medium text-slate-900">
+                  {upvoteRateDisplay}% conversion from view → upvote
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatNumber(stats.totalClicks)} lifetime clicks across all
+                  CTAs.
+                </p>
+              </div>
+              <Link
+                href={adminPath("analytics", "traffic")}
+                className="text-xs font-medium text-sky-600 hover:underline"
               >
-                <Link href={adminPath("users", "add")}>Invite member</Link>
-              </CreateButton>
-              <CreateButton
-                asChild
-                size="sm"
-                label="New plan"
-                variant="outline"
-              >
-                <Link href={adminPath("plans", "add")}>New plan</Link>
-              </CreateButton>
+                Inspect analytics →
+              </Link>
             </CardContent>
           </Card>
 
@@ -357,25 +398,38 @@ export default async function OverviewPage({
 
           <Card className="border-slate-200/70 bg-white/90 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-base">Member mix</CardTitle>
+              <CardTitle className="text-base">Launch cadence</CardTitle>
               <CardDescription>
-                {formatNumber(stats.adminCount)} admins •{" "}
-                {formatNumber(stats.memberCount)} members
+                {formatNumber(totalLaunches)} launches in the last {days} days.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-2xl font-semibold text-slate-900">
-                {memberRatio}% admins
+                {averageLaunchesDisplay} avg/day
               </p>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Busiest day</p>
+                  <p className="font-medium text-slate-900">
+                    {formatNumber(busiestLaunchDay)} launches
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Active days</p>
+                  <p className="font-medium text-slate-900">
+                    {formatNumber(activeLaunchDays)} /{" "}
+                    {formatNumber(stats.dailyProducts.length)}
+                  </p>
+                </div>
+              </div>
               <p className="text-xs text-muted-foreground">
-                Keep admin seats purposeful—promote or demote roles from the
-                user list.
+                Keep momentum steady by planning launches across the week.
               </p>
               <Link
-                href={adminPath("users")}
+                href={adminPath("analytics", "growth")}
                 className="text-xs font-medium text-sky-600 hover:underline"
               >
-                Review members →
+                View launch analytics →
               </Link>
             </CardContent>
           </Card>
