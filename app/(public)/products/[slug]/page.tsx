@@ -3,7 +3,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { Metadata } from "next"
 import { Badge } from "@/components/atoms/badge"
-import UpvoteSquareButton from "@/components/molecules/UpvoteSquareButton"
 import { upvoteProductAction } from "@/actions/public/products/upvote"
 import { hasUserUpvoted } from "@/actions/public/products/actions"
 import { auth } from "@clerk/nextjs/server"
@@ -42,6 +41,7 @@ import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ScrollReset } from "@/components/atoms/scroll-reset"
 import { BROWSE_PATH, categoryPath, productPath, userPath } from "@/lib/routes"
+import { SupportHeroCard } from "@/components/molecules/SupportHeroCard"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -487,19 +487,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               </div>
 
               <aside className="flex h-full flex-col gap-5 rounded-[28px] border border-[color:var(--brand-1)/0.25] bg-background/88 p-6 shadow-[0_32px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
-                <div className="flex flex-col gap-3 rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/95 p-5 shadow-[0_25px_60px_-55px_rgba(7,58,104,0.6)]">
-                  <UpvoteSquareButton
-                    productId={product.id}
-                    initialCount={upvoteCount}
-                    initialUpvoted={userUpvoted}
-                    title="Total upvotes"
-                    action={upvoteProductAction}
-                    className="w-full justify-center"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Add wind to their sails when you upvote.
-                  </p>
-                </div>
+                <SupportHeroCard
+                  productId={product.id}
+                  productName={product.name}
+                  initialCount={upvoteCount}
+                  initialUpvoted={userUpvoted}
+                  isSignedIn={Boolean(userId)}
+                  action={upvoteProductAction}
+                />
                 <div className="grid gap-3">
                   {heroStats.map((stat) => (
                     <VoyageMetric
