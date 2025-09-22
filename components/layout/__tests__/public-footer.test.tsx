@@ -6,7 +6,8 @@ describe("PublicFooter", () => {
     render(<PublicFooter />)
 
     // Brand logo/text
-    expect(screen.getByAltText(/ShipYardHQ/i)).toBeInTheDocument()
+    const logos = screen.getAllByAltText(/ShipYardHQ/i)
+    expect(logos).toHaveLength(2)
 
     // CTA button
     expect(

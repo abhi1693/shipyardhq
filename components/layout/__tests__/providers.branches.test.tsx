@@ -14,9 +14,14 @@ vi.mock("@clerk/nextjs", () => ({
 
 let currentTheme = "dark"
 vi.mock("next-themes", () => ({ useTheme: () => ({ theme: currentTheme }) }))
+vi.mock("next/navigation", () => ({ usePathname: () => "/member" }))
 import Providers from "@/components/layout/providers"
 
 describe("Providers appearance", () => {
+  beforeEach(() => {
+    clerkSpy.mockClear()
+  })
+
   it("uses dark baseTheme when theme is dark", () => {
     currentTheme = "dark"
     render(

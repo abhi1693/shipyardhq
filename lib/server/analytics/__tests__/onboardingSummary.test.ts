@@ -1,13 +1,18 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 
-const { countMock, groupByMock, findFirstMock, findManyMock } = vi.hoisted(
-  () => ({
-    countMock: vi.fn(),
-    groupByMock: vi.fn(),
-    findFirstMock: vi.fn(),
-    findManyMock: vi.fn(),
-  }),
-)
+const {
+  countMock,
+  groupByMock,
+  findFirstMock,
+  findManyMock,
+  newsletterFindManyMock,
+} = vi.hoisted(() => ({
+  countMock: vi.fn(),
+  groupByMock: vi.fn(),
+  findFirstMock: vi.fn(),
+  findManyMock: vi.fn(),
+  newsletterFindManyMock: vi.fn(),
+}))
 
 vi.mock("@/lib/prisma", () => ({
   default: {
@@ -16,6 +21,9 @@ vi.mock("@/lib/prisma", () => ({
       groupBy: groupByMock,
       findFirst: findFirstMock,
       findMany: findManyMock,
+    },
+    newsletterSubscription: {
+      findMany: newsletterFindManyMock,
     },
   },
 }))
@@ -36,6 +44,7 @@ describe("getOnboardingAnswersSummary", () => {
     groupByMock.mockReset()
     findFirstMock.mockReset()
     findManyMock.mockReset()
+    newsletterFindManyMock.mockReset()
   })
 
   afterEach(() => {
@@ -74,6 +83,15 @@ describe("getOnboardingAnswersSummary", () => {
       termsAcceptedAt: new Date("2024-04-18T15:00:00.000Z"),
       updatedAt: new Date("2024-04-18T16:00:00.000Z"),
     })
+
+    findManyMock.mockResolvedValueOnce([
+      { email: "alice@example.com", roleIntent: "launch-product" },
+      { email: "bob@example.com", roleIntent: "custom-intent" },
+    ])
+
+    newsletterFindManyMock.mockResolvedValueOnce([
+      { email: "alice@example.com" },
+    ])
 
     const summary = await getOnboardingAnswersSummary()
 
@@ -114,9 +132,24 @@ describe("getOnboardingAnswersSummary", () => {
       },
     ])
 
+    expect(summary.newsletterSubscribed).toBe(1)
+    expect(summary.newsletterOptedOut).toBe(1)
+    expect(summary.newsletterIntentBreakdown).toEqual([
+      {
+        id: "builder",
+        label: "Builders",
+        subscribed: 1,
+        optedOut: 0,
+        total: 1,
+        subscribedPercentage: 100,
+      },
+    ])
+
     expect(countMock).toHaveBeenCalledTimes(3)
     expect(groupByMock).toHaveBeenCalledTimes(2)
     expect(findFirstMock).toHaveBeenCalledTimes(1)
+    expect(findManyMock).toHaveBeenCalledTimes(1)
+    expect(newsletterFindManyMock).toHaveBeenCalledTimes(1)
   })
 
   it("handles absence of responses", async () => {
@@ -129,6 +162,8 @@ describe("getOnboardingAnswersSummary", () => {
 
     findFirstMock.mockResolvedValue(null)
 
+    findManyMock.mockResolvedValueOnce([])
+
     const summary = await getOnboardingAnswersSummary()
 
     expect(summary.totalActiveUsers).toBe(0)
@@ -138,6 +173,9 @@ describe("getOnboardingAnswersSummary", () => {
     expect(summary.roleIntentBreakdown).toEqual([])
     expect(summary.heardFromBreakdown).toEqual([])
     expect(summary.lastResponseAt).toBeNull()
+    expect(summary.newsletterSubscribed).toBe(0)
+    expect(summary.newsletterOptedOut).toBe(0)
+    expect(summary.newsletterIntentBreakdown).toEqual([])
   })
 
   it("fetches pending onboarding users", async () => {

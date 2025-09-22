@@ -8,11 +8,14 @@ describe("Icons mapping", () => {
     expect(keys).toEqual(
       [
         "add",
+        "analytics",
         "bell",
         "billing",
         "building",
         "category",
+        "conversions",
         "dashboard",
+        "feedback",
         "link",
         "logo",
         "media",

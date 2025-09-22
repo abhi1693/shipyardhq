@@ -28,8 +28,8 @@ const data: Row[] = Array.from({ length: 3 }, (_, i) => ({
 
 beforeEach(() => push.mockReset())
 
-describe("DataTable prev/last clicks", () => {
-  it("clicks Previous and Last page handlers", async () => {
+describe("DataTable prev/next clicks", () => {
+  it("updates pagination when navigating backward and forward", async () => {
     const user = userEvent.setup()
     // Start on page 3 of 5
     searchStr = "page=3&limit=10"
@@ -41,10 +41,11 @@ describe("DataTable prev/last clicks", () => {
     let u = new URL("http://x" + (url.startsWith("/") ? url : "/" + url))
     expect(u.searchParams.get("page")).toBe("2")
 
-    // Last -> page=5
-    await user.click(screen.getByRole("button", { name: "Last page" }))
+    // Next twice -> page should advance to 4
+    await user.click(screen.getByRole("button", { name: "Next page" }))
+    await user.click(screen.getByRole("button", { name: "Next page" }))
     url = (push as any).mock.calls.slice(-1)[0][0] as string
     u = new URL("http://x" + (url.startsWith("/") ? url : "/" + url))
-    expect(u.searchParams.get("page")).toBe("5")
+    expect(u.searchParams.get("page")).toBe("4")
   })
 })

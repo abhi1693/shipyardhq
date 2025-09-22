@@ -5,6 +5,18 @@ import { vi } from "vitest"
 
 process.env.DODO_ENV = process.env.DODO_ENV || "test_mode"
 process.env.DODO_API_KEY = process.env.DODO_API_KEY || "test_key"
+process.env.DATABASE_URL =
+  process.env.DATABASE_URL || "prisma+postgres://user:password@localhost:5432/shipyard_test"
+
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+if (typeof global.ResizeObserver === "undefined") {
+  ;(global as any).ResizeObserver = ResizeObserverMock
+}
 
 vi.mock("next/link", () => ({
   default: ({ href, children, ...props }: any) => {

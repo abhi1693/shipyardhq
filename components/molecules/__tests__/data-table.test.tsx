@@ -72,24 +72,20 @@ describe("DataTable", () => {
     // No select interaction due to Radix JSDOM pointer constraints
   })
 
-  it("first/prev/next/last buttons enable/disable correctly", async () => {
+  it("previous/next buttons enable/disable correctly", async () => {
     const user = userEvent.setup()
-    // Start on last page to verify previous/first enabled and next/last disabled
+    // Start on last page to verify previous enabled and next disabled
     searchStr = "page=5&limit=10"
     render(<DataTable columns={columns} data={rows} pageCount={5} />)
-    const first = screen.getByRole("button", { name: "First page" })
     const prev = screen.getByRole("button", { name: "Previous page" })
     const next = screen.getByRole("button", { name: "Next page" })
-    const last = screen.getByRole("button", { name: "Last page" })
-    expect(first).not.toBeDisabled()
     expect(prev).not.toBeDisabled()
     expect(next).toBeDisabled()
-    expect(last).toBeDisabled()
 
-    // Click First -> page=1
-    await user.click(first)
+    // Click Previous -> page=4
+    await user.click(prev)
     const url = (push as any).mock.calls.slice(-1)[0][0] as string
     const u = new URL("http://x" + (url.startsWith("/") ? url : "/" + url))
-    expect(u.searchParams.get("page")).toBe("1")
+    expect(u.searchParams.get("page")).toBe("4")
   })
 })

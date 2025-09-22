@@ -56,7 +56,8 @@ describe("Organisms", () => {
       },
     ]
     rerender(<HomepageSpotlight products={products as any} />)
-    expect(screen.getByText("Homepage Picks")).toBeInTheDocument()
+    expect(screen.getByText("Harbor Spotlight")).toBeInTheDocument()
+    expect(screen.getByText("Harbor Picks")).toBeInTheDocument()
     // Only non-expired badge shown (compact ProductList uses title attr for badge)
     expect(screen.getByTitle("Featured")).toBeInTheDocument()
   })
@@ -68,7 +69,8 @@ describe("Organisms", () => {
     expect(container.firstChild).toBeNull()
     const items = [featured("1")]
     rerender(<LatestLaunches products={items as any} />)
-    expect(screen.getByText("Latest Launches")).toBeInTheDocument()
+    expect(screen.getByText("Fresh Off the Dock")).toBeInTheDocument()
+    expect(screen.getByText("Fresh Launches")).toBeInTheDocument()
     expect(screen.getByText("Name 1")).toBeInTheDocument()
   })
 
@@ -101,7 +103,7 @@ describe("Organisms", () => {
     ]
     render(<PricingTable plans={plans as any} />)
     // Popular appears at least for one of the max-count paid plans
-    expect(screen.getAllByText("Popular").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Most popular").length).toBeGreaterThan(0)
   })
 
   it("CategoryFeatured returns null when empty, otherwise banner + grid", () => {
@@ -133,7 +135,8 @@ describe("Organisms", () => {
   it("FeaturedHighlights renders CTA extra and grid", () => {
     const items = [featured("1")]
     render(<FeaturedHighlights products={items as any} />)
-    expect(screen.getByText("Featured Highlights")).toBeInTheDocument()
+    expect(screen.getByText("Highlights From the Helm")).toBeInTheDocument()
+    expect(screen.getByText("Featured Fleet")).toBeInTheDocument()
     // CTA card text
     expect(
       screen.getByText("Want to see your product featured here?"),

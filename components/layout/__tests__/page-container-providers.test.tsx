@@ -7,6 +7,10 @@ vi.mock("next-themes", () => ({
   useTheme: () => ({ theme: "dark" }),
 }))
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/member",
+}))
+
 // Stub ClerkProvider to a pass-through for this test
 vi.mock("@clerk/nextjs", () => ({
   ClerkProvider: ({ children }: any) => <>{children}</>,

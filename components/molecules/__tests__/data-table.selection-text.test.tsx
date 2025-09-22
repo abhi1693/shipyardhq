@@ -22,7 +22,7 @@ const columns: ColumnDef<Row>[] = [
 ]
 
 describe("DataTable selection text", () => {
-  it("shows 0 of N rows selected for non-empty data", () => {
+  it("renders row summary controls without selection copy for non-empty data", () => {
     searchStr = "page=1&limit=10"
     const data: Row[] = [
       { id: "1", name: "One" },
@@ -30,12 +30,15 @@ describe("DataTable selection text", () => {
       { id: "3", name: "Three" },
     ]
     render(<DataTable columns={columns} data={data} pageCount={1} />)
-    expect(screen.getByText(/0 of 3 row\(s\) selected\./)).toBeInTheDocument()
+    expect(screen.getByText("Rows")).toBeInTheDocument()
+    expect(screen.getByText("One")).toBeInTheDocument()
+    expect(screen.queryByText(/rows selected/i)).toBeNull()
   })
 
   it("shows 0 of 0 rows selected for empty data", () => {
     searchStr = "page=1&limit=10"
     render(<DataTable columns={columns} data={[]} pageCount={1} />)
-    expect(screen.getByText(/0 of 0 row\(s\) selected\./)).toBeInTheDocument()
+    expect(screen.getByText("No results.")).toBeInTheDocument()
+    expect(screen.getByText("Rows")).toBeInTheDocument()
   })
 })

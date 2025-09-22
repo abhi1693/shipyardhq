@@ -36,7 +36,7 @@ describe("WizardFooter", () => {
         onPublish={onPublish}
       />,
     )
-    const save = screen.getByRole("button", { name: "Save as Draft" })
+    const save = screen.getByRole("button", { name: "Save draft" })
     const publish = screen.getByRole("button", { name: "Publish" })
     expect(save).toBeDisabled()
     expect(publish).toBeDisabled()
@@ -50,14 +50,17 @@ describe("WizardStepper", () => {
       { id: 2, label: "Two" },
       { id: 3, label: "Three" },
     ]
-    render(<WizardStepper steps={steps} step={2} />)
-    // Current label should have font-medium (we can infer by text present)
-    expect(screen.getByText("Two")).toBeInTheDocument()
-    // There should be connector bars between items; when step > id, inner bar has w-full
-    // Grab all progress inner bars and ensure at least one has w-full
-    const bars = document.querySelectorAll(".bg-primary")
-    expect(Array.from(bars).some((el) => el.className.includes("w-full"))).toBe(
-      true,
-    )
+    const { container } = render(<WizardStepper steps={steps} step={2} />)
+    const items = screen.getAllByRole("listitem")
+    expect(items).toHaveLength(3)
+
+    const currentLabel = screen.getByText("Two")
+    expect(currentLabel.className).toContain("text-slate-900")
+
+    const completedCircle = items[0].querySelector("div")
+    expect(completedCircle?.className).toContain("bg-sky-100")
+
+    const progressFill = container.querySelector('div[style*="width: 50%"]')
+    expect(progressFill).toBeTruthy()
   })
 })

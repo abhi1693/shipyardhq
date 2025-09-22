@@ -1,11 +1,20 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
 
+const signInMock = vi.fn()
+const signUpMock = vi.fn()
+
 // Mock Clerk UI components used by AuthFormPanel
 vi.mock("@clerk/nextjs", () => ({
-  SignIn: () => <div data-testid="sign-in" />,
-  SignUp: () => <div data-testid="sign-up" />,
+  SignIn: (props: any) => {
+    signInMock(props)
+    return <div data-testid="sign-in" />
+  },
+  SignUp: (props: any) => {
+    signUpMock(props)
+    return <div data-testid="sign-up" />
+  },
 }))
 
 import AuthFormPanel from "@/components/organisms/AuthFormPanel"
@@ -14,35 +23,49 @@ import { TopCategories } from "@/components/organisms/TopCategories"
 import { Leaderboard } from "@/components/organisms/Leaderboard"
 
 describe("AuthFormPanel", () => {
-  it("renders sign-in variant with heading and legal links", () => {
-    render(<AuthFormPanel mode="sign-in" />)
-    expect(screen.getByText("Sign in to ShipYardHQ")).toBeInTheDocument()
-    expect(screen.getByTestId("sign-in")).toBeInTheDocument()
-    expect(
-      screen.getByRole("link", { name: "Terms of Service" }),
-    ).toHaveAttribute("href", "/terms")
-    expect(
-      screen.getByRole("link", { name: "Privacy Policy" }),
-    ).toHaveAttribute("href", "/privacy")
+  beforeEach(() => {
+    signInMock.mockClear()
+    signUpMock.mockClear()
   })
 
-  it("renders sign-up variant with different heading", () => {
+  it("renders sign-in variant with redirect props", () => {
+    render(<AuthFormPanel mode="sign-in" redirectUrl="/dashboard" />)
+    expect(screen.getByTestId("sign-in")).toBeInTheDocument()
+    expect(signInMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        forceRedirectUrl: "/dashboard",
+        fallbackRedirectUrl: "/dashboard",
+      }),
+    )
+    expect(signUpMock).not.toHaveBeenCalled()
+  })
+
+  it("renders sign-up variant with default redirect", () => {
     render(<AuthFormPanel mode="sign-up" />)
-    expect(screen.getByText("Create your account")).toBeInTheDocument()
     expect(screen.getByTestId("sign-up")).toBeInTheDocument()
+    expect(signUpMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        forceRedirectUrl: "/member",
+        fallbackRedirectUrl: "/member",
+      }),
+    )
+    expect(signInMock).not.toHaveBeenCalled()
   })
 })
 
 describe("AuthMarketingPanel", () => {
   it("shows brand, hero copy, features and testimonial", () => {
     render(<AuthMarketingPanel />)
+    expect(screen.getByText("Chart Your Course")).toBeInTheDocument()
     expect(screen.getByText("ShipYardHQ")).toBeInTheDocument()
+    expect(screen.getByText("A harbor for indie SaaS")).toBeInTheDocument()
     expect(screen.getByText("Set sail. Build boldly.")).toBeInTheDocument()
     expect(
       screen.getByText("Built for indie makers, by indie makers"),
     ).toBeInTheDocument()
-    // Testimonial author
-    expect(screen.getByText("The ShipYardHQ Crew")).toBeInTheDocument()
+    expect(
+      screen.getByText("Friendly waters, honest feedback, real momentum"),
+    ).toBeInTheDocument()
   })
 })
 
@@ -115,7 +138,8 @@ describe("Top sections", () => {
         }
       />,
     )
-    expect(screen.getByText("Trending")).toBeInTheDocument()
+    expect(screen.getByText("Trending Fleet")).toBeInTheDocument()
+    expect(screen.getByText("Fleet Standings")).toBeInTheDocument()
     expect(
       screen.getByRole("link", { name: "See leaderboard" }),
     ).toHaveAttribute("href", "/leaderboard")
