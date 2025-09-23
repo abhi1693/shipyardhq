@@ -82,7 +82,7 @@ export default function PublicFooter({
           </div>
           <div className="flex gap-3 pt-3">
             <Link
-              href="mailto:shipyardhq.dev@gmail.com"
+              href="mailto:support@shipyardhq.dev"
               className={iconLinkCls}
             >
               <Mail className="w-5 h-5 md:w-5 md:h-5" />
@@ -225,7 +225,7 @@ export default function PublicFooter({
             </li>
             <li>
               <Link
-                href="mailto:shipyardhq.dev@gmail.com"
+                href="mailto:support@shipyardhq.dev"
                 className={textLinkCls + " md:font-medium"}
               >
                 Contact

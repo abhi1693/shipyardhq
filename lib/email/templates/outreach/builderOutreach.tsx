@@ -78,15 +78,8 @@ export function BuilderOutreachEmail({
         work we admire. Listing is free and only takes a couple of minutes.
       </p>
       <p style={paragraphStyle}>
-        Have questions or want a second set of eyes on your launch copy? Email
-        me at{" "}
-        <a
-          href="mailto:shipyardhq.dev@gmail.com"
-          style={{ color: "#2563eb", textDecoration: "none" }}
-        >
-          shipyardhq.dev@gmail.com
-        </a>{" "}
-        and I will personally help out.
+        Have questions or want a second set of eyes on your launch copy? Just
+        reply to this email and I will personally help out.
       </p>
     </BaseEmailTemplate>
   )
@@ -126,7 +119,7 @@ export function buildBuilderOutreachTextBody(firstName?: string | null) {
     "It is early days aboard Shipyard, so we are hand-inviting builders whose work we admire. Listing is free and takes just a couple of minutes.",
     `Start here: ${BUILDER_OUTREACH_CTA_URL}`,
     "",
-    "Have questions or want a second set of eyes on your launch copy? Email me at shipyardhq.dev@gmail.com and I will personally help out.",
+    "Have questions or want a second set of eyes on your launch copy? Just reply to this email and I will personally help out.",
     "",
     "Fair winds,",
     "Abhimanyu - Shipyard Crew",

@@ -87,10 +87,10 @@ export default function PrivacyPolicyPage() {
         <p>
           If you have questions about this privacy policy, contact us at{" "}
           <a
-            href="mailto:shipyardhq.dev@gmail.com"
+            href="mailto:support@shipyardhq.dev"
             className="text-primary underline"
           >
-            shipyardhq.dev@gmail.com
+            support@shipyardhq.dev
           </a>
         </p>
 

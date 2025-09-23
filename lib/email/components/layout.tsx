@@ -196,11 +196,7 @@ export function EmailFooter() {
       <td style={footerCellStyle}>
         <div>{EMAIL_BRAND.name}</div>
         <div style={{ marginTop: "8px" }}>
-          Questions? Reach us at{" "}
-          <a href={`mailto:${EMAIL_BRAND.supportEmail}`} style={linkStyle}>
-            {EMAIL_BRAND.supportEmail}
-          </a>
-          .
+          Questions? Just reply to this email and our crew will help.
         </div>
         <div style={{ marginTop: "4px" }}>
           Follow updates on{" "}

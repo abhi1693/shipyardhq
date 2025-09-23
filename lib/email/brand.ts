@@ -3,7 +3,7 @@ import { SHIPYARD_TWITTER_URL } from "@/lib/routes"
 export const EMAIL_BRAND = {
   name: "Shipyard HQ",
   homeUrl: "https://shipyardhq.dev",
-  supportEmail: "shipyardhq.dev@gmail.com",
+  supportEmail: "support@shipyardhq.dev",
   twitterUrl: SHIPYARD_TWITTER_URL,
   logoAlt: "ShipyardHQ logo",
   logoUrl: "https://shipyardhq.dev/brand-white.png",
