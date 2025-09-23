@@ -71,7 +71,7 @@ export function MonthlyWinnerEmail({
       previewText={`${productName} finished #${rank} in ${monthLabel}—fair winds from ${EMAIL_BRAND.name}!`}
       heading={heading}
       intro={rankMessage}
-      cta={{ label: "Chart the leaderboard", href: leaderboardUrl }}
+      cta={{ label: `View ${monthLabel} standings`, href: leaderboardUrl }}
     >
       <p style={paragraphStyle}>
         Your crew just rode a perfect tailwind to the top of the fleet. Keep the
@@ -108,7 +108,7 @@ export function MonthlyWinnerEmail({
 
       <p style={paragraphStyle}>
         We&apos;ll keep your vessel in the public log for the rest of the month.
-        See how you stack up alongside the rest of the fleet here:
+        See how you stack up alongside the rest of the ${monthLabel} fleet:
         <br />
         <a href={leaderboardUrl} style={linkStyle}>
           {leaderboardUrl}

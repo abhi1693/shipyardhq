@@ -417,7 +417,9 @@ export function ProductAnalyticsCharts({
       {renderDeviceCard("md:col-span-1 xl:col-span-5")}
       {renderClicksCard("md:col-span-2 xl:col-span-7")}
       {renderBrowserCard("md:col-span-1 xl:col-span-5")}
-      {showUserAgents ? renderUserAgentCard("md:col-span-1 xl:col-span-5") : null}
+      {showUserAgents
+        ? renderUserAgentCard("md:col-span-1 xl:col-span-5")
+        : null}
       {renderCountriesCard("lg:col-span-7")}
       {renderReferrersCard("lg:col-span-5")}
     </div>

@@ -1,10 +1,12 @@
 "use client"
 
 import { useMemo } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import InlineSelect from "@/components/molecules/InlineSelect"
-import { buildQuery } from "@/lib/urlParams"
-import { LEADERBOARD_MONTHLY_PATH } from "@/lib/routes"
+import {
+  LEADERBOARD_MONTHLY_PATH,
+  monthlyLeaderboardArchivePath,
+} from "@/lib/routes"
 import type { MonthlyLeaderboardMonth } from "@/actions/public/leaderboard/actions"
 
 export function MonthlyLeaderboardMonthSelect({
@@ -15,7 +17,6 @@ export function MonthlyLeaderboardMonthSelect({
   selected?: string
 }) {
   const router = useRouter()
-  const search = useSearchParams()
 
   const options = useMemo(
     () => months.map((month) => ({ value: month.month, label: month.label })),
@@ -32,16 +33,18 @@ export function MonthlyLeaderboardMonthSelect({
       ? selected
       : fallbackValue
 
-  const updateQuery = (updates: Record<string, string | undefined>) => {
-    router.push(
-      buildQuery(LEADERBOARD_MONTHLY_PATH, search?.toString() ?? "", updates),
-    )
+  const navigateToMonth = (monthKey?: string) => {
+    if (monthKey) {
+      router.push(monthlyLeaderboardArchivePath(monthKey))
+    } else {
+      router.push(LEADERBOARD_MONTHLY_PATH)
+    }
   }
 
   return (
     <InlineSelect
       value={value ?? ""}
-      onValueChange={(v) => updateQuery({ month: v })}
+      onValueChange={(v) => navigateToMonth(v || undefined)}
       options={options}
       placeholder="Select a month"
       triggerClassName="h-9 w-[220px] rounded-lg border border-[color:var(--brand-1)/0.35] bg-background/90 px-3 text-sm font-medium text-foreground shadow-[0px_14px_36px_-28px_rgba(7,58,104,0.55)] transition-colors hover:border-[color:var(--brand-1)/0.55]"

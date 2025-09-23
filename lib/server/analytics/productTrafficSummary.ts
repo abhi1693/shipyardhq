@@ -317,7 +317,12 @@ async function buildTrafficSummary(
   const browserCounts = new Map<string, number>()
   const userAgentProfiles = new Map<
     string,
-    { browser: string | null; os: string | null; device: DeviceCategory; views: number }
+    {
+      browser: string | null
+      os: string | null
+      device: DeviceCategory
+      views: number
+    }
   >()
   const osCounts = new Map<string, number>()
   const countryCounts = new Map<string, number>()

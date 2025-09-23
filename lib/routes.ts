@@ -43,6 +43,19 @@ export const BROWSE_PATH = "/browse" as const
 export const LEADERBOARD_PATH = "/leaderboard" as const
 export const LEADERBOARD_MONTHLY_PATH = `${LEADERBOARD_PATH}/monthly` as const
 export const LEADERBOARD_GUIDE_PATH = `${LEADERBOARD_PATH}/about` as const
+
+const MONTH_KEY_PATTERN = /^(?:\d{4}-(?:0[1-9]|1[0-2]))$/
+
+export const isMonthKey = (value?: string | null): value is string =>
+  typeof value === "string" && MONTH_KEY_PATTERN.test(value)
+
+export const monthlyLeaderboardArchivePath = (monthKey: string) => {
+  if (!isMonthKey(monthKey)) {
+    throw new Error(`Invalid monthly leaderboard key: ${monthKey}`)
+  }
+  return `${LEADERBOARD_PATH}/${monthKey}`
+}
+
 export const PRICING_PATH = "/pricing" as const
 export const WHY_SHIPYARD_PATH = "/why-shipyard" as const
 export const ANALYTICS_PATH = "/analytics" as const

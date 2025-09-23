@@ -1,0 +1,69 @@
+import { getMonthlyLeaderboardMonths } from "@/actions/public/leaderboard/actions"
+import {
+  LEADERBOARD_MONTHLY_PATH,
+  monthlyLeaderboardArchivePath,
+} from "@/lib/routes"
+
+export const dynamic = "force-dynamic"
+
+function xml(parts: TemplateStringsArray, ...subs: any[]) {
+  return parts.map((p, i) => p + (subs[i] ?? "")).join("")
+}
+
+const toMonthDate = (monthKey: string, fallback: Date) => {
+  const [yearStr, monthStr] = monthKey.split("-")
+  const year = Number(yearStr)
+  const monthIndex = Number(monthStr) - 1
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(monthIndex) ||
+    monthIndex < 0 ||
+    monthIndex > 11
+  ) {
+    return fallback
+  }
+  return new Date(Date.UTC(year, monthIndex, 1))
+}
+
+export async function GET() {
+  const base = (
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  ).replace(/\/$/, "")
+
+  const months = await getMonthlyLeaderboardMonths()
+  const now = new Date()
+
+  const urls = [
+    xml`
+      <url>
+        <loc>${base}${LEADERBOARD_MONTHLY_PATH}</loc>
+        <lastmod>${now.toISOString()}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+      </url>
+    `,
+    ...months.map((monthEntry, index) => {
+      const monthDate = toMonthDate(monthEntry.month, now)
+      const recencyPriority = index < 3 ? "0.6" : index < 12 ? "0.5" : "0.4"
+      return xml`
+        <url>
+          <loc>${base}${monthlyLeaderboardArchivePath(monthEntry.month)}</loc>
+          <lastmod>${monthDate.toISOString()}</lastmod>
+          <changefreq>yearly</changefreq>
+          <priority>${recencyPriority}</priority>
+        </url>
+      `
+    }),
+  ].join("")
+
+  const body = xml`
+    <?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      ${urls}
+    </urlset>
+  `.trim()
+
+  return new Response(body, {
+    headers: { "Content-Type": "application/xml; charset=utf-8" },
+  })
+}

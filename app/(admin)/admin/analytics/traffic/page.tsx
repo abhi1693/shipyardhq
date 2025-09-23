@@ -529,16 +529,18 @@ export default async function TrafficAnalyticsPage({
     views: entry.views,
   }))
 
-  const topUserAgents = summary.userAgentBreakdown.slice(0, 5).map((entry, index) => {
-    const browser = entry.browser ?? "Unknown browser"
-    const os = entry.os ?? "Unknown OS"
-    const deviceLabel = labelForDevice(entry.device)
-    return {
-      key: `${browser}-${os}-${entry.device ?? "unknown"}-${index}`,
-      label: `${browser} · ${os} (${deviceLabel})`,
-      views: entry.views,
-    }
-  })
+  const topUserAgents = summary.userAgentBreakdown
+    .slice(0, 5)
+    .map((entry, index) => {
+      const browser = entry.browser ?? "Unknown browser"
+      const os = entry.os ?? "Unknown OS"
+      const deviceLabel = labelForDevice(entry.device)
+      return {
+        key: `${browser}-${os}-${entry.device ?? "unknown"}-${index}`,
+        label: `${browser} · ${os} (${deviceLabel})`,
+        views: entry.views,
+      }
+    })
 
   const trafficChannels = advanced.referrerCategoryBreakdown
     .slice(0, 5)

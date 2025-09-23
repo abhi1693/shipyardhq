@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
 import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
 import { getAppBaseUrl } from "@/lib/email/utils"
-import { LEADERBOARD_MONTHLY_PATH, productPath } from "@/lib/routes"
+import { monthlyLeaderboardArchivePath, productPath } from "@/lib/routes"
 
 const MONTH_PARAM = /^(\d{4})-(\d{2})$/
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
@@ -180,7 +180,7 @@ export async function generateMonthlyLeaderboard(
 
 function getLeaderboardUrl(monthKey: string): string {
   const base = getAppBaseUrl()
-  return `${base}${LEADERBOARD_MONTHLY_PATH}?month=${encodeURIComponent(monthKey)}`
+  return `${base}${monthlyLeaderboardArchivePath(monthKey)}`
 }
 
 function getProductUrl(slug: string): string {
