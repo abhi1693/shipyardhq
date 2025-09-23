@@ -108,7 +108,7 @@ export default async function OnboardingAnalyticsPage() {
                         {formatName(user)}
                       </span>
                       <Badge variant="outline" className="shrink-0">
-                        {formatRelative(user.termsAcceptedAt ?? user.updatedAt)}
+                        {formatRelative(user.updatedAt)}
                       </Badge>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

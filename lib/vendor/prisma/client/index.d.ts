@@ -17088,8 +17088,6 @@ export namespace Prisma {
     role: string | null
     roleIntent: string | null
     heardFrom: string | null
-    acceptedTerms: boolean | null
-    termsAcceptedAt: Date | null
     status: $Enums.UserStatus | null
     suspendedAt: Date | null
     terminatedAt: Date | null
@@ -17106,8 +17104,6 @@ export namespace Prisma {
     role: string | null
     roleIntent: string | null
     heardFrom: string | null
-    acceptedTerms: boolean | null
-    termsAcceptedAt: Date | null
     status: $Enums.UserStatus | null
     suspendedAt: Date | null
     terminatedAt: Date | null
@@ -17124,8 +17120,6 @@ export namespace Prisma {
     role: number
     roleIntent: number
     heardFrom: number
-    acceptedTerms: number
-    termsAcceptedAt: number
     status: number
     suspendedAt: number
     terminatedAt: number
@@ -17144,8 +17138,6 @@ export namespace Prisma {
     role?: true
     roleIntent?: true
     heardFrom?: true
-    acceptedTerms?: true
-    termsAcceptedAt?: true
     status?: true
     suspendedAt?: true
     terminatedAt?: true
@@ -17162,8 +17154,6 @@ export namespace Prisma {
     role?: true
     roleIntent?: true
     heardFrom?: true
-    acceptedTerms?: true
-    termsAcceptedAt?: true
     status?: true
     suspendedAt?: true
     terminatedAt?: true
@@ -17180,8 +17170,6 @@ export namespace Prisma {
     role?: true
     roleIntent?: true
     heardFrom?: true
-    acceptedTerms?: true
-    termsAcceptedAt?: true
     status?: true
     suspendedAt?: true
     terminatedAt?: true
@@ -17271,8 +17259,6 @@ export namespace Prisma {
     role: string
     roleIntent: string | null
     heardFrom: string | null
-    acceptedTerms: boolean
-    termsAcceptedAt: Date | null
     status: $Enums.UserStatus
     suspendedAt: Date | null
     terminatedAt: Date | null
@@ -17306,8 +17292,6 @@ export namespace Prisma {
     role?: boolean
     roleIntent?: boolean
     heardFrom?: boolean
-    acceptedTerms?: boolean
-    termsAcceptedAt?: boolean
     status?: boolean
     suspendedAt?: boolean
     terminatedAt?: boolean
@@ -17331,8 +17315,6 @@ export namespace Prisma {
     role?: boolean
     roleIntent?: boolean
     heardFrom?: boolean
-    acceptedTerms?: boolean
-    termsAcceptedAt?: boolean
     status?: boolean
     suspendedAt?: boolean
     terminatedAt?: boolean
@@ -17349,8 +17331,6 @@ export namespace Prisma {
     role?: boolean
     roleIntent?: boolean
     heardFrom?: boolean
-    acceptedTerms?: boolean
-    termsAcceptedAt?: boolean
     status?: boolean
     suspendedAt?: boolean
     terminatedAt?: boolean
@@ -17367,8 +17347,6 @@ export namespace Prisma {
     role?: boolean
     roleIntent?: boolean
     heardFrom?: boolean
-    acceptedTerms?: boolean
-    termsAcceptedAt?: boolean
     status?: boolean
     suspendedAt?: boolean
     terminatedAt?: boolean
@@ -17376,7 +17354,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clerkId" | "email" | "firstName" | "lastName" | "role" | "roleIntent" | "heardFrom" | "acceptedTerms" | "termsAcceptedAt" | "status" | "suspendedAt" | "terminatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clerkId" | "email" | "firstName" | "lastName" | "role" | "roleIntent" | "heardFrom" | "status" | "suspendedAt" | "terminatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     products?: boolean | User$productsArgs<ExtArgs>
     memberships?: boolean | User$membershipsArgs<ExtArgs>
@@ -17408,8 +17386,6 @@ export namespace Prisma {
       role: string
       roleIntent: string | null
       heardFrom: string | null
-      acceptedTerms: boolean
-      termsAcceptedAt: Date | null
       status: $Enums.UserStatus
       suspendedAt: Date | null
       terminatedAt: Date | null
@@ -17852,8 +17828,6 @@ export namespace Prisma {
     readonly role: FieldRef<"User", 'String'>
     readonly roleIntent: FieldRef<"User", 'String'>
     readonly heardFrom: FieldRef<"User", 'String'>
-    readonly acceptedTerms: FieldRef<"User", 'Boolean'>
-    readonly termsAcceptedAt: FieldRef<"User", 'DateTime'>
     readonly status: FieldRef<"User", 'UserStatus'>
     readonly suspendedAt: FieldRef<"User", 'DateTime'>
     readonly terminatedAt: FieldRef<"User", 'DateTime'>
@@ -29601,8 +29575,6 @@ export namespace Prisma {
     role: 'role',
     roleIntent: 'roleIntent',
     heardFrom: 'heardFrom',
-    acceptedTerms: 'acceptedTerms',
-    termsAcceptedAt: 'termsAcceptedAt',
     status: 'status',
     suspendedAt: 'suspendedAt',
     terminatedAt: 'terminatedAt',
@@ -30919,8 +30891,6 @@ export namespace Prisma {
     role?: StringFilter<"User"> | string
     roleIntent?: StringNullableFilter<"User"> | string | null
     heardFrom?: StringNullableFilter<"User"> | string | null
-    acceptedTerms?: BoolFilter<"User"> | boolean
-    termsAcceptedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
     suspendedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     terminatedAt?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -30943,8 +30913,6 @@ export namespace Prisma {
     role?: SortOrder
     roleIntent?: SortOrderInput | SortOrder
     heardFrom?: SortOrderInput | SortOrder
-    acceptedTerms?: SortOrder
-    termsAcceptedAt?: SortOrderInput | SortOrder
     status?: SortOrder
     suspendedAt?: SortOrderInput | SortOrder
     terminatedAt?: SortOrderInput | SortOrder
@@ -30970,8 +30938,6 @@ export namespace Prisma {
     role?: StringFilter<"User"> | string
     roleIntent?: StringNullableFilter<"User"> | string | null
     heardFrom?: StringNullableFilter<"User"> | string | null
-    acceptedTerms?: BoolFilter<"User"> | boolean
-    termsAcceptedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     status?: EnumUserStatusFilter<"User"> | $Enums.UserStatus
     suspendedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     terminatedAt?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -30994,8 +30960,6 @@ export namespace Prisma {
     role?: SortOrder
     roleIntent?: SortOrderInput | SortOrder
     heardFrom?: SortOrderInput | SortOrder
-    acceptedTerms?: SortOrder
-    termsAcceptedAt?: SortOrderInput | SortOrder
     status?: SortOrder
     suspendedAt?: SortOrderInput | SortOrder
     terminatedAt?: SortOrderInput | SortOrder
@@ -31018,8 +30982,6 @@ export namespace Prisma {
     role?: StringWithAggregatesFilter<"User"> | string
     roleIntent?: StringNullableWithAggregatesFilter<"User"> | string | null
     heardFrom?: StringNullableWithAggregatesFilter<"User"> | string | null
-    acceptedTerms?: BoolWithAggregatesFilter<"User"> | boolean
-    termsAcceptedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     status?: EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
     suspendedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     terminatedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -32720,8 +32682,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -32744,8 +32704,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -32768,8 +32726,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -32792,8 +32748,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -32816,8 +32770,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -32834,8 +32786,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -32852,8 +32802,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -34488,8 +34436,6 @@ export namespace Prisma {
     role?: SortOrder
     roleIntent?: SortOrder
     heardFrom?: SortOrder
-    acceptedTerms?: SortOrder
-    termsAcceptedAt?: SortOrder
     status?: SortOrder
     suspendedAt?: SortOrder
     terminatedAt?: SortOrder
@@ -34506,8 +34452,6 @@ export namespace Prisma {
     role?: SortOrder
     roleIntent?: SortOrder
     heardFrom?: SortOrder
-    acceptedTerms?: SortOrder
-    termsAcceptedAt?: SortOrder
     status?: SortOrder
     suspendedAt?: SortOrder
     terminatedAt?: SortOrder
@@ -34524,8 +34468,6 @@ export namespace Prisma {
     role?: SortOrder
     roleIntent?: SortOrder
     heardFrom?: SortOrder
-    acceptedTerms?: SortOrder
-    termsAcceptedAt?: SortOrder
     status?: SortOrder
     suspendedAt?: SortOrder
     terminatedAt?: SortOrder
@@ -36765,8 +36707,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -36788,8 +36728,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -37179,8 +37117,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37202,8 +37138,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38809,8 +38743,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -38832,8 +38764,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -38954,8 +38884,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38977,8 +38905,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -39108,8 +39034,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -39131,8 +39055,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -39245,8 +39167,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -39268,8 +39188,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -39291,8 +39209,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -39314,8 +39230,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -39378,8 +39292,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -39401,8 +39313,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -39808,8 +39718,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -39831,8 +39739,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -39870,8 +39776,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -39893,8 +39797,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -40449,8 +40351,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -40472,8 +40372,6 @@ export namespace Prisma {
     role?: string
     roleIntent?: string | null
     heardFrom?: string | null
-    acceptedTerms?: boolean
-    termsAcceptedAt?: Date | string | null
     status?: $Enums.UserStatus
     suspendedAt?: Date | string | null
     terminatedAt?: Date | string | null
@@ -40558,8 +40456,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -40581,8 +40477,6 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     roleIntent?: NullableStringFieldUpdateOperationsInput | string | null
     heardFrom?: NullableStringFieldUpdateOperationsInput | string | null
-    acceptedTerms?: BoolFieldUpdateOperationsInput | boolean
-    termsAcceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
     suspendedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     terminatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

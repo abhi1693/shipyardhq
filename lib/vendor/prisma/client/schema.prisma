@@ -286,19 +286,17 @@ model OrganizationMembership {
 }
 
 model User {
-  id              String     @id @default(cuid())
-  clerkId         String     @unique
-  email           String     @unique
-  firstName       String
-  lastName        String
-  role            String     @default("member")
-  roleIntent      String? // Why they signed up
-  heardFrom       String? // How they heard about us
-  acceptedTerms   Boolean    @default(false)
-  termsAcceptedAt DateTime?
-  status          UserStatus @default(active)
-  suspendedAt     DateTime?
-  terminatedAt    DateTime?
+  id           String     @id @default(cuid())
+  clerkId      String     @unique
+  email        String     @unique
+  firstName    String
+  lastName     String
+  role         String     @default("member")
+  roleIntent   String? // Why they signed up
+  heardFrom    String? // How they heard about us
+  status       UserStatus @default(active)
+  suspendedAt  DateTime?
+  terminatedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

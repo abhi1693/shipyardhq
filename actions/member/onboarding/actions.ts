@@ -36,8 +36,6 @@ export async function completeOnboarding(formData: FormData) {
 
   const roleIntent = formData.get("roleIntent")?.toString()
   const heardFrom = formData.get("heardFrom")?.toString()
-  const acceptedTermsRaw = formData.get("acceptedTerms")?.toString()
-  const acceptedTerms = acceptedTermsRaw === "on" || acceptedTermsRaw === "true"
   const newsletterOptInRaw = formData.get("newsletterOptIn")?.toString()
   const newsletterOptIn =
     newsletterOptInRaw === "true" || newsletterOptInRaw === "on"
@@ -71,8 +69,6 @@ export async function completeOnboarding(formData: FormData) {
       where: { id: user.id },
       data: {
         roleIntent,
-        acceptedTerms,
-        termsAcceptedAt: acceptedTerms ? new Date() : null,
         heardFrom,
       },
     })

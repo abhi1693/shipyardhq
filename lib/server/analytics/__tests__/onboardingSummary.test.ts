@@ -80,8 +80,7 @@ describe("getOnboardingAnswersSummary", () => {
       ])
 
     findFirstMock.mockResolvedValue({
-      termsAcceptedAt: new Date("2024-04-18T15:00:00.000Z"),
-      updatedAt: new Date("2024-04-18T16:00:00.000Z"),
+      updatedAt: new Date("2024-04-18T15:00:00.000Z"),
     })
 
     findManyMock.mockResolvedValueOnce([
@@ -207,7 +206,7 @@ describe("getOnboardingAnswersSummary", () => {
         roleIntent: { not: null },
         heardFrom: { not: null },
       },
-      orderBy: [{ termsAcceptedAt: "desc" }, { updatedAt: "desc" }],
+      orderBy: [{ updatedAt: "desc" }],
       take: 8,
       select: {
         id: true,
@@ -216,7 +215,6 @@ describe("getOnboardingAnswersSummary", () => {
         email: true,
         roleIntent: true,
         heardFrom: true,
-        termsAcceptedAt: true,
         updatedAt: true,
       },
     })

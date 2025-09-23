@@ -294,8 +294,6 @@ model User {
   role            String     @default("member")
   roleIntent      String? // Why they signed up
   heardFrom       String? // How they heard about us
-  acceptedTerms   Boolean    @default(false)
-  termsAcceptedAt DateTime?
   status          UserStatus @default(active)
   suspendedAt     DateTime?
   terminatedAt    DateTime?

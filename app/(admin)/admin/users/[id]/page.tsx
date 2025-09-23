@@ -2,6 +2,11 @@ import { notFound } from "next/navigation"
 import { getUserById } from "@/actions/admin/users/actions"
 import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import { UserProductRelationship } from "./relationships/products"
+import { UserMembershipRelationship } from "./relationships/memberships"
+import { UserOwnedOrganizationsRelationship } from "./relationships/owned-organizations"
+import { UserProductUpvoteRelationship } from "./relationships/upvotes"
+import { UserFeedbackRelationship } from "./relationships/feedback"
+import { UserPlanPurchasesRelationship } from "./relationships/purchases"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import UserStatusMenu from "@/components/molecules/UserStatusMenu"
 import { Badge } from "@/components/atoms/badge"
@@ -20,12 +25,71 @@ export default async function ViewUserPage({
           category: true,
         },
       },
+      memberships: {
+        include: {
+          organization: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      Organization: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      ProductUpvote: {
+        include: {
+          product: {
+            include: {
+              category: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      feedback: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      purchases: {
+        include: {
+          plan: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
     },
   })) as Prisma.UserGetPayload<{
     include: {
       products: {
         include: {
           category: true
+        }
+      },
+      memberships: {
+        include: {
+          organization: true
+        }
+      },
+      Organization: true,
+      ProductUpvote: {
+        include: {
+          product: {
+            include: {
+              category: true
+            }
+          }
+        }
+      },
+      feedback: true,
+      purchases: {
+        include: {
+          plan: true
         }
       }
     }
@@ -53,7 +117,16 @@ export default async function ViewUserPage({
         { label: "Email", value: user.email },
         { label: "First Name", value: user.firstName },
         { label: "Last Name", value: user.lastName },
+        { label: "Clerk ID", value: user.clerkId },
         { label: "Role", value: user.role },
+        {
+          label: "Role Intent",
+          value: user.roleIntent ?? placeholder(),
+        },
+        {
+          label: "Heard From",
+          value: user.heardFrom ?? placeholder(),
+        },
         {
           label: "Status",
           value: (
@@ -86,7 +159,16 @@ export default async function ViewUserPage({
       basePath="admin/users"
       deletable
       editable
-      relationships={<UserProductRelationship rows={user.products} />}
+      relationships={
+        <>
+          <UserProductRelationship rows={user.products} />
+          <UserMembershipRelationship rows={user.memberships} />
+          <UserOwnedOrganizationsRelationship rows={user.Organization} />
+          <UserProductUpvoteRelationship rows={user.ProductUpvote} />
+          <UserPlanPurchasesRelationship rows={user.purchases} />
+          <UserFeedbackRelationship rows={user.feedback} />
+        </>
+      }
     />
   )
 }

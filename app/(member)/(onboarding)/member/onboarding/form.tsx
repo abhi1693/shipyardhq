@@ -120,8 +120,6 @@ export function OnboardingForm({
         formData.append(key, val.toString())
       }
     })
-    formData.append("acceptedTerms", "true")
-
     const result = await completeOnboarding(formData)
     if ("success" in result) {
       document.cookie = "shipyard_onboarding_override=1; path=/; max-age=60"

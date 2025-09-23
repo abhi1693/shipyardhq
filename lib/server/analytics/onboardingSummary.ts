@@ -61,7 +61,6 @@ type RecentOnboardingUser = Prisma.UserGetPayload<{
     email: true
     roleIntent: true
     heardFrom: true
-    termsAcceptedAt: true
     updatedAt: true
   }
 }>
@@ -180,15 +179,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     prisma.user.count({
       where: {
         ...completedWhere,
-        OR: [
-          { termsAcceptedAt: { gte: oneWeekAgo } },
-          {
-            AND: [
-              { termsAcceptedAt: null },
-              { updatedAt: { gte: oneWeekAgo } },
-            ],
-          },
-        ],
+        updatedAt: { gte: oneWeekAgo },
       },
       cacheStrategy: {
         ...adminSlowCache,
@@ -197,9 +188,8 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     }),
     prisma.user.findFirst({
       where: completedWhere,
-      orderBy: [{ termsAcceptedAt: "desc" }, { updatedAt: "desc" }],
+      orderBy: [{ updatedAt: "desc" }],
       select: {
-        termsAcceptedAt: true,
         updatedAt: true,
       },
       cacheStrategy: {
@@ -265,11 +255,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
 
   const pendingUsers = Math.max(totalActiveUsers - completedResponses, 0)
 
-  const lastResponseAt = latestCompleted
-    ? ((
-        latestCompleted.termsAcceptedAt ?? latestCompleted.updatedAt
-      )?.toISOString() ?? null)
-    : null
+  const lastResponseAt = latestCompleted?.updatedAt?.toISOString() ?? null
 
   const completedEmails = completedMembers
     .map((member: CompletedMember) => member.email?.toLowerCase())
@@ -391,7 +377,7 @@ export async function getRecentOnboardingCompletions(
       roleIntent: { not: null },
       heardFrom: { not: null },
     },
-    orderBy: [{ termsAcceptedAt: "desc" }, { updatedAt: "desc" }],
+    orderBy: [{ updatedAt: "desc" }],
     take: limit,
     select: {
       id: true,
@@ -400,7 +386,6 @@ export async function getRecentOnboardingCompletions(
       email: true,
       roleIntent: true,
       heardFrom: true,
-      termsAcceptedAt: true,
       updatedAt: true,
     },
   })
