@@ -16,6 +16,7 @@ import {
   PRICING_PATH,
   USERS_PATH,
   WHY_SHIPYARD_PATH,
+  usecasePath,
   SHIPYARD_TWITTER_URL,
 } from "@/lib/routes"
 
@@ -197,7 +198,7 @@ export default function PublicFooter({
               {useCases.map((uc) => (
                 <li key={uc.slug}>
                   <Link
-                    href={`${BROWSE_PATH}?useCase=${uc.slug}`}
+                    href={usecasePath(uc.slug)}
                     className={textLinkCls + " md:font-medium"}
                   >
                     {uc.label}

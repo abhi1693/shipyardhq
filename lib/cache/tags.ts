@@ -3,6 +3,8 @@ export const TAGS = {
   product: (idOrSlug: string) => `product:${idOrSlug}`,
   categories: "categories",
   category: (idOrSlug: string) => `category:${idOrSlug}`,
+  useCases: "use-cases",
+  usecase: (idOrSlug: string) => `use-case:${idOrSlug}`,
   users: "users",
   user: (id: string) => `user:${id}`,
   badges: "badges",

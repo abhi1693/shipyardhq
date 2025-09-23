@@ -46,12 +46,14 @@ export const LEADERBOARD_GUIDE_PATH = `${LEADERBOARD_PATH}/about` as const
 export const PRICING_PATH = "/pricing" as const
 export const WHY_SHIPYARD_PATH = "/why-shipyard" as const
 export const ANALYTICS_PATH = "/analytics" as const
+export const USE_CASES_PATH = "/use-cases" as const
 export const CATEGORIES_PATH = "/categories" as const
 export const USERS_PATH = "/users" as const
 
 export const SHIPYARD_TWITTER_URL = "https://x.com/shipyardhq" as const
 
 export const categoryPath = (slug: string) => `${CATEGORIES_PATH}/${slug}`
+export const usecasePath = (slug: string) => `${USE_CASES_PATH}/${slug}`
 export const productPath = (slug: string) => `/products/${slug}`
 export const userPath = (id: string) => `${USERS_PATH}/${id}`
 

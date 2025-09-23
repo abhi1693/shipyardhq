@@ -6,7 +6,9 @@ import {
   LEADERBOARD_PATH,
   PRICING_PATH,
   categoryPath,
+  usecasePath,
 } from "@/lib/routes"
+import { getPublicUseCasesWithCounts } from "@/actions/public/use-cases/actions"
 
 type CategorySitemapEntry = Prisma.CategoryGetPayload<{
   select: { slug: true; updatedAt: true }
@@ -34,10 +36,13 @@ export async function GET() {
     "/legal/privacy-policy",
   ] as const
 
-  const categories = await prisma.category.findMany({
-    select: { slug: true, updatedAt: true },
-    orderBy: { updatedAt: "desc" },
-  })
+  const [categories, useCases] = await Promise.all([
+    prisma.category.findMany({
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+    }),
+    getPublicUseCasesWithCounts(),
+  ])
 
   const urls = [
     ...staticPaths.map((path) => {
@@ -95,6 +100,25 @@ export async function GET() {
           </url>
         `
     }),
+    ...useCases
+      .filter((useCase) => useCase.productCount > 0)
+      .map((useCase) => {
+        const last = useCase.updatedAt || now
+        const days = Math.floor(
+          (now.getTime() - new Date(last).getTime()) / 86400000,
+        )
+        const changefreq =
+          days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
+        const priority = days <= 7 ? "0.6" : days <= 60 ? "0.5" : "0.4"
+        return xml`
+          <url>
+            <loc>${base}${usecasePath(useCase.slug)}</loc>
+            <lastmod>${new Date(last).toISOString()}</lastmod>
+            <changefreq>${changefreq}</changefreq>
+            <priority>${priority}</priority>
+          </url>
+        `
+      }),
   ].join("")
 
   const body = xml`
