@@ -2,9 +2,9 @@
 
 import Link from "next/link"
 import { Mail, Twitter } from "lucide-react"
-import { Button } from "@/components/atoms/button"
 import { getWaveBackground } from "@/lib/nautical"
 import { BrandLogo } from "@/components/atoms/brand-logo"
+import DomainRatingBadge from "@/components/molecules/DomainRatingBadge"
 import {
   ANALYTICS_PATH,
   BROWSE_PATH,
@@ -73,13 +73,6 @@ export default function PublicFooter({
           <p className="text-[color:var(--brand-1)/0.82] leading-relaxed max-w-xs">
             Discover, launch, and grow your micro‑SaaS fleet.
           </p>
-          <div className="pt-3">
-            <Button size="sm" asChild>
-              <Link href={BROWSE_PATH} role="button">
-                Explore Products
-              </Link>
-            </Button>
-          </div>
           <div className="flex gap-3 pt-3">
             <Link href="mailto:support@shipyardhq.dev" className={iconLinkCls}>
               <Mail className="w-5 h-5 md:w-5 md:h-5" />
@@ -93,6 +86,7 @@ export default function PublicFooter({
               <Twitter className="w-5 h-5 md:w-5 md:h-5" />
             </Link>
           </div>
+          <DomainRatingBadge className="mt-3" />
         </div>
 
         {/* Discover */}
