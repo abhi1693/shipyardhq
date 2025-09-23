@@ -13,7 +13,8 @@ const FEATURES = [
   {
     key: "product.sitemap",
     name: "Product Sitemap Submission",
-    description: "We submit your listing to Google and Bing for faster indexing.",
+    description:
+      "We submit your listing to Google and Bing for faster indexing.",
   },
   {
     key: "analytics.advanced",

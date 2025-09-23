@@ -269,7 +269,7 @@ export async function createProductAction(formData: FormData) {
       })
     }
 
-    return { success: true }
+    return { success: true, productId: created.id, slug: created.slug }
   } catch (error) {
     console.error("Error creating product:", error)
     const code = (error as any)?.code

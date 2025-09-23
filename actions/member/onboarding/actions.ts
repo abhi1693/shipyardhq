@@ -14,8 +14,8 @@ import {
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { sendEmail } from "@/lib/email/resend"
 import {
-  WelcomeEmail,
   buildWelcomeTextBody,
+  WelcomeEmail,
 } from "@/lib/email/templates/onboarding/welcome"
 import { getAppBaseUrl } from "@/lib/email/utils"
 import {
@@ -25,6 +25,7 @@ import {
   MEMBER_FEEDBACK_PATH,
   MEMBER_OVERVIEW_PATH,
 } from "@/lib/routes"
+import { IS_PROD } from "@/lib/constants"
 
 const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
 const WELCOME_EMAIL_SUBJECT = "Welcome aboard ShipYardHQ"
@@ -99,14 +100,11 @@ export async function completeOnboarding(formData: FormData) {
         ? BUILDER_INTENTS.has(roleIntent)
         : false
 
-      const onboardingEmailEnabled = Boolean(
-        process.env.NEXT_PUBLIC_APP_URL?.trim()?.length,
-      )
+      const shouldSendWelcomeEmail = IS_PROD || process.env.NODE_ENV === "test"
+      const configuredBaseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
 
-      if (!onboardingEmailEnabled) {
-        console.info(
-          "Skipping onboarding welcome email because NEXT_PUBLIC_APP_URL is not configured.",
-        )
+      if (!shouldSendWelcomeEmail || !configuredBaseUrl) {
+        console.info("Skipping onboarding welcome email.")
       } else {
         try {
           const baseUrl = getAppBaseUrl()

@@ -29,6 +29,7 @@ import {
 } from "@/lib/productWizard/mappers"
 import { useProductWizard } from "@/hooks/useProductWizard"
 import { renderStep } from "@/components/molecules/ProductWizardStepRenderer"
+import ProductBadgeCelebrationDialog from "@/components/molecules/ProductBadgeCelebrationDialog"
 import {
   Select,
   SelectContent,
@@ -54,6 +55,8 @@ export default function AddProductForm({
 }) {
   const router = useRouter()
   const [ownerId, setOwnerId] = useState("")
+  const [showCelebration, setShowCelebration] = useState(false)
+  const [isCompletionPending, setIsCompletionPending] = useState(false)
 
   const [newProductId] = useState(() => {
     const g: any = typeof globalThis !== "undefined" ? (globalThis as any) : {}
@@ -85,7 +88,8 @@ export default function AddProductForm({
       return
     }
     toast.success("Product created successfully!")
-    router.push(adminPath("products"))
+    setIsCompletionPending(true)
+    setShowCelebration(true)
   }
 
   const wizard = useProductWizard<ProductWizardInput>({
@@ -135,40 +139,53 @@ export default function AddProductForm({
   }, [wizard.step, categories, organizations, newProductId, ownerId, users])
 
   return (
-    <Card className="mx-auto w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle className="text-left text-2xl font-bold">
-          Add Product
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <WizardStepper steps={STEPS} step={wizard.step} />
+    <>
+      <Card className="mx-auto w-full max-w-4xl">
+        <CardHeader>
+          <CardTitle className="text-left text-2xl font-bold">
+            Add Product
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <WizardStepper steps={STEPS} step={wizard.step} />
 
-        {/* Admin-only owner control is inlined on Step 1 via rightOfWebsite */}
+          {/* Admin-only owner control is inlined on Step 1 via rightOfWebsite */}
 
-        <FormProvider {...form}>
-          <form
-            onSubmit={form.handleSubmit(() =>
-              wizard.submitWithStatus("published"),
-            )}
-            className="space-y-6"
-          >
-            {StepComponent}
+          <FormProvider {...form}>
+            <form
+              onSubmit={form.handleSubmit(() =>
+                wizard.submitWithStatus("published"),
+              )}
+              className="space-y-6"
+            >
+              {StepComponent}
 
-            <Separator className="my-4" />
+              <Separator className="my-4" />
 
-            <WizardFooter
-              isReview={wizard.isReview}
-              onBack={wizard.back}
-              onNext={wizard.next}
-              onSaveDraft={() => wizard.submitWithStatus("draft")}
-              onPublish={() => wizard.submitWithStatus("published")}
-              disableBack={wizard.step === 1}
-              isSubmitting={form.formState.isSubmitting}
-            />
-          </form>
-        </FormProvider>
-      </CardContent>
-    </Card>
+              <WizardFooter
+                isReview={wizard.isReview}
+                onBack={wizard.back}
+                onNext={wizard.next}
+                onSaveDraft={() => wizard.submitWithStatus("draft")}
+                onPublish={() => wizard.submitWithStatus("published")}
+                disableBack={wizard.step === 1}
+                isSubmitting={form.formState.isSubmitting}
+              />
+            </form>
+          </FormProvider>
+        </CardContent>
+      </Card>
+
+      <ProductBadgeCelebrationDialog
+        open={showCelebration}
+        onOpenChange={(open) => {
+          setShowCelebration(open)
+          if (!open && isCompletionPending) {
+            setIsCompletionPending(false)
+            router.push(adminPath("products"))
+          }
+        }}
+      />
+    </>
   )
 }

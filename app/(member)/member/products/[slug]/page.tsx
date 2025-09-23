@@ -58,6 +58,8 @@ import { PlanType } from "@/lib/vendor/prisma/client"
 // startPlanCheckoutAction and setProductPlanAction are used inside choosePlanAction
 import { hasPlanFeature } from "@/lib/features"
 import PurchasePlanToast from "@/components/molecules/PurchasePlanToast"
+import ProductBadgeCelebrationGate from "@/components/molecules/ProductBadgeCelebrationGate"
+import ProductBadgeCelebrationTrigger from "@/components/molecules/ProductBadgeCelebrationTrigger"
 import { JSX } from "react"
 import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
 
@@ -87,6 +89,10 @@ export default async function ViewUserProductPage({
   const sp = (await searchParams) || {}
   const paymentId = (sp["payment_id"] as string) || ""
   const status = (sp["status"] as string) || ""
+  const celebrateValue = sp["celebrate"]
+  const celebrate = Array.isArray(celebrateValue)
+    ? celebrateValue.includes("1")
+    : celebrateValue === "1"
 
   if (paymentId && status) {
     await validatePaymentAndAttachPlan(paymentId)
@@ -257,6 +263,7 @@ export default async function ViewUserProductPage({
 
   return (
     <>
+      <ProductBadgeCelebrationGate initialOpen={celebrate} />
       <PurchasePlanToast />
       <ObjectPageLayout
         heading={{
@@ -381,6 +388,7 @@ export default async function ViewUserProductPage({
             </div>
 
             <div className={actionGroupClass}>
+              <ProductBadgeCelebrationTrigger />
               <CopyButton
                 text={publicPath}
                 resolveAbsolute

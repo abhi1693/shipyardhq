@@ -81,10 +81,7 @@ export default function PublicFooter({
             </Button>
           </div>
           <div className="flex gap-3 pt-3">
-            <Link
-              href="mailto:support@shipyardhq.dev"
-              className={iconLinkCls}
-            >
+            <Link href="mailto:support@shipyardhq.dev" className={iconLinkCls}>
               <Mail className="w-5 h-5 md:w-5 md:h-5" />
             </Link>
             <Link
