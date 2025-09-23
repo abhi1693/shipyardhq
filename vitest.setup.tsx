@@ -33,10 +33,11 @@ vi.mock("next/link", () => ({
 vi.mock("next/image", () => ({
   __esModule: true,
   default: (props: any) => {
-    const { src, alt, priority: _p, fill: _f, ...rest } = props
+    const { src, alt, priority: _p, fill: _f, unoptimized: _u, ...rest } = props
     // Mark intentionally unused extracted props as used
     void _p
     void _f
+    void _u
     // Render a basic img for testing (strip boolean-only props to avoid warnings)
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={typeof src === "string" ? src : ""} alt={alt} {...rest} />

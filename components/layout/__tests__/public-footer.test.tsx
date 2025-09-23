@@ -7,7 +7,7 @@ describe("PublicFooter", () => {
     render(<PublicFooter />)
 
     // Brand logo/text
-    const logos = screen.getAllByAltText(/ShipYardHQ/i)
+    const logos = screen.getAllByAltText(/^ShipYardHQ$/i)
     expect(logos).toHaveLength(2)
 
     // CTA button
