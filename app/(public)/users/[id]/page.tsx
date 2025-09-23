@@ -117,23 +117,29 @@ export default async function PublicUserPage({ params }: PageProps) {
     if (!earliest || timestamp < earliest) return timestamp
     return earliest
   }, null)
-  const highlightItem = items.reduce<(typeof items)[number] | null>((best, current) => {
-    if (!best) return current
-    const bestUpvotes = best.analytics?.upvotes ?? 0
-    const currentUpvotes = current.analytics?.upvotes ?? 0
-    if (currentUpvotes > bestUpvotes) return current
-    if (currentUpvotes === bestUpvotes) {
-      const bestDate = best.publishedAt ?? best.createdAt
-      const currentDate = current.publishedAt ?? current.createdAt
-      if (currentDate && bestDate && currentDate > bestDate) {
-        return current
+  const highlightItem = items.reduce<(typeof items)[number] | null>(
+    (best, current) => {
+      if (!best) return current
+      const bestUpvotes = best.analytics?.upvotes ?? 0
+      const currentUpvotes = current.analytics?.upvotes ?? 0
+      if (currentUpvotes > bestUpvotes) return current
+      if (currentUpvotes === bestUpvotes) {
+        const bestDate = best.publishedAt ?? best.createdAt
+        const currentDate = current.publishedAt ?? current.createdAt
+        if (currentDate && bestDate && currentDate > bestDate) {
+          return current
+        }
       }
-    }
-    return best
-  }, null)
+      return best
+    },
+    null,
+  )
   const totalProducts = items.length
   const featuredCategories = categories.slice(0, 4)
-  const extraCategories = Math.max(categories.length - featuredCategories.length, 0)
+  const extraCategories = Math.max(
+    categories.length - featuredCategories.length,
+    0,
+  )
   const statFormatter = new Intl.NumberFormat("en-US", {
     notation: "compact",
     maximumFractionDigits: 1,
@@ -368,7 +374,8 @@ export default async function PublicUserPage({ params }: PageProps) {
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1 rounded-full border border-[color:var(--brand-1)/0.25] bg-background/70 px-2.5 py-0.5 text-[color:var(--brand-1)]">
-                  {statFormatter.format(highlightItem.analytics?.upvotes ?? 0)} upvotes
+                  {statFormatter.format(highlightItem.analytics?.upvotes ?? 0)}{" "}
+                  upvotes
                 </span>
                 {highlightItem.verification?.isVerified ? (
                   <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/60 bg-emerald-100/80 px-2.5 py-0.5 text-emerald-700">
