@@ -14,6 +14,8 @@ import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import JoinCrewCTA from "@/components/organisms/JoinCrewCTA"
 import FeaturedOnSection from "@/components/organisms/FeaturedOnSection"
+import InteractiveTrendRadar from "@/components/organisms/InteractiveTrendRadar"
+import { computeTrendRadarMetrics } from "@/lib/trend-radar"
 
 export default async function HomePage() {
   const [
@@ -28,11 +30,28 @@ export default async function HomePage() {
     getProducts("featured"),
     getProducts("editor-pick"),
     getProducts("new"),
-    getTrendingProducts(3),
+    getTrendingProducts(6),
     getTopCategories(),
     getHomepageFeatureProducts(6),
     getLeaderboardStats(),
   ])
+
+  const radarSourceCategories = topCategories.map((category) => ({
+    id: category.id,
+    slug: category.slug,
+    name: category.name,
+    icon: category.icon,
+    productCount: category._count.products,
+  }))
+
+  const radarTrending = trendingProducts.map((entry) => ({
+    categoryName: entry.product.category?.name ?? null,
+    upvotes: entry.product.analytics?.upvotes ?? null,
+  }))
+
+  const radarData = computeTrendRadarMetrics(radarSourceCategories, radarTrending, {
+    totalProducts: stats.totalProducts,
+  })
 
   return (
     <main className="relative isolate overflow-hidden">
@@ -67,7 +86,11 @@ export default async function HomePage() {
       <HomepageSpotlight products={homepagePromo} />
       <EditorsPick products={editorsPick} />
       <LatestLaunches products={latestLaunches} />
-      <Leaderboard products={trendingProducts} />
+      <Leaderboard products={trendingProducts.slice(0, 3)} />
+      <InteractiveTrendRadar
+        categories={radarData.metrics}
+        totals={radarData.totals}
+      />
       <TopCategories categories={topCategories} />
       <JoinCrewCTA />
       <FeaturedOnSection />
