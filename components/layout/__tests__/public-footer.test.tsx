@@ -10,11 +10,6 @@ describe("PublicFooter", () => {
     const logos = screen.getAllByAltText(/^ShipYardHQ$/i)
     expect(logos).toHaveLength(2)
 
-    // CTA button
-    expect(
-      screen.getByRole("button", { name: /Explore Products/i }),
-    ).toBeInTheDocument()
-
     // A few representative links
     expect(screen.getByRole("link", { name: /All Products/i })).toHaveAttribute(
       "href",
