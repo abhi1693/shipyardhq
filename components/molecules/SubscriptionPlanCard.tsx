@@ -13,6 +13,7 @@ const HIGHLIGHT_PRIORITY = [
   "organization",
   "analytics.advanced",
   "analytics.basic",
+  "product.sitemap",
   "priorityPlacement",
   "homepage",
   "featured",

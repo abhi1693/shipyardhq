@@ -11,6 +11,11 @@ const FEATURES = [
     description: "Shows basic view count",
   },
   {
+    key: "product.sitemap",
+    name: "Product Sitemap Submission",
+    description: "We submit your listing to Google and Bing for faster indexing.",
+  },
+  {
     key: "analytics.advanced",
     name: "Advanced Analytics",
     description: "Unlocks advanced traffic dashboards",

@@ -32,7 +32,7 @@ const PLANS: PlanSeed[] = [
     price: 0,
     isDefault: true,
     boostForDays: 1,
-    featureKeys: ["analytics.basic", "backlink"],
+    featureKeys: ["analytics.basic", "product.sitemap", "backlink"],
   },
   {
     name: "Featured",
@@ -44,6 +44,7 @@ const PLANS: PlanSeed[] = [
     boostForDays: 14,
     featureKeys: [
       "analytics.basic",
+      "product.sitemap",
       "featured",
       "priorityPlacement",
       "homepage",
@@ -60,6 +61,7 @@ const PLANS: PlanSeed[] = [
     featureKeys: [
       "analytics.basic",
       "analytics.advanced",
+      "product.sitemap",
       "featured",
       "priorityPlacement",
       "homepage",
@@ -81,6 +83,7 @@ const PLANS: PlanSeed[] = [
     featureKeys: [
       "analytics.basic",
       "analytics.advanced",
+      "product.sitemap",
       "priorityPlacement",
       "homepage",
       "organization",

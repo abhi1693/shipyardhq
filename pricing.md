@@ -6,8 +6,8 @@ Clear, fair tiers that start generous and scale with growth. Free is the default
 
 | Plan           | Type                |        Price |          Boost Window | Included Feature Keys                                                                                                      | Primary Value                                                                        |
 | -------------- | ------------------- | -----------: | --------------------: | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Free (Default) | Default             |           $0 |                     — | `analytics.basic`, `backlink`                                                                                              | Public listing, product page, browse visibility, basic analytics, do‑follow backlink |
-| Pro            | One‑time (lifetime) | $19 one‑time | Time‑boxed placements | `priorityPlacement`, `featured`, `homepage`, `newsletterPromotion`, `stickyBanner`, `customCTA`, `earlyAccess`, `backlink` | Stronger page + premium surfaces + visibility bump                                   |
+| Free (Default) | Default             |           $0 |                     — | `analytics.basic`, `product.sitemap`, `backlink`                                                                           | Public listing, product page, browse visibility, basic analytics, do‑follow backlink |
+| Pro            | One‑time (lifetime) | $19 one‑time | Time‑boxed placements | `priorityPlacement`, `featured`, `homepage`, `newsletterPromotion`, `stickyBanner`, `customCTA`, `earlyAccess`, `product.sitemap`, `backlink` | Stronger page + premium surfaces + visibility bump                                   |
 | Team           | One‑time (lifetime) | $49 one‑time | Time‑boxed placements | All Pro features + `organization`                                                                                          | Collaboration (orgs) with all Pro growth tools                                       |
 
 Notes
@@ -29,6 +29,7 @@ Notes
 | `earlyAccess`         |  —   |  ✓  |  ✓   |
 | `newsletterPromotion` |  —   |  ✓  |  ✓   |
 | `backlink`            |  ✓   |  ✓  |  ✓   |
+| `product.sitemap`     |  ✓   |  ✓  |  ✓   |
 | `organization`        |  —   |  —  |  ✓   |
 
 ## Implementation Notes
