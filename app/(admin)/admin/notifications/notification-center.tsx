@@ -50,6 +50,9 @@ const SEGMENT_SCHEMA = z.enum([
   "explorers",
   "withProducts",
   "withoutProducts",
+  "buildersWithProducts",
+  "buildersWithoutProducts",
+  "explorersWithoutProducts",
   "selected",
 ])
 
@@ -137,10 +140,29 @@ export default function NotificationCenter({
         count: segmentCounts.builders,
       },
       {
+        value: "buildersWithProducts",
+        label: "Builders with products",
+        blurb:
+          "Builders who already shipped something and can handle advanced updates.",
+        count: segmentCounts.buildersWithProducts,
+      },
+      {
+        value: "buildersWithoutProducts",
+        label: "Builders without products",
+        blurb: "Builders still gearing up for their first launch.",
+        count: segmentCounts.buildersWithoutProducts,
+      },
+      {
         value: "explorers",
         label: "Explorers",
         blurb: "Members browsing the community for inspiration.",
         count: segmentCounts.explorers,
+      },
+      {
+        value: "explorersWithoutProducts",
+        label: "Explorers without products",
+        blurb: "Explorers who have yet to list anything in the Harbor.",
+        count: segmentCounts.explorersWithoutProducts,
       },
       {
         value: "withProducts",

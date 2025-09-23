@@ -23,6 +23,9 @@ export type NotificationSegment =
   | "explorers"
   | "withProducts"
   | "withoutProducts"
+  | "buildersWithProducts"
+  | "buildersWithoutProducts"
+  | "explorersWithoutProducts"
   | "selected"
 
 export type SegmentCounts = {
@@ -31,6 +34,9 @@ export type SegmentCounts = {
   explorers: number
   withProducts: number
   withoutProducts: number
+  buildersWithProducts: number
+  buildersWithoutProducts: number
+  explorersWithoutProducts: number
 }
 
 type SendNotificationError = {
@@ -160,43 +166,77 @@ async function requireAdmin() {
 export async function getNotificationSegmentCounts(): Promise<SegmentCounts> {
   await requireAdmin()
 
-  const [registered, builders, explorers, withProducts, withoutProducts] =
-    await Promise.all([
-      prisma.user.count({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-        },
-      }),
-      prisma.user.count({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          roleIntent: { in: [...BUILDER_INTENTS] },
-        },
-      }),
-      prisma.user.count({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          roleIntent: EXPLORER_INTENT,
-        },
-      }),
-      prisma.user.count({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          products: { some: {} },
-        },
-      }),
-      prisma.user.count({
-        where: {
-          status: "active",
-          role: { not: "admin" },
-          products: { none: {} },
-        },
-      }),
-    ])
+  const activeMemberWhere = {
+    status: "active" as const,
+    role: { not: "admin" },
+  }
+
+  const builderIntentWhere = {
+    ...activeMemberWhere,
+    roleIntent: { in: [...BUILDER_INTENTS] },
+  }
+
+  const explorerIntentWhere = {
+    ...activeMemberWhere,
+    roleIntent: EXPLORER_INTENT,
+  }
+
+  const [
+    registered,
+    builders,
+    explorers,
+    withProducts,
+    withoutProducts,
+    buildersWithProducts,
+    buildersWithoutProducts,
+    explorersWithoutProducts,
+  ] = await Promise.all([
+    prisma.user.count({
+      where: {
+        ...activeMemberWhere,
+      },
+    }),
+    prisma.user.count({
+      where: {
+        ...builderIntentWhere,
+      },
+    }),
+    prisma.user.count({
+      where: {
+        ...explorerIntentWhere,
+      },
+    }),
+    prisma.user.count({
+      where: {
+        ...activeMemberWhere,
+        products: { some: {} },
+      },
+    }),
+    prisma.user.count({
+      where: {
+        ...activeMemberWhere,
+        products: { none: {} },
+      },
+    }),
+    prisma.user.count({
+      where: {
+        ...builderIntentWhere,
+        products: { some: {} },
+      },
+    }),
+    prisma.user.count({
+      where: {
+        ...builderIntentWhere,
+        products: { none: {} },
+      },
+    }),
+    prisma.user.count({
+      where: {
+        ...explorerIntentWhere,
+        products: { none: {} },
+      },
+    }),
+  ])
 
   return {
     registered,
@@ -204,6 +244,9 @@ export async function getNotificationSegmentCounts(): Promise<SegmentCounts> {
     explorers,
     withProducts,
     withoutProducts,
+    buildersWithProducts,
+    buildersWithoutProducts,
+    explorersWithoutProducts,
   }
 }
 
@@ -261,12 +304,63 @@ async function resolveSegmentRecipients(
         firstName: user.firstName,
       }))
     }
+    case "buildersWithProducts": {
+      const users = await prisma.user.findMany({
+        where: {
+          status: "active",
+          role: { not: "admin" },
+          roleIntent: { in: [...BUILDER_INTENTS] },
+          products: { some: {} },
+        },
+        select: { email: true, firstName: true },
+        orderBy: { createdAt: "asc" },
+        take,
+      })
+      return users.map((user) => ({
+        email: user.email,
+        firstName: user.firstName,
+      }))
+    }
+    case "buildersWithoutProducts": {
+      const users = await prisma.user.findMany({
+        where: {
+          status: "active",
+          role: { not: "admin" },
+          roleIntent: { in: [...BUILDER_INTENTS] },
+          products: { none: {} },
+        },
+        select: { email: true, firstName: true },
+        orderBy: { createdAt: "asc" },
+        take,
+      })
+      return users.map((user) => ({
+        email: user.email,
+        firstName: user.firstName,
+      }))
+    }
     case "explorers": {
       const users = await prisma.user.findMany({
         where: {
           status: "active",
           role: { not: "admin" },
           roleIntent: EXPLORER_INTENT,
+        },
+        select: { email: true, firstName: true },
+        orderBy: { createdAt: "asc" },
+        take,
+      })
+      return users.map((user) => ({
+        email: user.email,
+        firstName: user.firstName,
+      }))
+    }
+    case "explorersWithoutProducts": {
+      const users = await prisma.user.findMany({
+        where: {
+          status: "active",
+          role: { not: "admin" },
+          roleIntent: EXPLORER_INTENT,
+          products: { none: {} },
         },
         select: { email: true, firstName: true },
         orderBy: { createdAt: "asc" },
@@ -367,6 +461,9 @@ export async function sendNotificationEmailsAction(
     "explorers",
     "withProducts",
     "withoutProducts",
+    "buildersWithProducts",
+    "buildersWithoutProducts",
+    "explorersWithoutProducts",
     "selected",
   ]
 
