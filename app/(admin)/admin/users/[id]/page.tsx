@@ -70,13 +70,13 @@ export default async function ViewUserPage({
         include: {
           category: true
         }
-      },
+      }
       memberships: {
         include: {
           organization: true
         }
-      },
-      Organization: true,
+      }
+      Organization: true
       ProductUpvote: {
         include: {
           product: {
@@ -85,8 +85,8 @@ export default async function ViewUserPage({
             }
           }
         }
-      },
-      feedback: true,
+      }
+      feedback: true
       purchases: {
         include: {
           plan: true

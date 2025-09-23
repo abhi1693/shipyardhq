@@ -38,10 +38,7 @@ export function UserProductUpvoteRelationship({
         row.original.product.category
           ? linkify({
               label: row.original.product.category.name,
-              href: adminPath(
-                "categories",
-                row.original.product.category.id,
-              ),
+              href: adminPath("categories", row.original.product.category.id),
             })
           : placeholder(),
     },

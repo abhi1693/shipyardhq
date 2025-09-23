@@ -6,17 +6,16 @@ import type { MemberFeedback } from "@/lib/vendor/prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
 import { formatDate, placeholder } from "@/lib/ui/formatters"
 
-const STATUS_VARIANT: Record<MemberFeedback["status"], "success" | "secondary" | "outline"> = {
+const STATUS_VARIANT: Record<
+  MemberFeedback["status"],
+  "success" | "secondary" | "outline"
+> = {
   received: "secondary",
   in_review: "outline",
   closed: "success",
 }
 
-export function UserFeedbackRelationship({
-  rows,
-}: {
-  rows: MemberFeedback[]
-}) {
+export function UserFeedbackRelationship({ rows }: { rows: MemberFeedback[] }) {
   const columns: ColumnDef<MemberFeedback>[] = [
     {
       accessorKey: "subject",

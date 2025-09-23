@@ -33,8 +33,7 @@ export function UserPlanPurchasesRelationship({
     {
       accessorKey: "plan.type",
       header: "Plan Type",
-      cell: ({ row }) =>
-        row.original.plan.type.replaceAll("_", " "),
+      cell: ({ row }) => row.original.plan.type.replaceAll("_", " "),
     },
     {
       accessorKey: "plan.price",
