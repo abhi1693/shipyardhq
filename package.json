@@ -26,8 +26,8 @@
     "test:e2e:open": "cypress open"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.32.0",
-    "@clerk/themes": "^2.4.19",
+    "@clerk/nextjs": "^6.32.2",
+    "@clerk/themes": "^2.4.21",
     "@hookform/resolvers": "^5.2.2",
     "@microsoft/clarity": "^1.0.0",
     "@next/third-parties": "^15.5.3",
@@ -67,7 +67,7 @@
     "react-dom": "19.1.1",
     "react-hook-form": "^7.63.0",
     "react-markdown": "^10.1.0",
-    "recharts": "^2.15.4",
+    "recharts": "2.15.4",
     "remark-gfm": "^4.0.1",
     "resend": "^6.1.0",
     "sharp": "^0.34.4",
@@ -78,7 +78,7 @@
     "zod": "^4.1.11"
   },
   "devDependencies": {
-    "@clerk/testing": "^1.12.6",
+    "@clerk/testing": "^1.12.8",
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4.1.13",
     "@tailwindcss/typography": "^0.5.18",
