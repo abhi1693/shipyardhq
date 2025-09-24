@@ -19,8 +19,8 @@ export default function TermsOfServicePage() {
         <p className="text-muted-foreground">Last updated: Sep 16, 2025</p>
 
         <p>
-          ShipYardHQ is owned and operated by Abhimanyu Saharan. These Terms of
-          Service (the &#34;Terms&#34;) govern your use of our website and
+          ShipYardHQ is owned and operated by the Shipyard HQ team. These Terms
+          of Service (the &#34;Terms&#34;) govern your use of our website and
           services at https://shipyardhq.dev (the &#34;Service&#34;). By
           accessing or using the Service, you agree to be bound by these Terms
           and our Privacy Policy. If you do not agree, do not use the Service.
@@ -75,7 +75,7 @@ export default function TermsOfServicePage() {
           and that your content does not violate any laws or third-party rights.
         </p>
         <p className="mt-2">
-          You agree to indemnify and hold harmless Abhimanyu Saharan and
+          You agree to indemnify and hold harmless the Shipyard HQ team and
           ShipYardHQ from any claims, damages, liabilities, costs, and expenses
           (including reasonable legal fees) arising out of or relating to your
           content, your use of the Service, or your violation of these Terms.
@@ -127,8 +127,8 @@ export default function TermsOfServicePage() {
 
         <h2 className="text-2xl font-semibold mt-6">Limitation of Liability</h2>
         <p>
-          TO THE MAXIMUM EXTENT PERMITTED BY LAW, SHIPYARDHQ AND ABHIMANYU
-          SAHARAN WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+          TO THE MAXIMUM EXTENT PERMITTED BY LAW, SHIPYARDHQ AND THE SHIPYARD HQ
+          TEAM WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
           CONSEQUENTIAL, COVER, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS,
           REVENUE, DATA, OR GOODWILL ARISING OUT OF OR RELATED TO YOUR USE OF OR
           INABILITY TO USE THE SERVICE. OUR TOTAL LIABILITY FOR ALL CLAIMS IN

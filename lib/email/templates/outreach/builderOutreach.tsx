@@ -54,7 +54,7 @@ export function BuilderOutreachEmail({
       title={BUILDER_OUTREACH_SUBJECT}
       previewText={BUILDER_OUTREACH_PREVIEW_TEXT}
       heading="Bring your next launch aboard Shipyard HQ"
-      intro={`Hey ${greeting}, my name is Abhimanyu from Shipyard HQ. We are building a harbor for indie makers to launch, learn, and swap feedback together.`}
+      intro={`Hey ${greeting}, I'm part of the Shipyard HQ crew. We are building a harbor for indie makers to launch, learn, and swap feedback together.`}
       cta={{ label: "List your product", href: BUILDER_OUTREACH_CTA_URL }}
       footerNote={<BuilderOutreachSignature />}
     >
@@ -90,7 +90,7 @@ function BuilderOutreachSignature() {
     <div style={footerParagraphStyle}>
       <p style={paragraphStyle}>Fair winds,</p>
       <p style={paragraphStyle}>
-        Abhimanyu - Shipyard Crew
+        Shipyard Crew - Shipyard HQ
         <br />
         <a
           href="https://shipyardhq.dev"
@@ -107,7 +107,7 @@ export function buildBuilderOutreachTextBody(firstName?: string | null) {
   const greeting = getGreeting(firstName)
 
   const lines = [
-    `Hey ${greeting}, my name is Abhimanyu from Shipyard HQ. We are building a harbor for indie makers to launch, learn, and swap feedback together.`,
+    `Hey ${greeting}, I'm part of the Shipyard HQ crew. We are building a harbor for indie makers to launch, learn, and swap feedback together.`,
     "",
     "Shipyard gives you a polished launch profile, weekly visibility boosts, and a friendly corner of the internet that celebrates indie builders.",
     "",
@@ -122,7 +122,7 @@ export function buildBuilderOutreachTextBody(firstName?: string | null) {
     "Have questions or want a second set of eyes on your launch copy? Just reply to this email and I will personally help out.",
     "",
     "Fair winds,",
-    "Abhimanyu - Shipyard Crew",
+    "Shipyard Crew - Shipyard HQ",
     "https://shipyardhq.dev",
   ]
 
