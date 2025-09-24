@@ -3,8 +3,7 @@ import type { CSSProperties } from "react"
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
-export const BUILDER_OUTREACH_SUBJECT =
-  "Launch with momentum on Shipyard HQ"
+export const BUILDER_OUTREACH_SUBJECT = "Launch with momentum on Shipyard HQ"
 export const BUILDER_OUTREACH_PREVIEW_TEXT =
   "Showcase your product, earn curated visibility, and track builder engagement."
 export const BUILDER_OUTREACH_CTA_URL = `https://shipyardhq.dev${MEMBER_PRODUCTS_PATH}`
@@ -59,14 +58,21 @@ export function BuilderOutreachEmail({
       footerNote={<BuilderOutreachSignature />}
     >
       <p style={paragraphStyle}>
-        Shipyard is where indie products earn signal without shouting. A polished
-        launch profile anchors your product while the crew spotlights it across
-        a network of builders, investors, and early champions.
+        Shipyard is where indie products earn signal without shouting. A
+        polished launch profile anchors your product while the crew spotlights
+        it across a network of builders, investors, and early champions.
       </p>
       <ul style={listStyle}>
-        <li>List your product in minutes with story, media, and stack details.</li>
-        <li>Stay top of mind with changelog drops and weekly featured roundups.</li>
-        <li>Track engagement with Shipyard analytics covering views, follows, and clicks.</li>
+        <li>
+          List your product in minutes with story, media, and stack details.
+        </li>
+        <li>
+          Stay top of mind with changelog drops and weekly featured roundups.
+        </li>
+        <li>
+          Track engagement with Shipyard analytics covering views, follows, and
+          clicks.
+        </li>
       </ul>
       <p style={paragraphStyle}>
         We are hand-inviting early crews whose work we admire, and listing is

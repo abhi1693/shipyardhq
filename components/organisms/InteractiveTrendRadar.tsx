@@ -34,7 +34,8 @@ const VIEW_MODES = [
     description: "Highlights where launches are trending right now.",
     metricKey: "normalizedMomentum" as const,
     statKey: "trendingCount" as const,
-    statFormatter: (value: number) => `${numberFormatter.format(value)} trending`,
+    statFormatter: (value: number) =>
+      `${numberFormatter.format(value)} trending`,
     secondary: (metric: TrendRadarCategoryMetrics) =>
       metric.momentumPerProduct > 0
         ? `${metric.momentumPerProduct} per launch`
@@ -47,7 +48,8 @@ const VIEW_MODES = [
     description: "Shows the densest harbors on Shipyard right now.",
     metricKey: "normalizedDepth" as const,
     statKey: "productCount" as const,
-    statFormatter: (value: number) => `${numberFormatter.format(value)} products`,
+    statFormatter: (value: number) =>
+      `${numberFormatter.format(value)} products`,
     secondary: (metric: TrendRadarCategoryMetrics) =>
       metric.catalogShare > 0
         ? `${percentFormatter.format(metric.catalogShare)} of catalog`
@@ -60,7 +62,8 @@ const VIEW_MODES = [
     description: "Surfaces categories earning the strongest upvote signal.",
     metricKey: "normalizedSignal" as const,
     statKey: "trendingUpvotes" as const,
-    statFormatter: (value: number) => `${numberFormatter.format(value)} upvotes`,
+    statFormatter: (value: number) =>
+      `${numberFormatter.format(value)} upvotes`,
     secondary: (metric: TrendRadarCategoryMetrics) =>
       metric.upvotesPerLaunch > 0
         ? `${metric.upvotesPerLaunch} upvotes / launch`
@@ -111,9 +114,7 @@ function TrendRadarTooltip({ active, payload, mode }: TrendRadarTooltipProps) {
       </div>
       <dl className="space-y-1 text-slate-600">
         <div className="flex items-center justify-between gap-6">
-          <dt className="font-medium">
-            {mode.label.replace(/ Focus$/, "")}
-          </dt>
+          <dt className="font-medium">{mode.label.replace(/ Focus$/, "")}</dt>
           <dd className="font-semibold text-slate-900">
             {mode.statFormatter(primaryStat)}
           </dd>
@@ -245,9 +246,7 @@ export default function InteractiveTrendRadar({
 
             <div className="mt-6 w-full">
               <ResponsiveContainer width="100%" height={360}>
-                <RadarChart data={chartData}
-                  outerRadius="80%"
-                >
+                <RadarChart data={chartData} outerRadius="80%">
                   <PolarGrid className="stroke-slate-200" />
                   <PolarAngleAxis
                     dataKey="label"
@@ -266,11 +265,13 @@ export default function InteractiveTrendRadar({
                   />
                   <Radar
                     name={mode.label}
-                    dataKey={mode.metricKey === "normalizedMomentum"
-                      ? "momentum"
-                      : mode.metricKey === "normalizedDepth"
-                        ? "depth"
-                        : "signal"}
+                    dataKey={
+                      mode.metricKey === "normalizedMomentum"
+                        ? "momentum"
+                        : mode.metricKey === "normalizedDepth"
+                          ? "depth"
+                          : "signal"
+                    }
                     stroke={mode.themeColor}
                     fill={mode.themeColor}
                     fillOpacity={0.18}
@@ -284,11 +285,13 @@ export default function InteractiveTrendRadar({
           <aside className="space-y-6 rounded-xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur">
             <div className="space-y-2 text-sm text-slate-600">
               <p>
-                Scanning {categories.length} standout categories fueled by {totals.trendingProducts}{" "}
-                recent trending launches and {numberFormatter.format(totals.upvotes)} upvotes.
+                Scanning {categories.length} standout categories fueled by{" "}
+                {totals.trendingProducts} recent trending launches and{" "}
+                {numberFormatter.format(totals.upvotes)} upvotes.
               </p>
               <p>
-                Use the lenses to spot where to discover products, or which harbors are primed for your next launch.
+                Use the lenses to spot where to discover products, or which
+                harbors are primed for your next launch.
               </p>
             </div>
 

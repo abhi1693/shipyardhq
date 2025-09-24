@@ -33,7 +33,9 @@ describe("computeTrendRadarMetrics", () => {
 
     const marketing = metrics.find((item) => item.slug === "marketing")
     expect(marketing).toBeDefined()
-    expect(marketing?.normalizedMomentum).toBeLessThan(automation!.normalizedMomentum)
+    expect(marketing?.normalizedMomentum).toBeLessThan(
+      automation!.normalizedMomentum,
+    )
 
     expect(totals).toEqual({
       products: 24,
@@ -56,7 +58,11 @@ describe("computeTrendRadarMetrics", () => {
     const marketing = metrics.find((item) => item.slug === "marketing")
 
     expect(automation?.normalizedMomentum).toBe(100)
-    expect(marketing?.normalizedMomentum).toBeLessThan(automation!.normalizedMomentum)
-    expect(marketing?.normalizedSignal).toBeLessThan(automation!.normalizedSignal)
+    expect(marketing?.normalizedMomentum).toBeLessThan(
+      automation!.normalizedMomentum,
+    )
+    expect(marketing?.normalizedSignal).toBeLessThan(
+      automation!.normalizedSignal,
+    )
   })
 })

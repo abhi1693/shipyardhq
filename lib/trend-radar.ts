@@ -73,7 +73,10 @@ export function computeTrendRadarMetrics(
   const totalCatalogProducts =
     typeof totalProducts === "number" && totalProducts > 0
       ? totalProducts
-      : trimmedCategories.reduce((sum, category) => sum + category.productCount, 0)
+      : trimmedCategories.reduce(
+          (sum, category) => sum + category.productCount,
+          0,
+        )
 
   const trendingByCategory = new Map<
     string,
@@ -113,10 +116,15 @@ export function computeTrendRadarMetrics(
 
   const metrics = trimmedCategories.map((category) => {
     const key = category.name.trim().toLowerCase()
-    const trendingStats = trendingByCategory.get(key) ?? { count: 0, upvotes: 0 }
+    const trendingStats = trendingByCategory.get(key) ?? {
+      count: 0,
+      upvotes: 0,
+    }
 
     const catalogShare =
-      totalCatalogProducts > 0 ? category.productCount / totalCatalogProducts : 0
+      totalCatalogProducts > 0
+        ? category.productCount / totalCatalogProducts
+        : 0
 
     const normalizedDepth = normalizeScore(category.productCount, maxProducts)
 
