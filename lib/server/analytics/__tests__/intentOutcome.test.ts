@@ -7,6 +7,9 @@ const {
   upvoteGroupByMock,
   feedbackGroupByMock,
   purchaseGroupByMock,
+  productTrafficFindManyMock,
+  upvoteFindManyMock,
+  purchaseFindManyMock,
 } = vi.hoisted(() => ({
   userFindManyMock: vi.fn(),
   productGroupByMock: vi.fn(),
@@ -14,6 +17,9 @@ const {
   upvoteGroupByMock: vi.fn(),
   feedbackGroupByMock: vi.fn(),
   purchaseGroupByMock: vi.fn(),
+  productTrafficFindManyMock: vi.fn(),
+  upvoteFindManyMock: vi.fn(),
+  purchaseFindManyMock: vi.fn(),
 }))
 
 vi.mock("next/cache", () => ({
@@ -29,17 +35,22 @@ vi.mock("@/lib/prisma", () => ({
     product: {
       groupBy: productGroupByMock,
     },
+    productTrafficEvent: {
+      findMany: productTrafficFindManyMock,
+    },
     organizationMembership: {
       groupBy: membershipGroupByMock,
     },
     productUpvote: {
       groupBy: upvoteGroupByMock,
+      findMany: upvoteFindManyMock,
     },
     memberFeedback: {
       groupBy: feedbackGroupByMock,
     },
     userPlanPurchase: {
       groupBy: purchaseGroupByMock,
+      findMany: purchaseFindManyMock,
     },
   },
 }))
@@ -57,12 +68,18 @@ describe("getIntentOutcomeAnalytics", () => {
     upvoteGroupByMock.mockReset()
     feedbackGroupByMock.mockReset()
     purchaseGroupByMock.mockReset()
+    productTrafficFindManyMock.mockReset()
+    upvoteFindManyMock.mockReset()
+    purchaseFindManyMock.mockReset()
 
     productGroupByMock.mockResolvedValue([])
     membershipGroupByMock.mockResolvedValue([])
     upvoteGroupByMock.mockResolvedValue([])
     feedbackGroupByMock.mockResolvedValue([])
     purchaseGroupByMock.mockResolvedValue([])
+    productTrafficFindManyMock.mockResolvedValue([])
+    upvoteFindManyMock.mockResolvedValue([])
+    purchaseFindManyMock.mockResolvedValue([])
   })
 
   afterEach(() => {
@@ -108,7 +125,7 @@ describe("getIntentOutcomeAnalytics", () => {
       {
         userId: "u1",
         _count: { _all: 1 },
-        _min: { createdAt: new Date("2024-05-15T00:00:00.000Z") },
+        _min: { createdAt: new Date("2024-07-05T00:00:00.000Z") },
       },
     ])
 
@@ -132,7 +149,32 @@ describe("getIntentOutcomeAnalytics", () => {
       {
         userId: "u1",
         _count: { _all: 1 },
-        _min: { createdAt: new Date("2024-05-21T00:00:00.000Z") },
+        _min: { createdAt: new Date("2024-06-10T00:00:00.000Z") },
+      },
+    ])
+
+    productTrafficFindManyMock.mockResolvedValue([
+      {
+        product: { userId: "u1" },
+        createdAt: new Date("2024-07-01T00:00:00.000Z"),
+      },
+      {
+        product: { userId: "u3" },
+        createdAt: new Date("2024-08-05T00:00:00.000Z"),
+      },
+    ])
+
+    upvoteFindManyMock.mockResolvedValue([
+      {
+        userId: "u2",
+        createdAt: new Date("2024-05-13T00:00:00.000Z"),
+      },
+    ])
+
+    purchaseFindManyMock.mockResolvedValue([
+      {
+        userId: "u1",
+        createdAt: new Date("2024-06-10T00:00:00.000Z"),
       },
     ])
 
@@ -152,6 +194,21 @@ describe("getIntentOutcomeAnalytics", () => {
         (bucket) => bucket.thresholdDays === 30,
       )?.count,
     ).toBe(2)
+
+    const retention30 = analytics.summary.retention.thresholds.find(
+      (bucket) => bucket.thresholdDays === 30,
+    )
+    const retention60 = analytics.summary.retention.thresholds.find(
+      (bucket) => bucket.thresholdDays === 60,
+    )
+    const retention90 = analytics.summary.retention.thresholds.find(
+      (bucket) => bucket.thresholdDays === 90,
+    )
+
+    expect(retention30?.activeUsers).toBe(2)
+    expect(retention30?.percentage).toBeCloseTo((2 / 3) * 100)
+    expect(retention60?.activeUsers).toBe(2)
+    expect(retention90?.activeUsers).toBe(1)
 
     const twitterCohort = analytics.cohorts.find(
       (cohort) => cohort.id === "launch-product|twitter",
@@ -176,6 +233,11 @@ describe("getIntentOutcomeAnalytics", () => {
     expect(twitterUpvoteStage?.count).toBe(1)
     expect(twitterUpvoteStage?.medianDaysToComplete).toBe(3)
 
+    const twitterRetention = twitterCohort?.retention.thresholds
+    expect(twitterRetention?.find((bucket) => bucket.thresholdDays === 30)?.activeUsers).toBe(1)
+    expect(twitterRetention?.find((bucket) => bucket.thresholdDays === 60)?.activeUsers).toBe(1)
+    expect(twitterRetention?.find((bucket) => bucket.thresholdDays === 90)?.activeUsers).toBe(0)
+
     const googleCohort = analytics.cohorts.find(
       (cohort) => cohort.id === "explore|google",
     )
@@ -185,6 +247,8 @@ describe("getIntentOutcomeAnalytics", () => {
     )
     expect(googleProductStage?.count).toBe(1)
     expect(googleProductStage?.medianDaysToComplete).toBe(10)
+    const googleRetention = googleCohort?.retention.thresholds
+    expect(googleRetention?.every((bucket) => bucket.activeUsers === 1)).toBe(true)
 
     expect(userFindManyMock).toHaveBeenCalledTimes(1)
     expect(productGroupByMock).toHaveBeenCalledTimes(1)
@@ -192,6 +256,9 @@ describe("getIntentOutcomeAnalytics", () => {
     expect(upvoteGroupByMock).toHaveBeenCalledTimes(1)
     expect(feedbackGroupByMock).toHaveBeenCalledTimes(1)
     expect(purchaseGroupByMock).toHaveBeenCalledTimes(1)
+    expect(productTrafficFindManyMock).toHaveBeenCalledTimes(1)
+    expect(upvoteFindManyMock).toHaveBeenCalledTimes(1)
+    expect(purchaseFindManyMock).toHaveBeenCalledTimes(1)
   })
 
   it("returns empty summary when no users fit the window", async () => {
@@ -203,6 +270,11 @@ describe("getIntentOutcomeAnalytics", () => {
     expect(analytics.summary.stageMetrics.every((stage) => stage.count === 0)).toBe(
       true,
     )
+    expect(
+      analytics.summary.retention.thresholds.every(
+        (bucket) => bucket.activeUsers === 0,
+      ),
+    ).toBe(true)
     expect(productGroupByMock).not.toHaveBeenCalled()
   })
 })

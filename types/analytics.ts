@@ -273,6 +273,17 @@ export interface IntentOutcomeStageMetrics {
   speedBuckets: IntentOutcomeStageSpeedBucket[]
 }
 
+export interface IntentOutcomeRetentionBucket {
+  thresholdDays: number
+  label: string
+  activeUsers: number
+  percentage: number
+}
+
+export interface IntentOutcomeRetentionMetrics {
+  thresholds: IntentOutcomeRetentionBucket[]
+}
+
 export interface IntentOutcomeCohort {
   id: string
   roleIntent: string | null
@@ -281,12 +292,14 @@ export interface IntentOutcomeCohort {
   heardFromLabel: string
   totalUsers: number
   stageMetrics: IntentOutcomeStageMetrics[]
+  retention: IntentOutcomeRetentionMetrics
 }
 
 export interface IntentOutcomeSummary {
   totalUsers: number
   totalCohorts: number
   stageMetrics: IntentOutcomeStageMetrics[]
+  retention: IntentOutcomeRetentionMetrics
 }
 
 export interface IntentOutcomeAnalytics {
