@@ -13,7 +13,10 @@ import {
   type ChartConfig,
 } from "@/components/atoms/chart"
 import { AnalyticsBarChart } from "@/components/molecules/AnalyticsBarChart"
-import type { OnboardingAnswersSummary } from "@/types/analytics"
+import type {
+  OnboardingAnswersSummary,
+  OnboardingOutcomeDeltaItem,
+} from "@/types/analytics"
 import { formatDistanceToNow } from "date-fns"
 import {
   Pie,
@@ -30,6 +33,10 @@ function formatNumber(value: number) {
 function formatPercent(value: number) {
   if (!Number.isFinite(value)) return "—"
   return `${value.toFixed(1)}%`
+}
+
+function formatRate(count: number, rate: number) {
+  return `${formatNumber(count)} (${formatPercent(rate)})`
 }
 
 function BreakdownList({
@@ -226,6 +233,25 @@ export function OnboardingAnswersAnalytics({
     },
   ]
 
+  const intentOutcomeSections: Array<{
+    title: string
+    description: string
+    items: OnboardingOutcomeDeltaItem[]
+  }> = [
+    {
+      title: "By intent",
+      description: "How each stated mission converts into product activity.",
+      items: summary.roleIntentOutcomes,
+    },
+    {
+      title: "By acquisition channel",
+      description: "Performance of heard-from sources across key actions.",
+      items: summary.heardFromOutcomes,
+    },
+  ]
+
+  const hasOutcomeData = intentOutcomeSections.some((section) => section.items.length)
+
   return (
     <div className="space-y-6">
       <Card>
@@ -418,6 +444,94 @@ export function OnboardingAnswersAnalytics({
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Intent-to-outcome deltas</CardTitle>
+          <CardDescription>
+            Spot which intents and sources lead to shipping products, community
+            upvotes, and plan purchases.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {hasOutcomeData ? (
+            <div className="grid gap-6 lg:grid-cols-2">
+              {intentOutcomeSections.map((section) => (
+                <IntentOutcomeTable
+                  key={section.title}
+                  title={section.title}
+                  description={section.description}
+                  items={section.items}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Collect more onboarding completions to unlock conversion deltas by
+              role intent and acquisition channel.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function IntentOutcomeTable({
+  title,
+  description,
+  items,
+}: {
+  title: string
+  description: string
+  items: OnboardingOutcomeDeltaItem[]
+}) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+      {items.length ? (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[420px] text-sm">
+            <thead>
+              <tr className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                <th className="py-2 pr-3 text-left font-semibold">Segment</th>
+                <th className="py-2 pr-3 text-right font-semibold">Members</th>
+                <th className="py-2 pr-3 text-right font-semibold">Product owners</th>
+                <th className="py-2 pr-3 text-right font-semibold">Upvoters</th>
+                <th className="py-2 text-right font-semibold">Purchasers</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200/70">
+              {items.map((item) => (
+                <tr key={item.value}>
+                  <td className="py-3 pr-3 align-top font-medium text-foreground">
+                    {item.label}
+                  </td>
+                  <td className="py-3 pr-3 text-right align-top tabular-nums text-foreground">
+                    {formatNumber(item.total)}
+                  </td>
+                  <td className="py-3 pr-3 text-right align-top tabular-nums text-foreground">
+                    {formatRate(item.productOwners, item.productOwnerRate)}
+                  </td>
+                  <td className="py-3 pr-3 text-right align-top tabular-nums text-foreground">
+                    {formatRate(item.upvoters, item.upvoterRate)}
+                  </td>
+                  <td className="py-3 text-right align-top tabular-nums text-foreground">
+                    {formatRate(item.purchasers, item.purchaserRate)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          No conversions recorded for this segment yet.
+        </p>
+      )}
     </div>
   )
 }

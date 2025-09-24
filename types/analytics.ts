@@ -247,6 +247,20 @@ export interface OnboardingAnswersSummary {
   newsletterRegisteredSubscribers: number
   newsletterRegisteredNotSubscribed: number
   newsletterUnregisteredSubscribers: number
+  roleIntentOutcomes: OnboardingOutcomeDeltaItem[]
+  heardFromOutcomes: OnboardingOutcomeDeltaItem[]
+}
+
+export interface OnboardingOutcomeDeltaItem {
+  value: string
+  label: string
+  total: number
+  productOwners: number
+  productOwnerRate: number
+  upvoters: number
+  upvoterRate: number
+  purchasers: number
+  purchaserRate: number
 }
 
 export type IntentOutcomeStageKey =

@@ -7,6 +7,7 @@ import type {
   NewsletterIntentBreakdownItem,
   OnboardingAnswerBreakdownItem,
   OnboardingAnswersSummary,
+  OnboardingOutcomeDeltaItem,
 } from "@/types/analytics"
 
 const ROLE_INTENT_LABELS: Record<string, string> = {
@@ -67,8 +68,10 @@ type RecentOnboardingUser = Prisma.UserGetPayload<{
 
 type CompletedMember = Prisma.UserGetPayload<{
   select: {
+    id: true
     email: true
     roleIntent: true
+    heardFrom: true
   }
 }>
 
@@ -79,6 +82,8 @@ type NewsletterSubscriptionEmail = Prisma.NewsletterSubscriptionGetPayload<{
 type RegisteredUserEmail = Prisma.UserGetPayload<{
   select: { email: true }
 }>
+
+type DistinctUserSelection = { userId: string }
 
 function labelForValue(
   value: string,
@@ -119,6 +124,35 @@ function buildBreakdown(
       percentage: (entry.count / total) * 100,
     }))
     .sort((a, b) => b.count - a.count)
+}
+
+type OutcomeAccumulator = {
+  value: string
+  label: string
+  total: number
+  productOwners: number
+  upvoters: number
+  purchasers: number
+}
+
+function buildOutcomeItems(
+  map: Map<string, OutcomeAccumulator>,
+): OnboardingOutcomeDeltaItem[] {
+  return Array.from(map.values())
+    .map<OnboardingOutcomeDeltaItem>((item) => ({
+      value: item.value,
+      label: item.label,
+      total: item.total,
+      productOwners: item.productOwners,
+      productOwnerRate:
+        item.total === 0 ? 0 : (item.productOwners / item.total) * 100,
+      upvoters: item.upvoters,
+      upvoterRate: item.total === 0 ? 0 : (item.upvoters / item.total) * 100,
+      purchasers: item.purchasers,
+      purchaserRate:
+        item.total === 0 ? 0 : (item.purchasers / item.total) * 100,
+    }))
+    .sort((a, b) => b.total - a.total)
 }
 
 export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSummary> {
@@ -206,8 +240,10 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     prisma.user.findMany({
       where: completedWhere,
       select: {
+        id: true,
         email: true,
         roleIntent: true,
+        heardFrom: true,
       },
       cacheStrategy: {
         ...adminSlowCache,
@@ -363,6 +399,117 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     })
     .sort((a, b) => b.total - a.total)
 
+  const completedUserIds = completedMembers
+    .map((member) => member.id)
+    .filter((id): id is string => Boolean(id))
+
+  let productOwnerRows: DistinctUserSelection[] = []
+  let upvoteRows: DistinctUserSelection[] = []
+  let purchaserRows: DistinctUserSelection[] = []
+
+  if (completedUserIds.length) {
+    ;[
+      productOwnerRows,
+      upvoteRows,
+      purchaserRows,
+    ] = await Promise.all([
+      prisma.product.findMany({
+        where: {
+          userId: { in: completedUserIds },
+        },
+        select: { userId: true },
+        distinct: ["userId"],
+        cacheStrategy: {
+          ...adminSlowCache,
+          tags: adminTags(TAGS.products, TAGS.analytics),
+        },
+      }) as Promise<DistinctUserSelection[]>,
+      prisma.productUpvote.findMany({
+        where: {
+          userId: { in: completedUserIds },
+        },
+        select: { userId: true },
+        distinct: ["userId"],
+        cacheStrategy: {
+          ...adminSlowCache,
+          tags: adminTags(TAGS.analytics, TAGS.upvotes),
+        },
+      }) as Promise<DistinctUserSelection[]>,
+      prisma.userPlanPurchase.findMany({
+        where: {
+          userId: { in: completedUserIds },
+        },
+        select: { userId: true },
+        distinct: ["userId"],
+        cacheStrategy: {
+          ...adminSlowCache,
+          tags: adminTags(TAGS.subscriptions, TAGS.analytics),
+        },
+      }) as Promise<DistinctUserSelection[]>,
+    ])
+  }
+
+  const productOwnerSet = new Set(productOwnerRows.map((row) => row.userId))
+  const upvoteUserSet = new Set(upvoteRows.map((row) => row.userId))
+  const purchaserUserSet = new Set(purchaserRows.map((row) => row.userId))
+
+  const roleIntentOutcomeMap = new Map<string, OutcomeAccumulator>()
+  const heardFromOutcomeMap = new Map<string, OutcomeAccumulator>()
+
+  const ensureOutcomeBucket = (
+    map: Map<string, OutcomeAccumulator>,
+    value: string,
+    label: string,
+  ) => {
+    let bucket = map.get(value)
+    if (!bucket) {
+      bucket = {
+        value,
+        label,
+        total: 0,
+        productOwners: 0,
+        upvoters: 0,
+        purchasers: 0,
+      }
+      map.set(value, bucket)
+    }
+    return bucket
+  }
+
+  for (const member of completedMembers) {
+    const userId = member.id
+    if (!userId) continue
+
+    if (member.roleIntent) {
+      const label = getRoleIntentLabel(member.roleIntent)
+      const bucket = ensureOutcomeBucket(
+        roleIntentOutcomeMap,
+        member.roleIntent,
+        label,
+      )
+      bucket.total += 1
+      if (productOwnerSet.has(userId)) bucket.productOwners += 1
+      if (upvoteUserSet.has(userId)) bucket.upvoters += 1
+      if (purchaserUserSet.has(userId)) bucket.purchasers += 1
+    }
+
+    if (member.heardFrom) {
+      const label = getHeardFromLabel(member.heardFrom)
+      const bucket = ensureOutcomeBucket(
+        heardFromOutcomeMap,
+        member.heardFrom,
+        label,
+      )
+      bucket.total += 1
+      if (productOwnerSet.has(userId)) bucket.productOwners += 1
+      if (upvoteUserSet.has(userId)) bucket.upvoters += 1
+      if (purchaserUserSet.has(userId)) bucket.purchasers += 1
+    }
+  }
+
+  const roleIntentOutcomes = buildOutcomeItems(roleIntentOutcomeMap)
+  const heardFromOutcomes = buildOutcomeItems(heardFromOutcomeMap)
+
   return {
     totalActiveUsers,
     completedResponses,
@@ -378,6 +525,8 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     newsletterRegisteredSubscribers,
     newsletterRegisteredNotSubscribed,
     newsletterUnregisteredSubscribers,
+    roleIntentOutcomes,
+    heardFromOutcomes,
   }
 }
 

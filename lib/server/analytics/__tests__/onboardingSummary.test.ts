@@ -6,12 +6,18 @@ const {
   findFirstMock,
   findManyMock,
   newsletterFindManyMock,
+  productFindManyMock,
+  upvoteFindManyMock,
+  purchaseFindManyMock,
 } = vi.hoisted(() => ({
   countMock: vi.fn(),
   groupByMock: vi.fn(),
   findFirstMock: vi.fn(),
   findManyMock: vi.fn(),
   newsletterFindManyMock: vi.fn(),
+  productFindManyMock: vi.fn(),
+  upvoteFindManyMock: vi.fn(),
+  purchaseFindManyMock: vi.fn(),
 }))
 
 vi.mock("@/lib/prisma", () => ({
@@ -21,6 +27,15 @@ vi.mock("@/lib/prisma", () => ({
       groupBy: groupByMock,
       findFirst: findFirstMock,
       findMany: findManyMock,
+    },
+    product: {
+      findMany: productFindManyMock,
+    },
+    productUpvote: {
+      findMany: upvoteFindManyMock,
+    },
+    userPlanPurchase: {
+      findMany: purchaseFindManyMock,
     },
     newsletterSubscription: {
       findMany: newsletterFindManyMock,
@@ -45,6 +60,9 @@ describe("getOnboardingAnswersSummary", () => {
     findFirstMock.mockReset()
     findManyMock.mockReset()
     newsletterFindManyMock.mockReset()
+    productFindManyMock.mockReset()
+    upvoteFindManyMock.mockReset()
+    purchaseFindManyMock.mockReset()
   })
 
   afterEach(() => {
@@ -85,8 +103,18 @@ describe("getOnboardingAnswersSummary", () => {
 
     findManyMock
       .mockResolvedValueOnce([
-        { email: "alice@example.com", roleIntent: "launch-product" },
-        { email: "bob@example.com", roleIntent: "custom-intent" },
+        {
+          id: "user-1",
+          email: "alice@example.com",
+          roleIntent: "launch-product",
+          heardFrom: "twitter",
+        },
+        {
+          id: "user-2",
+          email: "bob@example.com",
+          roleIntent: "custom-intent",
+          heardFrom: "other",
+        },
       ])
       .mockResolvedValueOnce([
         { email: "alice@example.com" },
@@ -96,6 +124,16 @@ describe("getOnboardingAnswersSummary", () => {
     newsletterFindManyMock.mockResolvedValueOnce([
       { email: "alice@example.com" },
       { email: "carol@example.com" },
+    ])
+
+    productFindManyMock.mockResolvedValueOnce([
+      { userId: "user-1" },
+    ])
+    upvoteFindManyMock.mockResolvedValueOnce([
+      { userId: "user-2" },
+    ])
+    purchaseFindManyMock.mockResolvedValueOnce([
+      { userId: "user-1" },
     ])
 
     const summary = await getOnboardingAnswersSummary()
@@ -154,10 +192,63 @@ describe("getOnboardingAnswersSummary", () => {
     expect(summary.newsletterRegisteredNotSubscribed).toBe(1)
     expect(summary.newsletterUnregisteredSubscribers).toBe(1)
 
+    expect(summary.roleIntentOutcomes).toEqual([
+      {
+        value: "launch-product",
+        label: "Launch a product",
+        total: 1,
+        productOwners: 1,
+        productOwnerRate: 100,
+        upvoters: 0,
+        upvoterRate: 0,
+        purchasers: 1,
+        purchaserRate: 100,
+      },
+      {
+        value: "custom-intent",
+        label: "Custom Intent",
+        total: 1,
+        productOwners: 0,
+        productOwnerRate: 0,
+        upvoters: 1,
+        upvoterRate: 100,
+        purchasers: 0,
+        purchaserRate: 0,
+      },
+    ])
+
+    expect(summary.heardFromOutcomes).toEqual([
+      {
+        value: "twitter",
+        label: "Twitter / X",
+        total: 1,
+        productOwners: 1,
+        productOwnerRate: 100,
+        upvoters: 0,
+        upvoterRate: 0,
+        purchasers: 1,
+        purchaserRate: 100,
+      },
+      {
+        value: "other",
+        label: "Other",
+        total: 1,
+        productOwners: 0,
+        productOwnerRate: 0,
+        upvoters: 1,
+        upvoterRate: 100,
+        purchasers: 0,
+        purchaserRate: 0,
+      },
+    ])
+
     expect(countMock).toHaveBeenCalledTimes(3)
     expect(groupByMock).toHaveBeenCalledTimes(2)
     expect(findFirstMock).toHaveBeenCalledTimes(1)
     expect(findManyMock).toHaveBeenCalledTimes(2)
+    expect(productFindManyMock).toHaveBeenCalledTimes(1)
+    expect(upvoteFindManyMock).toHaveBeenCalledTimes(1)
+    expect(purchaseFindManyMock).toHaveBeenCalledTimes(1)
     expect(newsletterFindManyMock).toHaveBeenCalledTimes(1)
   })
 
@@ -173,6 +264,9 @@ describe("getOnboardingAnswersSummary", () => {
 
     findManyMock.mockResolvedValueOnce([]).mockResolvedValueOnce([])
     newsletterFindManyMock.mockResolvedValueOnce([])
+    productFindManyMock.mockResolvedValueOnce([])
+    upvoteFindManyMock.mockResolvedValueOnce([])
+    purchaseFindManyMock.mockResolvedValueOnce([])
 
     const summary = await getOnboardingAnswersSummary()
 
@@ -189,6 +283,8 @@ describe("getOnboardingAnswersSummary", () => {
     expect(summary.newsletterRegisteredSubscribers).toBe(0)
     expect(summary.newsletterRegisteredNotSubscribed).toBe(0)
     expect(summary.newsletterUnregisteredSubscribers).toBe(0)
+    expect(summary.roleIntentOutcomes).toEqual([])
+    expect(summary.heardFromOutcomes).toEqual([])
   })
 
   it("fetches pending onboarding users", async () => {
