@@ -14,21 +14,19 @@ export default function ImageLightbox({ src, alt, children }: Props) {
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className="p-0 border-0 bg-transparent shadow-none max-w-none w-auto"
+        className="p-0 border-0 bg-transparent shadow-none w-auto max-w-[95vw] sm:max-w-[85vw] max-h-[90vh] place-items-center"
         showCloseButton={false}
       >
-        <div className="grid place-items-center max-h-[90vh] max-w-[95vw]">
-          <Image
-            src={src}
-            alt={alt}
-            width={1600}
-            height={900}
-            className="h-auto w-auto max-h-[85vh] max-w-[90vw] object-contain rounded-md border bg-background"
-            sizes="(max-width: 1024px) 90vw, 80vw"
-            quality={95}
-            priority={false}
-          />
-        </div>
+        <Image
+          src={src}
+          alt={alt}
+          width={1600}
+          height={900}
+          className="h-auto w-auto max-h-[85vh] max-w-full object-contain rounded-md border bg-background"
+          sizes="(max-width: 640px) 95vw, 85vw"
+          quality={95}
+          priority={false}
+        />
       </DialogContent>
     </Dialog>
   )
