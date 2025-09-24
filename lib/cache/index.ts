@@ -6,12 +6,14 @@ export const DEFAULT_TTL = {
   fast: 60, // homepage, leaderboard, trending
   medium: 120, // product pages, category pages
   slow: 300, // category lists
+  slowest: 3600, // admin analytics dashboards — hourly refresh is sufficient
 } as const
 
 export const DEFAULT_SWR = {
   fast: 300, // serve stale responses for up to 5 minutes while refreshing in background
   medium: 600, // public detail pages can tolerate slightly longer stale data
   slow: 900, // broad listings prefer stability over rapid churn
+  slowest: 10800, // admin analytics can serve stale data for up to 3 hours
 } as const
 
 const ACCELERATE_TAG_LIMIT = 5

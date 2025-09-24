@@ -16,8 +16,8 @@ const MIN_UPVOTES_FOR_RATE = 1
 const MIN_VIEWS_FOR_GROWTH = 10
 
 const leaderboardCache = {
-  ttl: DEFAULT_TTL.slow,
-  swr: DEFAULT_SWR.slow,
+  ttl: DEFAULT_TTL.slowest,
+  swr: DEFAULT_SWR.slowest,
 }
 
 const leaderboardTags = (...tags: string[]) =>
@@ -477,7 +477,7 @@ export const getConversionLeaderboards = cached(
   },
   "conversionLeaderboards",
   {
-    ttl: DEFAULT_TTL.slow,
+    ttl: DEFAULT_TTL.slowest,
     tags: ([rangeDays]) =>
       leaderboardTags(TAGS.analytics, `conversion:${Math.max(rangeDays, 1)}`),
   },

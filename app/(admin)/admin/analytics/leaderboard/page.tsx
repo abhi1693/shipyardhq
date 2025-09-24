@@ -15,7 +15,7 @@ import { getLeaderboardScoringAnalytics } from "@/lib/server/analytics/leaderboa
 import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
-export const revalidate = 60
+export const revalidate = 3600
 
 type SearchParams = { month?: string }
 

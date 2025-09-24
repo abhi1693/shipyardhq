@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils"
 import { adminPath } from "@/lib/routes"
 
-export const revalidate = 60
+export const revalidate = 3600
 
 type SearchParams = { range?: string }
 

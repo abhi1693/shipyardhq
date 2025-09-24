@@ -14,7 +14,7 @@ import type {
   ProductTrafficSummary,
 } from "@/types/analytics"
 
-export const revalidate = 60
+export const revalidate = 3600
 
 type SearchParams = { range?: string }
 
@@ -470,7 +470,10 @@ export default async function TrafficAnalyticsPage({
 }) {
   const sp = await searchParams
   const days = rangeToDays(sp?.range)
-  const summary = await getGlobalTrafficSummary({ rangeDays: days })
+  const summary = await getGlobalTrafficSummary({
+    rangeDays: days,
+    cacheTier: "slowest",
+  })
   const advanced = summary.advanced
   const loyalty = advanced.newVsReturning
 

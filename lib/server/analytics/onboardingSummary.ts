@@ -184,8 +184,8 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   const oneWeekAgo = subDays(new Date(), 7)
 
   const adminSlowCache = {
-    ttl: DEFAULT_TTL.slow,
-    swr: DEFAULT_SWR.slow,
+    ttl: DEFAULT_TTL.slowest,
+    swr: DEFAULT_SWR.slowest,
   }
 
   const adminTags = (...tags: string[]) =>

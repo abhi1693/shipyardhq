@@ -15,7 +15,7 @@ import type {
   IntentOutcomeStageMetrics,
 } from "@/types/analytics"
 
-export const revalidate = 120
+export const revalidate = 3600
 
 type SearchParams = { range?: string }
 

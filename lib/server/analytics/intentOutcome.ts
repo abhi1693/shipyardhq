@@ -26,8 +26,8 @@ import type {
 } from "@/types/analytics"
 
 const ANALYTICS_CACHE = {
-  ttl: DEFAULT_TTL.slow,
-  swr: DEFAULT_SWR.slow,
+  ttl: DEFAULT_TTL.slowest,
+  swr: DEFAULT_SWR.slowest,
 }
 
 const analyticsTags = (...tags: string[]) =>
@@ -552,7 +552,7 @@ export const getIntentOutcomeAnalytics = cached(
   },
   "intentOutcomeAnalytics",
   {
-    ttl: DEFAULT_TTL.slow,
+    ttl: DEFAULT_TTL.slowest,
     tags: ([options]) =>
       analyticsTags(
         TAGS.analytics,

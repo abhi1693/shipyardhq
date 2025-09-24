@@ -39,6 +39,18 @@ interface SummaryOptions {
   includeAdvanced?: boolean
   productIds?: string[]
   organizationId?: string
+  cacheTier?: "default" | "slowest"
+}
+
+const resolveTrafficCache = (
+  context: SummaryOptions["context"],
+  cacheTier: SummaryOptions["cacheTier"],
+) => {
+  const useSlowest = cacheTier === "slowest" || context === "global"
+  return {
+    ttl: useSlowest ? DEFAULT_TTL.slowest : DEFAULT_TTL.slow,
+    swr: useSlowest ? DEFAULT_SWR.slowest : DEFAULT_SWR.slow,
+  }
 }
 
 const DEVICE_ORDER: DeviceCategory[] = [
@@ -86,11 +98,6 @@ const MAX_CITY_ITEMS = 8
 const MAX_TOP_PRODUCTS = 10
 const MAX_REFERRER_MATRIX_ROWS = 5
 const MAX_PRODUCTS_PER_REFERRER = 5
-
-const trafficCache = {
-  ttl: DEFAULT_TTL.slow,
-  swr: DEFAULT_SWR.slow,
-}
 
 const trafficTags = (...tags: string[]) =>
   accelerateTags(["adminAnalytics", "traffic", ...tags])
@@ -211,6 +218,7 @@ async function buildTrafficSummary(
     rangeDays = 30,
     previousComparison = true,
     context = "product",
+    cacheTier = "default",
     includeProductBreakdown: includeProductBreakdownOption,
     includeReferrerMatrix: includeReferrerMatrixOption,
     includeAdvanced = true,
@@ -258,6 +266,7 @@ async function buildTrafficSummary(
     }
   }
   const baseTags = trafficTags(...tagSeeds)
+  const cacheProfile = resolveTrafficCache(context, cacheTier)
 
   const [events, previousEvents] = await Promise.all([
     prisma.productTrafficEvent.findMany({
@@ -279,7 +288,7 @@ async function buildTrafficSummary(
         productId: true,
       },
       cacheStrategy: {
-        ...trafficCache,
+        ...cacheProfile,
         tags: baseTags,
       },
     }),
@@ -301,7 +310,7 @@ async function buildTrafficSummary(
             productId: true,
           },
           cacheStrategy: {
-            ...trafficCache,
+            ...cacheProfile,
             tags: baseTags,
           },
         })
@@ -578,7 +587,7 @@ async function buildTrafficSummary(
             referrer: true,
           },
           cacheStrategy: {
-            ...trafficCache,
+            ...cacheProfile,
             tags: baseTags,
           },
         }),
@@ -586,7 +595,7 @@ async function buildTrafficSummary(
           where: upvoteWhere,
           select: { createdAt: true },
           cacheStrategy: {
-            ...trafficCache,
+            ...cacheProfile,
             tags: baseTags,
           },
         }),
@@ -932,7 +941,7 @@ async function buildTrafficSummary(
       select: { ipHash: true },
       distinct: ["ipHash"],
       cacheStrategy: {
-        ...trafficCache,
+        ...cacheProfile,
         tags: baseTags,
       },
     })
@@ -1084,7 +1093,7 @@ async function buildTrafficSummary(
       where: { id: { in: Array.from(productLookupIds) } },
       select: { id: true, name: true },
       cacheStrategy: {
-        ...trafficCache,
+        ...cacheProfile,
         tags: trafficTags(TAGS.products, TAGS.analytics, contextTag),
       },
     })) as ProductIdName[]

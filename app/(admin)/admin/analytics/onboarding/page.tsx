@@ -31,6 +31,8 @@ function formatRelative(date?: Date | null) {
   return formatDistanceToNow(date, { addSuffix: true })
 }
 
+export const revalidate = 3600
+
 export default async function OnboardingAnalyticsPage() {
   const [summary, pending, recent] = await Promise.all([
     getOnboardingAnswersSummary(),

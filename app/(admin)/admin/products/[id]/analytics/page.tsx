@@ -32,6 +32,7 @@ export default async function AdminProductAnalyticsPage({
   const summary = await getProductTrafficSummary(product.id, {
     rangeDays,
     includeAdvanced: true,
+    cacheTier: "slowest",
   })
   const publicPath = productPath(product.slug)
 

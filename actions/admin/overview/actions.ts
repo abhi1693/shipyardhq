@@ -39,8 +39,8 @@ export interface DashboardStats {
 const ADMIN_ANALYTICS_TAG = "adminAnalytics"
 
 const adminSlowCache = {
-  ttl: DEFAULT_TTL.slow,
-  swr: DEFAULT_SWR.slow,
+  ttl: DEFAULT_TTL.slowest,
+  swr: DEFAULT_SWR.slowest,
 }
 
 const adminTags = (...tags: string[]) =>
