@@ -333,9 +333,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
 
   const newsletterEmailSet = new Set(
     allNewsletterSubscriptions
-      .map((entry: NewsletterSubscriptionEmail) =>
-        entry.email?.toLowerCase(),
-      )
+      .map((entry: NewsletterSubscriptionEmail) => entry.email?.toLowerCase())
       .filter(Boolean) as string[],
   )
 
@@ -427,58 +425,54 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   let feedbackAggregates: FeedbackAggregateRow[] = []
 
   if (completedUserIds.length) {
-    ;[
-      productOwnerRows,
-      upvoteRows,
-      purchaserRows,
-      feedbackAggregates,
-    ] = await Promise.all([
-      prisma.product.findMany({
-        where: {
-          userId: { in: completedUserIds },
-        },
-        select: { userId: true },
-        distinct: ["userId"],
-        cacheStrategy: {
-          ...adminSlowCache,
-          tags: adminTags(TAGS.products, TAGS.analytics),
-        },
-      }) as Promise<DistinctUserSelection[]>,
-      prisma.productUpvote.findMany({
-        where: {
-          userId: { in: completedUserIds },
-        },
-        select: { userId: true },
-        distinct: ["userId"],
-        cacheStrategy: {
-          ...adminSlowCache,
-          tags: adminTags(TAGS.analytics, TAGS.upvotes),
-        },
-      }) as Promise<DistinctUserSelection[]>,
-      prisma.userPlanPurchase.findMany({
-        where: {
-          userId: { in: completedUserIds },
-        },
-        select: { userId: true },
-        distinct: ["userId"],
-        cacheStrategy: {
-          ...adminSlowCache,
-          tags: adminTags(TAGS.subscriptions, TAGS.analytics),
-        },
-      }) as Promise<DistinctUserSelection[]>,
-      prisma.memberFeedback.groupBy({
-        by: ["userId"],
-        where: {
-          userId: { in: completedUserIds },
-        },
-        _count: { _all: true, rating: true },
-        _sum: { rating: true },
-        cacheStrategy: {
-          ...adminSlowCache,
-          tags: adminTags(TAGS.feedback, TAGS.analytics),
-        },
-      }) as unknown as Promise<FeedbackAggregateRow[]>,
-    ])
+    ;[productOwnerRows, upvoteRows, purchaserRows, feedbackAggregates] =
+      await Promise.all([
+        prisma.product.findMany({
+          where: {
+            userId: { in: completedUserIds },
+          },
+          select: { userId: true },
+          distinct: ["userId"],
+          cacheStrategy: {
+            ...adminSlowCache,
+            tags: adminTags(TAGS.products, TAGS.analytics),
+          },
+        }) as Promise<DistinctUserSelection[]>,
+        prisma.productUpvote.findMany({
+          where: {
+            userId: { in: completedUserIds },
+          },
+          select: { userId: true },
+          distinct: ["userId"],
+          cacheStrategy: {
+            ...adminSlowCache,
+            tags: adminTags(TAGS.analytics, TAGS.upvotes),
+          },
+        }) as Promise<DistinctUserSelection[]>,
+        prisma.userPlanPurchase.findMany({
+          where: {
+            userId: { in: completedUserIds },
+          },
+          select: { userId: true },
+          distinct: ["userId"],
+          cacheStrategy: {
+            ...adminSlowCache,
+            tags: adminTags(TAGS.subscriptions, TAGS.analytics),
+          },
+        }) as Promise<DistinctUserSelection[]>,
+        prisma.memberFeedback.groupBy({
+          by: ["userId"],
+          where: {
+            userId: { in: completedUserIds },
+          },
+          _count: { _all: true, rating: true },
+          _sum: { rating: true },
+          cacheStrategy: {
+            ...adminSlowCache,
+            tags: adminTags(TAGS.feedback, TAGS.analytics),
+          },
+        }) as unknown as Promise<FeedbackAggregateRow[]>,
+      ])
   }
 
   const productOwnerSet = new Set(productOwnerRows.map((row) => row.userId))

@@ -282,7 +282,9 @@ export type NewBadgeProduct = Prisma.ProductBadgeGetPayload<{
 }>
 
 // Highlight: Active "new" badge assignments
-export async function getNewBadgeProducts(limit = 18): Promise<NewBadgeProduct[]> {
+export async function getNewBadgeProducts(
+  limit = 18,
+): Promise<NewBadgeProduct[]> {
   const user = await getCurrentUser()
   const now = new Date()
 

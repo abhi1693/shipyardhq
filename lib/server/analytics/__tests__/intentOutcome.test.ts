@@ -23,8 +23,10 @@ const {
 }))
 
 vi.mock("next/cache", () => ({
-  unstable_cache: (fn: (...args: unknown[]) => unknown) => (...args: unknown[]) =>
-    fn(...args),
+  unstable_cache:
+    (fn: (...args: unknown[]) => unknown) =>
+    (...args: unknown[]) =>
+      fn(...args),
 }))
 
 vi.mock("@/lib/prisma", () => ({
@@ -234,9 +236,18 @@ describe("getIntentOutcomeAnalytics", () => {
     expect(twitterUpvoteStage?.medianDaysToComplete).toBe(3)
 
     const twitterRetention = twitterCohort?.retention.thresholds
-    expect(twitterRetention?.find((bucket) => bucket.thresholdDays === 30)?.activeUsers).toBe(1)
-    expect(twitterRetention?.find((bucket) => bucket.thresholdDays === 60)?.activeUsers).toBe(1)
-    expect(twitterRetention?.find((bucket) => bucket.thresholdDays === 90)?.activeUsers).toBe(0)
+    expect(
+      twitterRetention?.find((bucket) => bucket.thresholdDays === 30)
+        ?.activeUsers,
+    ).toBe(1)
+    expect(
+      twitterRetention?.find((bucket) => bucket.thresholdDays === 60)
+        ?.activeUsers,
+    ).toBe(1)
+    expect(
+      twitterRetention?.find((bucket) => bucket.thresholdDays === 90)
+        ?.activeUsers,
+    ).toBe(0)
 
     const googleCohort = analytics.cohorts.find(
       (cohort) => cohort.id === "explore|google",
@@ -248,7 +259,9 @@ describe("getIntentOutcomeAnalytics", () => {
     expect(googleProductStage?.count).toBe(1)
     expect(googleProductStage?.medianDaysToComplete).toBe(10)
     const googleRetention = googleCohort?.retention.thresholds
-    expect(googleRetention?.every((bucket) => bucket.activeUsers === 1)).toBe(true)
+    expect(googleRetention?.every((bucket) => bucket.activeUsers === 1)).toBe(
+      true,
+    )
 
     expect(userFindManyMock).toHaveBeenCalledTimes(1)
     expect(productGroupByMock).toHaveBeenCalledTimes(1)
@@ -267,9 +280,9 @@ describe("getIntentOutcomeAnalytics", () => {
     const analytics = await getIntentOutcomeAnalytics({ rangeDays: 30 })
 
     expect(analytics.summary.totalUsers).toBe(0)
-    expect(analytics.summary.stageMetrics.every((stage) => stage.count === 0)).toBe(
-      true,
-    )
+    expect(
+      analytics.summary.stageMetrics.every((stage) => stage.count === 0),
+    ).toBe(true)
     expect(
       analytics.summary.retention.thresholds.every(
         (bucket) => bucket.activeUsers === 0,

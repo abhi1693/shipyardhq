@@ -1,8 +1,4 @@
-import {
-  differenceInCalendarDays,
-  startOfDay,
-  subDays,
-} from "date-fns"
+import { differenceInCalendarDays, startOfDay, subDays } from "date-fns"
 
 import {
   accelerateTags,
@@ -148,7 +144,10 @@ function createStageState(): StageState {
   }, {} as StageState)
 }
 
-function createRetentionCounts(): Record<(typeof RETENTION_THRESHOLDS)[number], number> {
+function createRetentionCounts(): Record<
+  (typeof RETENTION_THRESHOLDS)[number],
+  number
+> {
   return RETENTION_THRESHOLDS.reduce(
     (acc, threshold) => {
       acc[threshold] = 0
@@ -173,9 +172,7 @@ function ensureCohort(
     return existing
   }
 
-  const labelForIntent = roleIntent
-    ? getRoleIntentLabel(roleIntent)
-    : "Unknown"
+  const labelForIntent = roleIntent ? getRoleIntentLabel(roleIntent) : "Unknown"
   const labelForHeardFrom = heardFrom ? getHeardFromLabel(heardFrom) : "Unknown"
 
   const cohort: CohortAccumulator = {
@@ -254,7 +251,9 @@ interface IntentOutcomeOptions {
 }
 
 export const getIntentOutcomeAnalytics = cached(
-  async (options: IntentOutcomeOptions = {}): Promise<IntentOutcomeAnalytics> => {
+  async (
+    options: IntentOutcomeOptions = {},
+  ): Promise<IntentOutcomeAnalytics> => {
     const windowDays = Math.max(Math.floor(options.rangeDays ?? 180), 1)
     const today = startOfDay(new Date())
     const rangeStart = subDays(today, windowDays - 1)
@@ -307,7 +306,10 @@ export const getIntentOutcomeAnalytics = cached(
       }),
     )
 
-    const retentionByUser = new Map<string, Set<(typeof RETENTION_THRESHOLDS)[number]>>()
+    const retentionByUser = new Map<
+      string,
+      Set<(typeof RETENTION_THRESHOLDS)[number]>
+    >()
     for (const userId of userMap.keys()) {
       retentionByUser.set(userId, new Set())
     }
@@ -479,10 +481,7 @@ export const getIntentOutcomeAnalytics = cached(
       }
     }
 
-    const markRetention = (
-      userId: string,
-      eventDate: Date | null,
-    ) => {
+    const markRetention = (userId: string, eventDate: Date | null) => {
       if (!eventDate) return
       const user = userMap.get(userId)
       if (!user) return

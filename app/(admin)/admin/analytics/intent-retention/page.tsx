@@ -54,11 +54,10 @@ function formatPercent(value: number) {
   return `${percentFormatter.format(value)}%`
 }
 
-function stageBucket(
-  stage: IntentOutcomeStageMetrics,
-  thresholdDays: number,
-) {
-  return stage.speedBuckets.find((bucket) => bucket.thresholdDays === thresholdDays)
+function stageBucket(stage: IntentOutcomeStageMetrics, thresholdDays: number) {
+  return stage.speedBuckets.find(
+    (bucket) => bucket.thresholdDays === thresholdDays,
+  )
 }
 
 function StageCoverageCard({
@@ -107,7 +106,9 @@ function StageVelocityTable({
   return (
     <Card className="border-slate-200/70 bg-white/95 shadow-sm">
       <CardHeader>
-        <CardTitle className="text-base text-slate-900">Stage progression</CardTitle>
+        <CardTitle className="text-base text-slate-900">
+          Stage progression
+        </CardTitle>
         <CardDescription>
           Coverage across the retention funnel with speed buckets.
         </CardDescription>
@@ -132,7 +133,9 @@ function StageVelocityTable({
               return (
                 <tr key={stage.key}>
                   <td className="py-3 pr-4 align-top">
-                    <div className="font-medium text-slate-900">{stage.label}</div>
+                    <div className="font-medium text-slate-900">
+                      {stage.label}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {stage.description}
                     </p>
@@ -195,7 +198,10 @@ function CohortTable({
               <th className="py-2 pr-4 text-left font-semibold">Cohort</th>
               <th className="py-2 pr-4 text-right font-semibold">Members</th>
               {intentOutcomeStages.map((stage) => (
-                <th key={stage.key} className="py-2 pr-4 text-right font-semibold">
+                <th
+                  key={stage.key}
+                  className="py-2 pr-4 text-right font-semibold"
+                >
                   {stage.label}
                 </th>
               ))}
@@ -205,7 +211,9 @@ function CohortTable({
             {cohorts.map((cohort) => (
               <tr key={cohort.id}>
                 <td className="py-3 pr-4 align-top">
-                  <div className="font-medium text-slate-900">{cohort.label}</div>
+                  <div className="font-medium text-slate-900">
+                    {cohort.label}
+                  </div>
                 </td>
                 <td className="py-3 pr-4 text-right align-top tabular-nums font-semibold text-slate-900">
                   {formatNumber(cohort.totalUsers)}
@@ -237,7 +245,8 @@ function CohortTable({
                         {formatPercent(metrics.percentage)}
                       </div>
                       <div className="text-[11px] text-muted-foreground tabular-nums">
-                        ≤30d {within30 ? formatPercent(within30.percentage) : "—"}
+                        ≤30d{" "}
+                        {within30 ? formatPercent(within30.percentage) : "—"}
                       </div>
                     </td>
                   )
@@ -315,7 +324,10 @@ function CohortRetentionTable({
               <th className="py-2 pr-4 text-left font-semibold">Cohort</th>
               <th className="py-2 pr-4 text-right font-semibold">Members</th>
               {thresholds.map((bucket) => (
-                <th key={bucket.thresholdDays} className="py-2 pr-4 text-right font-semibold">
+                <th
+                  key={bucket.thresholdDays}
+                  className="py-2 pr-4 text-right font-semibold"
+                >
                   {bucket.label}
                 </th>
               ))}
@@ -325,7 +337,9 @@ function CohortRetentionTable({
             {cohorts.map((cohort) => (
               <tr key={cohort.id}>
                 <td className="py-3 pr-4 align-top">
-                  <div className="font-medium text-slate-900">{cohort.label}</div>
+                  <div className="font-medium text-slate-900">
+                    {cohort.label}
+                  </div>
                 </td>
                 <td className="py-3 pr-4 text-right align-top tabular-nums font-semibold text-slate-900">
                   {formatNumber(cohort.totalUsers)}
@@ -361,7 +375,9 @@ export default async function IntentOutcomeAnalyticsPage({
   const rangeDays = rangeToDays(sp?.range)
   const analytics = await getIntentOutcomeAnalytics({ rangeDays })
 
-  const emptyRetention = { thresholds: [] as IntentOutcomeRetentionMetrics["thresholds"] }
+  const emptyRetention = {
+    thresholds: [] as IntentOutcomeRetentionMetrics["thresholds"],
+  }
 
   const cohorts = analytics.cohorts.map((cohort) => ({
     id: cohort.id,
@@ -372,7 +388,8 @@ export default async function IntentOutcomeAnalyticsPage({
   }))
 
   const summaryStages = analytics.summary.stageMetrics
-  const summaryRetention = (analytics.summary.retention ?? emptyRetention).thresholds
+  const summaryRetention = (analytics.summary.retention ?? emptyRetention)
+    .thresholds
 
   return (
     <div className="space-y-10">
@@ -490,8 +507,8 @@ export default async function IntentOutcomeAnalyticsPage({
         ) : (
           <Card className="border-slate-200/70 bg-white/95 shadow-sm">
             <CardContent className="py-10 text-center text-sm text-muted-foreground">
-              No cohorts found in this window. Collect more onboarding intent and
-              acquisition responses to unlock the breakdown.
+              No cohorts found in this window. Collect more onboarding intent
+              and acquisition responses to unlock the breakdown.
             </CardContent>
           </Card>
         )}

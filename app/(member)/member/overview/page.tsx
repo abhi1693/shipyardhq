@@ -734,7 +734,9 @@ export default async function OverviewPage({
                         <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                           <span>Earned {formatRelative(entry.createdAt)}</span>
                           {entry.expiresAt ? (
-                            <span>Expires {formatRelative(entry.expiresAt)}</span>
+                            <span>
+                              Expires {formatRelative(entry.expiresAt)}
+                            </span>
                           ) : null}
                         </div>
                       </li>

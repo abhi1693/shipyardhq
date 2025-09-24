@@ -255,7 +255,9 @@ export function OnboardingAnswersAnalytics({
     },
   ]
 
-  const hasOutcomeData = intentOutcomeSections.some((section) => section.items.length)
+  const hasOutcomeData = intentOutcomeSections.some(
+    (section) => section.items.length,
+  )
 
   return (
     <div className="space-y-6">
@@ -316,11 +318,17 @@ export function OnboardingAnswersAnalytics({
               bars={[
                 {
                   dataKey: "subscribed",
-                  barProps: { stackId: "newsletter-composition", radius: [4, 4, 0, 0] },
+                  barProps: {
+                    stackId: "newsletter-composition",
+                    radius: [4, 4, 0, 0],
+                  },
                 },
                 {
                   dataKey: "unsubscribed",
-                  barProps: { stackId: "newsletter-composition", radius: [4, 4, 0, 0] },
+                  barProps: {
+                    stackId: "newsletter-composition",
+                    radius: [4, 4, 0, 0],
+                  },
                 },
               ]}
               showLegend
@@ -504,10 +512,16 @@ function IntentOutcomeTable({
               <tr className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
                 <th className="py-2 pr-3 text-left font-semibold">Segment</th>
                 <th className="py-2 pr-3 text-right font-semibold">Members</th>
-                <th className="py-2 pr-3 text-right font-semibold">Product owners</th>
+                <th className="py-2 pr-3 text-right font-semibold">
+                  Product owners
+                </th>
                 <th className="py-2 pr-3 text-right font-semibold">Upvoters</th>
-                <th className="py-2 pr-3 text-right font-semibold">Purchasers</th>
-                <th className="py-2 pr-3 text-right font-semibold">Feedback members</th>
+                <th className="py-2 pr-3 text-right font-semibold">
+                  Purchasers
+                </th>
+                <th className="py-2 pr-3 text-right font-semibold">
+                  Feedback members
+                </th>
                 <th className="py-2 text-right font-semibold">Avg rating</th>
               </tr>
             </thead>
@@ -530,7 +544,12 @@ function IntentOutcomeTable({
                     {formatRate(item.purchasers, item.purchaserRate)}
                   </td>
                   <td className="py-3 pr-3 text-right align-top tabular-nums text-foreground">
-                    <div>{formatRate(item.feedbackSubmitters, item.feedbackSubmissionRate)}</div>
+                    <div>
+                      {formatRate(
+                        item.feedbackSubmitters,
+                        item.feedbackSubmissionRate,
+                      )}
+                    </div>
                     <div className="text-[11px] text-muted-foreground">
                       {formatNumber(item.feedbackCount)} submissions
                     </div>

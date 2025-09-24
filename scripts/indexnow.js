@@ -51,7 +51,11 @@ function parseRetryAfterMs(value) {
   return null
 }
 
-async function axiosGetWithRetries(url, config = {}, attempts = MAX_FETCH_ATTEMPTS) {
+async function axiosGetWithRetries(
+  url,
+  config = {},
+  attempts = MAX_FETCH_ATTEMPTS,
+) {
   let lastError
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
@@ -263,7 +267,9 @@ async function submitUrlsViaPost(urls, endpoints) {
   }
 
   console.log(`[INFO] Total URLs submitted: ${urls.length}`)
-  console.log(`[INFO] Submission summary: ${successCount} success, ${failureCount} failed.`)
+  console.log(
+    `[INFO] Submission summary: ${successCount} success, ${failureCount} failed.`,
+  )
   if (failures.length) {
     console.warn(`[WARN] Failed endpoints: ${failures.join(", ")}`)
   }

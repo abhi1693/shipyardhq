@@ -132,15 +132,9 @@ describe("getOnboardingAnswersSummary", () => {
       { email: "carol@example.com" },
     ])
 
-    productFindManyMock.mockResolvedValueOnce([
-      { userId: "user-1" },
-    ])
-    upvoteFindManyMock.mockResolvedValueOnce([
-      { userId: "user-2" },
-    ])
-    purchaseFindManyMock.mockResolvedValueOnce([
-      { userId: "user-1" },
-    ])
+    productFindManyMock.mockResolvedValueOnce([{ userId: "user-1" }])
+    upvoteFindManyMock.mockResolvedValueOnce([{ userId: "user-2" }])
+    purchaseFindManyMock.mockResolvedValueOnce([{ userId: "user-1" }])
     feedbackGroupByMock.mockResolvedValueOnce([
       {
         userId: "user-1",
