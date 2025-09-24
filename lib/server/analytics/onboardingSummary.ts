@@ -277,10 +277,6 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
 
   const lastResponseAt = latestCompleted?.updatedAt?.toISOString() ?? null
 
-  const completedEmails = completedMembers
-    .map((member: CompletedMember) => member.email?.toLowerCase())
-    .filter(Boolean) as string[]
-
   const newsletterEmailSet = new Set(
     allNewsletterSubscriptions
       .map((entry: NewsletterSubscriptionEmail) =>

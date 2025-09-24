@@ -53,6 +53,11 @@ const baseNavItems: NavItem[] = [
         icon: "user",
       },
       {
+        title: "Intent retention",
+        url: adminPath("analytics", "intent-retention"),
+        icon: "analytics",
+      },
+      {
         title: "Growth",
         url: adminPath("analytics", "growth"),
         icon: "dashboard",

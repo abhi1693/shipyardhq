@@ -248,3 +248,50 @@ export interface OnboardingAnswersSummary {
   newsletterRegisteredNotSubscribed: number
   newsletterUnregisteredSubscribers: number
 }
+
+export type IntentOutcomeStageKey =
+  | "shippedProduct"
+  | "joinedOrganization"
+  | "upvotedProduct"
+  | "submittedFeedback"
+  | "purchasedPlan"
+
+export interface IntentOutcomeStageSpeedBucket {
+  label: string
+  thresholdDays: number
+  count: number
+  percentage: number
+}
+
+export interface IntentOutcomeStageMetrics {
+  key: IntentOutcomeStageKey
+  label: string
+  description: string
+  count: number
+  percentage: number
+  medianDaysToComplete: number | null
+  speedBuckets: IntentOutcomeStageSpeedBucket[]
+}
+
+export interface IntentOutcomeCohort {
+  id: string
+  roleIntent: string | null
+  roleIntentLabel: string
+  heardFrom: string | null
+  heardFromLabel: string
+  totalUsers: number
+  stageMetrics: IntentOutcomeStageMetrics[]
+}
+
+export interface IntentOutcomeSummary {
+  totalUsers: number
+  totalCohorts: number
+  stageMetrics: IntentOutcomeStageMetrics[]
+}
+
+export interface IntentOutcomeAnalytics {
+  rangeDays: number
+  generatedAt: string
+  summary: IntentOutcomeSummary
+  cohorts: IntentOutcomeCohort[]
+}

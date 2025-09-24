@@ -4,23 +4,34 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
 
-const ranges = [
+const DEFAULT_RANGES = [
   { label: "7d", value: "7d" },
   { label: "14d", value: "14d" },
   { label: "30d", value: "30d" },
   { label: "90d", value: "90d" },
 ]
 
-export default function RangeSelector({ className }: { className?: string }) {
+interface RangeSelectorProps {
+  className?: string
+  ranges?: Array<{ label: string; value: string }>
+  paramKey?: string
+}
+
+export default function RangeSelector({
+  className,
+  ranges = DEFAULT_RANGES,
+  paramKey = "range",
+}: RangeSelectorProps) {
   const pathname = usePathname()
   const router = useRouter()
   const params = useSearchParams()
-  const current = params.get("range") ?? "7d"
+  const baselineRange = ranges[0]?.value ?? DEFAULT_RANGES[0].value
+  const current = params.get(paramKey) ?? baselineRange
 
   const setRange = (value: string) => {
     const next = new URLSearchParams(params.toString())
-    if (value === "7d") next.delete("range")
-    else next.set("range", value)
+    if (value === baselineRange) next.delete(paramKey)
+    else next.set(paramKey, value)
 
     const query = next.toString()
     router.push(query ? `${pathname}?${query}` : pathname)
