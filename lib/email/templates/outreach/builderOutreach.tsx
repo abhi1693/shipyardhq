@@ -4,9 +4,9 @@ import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 export const BUILDER_OUTREACH_SUBJECT =
-  "Showcase your next launch on Shipyard HQ"
+  "Launch with momentum on Shipyard HQ"
 export const BUILDER_OUTREACH_PREVIEW_TEXT =
-  "List your product, tell the story, and grow with fellow indie builders."
+  "Showcase your product, earn curated visibility, and track builder engagement."
 export const BUILDER_OUTREACH_CTA_URL = `https://shipyardhq.dev${MEMBER_PRODUCTS_PATH}`
 
 const paragraphStyle: CSSProperties = {
@@ -53,29 +53,24 @@ export function BuilderOutreachEmail({
       renderMode={renderMode}
       title={BUILDER_OUTREACH_SUBJECT}
       previewText={BUILDER_OUTREACH_PREVIEW_TEXT}
-      heading="Bring your next launch aboard Shipyard HQ"
-      intro={`Hey ${greeting}, I'm part of the Shipyard HQ crew. We are building a harbor for indie makers to launch, learn, and swap feedback together.`}
+      heading="Launch with momentum on Shipyard HQ"
+      intro={`Hey ${greeting}, I'm part of the Shipyard HQ crew. We built Shipyard so indie makers can launch with momentum, gather feedback, and grow alongside fellow builders.`}
       cta={{ label: "List your product", href: BUILDER_OUTREACH_CTA_URL }}
       footerNote={<BuilderOutreachSignature />}
     >
       <p style={paragraphStyle}>
-        Shipyard gives you a polished launch profile, weekly visibility boosts,
-        and a friendly corner of the internet that celebrates indie builders.
+        Shipyard is where indie products earn signal without shouting. A polished
+        launch profile anchors your product while the crew spotlights it across
+        a network of builders, investors, and early champions.
       </p>
       <ul style={listStyle}>
-        <li>Publish instantly with screenshots, story, and tech stack tags.</li>
-        <li>
-          Share product updates and changelog notes anytime without an approval
-          queue.
-        </li>
-        <li>
-          Reach a curated community of makers hunting for the next wave of
-          products.
-        </li>
+        <li>List your product in minutes with story, media, and stack details.</li>
+        <li>Stay top of mind with changelog drops and weekly featured roundups.</li>
+        <li>Track engagement with Shipyard analytics covering views, follows, and clicks.</li>
       </ul>
       <p style={paragraphStyle}>
-        It is early days aboard Shipyard, so we are hand-inviting builders whose
-        work we admire. Listing is free and only takes a couple of minutes.
+        We are hand-inviting early crews whose work we admire, and listing is
+        free while taking under five minutes to get live.
       </p>
       <p style={paragraphStyle}>
         Have questions or want a second set of eyes on your launch copy? Just
@@ -107,16 +102,16 @@ export function buildBuilderOutreachTextBody(firstName?: string | null) {
   const greeting = getGreeting(firstName)
 
   const lines = [
-    `Hey ${greeting}, I'm part of the Shipyard HQ crew. We are building a harbor for indie makers to launch, learn, and swap feedback together.`,
+    `Hey ${greeting}, I'm part of the Shipyard HQ crew. We built Shipyard so indie makers can launch with momentum, gather feedback, and grow alongside fellow builders.`,
     "",
-    "Shipyard gives you a polished launch profile, weekly visibility boosts, and a friendly corner of the internet that celebrates indie builders.",
+    "Shipyard is where indie products earn signal without shouting. A polished launch profile anchors your product while the crew spotlights it across a network of builders, investors, and early champions.",
     "",
-    "Here are a few ways crews use Shipyard:",
-    "- Publish instantly with screenshots, story, and tech stack tags.",
-    "- Share product updates and changelog notes anytime without an approval queue.",
-    "- Reach a curated community of makers hunting for the next wave of products.",
+    "Here is what you can do once aboard:",
+    "- List your product in minutes with story, media, and stack details.",
+    "- Stay top of mind with changelog drops and weekly featured roundups.",
+    "- Track engagement with Shipyard analytics covering views, follows, and clicks.",
     "",
-    "It is early days aboard Shipyard, so we are hand-inviting builders whose work we admire. Listing is free and takes just a couple of minutes.",
+    "We are hand-inviting early crews whose work we admire, and listing is free while taking under five minutes to get live.",
     `Start here: ${BUILDER_OUTREACH_CTA_URL}`,
     "",
     "Have questions or want a second set of eyes on your launch copy? Just reply to this email and I will personally help out.",
