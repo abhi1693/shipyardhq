@@ -29,6 +29,7 @@ describe("Member overview command deck", () => {
     cy.contains("Most upvoted").should("be.visible")
 
     cy.contains("Performance pulse").scrollIntoView().should("be.visible")
+    cy.contains("Fresh off the deck").should("be.visible")
     cy.contains("Recent launches").should("be.visible")
     cy.contains("Recent activity").should("be.visible")
     cy.contains("Product health").should("be.visible")

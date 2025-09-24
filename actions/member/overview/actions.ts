@@ -271,6 +271,41 @@ export async function getExpiringBadges(limit = 5, withinDays = 14) {
   })
 }
 
+export type NewBadgeProduct = Prisma.ProductBadgeGetPayload<{
+  select: {
+    id: true
+    badge: true
+    createdAt: true
+    expiresAt: true
+    product: { select: { id: true; name: true; slug: true } }
+  }
+}>
+
+// Highlight: Active "new" badge assignments
+export async function getNewBadgeProducts(limit = 18): Promise<NewBadgeProduct[]> {
+  const user = await getCurrentUser()
+  const now = new Date()
+
+  const entries = await prisma.productBadge.findMany({
+    where: {
+      product: { userId: user.id },
+      badge: "new",
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    select: {
+      id: true,
+      badge: true,
+      createdAt: true,
+      expiresAt: true,
+      product: { select: { id: true, name: true, slug: true } },
+    },
+  })
+
+  return entries as unknown as NewBadgeProduct[]
+}
+
 // New: Products needing media (lt min images)
 export async function getProductsNeedingMedia(min = 2, limit = 5) {
   const user = await getCurrentUser()

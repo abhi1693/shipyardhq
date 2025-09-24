@@ -20,6 +20,8 @@ import {
   getUserDrafts,
   getTopProductsByMetric,
   getExpiringBadges,
+  getNewBadgeProducts,
+  type NewBadgeProduct,
   getProductsNeedingMedia,
   getRecentActivity,
   getProductHealthSummary,
@@ -31,6 +33,7 @@ import {
   memberProductsStatusPath,
   memberProductsVerificationPath,
 } from "@/lib/routes"
+import { BADGE_OPTIONS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { currentUser } from "@clerk/nextjs/server"
 
@@ -41,7 +44,6 @@ type SearchParams = { range?: string }
 type DraftProduct = Awaited<ReturnType<typeof getUserDrafts>>[number]
 type ActivityItem = Awaited<ReturnType<typeof getRecentActivity>>[number]
 type ExpiringBadge = Awaited<ReturnType<typeof getExpiringBadges>>[number]
-
 type NeedsMediaProduct = Awaited<
   ReturnType<typeof getProductsNeedingMedia>
 >[number]
@@ -173,6 +175,7 @@ export default async function OverviewPage({
     topByClicks,
     topByUpvotes,
     expiringBadges,
+    freshBadges,
     needsMedia,
     activity,
     health,
@@ -185,6 +188,7 @@ export default async function OverviewPage({
     getTopProductsByMetric("clicks", 3, days),
     getTopProductsByMetric("upvotes", 3, days),
     getExpiringBadges(4, 14),
+    getNewBadgeProducts(18),
     getProductsNeedingMedia(2, 4),
     getRecentActivity(days, 8),
     getProductHealthSummary(days),
@@ -690,7 +694,65 @@ export default async function OverviewPage({
             Performance pulse
           </h2>
         </div>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+          <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-base">Fresh off the deck</CardTitle>
+              <CardDescription>
+                Products sporting the New Launch badge.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {freshBadges.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No new badge launches right now.
+                </p>
+              ) : (
+                <ul className="space-y-2 text-sm">
+                  {freshBadges.map((entry: NewBadgeProduct) => {
+                    const badgeDef = BADGE_OPTIONS.find(
+                      (option) => option.value === entry.badge,
+                    )
+
+                    return (
+                      <li key={entry.id} className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <Link
+                            href={memberProductPath(entry.product.id)}
+                            className="truncate font-medium text-slate-900 hover:underline"
+                          >
+                            {entry.product.name}
+                          </Link>
+                          <Badge
+                            variant="secondary"
+                            className="gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium"
+                          >
+                            <span>{badgeDef?.icon ?? "🏷️"}</span>
+                            <span>{badgeDef?.label ?? entry.badge}</span>
+                          </Badge>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                          <span>Earned {formatRelative(entry.createdAt)}</span>
+                          {entry.expiresAt ? (
+                            <span>Expires {formatRelative(entry.expiresAt)}</span>
+                          ) : null}
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </CardContent>
+            <CardFooter>
+              <Link
+                href={MEMBER_PRODUCTS_PATH}
+                className="text-sm text-sky-600 hover:underline"
+              >
+                Manage badges →
+              </Link>
+            </CardFooter>
+          </Card>
+
           <Card className="border-slate-200/70 bg-white/90 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base">Recent launches</CardTitle>
