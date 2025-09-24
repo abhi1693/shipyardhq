@@ -83,13 +83,19 @@ describe("getOnboardingAnswersSummary", () => {
       updatedAt: new Date("2024-04-18T15:00:00.000Z"),
     })
 
-    findManyMock.mockResolvedValueOnce([
-      { email: "alice@example.com", roleIntent: "launch-product" },
-      { email: "bob@example.com", roleIntent: "custom-intent" },
-    ])
+    findManyMock
+      .mockResolvedValueOnce([
+        { email: "alice@example.com", roleIntent: "launch-product" },
+        { email: "bob@example.com", roleIntent: "custom-intent" },
+      ])
+      .mockResolvedValueOnce([
+        { email: "alice@example.com" },
+        { email: "bob@example.com" },
+      ])
 
     newsletterFindManyMock.mockResolvedValueOnce([
       { email: "alice@example.com" },
+      { email: "carol@example.com" },
     ])
 
     const summary = await getOnboardingAnswersSummary()
@@ -144,10 +150,14 @@ describe("getOnboardingAnswersSummary", () => {
       },
     ])
 
+    expect(summary.newsletterRegisteredSubscribers).toBe(1)
+    expect(summary.newsletterRegisteredNotSubscribed).toBe(1)
+    expect(summary.newsletterUnregisteredSubscribers).toBe(1)
+
     expect(countMock).toHaveBeenCalledTimes(3)
     expect(groupByMock).toHaveBeenCalledTimes(2)
     expect(findFirstMock).toHaveBeenCalledTimes(1)
-    expect(findManyMock).toHaveBeenCalledTimes(1)
+    expect(findManyMock).toHaveBeenCalledTimes(2)
     expect(newsletterFindManyMock).toHaveBeenCalledTimes(1)
   })
 
@@ -161,7 +171,8 @@ describe("getOnboardingAnswersSummary", () => {
 
     findFirstMock.mockResolvedValue(null)
 
-    findManyMock.mockResolvedValueOnce([])
+    findManyMock.mockResolvedValueOnce([]).mockResolvedValueOnce([])
+    newsletterFindManyMock.mockResolvedValueOnce([])
 
     const summary = await getOnboardingAnswersSummary()
 
@@ -175,6 +186,9 @@ describe("getOnboardingAnswersSummary", () => {
     expect(summary.newsletterSubscribed).toBe(0)
     expect(summary.newsletterOptedOut).toBe(0)
     expect(summary.newsletterIntentBreakdown).toEqual([])
+    expect(summary.newsletterRegisteredSubscribers).toBe(0)
+    expect(summary.newsletterRegisteredNotSubscribed).toBe(0)
+    expect(summary.newsletterUnregisteredSubscribers).toBe(0)
   })
 
   it("fetches pending onboarding users", async () => {

@@ -244,4 +244,7 @@ export interface OnboardingAnswersSummary {
   newsletterSubscribed: number
   newsletterOptedOut: number
   newsletterIntentBreakdown: NewsletterIntentBreakdownItem[]
+  newsletterRegisteredSubscribers: number
+  newsletterRegisteredNotSubscribed: number
+  newsletterUnregisteredSubscribers: number
 }

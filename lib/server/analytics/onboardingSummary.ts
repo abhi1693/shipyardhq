@@ -76,6 +76,10 @@ type NewsletterSubscriptionEmail = Prisma.NewsletterSubscriptionGetPayload<{
   select: { email: true }
 }>
 
+type RegisteredUserEmail = Prisma.UserGetPayload<{
+  select: { email: true }
+}>
+
 function labelForValue(
   value: string,
   mapping: Record<string, string>,
@@ -143,6 +147,8 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     completedLast7Days,
     latestCompleted,
     completedMembers,
+    allNewsletterSubscriptions,
+    registeredUsers,
   ] = await Promise.all([
     prisma.user.count({
       where: activeWhere,
@@ -208,6 +214,20 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
         tags: adminTags(TAGS.users),
       },
     }) as Promise<CompletedMember[]>,
+    prisma.newsletterSubscription.findMany({
+      select: { email: true },
+      cacheStrategy: {
+        ...adminSlowCache,
+        tags: adminTags(TAGS.users, "newsletter"),
+      },
+    }) as Promise<NewsletterSubscriptionEmail[]>,
+    prisma.user.findMany({
+      select: { email: true },
+      cacheStrategy: {
+        ...adminSlowCache,
+        tags: adminTags(TAGS.users),
+      },
+    }) as Promise<RegisteredUserEmail[]>,
   ])
 
   type RoleIntentGroup = Pick<
@@ -261,22 +281,36 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     .map((member: CompletedMember) => member.email?.toLowerCase())
     .filter(Boolean) as string[]
 
-  const newsletterSubscriptions = completedEmails.length
-    ? ((await prisma.newsletterSubscription.findMany({
-        where: { email: { in: completedEmails } },
-        select: { email: true },
-        take: completedEmails.length,
-        cacheStrategy: {
-          ...adminSlowCache,
-          tags: adminTags(TAGS.users, "newsletter"),
-        },
-      })) as NewsletterSubscriptionEmail[])
-    : []
+  const newsletterEmailSet = new Set(
+    allNewsletterSubscriptions
+      .map((entry: NewsletterSubscriptionEmail) =>
+        entry.email?.toLowerCase(),
+      )
+      .filter(Boolean) as string[],
+  )
 
-  const subscribedEmailSet = new Set(
-    newsletterSubscriptions.map((entry: NewsletterSubscriptionEmail) =>
-      entry.email.toLowerCase(),
-    ),
+  const registeredEmailSet = new Set(
+    registeredUsers
+      .map((user: RegisteredUserEmail) => user.email?.toLowerCase())
+      .filter(Boolean) as string[],
+  )
+
+  let newsletterRegisteredSubscribers = 0
+
+  for (const email of registeredEmailSet) {
+    if (newsletterEmailSet.has(email)) {
+      newsletterRegisteredSubscribers += 1
+    }
+  }
+
+  const newsletterRegisteredNotSubscribed = Math.max(
+    registeredEmailSet.size - newsletterRegisteredSubscribers,
+    0,
+  )
+
+  const newsletterUnregisteredSubscribers = Math.max(
+    newsletterEmailSet.size - newsletterRegisteredSubscribers,
+    0,
   )
 
   let newsletterSubscribed = 0
@@ -288,7 +322,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     const email = member.email?.toLowerCase()
     if (!email) continue
 
-    const isSubscribed = subscribedEmailSet.has(email)
+    const isSubscribed = newsletterEmailSet.has(email)
     if (isSubscribed) {
       newsletterSubscribed += 1
     } else {
@@ -345,6 +379,9 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     newsletterSubscribed,
     newsletterOptedOut,
     newsletterIntentBreakdown,
+    newsletterRegisteredSubscribers,
+    newsletterRegisteredNotSubscribed,
+    newsletterUnregisteredSubscribers,
   }
 }
 

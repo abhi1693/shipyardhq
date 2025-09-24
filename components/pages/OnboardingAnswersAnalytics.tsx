@@ -12,6 +12,7 @@ import {
   ChartTooltip,
   type ChartConfig,
 } from "@/components/atoms/chart"
+import { AnalyticsBarChart } from "@/components/molecules/AnalyticsBarChart"
 import type { OnboardingAnswersSummary } from "@/types/analytics"
 import { formatDistanceToNow } from "date-fns"
 import {
@@ -185,6 +186,46 @@ export function OnboardingAnswersAnalytics({
     },
   ]
 
+  const newsletterCompositionConfig: ChartConfig = {
+    subscribed: { label: "Subscribed", color: "#0ea5e9" },
+    unsubscribed: { label: "Not subscribed", color: "#f97316" },
+  }
+
+  const newsletterCompositionData = [
+    {
+      segment: "Registered accounts",
+      subscribed: summary.newsletterRegisteredSubscribers,
+      unsubscribed: summary.newsletterRegisteredNotSubscribed,
+    },
+    {
+      segment: "Newsletter-only",
+      subscribed: summary.newsletterUnregisteredSubscribers,
+      unsubscribed: 0,
+    },
+  ]
+
+  const hasNewsletterCompositionData = newsletterCompositionData.some(
+    (item) => item.subscribed + item.unsubscribed > 0,
+  )
+
+  const newsletterAudienceStats = [
+    {
+      label: "Registered & subscribed",
+      value: summary.newsletterRegisteredSubscribers,
+      helper: "Members opted into the newsletter",
+    },
+    {
+      label: "Registered & unsubscribed",
+      value: summary.newsletterRegisteredNotSubscribed,
+      helper: "Members without newsletter access",
+    },
+    {
+      label: "Newsletter-only contacts",
+      value: summary.newsletterUnregisteredSubscribers,
+      helper: "Emails without Shipyard accounts",
+    },
+  ]
+
   return (
     <div className="space-y-6">
       <Card>
@@ -217,10 +258,53 @@ export function OnboardingAnswersAnalytics({
         <CardHeader>
           <CardTitle className="text-base">Newsletter engagement</CardTitle>
           <CardDescription>
-            Opt-in preferences from onboarded members.
+            Opt-in preferences from onboarded members and overall coverage.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="grid gap-4 sm:grid-cols-3">
+            {newsletterAudienceStats.map((item) => (
+              <div key={item.label} className="space-y-1">
+                <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                  {item.label}
+                </div>
+                <div className="text-lg font-semibold text-foreground">
+                  {formatNumber(item.value)}
+                </div>
+                {item.helper ? (
+                  <p className="text-xs text-muted-foreground">{item.helper}</p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+
+          {hasNewsletterCompositionData ? (
+            <AnalyticsBarChart
+              data={newsletterCompositionData}
+              config={newsletterCompositionConfig}
+              bars={[
+                {
+                  dataKey: "subscribed",
+                  barProps: { stackId: "newsletter-composition", radius: [4, 4, 0, 0] },
+                },
+                {
+                  dataKey: "unsubscribed",
+                  barProps: { stackId: "newsletter-composition", radius: [4, 4, 0, 0] },
+                },
+              ]}
+              showLegend
+              className="border border-slate-200/70 bg-white/95"
+              xAxis={{ dataKey: "segment" }}
+              tooltip={{
+                labelFormatter: (label) => String(label),
+              }}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No newsletter audience data available yet.
+            </p>
+          )}
+
           <ChartContainer
             config={newsletterConfig}
             showLegend
