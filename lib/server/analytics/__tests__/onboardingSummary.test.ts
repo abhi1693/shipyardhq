@@ -9,6 +9,7 @@ const {
   productFindManyMock,
   upvoteFindManyMock,
   purchaseFindManyMock,
+  feedbackGroupByMock,
 } = vi.hoisted(() => ({
   countMock: vi.fn(),
   groupByMock: vi.fn(),
@@ -18,6 +19,7 @@ const {
   productFindManyMock: vi.fn(),
   upvoteFindManyMock: vi.fn(),
   purchaseFindManyMock: vi.fn(),
+  feedbackGroupByMock: vi.fn(),
 }))
 
 vi.mock("@/lib/prisma", () => ({
@@ -36,6 +38,9 @@ vi.mock("@/lib/prisma", () => ({
     },
     userPlanPurchase: {
       findMany: purchaseFindManyMock,
+    },
+    memberFeedback: {
+      groupBy: feedbackGroupByMock,
     },
     newsletterSubscription: {
       findMany: newsletterFindManyMock,
@@ -63,6 +68,7 @@ describe("getOnboardingAnswersSummary", () => {
     productFindManyMock.mockReset()
     upvoteFindManyMock.mockReset()
     purchaseFindManyMock.mockReset()
+    feedbackGroupByMock.mockReset()
   })
 
   afterEach(() => {
@@ -135,6 +141,18 @@ describe("getOnboardingAnswersSummary", () => {
     purchaseFindManyMock.mockResolvedValueOnce([
       { userId: "user-1" },
     ])
+    feedbackGroupByMock.mockResolvedValueOnce([
+      {
+        userId: "user-1",
+        _count: { _all: 2, rating: 2 },
+        _sum: { rating: 8 },
+      },
+      {
+        userId: "user-2",
+        _count: { _all: 1, rating: 1 },
+        _sum: { rating: 2 },
+      },
+    ])
 
     const summary = await getOnboardingAnswersSummary()
 
@@ -203,6 +221,10 @@ describe("getOnboardingAnswersSummary", () => {
         upvoterRate: 0,
         purchasers: 1,
         purchaserRate: 100,
+        feedbackSubmitters: 1,
+        feedbackSubmissionRate: 100,
+        feedbackCount: 2,
+        feedbackAverageRating: 4,
       },
       {
         value: "custom-intent",
@@ -214,6 +236,10 @@ describe("getOnboardingAnswersSummary", () => {
         upvoterRate: 100,
         purchasers: 0,
         purchaserRate: 0,
+        feedbackSubmitters: 1,
+        feedbackSubmissionRate: 100,
+        feedbackCount: 1,
+        feedbackAverageRating: 2,
       },
     ])
 
@@ -228,6 +254,10 @@ describe("getOnboardingAnswersSummary", () => {
         upvoterRate: 0,
         purchasers: 1,
         purchaserRate: 100,
+        feedbackSubmitters: 1,
+        feedbackSubmissionRate: 100,
+        feedbackCount: 2,
+        feedbackAverageRating: 4,
       },
       {
         value: "other",
@@ -239,6 +269,10 @@ describe("getOnboardingAnswersSummary", () => {
         upvoterRate: 100,
         purchasers: 0,
         purchaserRate: 0,
+        feedbackSubmitters: 1,
+        feedbackSubmissionRate: 100,
+        feedbackCount: 1,
+        feedbackAverageRating: 2,
       },
     ])
 
@@ -249,6 +283,7 @@ describe("getOnboardingAnswersSummary", () => {
     expect(productFindManyMock).toHaveBeenCalledTimes(1)
     expect(upvoteFindManyMock).toHaveBeenCalledTimes(1)
     expect(purchaseFindManyMock).toHaveBeenCalledTimes(1)
+    expect(feedbackGroupByMock).toHaveBeenCalledTimes(1)
     expect(newsletterFindManyMock).toHaveBeenCalledTimes(1)
   })
 
@@ -267,6 +302,7 @@ describe("getOnboardingAnswersSummary", () => {
     productFindManyMock.mockResolvedValueOnce([])
     upvoteFindManyMock.mockResolvedValueOnce([])
     purchaseFindManyMock.mockResolvedValueOnce([])
+    feedbackGroupByMock.mockResolvedValueOnce([])
 
     const summary = await getOnboardingAnswersSummary()
 

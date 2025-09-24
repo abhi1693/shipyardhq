@@ -85,6 +85,12 @@ type RegisteredUserEmail = Prisma.UserGetPayload<{
 
 type DistinctUserSelection = { userId: string }
 
+type FeedbackAggregateRow = {
+  userId: string
+  _count: { _all: number; rating: number }
+  _sum: { rating: number | null }
+}
+
 function labelForValue(
   value: string,
   mapping: Record<string, string>,
@@ -133,6 +139,10 @@ type OutcomeAccumulator = {
   productOwners: number
   upvoters: number
   purchasers: number
+  feedbackSubmitters: number
+  feedbackEntries: number
+  feedbackRatingSum: number
+  feedbackRatingsWithValue: number
 }
 
 function buildOutcomeItems(
@@ -151,6 +161,14 @@ function buildOutcomeItems(
       purchasers: item.purchasers,
       purchaserRate:
         item.total === 0 ? 0 : (item.purchasers / item.total) * 100,
+      feedbackSubmitters: item.feedbackSubmitters,
+      feedbackSubmissionRate:
+        item.total === 0 ? 0 : (item.feedbackSubmitters / item.total) * 100,
+      feedbackCount: item.feedbackEntries,
+      feedbackAverageRating:
+        item.feedbackRatingsWithValue === 0
+          ? null
+          : item.feedbackRatingSum / item.feedbackRatingsWithValue,
     }))
     .sort((a, b) => b.total - a.total)
 }
@@ -406,12 +424,14 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   let productOwnerRows: DistinctUserSelection[] = []
   let upvoteRows: DistinctUserSelection[] = []
   let purchaserRows: DistinctUserSelection[] = []
+  let feedbackAggregates: FeedbackAggregateRow[] = []
 
   if (completedUserIds.length) {
     ;[
       productOwnerRows,
       upvoteRows,
       purchaserRows,
+      feedbackAggregates,
     ] = await Promise.all([
       prisma.product.findMany({
         where: {
@@ -446,12 +466,27 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
           tags: adminTags(TAGS.subscriptions, TAGS.analytics),
         },
       }) as Promise<DistinctUserSelection[]>,
+      prisma.memberFeedback.groupBy({
+        by: ["userId"],
+        where: {
+          userId: { in: completedUserIds },
+        },
+        _count: { _all: true, rating: true },
+        _sum: { rating: true },
+        cacheStrategy: {
+          ...adminSlowCache,
+          tags: adminTags(TAGS.feedback, TAGS.analytics),
+        },
+      }) as unknown as Promise<FeedbackAggregateRow[]>,
     ])
   }
 
   const productOwnerSet = new Set(productOwnerRows.map((row) => row.userId))
   const upvoteUserSet = new Set(upvoteRows.map((row) => row.userId))
   const purchaserUserSet = new Set(purchaserRows.map((row) => row.userId))
+  const feedbackAggregateMap = new Map(
+    feedbackAggregates.map((row) => [row.userId, row]),
+  )
 
   const roleIntentOutcomeMap = new Map<string, OutcomeAccumulator>()
   const heardFromOutcomeMap = new Map<string, OutcomeAccumulator>()
@@ -470,6 +505,10 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
         productOwners: 0,
         upvoters: 0,
         purchasers: 0,
+        feedbackSubmitters: 0,
+        feedbackEntries: 0,
+        feedbackRatingSum: 0,
+        feedbackRatingsWithValue: 0,
       }
       map.set(value, bucket)
     }
@@ -491,6 +530,14 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
       if (productOwnerSet.has(userId)) bucket.productOwners += 1
       if (upvoteUserSet.has(userId)) bucket.upvoters += 1
       if (purchaserUserSet.has(userId)) bucket.purchasers += 1
+      const feedback = feedbackAggregateMap.get(userId)
+      if (feedback) {
+        bucket.feedbackSubmitters += 1
+        bucket.feedbackEntries += feedback._count._all
+        const ratingSum = feedback._sum.rating ?? 0
+        bucket.feedbackRatingSum += ratingSum
+        bucket.feedbackRatingsWithValue += feedback._count.rating ?? 0
+      }
     }
 
     if (member.heardFrom) {
@@ -504,6 +551,14 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
       if (productOwnerSet.has(userId)) bucket.productOwners += 1
       if (upvoteUserSet.has(userId)) bucket.upvoters += 1
       if (purchaserUserSet.has(userId)) bucket.purchasers += 1
+      const feedback = feedbackAggregateMap.get(userId)
+      if (feedback) {
+        bucket.feedbackSubmitters += 1
+        bucket.feedbackEntries += feedback._count._all
+        const ratingSum = feedback._sum.rating ?? 0
+        bucket.feedbackRatingSum += ratingSum
+        bucket.feedbackRatingsWithValue += feedback._count.rating ?? 0
+      }
     }
   }
 
