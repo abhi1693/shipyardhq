@@ -1,8 +1,10 @@
-import { createClient, type RedisClientType } from "redis"
+import { createClient } from "redis"
+
+type RedisClient = ReturnType<typeof createClient>
 
 const globalForRedis = globalThis as unknown as {
-  __redisClient?: RedisClientType | null
-  __redisClientPromise?: Promise<RedisClientType> | null
+  __redisClient?: RedisClient | null
+  __redisClientPromise?: Promise<RedisClient> | null
 }
 
 function resolveRedisUrl(): string | null {
@@ -13,7 +15,7 @@ function resolveRedisUrl(): string | null {
   )
 }
 
-export async function getRedisClient(): Promise<RedisClientType | null> {
+export async function getRedisClient(): Promise<RedisClient | null> {
   const redisUrl = resolveRedisUrl()
   if (!redisUrl) {
     return null
