@@ -46,3 +46,4 @@ tmp/
 config/reddit-bot.config.json
 scripts/service-account.json
 cypress/screenshots
+.env*.local
