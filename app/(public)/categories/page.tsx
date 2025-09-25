@@ -113,7 +113,6 @@ export default async function CategoriesPage() {
               </p>
               <p className="mt-1 text-3xl font-semibold text-foreground">
                 {categories
-                  .filter((cat: CategoryListItem) => (cat.count ?? 0) > 0)
                   .slice(0, 1)
                   .map((cat: CategoryListItem) => cat.name)
                   .join(" ") || "Daily"}

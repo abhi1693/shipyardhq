@@ -37,16 +37,39 @@ const categoryProductSelect = {
 } satisfies Prisma.ProductSelect
 
 type CategoryWithCount = Prisma.CategoryGetPayload<{
-  include: { _count: { select: { products: true } } }
+  include: {
+    _count: {
+      select: {
+        products: {
+          where: {
+            status: "published",
+          },
+        },
+      },
+    },
+  },
 }>
 
 export const getCategoriesWithCounts = cached(
   async () => {
     const categories = await prisma.category.findMany({
+      where: {
+        products: {
+          some: {
+            status: "published",
+          },
+        },
+      },
       orderBy: { name: "asc" },
       include: {
         _count: {
-          select: { products: true },
+          select: {
+            products: {
+              where: {
+                status: "published",
+              },
+            },
+          },
         },
       },
       cacheStrategy: {
