@@ -7,6 +7,7 @@ import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
 import { productPageCopy } from "@/lib/copy/productPage"
+import { LOGIN_PATH } from "@/lib/routes"
 
 interface HeroBadge {
   id: string
@@ -227,7 +228,7 @@ export function ProductDetailHero({
                       variant="outline"
                     >
                       <Link
-                        href={`/sign-in?redirect_url=${encodeURIComponent(reviewPrompt.redirectUrl)}`}
+                        href={`${LOGIN_PATH}?redirect_url=${encodeURIComponent(reviewPrompt.redirectUrl)}`}
                       >
                         {reviewCopy.signedOutCta}
                       </Link>

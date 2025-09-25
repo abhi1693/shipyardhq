@@ -39,14 +39,12 @@ export function ProductSimilarVoyages<T extends CompactProductItem>({
           <span aria-hidden>↗</span>
         </Link>
       </div>
-      <div className="overflow-x-auto pb-2">
-        <ProductCompactGrid
-          items={items}
-          className="min-w-full gap-4"
-          columns="grid-flow-col auto-cols-[minmax(240px,280px)]"
-          showCategory={false}
-        />
-      </div>
+      <ProductCompactGrid
+        items={items}
+        className="gap-4"
+        columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        showCategory={false}
+      />
     </section>
   )
 }
