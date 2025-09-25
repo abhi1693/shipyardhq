@@ -168,13 +168,27 @@ export const getPublicProductMetaBySlug = cached(
   },
 )
 
+const compactProductInclude = {
+  analytics: true,
+  category: {
+    select: {
+      name: true,
+      slug: true,
+    },
+  },
+} satisfies Prisma.ProductInclude
+
+type CompactProduct = Prisma.ProductGetPayload<{
+  include: typeof compactProductInclude
+}>
+
 export const getRelatedProductsByCategory = cached(
   async (categoryId: string, excludeId: string) =>
     prisma.product.findMany({
       where: { categoryId, NOT: { id: excludeId } },
       orderBy: { createdAt: "desc" },
       take: 6,
-      include: { analytics: true },
+      include: compactProductInclude,
       cacheStrategy: {
         ttl: DEFAULT_TTL.medium,
         swr: DEFAULT_SWR.medium,
@@ -192,7 +206,7 @@ export const getRelatedProductsByCategory = cached(
 )
 
 export const getPublicProductsByUseCase = cached(
-  async (useCaseSlug: string, excludeId: string) =>
+  async (useCaseSlug: string, excludeId: string): Promise<CompactProduct[]> =>
     prisma.product.findMany({
       where: {
         id: { not: excludeId },
@@ -209,7 +223,7 @@ export const getPublicProductsByUseCase = cached(
       },
       orderBy: { createdAt: "desc" },
       take: 6,
-      include: { analytics: true },
+      include: compactProductInclude,
       cacheStrategy: {
         ttl: DEFAULT_TTL.medium,
         swr: DEFAULT_SWR.medium,

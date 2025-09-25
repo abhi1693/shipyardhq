@@ -118,7 +118,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const heroBadges = activeBadgeDefs.map((badge) => ({
     id: badge.value,
     label: badge.label,
-    icon: badge.icon,
+    icon: <span aria-hidden>{badge.icon}</span>,
     className: badgeColorMap[badge.color as TailwindColor],
   }))
 
@@ -412,7 +412,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             label: product.category.name,
             href: categoryPath(product.category.slug),
           }}
-          typeLabel={product.type.replaceAll("_", " ")}
           owner={{
             name: ownerName,
             href: userPath(product.user.id),
