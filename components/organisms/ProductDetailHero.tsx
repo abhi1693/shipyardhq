@@ -95,6 +95,7 @@ export function ProductDetailHero({
                   alt={`${name} logo`}
                   width={96}
                   height={96}
+                  priority
                   className="h-full w-full object-cover"
                 />
               </div>
