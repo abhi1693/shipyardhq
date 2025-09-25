@@ -7,9 +7,15 @@ vi.mock("@/lib/prisma", () => {
     update: vi.fn(async () => ({})),
   }
   const product = {
-    findUnique: vi.fn(async () => ({ createdAt: new Date(Date.now()) })),
+    findUnique: vi.fn(async () => ({
+      createdAt: new Date(Date.now()),
+      plan: { boostForDays: 1 },
+    })),
   }
-  return { default: { productBadge, product } }
+  const plan = {
+    findFirst: vi.fn(async () => ({ boostForDays: 1 })),
+  }
+  return { default: { productBadge, product, plan } }
 })
 
 import prisma from "@/lib/prisma"
@@ -22,11 +28,32 @@ describe("badges listeners", () => {
     ;(prisma as any).productBadge.create.mockClear()
     ;(prisma as any).productBadge.update.mockClear()
     ;(prisma as any).product.findUnique.mockClear()
+    ;(prisma as any).product.findUnique.mockImplementation(async () => ({
+      createdAt: new Date(Date.now()),
+      plan: { boostForDays: 1 },
+    }))
+    ;(prisma as any).plan.findFirst.mockClear()
+    ;(prisma as any).plan.findFirst.mockResolvedValue({ boostForDays: 1 })
   })
 
   it("assigns new badge on product.created", async () => {
     await publish("product.created", { productId: "p1" })
     expect((prisma as any).productBadge.create).toHaveBeenCalled()
+  })
+
+  it("uses plan boost days when assigning new badge on product.created", async () => {
+    const createdAt = new Date("2024-01-01T00:00:00.000Z")
+    ;(prisma as any).product.findUnique.mockResolvedValueOnce({
+      createdAt,
+      plan: { boostForDays: 5 },
+    })
+
+    await publish("product.created", { productId: "pPlan" })
+
+    const createArgs = (prisma as any).productBadge.create.mock.calls.at(-1)?.[0]
+    expect(createArgs?.data?.expiresAt?.toISOString()).toBe(
+      new Date(createdAt.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    )
   })
 
   it("applies default expiry for trending badge", async () => {
@@ -116,10 +143,26 @@ it("logs errors in product.updated catch", async () => {
   })
 })
 
-it("applies default expiry for new badge", async () => {
-  ;(prisma as any).productBadge.update.mockClear()
-  await publish("badge.assigned", { id: "bN", productId: "p1", badge: "new" })
-  expect((prisma as any).productBadge.update).toHaveBeenCalled()
+it("applies plan-based expiry when assigning new badge manually", async () => {
+  vi.useFakeTimers()
+  try {
+    const now = new Date("2024-02-01T00:00:00.000Z")
+    vi.setSystemTime(now)
+    ;(prisma as any).product.findUnique.mockResolvedValueOnce({
+      createdAt: new Date("2024-01-15T00:00:00.000Z"),
+      plan: { boostForDays: 3 },
+    })
+
+    ;(prisma as any).productBadge.update.mockClear()
+    await publish("badge.assigned", { id: "bN", productId: "p1", badge: "new" })
+
+    const updateArgs = (prisma as any).productBadge.update.mock.calls.at(-1)?.[0]
+    expect(updateArgs?.data?.expiresAt?.toISOString()).toBe(
+      new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    )
+  } finally {
+    vi.useRealTimers()
+  }
 })
 
 it("respects provided expiresAt and returns early", async () => {
