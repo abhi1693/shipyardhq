@@ -1,7 +1,7 @@
 "use server"
 
 import { z } from "zod"
-import { auth, clerkClient } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import {
   revalidateProduct,
@@ -13,6 +13,7 @@ import {
 } from "@/lib/server/userStatus"
 import { upsertProductReview } from "@/lib/server/productReviews"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
 export type SubmitReviewState = {
   status: "idle" | "success" | "error"
@@ -68,8 +69,7 @@ export async function submitProductReviewAction(
   let user = await getActiveUserByClerkId(authResult.userId)
   if (!user) {
     try {
-      const client = await clerkClient()
-      const clerkUser = await client.users.getUser(authResult.userId)
+      const clerkUser = await getClerkUserByIdCached(authResult.userId)
       await syncUserFromClerk(clerkUser)
       user = await getActiveUserByClerkId(authResult.userId)
     } catch (error) {

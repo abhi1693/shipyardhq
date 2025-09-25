@@ -3,7 +3,7 @@ import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
 import PrivateHeader from "@/components/layout/headers/private-header"
 import AppSidebar from "@/components/layout/sidebar"
 import { NavItem } from "@/types"
-import { auth, clerkClient } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 import PageContainer from "@/components/layout/page-container"
 import { canOpenDodoBillingPortalByEmail } from "@/lib/dodoCustomerPortal"
 import { syncCurrentUserBilling } from "@/lib/server/billing"
@@ -12,6 +12,7 @@ import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { IS_PROD } from "@/lib/constants"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { buildSectionMetadata } from "@/lib/metadata"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import {
   ADMIN_OVERVIEW_PATH,
   HOME_PATH,
@@ -67,8 +68,7 @@ export default async function MemberLayout({
   }
 
   try {
-    const client = await clerkClient()
-    const clerkUser = await client.users.getUser(userId)
+    const clerkUser = await getClerkUserByIdCached(userId)
     await syncUserFromClerk(clerkUser)
   } catch (error) {
     console.error("Failed to load active member context", error)

@@ -1,6 +1,6 @@
 "use server"
 
-import { auth, clerkClient } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import {
   subscribeToNewsletterAction,
@@ -25,6 +25,7 @@ import {
   MEMBER_OVERVIEW_PATH,
 } from "@/lib/routes"
 import { IS_PROD } from "@/lib/constants"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
 const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
 const WELCOME_EMAIL_SUBJECT = "Welcome aboard ShipYardHQ"
@@ -48,8 +49,7 @@ export async function completeOnboarding(formData: FormData) {
         normalizedNewsletterOptIn === "1"
 
   try {
-    const client = await clerkClient()
-    const clerkUser = await client.users.getUser(userId)
+    const clerkUser = await getClerkUserByIdCached(userId)
 
     // 1. Get the local user by Clerk ID
     let user = await getActiveUserByClerkId(userId)

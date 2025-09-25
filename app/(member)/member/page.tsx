@@ -1,5 +1,5 @@
 import type { User as ClerkUser } from "@clerk/backend"
-import { auth, clerkClient } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
@@ -8,6 +8,7 @@ import {
   MEMBER_ONBOARDING_PATH,
   MEMBER_OVERVIEW_PATH,
 } from "@/lib/routes"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
 type MemberIndexPageSearchParams = {
   redirectTo?: string | string[]
@@ -30,8 +31,7 @@ export default async function MemberIndexPage({
 
   let clerkUser: ClerkUser
   try {
-    const client = await clerkClient()
-    clerkUser = await client.users.getUser(userId)
+    clerkUser = await getClerkUserByIdCached(userId)
   } catch (error) {
     console.error("Failed to fetch Clerk user for member index page", error)
     redirect(signInPath)

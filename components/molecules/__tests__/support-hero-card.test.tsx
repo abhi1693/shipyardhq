@@ -30,7 +30,7 @@ describe("SupportHeroCard", () => {
 
     expect(screen.getByText(/support this product/i)).toBeInTheDocument()
     expect(
-      screen.getByText(/add your support to push this crew/i),
+      screen.getByText(/cheer this crew on to keep their launch on the radar/i),
     ).toBeInTheDocument()
     expect(screen.getByTestId("upvote-square-button")).toHaveTextContent(
       "button:prod_123",
@@ -43,6 +43,8 @@ describe("SupportHeroCard", () => {
     )
     render(<SupportHeroCard {...baseProps} isSignedIn={false} />)
 
-    expect(screen.getByText(/Sign in to cast your vote/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/sign in to add your vote and help this launch get discovered/i),
+    ).toBeInTheDocument()
   })
 })
