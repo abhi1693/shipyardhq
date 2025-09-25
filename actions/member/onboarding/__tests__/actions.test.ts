@@ -140,6 +140,21 @@ describe("completeOnboarding", () => {
     expect(emailArgs.text).toContain("/member/feedback")
   })
 
+  it("subscribes users by default when the opt-in flag is omitted", async () => {
+    subscribeMock.mockClear()
+    unsubscribeMock.mockClear()
+
+    const formData = new FormData()
+    formData.append("roleIntent", "explore")
+    formData.append("heardFrom", "google")
+
+    const result = await completeOnboarding(formData)
+
+    expect(result).toEqual({ success: true })
+    expect(subscribeMock).toHaveBeenCalledWith("crew@example.com")
+    expect(unsubscribeMock).not.toHaveBeenCalled()
+  })
+
   it("skips the welcome email when NEXT_PUBLIC_APP_URL is not set", async () => {
     delete process.env.NEXT_PUBLIC_APP_URL
     sendEmailMock.mockClear()

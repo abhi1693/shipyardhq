@@ -36,9 +36,17 @@ export async function completeOnboarding(formData: FormData) {
 
   const roleIntent = formData.get("roleIntent")?.toString()
   const heardFrom = formData.get("heardFrom")?.toString()
-  const newsletterOptInRaw = formData.get("newsletterOptIn")?.toString()
+  const newsletterOptInRaw = formData.get("newsletterOptIn")
+  const normalizedNewsletterOptIn = newsletterOptInRaw
+    ?.toString()
+    .trim()
+    .toLowerCase()
   const newsletterOptIn =
-    newsletterOptInRaw === "true" || newsletterOptInRaw === "on"
+    normalizedNewsletterOptIn == null
+      ? true
+      : normalizedNewsletterOptIn === "true" ||
+        normalizedNewsletterOptIn === "on" ||
+        normalizedNewsletterOptIn === "1"
 
   try {
     const client = await clerkClient()

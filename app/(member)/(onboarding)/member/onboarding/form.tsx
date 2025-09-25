@@ -1,6 +1,6 @@
 "use client"
 
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRouter } from "next/navigation"
@@ -90,13 +90,13 @@ export function OnboardingForm({
     handleSubmit,
     register,
     setValue,
+    control,
     formState: { errors, isSubmitting },
     watch,
   } = form
 
   const roleIntent = watch("roleIntent")
   const heardFrom = watch("heardFrom")
-  const newsletterOptIn = watch("newsletterOptIn")
 
   const sanitizedRedirectTarget =
     redirectTo &&
@@ -239,13 +239,20 @@ export function OnboardingForm({
 
             <div className="flex flex-col gap-5">
               <div className="flex items-start gap-3.5">
-                <Checkbox
-                  id="newsletterOptIn"
-                  checked={newsletterOptIn ?? true}
-                  onCheckedChange={(checked: boolean) =>
-                    setValue("newsletterOptIn", checked, { shouldDirty: true })
-                  }
-                  className="border-slate-300/90 bg-white data-[state=checked]:border-sky-400 data-[state=checked]:bg-sky-100 data-[state=checked]:text-slate-900"
+                <Controller
+                  control={control}
+                  name="newsletterOptIn"
+                  render={({ field }) => (
+                    <Checkbox
+                      id="newsletterOptIn"
+                      checked={field.value ?? true}
+                      onCheckedChange={(checked) =>
+                        field.onChange(checked === true)
+                      }
+                      onBlur={field.onBlur}
+                      className="border-slate-300/90 bg-white data-[state=checked]:border-sky-400 data-[state=checked]:bg-sky-100 data-[state=checked]:text-slate-900"
+                    />
+                  )}
                 />
                 <Label
                   htmlFor="newsletterOptIn"
