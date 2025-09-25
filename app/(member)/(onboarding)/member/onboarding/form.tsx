@@ -122,7 +122,6 @@ export function OnboardingForm({
     })
     const result = await completeOnboarding(formData)
     if ("success" in result) {
-      document.cookie = "shipyard_onboarding_override=1; path=/; max-age=60"
       toast.success("Welcome aboard!")
       const shouldUseRedirectTarget =
         Boolean(sanitizedRedirectTarget) &&

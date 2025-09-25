@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma"
 import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
-import { clerkClient } from "@clerk/nextjs/server"
 import { addDays, startOfDay, subDays } from "date-fns"
 
 export interface DashboardStats {
@@ -45,10 +44,6 @@ const adminSlowCache = {
 
 const adminTags = (...tags: string[]) =>
   accelerateTags([ADMIN_ANALYTICS_TAG, ...tags])
-
-type UserClerkRef = Prisma.UserGetPayload<{
-  select: { clerkId: true }
-}>
 
 type ProductWithPlanPrice = Prisma.ProductGetPayload<{
   select: { plan: { select: { price: true } } }
@@ -342,35 +337,7 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
   const viewsDelta = viewsInRange - previousViews
   const upvotesDelta = upvotesInRange - previousUpvotes
 
-  // Fallback/supplement: derive admin count from Clerk public metadata
-  let adminCountFromClerk = 0
-  try {
-    const ids: UserClerkRef[] = await prisma.user.findMany({
-      select: { clerkId: true },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
-      },
-    })
-    const client = await clerkClient()
-    const results = await Promise.all(
-      ids.map(async (u) => {
-        if (!u.clerkId) return 0
-        try {
-          const user = await client.users.getUser(u.clerkId)
-          const role = (user.publicMetadata as any)?.role
-          return role === "admin" ? 1 : 0
-        } catch {
-          return 0
-        }
-      }),
-    )
-    adminCountFromClerk = results.reduce<number>((a, b) => a + b, 0)
-  } catch {
-    // ignore Clerk failures; rely on DB role
-  }
-  const effectiveAdminCount = Math.max(adminCount, adminCountFromClerk)
-  const memberCount = totalUsers - effectiveAdminCount
+  const memberCount = totalUsers - adminCount
 
   // Previous-period counts for deltas
   const [prevProducts, prevUsers] = await Promise.all([
@@ -417,7 +384,7 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
     productsDelta,
     usersDelta,
     verifiedRate,
-    adminCount: effectiveAdminCount,
+    adminCount,
     memberCount,
     defaultPlanProductCount,
     mostPopularPlan: mostPopularPlan

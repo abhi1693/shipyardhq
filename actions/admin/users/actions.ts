@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import { Prisma, UserStatus } from "@/lib/vendor/prisma/client"
 import { revalidateProducts } from "@/lib/cache/revalidate"
 import { auth, clerkClient } from "@clerk/nextjs/server"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 export async function getUsers(args: Prisma.UserFindManyArgs = {}) {
   try {
@@ -118,13 +119,14 @@ export async function deleteUserAction(id: string) {
 
 export async function setUserStatusAction(id: string, status: UserStatus) {
   try {
-    const { userId: currentClerkId, sessionClaims } = await auth()
+    const { userId: currentClerkId } = await auth()
 
     if (!currentClerkId) {
       return { error: "Not authenticated" }
     }
 
-    if (sessionClaims?.metadata?.role !== "admin") {
+    const currentUser = await getActiveUserByClerkId(currentClerkId)
+    if (!currentUser || currentUser.role !== "admin") {
       return { error: "Unauthorized" }
     }
 
@@ -164,15 +166,6 @@ export async function setUserStatusAction(id: string, status: UserStatus) {
     })
 
     const client = await clerkClient()
-    const clerkUser = await client.users.getUser(target.clerkId)
-    const publicMetadata = {
-      ...(clerkUser.publicMetadata || {}),
-      status,
-    }
-
-    await client.users.updateUser(target.clerkId, {
-      publicMetadata,
-    })
 
     try {
       if (status !== "active") {

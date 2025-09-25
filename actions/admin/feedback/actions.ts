@@ -2,9 +2,9 @@
 
 import prisma from "@/lib/prisma"
 import { FeedbackStatus, Prisma } from "@/lib/vendor/prisma/client"
-import { auth } from "@clerk/nextjs/server"
 import { revalidatePath } from "next/cache"
 import { adminPath } from "@/lib/routes"
+import { checkRole } from "@/lib/roles"
 
 const feedbackSelect = {
   id: true,
@@ -84,8 +84,8 @@ export async function updateFeedbackStatus({
   status: FeedbackStatus
 }) {
   try {
-    const { sessionClaims } = await auth()
-    if (sessionClaims?.metadata?.role !== "admin") {
+    const isAdmin = await checkRole("admin")
+    if (!isAdmin) {
       return { error: "Unauthorized" }
     }
 
@@ -110,8 +110,8 @@ export async function updateFeedbackAdminNote({
   note?: string
 }) {
   try {
-    const { sessionClaims } = await auth()
-    if (sessionClaims?.metadata?.role !== "admin") {
+    const isAdmin = await checkRole("admin")
+    if (!isAdmin) {
       return { error: "Unauthorized" }
     }
 

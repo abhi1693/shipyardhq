@@ -178,7 +178,11 @@ export default async function AdminLayout({
     status: "received",
   }).catch(() => 0)
 
-  await requireActiveUserOrRedirect(userId)
+  const activeUser = await requireActiveUserOrRedirect(userId)
+
+  if (activeUser.role !== "admin") {
+    redirect(MEMBER_OVERVIEW_PATH)
+  }
 
   const pendingFeedbackCount = await pendingFeedbackCountPromise
 

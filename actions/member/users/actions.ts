@@ -13,7 +13,7 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
     throw new Error("Clerk user email is required but missing.")
   }
 
-  const user = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email },
     update: {
       clerkId: clerkUser.id,
@@ -28,18 +28,6 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
       lastName,
     },
   })
-
-  try {
-    const client = await clerkClient()
-    const existingPublicMetadata =
-      (clerkUser.publicMetadata as Record<string, unknown> | null) ?? {}
-
-    await client.users.updateUser(clerkUser.id, {
-      publicMetadata: { ...existingPublicMetadata, status: user.status },
-    })
-  } catch (error) {
-    console.error("Failed to sync user status metadata:", error)
-  }
 }
 
 export async function getUserByClerkId(clerkId: string) {

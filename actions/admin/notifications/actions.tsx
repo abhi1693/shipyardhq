@@ -1,7 +1,6 @@
 "use server"
 
 import { Fragment } from "react"
-import { auth } from "@clerk/nextjs/server"
 
 import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
@@ -13,6 +12,7 @@ import {
   BuilderOutreachEmail,
   buildBuilderOutreachTextBody,
 } from "@/lib/email/templates/outreach/builderOutreach"
+import { checkRole } from "@/lib/roles"
 
 const BUILDER_INTENTS = ["launch-product", "manage-team"] as const
 const EXPLORER_INTENT = "explore" as const
@@ -157,8 +157,8 @@ function getPreviewText(message: string): string | undefined {
 }
 
 async function requireAdmin() {
-  const { userId, sessionClaims } = await auth()
-  if (!userId || sessionClaims?.metadata?.role !== "admin") {
+  const isAdmin = await checkRole("admin")
+  if (!isAdmin) {
     throw new Error("Unauthorized")
   }
 }

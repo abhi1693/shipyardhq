@@ -4,19 +4,22 @@ import { redirect } from "next/navigation"
 export const INACTIVE_ACCOUNT_MESSAGE = "Account is not active"
 export const SUSPENDED_ACCOUNT_PATH = "/auth/suspended"
 
+const activeUserSelect = {
+  id: true,
+  email: true,
+  role: true,
+  status: true,
+  firstName: true,
+  lastName: true,
+  onboardedAt: true,
+} as const
+
 export async function getActiveUserByClerkId(clerkId: string) {
   if (!clerkId) return null
 
   const user = await prisma.user.findUnique({
     where: { clerkId },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      status: true,
-      firstName: true,
-      lastName: true,
-    },
+    select: activeUserSelect,
   })
 
   if (!user || user.status !== "active") {

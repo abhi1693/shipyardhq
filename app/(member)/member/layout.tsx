@@ -1,3 +1,4 @@
+import { headers } from "next/headers"
 import { SidebarInset, SidebarProvider } from "@/components/atoms/sidebar"
 import PrivateHeader from "@/components/layout/headers/private-header"
 import AppSidebar from "@/components/layout/sidebar"
@@ -15,6 +16,7 @@ import {
   ADMIN_OVERVIEW_PATH,
   HOME_PATH,
   MEMBER_FEEDBACK_PATH,
+  MEMBER_ONBOARDING_PATH,
   MEMBER_ORGANIZATIONS_PATH,
   MEMBER_OVERVIEW_PATH,
   MEMBER_PRODUCTS_PATH,
@@ -57,29 +59,50 @@ export default async function MemberLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { sessionClaims, userId } = await auth()
-  type ActiveUser = Awaited<ReturnType<typeof requireActiveUserOrRedirect>>
-  let activeUser: ActiveUser | null = null
-  if (userId) {
-    const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? HOME_PATH
-    try {
-      const client = await clerkClient()
-      const clerkUser = await client.users.getUser(userId)
-      await syncUserFromClerk(clerkUser)
-    } catch (error) {
-      console.error("Failed to load active member context", error)
-      redirect(signInPath)
-    }
+  const { userId } = await auth()
+  const signInPath = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? HOME_PATH
 
-    activeUser = await requireActiveUserOrRedirect(userId)
-
-    try {
-      await syncCurrentUserBilling()
-    } catch (error) {
-      console.error("Failed to sync current user billing", error)
-    }
+  if (!userId) {
+    redirect(signInPath)
   }
-  const role = sessionClaims?.metadata.role || "member"
+
+  try {
+    const client = await clerkClient()
+    const clerkUser = await client.users.getUser(userId)
+    await syncUserFromClerk(clerkUser)
+  } catch (error) {
+    console.error("Failed to load active member context", error)
+    redirect(signInPath)
+  }
+
+  const activeUser = await requireActiveUserOrRedirect(userId)
+
+  try {
+    await syncCurrentUserBilling()
+  } catch (error) {
+    console.error("Failed to sync current user billing", error)
+  }
+
+  if (!activeUser.onboardedAt) {
+    const headerList = await headers()
+    const nextUrl = headerList.get("next-url") ?? ""
+    const safeRedirectTarget =
+      nextUrl.startsWith("/") && !nextUrl.startsWith("//") ? nextUrl : ""
+    const isOnboardingUrl = safeRedirectTarget.startsWith(
+      MEMBER_ONBOARDING_PATH,
+    )
+    const search = new URLSearchParams()
+    if (safeRedirectTarget && !isOnboardingUrl) {
+      search.set("redirectTo", safeRedirectTarget)
+    }
+
+    const onboardingDestination = search.toString()
+      ? `${MEMBER_ONBOARDING_PATH}?${search.toString()}`
+      : MEMBER_ONBOARDING_PATH
+
+    redirect(onboardingDestination)
+  }
+  const role = activeUser.role ?? "member"
 
   const items: NavItem[] = [...navItems]
 

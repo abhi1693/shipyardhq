@@ -1,7 +1,6 @@
 "use server"
 
 import { auth, clerkClient } from "@clerk/nextjs/server"
-import { cookies } from "next/headers"
 import prisma from "@/lib/prisma"
 import {
   subscribeToNewsletterAction,
@@ -50,17 +49,9 @@ export async function completeOnboarding(formData: FormData) {
 
   try {
     const client = await clerkClient()
-    // 1. Update public metadata in Clerk
     const clerkUser = await client.users.getUser(userId)
 
-    await client.users.updateUser(userId, {
-      publicMetadata: {
-        onboardingComplete: true,
-        role: "member",
-      },
-    })
-
-    // 2. Get the local user by Clerk ID
+    // 1. Get the local user by Clerk ID
     let user = await getActiveUserByClerkId(userId)
 
     if (!user) {
@@ -72,7 +63,7 @@ export async function completeOnboarding(formData: FormData) {
       return { error: INACTIVE_ACCOUNT_MESSAGE }
     }
 
-    // 3. Update user data only once; skip downstream work if already onboarded
+    // 2. Update user data only once; skip downstream work if already onboarded
     const onboardingUpdate = await prisma.user.updateMany({
       where: {
         id: user.id,
@@ -145,16 +136,6 @@ export async function completeOnboarding(formData: FormData) {
         }
       }
     }
-
-    const cookieStore = await cookies()
-    cookieStore.set({
-      name: "shipyard_onboarding_override",
-      value: "1",
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60, // allow a short grace period while session claims refresh
-    })
 
     return { success: true }
   } catch (error) {

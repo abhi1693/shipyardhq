@@ -39,12 +39,9 @@ export default async function MemberIndexPage({
 
   await syncUserFromClerk(clerkUser)
 
-  await requireActiveUserOrRedirect(userId)
+  const activeUser = await requireActiveUserOrRedirect(userId)
 
-  const onboardingComplete =
-    clerkUser.publicMetadata?.onboardingComplete === true
-
-  if (onboardingComplete) {
+  if (activeUser.onboardedAt) {
     redirect(MEMBER_OVERVIEW_PATH)
   }
 
