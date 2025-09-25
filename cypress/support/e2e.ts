@@ -24,6 +24,22 @@ declare global {
        */
       waitForAppIdle(): Chainable<null>
       /**
+       * Resets the database to the seeded state for deterministic Cypress runs.
+       */
+      resetDatabase(): Chainable<null>
+      /**
+       * Drops and recreates the database schema for a clean slate.
+       */
+      resetDatabaseSchema(): Chainable<null>
+      /**
+       * Applies the Prisma seed without touching the schema.
+       */
+      seedDatabase(): Chainable<null>
+      /**
+       * Marks the dedicated Cypress test user as fully onboarded.
+       */
+      completeTestUserOnboarding(): Chainable<null>
+      /**
        * Boots Clerk and signs in the dedicated Cypress test user.
        */
       signInTestUser(options?: {
@@ -38,6 +54,48 @@ const CYPRESS_TEST_USER = {
   email: "cypress@test.com",
   password: "HoweverClerk5$",
 } as const
+
+Cypress.Commands.add("completeTestUserOnboarding", () => {
+  if (!Cypress.env("HAS_DATABASE")) {
+    cy.log("Skipping onboarding completion: HAS_DATABASE flag not set")
+    return cy.wrap(null, { log: false })
+  }
+
+  cy.story("Ensure test user is onboarded")
+  cy.task("completeTestUserOnboarding")
+  return cy.wrap(null, { log: false })
+})
+
+Cypress.Commands.add("resetDatabaseSchema", () => {
+  if (!Cypress.env("HAS_DATABASE")) {
+    cy.log("Skipping schema reset: HAS_DATABASE flag not set")
+    return cy.wrap(null, { log: false })
+  }
+
+  cy.story("Reset database schema")
+  cy.task("resetDatabaseSchema")
+  return cy.wrap(null, { log: false })
+})
+
+Cypress.Commands.add("seedDatabase", () => {
+  if (!Cypress.env("HAS_DATABASE")) {
+    cy.log("Skipping seed: HAS_DATABASE flag not set")
+    return cy.wrap(null, { log: false })
+  }
+
+  cy.story("Seed database fixtures")
+  cy.task("seedDatabase")
+  return cy.wrap(null, { log: false })
+})
+
+Cypress.Commands.add("resetDatabase", () => {
+  if (!Cypress.env("HAS_DATABASE")) {
+    cy.log("Skipping database reset: HAS_DATABASE flag not set")
+    return cy.wrap(null, { log: false })
+  }
+
+  return cy.resetDatabaseSchema().then(() => cy.seedDatabase())
+})
 
 Cypress.Commands.add("story", (message: string) => {
   cy.log(`📘 Story — ${message}`)

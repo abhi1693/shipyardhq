@@ -1,6 +1,14 @@
 import { MEMBER_OVERVIEW_PATH } from "../../lib/routes"
 
 describe("Member overview command deck", () => {
+  before(() => {
+    if (!Cypress.env("HAS_DATABASE")) {
+      return
+    }
+
+    return cy.completeTestUserOnboarding()
+  })
+
   it("lets a signed-in maker review their portfolio health", () => {
     cy.story("Jamie signs in to their member command deck.")
     cy.signInTestUser({ afterSignInPath: MEMBER_OVERVIEW_PATH })
