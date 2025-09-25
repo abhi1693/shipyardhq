@@ -295,6 +295,7 @@ model User {
   roleIntent      String? // Why they signed up
   heardFrom       String? // How they heard about us
   status          UserStatus @default(active)
+  onboardedAt     DateTime?
   suspendedAt     DateTime?
   terminatedAt    DateTime?
 
@@ -311,6 +312,7 @@ model User {
   @@index([status])
   @@index([roleIntent])
   @@index([heardFrom])
+  @@index([onboardedAt])
   @@index([createdAt])
   @@index([updatedAt])
 }

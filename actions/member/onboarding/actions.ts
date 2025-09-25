@@ -64,16 +64,28 @@ export async function completeOnboarding(formData: FormData) {
       return { error: INACTIVE_ACCOUNT_MESSAGE }
     }
 
-    // 3. Update user data
-    await prisma.user.update({
-      where: { id: user.id },
+    // 3. Update user data only once; skip downstream work if already onboarded
+    const onboardingUpdate = await prisma.user.updateMany({
+      where: {
+        id: user.id,
+        onboardedAt: null,
+      },
       data: {
         roleIntent,
         heardFrom,
+        onboardedAt: new Date(),
       },
     })
 
-    if (user.email) {
+    const firstTimeOnboarding = onboardingUpdate.count > 0
+
+    if (!firstTimeOnboarding) {
+      console.info(
+        "Duplicate onboarding submission detected; skipping side effects.",
+      )
+    }
+
+    if (user.email && firstTimeOnboarding) {
       if (newsletterOptIn) {
         const result = await subscribeToNewsletterAction(user.email)
         if (result.error) {

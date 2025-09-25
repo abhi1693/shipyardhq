@@ -6,7 +6,7 @@ const getUserMock = vi.hoisted(() => vi.fn())
 const updateUserMock = vi.hoisted(() => vi.fn())
 const cookiesMock = vi.hoisted(() => vi.fn())
 const cookieSetMock = vi.hoisted(() => vi.fn())
-const prismaUserUpdateMock = vi.hoisted(() => vi.fn())
+const prismaUserUpdateManyMock = vi.hoisted(() => vi.fn())
 const subscribeMock = vi.hoisted(() => vi.fn())
 const unsubscribeMock = vi.hoisted(() => vi.fn())
 const getActiveUserMock = vi.hoisted(() => vi.fn())
@@ -25,7 +25,7 @@ vi.mock("next/headers", () => ({
 vi.mock("@/lib/prisma", () => ({
   default: {
     user: {
-      update: prismaUserUpdateMock,
+      updateMany: prismaUserUpdateManyMock,
     },
   },
 }))
@@ -70,7 +70,8 @@ describe("completeOnboarding", () => {
     cookiesMock.mockResolvedValue(cookieStoreMock)
     cookieSetMock.mockReset()
 
-    prismaUserUpdateMock.mockResolvedValue({})
+    prismaUserUpdateManyMock.mockReset()
+    prismaUserUpdateManyMock.mockResolvedValue({ count: 1 })
     subscribeMock.mockResolvedValue({ success: true })
     unsubscribeMock.mockResolvedValue({ success: true })
     getActiveUserMock.mockResolvedValue({
@@ -99,6 +100,15 @@ describe("completeOnboarding", () => {
     const result = await completeOnboarding(formData)
 
     expect(result).toEqual({ success: true })
+    expect(prismaUserUpdateManyMock).toHaveBeenCalledWith({
+      where: { id: "local_1", onboardedAt: null },
+      data: {
+        heardFrom: "twitter",
+        onboardedAt: expect.any(Date),
+        roleIntent: "launch-product",
+      },
+    })
+
     expect(subscribeMock).toHaveBeenCalledWith("crew@example.com")
     expect(unsubscribeMock).not.toHaveBeenCalled()
     expect(sendEmailMock).toHaveBeenCalledTimes(1)
@@ -141,6 +151,21 @@ describe("completeOnboarding", () => {
     const result = await completeOnboarding(formData)
 
     expect(result).toEqual({ success: true })
+    expect(sendEmailMock).not.toHaveBeenCalled()
+  })
+
+  it("skips side effects when onboarding already completed", async () => {
+    prismaUserUpdateManyMock.mockResolvedValue({ count: 0 })
+
+    const formData = new FormData()
+    formData.append("roleIntent", "explore")
+    formData.append("heardFrom", "google")
+
+    const result = await completeOnboarding(formData)
+
+    expect(result).toEqual({ success: true })
+    expect(subscribeMock).not.toHaveBeenCalled()
+    expect(unsubscribeMock).not.toHaveBeenCalled()
     expect(sendEmailMock).not.toHaveBeenCalled()
   })
 })
