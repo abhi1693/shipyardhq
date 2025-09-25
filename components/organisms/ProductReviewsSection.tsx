@@ -42,7 +42,7 @@ export default function ProductReviewsSection({
             help the next customer.
           </p>
         </div>
-        <div className="flex flex-col items-start gap-2 rounded-3xl bg-white px-5 py-4 ring-1 ring-slate-200/70 shadow-[0_24px_64px_-50px_rgba(7,58,104,0.4)] dark:bg-slate-900/75 dark:ring-slate-800/50">
+        <div className="flex flex-col items-start gap-2 rounded-3xl bg-white px-5 py-4 ring-1 ring-slate-200/70 shadow-[0_24px_64px_-50px_rgba(7,58,104,0.4)] dark:bg-slate-900 dark:ring-slate-800/50">
           <div className="flex items-center gap-3">
             <RatingStars rating={average} />
             <span className="text-sm font-semibold text-foreground">
@@ -57,7 +57,7 @@ export default function ProductReviewsSection({
         </div>
       </div>
 
-      <div className="space-y-6 rounded-[32px] bg-white p-8 ring-1 ring-slate-200/70 shadow-[0_35px_110px_-70px_rgba(7,58,104,0.45)] dark:bg-slate-900/80 dark:ring-slate-800/50">
+      <div className="space-y-6 rounded-[32px] bg-white p-8 ring-1 ring-slate-200/70 shadow-[0_35px_110px_-70px_rgba(7,58,104,0.45)] dark:bg-slate-900 dark:ring-slate-800/50">
         <div id="product-review-form" className="scroll-mt-32 space-y-4">
           {isSignedIn ? (
             <ProductReviewForm
@@ -67,7 +67,7 @@ export default function ProductReviewsSection({
               initialMessage={viewerReview?.message ?? null}
             />
           ) : (
-            <div className="flex flex-col gap-3 rounded-3xl bg-white px-5 py-4 ring-1 ring-slate-200/70 sm:flex-row sm:items-center sm:justify-between dark:bg-slate-900/75 dark:ring-slate-800/50">
+            <div className="flex flex-col gap-3 rounded-3xl bg-white px-5 py-4 ring-1 ring-slate-200/70 sm:flex-row sm:items-center sm:justify-between dark:bg-slate-900 dark:ring-slate-800/50">
               <div className="space-y-1">
                 <h3 className="text-lg font-semibold text-foreground">
                   Sign in to leave a review
@@ -92,7 +92,7 @@ export default function ProductReviewsSection({
           {reviewSummary.reviews.map((review) => (
             <article
               key={review.id}
-              className="flex h-full flex-col gap-3 rounded-3xl bg-white p-6 ring-1 ring-slate-200/70 shadow-[0_22px_70px_-60px_rgba(7,58,104,0.4)] dark:bg-slate-900/75 dark:ring-slate-800/50"
+              className="flex h-full flex-col gap-3 rounded-3xl bg-white p-6 ring-1 ring-slate-200/70 shadow-[0_22px_70px_-60px_rgba(7,58,104,0.4)] dark:bg-slate-900 dark:ring-slate-800/50"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
@@ -111,7 +111,7 @@ export default function ProductReviewsSection({
             </article>
           ))}
           {!hasReviews && (
-            <div className="col-span-full rounded-3xl border border-dashed border-[color:var(--brand-1)/0.25] bg-white p-8 text-center text-sm text-slate-600 dark:border-[color:var(--brand-1)/0.35] dark:bg-slate-900/65 dark:text-slate-300">
+            <div className="col-span-full rounded-3xl border border-dashed border-[color:var(--brand-1)/0.25] bg-white p-8 text-center text-sm text-slate-600 dark:border-[color:var(--brand-1)/0.35] dark:bg-slate-900 dark:text-slate-300">
               Be the first to share how {productName} performed for you.
             </div>
           )}

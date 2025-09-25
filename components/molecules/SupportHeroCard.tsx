@@ -28,7 +28,7 @@ export function SupportHeroCard({
     : "Sign in to add your vote and help this launch get discovered."
 
   return (
-    <section className="relative overflow-hidden rounded-[32px] bg-white p-6 text-foreground shadow-[0_32px_110px_-70px_rgba(9,60,110,0.35)] ring-1 ring-slate-200/70 dark:bg-slate-900/85 dark:ring-slate-800/60">
+    <section className="relative overflow-hidden rounded-[32px] bg-white p-6 text-foreground shadow-[0_32px_110px_-70px_rgba(9,60,110,0.35)] ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800/60">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_120%_at_85%_10%,rgba(11,76,135,0.18),transparent_65%)] opacity-75" />
       <div className="relative flex flex-col gap-5">
         <div className="flex items-start justify-between gap-4">
@@ -49,7 +49,7 @@ export function SupportHeroCard({
           {supporterCopy}
         </p>
 
-        <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70 dark:bg-slate-900/75 dark:ring-slate-800/60">
+        <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200/70 dark:bg-slate-900 dark:ring-slate-800/60">
           <UpvoteSquareButton
             productId={productId}
             initialCount={initialCount}

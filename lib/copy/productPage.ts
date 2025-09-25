@@ -2,7 +2,7 @@ export const productPageCopy = {
   hero: {
     chartedLabel: "Charted for",
     ownerPrefix: "Skippered by",
-    statsLabel: "Vital stats",
+    statsLabel: "Product details",
     secondaryLinksLabel: "Signal flags",
     reviewsCta: "Share a review",
     reviewsCtaHelper: "Used this product? Share a review",

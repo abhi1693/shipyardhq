@@ -33,7 +33,7 @@ export function ProductSimilarVoyages<T extends CompactProductItem>({
         </div>
         <Link
           href={browseHref}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-white/50 px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)] ring-1 ring-slate-200/40 transition hover:bg-white/80 hover:ring-[color:var(--brand-1)/0.35] dark:bg-slate-900/70 dark:ring-slate-800/40"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)] ring-1 ring-slate-200/40 transition hover:ring-[color:var(--brand-1)/0.35] dark:bg-slate-900 dark:ring-slate-800/40"
         >
           {recommendations.ctaLabel}
           <span aria-hidden>↗</span>

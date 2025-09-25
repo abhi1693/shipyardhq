@@ -40,7 +40,6 @@ export const adminStatusPath = (segments: string[], status: string) =>
   `${adminPath(...segments)}?status=${status}`
 
 export const BROWSE_PATH = "/browse" as const
-export const LOGIN_PATH = "/login" as const
 export const LEADERBOARD_PATH = "/leaderboard" as const
 export const LEADERBOARD_MONTHLY_PATH = `${LEADERBOARD_PATH}/monthly` as const
 export const LEADERBOARD_GUIDE_PATH = `${LEADERBOARD_PATH}/about` as const

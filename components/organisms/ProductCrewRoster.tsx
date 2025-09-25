@@ -29,7 +29,7 @@ export function ProductCrewRoster({
           {crew.heading}
         </p>
         {organizationName ? (
-          <span className="rounded-full bg-white/50 px-3 py-1 text-xs font-medium text-[color:var(--brand-1)] ring-1 ring-slate-200/40 dark:bg-slate-900/70 dark:ring-slate-800/40">
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-[color:var(--brand-1)] ring-1 ring-slate-200/40 dark:bg-slate-900 dark:ring-slate-800/40">
             {crew.organizationPrefix} {organizationName}
           </span>
         ) : null}
@@ -37,7 +37,7 @@ export function ProductCrewRoster({
 
       {hasMembers ? (
         <div className="overflow-hidden rounded-3xl ring-1 ring-slate-200/40 shadow-[0_24px_70px_-55px_rgba(7,58,104,0.45)] dark:ring-slate-800/40">
-          <ul className="divide-y divide-slate-200/60 bg-white dark:divide-slate-800/50 dark:bg-slate-900/70">
+          <ul className="divide-y divide-slate-200/60 bg-white dark:divide-slate-800/50 dark:bg-slate-900">
             {members.map((member) => (
               <li
                 key={member.id}

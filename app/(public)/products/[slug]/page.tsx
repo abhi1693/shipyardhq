@@ -132,14 +132,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         }).format(product.startingPriceCents / 100)
       : null
 
-  const heroStats: { label: string; value: string }[] = []
-  if (pricingDisplay) {
-    heroStats.push({ label: "Starting at", value: pricingDisplay })
-  }
+  const heroStats: { label: string; value: string }[] = [
+    { label: "Product type", value: product.type.replaceAll("_", " ") },
+  ]
   if (product.pricingModel) {
     heroStats.push({ label: "Pricing model", value: product.pricingModel })
   }
-  heroStats.push({ label: "Product type", value: product.type.replaceAll("_", " ") })
+  if (pricingDisplay) {
+    heroStats.push({ label: "Starting at", value: pricingDisplay })
+  }
   const launchDate = product.publishedAt
     ? new Intl.DateTimeFormat("en-US", {
         month: "short",
@@ -384,15 +385,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       <ScrollReset triggerKey={product.slug} />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(245,249,255,0.98)0%,rgba(233,242,252,0.94)45%,rgba(252,254,255,1)100%)] dark:bg-[linear-gradient(180deg,rgba(5,12,24,0.95),rgba(4,18,36,0.9)35%,rgba(6,24,46,0.94)100%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,rgba(11,76,135,0.18),transparent_55%),radial-gradient(120%_120%_at_100%_0%,rgba(7,58,104,0.16),transparent_55%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-[url('/illustrations/wave-divider.svg')] bg-cover bg-center opacity-45"
+        className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(180deg,#f6f9ff_0%,#e7f1fc_45%,#ffffff_100%)] dark:bg-[linear-gradient(180deg,#050c18_0%,#041226_45%,#081c34_100%)]"
       />
 
       <PublicContainer

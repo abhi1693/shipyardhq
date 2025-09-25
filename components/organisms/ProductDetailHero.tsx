@@ -2,12 +2,12 @@ import Image from "next/image"
 import Link from "next/link"
 import { JSX } from "react"
 import { CheckCircle } from "lucide-react"
+import { SignInButton } from "@clerk/nextjs"
 
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
 import { productPageCopy } from "@/lib/copy/productPage"
-import { LOGIN_PATH } from "@/lib/routes"
 
 interface HeroBadge {
   id: string
@@ -84,12 +84,12 @@ export function ProductDetailHero({
   const reviewCopy = productPageCopy.reviewPrompt
 
   return (
-    <div className="relative">
+    <div className="relative overflow-hidden">
       <div className="grid gap-14 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,360px)] lg:items-start">
         <div className="space-y-10 lg:space-y-12">
           <header className="space-y-6">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-3xl border border-white/30 bg-white/80 shadow-[0_18px_45px_-30px_rgba(7,58,104,0.55)] ring-1 ring-slate-200/40 backdrop-blur sm:h-24 sm:w-24 dark:bg-slate-900/70 dark:ring-slate-700/40">
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-3xl border border-white/30 bg-white shadow-[0_18px_45px_-30px_rgba(7,58,104,0.55)] ring-1 ring-slate-200/40 sm:h-24 sm:w-24 dark:border-slate-700/40 dark:bg-slate-900 dark:ring-slate-700/40">
                 <Image
                   src={logo}
                   alt={`${name} logo`}
@@ -173,7 +173,7 @@ export function ProductDetailHero({
                   <Badge
                     key={platform.id}
                     variant="outline"
-                    className="flex items-center gap-1 rounded-full border-slate-200/60 bg-white/40 px-2.5 py-0.5 text-[11px] text-[color:var(--brand-1)] dark:border-slate-700/50 dark:bg-slate-900/60"
+                    className="flex items-center gap-1 rounded-full border-slate-200/60 bg-white px-2.5 py-0.5 text-[11px] text-[color:var(--brand-1)] dark:border-slate-700/50 dark:bg-slate-900"
                   >
                     {platform.icon}
                     {platform.label}
@@ -191,7 +191,7 @@ export function ProductDetailHero({
               <div className="flex flex-wrap gap-1.5">
                 {tags.map((tag) => (
                   <Link key={tag.id} href={tag.href} className="inline-flex">
-                    <Badge className="rounded-full border border-slate-200/60 bg-white/50 px-3 py-0.5 text-[11px] font-medium text-[color:var(--brand-1)] transition hover:border-[color:var(--brand-1)/0.4] hover:bg-white dark:border-slate-700/50 dark:bg-slate-900/60 dark:text-slate-100">
+                    <Badge className="rounded-full border border-slate-200/60 bg-white px-3 py-0.5 text-[11px] font-medium text-[color:var(--brand-1)] transition hover:border-[color:var(--brand-1)/0.4] dark:border-slate-700/50 dark:bg-slate-900 dark:text-slate-100">
                       {tag.label}
                     </Badge>
                   </Link>
@@ -201,7 +201,7 @@ export function ProductDetailHero({
           ) : null}
 
           {reviewPrompt ? (
-            <div className="rounded-[28px] bg-white px-6 py-5 ring-1 ring-slate-200/70 shadow-[0_24px_70px_-55px_rgba(7,58,104,0.35)] dark:bg-slate-900/80 dark:ring-slate-800/50">
+            <div className="rounded-[28px] bg-white px-6 py-5 ring-1 ring-slate-200/70 shadow-[0_24px_70px_-55px_rgba(7,58,104,0.35)] dark:bg-slate-900 dark:ring-slate-800/50">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
                   <p className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
@@ -221,18 +221,15 @@ export function ProductDetailHero({
                       </Link>
                     </Button>
                   ) : (
-                    <Button
-                      asChild
-                      size="sm"
-                      className="px-4"
-                      variant="outline"
+                    <SignInButton
+                      mode="modal"
+                      forceRedirectUrl={reviewPrompt.redirectUrl}
+                      signUpForceRedirectUrl={reviewPrompt.redirectUrl}
                     >
-                      <Link
-                        href={`${LOGIN_PATH}?redirect_url=${encodeURIComponent(reviewPrompt.redirectUrl)}`}
-                      >
+                      <Button size="sm" className="px-4" variant="outline">
                         {reviewCopy.signedOutCta}
-                      </Link>
-                    </Button>
+                      </Button>
+                    </SignInButton>
                   )}
                 </div>
               </div>
@@ -243,9 +240,9 @@ export function ProductDetailHero({
         <aside className="space-y-4 lg:sticky lg:top-28">
           {supportCard}
           {hasStats ? (
-            <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200/70 shadow-[0_24px_80px_-60px_rgba(7,58,104,0.35)] dark:bg-slate-900/85 dark:ring-slate-800/60">
+            <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200/70 shadow-[0_24px_80px_-60px_rgba(7,58,104,0.35)] dark:bg-slate-900 dark:ring-slate-800/60">
               <p className="text-[11px] uppercase tracking-[0.3em] text-slate-600 dark:text-slate-300">
-                Voyage details
+                {hero.statsLabel}
               </p>
               <dl className="mt-4 space-y-3">
                 {stats.map((stat) => (
@@ -262,7 +259,7 @@ export function ProductDetailHero({
             </div>
           ) : null}
           {hasSecondaryLinks ? (
-            <div className="flex items-center justify-center gap-2 rounded-full bg-white/80 p-1 ring-1 ring-slate-200/60 backdrop-blur dark:bg-slate-900/70 dark:ring-slate-800/50">
+            <div className="flex items-center justify-center gap-2 rounded-full bg-white p-1 ring-1 ring-slate-200/60 dark:bg-slate-900 dark:ring-slate-800/50">
               {secondaryLinks.map((link) => (
                 <Link
                   key={link.href}

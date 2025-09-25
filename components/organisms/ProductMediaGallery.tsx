@@ -47,7 +47,7 @@ export function ProductMediaGallery({
 
       {hasBanner ? (
         <ImageLightbox src={bannerImage!} alt={`${productName} banner`}>
-          <div className="relative overflow-hidden rounded-[28px] ring-1 ring-slate-200/45 shadow-[0_32px_90px_-60px_rgba(7,58,104,0.45)] backdrop-blur-sm dark:ring-slate-700/40">
+          <div className="relative overflow-hidden rounded-[28px] bg-white ring-1 ring-slate-200/45 shadow-[0_32px_90px_-60px_rgba(7,58,104,0.45)] dark:bg-slate-900 dark:ring-slate-700/40">
             <div className="relative aspect-[3/1] w-full">
               <Image
                 src={bannerImage!}
@@ -71,7 +71,7 @@ export function ProductMediaGallery({
               src={item.imageUrl}
               alt={item.altText || productName}
             >
-              <div className="relative h-40 w-64 shrink-0 overflow-hidden rounded-3xl ring-1 ring-slate-200/40 transition hover:ring-[color:var(--brand-1)/0.35] dark:ring-slate-700/40">
+              <div className="relative h-40 w-64 shrink-0 overflow-hidden rounded-3xl bg-white ring-1 ring-slate-200/40 transition hover:ring-[color:var(--brand-1)/0.35] dark:bg-slate-900 dark:ring-slate-700/40">
                 <Image
                   src={item.imageUrl}
                   alt={item.altText || productName}

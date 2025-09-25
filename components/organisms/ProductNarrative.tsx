@@ -17,7 +17,7 @@ export function ProductNarrative({ description }: ProductNarrativeProps) {
           {narrative.heading}
         </p>
       </header>
-      <div className="rounded-3xl bg-white p-8 shadow-[0_30px_80px_-65px_rgba(7,58,104,0.4)] ring-1 ring-slate-200/60 dark:bg-slate-900/80 dark:ring-slate-800/50">
+      <div className="rounded-3xl bg-white p-8 shadow-[0_30px_80px_-65px_rgba(7,58,104,0.4)] ring-1 ring-slate-200/60 dark:bg-slate-900 dark:ring-slate-800/50">
         {description ? (
           <div className="prose max-w-none prose-neutral dark:prose-invert">
             <ReactMarkdown
