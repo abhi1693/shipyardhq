@@ -1,68 +1,178 @@
-// Helper to send transactional mail via Resend
-import type { ReactElement } from "react"
-import { Resend } from "resend"
+import { Resend, type CreateEmailOptions } from "resend"
 
-type SendEmailOptions = {
-  from?: string
-  to: string | string[]
-  cc?: string | string[]
-  bcc?: string | string[]
-  replyTo?: string | string[]
-  subject: string
-  text?: string
-  html?: string
-  react?: ReactElement
-  headers?: Record<string, string>
+type SendEmailOptions = Omit<CreateEmailOptions, "from"> & {
+  from?: CreateEmailOptions["from"]
 }
 
-let client: Resend | null = null
-const defaultFrom = process.env.RESEND_FROM_EMAIL
+type ResendSendResponse = Awaited<ReturnType<Resend["emails"]["send"]>>
+type SendEmailResult = ResendSendResponse["data"]
 
-function getClient(): Resend {
-  if (client) return client
-  const key = process.env.RESEND_API_KEY
-  if (!key) {
-    throw new Error("RESEND_API_KEY is not configured")
+type RateLimitConfig = {
+  maxRequests: number
+  intervalMs: number
+}
+
+interface EmailSender {
+  send(options: SendEmailOptions): Promise<SendEmailResult>
+}
+
+const DEFAULT_RATE_LIMIT_CONFIG: RateLimitConfig = {
+  maxRequests: 2,
+  intervalMs: 1000,
+}
+
+function parsePositiveInt(value: string | undefined, fallback: number): number {
+  if (!value) {
+    return fallback
   }
-  client = new Resend(key)
-  return client
+
+  const parsed = Number.parseInt(value, 10)
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed
+  }
+
+  return fallback
+}
+
+function loadRateLimitConfig(): RateLimitConfig {
+  const maxRequests = parsePositiveInt(
+    process.env.RESEND_RATE_LIMIT_MAX_REQUESTS ??
+      process.env.RESEND_RATE_LIMIT_RPS,
+    DEFAULT_RATE_LIMIT_CONFIG.maxRequests,
+  )
+
+  const intervalMs = parsePositiveInt(
+    process.env.RESEND_RATE_LIMIT_INTERVAL_MS,
+    DEFAULT_RATE_LIMIT_CONFIG.intervalMs,
+  )
+
+  return {
+    maxRequests: Math.max(1, maxRequests),
+    intervalMs: Math.max(1, intervalMs),
+  }
 }
 
 function hasBodyContent(opts: SendEmailOptions): boolean {
   return Boolean(opts.text || opts.html || opts.react)
 }
 
-export async function sendEmail(options: SendEmailOptions) {
-  if (!hasBodyContent(options)) {
-    throw new Error("Email body is required")
+class ResendEmailSender implements EmailSender {
+  private client: Resend | null = null
+  private readonly defaultFrom = process.env.RESEND_FROM_EMAIL
+
+  private getClient(): Resend {
+    if (this.client) return this.client
+
+    const key = process.env.RESEND_API_KEY
+    if (!key) {
+      throw new Error("RESEND_API_KEY is not configured")
+    }
+
+    this.client = new Resend(key)
+    return this.client
   }
 
-  const resend = getClient()
-  const from = options.from ?? defaultFrom
-  if (!from) {
-    throw new Error(
-      "Missing sender. Provide options.from or set RESEND_FROM_EMAIL.",
+  async send(options: SendEmailOptions): Promise<SendEmailResult> {
+    if (!hasBodyContent(options)) {
+      throw new Error("Email body is required")
+    }
+
+    const resend = this.getClient()
+    const from = options.from ?? this.defaultFrom
+    if (!from) {
+      throw new Error(
+        "Missing sender. Provide options.from or set RESEND_FROM_EMAIL.",
+      )
+    }
+
+    const payload = {
+      ...options,
+      from,
+    }
+
+    const { data, error } = await resend.emails.send(
+      payload as CreateEmailOptions,
     )
+
+    if (error) {
+      throw error
+    }
+
+    return data
   }
-
-  const { data, error } = await resend.emails.send({
-    from,
-    to: options.to,
-    cc: options.cc,
-    bcc: options.bcc,
-    replyTo: options.replyTo,
-    subject: options.subject,
-    text: options.text,
-    html: options.html,
-    react: options.react,
-    headers: options.headers,
-  })
-
-  if (error) {
-    throw error
-  }
-
-  return data
 }
 
-export type { SendEmailOptions }
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export class RateLimitedEmailSender implements EmailSender {
+  private queue: Promise<void> = Promise.resolve()
+  private timestamps: number[] = []
+
+  constructor(
+    private readonly sender: EmailSender,
+    private readonly config: RateLimitConfig,
+  ) {}
+
+  async send(options: SendEmailOptions): Promise<SendEmailResult> {
+    const execute = async () => {
+      await this.reserveSlot()
+      return this.sender.send(options)
+    }
+
+    const task = this.queue.then(execute)
+    this.queue = task.then(() => undefined, () => undefined)
+    return task
+  }
+
+  private async reserveSlot() {
+    while (true) {
+      const now = Date.now()
+      this.timestamps = this.timestamps.filter(
+        (timestamp) => now - timestamp < this.config.intervalMs,
+      )
+
+      if (this.timestamps.length < this.config.maxRequests) {
+        this.timestamps.push(now)
+        return
+      }
+
+      const earliest = this.timestamps[0]
+      const waitTime = Math.max(
+        0,
+        this.config.intervalMs - (now - earliest),
+      )
+
+      await wait(waitTime)
+    }
+  }
+}
+
+function createDefaultEmailSender(): EmailSender {
+  return new RateLimitedEmailSender(
+    new ResendEmailSender(),
+    loadRateLimitConfig(),
+  )
+}
+
+let activeEmailSender: EmailSender = createDefaultEmailSender()
+
+export function configureEmailSender(sender: EmailSender) {
+  activeEmailSender = sender
+}
+
+export function resetEmailSender() {
+  activeEmailSender = createDefaultEmailSender()
+}
+
+export async function sendEmail(options: SendEmailOptions) {
+  return activeEmailSender.send(options)
+}
+
+export type {
+  EmailSender,
+  RateLimitConfig,
+  SendEmailOptions,
+  SendEmailResult,
+}

@@ -41,6 +41,12 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 - Unit: `npm run test`
 - End-to-end: ensure `npm run dev` is running (seed the database first if needed), then execute `npm run test:e2e`; use `npm run test:e2e:open` for the headed runner.
 
+## Email Delivery
+
+- Transactional mail runs through `lib/email/resend.ts`, which now serializes messages through a shared rate-limited queue so Resend caps are respected across the app.
+- Defaults align with Resend's 2 requests/sec ceiling; adjust only if your account is provisioned for a higher burst.
+- Tune throughput with optional env vars: `RESEND_RATE_LIMIT_MAX_REQUESTS` or `RESEND_RATE_LIMIT_RPS` (per interval) and `RESEND_RATE_LIMIT_INTERVAL_MS` (window duration in ms).
+
 ## Analytics Instrumentation
 
 - Product detail pages now emit client-side beacons to `/api/analytics/ingest`, capturing geo, device, and browser context without blocking rendering.
