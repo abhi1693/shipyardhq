@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  useActionState,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
+import { useActionState, useEffect, useMemo, useRef, useState } from "react"
 import { useFormStatus } from "react-dom"
 import { useUser } from "@clerk/nextjs"
 import {
@@ -40,7 +34,11 @@ export default function UpvoteSquareButton({
 }: Props) {
   const { isSignedIn } = useUser()
   const baseState = useMemo<State>(
-    () => ({ upvotes: initialCount, upvoted: initialUpvoted, error: undefined }),
+    () => ({
+      upvotes: initialCount,
+      upvoted: initialUpvoted,
+      error: undefined,
+    }),
     [initialCount, initialUpvoted],
   )
   const [serverState, formAction] = useActionState(action, baseState)
@@ -77,11 +75,19 @@ export default function UpvoteSquareButton({
       const nextUpvoted = !current.upvoted
       const delta = nextUpvoted ? 1 : -1
       const nextUpvotes = Math.max(current.upvotes + delta, 0)
-      return { ...current, upvotes: nextUpvotes, upvoted: nextUpvoted, error: undefined }
+      return {
+        ...current,
+        upvotes: nextUpvotes,
+        upvoted: nextUpvoted,
+        error: undefined,
+      }
     })
 
     const maybePromise = formAction(formData) as unknown
-    if (maybePromise && typeof (maybePromise as Promise<unknown>).catch === "function") {
+    if (
+      maybePromise &&
+      typeof (maybePromise as Promise<unknown>).catch === "function"
+    ) {
       ;(maybePromise as Promise<unknown>).catch(() => {
         setOptimisticState(rollbackState)
       })

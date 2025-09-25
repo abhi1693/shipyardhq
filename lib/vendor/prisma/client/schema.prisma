@@ -52,6 +52,7 @@ model Product {
   ProductBadge          ProductBadge[]
   ProductMedia          ProductMedia[]
   ProductUpvote         ProductUpvote[]
+  ProductReview         ProductReview[]
   clickEvents           ProductClickEvent[]
   trafficEvents         ProductTrafficEvent[]
   MonthlyProductRanking MonthlyProductRanking[]
@@ -302,17 +303,37 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  products      Product[]
-  memberships   OrganizationMembership[]
-  ProductUpvote ProductUpvote[]
-  Organization  Organization[]
-  feedback      MemberFeedback[]
-  purchases     UserPlanPurchase[]
+  products       Product[]
+  memberships    OrganizationMembership[]
+  ProductUpvote  ProductUpvote[]
+  productReviews ProductReview[]
+  Organization   Organization[]
+  feedback       MemberFeedback[]
+  purchases      UserPlanPurchase[]
 
   @@index([status])
   @@index([roleIntent])
   @@index([heardFrom])
   @@index([onboardedAt])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model ProductReview {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  rating    Int
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, userId])
+  @@index([productId, createdAt])
+  @@index([userId, createdAt])
   @@index([createdAt])
   @@index([updatedAt])
 }

@@ -9,7 +9,9 @@ type ProductBadgeContext = {
   boostDays: number
 }
 
-async function getNewBadgeContext(productId: string): Promise<ProductBadgeContext | null> {
+async function getNewBadgeContext(
+  productId: string,
+): Promise<ProductBadgeContext | null> {
   const product = await prisma.product.findUnique({
     where: { id: productId },
     select: {

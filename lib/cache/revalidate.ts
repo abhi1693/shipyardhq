@@ -10,6 +10,11 @@ export function revalidateProduct(idOrSlug: string) {
   revalidateProducts()
 }
 
+export function revalidateProductReviews(idOrSlug: string) {
+  revalidateTag(TAGS.productReview(idOrSlug))
+  revalidateTag(TAGS.productReviews)
+}
+
 export function revalidateCategories() {
   revalidateTag(TAGS.categories)
 }

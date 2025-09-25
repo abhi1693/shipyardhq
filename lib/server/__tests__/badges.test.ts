@@ -50,7 +50,9 @@ describe("badges listeners", () => {
 
     await publish("product.created", { productId: "pPlan" })
 
-    const createArgs = (prisma as any).productBadge.create.mock.calls.at(-1)?.[0]
+    const createArgs = (prisma as any).productBadge.create.mock.calls.at(
+      -1,
+    )?.[0]
     expect(createArgs?.data?.expiresAt?.toISOString()).toBe(
       new Date(createdAt.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString(),
     )
@@ -152,11 +154,12 @@ it("applies plan-based expiry when assigning new badge manually", async () => {
       createdAt: new Date("2024-01-15T00:00:00.000Z"),
       plan: { boostForDays: 3 },
     })
-
     ;(prisma as any).productBadge.update.mockClear()
     await publish("badge.assigned", { id: "bN", productId: "p1", badge: "new" })
 
-    const updateArgs = (prisma as any).productBadge.update.mock.calls.at(-1)?.[0]
+    const updateArgs = (prisma as any).productBadge.update.mock.calls.at(
+      -1,
+    )?.[0]
     expect(updateArgs?.data?.expiresAt?.toISOString()).toBe(
       new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString(),
     )

@@ -116,10 +116,14 @@ export async function upvoteProductAction(
     const txMark = (label: string) =>
       txReport.marks.push({ label, at: process.hrtime.bigint() })
 
-  const voteId = randomUUID()
+    const voteId = randomUUID()
 
     const rows = await prisma.$queryRaw<
-      { upvotes: number | bigint | null; upvoted: boolean; delta: number | bigint | null }[]
+      {
+        upvotes: number | bigint | null
+        upvoted: boolean
+        delta: number | bigint | null
+      }[]
     >`
       WITH deleted AS (
         DELETE FROM "ProductUpvote"

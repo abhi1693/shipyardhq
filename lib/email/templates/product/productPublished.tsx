@@ -141,7 +141,8 @@ export function ProductPublishedEmail({
 
       <div style={badgeSectionStyle}>
         <p style={paragraphStyle}>
-          Add a backlink boost by placing our <strong>Featured on Shipyard</strong>
+          Add a backlink boost by placing our{" "}
+          <strong>Featured on Shipyard</strong>
           badge on your homepage or press page. Link it to your product so
           visitors can discover you on {EMAIL_BRAND.name}.
         </p>

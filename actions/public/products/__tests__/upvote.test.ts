@@ -76,4 +76,3 @@ describe("upvoteProductAction", () => {
     expect(mocks.revalidateLeaderboard).toHaveBeenCalledTimes(1)
   })
 })
-

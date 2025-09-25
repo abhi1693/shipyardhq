@@ -8,7 +8,7 @@ import {
 } from "@/components/atoms/card"
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar"
 import Link from "next/link"
-import { MousePointerClick, ThumbsUp, Sparkles } from "lucide-react"
+import { MousePointerClick, ThumbsUp, Star, Sparkles } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
@@ -16,6 +16,8 @@ import {
 } from "@/components/atoms/tooltip"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { TailwindColor, cn } from "@/lib/utils"
+import RatingStars from "@/components/molecules/RatingStars"
+import { formatDistanceToNow } from "date-fns"
 
 type Upvoter = {
   id: string
@@ -35,6 +37,9 @@ export default function PerformanceCard({
   ogImageUrl,
   editHref,
   className,
+  reviewAverage,
+  reviewCount,
+  recentReviews = [],
 }: {
   upvotes?: number
   clicks?: number
@@ -46,6 +51,15 @@ export default function PerformanceCard({
   ogImageUrl?: string | null
   editHref: string
   className?: string
+  reviewAverage?: number | null
+  reviewCount?: number | null
+  recentReviews?: {
+    id: string
+    rating: number
+    message: string
+    createdAt: string
+    reviewer: string
+  }[]
 }) {
   const daysLeft = (d: Date | string | null | undefined) => {
     if (!d) return null
@@ -80,13 +94,23 @@ export default function PerformanceCard({
     gray: "border-slate-200 bg-slate-50 text-slate-700",
   }
 
+  const hasReviewStats =
+    typeof reviewAverage === "number" &&
+    reviewAverage > 0 &&
+    (reviewCount || 0) > 0
+
   return (
     <Card className={cn("col-span-12 md:col-span-4", className)}>
       <CardHeader className="pb-0">
         <CardTitle className="text-base">Performance</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div
+          className={cn(
+            "grid gap-3",
+            hasReviewStats ? "grid-cols-2 md:grid-cols-3" : "grid-cols-2",
+          )}
+        >
           <div className={statTileClass}>
             <div className={statLabelClass}>
               <ThumbsUp className="h-3.5 w-3.5" /> Upvotes
@@ -99,6 +123,22 @@ export default function PerformanceCard({
             </div>
             <div className={statValueClass}>{clicks}</div>
           </div>
+          {hasReviewStats && (
+            <div className={statTileClass}>
+              <div className={statLabelClass}>
+                <Star className="h-3.5 w-3.5" /> Rating
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <div className="text-lg font-semibold text-foreground">
+                  {reviewAverage?.toFixed(1)} / 5
+                </div>
+                <RatingStars rating={reviewAverage ?? 0} size={14} />
+                <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                  {reviewCount} review{reviewCount === 1 ? "" : "s"}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className={pillListClass}>
@@ -135,6 +175,62 @@ export default function PerformanceCard({
             </div>
           )}
         </div>
+
+        {hasReviewStats ? (
+          <div className={pillListClass}>
+            <div className="flex items-center justify-between text-xs">
+              <span>Recent reviews</span>
+              {typeof reviewCount === "number" ? (
+                <span className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
+                  {reviewCount} total
+                </span>
+              ) : null}
+            </div>
+            {recentReviews.length ? (
+              <ul className="mt-2 space-y-2 text-xs">
+                {recentReviews.slice(0, 3).map((review) => (
+                  <li
+                    key={review.id}
+                    className="rounded-md border border-slate-200 bg-white/80 p-3"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-foreground">
+                        {review.reviewer}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">
+                        {(() => {
+                          try {
+                            return formatDistanceToNow(
+                              new Date(review.createdAt),
+                              {
+                                addSuffix: true,
+                              },
+                            )
+                          } catch {
+                            return "Recently"
+                          }
+                        })()}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex items-center gap-2">
+                      <RatingStars rating={review.rating} size={12} />
+                      <span className="text-[11px] text-muted-foreground">
+                        {review.rating}/5
+                      </span>
+                    </div>
+                    <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+                      {review.message}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="mt-2 text-xs">
+                <span>No public reviews yet.</span>
+              </div>
+            )}
+          </div>
+        ) : null}
 
         <div className={pillListClass}>
           <div className="text-xs">Active badges</div>

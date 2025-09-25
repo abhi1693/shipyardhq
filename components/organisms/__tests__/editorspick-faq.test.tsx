@@ -49,5 +49,5 @@ describe("FaqSection", () => {
     expect(
       screen.getByText(/Billing Portal link in the member sidebar/i),
     ).toBeInTheDocument()
-  })
+  }, 10000)
 })

@@ -26,6 +26,7 @@ import {
   Laptop,
   Terminal,
   Chrome,
+  Star,
 } from "lucide-react"
 import PublicContainer from "@/components/layout/PublicContainer"
 import ExternalBadgeLink from "@/components/molecules/ExternalBadgeLink"
@@ -42,6 +43,11 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { ScrollReset } from "@/components/atoms/scroll-reset"
 import { BROWSE_PATH, categoryPath, productPath, userPath } from "@/lib/routes"
 import { SupportHeroCard } from "@/components/molecules/SupportHeroCard"
+import ProductReviewsSection from "@/components/organisms/ProductReviewsSection"
+import {
+  getProductReviewSummary,
+  getUserProductReview,
+} from "@/lib/server/productReviews"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -288,6 +294,69 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const hasKeywords = Boolean(product.keywords && product.keywords.length > 0)
   const platforms = product.platforms || []
 
+  const reviewSummaryPromise = getProductReviewSummary(product.id, 12)
+  const viewerReviewPromise = userId
+    ? getUserProductReview(product.id, userId).catch(() => null)
+    : Promise.resolve(null)
+
+  const [reviewSummary, viewerReview] = await Promise.all([
+    reviewSummaryPromise,
+    viewerReviewPromise,
+  ])
+
+  const reviewerDisplayName = (first?: string | null, last?: string | null) => {
+    const parts = [first?.trim(), last?.trim()].filter(Boolean)
+    return parts.length ? parts.join(" ") : "Shipyard member"
+  }
+
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.com"
+  ).replace(/\/$/, "")
+  const canonicalUrl = `${baseUrl}${productPath(product.slug)}`
+  const structuredData =
+    reviewSummary.totalReviews > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: product.name,
+          description: product.tagline || undefined,
+          image: [product.bannerImage, product.logo].filter(Boolean),
+          url: canonicalUrl,
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: reviewSummary.averageRating.toFixed(1),
+            reviewCount: reviewSummary.totalReviews,
+            bestRating: 5,
+            worstRating: 0,
+          },
+          review: reviewSummary.reviews.map((review) => ({
+            "@type": "Review",
+            author: {
+              "@type": "Person",
+              name: reviewerDisplayName(
+                review.user.firstName,
+                review.user.lastName,
+              ),
+            },
+            datePublished: (() => {
+              try {
+                return new Date(review.createdAt).toISOString()
+              } catch {
+                return undefined
+              }
+            })(),
+            reviewBody: review.message,
+            name: `Feedback for ${product.name}`,
+            reviewRating: {
+              "@type": "Rating",
+              ratingValue: review.rating,
+              bestRating: 5,
+              worstRating: 0,
+            },
+          })),
+        }
+      : null
+
   const useCaseProducts = primaryUseCaseSlug
     ? await getPublicProductsByUseCase(primaryUseCaseSlug, product.id)
     : []
@@ -309,6 +378,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <main className="relative isolate overflow-hidden">
+      {structuredData ? (
+        <script
+          type="application/ld+json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+          }}
+        />
+      ) : null}
       <ScrollReset triggerKey={product.slug} />
       <div
         aria-hidden
@@ -504,6 +582,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     />
                   ))}
                 </div>
+                <Link
+                  href="#product-reviews"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.3] bg-[color:var(--brand-2)] px-4 py-2 text-sm font-semibold text-white shadow-[0px_18px_40px_-30px_rgba(7,78,134,0.45)] transition-colors hover:border-[color:var(--brand-2)/0.5] hover:bg-[color:var(--brand-2)/0.9]"
+                >
+                  <Star size={16} /> Used this product? Share a review
+                </Link>
               </aside>
             </div>
           </div>
@@ -671,6 +755,19 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               </div>
             </section>
           )}
+
+          <ProductReviewsSection
+            productId={product.id}
+            productName={product.name}
+            reviewSummary={reviewSummary}
+            viewerReview={
+              viewerReview
+                ? { rating: viewerReview.rating, message: viewerReview.message }
+                : null
+            }
+            isSignedIn={Boolean(userId)}
+            redirectUrl={productPath(product.slug)}
+          />
 
           {hasCrew && (
             <section className="space-y-4">
