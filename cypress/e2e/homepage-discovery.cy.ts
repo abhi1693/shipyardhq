@@ -29,6 +29,8 @@ describe("Homepage discovery journey", () => {
 
     cy.story("Before leaving, Morgan checks the onboarding call to action.")
     cy.contains("Join the crew").scrollIntoView()
-    cy.contains("Signal the Lighthouse").should("be.visible")
+    cy.contains("Ready to chart your next voyage?").should("be.visible")
+    cy.contains("Submit a launch").should("be.visible")
+    cy.contains("Explore the fleet").should("be.visible")
   })
 })
