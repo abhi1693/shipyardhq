@@ -139,7 +139,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   if (product.pricingModel) {
     heroStats.push({ label: "Pricing model", value: product.pricingModel })
   }
-
+  heroStats.push({ label: "Product type", value: product.type.replaceAll("_", " ") })
   const launchDate = product.publishedAt
     ? new Intl.DateTimeFormat("en-US", {
         month: "short",
@@ -425,6 +425,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           tags={signalTags}
           stats={heroStats}
           supportCard={supportCard}
+          reviewPrompt={{
+            isSignedIn: Boolean(userId),
+            redirectUrl: productPath(product.slug),
+            hasReviews: reviewSummary.totalReviews > 0,
+          }}
         />
       </PublicContainer>
 

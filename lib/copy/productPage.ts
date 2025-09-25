@@ -32,4 +32,10 @@ export const productPageCopy = {
     headingPrefix: "More ways to",
     ctaLabel: "Explore use case",
   },
+  reviewPrompt: {
+    heading: "Have you sailed with this product?",
+    body: "Add your perspective to help fellow builders navigate their next launch.",
+    signedInCta: "Write a review",
+    signedOutCta: "Sign in to review",
+  },
 }

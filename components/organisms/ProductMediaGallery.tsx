@@ -38,7 +38,7 @@ export function ProductMediaGallery({
             {mediaCopy.eyebrow}
           </p>
           {hasGallery && media.length > 3 ? (
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-slate-600 dark:text-slate-200/90">
               {mediaCopy.caption}
             </span>
           ) : null}

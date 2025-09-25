@@ -4,6 +4,7 @@ import { JSX } from "react"
 import { CheckCircle } from "lucide-react"
 
 import { Badge } from "@/components/atoms/badge"
+import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
 import { productPageCopy } from "@/lib/copy/productPage"
 
@@ -42,7 +43,6 @@ interface ProductDetailHeroProps {
   tagline?: string | null
   logo: string
   category: { label: string; href: string }
-  typeLabel: string
   owner: { name: string; href: string }
   badges: HeroBadge[]
   isVerified: boolean
@@ -52,6 +52,11 @@ interface ProductDetailHeroProps {
   tags: HeroTag[]
   stats: HeroStat[]
   supportCard: JSX.Element
+  reviewPrompt?: {
+    isSignedIn: boolean
+    redirectUrl: string
+    hasReviews: boolean
+  }
 }
 
 export function ProductDetailHero({
@@ -59,7 +64,6 @@ export function ProductDetailHero({
   tagline,
   logo,
   category,
-  typeLabel,
   owner,
   badges,
   isVerified,
@@ -69,12 +73,14 @@ export function ProductDetailHero({
   tags,
   stats,
   supportCard,
+  reviewPrompt,
 }: ProductDetailHeroProps) {
   const { hero } = productPageCopy
   const hasSecondaryLinks = secondaryLinks.length > 0
   const hasPlatforms = platforms.length > 0
   const hasTags = tags.length > 0
   const hasStats = stats.length > 0
+  const reviewCopy = productPageCopy.reviewPrompt
 
   return (
     <div className="relative">
@@ -105,28 +111,16 @@ export function ProductDetailHero({
                   <h1 className="text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
                     {name}
                   </h1>
-                  {tagline ? (
-                    <p className="max-w-2xl text-base text-muted-foreground sm:text-lg">
-                      {tagline}
-                    </p>
-                  ) : null}
+                {tagline ? (
+                  <p className="max-w-2xl text-base text-slate-600 sm:text-lg dark:text-slate-200/90">
+                    {tagline}
+                  </p>
+                ) : null}
                 </div>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              <Link
-                href={category.href}
-                aria-label={`${name} primary category ${category.label}`}
-                className="inline-flex"
-              >
-                <Badge className="rounded-full border border-slate-200/40 bg-white/40 px-3 py-1 text-[color:var(--brand-1)] backdrop-blur transition hover:border-[color:var(--brand-1)/0.35] dark:border-slate-700/40 dark:bg-slate-900/60">
-                  {category.label}
-                </Badge>
-              </Link>
-              <Badge className="rounded-full border border-slate-200/40 bg-white/35 px-3 py-1 text-[color:var(--brand-1)] uppercase tracking-[0.12em] dark:border-slate-700/40 dark:bg-slate-900/60">
-                {typeLabel}
-              </Badge>
               {isVerified ? (
                 <Badge className="flex items-center gap-1 rounded-full border border-[color:var(--brand-2)/0.35] bg-[color:var(--brand-2)/0.12] px-3 py-1 text-[color:var(--brand-2)]">
                   <CheckCircle className="size-3" aria-hidden /> Verified domain
@@ -146,7 +140,7 @@ export function ProductDetailHero({
               ))}
             </div>
 
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-slate-600 dark:text-slate-200/90">
               {hero.ownerPrefix}{" "}
               <Link
                 href={owner.href}
@@ -204,19 +198,58 @@ export function ProductDetailHero({
               </div>
             </div>
           ) : null}
+
+          {reviewPrompt ? (
+            <div className="rounded-[28px] bg-white px-6 py-5 ring-1 ring-slate-200/70 shadow-[0_24px_70px_-55px_rgba(7,58,104,0.35)] dark:bg-slate-900/80 dark:ring-slate-800/50">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <p className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
+                    {reviewCopy.heading}
+                  </p>
+                  <p className="text-sm text-slate-600 dark:text-slate-200/90">
+                    {reviewCopy.body}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  {reviewPrompt.isSignedIn ? (
+                    <Button asChild size="sm" className="px-4">
+                      <Link href="#product-review-form">
+                        {reviewPrompt.hasReviews
+                          ? reviewCopy.signedInCta
+                          : `Be the first to review ${name}`}
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button
+                      asChild
+                      size="sm"
+                      className="px-4"
+                      variant="outline"
+                    >
+                      <Link
+                        href={`/sign-in?redirect_url=${encodeURIComponent(reviewPrompt.redirectUrl)}`}
+                      >
+                        {reviewCopy.signedOutCta}
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-28">
           {supportCard}
           {hasStats ? (
-            <div className="rounded-3xl bg-white/85 p-5 ring-1 ring-slate-200/60 shadow-[0_24px_80px_-60px_rgba(7,58,104,0.45)] backdrop-blur dark:bg-slate-900/80 dark:ring-slate-800/50">
-              <p className="text-[11px] uppercase tracking-[0.3em] text-slate-500 dark:text-slate-300">
-                {hero.statsLabel}
+            <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200/70 shadow-[0_24px_80px_-60px_rgba(7,58,104,0.35)] dark:bg-slate-900/85 dark:ring-slate-800/60">
+              <p className="text-[11px] uppercase tracking-[0.3em] text-slate-600 dark:text-slate-300">
+                Voyage details
               </p>
               <dl className="mt-4 space-y-3">
                 {stats.map((stat) => (
                   <div key={stat.label} className="space-y-1">
-                    <dt className="text-[11px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+                    <dt className="text-[11px] uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300">
                       {stat.label}
                     </dt>
                     <dd className="text-base font-semibold text-foreground">

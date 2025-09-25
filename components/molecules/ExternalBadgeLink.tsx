@@ -28,13 +28,14 @@ export function ExternalBadgeLink({
   rel?: string
   className?: string
 }) {
+  const badgeClass = cn("cursor-pointer", className)
   if (!follow && productId) {
     return (
       <form action={clickExternalProductLinkAction} method="post">
         <input type="hidden" name="productId" value={productId} />
         <input type="hidden" name="to" value={href} />
-        <button type="submit">
-          <Badge variant={variant ?? "default"} className={cn(className)}>
+        <button type="submit" className="cursor-pointer">
+          <Badge variant={variant ?? "default"} className={badgeClass}>
             {children}
           </Badge>
         </button>
@@ -42,8 +43,8 @@ export function ExternalBadgeLink({
     )
   }
   return (
-    <Link href={href} target={target} rel={rel}>
-      <Badge variant={variant ?? "default"} className={cn(className)}>
+    <Link href={href} target={target} rel={rel} className="cursor-pointer">
+      <Badge variant={variant ?? "default"} className={badgeClass}>
         {children}
       </Badge>
     </Link>
