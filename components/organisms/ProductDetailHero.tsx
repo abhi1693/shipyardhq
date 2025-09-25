@@ -113,11 +113,11 @@ export function ProductDetailHero({
                   <h1 className="text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
                     {name}
                   </h1>
-                {tagline ? (
-                  <p className="max-w-2xl text-base text-slate-600 sm:text-lg dark:text-slate-200/90">
-                    {tagline}
-                  </p>
-                ) : null}
+                  {tagline ? (
+                    <p className="max-w-2xl text-base text-slate-600 sm:text-lg dark:text-slate-200/90">
+                      {tagline}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -161,7 +161,6 @@ export function ProductDetailHero({
                 ))}
               </div>
             ) : null}
-
           </header>
 
           {hasPlatforms ? (

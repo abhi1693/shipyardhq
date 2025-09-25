@@ -21,6 +21,7 @@ import {
   getPublicUseCaseWithProducts,
   getPublicUseCasesWithCounts,
 } from "@/actions/public/use-cases/actions"
+import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
@@ -293,6 +294,17 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
             <Link href={MEMBER_PRODUCTS_PATH}>Add your product</Link>
           </Button>
         </div>
+      </PublicContainer>
+
+      <PublicContainer
+        as="section"
+        max="marketing"
+        paddingY="py-16"
+        fillScreen={false}
+        className="relative"
+        innerClassName="overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60"
+      >
+        <NewsletterSignupSection />
       </PublicContainer>
     </main>
   )

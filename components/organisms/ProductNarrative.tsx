@@ -33,7 +33,11 @@ export function ProductNarrative({ description }: ProductNarrativeProps) {
                 ),
                 img: (props) => (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img {...props} alt={(props as any).alt || ""} className="rounded-xl" />
+                  <img
+                    {...props}
+                    alt={(props as any).alt || ""}
+                    className="rounded-xl"
+                  />
                 ),
               }}
             >

@@ -116,7 +116,6 @@ export default function ProductReviewsSection({
             </div>
           )}
         </div>
-
       </div>
     </section>
   )

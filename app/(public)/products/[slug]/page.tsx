@@ -41,6 +41,7 @@ import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import { ProductNarrative } from "@/components/organisms/ProductNarrative"
 import { ProductCrewRoster } from "@/components/organisms/ProductCrewRoster"
 import { ProductSimilarVoyages } from "@/components/organisms/ProductSimilarVoyages"
+import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -444,7 +445,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             productName={product.name}
           />
         ) : null}
-        <ProductNarrative description={hasDescription ? product.description : null} />
+        <ProductNarrative
+          description={hasDescription ? product.description : null}
+        />
         <ProductReviewsSection
           productId={product.id}
           productName={product.name}
@@ -476,6 +479,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           headingSuffix={useCase?.label || null}
           browseHref={`${BROWSE_PATH}?useCase=${useCase?.slug || ""}`}
         />
+      </PublicContainer>
+
+      <PublicContainer
+        as="section"
+        max="marketing"
+        paddingY="py-16"
+        fillScreen={false}
+        className="relative"
+        innerClassName="overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60"
+      >
+        <NewsletterSignupSection />
       </PublicContainer>
     </main>
   )
@@ -512,9 +526,7 @@ async function getProductReviewSummary(productId: string, take = 12) {
 }
 
 async function getUserProductReview(productId: string, userId: string) {
-  const { getUserProductReview } = await import(
-    "@/lib/server/productReviews"
-  )
+  const { getUserProductReview } = await import("@/lib/server/productReviews")
   return getUserProductReview(productId, userId)
 }
 

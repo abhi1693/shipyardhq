@@ -1,6 +1,9 @@
 import Link from "next/link"
 
-import { ProductCompactGrid, type CompactProductItem } from "@/components/molecules/ProductCompactGrid"
+import {
+  ProductCompactGrid,
+  type CompactProductItem,
+} from "@/components/molecules/ProductCompactGrid"
 import { productPageCopy } from "@/lib/copy/productPage"
 
 interface ProductSimilarVoyagesProps<T extends CompactProductItem> {

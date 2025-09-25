@@ -29,6 +29,7 @@ import {
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
 } from "@/lib/routes"
+import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 
 export const metadata = buildPageMetadata({
   title: "Product Leaderboard",
@@ -222,6 +223,17 @@ export default async function LeaderboardPage({
             </div>
           ) : null}
         </div>
+      </PublicContainer>
+
+      <PublicContainer
+        as="section"
+        max="marketing"
+        paddingY="py-16"
+        fillScreen={false}
+        className="relative"
+        innerClassName="overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60"
+      >
+        <NewsletterSignupSection />
       </PublicContainer>
 
       <PublicContainer

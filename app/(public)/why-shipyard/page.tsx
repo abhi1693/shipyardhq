@@ -13,6 +13,7 @@ import PublicContainer from "@/components/layout/PublicContainer"
 import { Button } from "@/components/atoms/button"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, PRICING_PATH } from "@/lib/routes"
+import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 
 const HERO_HIGHLIGHTS = [
   {
@@ -447,6 +448,17 @@ export default function WhyShipyardPage() {
             </Link>
           </div>
         </div>
+      </PublicContainer>
+
+      <PublicContainer
+        as="section"
+        max="marketing"
+        paddingY="py-16"
+        className="relative"
+        fillScreen={false}
+        innerClassName="overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60"
+      >
+        <NewsletterSignupSection />
       </PublicContainer>
     </main>
   )
