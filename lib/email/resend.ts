@@ -122,7 +122,10 @@ export class RateLimitedEmailSender implements EmailSender {
     }
 
     const task = this.queue.then(execute)
-    this.queue = task.then(() => undefined, () => undefined)
+    this.queue = task.then(
+      () => undefined,
+      () => undefined,
+    )
     return task
   }
 
@@ -139,10 +142,7 @@ export class RateLimitedEmailSender implements EmailSender {
       }
 
       const earliest = this.timestamps[0]
-      const waitTime = Math.max(
-        0,
-        this.config.intervalMs - (now - earliest),
-      )
+      const waitTime = Math.max(0, this.config.intervalMs - (now - earliest))
 
       await wait(waitTime)
     }
@@ -170,9 +170,4 @@ export async function sendEmail(options: SendEmailOptions) {
   return activeEmailSender.send(options)
 }
 
-export type {
-  EmailSender,
-  RateLimitConfig,
-  SendEmailOptions,
-  SendEmailResult,
-}
+export type { EmailSender, RateLimitConfig, SendEmailOptions, SendEmailResult }
