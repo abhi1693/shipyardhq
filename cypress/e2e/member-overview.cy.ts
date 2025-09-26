@@ -57,7 +57,9 @@ describe("Member overview command deck", () => {
       cy.contains("Most clicked").should("be.visible")
       cy.contains("Most upvoted").should("be.visible")
 
-      cy.story("To wrap up, they review badges, launches, and portfolio health.")
+      cy.story(
+        "To wrap up, they review badges, launches, and portfolio health.",
+      )
       cy.contains("Performance pulse").scrollIntoView().should("be.visible")
       cy.contains("Fresh off the deck").should("be.visible")
       cy.contains("Manage badges").should("be.visible")

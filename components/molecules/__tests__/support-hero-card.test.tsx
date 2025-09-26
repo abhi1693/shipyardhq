@@ -44,7 +44,9 @@ describe("SupportHeroCard", () => {
     render(<SupportHeroCard {...baseProps} isSignedIn={false} />)
 
     expect(
-      screen.getByText(/sign in to add your vote and help this launch get discovered/i),
+      screen.getByText(
+        /sign in to add your vote and help this launch get discovered/i,
+      ),
     ).toBeInTheDocument()
   })
 })

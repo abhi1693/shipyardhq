@@ -1,8 +1,5 @@
 import prisma from "@/lib/prisma"
-import {
-  buildCacheKey,
-  namespaceCacheKey,
-} from "@/lib/server/cache"
+import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
 import { getRedisClient, type RedisClient } from "@/lib/server/redis"
 
 export type VoteState = "upvoted" | "not_upvoted"
@@ -18,11 +15,15 @@ const PENDING_PRODUCTS_KEY = namespaceCacheKey(
 )
 
 function pendingVotesKey(productId: string) {
-  return namespaceCacheKey(buildCacheKey("product", productId, "votes", "pending"))
+  return namespaceCacheKey(
+    buildCacheKey("product", productId, "votes", "pending"),
+  )
 }
 
 function pendingDeltaKey(productId: string) {
-  return namespaceCacheKey(buildCacheKey("product", productId, "votes", "delta"))
+  return namespaceCacheKey(
+    buildCacheKey("product", productId, "votes", "delta"),
+  )
 }
 
 function toVoteState(flag: boolean): VoteState {
@@ -44,8 +45,10 @@ function decodeRecord(raw: string | null): PendingVoteRecord | null {
   try {
     const parsed = JSON.parse(raw) as PendingVoteRecord
     if (
-      (parsed.desiredState === "upvoted" || parsed.desiredState === "not_upvoted") &&
-      (parsed.persistedState === "upvoted" || parsed.persistedState === "not_upvoted") &&
+      (parsed.desiredState === "upvoted" ||
+        parsed.desiredState === "not_upvoted") &&
+      (parsed.persistedState === "upvoted" ||
+        parsed.persistedState === "not_upvoted") &&
       typeof parsed.updatedAt === "number"
     ) {
       return parsed
@@ -152,7 +155,8 @@ export async function setDesiredVoteState({
   )
   const existingRecord = providedRecord ?? record
   const effectivePersisted =
-    persistedState ?? existingRecord?.persistedState ??
+    persistedState ??
+    existingRecord?.persistedState ??
     (await fetchPersistedState(productId, userId))
 
   if (!client) {
@@ -178,7 +182,10 @@ export async function setDesiredVoteState({
   const prevDelta = previous
     ? computeDelta(previous.desiredState, previous.persistedState)
     : 0
-  const nextDelta = computeDelta(nextRecord.desiredState, nextRecord.persistedState)
+  const nextDelta = computeDelta(
+    nextRecord.desiredState,
+    nextRecord.persistedState,
+  )
   const deltaChange = nextDelta - prevDelta
 
   // If no change from persisted state and no stored record, skip.
@@ -438,5 +445,9 @@ export async function flushPendingVotesToDatabase(): Promise<FlushVotesResult> {
     await clearPendingVotes(productId, client)
   }
 
-  return { processedProductIds, additions: totalAdditions, removals: totalRemovals }
+  return {
+    processedProductIds,
+    additions: totalAdditions,
+    removals: totalRemovals,
+  }
 }
