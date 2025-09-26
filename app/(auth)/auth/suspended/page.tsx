@@ -17,7 +17,7 @@ export default function SuspendedAccountPage() {
         or terminated.
       </p>
       <Link
-        href="mailto:support@shipyardhq.com"
+        href="mailto:support@shipyardhq.dev"
         className="text-primary underline-offset-4 hover:underline"
       >
         Contact support

@@ -162,7 +162,7 @@ export default async function CategoriesPage() {
             trends, then spotlight the first wave of launches.
           </p>
           <Button asChild size="lg" variant="secondary">
-            <a href="mailto:hello@shipyardhq.com">Suggest a category</a>
+            <a href="mailto:support@shipyardhq.dev">Suggest a category</a>
           </Button>
         </div>
       </PublicContainer>

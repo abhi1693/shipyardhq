@@ -274,7 +274,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ])
 
   const baseUrl = (
-    process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.com"
+    process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
   ).replace(/\/$/, "")
   const canonicalUrl = `${baseUrl}${productPath(product.slug)}`
   const structuredData =

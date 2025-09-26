@@ -220,7 +220,7 @@ function OrganizationPlanOptions({
         organizations for your account.
         <div className="mt-3">
           <Button asChild variant="outline" className="w-fit">
-            <a href="mailto:support@shipyardhq.com">Contact support</a>
+            <a href="mailto:support@shipyardhq.dev">Contact support</a>
           </Button>
         </div>
       </div>
