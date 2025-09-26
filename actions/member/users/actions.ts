@@ -2,7 +2,7 @@
 
 import { type User as ClerkUser } from "@clerk/backend"
 import prisma from "@/lib/prisma"
-import { clerkClient } from "@clerk/nextjs/server"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
 export async function syncUserFromClerk(clerkUser: ClerkUser) {
   const email = clerkUser.emailAddresses[0]?.emailAddress
@@ -45,8 +45,7 @@ export async function getUserByClerkId(clerkId: string) {
   }
 
   try {
-    const client = await clerkClient()
-    const clerkUser = await client.users.getUser(clerkId)
+    const clerkUser = await getClerkUserByIdCached(clerkId)
     await syncUserFromClerk(clerkUser)
   } catch (error) {
     console.error("Failed to sync user from Clerk:", error)

@@ -8,6 +8,20 @@ const mocks = vi.hoisted(() => ({
   queryRaw: vi.fn(),
 }))
 
+const prismaMock = vi.hoisted(() => ({
+  productUpvote: {
+    findUnique: vi.fn(),
+    create: vi.fn(),
+    delete: vi.fn(),
+  },
+  productAnalytics: {
+    upsert: vi.fn(),
+    update: vi.fn(),
+  },
+  $transaction: vi.fn(),
+  $queryRaw: mocks.queryRaw,
+}))
+
 vi.mock("@clerk/nextjs/server", () => ({
   auth: mocks.auth,
 }))
@@ -23,9 +37,7 @@ vi.mock("@/lib/server/userStatus", () => ({
 }))
 
 vi.mock("@/lib/prisma", () => ({
-  default: {
-    $queryRaw: mocks.queryRaw,
-  },
+  default: prismaMock,
 }))
 
 import type { UpvoteState } from "../upvote"
@@ -39,6 +51,35 @@ describe("upvoteProductAction", () => {
 
     mocks.auth.mockResolvedValue({ userId: "clerk_123" })
     mocks.getActiveUser.mockResolvedValue({ id: "user_123" })
+
+    Object.values(prismaMock.productUpvote).forEach((fn) => fn.mockReset())
+    Object.values(prismaMock.productAnalytics).forEach((fn) => fn.mockReset())
+    prismaMock.$transaction.mockReset()
+    mocks.queryRaw.mockReset()
+
+    prismaMock.productUpvote.findUnique.mockResolvedValue(null)
+    prismaMock.productUpvote.create.mockResolvedValue({ id: "product-upvote" })
+    prismaMock.productUpvote.delete.mockResolvedValue({})
+    prismaMock.productAnalytics.upsert.mockResolvedValue({
+      productId: "prod_123",
+    })
+    prismaMock.productAnalytics.update.mockResolvedValue({
+      productId: "prod_123",
+    })
+
+    prismaMock.$transaction.mockImplementation(async (operation: any) =>
+      operation({
+        productUpvote: {
+          findUnique: prismaMock.productUpvote.findUnique,
+          create: prismaMock.productUpvote.create,
+          delete: prismaMock.productUpvote.delete,
+        },
+        productAnalytics: {
+          upsert: prismaMock.productAnalytics.upsert,
+          update: prismaMock.productAnalytics.update,
+        },
+      }),
+    )
   })
 
   it("creates a new upvote when none exists", async () => {
@@ -60,6 +101,8 @@ describe("upvoteProductAction", () => {
   it("removes an existing upvote and clamps analytics count", async () => {
     const formData = new FormData()
     formData.set("productId", "prod_123")
+
+    prismaMock.productUpvote.findUnique.mockResolvedValue({ id: "existing" })
 
     mocks.queryRaw.mockResolvedValueOnce([
       { upvotes: 4, upvoted: false, delta: -1 },

@@ -1,9 +1,7 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest"
 
 const authMock = vi.hoisted(() => vi.fn())
-const clerkClientMock = vi.hoisted(() => vi.fn())
-const getUserMock = vi.hoisted(() => vi.fn())
-const updateUserMock = vi.hoisted(() => vi.fn())
+const getClerkUserByIdCachedMock = vi.hoisted(() => vi.fn())
 const cookiesMock = vi.hoisted(() => vi.fn())
 const cookieSetMock = vi.hoisted(() => vi.fn())
 const prismaUserUpdateManyMock = vi.hoisted(() => vi.fn())
@@ -15,7 +13,10 @@ const sendEmailMock = vi.hoisted(() => vi.fn())
 
 vi.mock("@clerk/nextjs/server", () => ({
   auth: authMock,
-  clerkClient: clerkClientMock,
+}))
+
+vi.mock("@/lib/server/clerkUsers", () => ({
+  getClerkUserByIdCached: getClerkUserByIdCachedMock,
 }))
 
 vi.mock("next/headers", () => ({
@@ -58,14 +59,7 @@ describe("completeOnboarding", () => {
     process.env.NEXT_PUBLIC_APP_URL = "https://app.shipyard.test"
 
     authMock.mockResolvedValue({ userId: "user_123" })
-    getUserMock.mockResolvedValue({ id: "user_123" })
-    updateUserMock.mockResolvedValue({})
-    clerkClientMock.mockResolvedValue({
-      users: {
-        getUser: getUserMock,
-        updateUser: updateUserMock,
-      },
-    })
+    getClerkUserByIdCachedMock.mockResolvedValue({ id: "user_123" })
 
     cookiesMock.mockResolvedValue(cookieStoreMock)
     cookieSetMock.mockReset()

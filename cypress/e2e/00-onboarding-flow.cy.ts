@@ -1,7 +1,4 @@
-import {
-  MEMBER_ONBOARDING_PATH,
-  MEMBER_OVERVIEW_PATH,
-} from "../../lib/routes"
+import { MEMBER_ONBOARDING_PATH, MEMBER_OVERVIEW_PATH } from "../../lib/routes"
 
 const ROLE_OPTION_LABEL = "Launch a product"
 const HEARD_FROM_LABEL = "Twitter/X"
@@ -39,9 +36,7 @@ describe("Member onboarding flow", () => {
 
     cy.story("Members are routed into the command deck")
     cy.url().should("include", MEMBER_OVERVIEW_PATH)
-    cy.contains("Member Command Deck", { timeout: 10000 }).should(
-      "be.visible",
-    )
+    cy.contains("Member Command Deck", { timeout: 10000 }).should("be.visible")
 
     cy.story("Revisiting onboarding bounces back to the hub")
     cy.visit(MEMBER_ONBOARDING_PATH)

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-import { auth, clerkClient } from "@clerk/nextjs/server"
+import { auth } from "@clerk/nextjs/server"
 
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import {
@@ -11,6 +11,7 @@ import {
   MEMBER_OVERVIEW_PATH,
 } from "@/lib/routes"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
 function resolvePostOnboardingDestination(nextUrl: string) {
   if (!nextUrl) {
@@ -53,8 +54,7 @@ export default async function MemberOnboardingLayout({
   }
 
   try {
-    const client = await clerkClient()
-    const clerkUser = await client.users.getUser(userId)
+    const clerkUser = await getClerkUserByIdCached(userId)
     await syncUserFromClerk(clerkUser)
   } catch (error) {
     console.error("Failed to prepare onboarding user context", error)

@@ -6,6 +6,7 @@ import { upvoteProductAction } from "@/actions/public/products/upvote"
 import { hasUserUpvoted } from "@/actions/public/products/actions"
 import { auth } from "@clerk/nextjs/server"
 import { BADGE_OPTIONS } from "@/lib/constants"
+import { getLiveUpvoteCount } from "@/lib/server/productVotesStore"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import {
   getPublicProductBySlug,
@@ -107,11 +108,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   if (!product) return notFound()
 
   const isVerified = product.verification?.isVerified
-  const stats = product.analytics
   const authResult = await auth()
 
   const userId = authResult.userId
-  const userUpvoted = userId ? await hasUserUpvoted(product.id, userId) : false
+  const liveUpvotesPromise = getLiveUpvoteCount(product.id)
+  const userUpvotedPromise = userId
+    ? await hasUserUpvoted(product.id, userId)
+    : Promise.resolve(false)
+  const [upvoteCount, userUpvoted] = await Promise.all([
+    liveUpvotesPromise,
+    userUpvotedPromise,
+  ])
 
   const activeBadgeDefs = (product.badges || [])
     .map((b) => BADGE_OPTIONS.find((x) => x.value === b))
@@ -123,7 +130,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     className: badgeColorMap[badge.color as TailwindColor],
   }))
 
-  const upvoteCount = stats?.upvotes ?? 0
   const pricingDisplay =
     product.startingPriceCents !== null &&
     product.startingPriceCents !== undefined
