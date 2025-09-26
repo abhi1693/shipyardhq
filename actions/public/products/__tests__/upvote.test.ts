@@ -60,8 +60,12 @@ describe("upvoteProductAction", () => {
     prismaMock.productUpvote.findUnique.mockResolvedValue(null)
     prismaMock.productUpvote.create.mockResolvedValue({ id: "product-upvote" })
     prismaMock.productUpvote.delete.mockResolvedValue({})
-    prismaMock.productAnalytics.upsert.mockResolvedValue({ productId: "prod_123" })
-    prismaMock.productAnalytics.update.mockResolvedValue({ productId: "prod_123" })
+    prismaMock.productAnalytics.upsert.mockResolvedValue({
+      productId: "prod_123",
+    })
+    prismaMock.productAnalytics.update.mockResolvedValue({
+      productId: "prod_123",
+    })
 
     prismaMock.$transaction.mockImplementation(async (operation: any) =>
       operation({

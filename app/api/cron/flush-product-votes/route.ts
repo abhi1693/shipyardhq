@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 
-import { revalidateLeaderboard, revalidateProduct } from "@/lib/cache/revalidate"
+import {
+  revalidateLeaderboard,
+  revalidateProduct,
+} from "@/lib/cache/revalidate"
 import { flushPendingVotesToDatabase } from "@/lib/server/productVotesStore"
 
 export const runtime = "nodejs"

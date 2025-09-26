@@ -42,12 +42,12 @@ type CategoryWithCount = Prisma.CategoryGetPayload<{
       select: {
         products: {
           where: {
-            status: "published",
-          },
-        },
-      },
-    },
-  },
+            status: "published"
+          }
+        }
+      }
+    }
+  }
 }>
 
 export const getCategoriesWithCounts = cached(
