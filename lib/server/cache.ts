@@ -45,7 +45,7 @@ function buildCacheKeyFromArray(parts: CacheKeyArray): string {
 }
 
 function resolveCacheKeyInput(key: CacheKeyInput): string {
-  return Array.isArray(key) ? buildCacheKeyFromArray(key) : key
+  return typeof key === "string" ? key : buildCacheKeyFromArray(key)
 }
 
 async function resolveCacheClient(): Promise<CacheClient | null> {
