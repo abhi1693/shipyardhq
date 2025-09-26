@@ -1,9 +1,5 @@
 import prisma from "@/lib/prisma"
-import {
-  buildCacheKey,
-  cacheHit,
-  cacheMiss,
-} from "@/lib/server/cache"
+import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import {
   getPreviousMonth,
@@ -139,9 +135,7 @@ function serializeLeaderboardAnalytics(
 function deserializeLeaderboardAnalytics(
   value: string,
 ): LeaderboardScoringAnalytics {
-  const parsed = JSON.parse(
-    value,
-  ) as SerializableLeaderboardScoringAnalytics
+  const parsed = JSON.parse(value) as SerializableLeaderboardScoringAnalytics
 
   return {
     ...parsed,
@@ -206,11 +200,7 @@ export async function getLeaderboardScoringAnalytics(
   const limit = Math.min(Math.max(options.limit ?? 50, 1), 200)
   const historyMonths = Math.min(Math.max(options.historyMonths ?? 6, 1), 24)
 
-  const cacheKey = buildLeaderboardCacheKey(
-    options.month,
-    limit,
-    historyMonths,
-  )
+  const cacheKey = buildLeaderboardCacheKey(options.month, limit, historyMonths)
 
   const cachedAnalytics = await cacheHit<LeaderboardScoringAnalytics>({
     key: cacheKey,

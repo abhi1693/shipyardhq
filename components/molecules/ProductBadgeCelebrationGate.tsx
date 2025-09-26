@@ -42,7 +42,11 @@ export default function ProductBadgeCelebrationGate({
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen)
-    if (!nextOpen && typeof window !== "undefined" && shouldCleanQuery.current) {
+    if (
+      !nextOpen &&
+      typeof window !== "undefined" &&
+      shouldCleanQuery.current
+    ) {
       const url = new URL(window.location.href)
       if (url.searchParams.has(CELEBRATE_QUERY_KEY)) {
         url.searchParams.delete(CELEBRATE_QUERY_KEY)

@@ -5,11 +5,7 @@ import {
   getHeardFromLabel,
   getRoleIntentLabel,
 } from "@/lib/server/analytics/onboardingSummary"
-import {
-  buildCacheKey,
-  cacheHit,
-  cacheMiss,
-} from "@/lib/server/cache"
+import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import type {
   IntentOutcomeAnalytics,
@@ -312,219 +308,219 @@ export async function getIntentOutcomeAnalytics(
     return analytics
   }
 
-    const cohorts = new Map<string, CohortAccumulator>()
-    const globalStages = createStageState()
-    const summaryRetentionCounts = createRetentionCounts()
-    const userMap = new Map(
-      users.map((user) => {
-        const cohort = ensureCohort(cohorts, user.roleIntent, user.heardFrom)
-        cohort.totalUsers += 1
-        return [
-          user.id,
-          {
-            ...user,
-            cohort,
-          },
-        ]
-      }),
-    )
+  const cohorts = new Map<string, CohortAccumulator>()
+  const globalStages = createStageState()
+  const summaryRetentionCounts = createRetentionCounts()
+  const userMap = new Map(
+    users.map((user) => {
+      const cohort = ensureCohort(cohorts, user.roleIntent, user.heardFrom)
+      cohort.totalUsers += 1
+      return [
+        user.id,
+        {
+          ...user,
+          cohort,
+        },
+      ]
+    }),
+  )
 
-    const retentionByUser = new Map<
-      string,
-      Set<(typeof RETENTION_THRESHOLDS)[number]>
-    >()
-    for (const userId of userMap.keys()) {
-      retentionByUser.set(userId, new Set())
-    }
+  const retentionByUser = new Map<
+    string,
+    Set<(typeof RETENTION_THRESHOLDS)[number]>
+  >()
+  for (const userId of userMap.keys()) {
+    retentionByUser.set(userId, new Set())
+  }
 
-    const userIds = Array.from(userMap.keys())
+  const userIds = Array.from(userMap.keys())
 
-    let productRows: StageRow[] = []
-    let membershipRows: StageRow[] = []
-    let upvoteRows: StageRow[] = []
-    let feedbackRows: StageRow[] = []
-    let purchaseRows: StageRow[] = []
-    let trafficEvents: TrafficEvent[] = []
-    let upvoteEvents: UpvoteEvent[] = []
-    let purchaseEvents: PurchaseEvent[] = []
+  let productRows: StageRow[] = []
+  let membershipRows: StageRow[] = []
+  let upvoteRows: StageRow[] = []
+  let feedbackRows: StageRow[] = []
+  let purchaseRows: StageRow[] = []
+  let trafficEvents: TrafficEvent[] = []
+  let upvoteEvents: UpvoteEvent[] = []
+  let purchaseEvents: PurchaseEvent[] = []
 
-    if (userIds.length) {
-      ;[
-        productRows,
-        membershipRows,
-        upvoteRows,
-        feedbackRows,
-        purchaseRows,
-        trafficEvents,
-        upvoteEvents,
-        purchaseEvents,
-      ] = await Promise.all([
-        prisma.product.groupBy({
-          by: ["userId"],
-          where: {
+  if (userIds.length) {
+    ;[
+      productRows,
+      membershipRows,
+      upvoteRows,
+      feedbackRows,
+      purchaseRows,
+      trafficEvents,
+      upvoteEvents,
+      purchaseEvents,
+    ] = await Promise.all([
+      prisma.product.groupBy({
+        by: ["userId"],
+        where: {
+          userId: { in: userIds },
+        },
+        _count: { _all: true },
+        _min: { createdAt: true },
+      }) as unknown as StageRow[],
+      prisma.organizationMembership.groupBy({
+        by: ["userId"],
+        where: {
+          userId: { in: userIds },
+        },
+        _count: { _all: true },
+        _min: { createdAt: true },
+      }) as unknown as StageRow[],
+      prisma.productUpvote.groupBy({
+        by: ["userId"],
+        where: {
+          userId: { in: userIds },
+        },
+        _count: { _all: true },
+        _min: { createdAt: true },
+      }) as unknown as StageRow[],
+      prisma.memberFeedback.groupBy({
+        by: ["userId"],
+        where: {
+          userId: { in: userIds },
+        },
+        _count: { _all: true },
+        _min: { createdAt: true },
+      }) as unknown as StageRow[],
+      prisma.userPlanPurchase.groupBy({
+        by: ["userId"],
+        where: {
+          userId: { in: userIds },
+        },
+        _count: { _all: true },
+        _min: { createdAt: true },
+      }) as unknown as StageRow[],
+      prisma.productTrafficEvent.findMany({
+        where: {
+          createdAt: { gte: rangeStart },
+          product: {
             userId: { in: userIds },
           },
-          _count: { _all: true },
-          _min: { createdAt: true },
-        }) as unknown as StageRow[],
-        prisma.organizationMembership.groupBy({
-          by: ["userId"],
-          where: {
-            userId: { in: userIds },
-          },
-          _count: { _all: true },
-          _min: { createdAt: true },
-        }) as unknown as StageRow[],
-        prisma.productUpvote.groupBy({
-          by: ["userId"],
-          where: {
-            userId: { in: userIds },
-          },
-          _count: { _all: true },
-          _min: { createdAt: true },
-        }) as unknown as StageRow[],
-        prisma.memberFeedback.groupBy({
-          by: ["userId"],
-          where: {
-            userId: { in: userIds },
-          },
-          _count: { _all: true },
-          _min: { createdAt: true },
-        }) as unknown as StageRow[],
-        prisma.userPlanPurchase.groupBy({
-          by: ["userId"],
-          where: {
-            userId: { in: userIds },
-          },
-          _count: { _all: true },
-          _min: { createdAt: true },
-        }) as unknown as StageRow[],
-        prisma.productTrafficEvent.findMany({
-          where: {
-            createdAt: { gte: rangeStart },
-            product: {
-              userId: { in: userIds },
-            },
-          },
-          select: {
-            createdAt: true,
-            product: { select: { userId: true } },
-          },
-        }) as unknown as TrafficEvent[],
-        prisma.productUpvote.findMany({
-          where: {
-            userId: { in: userIds },
-            createdAt: { gte: rangeStart },
-          },
-          select: {
-            userId: true,
-            createdAt: true,
-          },
-        }) as unknown as UpvoteEvent[],
-        prisma.userPlanPurchase.findMany({
-          where: {
-            userId: { in: userIds },
-            createdAt: { gte: rangeStart },
-          },
-          select: {
-            userId: true,
-            createdAt: true,
-          },
-        }) as unknown as PurchaseEvent[],
-      ])
-    }
+        },
+        select: {
+          createdAt: true,
+          product: { select: { userId: true } },
+        },
+      }) as unknown as TrafficEvent[],
+      prisma.productUpvote.findMany({
+        where: {
+          userId: { in: userIds },
+          createdAt: { gte: rangeStart },
+        },
+        select: {
+          userId: true,
+          createdAt: true,
+        },
+      }) as unknown as UpvoteEvent[],
+      prisma.userPlanPurchase.findMany({
+        where: {
+          userId: { in: userIds },
+          createdAt: { gte: rangeStart },
+        },
+        select: {
+          userId: true,
+          createdAt: true,
+        },
+      }) as unknown as PurchaseEvent[],
+    ])
+  }
 
-    const stageRowMap: Record<StageKey, StageRow[]> = {
-      shippedProduct: productRows,
-      joinedOrganization: membershipRows,
-      upvotedProduct: upvoteRows,
-      submittedFeedback: feedbackRows,
-      purchasedPlan: purchaseRows,
-    }
+  const stageRowMap: Record<StageKey, StageRow[]> = {
+    shippedProduct: productRows,
+    joinedOrganization: membershipRows,
+    upvotedProduct: upvoteRows,
+    submittedFeedback: feedbackRows,
+    purchasedPlan: purchaseRows,
+  }
 
-    for (const stage of STAGE_CONFIG) {
-      const rows = stageRowMap[stage.key]
-      for (const row of rows) {
-        const user = userMap.get(row.userId)
-        if (!user) continue
-        const cohort = user.cohort
-        const stageAccumulator = cohort.stages[stage.key]
-        const globalAccumulator = globalStages[stage.key]
+  for (const stage of STAGE_CONFIG) {
+    const rows = stageRowMap[stage.key]
+    for (const row of rows) {
+      const user = userMap.get(row.userId)
+      if (!user) continue
+      const cohort = user.cohort
+      const stageAccumulator = cohort.stages[stage.key]
+      const globalAccumulator = globalStages[stage.key]
 
-        stageAccumulator.count += 1
-        globalAccumulator.count += 1
+      stageAccumulator.count += 1
+      globalAccumulator.count += 1
 
-        const firstEventAt = row._min.createdAt ?? user.createdAt
-        const diffDays = Math.max(
-          differenceInCalendarDays(firstEventAt, user.createdAt),
-          0,
-        )
-
-        for (const bucket of SPEED_BUCKETS) {
-          if (diffDays <= bucket.thresholdDays) {
-            stageAccumulator.thresholds[bucket.thresholdDays] += 1
-            globalAccumulator.thresholds[bucket.thresholdDays] += 1
-          }
-        }
-
-        stageAccumulator.dayDiffs.push(diffDays)
-        globalAccumulator.dayDiffs.push(diffDays)
-      }
-    }
-
-    const markRetention = (userId: string, eventDate: Date | null) => {
-      if (!eventDate) return
-      const user = userMap.get(userId)
-      if (!user) return
+      const firstEventAt = row._min.createdAt ?? user.createdAt
       const diffDays = Math.max(
-        differenceInCalendarDays(eventDate, user.createdAt),
+        differenceInCalendarDays(firstEventAt, user.createdAt),
         0,
       )
-      const bucket = retentionByUser.get(userId)
-      if (!bucket) return
-      for (const threshold of RETENTION_THRESHOLDS) {
-        if (diffDays >= threshold) {
-          bucket.add(threshold)
+
+      for (const bucket of SPEED_BUCKETS) {
+        if (diffDays <= bucket.thresholdDays) {
+          stageAccumulator.thresholds[bucket.thresholdDays] += 1
+          globalAccumulator.thresholds[bucket.thresholdDays] += 1
         }
       }
-    }
 
-    for (const event of trafficEvents) {
-      markRetention(event.product.userId, event.createdAt)
+      stageAccumulator.dayDiffs.push(diffDays)
+      globalAccumulator.dayDiffs.push(diffDays)
     }
+  }
 
-    for (const event of upvoteEvents) {
-      markRetention(event.userId, event.createdAt)
-    }
-
-    for (const event of purchaseEvents) {
-      markRetention(event.userId, event.createdAt)
-    }
-
-    for (const [userId, user] of userMap.entries()) {
-      const thresholds = retentionByUser.get(userId)
-      if (!thresholds?.size) continue
-      for (const threshold of thresholds) {
-        summaryRetentionCounts[threshold] += 1
-        user.cohort.retentionCounts[threshold] += 1
+  const markRetention = (userId: string, eventDate: Date | null) => {
+    if (!eventDate) return
+    const user = userMap.get(userId)
+    if (!user) return
+    const diffDays = Math.max(
+      differenceInCalendarDays(eventDate, user.createdAt),
+      0,
+    )
+    const bucket = retentionByUser.get(userId)
+    if (!bucket) return
+    for (const threshold of RETENTION_THRESHOLDS) {
+      if (diffDays >= threshold) {
+        bucket.add(threshold)
       }
     }
+  }
 
-    const cohortList: IntentOutcomeCohort[] = Array.from(cohorts.values())
-      .map<IntentOutcomeCohort>((cohort) => ({
-        id: cohort.id,
-        roleIntent: cohort.roleIntent,
-        roleIntentLabel: cohort.roleIntentLabel,
-        heardFrom: cohort.heardFrom,
-        heardFromLabel: cohort.heardFromLabel,
-        totalUsers: cohort.totalUsers,
-        stageMetrics: buildStageMetrics(cohort.stages, cohort.totalUsers),
-        retention: buildRetentionMetrics(
-          cohort.retentionCounts,
-          cohort.totalUsers,
-        ),
-      }))
-      .sort((a, b) => b.totalUsers - a.totalUsers)
+  for (const event of trafficEvents) {
+    markRetention(event.product.userId, event.createdAt)
+  }
+
+  for (const event of upvoteEvents) {
+    markRetention(event.userId, event.createdAt)
+  }
+
+  for (const event of purchaseEvents) {
+    markRetention(event.userId, event.createdAt)
+  }
+
+  for (const [userId, user] of userMap.entries()) {
+    const thresholds = retentionByUser.get(userId)
+    if (!thresholds?.size) continue
+    for (const threshold of thresholds) {
+      summaryRetentionCounts[threshold] += 1
+      user.cohort.retentionCounts[threshold] += 1
+    }
+  }
+
+  const cohortList: IntentOutcomeCohort[] = Array.from(cohorts.values())
+    .map<IntentOutcomeCohort>((cohort) => ({
+      id: cohort.id,
+      roleIntent: cohort.roleIntent,
+      roleIntentLabel: cohort.roleIntentLabel,
+      heardFrom: cohort.heardFrom,
+      heardFromLabel: cohort.heardFromLabel,
+      totalUsers: cohort.totalUsers,
+      stageMetrics: buildStageMetrics(cohort.stages, cohort.totalUsers),
+      retention: buildRetentionMetrics(
+        cohort.retentionCounts,
+        cohort.totalUsers,
+      ),
+    }))
+    .sort((a, b) => b.totalUsers - a.totalUsers)
 
   const summary: IntentOutcomeSummary = {
     totalUsers: users.length,

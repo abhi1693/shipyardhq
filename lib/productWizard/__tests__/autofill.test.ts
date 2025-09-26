@@ -43,9 +43,7 @@ describe("normalizeProductAutofill", () => {
       ctaUrl: "https://shipyard.dev/start",
     })
 
-    expect(warnings).toEqual([
-      "demoUrl rejected: invalid URL",
-    ])
+    expect(warnings).toEqual(["demoUrl rejected: invalid URL"])
   })
 
   it("drops unusable fields but keeps partial suggestions", () => {

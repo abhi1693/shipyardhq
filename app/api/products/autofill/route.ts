@@ -41,7 +41,14 @@ type ModelOutput = z.infer<typeof ModelOutputSchema>
 const USER_AGENT = "ShipyardHQ-Autofill/1.0"
 const FETCH_TIMEOUT_MS = 8000
 const MAX_CONTENT_CHARS = 12000
-const PRICING_PATHS = ["/pricing", "/pricing/", "/plans", "/plans/", "/pricing/index.html", "/plans/index.html"]
+const PRICING_PATHS = [
+  "/pricing",
+  "/pricing/",
+  "/plans",
+  "/plans/",
+  "/pricing/index.html",
+  "/plans/index.html",
+]
 const ISO_CURRENCY_CODES = new Set([
   "USD",
   "EUR",
@@ -59,12 +66,12 @@ const ISO_CURRENCY_CODES = new Set([
   "ZAR",
 ])
 const CURRENCY_SYMBOL_MAP: Record<string, string> = {
-  "$": "USD",
-  "CA$": "CAD",
-  "C$": "CAD",
-  "A$": "AUD",
-  "AU$": "AUD",
-  "NZ$": "NZD",
+  $: "USD",
+  CA$: "CAD",
+  C$: "CAD",
+  A$: "AUD",
+  AU$: "AUD",
+  NZ$: "NZD",
   "€": "EUR",
   "£": "GBP",
   "¥": "JPY",
@@ -122,7 +129,8 @@ function extractMetaContent(html: string, keys: string[]): string | null {
   if (!keys.length) return null
   const target = new Set(keys.map((k) => k.toLowerCase()))
   for (const attrs of parseMetaTags(html)) {
-    const metaKey = attrs["name"]?.toLowerCase() ?? attrs["property"]?.toLowerCase()
+    const metaKey =
+      attrs["name"]?.toLowerCase() ?? attrs["property"]?.toLowerCase()
     if (metaKey && target.has(metaKey)) {
       const content = attrs["content"]?.trim()
       if (content) return content
@@ -174,7 +182,9 @@ type PricingInference = {
   pricingModel?: (typeof PRICING_MODELS)[number]
 }
 
-async function fetchPricingContext(baseUrl: URL): Promise<PricingContext | null> {
+async function fetchPricingContext(
+  baseUrl: URL,
+): Promise<PricingContext | null> {
   const seen = new Set<string>()
   for (const path of PRICING_PATHS) {
     let pricingUrl: URL
@@ -204,8 +214,12 @@ async function fetchPricingContext(baseUrl: URL): Promise<PricingContext | null>
       const html = await response.text()
       const metaDescription = extractMetaContent(html, ["description"])
       const ogDescription = extractMetaContent(html, ["og:description"])
-      const twitterDescription = extractMetaContent(html, ["twitter:description"])
-      const keywords = extractMetaKeywords(html).map((keyword) => keyword.toLowerCase())
+      const twitterDescription = extractMetaContent(html, [
+        "twitter:description",
+      ])
+      const keywords = extractMetaKeywords(html).map((keyword) =>
+        keyword.toLowerCase(),
+      )
       const snippet = stripHtmlNoise(html).slice(0, MAX_CONTENT_CHARS)
       if (!snippet && !metaDescription && !keywords.length) continue
       return {
@@ -245,21 +259,31 @@ function parseAmountToCents(raw: string): number | undefined {
   return Math.round(parsed * 100)
 }
 
-function inferPricingModelFromText(text?: string | null): (typeof PRICING_MODELS)[number] | undefined {
+function inferPricingModelFromText(
+  text?: string | null,
+): (typeof PRICING_MODELS)[number] | undefined {
   if (!text) return undefined
   const lower = text.toLowerCase()
   if (/(lifetime|one[-\s]?time|buy once|perpetual)/.test(lower)) {
     return "one_time"
   }
-  const subscriptionSignals = /(per month|per user|per seat|monthly|annually|annual|per year|per month|subscription|mo\b|yr\b)/
+  const subscriptionSignals =
+    /(per month|per user|per seat|monthly|annually|annual|per year|per month|subscription|mo\b|yr\b)/
   if (subscriptionSignals.test(lower)) {
     return "subscription"
   }
-  if (/(custom pricing|contact sales|talk to sales|request (a )?quote|enterprise pricing)/.test(lower)) {
+  if (
+    /(custom pricing|contact sales|talk to sales|request (a )?quote|enterprise pricing)/.test(
+      lower,
+    )
+  ) {
     return "custom"
   }
   const hasFree = /(free plan|free tier|free forever|free)/.test(lower)
-  const hasPaid = /(paid plan|upgrade|premium|starting at|from \$|from €|from £|per month)/.test(lower)
+  const hasPaid =
+    /(paid plan|upgrade|premium|starting at|from \$|from €|from £|per month)/.test(
+      lower,
+    )
   if (hasFree && hasPaid) {
     return "freemium"
   }
@@ -269,12 +293,15 @@ function inferPricingModelFromText(text?: string | null): (typeof PRICING_MODELS
   return undefined
 }
 
-function extractPricingFallback(texts: (string | null | undefined)[]): PricingInference {
+function extractPricingFallback(
+  texts: (string | null | undefined)[],
+): PricingInference {
   const inference: PricingInference = {}
 
   for (const text of texts) {
     if (!text) continue
-    const symbolRegex = /(CA\$|C\$|A\$|AU\$|NZ\$|\$|€|£|¥|￥|₹)\s*(\d[\d.,]*)\s*(?:per|\/)?\s*(month|mo|year|yr|annual|annually|one-time|lifetime|once)?/i
+    const symbolRegex =
+      /(CA\$|C\$|A\$|AU\$|NZ\$|\$|€|£|¥|￥|₹)\s*(\d[\d.,]*)\s*(?:per|\/)?\s*(month|mo|year|yr|annual|annually|one-time|lifetime|once)?/i
     const symbolMatch = symbolRegex.exec(text)
     if (symbolMatch && inference.startingPriceCents == null) {
       const [, symbol, amount, cadence] = symbolMatch
@@ -282,7 +309,9 @@ function extractPricingFallback(texts: (string | null | undefined)[]): PricingIn
       const currencyCode =
         CURRENCY_SYMBOL_MAP[normalizedSymbol] ||
         CURRENCY_SYMBOL_MAP[symbol] ||
-        (normalizedSymbol.length === 1 ? CURRENCY_SYMBOL_MAP[symbol] : undefined)
+        (normalizedSymbol.length === 1
+          ? CURRENCY_SYMBOL_MAP[symbol]
+          : undefined)
       const cents = parseAmountToCents(amount)
       if (cents != null) {
         inference.startingPriceCents = cents
@@ -297,7 +326,8 @@ function extractPricingFallback(texts: (string | null | undefined)[]): PricingIn
     }
 
     if (inference.startingPriceCents == null) {
-      const codeRegex = /\b(USD|EUR|GBP|AUD|CAD|JPY|INR|NZD|CHF|SGD|SEK|DKK|NOK|ZAR)\b[^\d]*(\d[\d.,]*)/i
+      const codeRegex =
+        /\b(USD|EUR|GBP|AUD|CAD|JPY|INR|NZD|CHF|SGD|SEK|DKK|NOK|ZAR)\b[^\d]*(\d[\d.,]*)/i
       const codeMatch = codeRegex.exec(text)
       if (codeMatch) {
         const [, code, amount] = codeMatch
@@ -309,7 +339,8 @@ function extractPricingFallback(texts: (string | null | undefined)[]): PricingIn
       }
     }
 
-    const trailingCodeRegex = /(\d[\d.,]*)\s*(USD|EUR|GBP|AUD|CAD|JPY|INR|NZD|CHF|SGD|SEK|DKK|NOK|ZAR)/i
+    const trailingCodeRegex =
+      /(\d[\d.,]*)\s*(USD|EUR|GBP|AUD|CAD|JPY|INR|NZD|CHF|SGD|SEK|DKK|NOK|ZAR)/i
     if (inference.startingPriceCents == null) {
       const trailingMatch = trailingCodeRegex.exec(text)
       if (trailingMatch) {
@@ -361,7 +392,10 @@ export async function POST(request: Request) {
 
   const sanitizedUrl = sanitizeTargetUrl(parsed.data.url)
   if (!sanitizedUrl) {
-    return NextResponse.json({ error: "Only http(s) URLs are supported" }, { status: 400 })
+    return NextResponse.json(
+      { error: "Only http(s) URLs are supported" },
+      { status: 400 },
+    )
   }
 
   if (!process.env.OPENAI_API_KEY) {
@@ -411,7 +445,9 @@ export async function POST(request: Request) {
   const textSnippet = cleaned.slice(0, MAX_CONTENT_CHARS)
   const metaDescription = extractMetaContent(htmlContent, ["description"])
   const ogDescription = extractMetaContent(htmlContent, ["og:description"])
-  const twitterDescription = extractMetaContent(htmlContent, ["twitter:description"])
+  const twitterDescription = extractMetaContent(htmlContent, [
+    "twitter:description",
+  ])
   const ogTitle = extractMetaContent(htmlContent, ["og:title"])
   const primaryCopySnippet = buildPrimaryCopy(cleaned)
 
@@ -572,12 +608,16 @@ export async function POST(request: Request) {
       }
     }
 
-    if ((!enrichedOutput.keywords || enrichedOutput.keywords.length === 0) && metaKeywords.length) {
+    if (
+      (!enrichedOutput.keywords || enrichedOutput.keywords.length === 0) &&
+      metaKeywords.length
+    ) {
       enrichedOutput.keywords = metaKeywords.slice(0, 6)
     }
 
     if (
-      (enrichedOutput.startingPriceCents == null || Number.isNaN(enrichedOutput.startingPriceCents)) &&
+      (enrichedOutput.startingPriceCents == null ||
+        Number.isNaN(enrichedOutput.startingPriceCents)) &&
       pricingFallback.startingPriceCents != null
     ) {
       enrichedOutput.startingPriceCents = pricingFallback.startingPriceCents
@@ -614,7 +654,10 @@ function extractAssistantJson(response: any): string {
           if (typeof content.text === "string") return content.text
           if (typeof content.text?.value === "string") return content.text.value
         }
-        if (content?.type === "text" && typeof content.text?.value === "string") {
+        if (
+          content?.type === "text" &&
+          typeof content.text?.value === "string"
+        ) {
           return content.text.value
         }
       }

@@ -15,9 +15,9 @@ afterEach(() => {
 
 describe("sanitizeRedirectUrl", () => {
   it("returns relative paths untouched", () => {
-    expect(
-      sanitizeRedirectUrl(MEMBER_PRODUCTS_PATH, "shipyardhq.dev"),
-    ).toBe(MEMBER_PRODUCTS_PATH)
+    expect(sanitizeRedirectUrl(MEMBER_PRODUCTS_PATH, "shipyardhq.dev")).toBe(
+      MEMBER_PRODUCTS_PATH,
+    )
   })
 
   it("allows absolute URLs matching configured or request host", () => {
@@ -29,9 +29,9 @@ describe("sanitizeRedirectUrl", () => {
   })
 
   it("rejects URLs with non-http protocols", () => {
-    expect(
-      sanitizeRedirectUrl("javascript:alert(1)", "shipyardhq.dev"),
-    ).toBe(undefined)
+    expect(sanitizeRedirectUrl("javascript:alert(1)", "shipyardhq.dev")).toBe(
+      undefined,
+    )
   })
 
   it("rejects URLs pointing to disallowed hosts", () => {

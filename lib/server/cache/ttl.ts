@@ -12,7 +12,11 @@ export function resolveCacheTtl(
   tier: CacheTier,
   override?: number | null,
 ): number {
-  if (typeof override === "number" && Number.isFinite(override) && override > 0) {
+  if (
+    typeof override === "number" &&
+    Number.isFinite(override) &&
+    override > 0
+  ) {
     return override
   }
 

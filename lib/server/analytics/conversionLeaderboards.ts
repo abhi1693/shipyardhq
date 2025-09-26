@@ -1,11 +1,7 @@
 import { addDays, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
-import {
-  buildCacheKey,
-  cacheHit,
-  cacheMiss,
-} from "@/lib/server/cache"
+import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 
 const LEADERBOARD_LIMIT = 5
@@ -146,11 +142,14 @@ export async function getConversionLeaderboards(
   const cachedLeaderboards = await cacheHit<ConversionLeaderboards>({
     key: cacheKey,
     onError: (error) => {
-      console.error("[analytics] failed to read conversion leaderboards cache", {
-        cacheKey,
-        rangeDays: windowDays,
-        error,
-      })
+      console.error(
+        "[analytics] failed to read conversion leaderboards cache",
+        {
+          cacheKey,
+          rangeDays: windowDays,
+          error,
+        },
+      )
     },
   })
 
@@ -189,68 +188,159 @@ export async function getConversionLeaderboards(
     ProductCountRow[],
     ProductCountRow[],
   ] = await Promise.all([
-      prisma.productTrafficEvent.groupBy({
-        by: ["productId"],
-        where: currentTrafficWhere,
-        _count: { _all: true },
-      }) as unknown as Promise<ProductCountRow[]>,
-      prisma.productTrafficEvent.groupBy({
-        by: ["productId"],
-        where: previousTrafficWhere,
-        _count: { _all: true },
-      }) as unknown as Promise<ProductCountRow[]>,
-      prisma.productClickEvent.groupBy({
-        by: ["productId"],
-        where: {
-          createdAt: {
-            gte: rangeStart,
-            lt: rangeEnd,
-          },
-          product: { status: "published" as const },
+    prisma.productTrafficEvent.groupBy({
+      by: ["productId"],
+      where: currentTrafficWhere,
+      _count: { _all: true },
+    }) as unknown as Promise<ProductCountRow[]>,
+    prisma.productTrafficEvent.groupBy({
+      by: ["productId"],
+      where: previousTrafficWhere,
+      _count: { _all: true },
+    }) as unknown as Promise<ProductCountRow[]>,
+    prisma.productClickEvent.groupBy({
+      by: ["productId"],
+      where: {
+        createdAt: {
+          gte: rangeStart,
+          lt: rangeEnd,
         },
-        _count: { _all: true },
-      }) as unknown as Promise<ProductCountRow[]>,
-      prisma.productClickEvent.groupBy({
-        by: ["productId"],
-        where: {
-          createdAt: {
-            gte: previousStart,
-            lt: rangeStart,
-          },
-          product: { status: "published" as const },
+        product: { status: "published" as const },
+      },
+      _count: { _all: true },
+    }) as unknown as Promise<ProductCountRow[]>,
+    prisma.productClickEvent.groupBy({
+      by: ["productId"],
+      where: {
+        createdAt: {
+          gte: previousStart,
+          lt: rangeStart,
         },
-        _count: { _all: true },
-      }) as unknown as Promise<ProductCountRow[]>,
-      prisma.productUpvote.groupBy({
-        by: ["productId"],
-        where: {
-          createdAt: {
-            gte: rangeStart,
-            lt: rangeEnd,
-          },
-          product: { status: "published" as const },
+        product: { status: "published" as const },
+      },
+      _count: { _all: true },
+    }) as unknown as Promise<ProductCountRow[]>,
+    prisma.productUpvote.groupBy({
+      by: ["productId"],
+      where: {
+        createdAt: {
+          gte: rangeStart,
+          lt: rangeEnd,
         },
-        _count: { _all: true },
-      }) as unknown as Promise<ProductCountRow[]>,
-      prisma.productUpvote.groupBy({
-        by: ["productId"],
-        where: {
-          createdAt: {
-            gte: previousStart,
-            lt: rangeStart,
-          },
-          product: { status: "published" as const },
+        product: { status: "published" as const },
+      },
+      _count: { _all: true },
+    }) as unknown as Promise<ProductCountRow[]>,
+    prisma.productUpvote.groupBy({
+      by: ["productId"],
+      where: {
+        createdAt: {
+          gte: previousStart,
+          lt: rangeStart,
         },
-        _count: { _all: true },
-      }) as unknown as Promise<ProductCountRow[]>,
-    ])
+        product: { status: "published" as const },
+      },
+      _count: { _all: true },
+    }) as unknown as Promise<ProductCountRow[]>,
+  ])
 
-    const metrics = new Map<string, MetricAccumulator>()
-    const ensureMetric = (productId: string) => {
-      let record = metrics.get(productId)
-      if (!record) {
-        record = {
-          id: productId,
+  const metrics = new Map<string, MetricAccumulator>()
+  const ensureMetric = (productId: string) => {
+    let record = metrics.get(productId)
+    if (!record) {
+      record = {
+        id: productId,
+        views: 0,
+        previousViews: 0,
+        clicks: 0,
+        previousClicks: 0,
+        upvotes: 0,
+        previousUpvotes: 0,
+      }
+      metrics.set(productId, record)
+    }
+    return record
+  }
+
+  for (const row of currentViews) {
+    const record = ensureMetric(row.productId)
+    record.views = row._count._all
+  }
+
+  for (const row of previousViews) {
+    const record = ensureMetric(row.productId)
+    record.previousViews = row._count._all
+  }
+
+  for (const row of currentClicks) {
+    const record = ensureMetric(row.productId)
+    record.clicks = row._count._all
+  }
+
+  for (const row of previousClicks) {
+    const record = ensureMetric(row.productId)
+    record.previousClicks = row._count._all
+  }
+
+  for (const row of currentUpvotes) {
+    const record = ensureMetric(row.productId)
+    record.upvotes = row._count._all
+  }
+
+  for (const row of previousUpvotes) {
+    const record = ensureMetric(row.productId)
+    record.previousUpvotes = row._count._all
+  }
+
+  if (metrics.size === 0) {
+    return {
+      products: {
+        topCtr: [],
+        topUpvoteRate: [],
+        fastestGrowing: [],
+      },
+      categories: {
+        topCtr: [],
+        topUpvoteRate: [],
+        fastestGrowing: [],
+      },
+    }
+  }
+
+  const productIds = Array.from(metrics.keys())
+  const products = await prisma.product.findMany({
+    where: {
+      id: { in: productIds },
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      categoryId: true,
+      category: { select: { id: true, name: true } },
+    },
+  })
+
+  const categoryMap = new Map<string, CategoryAccumulator>()
+
+  const productEntries: MetricAccumulator[] = []
+
+  for (const product of products) {
+    const record = metrics.get(product.id)
+    if (!record) continue
+    record.name = product.name
+    record.slug = product.slug
+    record.categoryId = product.category?.id ?? product.categoryId ?? undefined
+    record.categoryName = product.category?.name ?? undefined
+    metrics.set(product.id, record)
+    productEntries.push(record)
+
+    if (record.categoryId) {
+      let bucket = categoryMap.get(record.categoryId)
+      if (!bucket) {
+        bucket = {
+          id: record.categoryId,
+          name: record.categoryName ?? "Unknown",
           views: 0,
           previousViews: 0,
           clicks: 0,
@@ -258,164 +348,68 @@ export async function getConversionLeaderboards(
           upvotes: 0,
           previousUpvotes: 0,
         }
-        metrics.set(productId, record)
+        categoryMap.set(record.categoryId, bucket)
       }
-      return record
+      bucket.views += record.views
+      bucket.previousViews += record.previousViews
+      bucket.clicks += record.clicks
+      bucket.previousClicks += record.previousClicks
+      bucket.upvotes += record.upvotes
+      bucket.previousUpvotes += record.previousUpvotes
     }
+  }
 
-    for (const row of currentViews) {
-      const record = ensureMetric(row.productId)
-      record.views = row._count._all
-    }
+  const resolvedProductEntries = productEntries.filter(
+    (entry): entry is MetricAccumulator & { name: string } =>
+      Boolean(entry.name) && entry.views > 0,
+  )
 
-    for (const row of previousViews) {
-      const record = ensureMetric(row.productId)
-      record.previousViews = row._count._all
-    }
-
-    for (const row of currentClicks) {
-      const record = ensureMetric(row.productId)
-      record.clicks = row._count._all
-    }
-
-    for (const row of previousClicks) {
-      const record = ensureMetric(row.productId)
-      record.previousClicks = row._count._all
-    }
-
-    for (const row of currentUpvotes) {
-      const record = ensureMetric(row.productId)
-      record.upvotes = row._count._all
-    }
-
-    for (const row of previousUpvotes) {
-      const record = ensureMetric(row.productId)
-      record.previousUpvotes = row._count._all
-    }
-
-    if (metrics.size === 0) {
+  const productCtr = resolvedProductEntries
+    .map<ProductCtrEntry>((entry) => {
+      const ctr = safePercent(entry.clicks, entry.views)
+      const previousCtr = safePercent(entry.previousClicks, entry.previousViews)
       return {
-        products: {
-          topCtr: [],
-          topUpvoteRate: [],
-          fastestGrowing: [],
-        },
-        categories: {
-          topCtr: [],
-          topUpvoteRate: [],
-          fastestGrowing: [],
-        },
-      }
-    }
-
-    const productIds = Array.from(metrics.keys())
-    const products = await prisma.product.findMany({
-      where: {
-        id: { in: productIds },
-      },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        categoryId: true,
-        category: { select: { id: true, name: true } },
-      },
-    })
-
-    const categoryMap = new Map<string, CategoryAccumulator>()
-
-    const productEntries: MetricAccumulator[] = []
-
-    for (const product of products) {
-      const record = metrics.get(product.id)
-      if (!record) continue
-      record.name = product.name
-      record.slug = product.slug
-      record.categoryId =
-        product.category?.id ?? product.categoryId ?? undefined
-      record.categoryName = product.category?.name ?? undefined
-      metrics.set(product.id, record)
-      productEntries.push(record)
-
-      if (record.categoryId) {
-        let bucket = categoryMap.get(record.categoryId)
-        if (!bucket) {
-          bucket = {
-            id: record.categoryId,
-            name: record.categoryName ?? "Unknown",
-            views: 0,
-            previousViews: 0,
-            clicks: 0,
-            previousClicks: 0,
-            upvotes: 0,
-            previousUpvotes: 0,
-          }
-          categoryMap.set(record.categoryId, bucket)
-        }
-        bucket.views += record.views
-        bucket.previousViews += record.previousViews
-        bucket.clicks += record.clicks
-        bucket.previousClicks += record.previousClicks
-        bucket.upvotes += record.upvotes
-        bucket.previousUpvotes += record.previousUpvotes
-      }
-    }
-
-    const resolvedProductEntries = productEntries.filter(
-      (entry): entry is MetricAccumulator & { name: string } =>
-        Boolean(entry.name) && entry.views > 0,
-    )
-
-    const productCtr = resolvedProductEntries
-      .map<ProductCtrEntry>((entry) => {
-        const ctr = safePercent(entry.clicks, entry.views)
-        const previousCtr = safePercent(
-          entry.previousClicks,
-          entry.previousViews,
-        )
-        return {
-          ...entry,
-          ctr,
-          ctrDelta: calcChange(ctr, previousCtr),
-        }
-      })
-      .filter(
-        (entry) =>
-          entry.views >= MIN_VIEWS_FOR_RATE &&
-          entry.clicks >= MIN_CLICKS_FOR_CTR,
-      )
-      .sort((a, b) => scoreForSort(b.ctr) - scoreForSort(a.ctr))
-      .slice(0, LEADERBOARD_LIMIT)
-
-    const productUpvoteRate = resolvedProductEntries
-      .map<ProductUpvoteEntry>((entry) => {
-        const upvoteRate = safePercent(entry.upvotes, entry.views)
-        const previousUpvoteRate = safePercent(
-          entry.previousUpvotes,
-          entry.previousViews,
-        )
-        return {
-          ...entry,
-          upvoteRate,
-          upvoteRateDelta: calcChange(upvoteRate, previousUpvoteRate),
-        }
-      })
-      .filter(
-        (entry) =>
-          entry.views >= MIN_VIEWS_FOR_RATE &&
-          entry.upvotes >= MIN_UPVOTES_FOR_RATE,
-      )
-      .sort((a, b) => scoreForSort(b.upvoteRate) - scoreForSort(a.upvoteRate))
-      .slice(0, LEADERBOARD_LIMIT)
-
-    const productGrowth = resolvedProductEntries
-      .map<ProductGrowthEntry>((entry) => ({
         ...entry,
-        growth: calcGrowth(entry.views, entry.previousViews),
-      }))
-      .filter((entry) => entry.views >= MIN_VIEWS_FOR_GROWTH)
-      .sort((a, b) => scoreForSort(b.growth) - scoreForSort(a.growth))
-      .slice(0, LEADERBOARD_LIMIT)
+        ctr,
+        ctrDelta: calcChange(ctr, previousCtr),
+      }
+    })
+    .filter(
+      (entry) =>
+        entry.views >= MIN_VIEWS_FOR_RATE && entry.clicks >= MIN_CLICKS_FOR_CTR,
+    )
+    .sort((a, b) => scoreForSort(b.ctr) - scoreForSort(a.ctr))
+    .slice(0, LEADERBOARD_LIMIT)
+
+  const productUpvoteRate = resolvedProductEntries
+    .map<ProductUpvoteEntry>((entry) => {
+      const upvoteRate = safePercent(entry.upvotes, entry.views)
+      const previousUpvoteRate = safePercent(
+        entry.previousUpvotes,
+        entry.previousViews,
+      )
+      return {
+        ...entry,
+        upvoteRate,
+        upvoteRateDelta: calcChange(upvoteRate, previousUpvoteRate),
+      }
+    })
+    .filter(
+      (entry) =>
+        entry.views >= MIN_VIEWS_FOR_RATE &&
+        entry.upvotes >= MIN_UPVOTES_FOR_RATE,
+    )
+    .sort((a, b) => scoreForSort(b.upvoteRate) - scoreForSort(a.upvoteRate))
+    .slice(0, LEADERBOARD_LIMIT)
+
+  const productGrowth = resolvedProductEntries
+    .map<ProductGrowthEntry>((entry) => ({
+      ...entry,
+      growth: calcGrowth(entry.views, entry.previousViews),
+    }))
+    .filter((entry) => entry.views >= MIN_VIEWS_FOR_GROWTH)
+    .sort((a, b) => scoreForSort(b.growth) - scoreForSort(a.growth))
+    .slice(0, LEADERBOARD_LIMIT)
 
   const categoryEntries = Array.from(categoryMap.values()).filter(
     (entry) => entry.views > 0,
@@ -433,8 +427,7 @@ export async function getConversionLeaderboards(
     })
     .filter(
       (entry) =>
-        entry.views >= MIN_VIEWS_FOR_RATE &&
-        entry.clicks >= MIN_CLICKS_FOR_CTR,
+        entry.views >= MIN_VIEWS_FOR_RATE && entry.clicks >= MIN_CLICKS_FOR_CTR,
     )
     .sort((a, b) => scoreForSort(b.ctr) - scoreForSort(a.ctr))
     .slice(0, LEADERBOARD_LIMIT)
@@ -454,7 +447,8 @@ export async function getConversionLeaderboards(
     })
     .filter(
       (entry) =>
-        entry.views >= MIN_VIEWS_FOR_RATE && entry.upvotes >= MIN_UPVOTES_FOR_RATE,
+        entry.views >= MIN_VIEWS_FOR_RATE &&
+        entry.upvotes >= MIN_UPVOTES_FOR_RATE,
     )
     .sort((a, b) => scoreForSort(b.upvoteRate) - scoreForSort(a.upvoteRate))
     .slice(0, LEADERBOARD_LIMIT)

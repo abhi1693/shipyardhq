@@ -54,9 +54,10 @@ vi.mock("@/lib/prisma", () => ({
 }))
 
 vi.mock("@/lib/server/cache", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/server/cache")>(
-    "@/lib/server/cache",
-  )
+  const actual =
+    await vi.importActual<typeof import("@/lib/server/cache")>(
+      "@/lib/server/cache",
+    )
   return {
     ...actual,
     cacheHit: cacheHitMock,
@@ -328,9 +329,7 @@ describe("getIntentOutcomeAnalytics", () => {
         retention: { thresholds: [] },
       },
       cohorts: [],
-    } as unknown as Awaited<
-      ReturnType<typeof getIntentOutcomeAnalytics>
-    >
+    } as unknown as Awaited<ReturnType<typeof getIntentOutcomeAnalytics>>
 
     cacheHitMock.mockResolvedValueOnce(cached)
 

@@ -23,9 +23,10 @@ vi.mock("@/lib/prisma", () => ({
 }))
 
 vi.mock("@/lib/server/cache", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/server/cache")>(
-    "@/lib/server/cache",
-  )
+  const actual =
+    await vi.importActual<typeof import("@/lib/server/cache")>(
+      "@/lib/server/cache",
+    )
   return {
     ...actual,
     cacheHit: cacheHitMock,

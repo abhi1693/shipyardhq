@@ -1,11 +1,7 @@
 import prisma from "@/lib/prisma"
 import { hasPlanFeature } from "@/lib/features"
 import { PlanType } from "@/lib/vendor/prisma/client"
-import {
-  buildCacheKey,
-  cacheHit,
-  cacheMiss,
-} from "@/lib/server/cache"
+import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 
 /**

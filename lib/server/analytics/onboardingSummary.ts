@@ -1,11 +1,7 @@
 import { subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
-import {
-  buildCacheKey,
-  cacheHit,
-  cacheMiss,
-} from "@/lib/server/cache"
+import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import type {
   NewsletterIntentBreakdownItem,
