@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/atoms/button"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { BADGE_CELEBRATION_EVENT } from "@/components/molecules/ProductBadgeCelebrationGate"
 import { Sparkles } from "lucide-react"
 
 export default function ProductBadgeCelebrationTrigger({
@@ -9,10 +9,6 @@ export default function ProductBadgeCelebrationTrigger({
 }: {
   label?: string
 }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
   return (
     <Button
       type="button"
@@ -20,12 +16,8 @@ export default function ProductBadgeCelebrationTrigger({
       variant="ghost"
       className="h-8 px-3"
       onClick={() => {
-        const params = new URLSearchParams(searchParams?.toString() ?? "")
-        params.set("celebrate", "1")
-        const query = params.toString()
-        router.replace(query ? `${pathname}?${query}` : pathname, {
-          scroll: false,
-        })
+        if (typeof window === "undefined") return
+        window.dispatchEvent(new CustomEvent(BADGE_CELEBRATION_EVENT))
       }}
     >
       <Sparkles className="mr-2 h-4 w-4" />

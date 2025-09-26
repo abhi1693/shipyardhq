@@ -1,28 +1,26 @@
-import { describe, expect, it, vi } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 
-const replace = vi.fn()
-const searchParams = new URLSearchParams("foo=bar")
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace }),
-  usePathname: () => "/member/products/test-product",
-  useSearchParams: () => searchParams,
-}))
-
+import { BADGE_CELEBRATION_EVENT } from "@/components/molecules/ProductBadgeCelebrationGate"
 import ProductBadgeCelebrationTrigger from "@/components/molecules/ProductBadgeCelebrationTrigger"
 
 describe("ProductBadgeCelebrationTrigger", () => {
-  it("adds the celebrate query and replaces the URL", async () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it("dispatches the celebration event", async () => {
     const user = userEvent.setup()
+    const dispatchSpy = vi.spyOn(window, "dispatchEvent")
+
     render(<ProductBadgeCelebrationTrigger />)
 
     await user.click(screen.getByRole("button", { name: /get badge/i }))
 
-    expect(replace).toHaveBeenCalledWith(
-      "/member/products/test-product?foo=bar&celebrate=1",
-      { scroll: false },
-    )
+    expect(dispatchSpy).toHaveBeenCalled()
+    const dispatchedEvent = dispatchSpy.mock.calls.at(-1)?.[0]
+    expect(dispatchedEvent).toBeInstanceOf(CustomEvent)
+    expect(dispatchedEvent?.type).toBe(BADGE_CELEBRATION_EVENT)
   })
 })

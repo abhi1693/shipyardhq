@@ -1,50 +1,74 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { act, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-const replace = vi.hoisted(() => vi.fn())
-const useSearchParamsMock = vi.hoisted(() =>
-  vi.fn(() => new URLSearchParams("celebrate=1&foo=bar")),
-)
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace }),
-  usePathname: () => "/member/products/test-product",
-  useSearchParams: useSearchParamsMock,
+vi.mock("@/components/molecules/ProductBadgeCelebrationDialog", () => ({
+  __esModule: true,
+  default: ({
+    open,
+    onOpenChange,
+  }: {
+    open: boolean
+    onOpenChange: (nextOpen: boolean) => void
+  }) =>
+    open ? (
+      <div data-testid="badge-dialog">
+        <button type="button" onClick={() => onOpenChange(false)}>
+          Close dialog
+        </button>
+      </div>
+    ) : null,
 }))
 
-import ProductBadgeCelebrationGate from "@/components/molecules/ProductBadgeCelebrationGate"
+import {
+  BADGE_CELEBRATION_EVENT,
+  default as ProductBadgeCelebrationGate,
+} from "@/components/molecules/ProductBadgeCelebrationGate"
+
+const TEST_URL = "/member/products/test?foo=bar"
 
 describe("ProductBadgeCelebrationGate", () => {
   beforeEach(() => {
-    replace.mockClear()
-    useSearchParamsMock.mockReturnValue(
-      new URLSearchParams("celebrate=1&foo=bar"),
-    )
-    Object.defineProperty(window, "location", {
-      value: { origin: "https://app.example" },
-      writable: true,
+    window.history.replaceState(null, "", TEST_URL)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    window.history.replaceState(null, "", TEST_URL)
+  })
+
+  it("shows the celebration when initialOpen is true", async () => {
+    render(<ProductBadgeCelebrationGate initialOpen />)
+
+    expect(await screen.findByTestId("badge-dialog")).toBeInTheDocument()
+    await waitFor(() => {
+      expect(window.location.search).toContain("celebrate=1")
     })
   })
 
-  it("shows the celebration when initialOpen is true", () => {
-    useSearchParamsMock.mockReturnValue(new URLSearchParams("celebrate=1"))
+  it("opens the dialog and sets the query when the event fires", async () => {
     render(<ProductBadgeCelebrationGate initialOpen={false} />)
 
-    expect(
-      screen.getByText(/congratulations on the new launch/i),
-    ).toBeInTheDocument()
+    act(() => {
+      window.dispatchEvent(new CustomEvent(BADGE_CELEBRATION_EVENT))
+    })
+
+    expect(await screen.findByTestId("badge-dialog")).toBeInTheDocument()
+    await waitFor(() => {
+      expect(window.location.search).toContain("celebrate=1")
+    })
   })
 
   it("clears the celebrate query when the dialog closes", async () => {
     const user = userEvent.setup()
     render(<ProductBadgeCelebrationGate initialOpen />)
 
-    await user.click(screen.getByRole("button", { name: /view my products/i }))
+    await screen.findByTestId("badge-dialog")
 
-    expect(replace).toHaveBeenCalledWith(
-      "/member/products/test-product?foo=bar",
-      { scroll: false },
-    )
+    await user.click(screen.getByRole("button", { name: /close dialog/i }))
+
+    await waitFor(() => {
+      expect(window.location.search).not.toContain("celebrate")
+    })
   })
 })
