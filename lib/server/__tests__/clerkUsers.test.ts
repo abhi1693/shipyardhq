@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+const originalCacheEnvPrefix = process.env.CACHE_ENV_PREFIX
+process.env.CACHE_ENV_PREFIX = "test-cache"
+
 const redisGetMock = vi.hoisted(() => vi.fn())
 const redisSetMock = vi.hoisted(() => vi.fn())
 const redisDelMock = vi.hoisted(() => vi.fn())
@@ -20,6 +23,10 @@ import {
   invalidateClerkUserCache,
   CLERK_USER_CACHE_PREFIX,
 } from "@/lib/server/clerkUsers"
+import {
+  __resetCacheClientForTesting,
+  namespaceCacheKey,
+} from "@/lib/server/cache"
 
 const redisClientStub = {
   get: redisGetMock,
@@ -31,6 +38,7 @@ const originalTtl = process.env.CLERK_USER_CACHE_TTL_SECONDS
 
 describe("getClerkUserByIdCached", () => {
   beforeEach(() => {
+    __resetCacheClientForTesting()
     process.env.CLERK_USER_CACHE_TTL_SECONDS = undefined
 
     redisGetMock.mockReset()
@@ -71,14 +79,14 @@ describe("getClerkUserByIdCached", () => {
     expect(result).toEqual(remoteUser)
     expect(clerkUserFetchMock).toHaveBeenCalledWith("user_99")
     expect(redisSetMock).toHaveBeenCalledWith(
-      `${CLERK_USER_CACHE_PREFIX}user_99`,
+      namespaceCacheKey(`${CLERK_USER_CACHE_PREFIX}user_99`),
       JSON.stringify(remoteUser),
       { EX: 180 },
     )
   })
 
   it("skips caching when Redis is unavailable", async () => {
-    getRedisClientMock.mockResolvedValueOnce(null)
+    getRedisClientMock.mockResolvedValue(null)
     const remoteUser = { id: "user_73" }
     clerkUserFetchMock.mockResolvedValueOnce(remoteUser)
 
@@ -100,7 +108,9 @@ describe("invalidateClerkUserCache", () => {
   it("deletes the cached entry when Redis is available", async () => {
     await invalidateClerkUserCache("user_5")
 
-    expect(redisDelMock).toHaveBeenCalledWith(`${CLERK_USER_CACHE_PREFIX}user_5`)
+    expect(redisDelMock).toHaveBeenCalledWith(
+      namespaceCacheKey(`${CLERK_USER_CACHE_PREFIX}user_5`),
+    )
   })
 
   it("no-ops when Redis is unavailable", async () => {
@@ -114,5 +124,7 @@ describe("invalidateClerkUserCache", () => {
 
 afterEach(() => {
   process.env.CLERK_USER_CACHE_TTL_SECONDS = originalTtl
+  process.env.CACHE_ENV_PREFIX = originalCacheEnvPrefix
+  __resetCacheClientForTesting()
   vi.clearAllMocks()
 })

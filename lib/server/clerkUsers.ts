@@ -1,8 +1,11 @@
 import type { User as ClerkUser } from "@clerk/backend"
 import { clerkClient } from "@clerk/nextjs/server"
-import { getRedisClient } from "@/lib/server/redis"
-
-const CACHE_PREFIX = "clerk:user:"
+import {
+  buildCacheKey,
+  cacheHit,
+  cacheMiss,
+  cacheInvalidate,
+} from "@/lib/server/cache"
 const DEFAULT_TTL_SECONDS = 300
 
 function resolveTtl(): number {
@@ -19,10 +22,6 @@ function resolveTtl(): number {
   return DEFAULT_TTL_SECONDS
 }
 
-function buildCacheKey(clerkId: string) {
-  return `${CACHE_PREFIX}${clerkId}`
-}
-
 export async function getClerkUserByIdCached(
   clerkId: string,
 ): Promise<ClerkUser> {
@@ -30,38 +29,34 @@ export async function getClerkUserByIdCached(
     throw new Error("Missing Clerk user ID")
   }
 
-  const cacheKey = buildCacheKey(clerkId)
-  const redis = await getRedisClient()
-
-  if (redis) {
-    try {
-      const cached = await redis.get(cacheKey)
-      if (cached) {
-        return JSON.parse(cached) as ClerkUser
-      }
-    } catch (error) {
+  const cachedUser = await cacheHit<ClerkUser>({
+    key: ["clerk", "user", clerkId],
+    onError: (error) => {
       console.error("Failed to read Clerk user from Redis cache", {
         clerkId,
         error,
       })
-    }
+    },
+  })
+
+  if (cachedUser) {
+    return cachedUser
   }
 
   const client = await clerkClient()
   const clerkUser = await client.users.getUser(clerkId)
 
-  if (redis) {
-    try {
-      await redis.set(cacheKey, JSON.stringify(clerkUser), {
-        EX: resolveTtl(),
-      })
-    } catch (error) {
+  await cacheMiss({
+    key: ["clerk", "user", clerkId],
+    value: clerkUser,
+    ttlSeconds: resolveTtl(),
+    onError: (error) => {
       console.error("Failed to write Clerk user to Redis cache", {
         clerkId,
         error,
       })
-    }
-  }
+    },
+  })
 
   return clerkUser
 }
@@ -71,19 +66,15 @@ export async function invalidateClerkUserCache(clerkId: string) {
     return
   }
 
-  const redis = await getRedisClient()
-  if (!redis) {
-    return
-  }
-
-  try {
-    await redis.del(buildCacheKey(clerkId))
-  } catch (error) {
-    console.error("Failed to invalidate Clerk user cache", {
-      clerkId,
-      error,
-    })
-  }
+  await cacheInvalidate({
+    key: ["clerk", "user", clerkId],
+    onError: (error) => {
+      console.error("Failed to invalidate Clerk user cache", {
+        clerkId,
+        error,
+      })
+    },
+  })
 }
 
-export { CACHE_PREFIX as CLERK_USER_CACHE_PREFIX }
+export const CLERK_USER_CACHE_PREFIX = `${buildCacheKey("clerk", "user")}:`
