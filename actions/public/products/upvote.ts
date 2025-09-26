@@ -1,12 +1,15 @@
 "use server"
 
 import { auth } from "@clerk/nextjs/server"
-import prisma from "@/lib/prisma"
-import { randomUUID } from "crypto"
 import {
   revalidateLeaderboard,
   revalidateProduct,
 } from "@/lib/cache/revalidate"
+import {
+  getLiveUpvoteCount,
+  resolveVoteState,
+  setDesiredVoteState,
+} from "@/lib/server/productVotesStore"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -116,93 +119,37 @@ export async function upvoteProductAction(
     const txMark = (label: string) =>
       txReport.marks.push({ label, at: process.hrtime.bigint() })
 
-    const voteId = randomUUID()
+    const resolution = await resolveVoteState(productId, user.id)
+    txMark("resolve_state")
 
-    const rows = await prisma.$queryRaw<
-      {
-        upvotes: number | bigint | null
-        upvoted: boolean
-        delta: number | bigint | null
-      }[]
-    >`
-      WITH deleted AS (
-        DELETE FROM "ProductUpvote"
-        WHERE "productId" = ${productId} AND "userId" = ${user.id}
-        RETURNING 1
-      ),
-      inserted AS (
-        INSERT INTO "ProductUpvote" ("id", "productId", "userId")
-        SELECT ${voteId}, ${productId}, ${user.id}
-        WHERE NOT EXISTS (SELECT 1 FROM deleted)
-        RETURNING 1
-      ),
-      delta AS (
-        SELECT
-          COALESCE((SELECT COUNT(*) FROM inserted), 0) AS inserted_count,
-          COALESCE((SELECT COUNT(*) FROM deleted), 0) AS deleted_count
-      ),
-      updated AS (
-        UPDATE "ProductAnalytics"
-        SET "upvotes" = GREATEST(
-          "ProductAnalytics"."upvotes" + (
-            (SELECT inserted_count FROM delta) - (SELECT deleted_count FROM delta)
-          ),
-          0
-        )
-        WHERE "productId" = ${productId}
-        RETURNING "upvotes"
-      ),
-      created AS (
-        INSERT INTO "ProductAnalytics" ("productId", "upvotes", "clicks")
-        SELECT ${productId},
-          CASE
-            WHEN (SELECT inserted_count - deleted_count FROM delta) > 0 THEN 1
-            ELSE 0
-          END,
-          0
-        WHERE NOT EXISTS (SELECT 1 FROM updated)
-        RETURNING "upvotes"
-      ),
-      result AS (
-        SELECT
-          ((SELECT inserted_count FROM delta) > 0) AS upvoted,
-          (SELECT inserted_count - deleted_count FROM delta) AS delta,
-          COALESCE(
-            (SELECT "upvotes" FROM updated),
-            (SELECT "upvotes" FROM created)
-          ) AS upvotes
-      )
-      SELECT upvoted, delta, upvotes FROM result;
-    `
+    const desiredState =
+      resolution.currentState === "upvoted" ? "not_upvoted" : "upvoted"
 
-    txMark("toggle_query")
+    const updateResult = await setDesiredVoteState({
+      productId,
+      userId: user.id,
+      desiredState,
+      client: resolution.client,
+      record: resolution.record,
+      persistedState: resolution.persistedState,
+    })
+    txMark("apply_state")
+
+    const upvotes = await getLiveUpvoteCount(productId, updateResult.client)
+    txMark("live_count")
+
     transactionReport = txReport
+    mark("transaction")
 
-    const row = rows[0]
-    if (!row) {
-      mark("transaction")
+    if (!updateResult.client) {
       revalidateProduct(productId)
       mark("revalidate_product")
       revalidateLeaderboard()
       mark("revalidate_leaderboard")
-      finalize("success", { transaction: transactionReport })
-      return _prevState
     }
 
-    const delta = Number(row.delta ?? 0)
-    const upvoted = delta > 0 ? true : Boolean(row.upvoted)
-    const upvotes = Number(row.upvotes ?? _prevState.upvotes)
-
-    mark("transaction")
-
-    revalidateProduct(productId)
-    mark("revalidate_product")
-
-    revalidateLeaderboard()
-    mark("revalidate_leaderboard")
-
     finalize("success", { transaction: transactionReport })
-    return { upvotes, upvoted }
+    return { upvotes, upvoted: updateResult.state === "upvoted" }
   } catch (err: any) {
     finalize("error", { transaction: transactionReport, error: err })
     if (err?.code === "P2003") {
@@ -239,7 +186,11 @@ function logUpvoteTiming(status: string, context: LogContext) {
     parts.push(`error=${errorMessage}`)
   }
 
-  console.log(parts.join(" "))
+  if (!errorMessage) {
+    return
+  }
+
+  console.error(parts.join(" "))
 }
 
 function summarizeTiming(report: TimingReport) {

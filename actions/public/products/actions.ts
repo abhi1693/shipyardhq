@@ -8,6 +8,7 @@ import {
   TAGS,
 } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import { resolveVoteState } from "@/lib/server/productVotesStore"
 
 type PublicProduct = Prisma.ProductGetPayload<{
   include: {
@@ -246,9 +247,6 @@ export const getPublicProductsByUseCase = cached(
 export async function hasUserUpvoted(productId: string, clerkId: string) {
   const user = await getActiveUserByClerkId(clerkId)
   if (!user) return false
-  const existing = await (prisma as any).productUpvote.findUnique({
-    where: { productId_userId: { productId, userId: user.id } },
-    select: { id: true },
-  })
-  return !!existing
+  const { currentState } = await resolveVoteState(productId, user.id)
+  return currentState === "upvoted"
 }
