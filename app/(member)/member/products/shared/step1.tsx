@@ -239,34 +239,6 @@ export default function Step1({
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
-          name="name"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter product name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          name="tagline"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tagline</FormLabel>
-              <FormControl>
-                <Input placeholder="Short tagline" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
           name="websiteUrl"
           control={form.control}
           render={({ field }) => (
@@ -281,7 +253,7 @@ export default function Step1({
                     onClick={handleAutofill}
                     disabled={autofilling || !!lockWebsiteUrl}
                   >
-                    {autofilling ? "Auto-filling…" : "Auto-fill"}
+                    {autofilling ? "AI autofilling…" : "AI Autofill"}
                   </Button>
                 ) : null}
               </FormLabel>
@@ -311,6 +283,36 @@ export default function Step1({
         {rightOfWebsite ? (
           <div className="flex flex-col gap-2">{rightOfWebsite}</div>
         ) : null}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FormField
+          name="name"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter product name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          name="tagline"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tagline</FormLabel>
+              <FormControl>
+                <Input placeholder="Short tagline" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
 
       <FormField
