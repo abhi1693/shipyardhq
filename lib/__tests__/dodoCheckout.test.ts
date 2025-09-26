@@ -59,7 +59,7 @@ describe("dodoCheckout", () => {
 
     await openDodoCheckout({
       products: [{ productId: "prod_123" }],
-      redirectUrl: "https://app.shipyardhq.dev/success",
+      redirectUrl: "https://shipyardhq.dev/success",
       queryParams: { plan: "pro" },
       email: "user@example.com",
       name: "Ada Lovelace",
@@ -67,7 +67,7 @@ describe("dodoCheckout", () => {
 
     expect(openMock).toHaveBeenCalledWith({
       products: [{ productId: "prod_123", quantity: 1 }],
-      redirectUrl: "https://app.shipyardhq.dev/success",
+      redirectUrl: "https://shipyardhq.dev/success",
       queryParams: {
         plan: "pro",
         email: "user@example.com",

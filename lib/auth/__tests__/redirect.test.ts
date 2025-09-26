@@ -6,7 +6,7 @@ import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL
 
 beforeEach(() => {
-  process.env.NEXT_PUBLIC_APP_URL = "https://app.shipyardhq.dev"
+  process.env.NEXT_PUBLIC_APP_URL = "https://shipyardhq.dev"
 })
 
 afterEach(() => {
@@ -16,13 +16,13 @@ afterEach(() => {
 describe("sanitizeRedirectUrl", () => {
   it("returns relative paths untouched", () => {
     expect(
-      sanitizeRedirectUrl(MEMBER_PRODUCTS_PATH, "app.shipyardhq.dev"),
+      sanitizeRedirectUrl(MEMBER_PRODUCTS_PATH, "shipyardhq.dev"),
     ).toBe(MEMBER_PRODUCTS_PATH)
   })
 
   it("allows absolute URLs matching configured or request host", () => {
     const url = sanitizeRedirectUrl(
-      `https://app.shipyardhq.dev${MEMBER_PRODUCTS_PATH}`,
+      `https://shipyardhq.dev${MEMBER_PRODUCTS_PATH}`,
       null,
     )
     expect(url).toBe(MEMBER_PRODUCTS_PATH)
@@ -30,14 +30,14 @@ describe("sanitizeRedirectUrl", () => {
 
   it("rejects URLs with non-http protocols", () => {
     expect(
-      sanitizeRedirectUrl("javascript:alert(1)", "app.shipyardhq.dev"),
+      sanitizeRedirectUrl("javascript:alert(1)", "shipyardhq.dev"),
     ).toBe(undefined)
   })
 
   it("rejects URLs pointing to disallowed hosts", () => {
     const result = sanitizeRedirectUrl(
       "https://phishing.example.com",
-      "app.shipyardhq.dev",
+      "shipyardhq.dev",
     )
     expect(result).toBeUndefined()
   })
@@ -48,9 +48,9 @@ describe("resolveRedirectUrl", () => {
     const result = resolveRedirectUrl(
       {
         redirectUrl: "/fallback",
-        redirect_url: "https://app.shipyardhq.dev/primary",
+        redirect_url: "https://shipyardhq.dev/primary",
       },
-      "app.shipyardhq.dev",
+      "shipyardhq.dev",
     )
 
     expect(result).toBe("/primary")
@@ -61,7 +61,7 @@ describe("resolveRedirectUrl", () => {
       {
         redirectUrl: "https://malicious.example.com",
       },
-      "app.shipyardhq.dev",
+      "shipyardhq.dev",
     )
 
     expect(result).toBeUndefined()
