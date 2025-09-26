@@ -1,7 +1,11 @@
 import { subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
-import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
+import {
+  buildCacheKey,
+  cacheHit,
+  cacheMiss,
+} from "@/lib/server/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import type {
   NewsletterIntentBreakdownItem,
@@ -9,6 +13,7 @@ import type {
   OnboardingAnswersSummary,
   OnboardingOutcomeDeltaItem,
 } from "@/types/analytics"
+import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 
 const ROLE_INTENT_LABELS: Record<string, string> = {
   "launch-product": "Launch a product",
@@ -183,13 +188,22 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
 
   const oneWeekAgo = subDays(new Date(), 7)
 
-  const adminSlowCache = {
-    ttl: DEFAULT_TTL.slowest,
-    swr: DEFAULT_SWR.slowest,
-  }
+  const cacheKey = buildCacheKey("analytics", "onboardingSummary")
+  const cacheTtlSeconds = resolveCacheTtl("slowest")
 
-  const adminTags = (...tags: string[]) =>
-    accelerateTags(["adminAnalytics", ...tags])
+  const cachedSummary = await cacheHit<OnboardingAnswersSummary>({
+    key: cacheKey,
+    onError: (error) => {
+      console.error("[analytics] failed to read onboarding summary cache", {
+        cacheKey,
+        error,
+      })
+    },
+  })
+
+  if (cachedSummary) {
+    return cachedSummary
+  }
 
   const [
     totalActiveUsers,
@@ -204,44 +218,24 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   ] = await Promise.all([
     prisma.user.count({
       where: activeWhere,
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
-      },
     }),
     prisma.user.count({
       where: completedWhere,
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
-      },
     }),
     prisma.user.groupBy({
       by: ["roleIntent"],
       where: completedWhere,
       _count: { roleIntent: true },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users, TAGS.analytics),
-      },
     }),
     prisma.user.groupBy({
       by: ["heardFrom"],
       where: completedWhere,
       _count: { heardFrom: true },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users, TAGS.analytics),
-      },
     }),
     prisma.user.count({
       where: {
         ...completedWhere,
         updatedAt: { gte: oneWeekAgo },
-      },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
       },
     }),
     prisma.user.findFirst({
@@ -249,10 +243,6 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
       orderBy: [{ updatedAt: "desc" }],
       select: {
         updatedAt: true,
-      },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
       },
     }),
     prisma.user.findMany({
@@ -263,24 +253,12 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
         roleIntent: true,
         heardFrom: true,
       },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
-      },
     }) as Promise<CompletedMember[]>,
     prisma.newsletterSubscription.findMany({
       select: { email: true },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users, "newsletter"),
-      },
     }) as Promise<NewsletterSubscriptionEmail[]>,
     prisma.user.findMany({
       select: { email: true },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
-      },
     }) as Promise<RegisteredUserEmail[]>,
   ])
 
@@ -433,10 +411,6 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
           },
           select: { userId: true },
           distinct: ["userId"],
-          cacheStrategy: {
-            ...adminSlowCache,
-            tags: adminTags(TAGS.products, TAGS.analytics),
-          },
         }) as Promise<DistinctUserSelection[]>,
         prisma.productUpvote.findMany({
           where: {
@@ -444,10 +418,6 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
           },
           select: { userId: true },
           distinct: ["userId"],
-          cacheStrategy: {
-            ...adminSlowCache,
-            tags: adminTags(TAGS.analytics, TAGS.upvotes),
-          },
         }) as Promise<DistinctUserSelection[]>,
         prisma.userPlanPurchase.findMany({
           where: {
@@ -455,10 +425,6 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
           },
           select: { userId: true },
           distinct: ["userId"],
-          cacheStrategy: {
-            ...adminSlowCache,
-            tags: adminTags(TAGS.subscriptions, TAGS.analytics),
-          },
         }) as Promise<DistinctUserSelection[]>,
         prisma.memberFeedback.groupBy({
           by: ["userId"],
@@ -467,10 +433,6 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
           },
           _count: { _all: true, rating: true },
           _sum: { rating: true },
-          cacheStrategy: {
-            ...adminSlowCache,
-            tags: adminTags(TAGS.feedback, TAGS.analytics),
-          },
         }) as unknown as Promise<FeedbackAggregateRow[]>,
       ])
   }
@@ -559,7 +521,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   const roleIntentOutcomes = buildOutcomeItems(roleIntentOutcomeMap)
   const heardFromOutcomes = buildOutcomeItems(heardFromOutcomeMap)
 
-  return {
+  const summary: OnboardingAnswersSummary = {
     totalActiveUsers,
     completedResponses,
     completionRate,
@@ -577,6 +539,20 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     roleIntentOutcomes,
     heardFromOutcomes,
   }
+
+  await cacheMiss({
+    key: cacheKey,
+    value: summary,
+    ttlSeconds: cacheTtlSeconds,
+    onError: (error) => {
+      console.error("[analytics] failed to cache onboarding summary", {
+        cacheKey,
+        error,
+      })
+    },
+  })
+
+  return summary
 }
 
 export async function getPendingOnboardingUsers(

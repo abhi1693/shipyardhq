@@ -1,6 +1,8 @@
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
 import prisma from "@/lib/prisma"
+import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
+import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 
 export const productAnalyticsSelect = {
   id: true,
@@ -29,10 +31,45 @@ export type ProductAnalyticsRecord = Prisma.ProductGetPayload<{
 }>
 
 export async function getProductAnalyticsRecord(id: string) {
-  return prisma.product.findUnique({
+  const cacheKey = buildCacheKey("analytics", "productAnalytics", id)
+  const cacheTtlSeconds = resolveCacheTtl("fast")
+
+  const cachedRecord = await cacheHit<ProductAnalyticsRecord | null>({
+    key: cacheKey,
+    onError: (error) => {
+      console.error("[analytics] failed to read product analytics cache", {
+        productId: id,
+        cacheKey,
+        error,
+      })
+    },
+  })
+
+  if (cachedRecord) {
+    return cachedRecord
+  }
+
+  const record = await prisma.product.findUnique({
     where: { id },
     select: productAnalyticsSelect,
   })
+
+  if (record) {
+    await cacheMiss({
+      key: cacheKey,
+      value: record,
+      ttlSeconds: cacheTtlSeconds,
+      onError: (error) => {
+        console.error("[analytics] failed to cache product analytics", {
+          productId: id,
+          cacheKey,
+          error,
+        })
+      },
+    })
+  }
+
+  return record
 }
 
 export function toProductAnalyticsViewProduct(product: ProductAnalyticsRecord) {

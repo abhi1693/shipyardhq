@@ -1,7 +1,10 @@
+import { createHash } from "node:crypto"
+
 import { addDays, format, formatISO, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
-import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
+import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
+import { resolveCacheTtl, type CacheTier } from "@/lib/server/cache/ttl"
 import type {
   DeviceCategory,
   ProductTrafficAdvancedInsights,
@@ -39,18 +42,64 @@ interface SummaryOptions {
   includeAdvanced?: boolean
   productIds?: string[]
   organizationId?: string
-  cacheTier?: "default" | "slowest"
+  cacheTier?: CacheTier
+}
+interface TrafficCacheKeyParts {
+  context: SummaryOptions["context"]
+  productId?: string
+  organizationId?: string
+  productIds?: string[]
+  rangeDays: number
+  previousComparison: boolean
+  includeAdvanced: boolean
+  includeProductBreakdown: boolean
+  includeReferrerMatrix: boolean
+  cacheTier: CacheTier
 }
 
-const resolveTrafficCache = (
-  context: SummaryOptions["context"],
-  cacheTier: SummaryOptions["cacheTier"],
-) => {
-  const useSlowest = cacheTier === "slowest" || context === "global"
-  return {
-    ttl: useSlowest ? DEFAULT_TTL.slowest : DEFAULT_TTL.slow,
-    swr: useSlowest ? DEFAULT_SWR.slowest : DEFAULT_SWR.slow,
+function hashProductIds(ids: string[]): string {
+  const hash = createHash("sha256")
+  hash.update(ids.join(","))
+  return hash.digest("hex").slice(0, 12)
+}
+
+function buildTrafficSummaryCacheKey(parts: TrafficCacheKeyParts): string {
+  const {
+    context,
+    productId,
+    organizationId,
+    productIds,
+    rangeDays,
+    previousComparison,
+    includeAdvanced,
+    includeProductBreakdown,
+    includeReferrerMatrix,
+    cacheTier,
+  } = parts
+
+  let scopeToken = "scope:global"
+  if (productId) {
+    scopeToken = `product:${productId}`
+  } else if (productIds && productIds.length) {
+    const normalized = [...productIds].sort()
+    scopeToken = `products:${hashProductIds(normalized)}:${normalized.length}`
+  } else if (organizationId) {
+    scopeToken = `org:${organizationId}`
   }
+
+  return buildCacheKey(
+    "admin",
+    "analytics",
+    "trafficSummary",
+    `context:${context ?? "unknown"}`,
+    scopeToken,
+    `range:${rangeDays}`,
+    `previous:${previousComparison ? 1 : 0}`,
+    `advanced:${includeAdvanced ? 1 : 0}`,
+    `productBreakdown:${includeProductBreakdown ? 1 : 0}`,
+    `referrerMatrix:${includeReferrerMatrix ? 1 : 0}`,
+    `tier:${cacheTier}`,
+  )
 }
 
 const DEVICE_ORDER: DeviceCategory[] = [
@@ -98,9 +147,6 @@ const MAX_CITY_ITEMS = 8
 const MAX_TOP_PRODUCTS = 10
 const MAX_REFERRER_MATRIX_ROWS = 5
 const MAX_PRODUCTS_PER_REFERRER = 5
-
-const trafficTags = (...tags: string[]) =>
-  accelerateTags(["adminAnalytics", "traffic", ...tags])
 
 function extractProductId(
   where: Prisma.ProductTrafficEventWhereInput,
@@ -218,7 +264,7 @@ async function buildTrafficSummary(
     rangeDays = 30,
     previousComparison = true,
     context = "product",
-    cacheTier = "default",
+    cacheTier = "slow",
     includeProductBreakdown: includeProductBreakdownOption,
     includeReferrerMatrix: includeReferrerMatrixOption,
     includeAdvanced = true,
@@ -248,26 +294,38 @@ async function buildTrafficSummary(
     : productId
       ? [productId]
       : undefined
-  const contextTag =
-    context === "global"
-      ? "traffic_global"
-      : context === "organization"
-        ? "traffic_organization"
-        : "traffic_product"
-  const tagSeeds: string[] = [TAGS.analytics, contextTag]
-  if (productId) {
-    tagSeeds.push(TAGS.product(productId))
-  } else if (context === "organization" && organizationId) {
-    tagSeeds.push(`organization:${organizationId}`)
-  }
-  if (targetProductIds?.length) {
-    for (const id of targetProductIds.slice(0, 2)) {
-      tagSeeds.push(TAGS.product(id))
-    }
-  }
-  const baseTags = trafficTags(...tagSeeds)
-  const cacheProfile = resolveTrafficCache(context, cacheTier)
+  const cacheKey = buildTrafficSummaryCacheKey({
+    context,
+    productId,
+    organizationId,
+    productIds: targetProductIds,
+    rangeDays: windowDays,
+    previousComparison,
+    includeAdvanced: includeAdvancedMetrics,
+    includeProductBreakdown,
+    includeReferrerMatrix,
+    cacheTier,
+  })
+  const cacheTtlSeconds = resolveCacheTtl(cacheTier)
 
+  const cachedSummary = await cacheHit<ProductTrafficSummary>({
+    key: cacheKey,
+    onError: (error) => {
+      console.error("[analytics] failed to read traffic summary cache", {
+        cacheKey,
+        context,
+        productId: productId ?? null,
+        organizationId: organizationId ?? null,
+        rangeDays: windowDays,
+        cacheTier,
+        error,
+      })
+    },
+  })
+
+  if (cachedSummary) {
+    return cachedSummary
+  }
   const [events, previousEvents] = await Promise.all([
     prisma.productTrafficEvent.findMany({
       where: {
@@ -287,10 +345,6 @@ async function buildTrafficSummary(
         path: true,
         productId: true,
       },
-      cacheStrategy: {
-        ...cacheProfile,
-        tags: baseTags,
-      },
     }),
     previousComparison
       ? prisma.productTrafficEvent.findMany({
@@ -308,10 +362,6 @@ async function buildTrafficSummary(
             country: true,
             referrer: true,
             productId: true,
-          },
-          cacheStrategy: {
-            ...cacheProfile,
-            tags: baseTags,
           },
         })
       : Promise.resolve([]),
@@ -586,18 +636,10 @@ async function buildTrafficSummary(
             os: true,
             referrer: true,
           },
-          cacheStrategy: {
-            ...cacheProfile,
-            tags: baseTags,
-          },
         }),
         prisma.productUpvote.findMany({
           where: upvoteWhere,
           select: { createdAt: true },
-          cacheStrategy: {
-            ...cacheProfile,
-            tags: baseTags,
-          },
         }),
         previousComparison
           ? prisma.productClickEvent.count({ where: previousClickWhere })
@@ -940,10 +982,6 @@ async function buildTrafficSummary(
       },
       select: { ipHash: true },
       distinct: ["ipHash"],
-      cacheStrategy: {
-        ...cacheProfile,
-        tags: baseTags,
-      },
     })
     returningVisitors = returning.length
   }
@@ -1092,10 +1130,6 @@ async function buildTrafficSummary(
     const products = (await prisma.product.findMany({
       where: { id: { in: Array.from(productLookupIds) } },
       select: { id: true, name: true },
-      cacheStrategy: {
-        ...cacheProfile,
-        tags: trafficTags(TAGS.products, TAGS.analytics, contextTag),
-      },
     })) as ProductIdName[]
     productNameMap = new Map(
       products.map((product: ProductIdName) => [product.id, product.name]),
@@ -1147,7 +1181,7 @@ async function buildTrafficSummary(
         anomalies: [],
       }
 
-  return {
+  const summary: ProductTrafficSummary = {
     rangeDays: windowDays,
     totalViews,
     previousViews,
@@ -1187,6 +1221,25 @@ async function buildTrafficSummary(
     engagementOverTime,
     advanced,
   }
+
+  await cacheMiss({
+    key: cacheKey,
+    value: summary,
+    ttlSeconds: cacheTtlSeconds,
+    onError: (error) => {
+      console.error("[analytics] failed to cache traffic summary", {
+        cacheKey,
+        context,
+        productId: productId ?? null,
+        organizationId: organizationId ?? null,
+        rangeDays: windowDays,
+        cacheTier,
+        error,
+      })
+    },
+  })
+
+  return summary
 }
 
 export async function getProductTrafficSummary(

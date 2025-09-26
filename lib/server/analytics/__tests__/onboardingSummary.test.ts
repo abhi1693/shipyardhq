@@ -22,6 +22,9 @@ const {
   feedbackGroupByMock: vi.fn(),
 }))
 
+const cacheHitMock = vi.hoisted(() => vi.fn())
+const cacheMissMock = vi.hoisted(() => vi.fn())
+
 vi.mock("@/lib/prisma", () => ({
   default: {
     user: {
@@ -48,6 +51,17 @@ vi.mock("@/lib/prisma", () => ({
   },
 }))
 
+vi.mock("@/lib/server/cache", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/server/cache")>(
+    "@/lib/server/cache",
+  )
+  return {
+    ...actual,
+    cacheHit: cacheHitMock,
+    cacheMiss: cacheMissMock,
+  }
+})
+
 import {
   getOnboardingAnswersSummary,
   getPendingOnboardingUsers,
@@ -69,6 +83,11 @@ describe("getOnboardingAnswersSummary", () => {
     upvoteFindManyMock.mockReset()
     purchaseFindManyMock.mockReset()
     feedbackGroupByMock.mockReset()
+
+    cacheHitMock.mockReset()
+    cacheMissMock.mockReset()
+    cacheHitMock.mockResolvedValue(null)
+    cacheMissMock.mockResolvedValue(undefined)
   })
 
   afterEach(() => {
@@ -279,6 +298,13 @@ describe("getOnboardingAnswersSummary", () => {
     expect(purchaseFindManyMock).toHaveBeenCalledTimes(1)
     expect(feedbackGroupByMock).toHaveBeenCalledTimes(1)
     expect(newsletterFindManyMock).toHaveBeenCalledTimes(1)
+
+    expect(cacheMissMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: expect.stringContaining("analytics:onboardingSummary"),
+        ttlSeconds: 3600,
+      }),
+    )
   })
 
   it("handles absence of responses", async () => {
@@ -315,6 +341,42 @@ describe("getOnboardingAnswersSummary", () => {
     expect(summary.newsletterUnregisteredSubscribers).toBe(0)
     expect(summary.roleIntentOutcomes).toEqual([])
     expect(summary.heardFromOutcomes).toEqual([])
+
+    expect(cacheMissMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: expect.stringContaining("analytics:onboardingSummary"),
+        ttlSeconds: 3600,
+      }),
+    )
+  })
+
+  it("returns cached onboarding summary when available", async () => {
+    const cached = {
+      totalActiveUsers: 0,
+      completedResponses: 0,
+      completionRate: 0,
+      pendingUsers: 0,
+      completedLast7Days: 0,
+      lastResponseAt: null,
+      roleIntentBreakdown: [],
+      heardFromBreakdown: [],
+      newsletterSubscribed: 0,
+      newsletterOptedOut: 0,
+      newsletterIntentBreakdown: [],
+      newsletterRegisteredSubscribers: 0,
+      newsletterRegisteredNotSubscribed: 0,
+      newsletterUnregisteredSubscribers: 0,
+      roleIntentOutcomes: [],
+      heardFromOutcomes: [],
+    } as Awaited<ReturnType<typeof getOnboardingAnswersSummary>>
+
+    cacheHitMock.mockResolvedValueOnce(cached)
+
+    const result = await getOnboardingAnswersSummary()
+
+    expect(result).toBe(cached)
+    expect(countMock).not.toHaveBeenCalled()
+    expect(cacheMissMock).not.toHaveBeenCalled()
   })
 
   it("fetches pending onboarding users", async () => {

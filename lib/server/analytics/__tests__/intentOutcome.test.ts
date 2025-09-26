@@ -22,12 +22,8 @@ const {
   purchaseFindManyMock: vi.fn(),
 }))
 
-vi.mock("next/cache", () => ({
-  unstable_cache:
-    (fn: (...args: unknown[]) => unknown) =>
-    (...args: unknown[]) =>
-      fn(...args),
-}))
+const cacheHitMock = vi.hoisted(() => vi.fn())
+const cacheMissMock = vi.hoisted(() => vi.fn())
 
 vi.mock("@/lib/prisma", () => ({
   default: {
@@ -57,6 +53,17 @@ vi.mock("@/lib/prisma", () => ({
   },
 }))
 
+vi.mock("@/lib/server/cache", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/server/cache")>(
+    "@/lib/server/cache",
+  )
+  return {
+    ...actual,
+    cacheHit: cacheHitMock,
+    cacheMiss: cacheMissMock,
+  }
+})
+
 import { getIntentOutcomeAnalytics } from "@/lib/server/analytics/intentOutcome"
 
 describe("getIntentOutcomeAnalytics", () => {
@@ -73,6 +80,11 @@ describe("getIntentOutcomeAnalytics", () => {
     productTrafficFindManyMock.mockReset()
     upvoteFindManyMock.mockReset()
     purchaseFindManyMock.mockReset()
+
+    cacheHitMock.mockReset()
+    cacheMissMock.mockReset()
+    cacheHitMock.mockResolvedValue(null)
+    cacheMissMock.mockResolvedValue(undefined)
 
     productGroupByMock.mockResolvedValue([])
     membershipGroupByMock.mockResolvedValue([])
@@ -272,6 +284,13 @@ describe("getIntentOutcomeAnalytics", () => {
     expect(productTrafficFindManyMock).toHaveBeenCalledTimes(1)
     expect(upvoteFindManyMock).toHaveBeenCalledTimes(1)
     expect(purchaseFindManyMock).toHaveBeenCalledTimes(1)
+
+    expect(cacheMissMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: expect.stringContaining("analytics:intentOutcome"),
+        ttlSeconds: 3600,
+      }),
+    )
   })
 
   it("returns empty summary when no users fit the window", async () => {
@@ -289,5 +308,36 @@ describe("getIntentOutcomeAnalytics", () => {
       ),
     ).toBe(true)
     expect(productGroupByMock).not.toHaveBeenCalled()
+
+    expect(cacheMissMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: expect.stringContaining("analytics:intentOutcome"),
+        ttlSeconds: 3600,
+      }),
+    )
+  })
+
+  it("returns cached analytics when cache hit succeeds", async () => {
+    const cached = {
+      rangeDays: 180,
+      generatedAt: new Date().toISOString(),
+      summary: {
+        totalUsers: 0,
+        totalCohorts: 0,
+        stageMetrics: [],
+        retention: { thresholds: [] },
+      },
+      cohorts: [],
+    } as unknown as Awaited<
+      ReturnType<typeof getIntentOutcomeAnalytics>
+    >
+
+    cacheHitMock.mockResolvedValueOnce(cached)
+
+    const result = await getIntentOutcomeAnalytics()
+
+    expect(result).toBe(cached)
+    expect(userFindManyMock).not.toHaveBeenCalled()
+    expect(cacheMissMock).not.toHaveBeenCalled()
   })
 })

@@ -8,6 +8,9 @@ const prismaMocks = vi.hoisted(() => ({
   upvoteCount: vi.fn(),
 }))
 
+const cacheHitMock = vi.hoisted(() => vi.fn())
+const cacheMissMock = vi.hoisted(() => vi.fn())
+
 vi.mock("@/lib/prisma", () => ({
   default: {
     productTrafficEvent: {
@@ -24,6 +27,18 @@ vi.mock("@/lib/prisma", () => ({
   },
 }))
 
+vi.mock("@/lib/server/cache", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/server/cache")>(
+    "@/lib/server/cache",
+  )
+
+  return {
+    ...actual,
+    cacheHit: cacheHitMock,
+    cacheMiss: cacheMissMock,
+  }
+})
+
 import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
 
 describe("getProductTrafficSummary", () => {
@@ -37,6 +52,10 @@ describe("getProductTrafficSummary", () => {
     prismaMocks.upvoteFindMany.mockReset()
     prismaMocks.clickCount.mockReset()
     prismaMocks.upvoteCount.mockReset()
+    cacheHitMock.mockReset()
+    cacheMissMock.mockReset()
+    cacheHitMock.mockResolvedValue(null)
+    cacheMissMock.mockResolvedValue(undefined)
   })
 
   afterEach(() => {
@@ -117,6 +136,14 @@ describe("getProductTrafficSummary", () => {
 
     const summary = await getProductTrafficSummary("prod-1", { rangeDays: 3 })
 
+    expect(cacheHitMock).toHaveBeenCalledTimes(1)
+    expect(cacheMissMock).toHaveBeenCalledTimes(1)
+    expect(cacheMissMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: expect.stringContaining("trafficSummary"),
+        ttlSeconds: 300,
+      }),
+    )
     expect(summary.totalViews).toEqual(3)
     expect(summary.previousViews).toEqual(1)
     expect(summary.uniqueVisitors).toEqual(3) // hash-1, hash-2, anonymous
@@ -180,6 +207,8 @@ describe("getProductTrafficSummary", () => {
       includeAdvanced: false,
     })
 
+    expect(cacheHitMock).toHaveBeenCalledTimes(1)
+    expect(cacheMissMock).toHaveBeenCalledTimes(1)
     expect(prismaMocks.findMany).toHaveBeenCalledTimes(2)
     expect(prismaMocks.clickFindMany).not.toHaveBeenCalled()
     expect(prismaMocks.upvoteFindMany).not.toHaveBeenCalled()
@@ -198,5 +227,65 @@ describe("getProductTrafficSummary", () => {
       unknownVisitors: 0,
       returningRate: 0,
     })
+  })
+
+  it("returns cached traffic summary when available", async () => {
+    const cachedSummary = {
+      rangeDays: 7,
+      totalViews: 0,
+      previousViews: 0,
+      totalViewsChange: 0,
+      uniqueVisitors: 0,
+      previousUniqueVisitors: 0,
+      uniqueVisitorsChange: 0,
+      averageViewsPerDay: 0,
+      viewsToday: 0,
+      viewsSevenDays: 0,
+      clicksInRange: 0,
+      previousClicks: 0,
+      clicksChange: 0,
+      clickThroughRate: 0,
+      clickThroughRateChange: 0,
+      upvotesInRange: 0,
+      previousUpvotes: 0,
+      upvotesChange: 0,
+      upvoteConversionRate: 0,
+      upvoteConversionRateChange: 0,
+      viewsOverTime: [],
+      deviceBreakdown: [],
+      deviceConversionBreakdown: [],
+      browserBreakdown: [],
+      browserConversionBreakdown: [],
+      userAgentBreakdown: [],
+      countryBreakdown: [],
+      referrerBreakdown: [],
+      referrerConversionBreakdown: [],
+      osConversionBreakdown: [],
+      engagementOverTime: [],
+      advanced: {
+        uniqueVisitorsOverTime: [],
+        pathBreakdown: [],
+        osBreakdown: [],
+        regionBreakdown: [],
+        cityBreakdown: [],
+        referrerCategoryBreakdown: [],
+        newVsReturning: {
+          newVisitors: 0,
+          returningVisitors: 0,
+          unknownVisitors: 0,
+          returningRate: 0,
+        },
+        anomalies: [],
+      },
+    } as unknown as import("@/types/analytics").ProductTrafficSummary
+
+    cacheHitMock.mockResolvedValueOnce(cachedSummary)
+
+    const result = await getProductTrafficSummary("prod-1")
+
+    expect(cacheHitMock).toHaveBeenCalledTimes(1)
+    expect(result).toBe(cachedSummary)
+    expect(prismaMocks.findMany).not.toHaveBeenCalled()
+    expect(cacheMissMock).not.toHaveBeenCalled()
   })
 })

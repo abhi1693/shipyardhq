@@ -12,9 +12,23 @@ const prismaMock = vi.hoisted(() => ({
   },
 }))
 
+const cacheHitMock = vi.hoisted(() => vi.fn())
+const cacheMissMock = vi.hoisted(() => vi.fn())
+
 vi.mock("@/lib/prisma", () => ({
   default: prismaMock,
 }))
+
+vi.mock("@/lib/server/cache", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/server/cache")>(
+    "@/lib/server/cache",
+  )
+  return {
+    ...actual,
+    cacheHit: cacheHitMock,
+    cacheMiss: cacheMissMock,
+  }
+})
 
 import { organizationHasAdvancedAnalytics } from "@/lib/server/analytics/organizationAccess"
 
@@ -23,6 +37,10 @@ describe("organizationHasAdvancedAnalytics", () => {
     prismaMock.product.findFirst.mockReset()
     prismaMock.organization.findUnique.mockReset()
     prismaMock.userPlanPurchase.findFirst.mockReset()
+    cacheHitMock.mockReset()
+    cacheMissMock.mockReset()
+    cacheHitMock.mockResolvedValue(undefined)
+    cacheMissMock.mockResolvedValue(undefined)
   })
 
   it("returns true when a product plan includes advanced analytics", async () => {
@@ -41,6 +59,12 @@ describe("organizationHasAdvancedAnalytics", () => {
 
     expect(result).toBe(true)
     expect(prismaMock.userPlanPurchase.findFirst).not.toHaveBeenCalled()
+    expect(cacheMissMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: expect.stringContaining("analytics:organizationAccess"),
+        ttlSeconds: 60,
+      }),
+    )
   })
 
   it("checks owner subscription when no product plan qualifies", async () => {
@@ -57,6 +81,7 @@ describe("organizationHasAdvancedAnalytics", () => {
     const result = await organizationHasAdvancedAnalytics("org-2")
 
     expect(result).toBe(true)
+    expect(cacheMissMock).toHaveBeenCalled()
   })
 
   it("returns false when no owner or qualifying purchase exists", async () => {
@@ -66,6 +91,7 @@ describe("organizationHasAdvancedAnalytics", () => {
     const result = await organizationHasAdvancedAnalytics("org-3")
 
     expect(result).toBe(false)
+    expect(cacheMissMock).toHaveBeenCalled()
   })
 
   it("logs and returns false on errors", async () => {
@@ -81,5 +107,15 @@ describe("organizationHasAdvancedAnalytics", () => {
     )
 
     errorSpy.mockRestore()
+  })
+
+  it("returns cached response when available", async () => {
+    cacheHitMock.mockResolvedValueOnce(true)
+
+    const result = await organizationHasAdvancedAnalytics("org-5")
+
+    expect(result).toBe(true)
+    expect(prismaMock.product.findFirst).not.toHaveBeenCalled()
+    expect(cacheMissMock).not.toHaveBeenCalled()
   })
 })

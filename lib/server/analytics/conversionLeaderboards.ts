@@ -1,27 +1,18 @@
 import { addDays, startOfDay, subDays } from "date-fns"
 
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_SWR,
-  DEFAULT_TTL,
-  TAGS,
-} from "@/lib/cache"
 import prisma from "@/lib/prisma"
+import {
+  buildCacheKey,
+  cacheHit,
+  cacheMiss,
+} from "@/lib/server/cache"
+import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 
 const LEADERBOARD_LIMIT = 5
 const MIN_VIEWS_FOR_RATE = 10
 const MIN_CLICKS_FOR_CTR = 2
 const MIN_UPVOTES_FOR_RATE = 1
 const MIN_VIEWS_FOR_GROWTH = 10
-
-const leaderboardCache = {
-  ttl: DEFAULT_TTL.slowest,
-  swr: DEFAULT_SWR.slowest,
-}
-
-const leaderboardTags = (...tags: string[]) =>
-  accelerateTags(["adminAnalytics", "conversionLeaderboards", ...tags])
 
 function calcChange(current: number, previous: number) {
   if (previous === 0) {
@@ -136,45 +127,68 @@ interface CategoryAccumulator {
   previousUpvotes: number
 }
 
-export const getConversionLeaderboards = cached(
-  async (rangeDays = 7): Promise<ConversionLeaderboards> => {
-    const today = startOfDay(new Date())
-    const windowDays = Math.max(rangeDays, 1)
-    const rangeStart = subDays(today, windowDays - 1)
-    const rangeEnd = addDays(today, 1)
-    const previousStart = subDays(rangeStart, windowDays)
+export async function getConversionLeaderboards(
+  rangeDays = 7,
+): Promise<ConversionLeaderboards> {
+  const today = startOfDay(new Date())
+  const windowDays = Math.max(rangeDays, 1)
+  const rangeStart = subDays(today, windowDays - 1)
+  const rangeEnd = addDays(today, 1)
+  const previousStart = subDays(rangeStart, windowDays)
 
-    const currentTrafficWhere = {
-      createdAt: {
-        gte: rangeStart,
-        lt: rangeEnd,
-      },
-      product: { status: "published" as const },
-    }
+  const cacheKey = buildCacheKey(
+    "analytics",
+    "conversionLeaderboards",
+    `range:${windowDays}`,
+  )
+  const cacheTtlSeconds = resolveCacheTtl("slowest")
 
-    const previousTrafficWhere = {
-      createdAt: {
-        gte: previousStart,
-        lt: rangeStart,
-      },
-      product: { status: "published" as const },
-    }
+  const cachedLeaderboards = await cacheHit<ConversionLeaderboards>({
+    key: cacheKey,
+    onError: (error) => {
+      console.error("[analytics] failed to read conversion leaderboards cache", {
+        cacheKey,
+        rangeDays: windowDays,
+        error,
+      })
+    },
+  })
 
-    const [
-      currentViews,
-      previousViews,
-      currentClicks,
-      previousClicks,
-      currentUpvotes,
-      previousUpvotes,
-    ]: [
-      ProductCountRow[],
-      ProductCountRow[],
-      ProductCountRow[],
-      ProductCountRow[],
-      ProductCountRow[],
-      ProductCountRow[],
-    ] = await Promise.all([
+  if (cachedLeaderboards) {
+    return cachedLeaderboards
+  }
+
+  const currentTrafficWhere = {
+    createdAt: {
+      gte: rangeStart,
+      lt: rangeEnd,
+    },
+    product: { status: "published" as const },
+  }
+
+  const previousTrafficWhere = {
+    createdAt: {
+      gte: previousStart,
+      lt: rangeStart,
+    },
+    product: { status: "published" as const },
+  }
+
+  const [
+    currentViews,
+    previousViews,
+    currentClicks,
+    previousClicks,
+    currentUpvotes,
+    previousUpvotes,
+  ]: [
+    ProductCountRow[],
+    ProductCountRow[],
+    ProductCountRow[],
+    ProductCountRow[],
+    ProductCountRow[],
+    ProductCountRow[],
+  ] = await Promise.all([
       prisma.productTrafficEvent.groupBy({
         by: ["productId"],
         where: currentTrafficWhere,
@@ -306,10 +320,6 @@ export const getConversionLeaderboards = cached(
         categoryId: true,
         category: { select: { id: true, name: true } },
       },
-      cacheStrategy: {
-        ...leaderboardCache,
-        tags: leaderboardTags(TAGS.products, TAGS.categories),
-      },
     })
 
     const categoryMap = new Map<string, CategoryAccumulator>()
@@ -407,78 +417,82 @@ export const getConversionLeaderboards = cached(
       .sort((a, b) => scoreForSort(b.growth) - scoreForSort(a.growth))
       .slice(0, LEADERBOARD_LIMIT)
 
-    const categoryEntries = Array.from(categoryMap.values()).filter(
-      (entry) => entry.views > 0,
-    )
+  const categoryEntries = Array.from(categoryMap.values()).filter(
+    (entry) => entry.views > 0,
+  )
 
-    const categoryCtr = categoryEntries
-      .map<CategoryCtrEntry>((entry) => {
-        const ctr = safePercent(entry.clicks, entry.views)
-        const previousCtr = safePercent(
-          entry.previousClicks,
-          entry.previousViews,
-        )
-        return {
-          ...entry,
-          ctr,
-          ctrDelta: calcChange(ctr, previousCtr),
-        }
-      })
-      .filter(
-        (entry) =>
-          entry.views >= MIN_VIEWS_FOR_RATE &&
-          entry.clicks >= MIN_CLICKS_FOR_CTR,
-      )
-      .sort((a, b) => scoreForSort(b.ctr) - scoreForSort(a.ctr))
-      .slice(0, LEADERBOARD_LIMIT)
-
-    const categoryUpvoteRate = categoryEntries
-      .map<CategoryUpvoteEntry>((entry) => {
-        const upvoteRate = safePercent(entry.upvotes, entry.views)
-        const previousUpvoteRate = safePercent(
-          entry.previousUpvotes,
-          entry.previousViews,
-        )
-        return {
-          ...entry,
-          upvoteRate,
-          upvoteRateDelta: calcChange(upvoteRate, previousUpvoteRate),
-        }
-      })
-      .filter(
-        (entry) =>
-          entry.views >= MIN_VIEWS_FOR_RATE &&
-          entry.upvotes >= MIN_UPVOTES_FOR_RATE,
-      )
-      .sort((a, b) => scoreForSort(b.upvoteRate) - scoreForSort(a.upvoteRate))
-      .slice(0, LEADERBOARD_LIMIT)
-
-    const categoryGrowth = categoryEntries
-      .map<CategoryGrowthEntry>((entry) => ({
+  const categoryCtr = categoryEntries
+    .map<CategoryCtrEntry>((entry) => {
+      const ctr = safePercent(entry.clicks, entry.views)
+      const previousCtr = safePercent(entry.previousClicks, entry.previousViews)
+      return {
         ...entry,
-        growth: calcGrowth(entry.views, entry.previousViews),
-      }))
-      .filter((entry) => entry.views >= MIN_VIEWS_FOR_GROWTH)
-      .sort((a, b) => scoreForSort(b.growth) - scoreForSort(a.growth))
-      .slice(0, LEADERBOARD_LIMIT)
+        ctr,
+        ctrDelta: calcChange(ctr, previousCtr),
+      }
+    })
+    .filter(
+      (entry) =>
+        entry.views >= MIN_VIEWS_FOR_RATE &&
+        entry.clicks >= MIN_CLICKS_FOR_CTR,
+    )
+    .sort((a, b) => scoreForSort(b.ctr) - scoreForSort(a.ctr))
+    .slice(0, LEADERBOARD_LIMIT)
 
-    return {
-      products: {
-        topCtr: productCtr,
-        topUpvoteRate: productUpvoteRate,
-        fastestGrowing: productGrowth,
-      },
-      categories: {
-        topCtr: categoryCtr,
-        topUpvoteRate: categoryUpvoteRate,
-        fastestGrowing: categoryGrowth,
-      },
-    }
-  },
-  "conversionLeaderboards",
-  {
-    ttl: DEFAULT_TTL.slowest,
-    tags: ([rangeDays]) =>
-      leaderboardTags(TAGS.analytics, `conversion:${Math.max(rangeDays, 1)}`),
-  },
-)
+  const categoryUpvoteRate = categoryEntries
+    .map<CategoryUpvoteEntry>((entry) => {
+      const upvoteRate = safePercent(entry.upvotes, entry.views)
+      const previousUpvoteRate = safePercent(
+        entry.previousUpvotes,
+        entry.previousViews,
+      )
+      return {
+        ...entry,
+        upvoteRate,
+        upvoteRateDelta: calcChange(upvoteRate, previousUpvoteRate),
+      }
+    })
+    .filter(
+      (entry) =>
+        entry.views >= MIN_VIEWS_FOR_RATE && entry.upvotes >= MIN_UPVOTES_FOR_RATE,
+    )
+    .sort((a, b) => scoreForSort(b.upvoteRate) - scoreForSort(a.upvoteRate))
+    .slice(0, LEADERBOARD_LIMIT)
+
+  const categoryGrowth = categoryEntries
+    .map<CategoryGrowthEntry>((entry) => ({
+      ...entry,
+      growth: calcGrowth(entry.views, entry.previousViews),
+    }))
+    .filter((entry) => entry.views >= MIN_VIEWS_FOR_GROWTH)
+    .sort((a, b) => scoreForSort(b.growth) - scoreForSort(a.growth))
+    .slice(0, LEADERBOARD_LIMIT)
+
+  const leaderboards: ConversionLeaderboards = {
+    products: {
+      topCtr: productCtr,
+      topUpvoteRate: productUpvoteRate,
+      fastestGrowing: productGrowth,
+    },
+    categories: {
+      topCtr: categoryCtr,
+      topUpvoteRate: categoryUpvoteRate,
+      fastestGrowing: categoryGrowth,
+    },
+  }
+
+  await cacheMiss({
+    key: cacheKey,
+    value: leaderboards,
+    ttlSeconds: cacheTtlSeconds,
+    onError: (error) => {
+      console.error("[analytics] failed to cache conversion leaderboards", {
+        cacheKey,
+        rangeDays: windowDays,
+        error,
+      })
+    },
+  })
+
+  return leaderboards
+}

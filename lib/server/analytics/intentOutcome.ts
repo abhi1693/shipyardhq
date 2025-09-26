@@ -1,17 +1,16 @@
 import { differenceInCalendarDays, startOfDay, subDays } from "date-fns"
 
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_SWR,
-  DEFAULT_TTL,
-  TAGS,
-} from "@/lib/cache"
 import prisma from "@/lib/prisma"
 import {
   getHeardFromLabel,
   getRoleIntentLabel,
 } from "@/lib/server/analytics/onboardingSummary"
+import {
+  buildCacheKey,
+  cacheHit,
+  cacheMiss,
+} from "@/lib/server/cache"
+import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import type {
   IntentOutcomeAnalytics,
   IntentOutcomeCohort,
@@ -20,14 +19,6 @@ import type {
   IntentOutcomeStageMetrics,
   IntentOutcomeSummary,
 } from "@/types/analytics"
-
-const ANALYTICS_CACHE = {
-  ttl: DEFAULT_TTL.slowest,
-  swr: DEFAULT_SWR.slowest,
-}
-
-const analyticsTags = (...tags: string[]) =>
-  accelerateTags(["adminAnalytics", "intentOutcome", ...tags])
 
 const SPEED_BUCKETS = [
   { thresholdDays: 30, label: "Within 30 days" },
@@ -250,44 +241,76 @@ interface IntentOutcomeOptions {
   rangeDays?: number
 }
 
-export const getIntentOutcomeAnalytics = cached(
-  async (
-    options: IntentOutcomeOptions = {},
-  ): Promise<IntentOutcomeAnalytics> => {
-    const windowDays = Math.max(Math.floor(options.rangeDays ?? 180), 1)
-    const today = startOfDay(new Date())
-    const rangeStart = subDays(today, windowDays - 1)
+export async function getIntentOutcomeAnalytics(
+  options: IntentOutcomeOptions = {},
+): Promise<IntentOutcomeAnalytics> {
+  const windowDays = Math.max(Math.floor(options.rangeDays ?? 180), 1)
+  const today = startOfDay(new Date())
+  const rangeStart = subDays(today, windowDays - 1)
 
-    const users = await prisma.user.findMany({
-      where: {
-        status: "active",
-        createdAt: { gte: rangeStart },
+  const cacheKey = buildCacheKey(
+    "analytics",
+    "intentOutcome",
+    `range:${windowDays}`,
+  )
+  const cacheTtlSeconds = resolveCacheTtl("slowest")
+
+  const cachedAnalytics = await cacheHit<IntentOutcomeAnalytics>({
+    key: cacheKey,
+    onError: (error) => {
+      console.error("[analytics] failed to read intent outcome cache", {
+        cacheKey,
+        rangeDays: windowDays,
+        error,
+      })
+    },
+  })
+
+  if (cachedAnalytics) {
+    return cachedAnalytics
+  }
+
+  const users = await prisma.user.findMany({
+    where: {
+      status: "active",
+      createdAt: { gte: rangeStart },
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      roleIntent: true,
+      heardFrom: true,
+    },
+  })
+
+  if (!users.length) {
+    const analytics: IntentOutcomeAnalytics = {
+      rangeDays: windowDays,
+      generatedAt: new Date().toISOString(),
+      summary: {
+        totalUsers: 0,
+        totalCohorts: 0,
+        stageMetrics: buildStageMetrics(createStageState(), 0),
+        retention: buildRetentionMetrics(createRetentionCounts(), 0),
       },
-      select: {
-        id: true,
-        createdAt: true,
-        roleIntent: true,
-        heardFrom: true,
-      },
-      cacheStrategy: {
-        ...ANALYTICS_CACHE,
-        tags: analyticsTags(TAGS.users),
+      cohorts: [],
+    }
+
+    await cacheMiss({
+      key: cacheKey,
+      value: analytics,
+      ttlSeconds: cacheTtlSeconds,
+      onError: (error) => {
+        console.error("[analytics] failed to cache empty intent outcome", {
+          cacheKey,
+          rangeDays: windowDays,
+          error,
+        })
       },
     })
 
-    if (!users.length) {
-      return {
-        rangeDays: windowDays,
-        generatedAt: new Date().toISOString(),
-        summary: {
-          totalUsers: 0,
-          totalCohorts: 0,
-          stageMetrics: buildStageMetrics(createStageState(), 0),
-          retention: buildRetentionMetrics(createRetentionCounts(), 0),
-        },
-        cohorts: [],
-      }
-    }
+    return analytics
+  }
 
     const cohorts = new Map<string, CohortAccumulator>()
     const globalStages = createStageState()
@@ -343,10 +366,6 @@ export const getIntentOutcomeAnalytics = cached(
           },
           _count: { _all: true },
           _min: { createdAt: true },
-          cacheStrategy: {
-            ...ANALYTICS_CACHE,
-            tags: analyticsTags(TAGS.products),
-          },
         }) as unknown as StageRow[],
         prisma.organizationMembership.groupBy({
           by: ["userId"],
@@ -355,10 +374,6 @@ export const getIntentOutcomeAnalytics = cached(
           },
           _count: { _all: true },
           _min: { createdAt: true },
-          cacheStrategy: {
-            ...ANALYTICS_CACHE,
-            tags: analyticsTags(TAGS.organizations),
-          },
         }) as unknown as StageRow[],
         prisma.productUpvote.groupBy({
           by: ["userId"],
@@ -367,10 +382,6 @@ export const getIntentOutcomeAnalytics = cached(
           },
           _count: { _all: true },
           _min: { createdAt: true },
-          cacheStrategy: {
-            ...ANALYTICS_CACHE,
-            tags: analyticsTags(TAGS.analytics, TAGS.upvotes),
-          },
         }) as unknown as StageRow[],
         prisma.memberFeedback.groupBy({
           by: ["userId"],
@@ -379,10 +390,6 @@ export const getIntentOutcomeAnalytics = cached(
           },
           _count: { _all: true },
           _min: { createdAt: true },
-          cacheStrategy: {
-            ...ANALYTICS_CACHE,
-            tags: analyticsTags(TAGS.feedback),
-          },
         }) as unknown as StageRow[],
         prisma.userPlanPurchase.groupBy({
           by: ["userId"],
@@ -391,10 +398,6 @@ export const getIntentOutcomeAnalytics = cached(
           },
           _count: { _all: true },
           _min: { createdAt: true },
-          cacheStrategy: {
-            ...ANALYTICS_CACHE,
-            tags: analyticsTags(TAGS.subscriptions, TAGS.analytics),
-          },
         }) as unknown as StageRow[],
         prisma.productTrafficEvent.findMany({
           where: {
@@ -407,10 +410,6 @@ export const getIntentOutcomeAnalytics = cached(
             createdAt: true,
             product: { select: { userId: true } },
           },
-          cacheStrategy: {
-            ...ANALYTICS_CACHE,
-            tags: analyticsTags(TAGS.analytics, TAGS.products),
-          },
         }) as unknown as TrafficEvent[],
         prisma.productUpvote.findMany({
           where: {
@@ -421,10 +420,6 @@ export const getIntentOutcomeAnalytics = cached(
             userId: true,
             createdAt: true,
           },
-          cacheStrategy: {
-            ...ANALYTICS_CACHE,
-            tags: analyticsTags(TAGS.analytics, TAGS.upvotes),
-          },
         }) as unknown as UpvoteEvent[],
         prisma.userPlanPurchase.findMany({
           where: {
@@ -434,10 +429,6 @@ export const getIntentOutcomeAnalytics = cached(
           select: {
             userId: true,
             createdAt: true,
-          },
-          cacheStrategy: {
-            ...ANALYTICS_CACHE,
-            tags: analyticsTags(TAGS.subscriptions, TAGS.analytics),
           },
         }) as unknown as PurchaseEvent[],
       ])
@@ -535,30 +526,35 @@ export const getIntentOutcomeAnalytics = cached(
       }))
       .sort((a, b) => b.totalUsers - a.totalUsers)
 
-    const summary: IntentOutcomeSummary = {
-      totalUsers: users.length,
-      totalCohorts: cohortList.length,
-      stageMetrics: buildStageMetrics(globalStages, users.length),
-      retention: buildRetentionMetrics(summaryRetentionCounts, users.length),
-    }
+  const summary: IntentOutcomeSummary = {
+    totalUsers: users.length,
+    totalCohorts: cohortList.length,
+    stageMetrics: buildStageMetrics(globalStages, users.length),
+    retention: buildRetentionMetrics(summaryRetentionCounts, users.length),
+  }
 
-    return {
-      rangeDays: windowDays,
-      generatedAt: new Date().toISOString(),
-      summary,
-      cohorts: cohortList,
-    }
-  },
-  "intentOutcomeAnalytics",
-  {
-    ttl: DEFAULT_TTL.slowest,
-    tags: ([options]) =>
-      analyticsTags(
-        TAGS.analytics,
-        `range:${Math.max(Math.floor(options?.rangeDays ?? 180), 1)}`,
-      ),
-  },
-)
+  const analytics: IntentOutcomeAnalytics = {
+    rangeDays: windowDays,
+    generatedAt: new Date().toISOString(),
+    summary,
+    cohorts: cohortList,
+  }
+
+  await cacheMiss({
+    key: cacheKey,
+    value: analytics,
+    ttlSeconds: cacheTtlSeconds,
+    onError: (error) => {
+      console.error("[analytics] failed to cache intent outcome analytics", {
+        cacheKey,
+        rangeDays: windowDays,
+        error,
+      })
+    },
+  })
+
+  return analytics
+}
 
 export const intentOutcomeStages = STAGE_CONFIG.map((stage) => ({
   key: stage.key,

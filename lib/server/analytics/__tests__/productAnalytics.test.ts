@@ -6,9 +6,23 @@ const prismaMock = vi.hoisted(() => ({
   },
 }))
 
+const cacheHitMock = vi.hoisted(() => vi.fn())
+const cacheMissMock = vi.hoisted(() => vi.fn())
+
 vi.mock("@/lib/prisma", () => ({
   default: prismaMock,
 }))
+
+vi.mock("@/lib/server/cache", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/server/cache")>(
+    "@/lib/server/cache",
+  )
+  return {
+    ...actual,
+    cacheHit: cacheHitMock,
+    cacheMiss: cacheMissMock,
+  }
+})
 
 import {
   getProductAnalyticsRecord,
@@ -18,6 +32,10 @@ import {
 describe("productAnalytics", () => {
   beforeEach(() => {
     prismaMock.product.findUnique.mockReset()
+    cacheHitMock.mockReset()
+    cacheMissMock.mockReset()
+    cacheHitMock.mockResolvedValue(null)
+    cacheMissMock.mockResolvedValue(undefined)
   })
 
   it("fetches a product analytics record by id", async () => {
@@ -30,6 +48,23 @@ describe("productAnalytics", () => {
       select: expect.any(Object),
     })
     expect(record).toEqual({ id: "prod-1" })
+    expect(cacheMissMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: expect.stringContaining("analytics:productAnalytics:prod-1"),
+        ttlSeconds: 60,
+      }),
+    )
+  })
+
+  it("returns cached record when available", async () => {
+    const cached = { id: "cached" } as any
+    cacheHitMock.mockResolvedValueOnce(cached)
+
+    const result = await getProductAnalyticsRecord("prod-2")
+
+    expect(result).toBe(cached)
+    expect(prismaMock.product.findUnique).not.toHaveBeenCalled()
+    expect(cacheMissMock).not.toHaveBeenCalled()
   })
 
   it("maps the record into a view-friendly shape", () => {
@@ -54,4 +89,5 @@ describe("productAnalytics", () => {
       analytics: { upvotes: 12, clicks: 34 },
     })
   })
+
 })

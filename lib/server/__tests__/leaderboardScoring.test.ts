@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const findManyMock = vi.hoisted(() => vi.fn())
+const cacheHitMock = vi.hoisted(() => vi.fn())
+const cacheMissMock = vi.hoisted(() => vi.fn())
 
 vi.mock("@/lib/prisma", () => ({
   default: {
@@ -10,11 +12,27 @@ vi.mock("@/lib/prisma", () => ({
   },
 }))
 
+vi.mock("@/lib/server/cache", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/server/cache")>(
+    "@/lib/server/cache",
+  )
+
+  return {
+    ...actual,
+    cacheHit: cacheHitMock,
+    cacheMiss: cacheMissMock,
+  }
+})
+
 import { getLeaderboardScoringAnalytics } from "@/lib/server/analytics/leaderboardScoring"
 
 describe("getLeaderboardScoringAnalytics", () => {
   beforeEach(() => {
     findManyMock.mockReset()
+    cacheHitMock.mockReset()
+    cacheMissMock.mockReset()
+    cacheHitMock.mockResolvedValue(null)
+    cacheMissMock.mockResolvedValue(undefined)
   })
 
   it("returns leaderboard insights with deltas and history", async () => {
@@ -164,6 +182,14 @@ describe("getLeaderboardScoringAnalytics", () => {
     const result = await getLeaderboardScoringAnalytics({ limit: 3 })
 
     expect(findManyMock).toHaveBeenCalledTimes(4)
+    expect(cacheHitMock).toHaveBeenCalledTimes(1)
+    expect(cacheMissMock).toHaveBeenCalledTimes(1)
+    expect(cacheMissMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: expect.stringContaining("admin:analytics:leaderboard"),
+        ttlSeconds: 300,
+      }),
+    )
     expect(result.month.key).toBe("2024-03")
     expect(result.availableMonths.map((m) => m.key)).toEqual([
       "2024-03",
@@ -224,10 +250,55 @@ describe("getLeaderboardScoringAnalytics", () => {
     const result = await getLeaderboardScoringAnalytics()
 
     expect(findManyMock).toHaveBeenCalledTimes(1)
+    expect(cacheHitMock).toHaveBeenCalledTimes(1)
+    expect(cacheMissMock).toHaveBeenCalledTimes(1)
     expect(result.availableMonths).toEqual([])
     expect(result.rankings).toEqual([])
     expect(result.summary.rankedCount).toBe(0)
     expect(result.summary.topScore).toBeNull()
     expect(result.history).toEqual([])
+  })
+
+  it("returns cached analytics when cache hit succeeds", async () => {
+    const analyticsFromCache = {
+      month: {
+        key: "2024-05",
+        label: "May 2024",
+        start: new Date("2024-05-01T00:00:00.000Z"),
+        end: new Date("2024-06-01T00:00:00.000Z"),
+      },
+      availableMonths: [{ key: "2024-05", label: "May 2024" }],
+      rankings: [],
+      summary: {
+        rankedCount: 0,
+        totalMonthlyUpvotes: 0,
+        totalScore: 0,
+        averageMonthlyUpvotes: 0,
+        medianMonthlyUpvotes: 0,
+        averageScore: 0,
+        topMonthlyUpvotes: null,
+        topScore: null,
+        bottomScore: null,
+        returningCount: 0,
+        newCount: 0,
+        improvingCount: 0,
+        decliningCount: 0,
+        stableCount: 0,
+        returningRate: 0,
+        championScoreDelta: null,
+        championUpvoteDelta: null,
+        scoreSpread: null,
+      },
+      history: [],
+    }
+
+    cacheHitMock.mockResolvedValueOnce(analyticsFromCache)
+
+    const result = await getLeaderboardScoringAnalytics()
+
+    expect(cacheHitMock).toHaveBeenCalledTimes(1)
+    expect(findManyMock).not.toHaveBeenCalled()
+    expect(cacheMissMock).not.toHaveBeenCalled()
+    expect(result).toBe(analyticsFromCache)
   })
 })

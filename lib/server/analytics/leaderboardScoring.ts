@@ -1,5 +1,11 @@
 import prisma from "@/lib/prisma"
 import {
+  buildCacheKey,
+  cacheHit,
+  cacheMiss,
+} from "@/lib/server/cache"
+import { resolveCacheTtl } from "@/lib/server/cache/ttl"
+import {
   getPreviousMonth,
   normalizeMonth,
   parseMonthKey,
@@ -102,6 +108,69 @@ type Options = {
   historyMonths?: number
 }
 
+type SerializableLeaderboardScoringAnalytics = Omit<
+  LeaderboardScoringAnalytics,
+  "month"
+> & {
+  month: {
+    key: string
+    label: string
+    start: string
+    end: string
+  }
+}
+
+function serializeLeaderboardAnalytics(
+  analytics: LeaderboardScoringAnalytics,
+): string {
+  const payload: SerializableLeaderboardScoringAnalytics = {
+    ...analytics,
+    month: {
+      key: analytics.month.key,
+      label: analytics.month.label,
+      start: analytics.month.start.toISOString(),
+      end: analytics.month.end.toISOString(),
+    },
+  }
+
+  return JSON.stringify(payload)
+}
+
+function deserializeLeaderboardAnalytics(
+  value: string,
+): LeaderboardScoringAnalytics {
+  const parsed = JSON.parse(
+    value,
+  ) as SerializableLeaderboardScoringAnalytics
+
+  return {
+    ...parsed,
+    month: {
+      key: parsed.month.key,
+      label: parsed.month.label,
+      start: new Date(parsed.month.start),
+      end: new Date(parsed.month.end),
+    },
+  }
+}
+
+function buildLeaderboardCacheKey(
+  month: string | undefined,
+  limit: number,
+  historyMonths: number,
+): string {
+  const monthToken = month && month.trim().length > 0 ? month.trim() : "current"
+
+  return buildCacheKey(
+    "admin",
+    "analytics",
+    "leaderboard",
+    `month:${monthToken}`,
+    `limit:${limit}`,
+    `history:${historyMonths}`,
+  )
+}
+
 const getMonthWindow = (month: Date) => {
   const start = normalizeMonth(month)
   const end = new Date(
@@ -137,6 +206,30 @@ export async function getLeaderboardScoringAnalytics(
   const limit = Math.min(Math.max(options.limit ?? 50, 1), 200)
   const historyMonths = Math.min(Math.max(options.historyMonths ?? 6, 1), 24)
 
+  const cacheKey = buildLeaderboardCacheKey(
+    options.month,
+    limit,
+    historyMonths,
+  )
+
+  const cachedAnalytics = await cacheHit<LeaderboardScoringAnalytics>({
+    key: cacheKey,
+    deserialize: deserializeLeaderboardAnalytics,
+    onError: (error) => {
+      console.error("[analytics] failed to read leaderboard scoring cache", {
+        cacheKey,
+        month: options.month ?? null,
+        limit,
+        historyMonths,
+        error,
+      })
+    },
+  })
+
+  if (cachedAnalytics) {
+    return cachedAnalytics
+  }
+
   const monthsRaw = await prisma.monthlyProductRanking.findMany({
     distinct: ["month"],
     orderBy: { month: "desc" },
@@ -160,9 +253,10 @@ export async function getLeaderboardScoringAnalytics(
   const { start: monthStart, end: monthEnd } = getMonthWindow(resolvedMonth)
   const monthKey = toMonthKey(monthStart)
   const monthLabel = monthLabelFormatter.format(monthStart)
+  const cacheTtlSeconds = resolveCacheTtl("slow")
 
   if (monthDates.length === 0) {
-    return {
+    const analytics: LeaderboardScoringAnalytics = {
       month: {
         key: monthKey,
         label: monthLabel,
@@ -193,6 +287,24 @@ export async function getLeaderboardScoringAnalytics(
       },
       history: [],
     }
+
+    await cacheMiss({
+      key: cacheKey,
+      value: analytics,
+      ttlSeconds: cacheTtlSeconds,
+      serialize: serializeLeaderboardAnalytics,
+      onError: (error) => {
+        console.error(
+          "[analytics] failed to cache empty leaderboard scoring analytics",
+          {
+            cacheKey,
+            error,
+          },
+        )
+      },
+    })
+
+    return analytics
   }
 
   const currentRankingsRaw = await prisma.monthlyProductRanking.findMany({
@@ -451,7 +563,7 @@ export async function getLeaderboardScoringAnalytics(
     return entries
   })()
 
-  return {
+  const analytics: LeaderboardScoringAnalytics = {
     month: {
       key: monthKey,
       label: monthLabel,
@@ -466,4 +578,25 @@ export async function getLeaderboardScoringAnalytics(
     summary,
     history,
   }
+
+  await cacheMiss({
+    key: cacheKey,
+    value: analytics,
+    ttlSeconds: cacheTtlSeconds,
+    serialize: serializeLeaderboardAnalytics,
+    onError: (error) => {
+      console.error(
+        "[analytics] failed to cache leaderboard scoring analytics",
+        {
+          cacheKey,
+          month: options.month ?? null,
+          limit,
+          historyMonths,
+          error,
+        },
+      )
+    },
+  })
+
+  return analytics
 }
