@@ -111,6 +111,7 @@ export default function AddProductForm({
       productId: newProductId,
       persistOnVerify: false,
       canEditCTA,
+      enableAutofill: true,
     })
   }, [wizard.step, categories, organizations, newProductId, canEditCTA])
 

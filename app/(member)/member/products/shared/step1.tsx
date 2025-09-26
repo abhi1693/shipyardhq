@@ -24,6 +24,9 @@ import {
 } from "@/components/atoms/select"
 import { Checkbox } from "@/components/atoms/checkbox"
 import { cleanWebsiteUrlInput } from "@/lib/productWizard/transform"
+import { Button } from "@/components/atoms/button"
+import { toast } from "sonner"
+import type { ProductAutofillSuggestion } from "@/lib/productWizard/autofill"
 
 type Props = {
   categories: { id: string; name: string }[]
@@ -31,6 +34,7 @@ type Props = {
   productId?: string
   lockWebsiteUrl?: boolean
   rightOfWebsite?: ReactNode
+  enableAutofill?: boolean
 }
 
 export default function Step1({
@@ -39,9 +43,197 @@ export default function Step1({
   productId,
   lockWebsiteUrl,
   rightOfWebsite,
+  enableAutofill,
 }: Props) {
   const form = useFormContext()
   const [previewDesc, setPreviewDesc] = useState(false)
+  const [autofilling, setAutofilling] = useState(false)
+
+  async function handleAutofill() {
+    const currentUrl = cleanWebsiteUrlInput(
+      (form.getValues("websiteUrl") as string) || "",
+    )
+    if (!currentUrl) {
+      toast.error("Enter a website URL before running auto-fill")
+      return
+    }
+
+    form.setValue("websiteUrl", currentUrl, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
+    setAutofilling(true)
+    try {
+      const response = await fetch("/api/products/autofill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: currentUrl,
+          categories: categories.map((c) => c.name),
+        }),
+      })
+      const payload = await response.json()
+      if (!response.ok) {
+        throw new Error(payload?.error || "Unable to auto-fill from this URL")
+      }
+
+      const suggestion = payload?.suggestion as
+        | ProductAutofillSuggestion
+        | undefined
+      const warnings: string[] = Array.isArray(payload?.warnings)
+        ? payload.warnings
+        : []
+
+      if (!suggestion || Object.keys(suggestion).length === 0) {
+        toast.info("No details were detected for this website yet")
+        return
+      }
+
+      applySuggestion(suggestion)
+      toast.success("Product details auto-filled")
+
+      if (warnings.length) {
+        toast.warning(warnings.join("\n"))
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Failed to auto-fill product details"
+      toast.error(message)
+    } finally {
+      setAutofilling(false)
+    }
+  }
+
+  function applySuggestion(suggestion: ProductAutofillSuggestion) {
+    if (suggestion.name) {
+      form.setValue("name", suggestion.name, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.tagline) {
+      form.setValue("tagline", suggestion.tagline, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.description) {
+      form.setValue("description", suggestion.description, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.logo) {
+      form.setValue("logo", suggestion.logo, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.type) {
+      form.setValue("type", suggestion.type, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.pricingModel) {
+      form.setValue("pricingModel", suggestion.pricingModel, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (typeof suggestion.startingPriceCents === "number") {
+      form.setValue("startingPriceCents", suggestion.startingPriceCents, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.currencyCode) {
+      form.setValue("currencyCode", suggestion.currencyCode, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.keywords?.length) {
+      form.setValue("keywordsText", suggestion.keywords.join(", "), {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.platforms?.length) {
+      form.setValue("platforms", suggestion.platforms, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.categoryName) {
+      const lower = suggestion.categoryName.toLowerCase()
+      const match =
+        categories.find((c) => c.name.toLowerCase() === lower) ||
+        categories.find((c) => lower.includes(c.name.toLowerCase())) ||
+        categories.find((c) => c.name.toLowerCase().includes(lower))
+      if (match) {
+        form.setValue("categoryId", match.id, {
+          shouldDirty: true,
+          shouldValidate: true,
+        })
+      }
+    }
+
+    if (suggestion.githubUrl) {
+      form.setValue("githubUrl", suggestion.githubUrl, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.twitterUrl) {
+      form.setValue("twitterUrl", suggestion.twitterUrl, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.demoUrl) {
+      form.setValue("demoUrl", suggestion.demoUrl, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.contactEmail) {
+      form.setValue("contactEmail", suggestion.contactEmail, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.ctaLabel) {
+      form.setValue("ctaLabel", suggestion.ctaLabel, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (suggestion.ctaUrl) {
+      form.setValue("ctaUrl", suggestion.ctaUrl, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -79,7 +271,20 @@ export default function Step1({
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Website URL</FormLabel>
+              <FormLabel className="flex items-center justify-between gap-4">
+                <span>Website URL</span>
+                {enableAutofill ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={handleAutofill}
+                    disabled={autofilling || !!lockWebsiteUrl}
+                  >
+                    {autofilling ? "Auto-filling…" : "Auto-fill"}
+                  </Button>
+                ) : null}
+              </FormLabel>
               <FormControl>
                 <Input
                   placeholder="https://example.com"

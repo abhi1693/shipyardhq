@@ -30,6 +30,7 @@ export function renderStep(
     lockWebsiteUrl?: boolean
     canEditCTA?: boolean
     rightOfWebsite?: ReactNode
+    enableAutofill?: boolean
   },
 ) {
   switch (step) {
@@ -41,6 +42,7 @@ export function renderStep(
           productId={args.productId}
           lockWebsiteUrl={args.lockWebsiteUrl}
           rightOfWebsite={args.rightOfWebsite as any}
+          enableAutofill={Boolean(args.enableAutofill)}
         />
       )
     case 2:

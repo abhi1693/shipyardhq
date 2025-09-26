@@ -135,6 +135,7 @@ export default function AddProductForm({
       persistOnVerify: false,
       canEditCTA: true,
       rightOfWebsite: ownerId ? ownerNode : ownerNode,
+      enableAutofill: true,
     })
   }, [wizard.step, categories, organizations, newProductId, ownerId, users])
 
