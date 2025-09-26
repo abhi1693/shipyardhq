@@ -83,6 +83,9 @@ export default function EditProductForm({
       lockWebsiteUrl: true,
       persistOnVerify: true,
       canEditCTA,
+      enableAutofill: true,
+      autofillNotice:
+        "AI Autofill replaces the fields on this step with new suggestions. Your current content will be overwritten.",
     })
   }, [wizard.step, categories, organizations, product.id, canEditCTA])
 

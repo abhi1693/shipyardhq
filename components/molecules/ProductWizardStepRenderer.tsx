@@ -31,6 +31,7 @@ export function renderStep(
     canEditCTA?: boolean
     rightOfWebsite?: ReactNode
     enableAutofill?: boolean
+    autofillNotice?: ReactNode
   },
 ) {
   switch (step) {
@@ -43,6 +44,7 @@ export function renderStep(
           lockWebsiteUrl={args.lockWebsiteUrl}
           rightOfWebsite={args.rightOfWebsite as any}
           enableAutofill={Boolean(args.enableAutofill)}
+          autofillNotice={args.autofillNotice}
         />
       )
     case 2:

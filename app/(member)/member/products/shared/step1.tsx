@@ -35,6 +35,7 @@ type Props = {
   lockWebsiteUrl?: boolean
   rightOfWebsite?: ReactNode
   enableAutofill?: boolean
+  autofillNotice?: ReactNode
 }
 
 export default function Step1({
@@ -44,6 +45,7 @@ export default function Step1({
   lockWebsiteUrl,
   rightOfWebsite,
   enableAutofill,
+  autofillNotice,
 }: Props) {
   const form = useFormContext()
   const [previewDesc, setPreviewDesc] = useState(false)
@@ -251,7 +253,7 @@ export default function Step1({
                     size="sm"
                     variant="outline"
                     onClick={handleAutofill}
-                    disabled={autofilling || !!lockWebsiteUrl}
+                    disabled={autofilling}
                   >
                     {autofilling ? "AI autofilling…" : "AI Autofill"}
                   </Button>
@@ -276,6 +278,9 @@ export default function Step1({
                   }}
                 />
               </FormControl>
+              {enableAutofill && autofillNotice ? (
+                <FormDescription>{autofillNotice}</FormDescription>
+              ) : null}
               <FormMessage />
             </FormItem>
           )}
