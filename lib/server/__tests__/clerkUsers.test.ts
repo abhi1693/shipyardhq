@@ -32,6 +32,7 @@ const redisClientStub = {
   get: redisGetMock,
   set: redisSetMock,
   del: redisDelMock,
+  isOpen: true,
 }
 
 const originalTtl = process.env.CLERK_USER_CACHE_TTL_SECONDS
@@ -48,6 +49,7 @@ describe("getClerkUserByIdCached", () => {
     clerkClientMock.mockReset()
     clerkUserFetchMock.mockReset()
 
+    redisClientStub.isOpen = true
     getRedisClientMock.mockResolvedValue(redisClientStub)
     clerkClientMock.mockResolvedValue({
       users: {
@@ -96,6 +98,36 @@ describe("getClerkUserByIdCached", () => {
     expect(redisGetMock).not.toHaveBeenCalled()
     expect(redisSetMock).not.toHaveBeenCalled()
   })
+
+  it("retries when the cached Redis client is closed", async () => {
+    const remoteUser = { id: "user_reconnect" }
+    const replacementClient = {
+      get: redisGetMock,
+      set: redisSetMock,
+      del: redisDelMock,
+      isOpen: true,
+    }
+
+    getRedisClientMock.mockResolvedValueOnce(redisClientStub)
+    getRedisClientMock.mockResolvedValueOnce(replacementClient)
+
+    redisGetMock.mockResolvedValueOnce(null)
+    clerkUserFetchMock.mockResolvedValueOnce(remoteUser)
+
+    await getClerkUserByIdCached(remoteUser.id)
+
+    expect(getRedisClientMock).toHaveBeenCalledTimes(1)
+
+    redisClientStub.isOpen = false
+
+    redisGetMock.mockResolvedValueOnce(null)
+    clerkUserFetchMock.mockResolvedValueOnce(remoteUser)
+
+    await getClerkUserByIdCached(remoteUser.id)
+
+    expect(getRedisClientMock).toHaveBeenCalledTimes(2)
+    expect(redisSetMock).toHaveBeenCalledTimes(2)
+  })
 })
 
 describe("invalidateClerkUserCache", () => {
@@ -103,6 +135,7 @@ describe("invalidateClerkUserCache", () => {
     redisDelMock.mockReset()
     getRedisClientMock.mockReset()
     getRedisClientMock.mockResolvedValue(redisClientStub)
+    redisClientStub.isOpen = true
   })
 
   it("deletes the cached entry when Redis is available", async () => {

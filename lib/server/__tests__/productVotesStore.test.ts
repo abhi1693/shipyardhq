@@ -4,8 +4,6 @@ const CACHE_PREFIX = "tests"
 const originalCachePrefix = process.env.CACHE_ENV_PREFIX
 process.env.CACHE_ENV_PREFIX = CACHE_PREFIX
 
-type Nullable<T> = T | null
-
 type RedisHash = Map<string, string>
 
 type RedisData = {
@@ -42,6 +40,7 @@ function ensureSet(store: RedisData, key: string): Set<string> {
 
 function createRedisClient(store: RedisData) {
   return {
+    isOpen: true,
     async hGet(key: string, field: string) {
       return ensureHash(store, key).get(field) ?? null
     },
@@ -160,8 +159,12 @@ describe("productVotesStore", () => {
     redisStore = createRedisData()
     redisClient = createRedisClient(redisStore)
 
-    Object.values(prismaMock.productUpvote).forEach((value) => value.mockReset())
-    Object.values(prismaMock.productAnalytics).forEach((value) => value.mockReset())
+    Object.values(prismaMock.productUpvote).forEach((value) =>
+      value.mockReset(),
+    )
+    Object.values(prismaMock.productAnalytics).forEach((value) =>
+      value.mockReset(),
+    )
     prismaMock.$queryRaw.mockReset()
     prismaMock.$transaction.mockReset()
 
@@ -259,7 +262,9 @@ describe("productVotesStore", () => {
       $executeRaw: vi.fn(),
     }
 
-    prismaMock.$transaction.mockImplementation(async (handler) => handler(txMocks))
+    prismaMock.$transaction.mockImplementation(async (handler) =>
+      handler(txMocks),
+    )
     prismaMock.productUpvote.findUnique.mockResolvedValueOnce(null)
 
     const result = await setDesiredVoteState({

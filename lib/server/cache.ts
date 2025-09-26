@@ -2,7 +2,12 @@ import type { createClient } from "redis"
 import { getRedisClient } from "@/lib/server/redis"
 
 // Restrict to the subset of the Redis client we rely on so the helpers stay reusable.
-type CacheClient = Pick<ReturnType<typeof createClient>, "get" | "set" | "del">
+type CacheClient = Pick<
+  ReturnType<typeof createClient>,
+  "get" | "set" | "del"
+> & {
+  isOpen?: boolean
+}
 
 type CacheErrorHandler = (error: unknown) => void
 
@@ -10,7 +15,11 @@ type CacheKeyPart = string | number | boolean
 type CacheKeyArray = ReadonlyArray<CacheKeyPart | null | undefined>
 type CacheKeyInput = string | CacheKeyArray
 
-function logCacheEvent(event: string, key: string, extra?: Record<string, unknown>) {
+function logCacheEvent(
+  event: string,
+  key: string,
+  extra?: Record<string, unknown>,
+) {
   const context = { key, ...(extra ?? {}) }
   console.debug(`[cache] ${event}`, context)
 }
@@ -20,6 +29,18 @@ const CACHE_ENV_PREFIX =
   process.env.NEXT_PUBLIC_VERCEL_ENV?.trim() ||
   process.env.NODE_ENV?.trim()
 let cachedClientPromise: Promise<CacheClient | null> | null = null
+
+function clientIsOpen(client: CacheClient | null): client is CacheClient {
+  if (!client) {
+    return false
+  }
+
+  if (typeof client.isOpen === "boolean") {
+    return client.isOpen
+  }
+
+  return true
+}
 
 export function namespaceCacheKey(key: string): string {
   if (!CACHE_ENV_PREFIX) {
@@ -37,8 +58,9 @@ export function buildCacheKey(
 
 function buildCacheKeyFromArray(parts: CacheKeyArray): string {
   return parts
-    .filter((part): part is CacheKeyPart =>
-      part !== null && part !== undefined && `${part}`.length > 0,
+    .filter(
+      (part): part is CacheKeyPart =>
+        part !== null && part !== undefined && `${part}`.length > 0,
     )
     .map((part) => `${part}`)
     .join(":")
@@ -49,21 +71,44 @@ function resolveCacheKeyInput(key: CacheKeyInput): string {
 }
 
 async function resolveCacheClient(): Promise<CacheClient | null> {
-  if (!cachedClientPromise) {
-    cachedClientPromise = getRedisClient()
-      .then((client) => {
-        if (!client) {
-          cachedClientPromise = null
-        }
-        return client
-      })
-      .catch((error) => {
-        cachedClientPromise = null
-        throw error
-      })
-  }
+  let attemptedReconnect = false
 
-  return cachedClientPromise
+  while (true) {
+    if (!cachedClientPromise) {
+      cachedClientPromise = getRedisClient()
+        .then((client) => (client ? (client as CacheClient) : null))
+        .catch((error) => {
+          cachedClientPromise = null
+          throw error
+        })
+    }
+
+    let client: CacheClient | null
+
+    try {
+      client = await cachedClientPromise
+    } catch (error) {
+      cachedClientPromise = null
+      throw error
+    }
+
+    if (!client) {
+      cachedClientPromise = null
+      return null
+    }
+
+    if (clientIsOpen(client)) {
+      return client
+    }
+
+    cachedClientPromise = null
+
+    if (attemptedReconnect) {
+      return null
+    }
+
+    attemptedReconnect = true
+  }
 }
 
 interface CacheHitOptions<T> {
@@ -89,7 +134,7 @@ export async function cacheHit<T>({
     return null
   }
 
-  const parser = (deserialize ?? (JSON.parse as (value: string) => T))
+  const parser = deserialize ?? (JSON.parse as (value: string) => T)
 
   try {
     const cached = await client.get(namespacedKey)
@@ -136,10 +181,17 @@ export async function cacheMiss<T>({
   }
 
   const serializer = serialize ?? JSON.stringify
-  const ttl = Number.isFinite(ttlSeconds) && ttlSeconds && ttlSeconds > 0 ? ttlSeconds : undefined
+  const ttl =
+    Number.isFinite(ttlSeconds) && ttlSeconds && ttlSeconds > 0
+      ? ttlSeconds
+      : undefined
 
   try {
-    await client.set(namespacedKey, serializer(value), ttl ? { EX: ttl } : undefined)
+    await client.set(
+      namespacedKey,
+      serializer(value),
+      ttl ? { EX: ttl } : undefined,
+    )
     logCacheEvent("store", namespacedKey, { ttlSeconds: ttl })
   } catch (error) {
     logCacheEvent("error", namespacedKey, { error })

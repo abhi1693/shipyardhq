@@ -9,9 +9,7 @@ const globalForRedis = globalThis as unknown as {
 
 function resolveRedisUrl(): string | null {
   return (
-    process.env.REDIS_URL?.trim() ||
-    process.env.REDIS_TLS_URL?.trim() ||
-    null
+    process.env.REDIS_URL?.trim() || process.env.REDIS_TLS_URL?.trim() || null
   )
 }
 
