@@ -5,9 +5,14 @@ import Link from "next/link"
 import { formatDistanceToNowStrict } from "date-fns"
 import { toast } from "sonner"
 
-import { refreshProductIdeaProfile } from "@/actions/member/products/ideas"
+import {
+  refreshProductIdeaProfile,
+  refreshProductIdeaSubreddits,
+} from "@/actions/member/products/ideas"
 import type {
   ProductIdeaProfileStatus,
+  ProductIdeaSubreddit,
+  ProductIdeaSubredditQuery,
   SerializedIdeaProfile,
 } from "@/types/product-ideas"
 import type {
@@ -66,6 +71,10 @@ export function ProductIdeasView({
   )
   const [progressMessage, setProgressMessage] = useState<string | null>(null)
   const [isRefreshing, startTransition] = useTransition()
+  const [subredditProgress, setSubredditProgress] = useState<string | null>(
+    null,
+  )
+  const [isDiscoveringSubreddits, startSubredditTransition] = useTransition()
 
   const summary = (profile?.summary || undefined) as
     | ProductIdeaSummary
@@ -101,7 +110,12 @@ export function ProductIdeasView({
       setProgressMessage("Starting crawl and synthesis…")
       setProfile((prev) =>
         prev
-          ? { ...prev, status: "pending", errorMessage: null, lastCrawledAt: prev.lastCrawledAt }
+          ? {
+              ...prev,
+              status: "pending",
+              errorMessage: null,
+              lastCrawledAt: prev.lastCrawledAt,
+            }
           : prev,
       )
       try {
@@ -116,11 +130,56 @@ export function ProductIdeasView({
             ? error.message
             : "Failed to refresh product profile"
         setProfile((prev) =>
+          prev ? { ...prev, status: "failed", errorMessage: message } : prev,
+        )
+        setProgressMessage(
+          "Crawler run failed. Check console logs for details.",
+        )
+        toast.error(message)
+      }
+    })
+  }
+
+  const handleDiscoverSubreddits = () => {
+    startSubredditTransition(async () => {
+      const shouldForceRefresh = Array.isArray(profile?.subreddits)
+        ? (profile!.subreddits as ProductIdeaSubreddit[]).length > 0
+        : false
+      setProfile((prev) =>
+        prev
+          ? {
+              ...prev,
+              subredditStatus: "pending",
+              subredditErrorMessage: null,
+            }
+          : prev,
+      )
+      setSubredditProgress("Preparing Reddit discovery…")
+      try {
+        setSubredditProgress("Generating targeted search queries…")
+        const updated = await refreshProductIdeaSubreddits(slug, {
+          forceRefresh: shouldForceRefresh,
+        })
+        setProfile(updated)
+        setSubredditProgress("Subreddit recommendations updated.")
+        toast.success("Relevant subreddits discovered")
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Failed to discover subreddits"
+        setSubredditProgress(
+          "Subreddit discovery failed. Check console logs for details.",
+        )
+        setProfile((prev) =>
           prev
-            ? { ...prev, status: "failed", errorMessage: message }
+            ? {
+                ...prev,
+                subredditStatus: "failed",
+                subredditErrorMessage: message,
+              }
             : prev,
         )
-        setProgressMessage("Crawler run failed. Check console logs for details.")
         toast.error(message)
       }
     })
@@ -140,6 +199,29 @@ export function ProductIdeasView({
   const discoveredUrls = Array.isArray(profile?.discoveredUrls)
     ? (profile!.discoveredUrls as string[])
     : []
+
+  const subredditQueries = useMemo(() => {
+    return Array.isArray(profile?.subredditQueries)
+      ? (profile!.subredditQueries as ProductIdeaSubredditQuery[])
+      : []
+  }, [profile])
+
+  const subreddits = useMemo(() => {
+    return Array.isArray(profile?.subreddits)
+      ? (profile!.subreddits as ProductIdeaSubreddit[])
+      : []
+  }, [profile])
+
+  const subredditStatus = profile?.subredditStatus ?? null
+  const subredditStatusDisplay = subredditStatus
+    ? STATUS_STYLES[subredditStatus]
+    : { label: "Not started", badge: "outline" as const }
+
+  const lastSubredditDiscovery = profile?.lastSubredditDiscoveryAt
+    ? formatDistanceToNowStrict(new Date(profile.lastSubredditDiscoveryAt), {
+        addSuffix: true,
+      })
+    : "Never"
 
   return (
     <div className="space-y-6">
@@ -169,7 +251,11 @@ export function ProductIdeasView({
               onClick={handleRefresh}
               disabled={isRefreshing}
             >
-              {isRefreshing ? "Refreshing…" : profile ? "Refresh profile" : "Run crawler"}
+              {isRefreshing
+                ? "Refreshing…"
+                : profile
+                  ? "Refresh profile"
+                  : "Run crawler"}
             </Button>
           </div>
         </CardHeader>
@@ -202,15 +288,176 @@ export function ProductIdeasView({
           )}
           {!profile && !isRefreshing && (
             <div className="rounded border border-dashed border-slate-300 p-4 text-sm text-muted-foreground">
-              Run the crawler to capture a product profile from your live site. We
-              will parse the sitemap, summarize the content, and store the
+              Run the crawler to capture a product profile from your live site.
+              We will parse the sitemap, summarize the content, and store the
               highlights here for reuse.
             </div>
           )}
           {!profile && isRefreshing && (
             <div className="rounded border border-dashed border-primary/40 bg-primary/5 p-4 text-sm text-primary">
-              Crawling site and synthesizing summary… this usually takes ~30 seconds.
+              Crawling site and synthesizing summary… this usually takes ~30
+              seconds.
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <CardTitle className="text-xl font-semibold">
+              Reddit Audience Discovery
+            </CardTitle>
+            <CardDescription>
+              Generate and save the subreddits where this product&apos;s
+              community gathers.
+            </CardDescription>
+          </div>
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+            <Badge variant={subredditStatusDisplay.badge}>
+              {subredditStatusDisplay.label}
+            </Badge>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleDiscoverSubreddits}
+              disabled={isDiscoveringSubreddits}
+            >
+              {isDiscoveringSubreddits
+                ? "Discovering…"
+                : subreddits.length
+                  ? "Rediscover subreddits"
+                  : "Discover subreddits"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-1">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">
+                Last discovered
+              </div>
+              <div className="text-sm text-foreground">
+                {lastSubredditDiscovery}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">
+                Query count
+              </div>
+              <div className="text-sm text-foreground">
+                {subredditQueries.length ? subredditQueries.length : "—"}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">
+                Model
+              </div>
+              <div className="text-sm text-foreground">
+                {profile?.subredditModel
+                  ? profile.subredditModel
+                  : "gpt-4.1-mini"}
+              </div>
+            </div>
+          </div>
+          {profile?.subredditErrorMessage && (
+            <div className="rounded border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+              {profile.subredditErrorMessage}
+            </div>
+          )}
+          {subredditProgress && (
+            <div className="rounded border border-primary/20 bg-primary/5 p-3 text-xs text-primary">
+              {subredditProgress}
+            </div>
+          )}
+          {!subreddits.length && !isDiscoveringSubreddits && (
+            <div className="rounded border border-dashed border-slate-300 p-4 text-sm text-muted-foreground">
+              Use the discovery tool to have Shipyard craft Reddit search
+              queries, resolve the best-fit communities, and cache them for
+              future research or outreach.
+            </div>
+          )}
+          {!!subredditQueries.length && (
+            <div className="space-y-2">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">
+                Generated search queries
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {subredditQueries.map((item) => (
+                  <div
+                    key={item.query}
+                    className="rounded border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-foreground"
+                  >
+                    <div className="font-medium">{item.query}</div>
+                    {item.rationale && (
+                      <div className="text-xs text-muted-foreground">
+                        {item.rationale}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {!!subreddits.length && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Subreddit</TableHead>
+                  <TableHead className="w-[45%]">What they discuss</TableHead>
+                  <TableHead>Relevance</TableHead>
+                  <TableHead>Subscribers</TableHead>
+                  <TableHead>Matched queries</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {subreddits.map((subreddit) => (
+                  <TableRow key={subreddit.name}>
+                    <TableCell className="whitespace-nowrap">
+                      <Link
+                        href={subreddit.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        r/{subreddit.name}
+                      </Link>
+                      {subreddit.over18 && (
+                        <Badge variant="outline" className="ml-2 text-[10px]">
+                          18+
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
+                      <div>{subreddit.description || subreddit.title || "—"}</div>
+                      {subreddit.relevanceReason && (
+                        <div className="mt-2 text-xs text-primary">
+                          {subreddit.relevanceReason}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-sm text-foreground">
+                      {typeof subreddit.relevanceScore === "number"
+                        ? `${Math.round(subreddit.relevanceScore * 100)}%`
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-sm text-foreground">
+                      {typeof subreddit.subscribers === "number"
+                        ? subreddit.subscribers.toLocaleString()
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                      {subreddit.matchedQueries?.length
+                        ? subreddit.matchedQueries.join(" • ")
+                        : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableCaption>
+                {`${subreddits.length} subreddit${subreddits.length === 1 ? "" : "s"} saved for this product`}
+              </TableCaption>
+            </Table>
           )}
         </CardContent>
       </Card>
@@ -251,7 +498,8 @@ export function ProductIdeasView({
           <CardHeader>
             <CardTitle>Crawled Pages</CardTitle>
             <CardDescription>
-              URLs sourced from the sitemap. We capture page metadata, headings, and key copy blocks for analysis.
+              URLs sourced from the sitemap. We capture page metadata, headings,
+              and key copy blocks for analysis.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

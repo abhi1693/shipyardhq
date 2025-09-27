@@ -247,19 +247,25 @@ model ProductTrafficEvent {
 }
 
 model ProductIdeaProfile {
-  id             String                   @id @default(cuid())
-  productId      String                   @unique
-  sitemapUrl     String?
-  discoveredUrls Json?
-  pages          Json?
-  summary        Json?
-  summaryText    String?                  @db.Text
-  status         ProductIdeaProfileStatus @default(pending)
-  errorMessage   String?                  @db.Text
-  model          String?
-  lastCrawledAt  DateTime?
-  createdAt      DateTime                 @default(now())
-  updatedAt      DateTime                 @updatedAt
+  id                       String                    @id @default(cuid())
+  productId                String                    @unique
+  sitemapUrl               String?
+  discoveredUrls           Json?
+  pages                    Json?
+  summary                  Json?
+  summaryText              String?                   @db.Text
+  subredditQueries         Json?
+  subreddits               Json?
+  subredditStatus          ProductIdeaProfileStatus?
+  subredditErrorMessage    String?                   @db.Text
+  subredditModel           String?
+  status                   ProductIdeaProfileStatus  @default(pending)
+  errorMessage             String?                   @db.Text
+  model                    String?
+  lastCrawledAt            DateTime?
+  lastSubredditDiscoveryAt DateTime?
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 

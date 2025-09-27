@@ -2,6 +2,7 @@
 
 import {
   crawlProductWebsite,
+  discoverProductSubreddits,
   synthesizeProductIdea,
 } from "@/lib/server/productIdeas"
 import prisma from "@/lib/prisma"
@@ -9,11 +10,14 @@ import { requireManageableProduct } from "@/lib/server/productAccess"
 import { ProductIdeaProfileStatus, Prisma } from "@/lib/vendor/prisma/client"
 import type {
   ProductIdeaProfileView,
+  ProductIdeaSubreddit,
+  ProductIdeaSubredditQuery,
   SerializedIdeaProfile,
 } from "@/types/product-ideas"
 import { buildProductIdeaSummaryText } from "@/lib/server/productIdeas/summary"
 import type {
   ProductIdeaPageSnapshot,
+  ProductIdeaProductContext,
   ProductIdeaSummary,
 } from "@/lib/server/productIdeas/types"
 
@@ -25,9 +29,15 @@ const ideaProfileSelect = {
   pages: true,
   summary: true,
   summaryText: true,
+  subredditQueries: true,
+  subreddits: true,
+  subredditStatus: true,
+  subredditErrorMessage: true,
+  subredditModel: true,
   status: true,
   errorMessage: true,
   model: true,
+  lastSubredditDiscoveryAt: true,
   lastCrawledAt: true,
   createdAt: true,
   updatedAt: true,
@@ -49,8 +59,99 @@ function serializeIdeaProfile(
   const pages = Array.isArray(record.pages)
     ? (record.pages as unknown[] as ProductIdeaPageSnapshot[])
     : null
-  const summary = record.summary
-    ? (record.summary as ProductIdeaSummary)
+  const summary = record.summary ? (record.summary as ProductIdeaSummary) : null
+  const subredditQueries = Array.isArray(record.subredditQueries)
+    ? (record.subredditQueries as unknown[]).reduce<ProductIdeaSubredditQuery[]>(
+        (acc, value) => {
+          if (
+            value !== null &&
+            typeof value === "object" &&
+            typeof (value as any).query === "string"
+          ) {
+            acc.push({
+              query: (value as any).query,
+              rationale:
+                typeof (value as any).rationale === "string"
+                  ? (value as any).rationale
+                  : null,
+              audience:
+                typeof (value as any).audience === "string"
+                  ? (value as any).audience
+                  : null,
+            })
+          }
+          return acc
+        },
+        [],
+      )
+    : null
+  const subreddits = Array.isArray(record.subreddits)
+    ? (record.subreddits as unknown[]).reduce<ProductIdeaSubreddit[]>(
+        (acc, value) => {
+          if (
+            value !== null &&
+            typeof value === "object" &&
+            typeof (value as any).name === "string" &&
+            typeof (value as any).url === "string"
+          ) {
+            acc.push({
+              id:
+                typeof (value as any).id === "string"
+                  ? (value as any).id
+                  : null,
+              name: (value as any).name,
+              title:
+                typeof (value as any).title === "string"
+                  ? (value as any).title
+                  : null,
+              description:
+                typeof (value as any).description === "string"
+                  ? (value as any).description
+                  : null,
+              url: (value as any).url,
+              subscribers:
+                typeof (value as any).subscribers === "number"
+                  ? (value as any).subscribers
+                  : null,
+              activeUserCount:
+                typeof (value as any).activeUserCount === "number"
+                  ? (value as any).activeUserCount
+                  : null,
+              over18:
+                typeof (value as any).over18 === "boolean"
+                  ? (value as any).over18
+                  : null,
+              iconUrl:
+                typeof (value as any).iconUrl === "string"
+                  ? (value as any).iconUrl
+                  : null,
+              primaryTopic:
+                typeof (value as any).primaryTopic === "string"
+                  ? (value as any).primaryTopic
+                  : null,
+              score:
+                typeof (value as any).score === "number"
+                  ? (value as any).score
+                  : null,
+              matchedQueries: Array.isArray((value as any).matchedQueries)
+                ? ((value as any).matchedQueries as unknown[]).filter(
+                    (q): q is string => typeof q === "string",
+                  )
+                : null,
+              relevanceScore:
+                typeof (value as any).relevanceScore === "number"
+                  ? (value as any).relevanceScore
+                  : null,
+              relevanceReason:
+                typeof (value as any).relevanceReason === "string"
+                  ? (value as any).relevanceReason
+                  : null,
+            })
+          }
+          return acc
+        },
+        [],
+      )
     : null
 
   return {
@@ -64,11 +165,19 @@ function serializeIdeaProfile(
     status: record.status,
     errorMessage: record.errorMessage,
     model: record.model,
-    createdAt: record.createdAt.toISOString(),
-    updatedAt: record.updatedAt.toISOString(),
+    subredditQueries,
+    subreddits,
+    subredditStatus: record.subredditStatus ?? null,
+    subredditErrorMessage: record.subredditErrorMessage,
+    subredditModel: record.subredditModel,
     lastCrawledAt: record.lastCrawledAt
       ? record.lastCrawledAt.toISOString()
       : null,
+    lastSubredditDiscoveryAt: record.lastSubredditDiscoveryAt
+      ? record.lastSubredditDiscoveryAt.toISOString()
+      : null,
+    createdAt: record.createdAt.toISOString(),
+    updatedAt: record.updatedAt.toISOString(),
   }
 }
 
@@ -219,16 +328,157 @@ export async function refreshProductIdeaProfile(
       error,
     })
 
-    await prisma.productIdeaProfile.update({
+    await prisma.productIdeaProfile
+      .update({
+        where: { productId: productRecord.id },
+        data: {
+          status: ProductIdeaProfileStatus.failed,
+          errorMessage: message,
+          lastCrawledAt: new Date(),
+        },
+      })
+      .catch(() => {
+        /* ignore */
+      })
+
+    throw error
+  }
+}
+
+export async function refreshProductIdeaSubreddits(
+  slug: string,
+  options: { forceRefresh?: boolean } = {},
+): Promise<SerializedIdeaProfile> {
+  const { product } = await requireManageableProduct(slug, {
+    unauthorizedRedirect: null,
+    missingRedirect: null,
+  })
+
+  const forceRefresh = Boolean(options.forceRefresh)
+
+  console.info("[productIdeas:action] subreddit discovery requested", {
+    productId: product.id,
+    productSlug: product.slug,
+    forceRefresh,
+  })
+
+  const productRecord = await prisma.product.findUnique({
+    where: { id: product.id },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      tagline: true,
+      description: true,
+      pricingModel: true,
+      startingPriceCents: true,
+      currencyCode: true,
+      type: true,
+      keywords: true,
+      platforms: true,
+    },
+  })
+
+  if (!productRecord) {
+    throw new Error("Product not found")
+  }
+
+  let profileRecord = await prisma.productIdeaProfile.findUnique({
+    where: { productId: productRecord.id },
+    select: {
+      id: true,
+      summary: true,
+    },
+  })
+
+  if (!profileRecord) {
+    profileRecord = await prisma.productIdeaProfile.create({
+      data: {
+        productId: productRecord.id,
+      },
+      select: {
+        id: true,
+        summary: true,
+      },
+    })
+  }
+
+  await prisma.productIdeaProfile.update({
+    where: { productId: productRecord.id },
+    data: {
+      subredditStatus: ProductIdeaProfileStatus.pending,
+      subredditErrorMessage: null,
+    },
+  })
+
+  const productContext: ProductIdeaProductContext = {
+    name: productRecord.name,
+    tagline: productRecord.tagline,
+    description: productRecord.description,
+    pricingModel: productRecord.pricingModel,
+    startingPriceCents: productRecord.startingPriceCents,
+    currencyCode: productRecord.currencyCode,
+    type: productRecord.type,
+    keywords: productRecord.keywords ?? undefined,
+    platforms: productRecord.platforms ?? undefined,
+  }
+
+  let summary: ProductIdeaSummary | undefined
+  if (profileRecord?.summary && typeof profileRecord.summary === "object") {
+    summary = profileRecord.summary as ProductIdeaSummary
+  }
+
+  try {
+    const discovery = await discoverProductSubreddits({
+      productId: productRecord.id,
+      product: productContext,
+      summary,
+      forceRefresh,
+    })
+
+    const updated = await prisma.productIdeaProfile.update({
       where: { productId: productRecord.id },
       data: {
-        status: ProductIdeaProfileStatus.failed,
-        errorMessage: message,
-        lastCrawledAt: new Date(),
+        subredditQueries: discovery.queries,
+        subreddits: discovery.subreddits,
+        subredditStatus: ProductIdeaProfileStatus.ready,
+        subredditErrorMessage: null,
+        subredditModel: discovery.model,
+        lastSubredditDiscoveryAt: new Date(),
       },
-    }).catch(() => {
-      /* ignore */
+      select: ideaProfileSelect,
     })
+
+    console.info("[productIdeas:action] subreddit discovery completed", {
+      productId: productRecord.id,
+      subredditCount: discovery.subreddits.length,
+      fromCache: discovery.fromCache,
+    })
+
+    return serializeIdeaProfile(updated)!
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unexpected subreddit discovery failure"
+    console.error("[productIdeas:action] subreddit discovery failed", {
+      productId: productRecord.id,
+      message,
+      error,
+    })
+
+    await prisma.productIdeaProfile
+      .update({
+        where: { productId: productRecord.id },
+        data: {
+          subredditStatus: ProductIdeaProfileStatus.failed,
+          subredditErrorMessage: message,
+          lastSubredditDiscoveryAt: new Date(),
+        },
+      })
+      .catch(() => {
+        /* ignore */
+      })
 
     throw error
   }

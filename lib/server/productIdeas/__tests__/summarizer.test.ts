@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 
-import { sanitizePage, simplifyJsonLd } from "@/lib/server/productIdeas/summarizer"
+import {
+  sanitizePage,
+  simplifyJsonLd,
+} from "@/lib/server/productIdeas/summarizer"
 import type { ProductIdeaPageSnapshot } from "@/lib/server/productIdeas/types"
 
 describe("product ideas summarizer helpers", () => {

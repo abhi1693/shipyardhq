@@ -75,7 +75,8 @@ async function fetchWithTimeout(
     return await fetch(url, {
       headers: {
         "User-Agent": options.userAgent,
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.1",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.1",
       },
       redirect: "follow",
       signal: controller.signal,
@@ -96,7 +97,10 @@ function stripHtml(html: string): string {
 }
 
 function stripTagValue(html: string): string {
-  return html.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()
+  return html
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
 }
 
 function extractHeadings(html: string): string[] {
@@ -157,7 +161,8 @@ function extractKeywords(tags: MetaTag[]): string[] {
 
 function extractJsonLd(html: string): unknown[] {
   const scripts: unknown[] = []
-  const regex = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+  const regex =
+    /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
   let match: RegExpExecArray | null
   while ((match = regex.exec(html))) {
     const raw = match[1]?.trim()
@@ -253,7 +258,9 @@ async function discoverSitemaps(
 
     const sitemapIndex = parsed?.sitemapindex?.sitemap
     if (sitemapIndex) {
-      const entries = Array.isArray(sitemapIndex) ? sitemapIndex : [sitemapIndex]
+      const entries = Array.isArray(sitemapIndex)
+        ? sitemapIndex
+        : [sitemapIndex]
       for (const entry of entries) {
         const loc = (entry?.loc ?? "").toString().trim()
         if (!loc) continue

@@ -1,7 +1,10 @@
 import { z } from "zod"
 
 import { getOpenAIClient } from "@/lib/server/openai"
-import { coerceJsonText, extractAssistantJson } from "@/lib/server/openaiResponse"
+import {
+  coerceJsonText,
+  extractAssistantJson,
+} from "@/lib/server/openaiResponse"
 
 import {
   ProductIdeaCrawlResult,
@@ -38,7 +41,10 @@ function sanitizeHeadings(headings?: string[]): string[] {
   if (!Array.isArray(headings)) return []
   return headings
     .map((heading) => truncate(heading?.trim() || ""))
-    .filter((heading): heading is string => typeof heading === "string" && heading.length > 0)
+    .filter(
+      (heading): heading is string =>
+        typeof heading === "string" && heading.length > 0,
+    )
     .slice(0, MAX_HEADINGS_PER_PAGE)
 }
 
@@ -74,7 +80,13 @@ function simplifyJsonLdEntry(entry: unknown): Record<string, unknown> | null {
     } else if (value && typeof value === "object" && !Array.isArray(value)) {
       const nested = value as Record<string, unknown>
       const nestedSummary: Record<string, unknown> = {}
-      const nestedKeys = ["name", "description", "url", "price", "priceCurrency"]
+      const nestedKeys = [
+        "name",
+        "description",
+        "url",
+        "price",
+        "priceCurrency",
+      ]
       for (const nk of nestedKeys) {
         const nestedValue = nested[nk]
         if (typeof nestedValue === "string") {
@@ -276,20 +288,19 @@ export async function synthesizeProductIdea(
               "Avoid speculating beyond the provided content; note limitations where appropriate.",
               "Use sentence case, no trailing punctuation in list items unless needed.",
             ],
-            productContext:
-              productContext
-                ? {
-                    name: productContext.name,
-                    tagline: productContext.tagline,
-                    description: productContext.description,
-                    pricingModel: productContext.pricingModel,
-                    startingPriceCents: productContext.startingPriceCents,
-                    currencyCode: productContext.currencyCode,
-                    type: productContext.type,
-                    keywords: productContext.keywords,
-                    platforms: productContext.platforms,
-                  }
-                : null,
+            productContext: productContext
+              ? {
+                  name: productContext.name,
+                  tagline: productContext.tagline,
+                  description: productContext.description,
+                  pricingModel: productContext.pricingModel,
+                  startingPriceCents: productContext.startingPriceCents,
+                  currencyCode: productContext.currencyCode,
+                  type: productContext.type,
+                  keywords: productContext.keywords,
+                  platforms: productContext.platforms,
+                }
+              : null,
           },
           crawl: modelInput,
         }),
