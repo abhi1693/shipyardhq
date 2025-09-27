@@ -606,8 +606,18 @@ async function filterThreadsByRelevance({
 }): Promise<ProductIdeaRedditThread[]> {
   if (!threads.length) return []
 
+  const eligibleThreads = threads.filter((thread) => {
+    const commentCount = thread.numComments ?? 0
+    const harvestedComments = thread.topComments?.length ?? 0
+    return commentCount > 0 || harvestedComments > 0
+  })
+
+  if (!eligibleThreads.length) {
+    return []
+  }
+
   const openai = getOpenAIClient()
-  const sampleThreads = threads.slice(0, 18).map((thread) => ({
+  const sampleThreads = eligibleThreads.slice(0, 18).map((thread) => ({
     id: thread.id,
     title: thread.title,
     subreddit: thread.subreddit,
@@ -692,7 +702,7 @@ async function filterThreadsByRelevance({
 
     const MIN_KEEP_SCORE = 0.45
 
-    let curated = threads.filter((thread) => {
+    let curated = eligibleThreads.filter((thread) => {
       const verdict = evaluation.get(thread.id)
       if (!verdict) return false
       return verdict.keep && verdict.relevance >= MIN_KEEP_SCORE
@@ -708,14 +718,14 @@ async function filterThreadsByRelevance({
     }
 
     if (!curated.length) {
-      curated = threads.filter((thread) => {
+      curated = eligibleThreads.filter((thread) => {
         const verdict = evaluation.get(thread.id)
         return verdict?.keep
       })
     }
 
     if (!curated.length) {
-      curated = threads.slice(0, Math.min(6, threads.length))
+      curated = eligibleThreads.slice(0, Math.min(6, eligibleThreads.length))
     }
 
     return curated
@@ -723,7 +733,7 @@ async function filterThreadsByRelevance({
     console.error("[productIdeas:reddit] thread relevance screening failed", {
       error,
     })
-    return threads.slice(0, Math.min(10, threads.length))
+    return eligibleThreads.slice(0, Math.min(10, eligibleThreads.length))
   }
 }
 
@@ -1045,6 +1055,12 @@ export async function discoverProductDiscussions(
       ? Array.from(new Set(thread.matchedQueries))
       : null,
   }))
+
+  mergedThreads = mergedThreads.filter((thread) => {
+    const commentCount = thread.numComments ?? 0
+    const harvestedComments = thread.topComments?.length ?? 0
+    return commentCount > 0 || harvestedComments > 0
+  })
 
   const curatedThreads = await filterThreadsByRelevance({
     product,
