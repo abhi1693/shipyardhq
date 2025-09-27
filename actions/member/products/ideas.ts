@@ -2,6 +2,7 @@
 
 import {
   crawlProductWebsite,
+  discoverProductDiscussions,
   discoverProductSubreddits,
   synthesizeProductIdea,
 } from "@/lib/server/productIdeas"
@@ -10,8 +11,12 @@ import { requireManageableProduct } from "@/lib/server/productAccess"
 import { ProductIdeaProfileStatus, Prisma } from "@/lib/vendor/prisma/client"
 import type {
   ProductIdeaProfileView,
+  ProductIdeaRedditDiscussionQuery,
+  ProductIdeaRedditInsightReport,
+  ProductIdeaRedditThread,
   ProductIdeaSubreddit,
   ProductIdeaSubredditQuery,
+  ProductIdeaRedditComment,
   SerializedIdeaProfile,
 } from "@/types/product-ideas"
 import { buildProductIdeaSummaryText } from "@/lib/server/productIdeas/summary"
@@ -34,10 +39,17 @@ const ideaProfileSelect = {
   subredditStatus: true,
   subredditErrorMessage: true,
   subredditModel: true,
+  redditDiscussionQueries: true,
+  redditDiscussions: true,
+  redditInsights: true,
+  redditStatus: true,
+  redditErrorMessage: true,
+  redditModel: true,
   status: true,
   errorMessage: true,
   model: true,
   lastSubredditDiscoveryAt: true,
+  lastRedditDiscoveryAt: true,
   lastCrawledAt: true,
   createdAt: true,
   updatedAt: true,
@@ -153,6 +165,127 @@ function serializeIdeaProfile(
       )
     : null
 
+  const redditDiscussionQueries = Array.isArray(record.redditDiscussionQueries)
+    ? (record.redditDiscussionQueries as unknown[]).reduce<
+        ProductIdeaRedditDiscussionQuery[]
+      >((acc, value) => {
+        if (
+          value !== null &&
+          typeof value === "object" &&
+          typeof (value as any).query === "string"
+        ) {
+          acc.push({
+            query: (value as any).query,
+            rationale:
+              typeof (value as any).rationale === "string"
+                ? (value as any).rationale
+                : null,
+            targetSubreddit:
+              typeof (value as any).targetSubreddit === "string"
+                ? (value as any).targetSubreddit
+                : null,
+          })
+        }
+        return acc
+      }, [])
+    : null
+
+  const redditDiscussions = Array.isArray(record.redditDiscussions)
+    ? (record.redditDiscussions as unknown[]).reduce<
+        ProductIdeaRedditThread[]
+      >((acc, value) => {
+        if (
+          value !== null &&
+          typeof value === "object" &&
+          typeof (value as any).id === "string" &&
+          typeof (value as any).title === "string" &&
+          typeof (value as any).permalink === "string"
+        ) {
+          acc.push({
+            id: (value as any).id,
+            title: (value as any).title,
+            url:
+              typeof (value as any).url === "string"
+                ? (value as any).url
+                : (value as any).permalink,
+            permalink: (value as any).permalink,
+            subreddit:
+              typeof (value as any).subreddit === "string"
+                ? (value as any).subreddit
+                : "",
+            author:
+              typeof (value as any).author === "string"
+                ? (value as any).author
+                : null,
+            score:
+              typeof (value as any).score === "number"
+                ? (value as any).score
+                : null,
+            numComments:
+              typeof (value as any).numComments === "number"
+                ? (value as any).numComments
+                : null,
+            createdAt:
+              typeof (value as any).createdAt === "string"
+                ? (value as any).createdAt
+                : null,
+            flairText:
+              typeof (value as any).flairText === "string"
+                ? (value as any).flairText
+                : null,
+            matchedQueries: Array.isArray((value as any).matchedQueries)
+              ? ((value as any).matchedQueries as unknown[]).filter(
+                  (entry): entry is string => typeof entry === "string",
+                )
+              : null,
+            topComments: Array.isArray((value as any).topComments)
+              ? ((value as any).topComments as unknown[]).reduce<
+                  ProductIdeaRedditComment[]
+                >((commentAcc, comment) => {
+                  if (
+                    comment !== null &&
+                    typeof comment === "object" &&
+                    typeof (comment as any).id === "string" &&
+                    typeof (comment as any).body === "string"
+                  ) {
+                    commentAcc.push({
+                      id: (comment as any).id,
+                      body: (comment as any).body,
+                      author:
+                        typeof (comment as any).author === "string"
+                          ? (comment as any).author
+                          : null,
+                      score:
+                        typeof (comment as any).score === "number"
+                          ? (comment as any).score
+                          : null,
+                      createdAt:
+                        typeof (comment as any).createdAt === "string"
+                          ? (comment as any).createdAt
+                          : null,
+                    })
+                  }
+                  return commentAcc
+                }, [])
+              : null,
+          })
+        }
+        return acc
+      }, [])
+    : null
+
+  let redditInsights: ProductIdeaRedditInsightReport | null = null
+  if (record.redditInsights && typeof record.redditInsights === "object") {
+    const raw = record.redditInsights as Record<string, unknown>
+    if (
+      "summary" in raw &&
+      typeof raw.summary === "string" &&
+      Array.isArray((raw as any).sections)
+    ) {
+      redditInsights = raw as ProductIdeaRedditInsightReport
+    }
+  }
+
   return {
     id: record.id,
     productId: record.productId,
@@ -169,11 +302,20 @@ function serializeIdeaProfile(
     subredditStatus: record.subredditStatus ?? null,
     subredditErrorMessage: record.subredditErrorMessage,
     subredditModel: record.subredditModel,
+    redditDiscussionQueries,
+    redditDiscussions,
+    redditInsights,
+    redditStatus: record.redditStatus ?? null,
+    redditErrorMessage: record.redditErrorMessage,
+    redditModel: record.redditModel,
     lastCrawledAt: record.lastCrawledAt
       ? record.lastCrawledAt.toISOString()
       : null,
     lastSubredditDiscoveryAt: record.lastSubredditDiscoveryAt
       ? record.lastSubredditDiscoveryAt.toISOString()
+      : null,
+    lastRedditDiscoveryAt: record.lastRedditDiscoveryAt
+      ? record.lastRedditDiscoveryAt.toISOString()
       : null,
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
@@ -473,6 +615,220 @@ export async function refreshProductIdeaSubreddits(
           subredditStatus: ProductIdeaProfileStatus.failed,
           subredditErrorMessage: message,
           lastSubredditDiscoveryAt: new Date(),
+        },
+      })
+      .catch(() => {
+        /* ignore */
+      })
+
+    throw error
+  }
+}
+
+export async function refreshProductIdeaDiscussions(
+  slug: string,
+  options: { forceRefresh?: boolean } = {},
+): Promise<SerializedIdeaProfile> {
+  const { product } = await requireManageableProduct(slug, {
+    unauthorizedRedirect: null,
+    missingRedirect: null,
+  })
+
+  const forceRefresh = Boolean(options.forceRefresh)
+
+  console.info("[productIdeas:action] reddit discussions requested", {
+    productId: product.id,
+    productSlug: product.slug,
+    forceRefresh,
+  })
+
+  const productRecord = await prisma.product.findUnique({
+    where: { id: product.id },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      tagline: true,
+      description: true,
+      pricingModel: true,
+      startingPriceCents: true,
+      currencyCode: true,
+      type: true,
+      keywords: true,
+      platforms: true,
+    },
+  })
+
+  if (!productRecord) {
+    throw new Error("Product not found")
+  }
+
+  let profileRecord = await prisma.productIdeaProfile.findUnique({
+    where: { productId: productRecord.id },
+    select: {
+      id: true,
+      summary: true,
+      subreddits: true,
+    },
+  })
+
+  if (!profileRecord) {
+    profileRecord = await prisma.productIdeaProfile.create({
+      data: {
+        productId: productRecord.id,
+      },
+      select: {
+        id: true,
+        summary: true,
+        subreddits: true,
+      },
+    })
+  }
+
+  await prisma.productIdeaProfile.update({
+    where: { productId: productRecord.id },
+    data: {
+      redditStatus: ProductIdeaProfileStatus.pending,
+      redditErrorMessage: null,
+    },
+  })
+
+  const productContext: ProductIdeaProductContext = {
+    name: productRecord.name,
+    tagline: productRecord.tagline,
+    description: productRecord.description,
+    pricingModel: productRecord.pricingModel,
+    startingPriceCents: productRecord.startingPriceCents,
+    currencyCode: productRecord.currencyCode,
+    type: productRecord.type,
+    keywords: productRecord.keywords ?? undefined,
+    platforms: productRecord.platforms ?? undefined,
+  }
+
+  let summary: ProductIdeaSummary | undefined
+  if (profileRecord?.summary && typeof profileRecord.summary === "object") {
+    summary = profileRecord.summary as ProductIdeaSummary
+  }
+
+  let subreddits: ProductIdeaSubreddit[] | undefined
+  if (Array.isArray(profileRecord?.subreddits)) {
+    subreddits = (profileRecord.subreddits as unknown[]).reduce<
+      ProductIdeaSubreddit[]
+    >((acc, value) => {
+      if (
+        value !== null &&
+        typeof value === "object" &&
+        typeof (value as any).name === "string" &&
+        typeof (value as any).url === "string"
+      ) {
+        acc.push({
+          id:
+            typeof (value as any).id === "string"
+              ? (value as any).id
+              : null,
+          name: (value as any).name,
+          title:
+            typeof (value as any).title === "string"
+              ? (value as any).title
+              : null,
+          description:
+            typeof (value as any).description === "string"
+              ? (value as any).description
+              : null,
+          url: (value as any).url,
+          subscribers:
+            typeof (value as any).subscribers === "number"
+              ? (value as any).subscribers
+              : null,
+          activeUserCount:
+            typeof (value as any).activeUserCount === "number"
+              ? (value as any).activeUserCount
+              : null,
+          over18:
+            typeof (value as any).over18 === "boolean"
+              ? (value as any).over18
+              : null,
+          iconUrl:
+            typeof (value as any).iconUrl === "string"
+              ? (value as any).iconUrl
+              : null,
+          primaryTopic:
+            typeof (value as any).primaryTopic === "string"
+              ? (value as any).primaryTopic
+              : null,
+          score:
+            typeof (value as any).score === "number"
+              ? (value as any).score
+              : null,
+          matchedQueries: Array.isArray((value as any).matchedQueries)
+            ? ((value as any).matchedQueries as unknown[]).filter(
+                (entry): entry is string => typeof entry === "string",
+              )
+            : null,
+          relevanceScore:
+            typeof (value as any).relevanceScore === "number"
+              ? (value as any).relevanceScore
+              : null,
+          relevanceReason:
+            typeof (value as any).relevanceReason === "string"
+              ? (value as any).relevanceReason
+              : null,
+        })
+      }
+      return acc
+    }, [])
+  }
+
+  try {
+    const discovery = await discoverProductDiscussions({
+      productId: productRecord.id,
+      product: productContext,
+      summary,
+      subreddits,
+      forceRefresh,
+    })
+
+    const updated = await prisma.productIdeaProfile.update({
+      where: { productId: productRecord.id },
+      data: {
+        redditDiscussionQueries: discovery.queries,
+        redditDiscussions: discovery.threads,
+        redditInsights:
+          discovery.insights ?? Prisma.JsonNull,
+        redditStatus: ProductIdeaProfileStatus.ready,
+        redditErrorMessage: null,
+        redditModel: discovery.model,
+        lastRedditDiscoveryAt: new Date(),
+      },
+      select: ideaProfileSelect,
+    })
+
+    console.info("[productIdeas:action] reddit discussions completed", {
+      productId: productRecord.id,
+      threadCount: discovery.threads.length,
+      hasInsights: Boolean(discovery.insights),
+      fromCache: discovery.fromCache,
+    })
+
+    return serializeIdeaProfile(updated)!
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unexpected reddit discussion discovery failure"
+    console.error("[productIdeas:action] reddit discussions failed", {
+      productId: productRecord.id,
+      message,
+      error,
+    })
+
+    await prisma.productIdeaProfile
+      .update({
+        where: { productId: productRecord.id },
+        data: {
+          redditStatus: ProductIdeaProfileStatus.failed,
+          redditErrorMessage: message,
+          lastRedditDiscoveryAt: new Date(),
         },
       })
       .catch(() => {

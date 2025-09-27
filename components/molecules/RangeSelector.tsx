@@ -22,14 +22,14 @@ export default function RangeSelector({
   ranges = DEFAULT_RANGES,
   paramKey = "range",
 }: RangeSelectorProps) {
-  const pathname = usePathname()
+  const pathname = usePathname() ?? ""
   const router = useRouter()
   const params = useSearchParams()
   const baselineRange = ranges[0]?.value ?? DEFAULT_RANGES[0].value
-  const current = params.get(paramKey) ?? baselineRange
+  const current = params?.get(paramKey) ?? baselineRange
 
   const setRange = (value: string) => {
-    const next = new URLSearchParams(params.toString())
+    const next = new URLSearchParams(params?.toString() ?? "")
     if (value === baselineRange) next.delete(paramKey)
     else next.set(paramKey, value)
 

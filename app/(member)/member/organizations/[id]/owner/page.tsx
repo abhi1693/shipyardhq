@@ -34,28 +34,30 @@ import SaveButton from "@/components/molecules/SaveButton"
 
 export default function ChangeOwnerPage() {
   const router = useRouter()
-  const { id } = useParams<{ id: string }>()
+  const params = useParams<{ id: string }>()
+  const organizationId = params?.id
   const [members, setMembers] = useState<any[]>([])
   const [ownerId, setOwnerId] = useState<string>("")
   const form = useForm<{ owner: string }>({ defaultValues: { owner: "" } })
 
   useEffect(() => {
     ;(async () => {
-      if (!id) return
-      const org = (await getMyOrganizationById(id as string)) as {
+      if (!organizationId) return
+      const org = (await getMyOrganizationById(organizationId)) as {
         ownerUserId: string | null
       } | null
-      const rows = await getMyOrganizationMembers(id as string)
+      const rows = await getMyOrganizationMembers(organizationId)
       setMembers(rows)
       setOwnerId(org?.ownerUserId || "")
     })()
-  }, [id])
+  }, [organizationId])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const res = await updateOrganizationOwnerAction(id as string, ownerId)
+    if (!organizationId) return
+    const res = await updateOrganizationOwnerAction(organizationId, ownerId)
     if ((res as any)?.error) return alert((res as any).error)
-    router.push(memberOrganizationPath(id as string))
+    router.push(memberOrganizationPath(organizationId))
   }
 
   return (

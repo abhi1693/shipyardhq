@@ -21,23 +21,26 @@ import DeleteButton from "@/components/molecules/DeleteButton"
 
 export default function DeleteMemberPage() {
   const router = useRouter()
-  const { id, membershipId } = useParams<{ id: string; membershipId: string }>()
+  const params = useParams<{ id: string; membershipId: string }>()
+  const organizationId = params?.id
+  const organizationMembershipId = params?.membershipId
   const [memberEmail, setMemberEmail] = useState<string>("")
   useEffect(() => {
     ;(async () => {
-      if (!id || !membershipId) return
-      const rows = await getMyOrganizationMembers(id as string)
-      const found = rows.find((r: any) => r.id === membershipId)
+      if (!organizationId || !organizationMembershipId) return
+      const rows = await getMyOrganizationMembers(organizationId)
+      const found = rows.find((r: any) => r.id === organizationMembershipId)
       if (!found)
-        return router.replace(memberOrganizationMembersPath(id as string))
+        return router.replace(memberOrganizationMembersPath(organizationId))
       setMemberEmail(found.user.email)
     })()
-  }, [id, membershipId, router])
+  }, [organizationId, organizationMembershipId, router])
 
   async function onDelete() {
-    const res = await deleteMyOrganizationMemberAction(membershipId as string)
+    if (!organizationId || !organizationMembershipId) return
+    const res = await deleteMyOrganizationMemberAction(organizationMembershipId)
     if ((res as any)?.error) return alert((res as any).error)
-    router.push(memberOrganizationPath(id as string))
+    router.push(memberOrganizationPath(organizationId))
   }
 
   return (

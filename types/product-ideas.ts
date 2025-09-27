@@ -44,8 +44,15 @@ export type SerializedIdeaProfile = {
   subredditStatus?: ProductIdeaProfileStatus | null
   subredditErrorMessage?: string | null
   subredditModel?: string | null
+  redditDiscussionQueries?: ProductIdeaRedditDiscussionQuery[] | null
+  redditDiscussions?: ProductIdeaRedditThread[] | null
+  redditInsights?: ProductIdeaRedditInsightReport | null
+  redditStatus?: ProductIdeaProfileStatus | null
+  redditErrorMessage?: string | null
+  redditModel?: string | null
   lastCrawledAt: string | null
   lastSubredditDiscoveryAt: string | null
+  lastRedditDiscoveryAt: string | null
   createdAt: string
   updatedAt: string
 }
@@ -56,4 +63,53 @@ export type ProductIdeaProfileView = {
   slug: string
   websiteUrl: string
   ideaProfile: SerializedIdeaProfile | null
+}
+
+export type ProductIdeaRedditDiscussionQuery = {
+  query: string
+  rationale?: string | null
+  targetSubreddit?: string | null
+}
+
+export type ProductIdeaRedditComment = {
+  id: string
+  author?: string | null
+  body: string
+  score?: number | null
+  createdAt?: string | null
+}
+
+export type ProductIdeaRedditThread = {
+  id: string
+  title: string
+  url: string
+  permalink: string
+  subreddit: string
+  author?: string | null
+  score?: number | null
+  numComments?: number | null
+  createdAt?: string | null
+  flairText?: string | null
+  matchedQueries?: string[] | null
+  topComments?: ProductIdeaRedditComment[] | null
+}
+
+export type ProductIdeaRedditInsightItem = {
+  insight: string
+  sentiment?: "positive" | "negative" | "neutral" | null
+  audience?: string | null
+  evidence?: string[] | null
+  references?: string[] | null
+}
+
+export type ProductIdeaRedditInsightSection = {
+  title: string
+  description?: string | null
+  items: ProductIdeaRedditInsightItem[]
+}
+
+export type ProductIdeaRedditInsightReport = {
+  summary: string
+  sections: ProductIdeaRedditInsightSection[]
+  recommendedFocus?: string[] | null
 }

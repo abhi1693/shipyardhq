@@ -12,11 +12,15 @@ import { formatDistanceToNowStrict } from "date-fns"
 import { toast } from "sonner"
 
 import {
+  refreshProductIdeaDiscussions,
   refreshProductIdeaProfile,
   refreshProductIdeaSubreddits,
 } from "@/actions/member/products/ideas"
 import type {
   ProductIdeaProfileStatus,
+  ProductIdeaRedditDiscussionQuery,
+  ProductIdeaRedditInsightReport,
+  ProductIdeaRedditThread,
   ProductIdeaSubreddit,
   ProductIdeaSubredditQuery,
   SerializedIdeaProfile,
@@ -57,6 +61,24 @@ const STATUS_STYLES: Record<
 const DEFAULT_PROFILE_MODEL = "gpt-4.1-mini"
 
 const DEFAULT_SUBREDDIT_MODEL = "gpt-4.1-mini"
+
+const SENTIMENT_BADGE_VARIANT: Record<
+  "positive" | "negative" | "neutral",
+  ComponentProps<typeof Badge>["variant"]
+> = {
+  positive: "success",
+  negative: "destructive",
+  neutral: "secondary",
+}
+
+const SENTIMENT_BADGE_LABEL: Record<
+  "positive" | "negative" | "neutral",
+  string
+> = {
+  positive: "Positive",
+  negative: "Negative",
+  neutral: "Neutral",
+}
 
 type ProductIdeasViewProps = {
   slug: string
@@ -152,6 +174,10 @@ export function ProductIdeasView({
     null,
   )
   const [isDiscoveringSubreddits, startSubredditTransition] = useTransition()
+  const [discussionProgress, setDiscussionProgress] = useState<string | null>(
+    null,
+  )
+  const [isDiscoveringDiscussions, startDiscussionTransition] = useTransition()
 
   const summary = (profile?.summary || undefined) as
     | ProductIdeaSummary
@@ -264,6 +290,50 @@ export function ProductIdeasView({
     })
   }
 
+  const handleDiscoverDiscussions = () => {
+    startDiscussionTransition(async () => {
+      const shouldForceRefresh = Array.isArray(profile?.redditDiscussions)
+        ? (profile!.redditDiscussions as ProductIdeaRedditThread[]).length > 0
+        : false
+      setProfile((prev) =>
+        prev
+          ? {
+              ...prev,
+              redditStatus: "pending",
+              redditErrorMessage: null,
+            }
+          : prev,
+      )
+      setDiscussionProgress("Generating discussion search plan…")
+      try {
+        const updated = await refreshProductIdeaDiscussions(slug, {
+          forceRefresh: shouldForceRefresh,
+        })
+        setProfile(updated)
+        setDiscussionProgress("Reddit insights refreshed.")
+        toast.success("Reddit discussion insights updated")
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Failed to analyze Reddit discussions"
+        setDiscussionProgress(
+          "Discussion analysis failed. Check console logs for details.",
+        )
+        setProfile((prev) =>
+          prev
+            ? {
+                ...prev,
+                redditStatus: "failed",
+                redditErrorMessage: message,
+              }
+            : prev,
+        )
+        toast.error(message)
+      }
+    })
+  }
+
   const statusDisplay = profile
     ? STATUS_STYLES[profile.status]
     : isRefreshing
@@ -301,6 +371,41 @@ export function ProductIdeasView({
 
   const lastSubredditDiscovery = profile?.lastSubredditDiscoveryAt
     ? formatDistanceToNowStrict(new Date(profile.lastSubredditDiscoveryAt), {
+        addSuffix: true,
+      })
+    : "Never"
+
+  const discussionQueries = useMemo(() => {
+    return Array.isArray(profile?.redditDiscussionQueries)
+      ? (profile!.redditDiscussionQueries as ProductIdeaRedditDiscussionQuery[])
+      : []
+  }, [profile])
+
+  const discussionThreads = useMemo(() => {
+    return Array.isArray(profile?.redditDiscussions)
+      ? (profile!.redditDiscussions as ProductIdeaRedditThread[])
+      : []
+  }, [profile])
+
+  const discussionInsights =
+    (profile?.redditInsights as ProductIdeaRedditInsightReport | null) ?? null
+
+  const hasDiscussionThreads = discussionThreads.length > 0
+
+  const totalCommentsSampled = discussionThreads.reduce((sum, thread) => {
+    const commentCount = thread.topComments?.length ?? 0
+    return sum + commentCount
+  }, 0)
+
+  const totalFocusAreas = discussionInsights?.recommendedFocus?.length ?? 0
+
+  const discussionStatus = profile?.redditStatus ?? null
+  const discussionStatusDisplay = discussionStatus
+    ? STATUS_STYLES[discussionStatus]
+    : { label: "Not started", badge: "outline" as const }
+
+  const lastDiscussionDiscovery = profile?.lastRedditDiscoveryAt
+    ? formatDistanceToNowStrict(new Date(profile.lastRedditDiscoveryAt), {
         addSuffix: true,
       })
     : "Never"
@@ -383,6 +488,57 @@ export function ProductIdeasView({
     tone: MetricTone
   }>
 
+  const discussionMetrics = [
+    {
+      label: "Last analyzed",
+      value: lastDiscussionDiscovery,
+      tone: profile ? "neutral" : "warning",
+    },
+    {
+      label: "Threads captured",
+      value: profile
+        ? hasDiscussionThreads
+          ? `${discussionThreads.length}`
+          : "0"
+        : "—",
+      tone: profile
+        ? hasDiscussionThreads
+          ? "positive"
+          : "warning"
+        : "neutral",
+    },
+    {
+      label: "Comments sampled",
+      value: profile
+        ? totalCommentsSampled
+          ? `${totalCommentsSampled}`
+          : "0"
+        : "—",
+      tone: profile
+        ? totalCommentsSampled
+          ? "neutral"
+          : "warning"
+        : "neutral",
+    },
+    {
+      label: "Focus areas",
+      value: discussionInsights
+        ? totalFocusAreas
+          ? `${totalFocusAreas}`
+          : "0"
+        : "—",
+      tone: discussionInsights
+        ? totalFocusAreas
+          ? "positive"
+          : "warning"
+        : "neutral",
+    },
+  ] as const satisfies ReadonlyArray<{
+    label: string
+    value: string
+    tone: MetricTone
+  }>
+
   const hasDiscoveredUrls = discoveredUrls.length > 0
 
   const renderCrawlerEmptyState = () => {
@@ -422,6 +578,20 @@ export function ProductIdeasView({
   const renderSubredditError = () => {
     if (!profile?.subredditErrorMessage) return null
     return <InfoNotice tone="error">{profile.subredditErrorMessage}</InfoNotice>
+  }
+
+  const renderDiscussionProgress = () => {
+    if (!discussionProgress) return null
+    return (
+      <InfoNotice tone="info" size="xs">
+        {discussionProgress}
+      </InfoNotice>
+    )
+  }
+
+  const renderDiscussionError = () => {
+    if (!profile?.redditErrorMessage) return null
+    return <InfoNotice tone="error">{profile.redditErrorMessage}</InfoNotice>
   }
 
   return (
@@ -682,6 +852,272 @@ export function ProductIdeasView({
                 <TableCaption>
                   {`${subreddits.length} subreddit${subreddits.length === 1 ? "" : "s"} saved for this product`}
                 </TableCaption>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <CardTitle>Reddit discussion insights</CardTitle>
+              <CardDescription>
+                Surface the conversations that reveal wins, friction, and
+                opportunities for this product.
+              </CardDescription>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Badge variant={discussionStatusDisplay.badge}>
+                {discussionStatusDisplay.label}
+              </Badge>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleDiscoverDiscussions}
+                disabled={isDiscoveringDiscussions}
+              >
+                {isDiscoveringDiscussions
+                  ? "Analyzing…"
+                  : hasDiscussionThreads || discussionInsights
+                    ? "Refresh insights"
+                    : "Analyze discussions"}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {discussionMetrics.map((metric) => (
+              <MetricTile
+                key={metric.label}
+                label={metric.label}
+                value={metric.value}
+                tone={metric.tone}
+              />
+            ))}
+          </div>
+          {renderDiscussionProgress()}
+          {renderDiscussionError()}
+          {!hasDiscussionThreads && !discussionInsights && !isDiscoveringDiscussions && (
+            <InfoNotice tone="info">
+              Run the analysis to gather recent Reddit threads that mention the
+              product, comparable tools, and pain points. We will turn those
+              into a focused insight report.
+            </InfoNotice>
+          )}
+          {!!discussionQueries.length && (
+            <div className="space-y-2">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">
+                Discussion queries
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {discussionQueries.map((item) => (
+                  <div
+                    key={`${item.query}-${item.targetSubreddit ?? "global"}`}
+                    className="max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-left text-sm shadow-sm"
+                  >
+                    <div className="font-medium text-foreground">
+                      {item.query}
+                    </div>
+                    {item.targetSubreddit && (
+                      <div className="mt-1 text-xs text-primary">
+                        Focus: r/{item.targetSubreddit.replace(/^r\//i, "")}
+                      </div>
+                    )}
+                    {item.rationale && (
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {item.rationale}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {discussionInsights && (
+            <div className="space-y-4">
+              {discussionInsights.summary && (
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
+                  {discussionInsights.summary}
+                </div>
+              )}
+              {!!(discussionInsights.recommendedFocus?.length ?? 0) && (
+                <div className="space-y-1">
+                  <div className="text-xs font-semibold uppercase text-muted-foreground">
+                    Recommended focus
+                  </div>
+                  <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                    {discussionInsights.recommendedFocus!.map((item, index) => (
+                      <li key={`focus-${index}`}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="space-y-4">
+                {discussionInsights.sections?.length ? (
+                  discussionInsights.sections.map((section, sectionIndex) => (
+                    <div key={`${section.title}-${sectionIndex}`} className="space-y-3">
+                      <div className="text-sm font-semibold text-foreground">
+                        {section.title}
+                      </div>
+                      {section.description && (
+                        <div className="text-sm text-muted-foreground">
+                          {section.description}
+                        </div>
+                      )}
+                      <div className="space-y-3">
+                        {section.items.map((item, itemIndex) => {
+                          const sentimentVariant = item.sentiment
+                            ? SENTIMENT_BADGE_VARIANT[item.sentiment]
+                            : null
+                          const sentimentLabel = item.sentiment
+                            ? SENTIMENT_BADGE_LABEL[item.sentiment]
+                            : null
+                          return (
+                            <div
+                              key={`${section.title}-${itemIndex}`}
+                              className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
+                            >
+                              <div className="flex flex-wrap items-start justify-between gap-2">
+                                <div className="text-sm font-medium text-foreground">
+                                  {item.insight}
+                                </div>
+                                {sentimentVariant && sentimentLabel && (
+                                  <Badge variant={sentimentVariant} className="text-[11px]">
+                                    {sentimentLabel}
+                                  </Badge>
+                                )}
+                              </div>
+                              {item.audience && (
+                                <div className="mt-1 text-xs text-primary">
+                                  Audience: {item.audience}
+                                </div>
+                              )}
+                              {!!(item.evidence?.length ?? 0) && (
+                                <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                                  {item.evidence!.map((evidence, evidenceIndex) => (
+                                    <li key={`evidence-${sectionIndex}-${itemIndex}-${evidenceIndex}`}>
+                                      {evidence}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                              {!!(item.references?.length ?? 0) && (
+                                <div className="mt-2 text-[11px] text-muted-foreground">
+                                  References: {item.references!.join(", ")}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <InfoNotice tone="info" size="xs">
+                    We did not identify specific insight sections from the
+                    sampled threads yet. Try rerunning the analysis with a
+                    refreshed crawl or broadened subreddit list.
+                  </InfoNotice>
+                )}
+              </div>
+            </div>
+          )}
+          {hasDiscussionThreads && (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[240px]">Discussion</TableHead>
+                    <TableHead>Community</TableHead>
+                    <TableHead className="min-w-[140px]">Signals</TableHead>
+                    <TableHead className="min-w-[180px]">Matched queries</TableHead>
+                    <TableHead className="min-w-[260px]">Top insight</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {discussionThreads.map((thread) => {
+                    const topComment = thread.topComments?.[0] ?? null
+                    const additionalComments = Math.max(
+                      (thread.topComments?.length ?? 0) - 1,
+                      0,
+                    )
+                    const preview = topComment?.body
+                      ? topComment.body.length > 200
+                        ? `${topComment.body.slice(0, 200)}…`
+                        : topComment.body
+                      : null
+                    const relativeCreated = thread.createdAt
+                      ? formatDistanceToNowStrict(new Date(thread.createdAt), {
+                          addSuffix: true,
+                        })
+                      : null
+                    return (
+                      <TableRow key={thread.id}>
+                        <TableCell className="whitespace-normal break-words text-sm text-foreground">
+                          <Link
+                            href={thread.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="font-medium text-primary hover:underline"
+                          >
+                            {thread.title}
+                          </Link>
+                          {thread.flairText && (
+                            <div className="mt-1 text-[11px] text-muted-foreground">
+                              {thread.flairText}
+                            </div>
+                          )}
+                          {relativeCreated && (
+                            <div className="mt-1 text-[11px] text-muted-foreground">
+                              {relativeCreated}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-sm text-primary">
+                          r/{thread.subreddit}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-sm text-foreground">
+                          <div>
+                            {typeof thread.score === "number"
+                              ? `${thread.score.toLocaleString()} upvotes`
+                              : "—"}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {typeof thread.numComments === "number"
+                              ? `${thread.numComments} comments`
+                              : ""}
+                          </div>
+                        </TableCell>
+                        <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                          {thread.matchedQueries?.length
+                            ? thread.matchedQueries.join(" • ")
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                          {preview ? (
+                            <div className="space-y-1">
+                              <div>“{preview}”</div>
+                              <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                {topComment?.author && <span>by {topComment.author}</span>}
+                                {typeof topComment?.score === "number" && (
+                                  <span>{topComment.score} upvotes</span>
+                                )}
+                                {additionalComments > 0 && (
+                                  <span>+{additionalComments} more</span>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            "—"
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
               </Table>
             </div>
           )}

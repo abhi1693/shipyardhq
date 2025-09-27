@@ -14,12 +14,23 @@ import type {
   ProductIdeaSubreddit,
   ProductIdeaSubredditQuery,
 } from "@/types/product-ideas"
+import {
+  getRedditAccessToken,
+  getRedditUserAgent,
+} from "./redditClient"
 
 const REDDIT_CACHE_TTL_SECONDS = 60 * 60 * 6 // 6 hours
-const REDDIT_CACHE_NAMESPACE = "productIdeas:subreddits:v1"
-const REDDIT_USER_AGENT =
-  process.env.REDDIT_USER_AGENT?.trim() ||
-  "ShipyardHQ-ProductIdeas/1.0 (https://shipyardhq.dev)"
+
+function resolveCacheNamespace(base: string) {
+  const prefix =
+    process.env.REDIS_ENV_NAMESPACE?.trim() || process.env.NODE_ENV?.trim()
+  return prefix ? `${prefix}:${base}` : base
+}
+
+const REDDIT_CACHE_NAMESPACE = resolveCacheNamespace(
+  "productIdeas:subreddits:v1",
+)
+const REDDIT_USER_AGENT = getRedditUserAgent()
 
 const QueryResponseSchema = z.object({
   queries: z
@@ -82,11 +93,6 @@ type RelevanceVerdict = z.infer<
   typeof RelevanceResponseSchema
 >["subreddits"][number]
 
-let cachedAccessToken: {
-  token: string
-  expiresAt: number
-} | null = null
-
 function truncateText(value: string | null | undefined, max: number) {
   if (!value) return null
   const trimmed = value.trim()
@@ -103,66 +109,6 @@ function sanitizeAudienceValue(value?: string | null) {
 
 function buildCacheKey(productId: string) {
   return `${REDDIT_CACHE_NAMESPACE}:${productId}`
-}
-
-async function getRedditAccessToken(): Promise<string> {
-  const now = Date.now()
-  if (cachedAccessToken && cachedAccessToken.expiresAt > now + 30_000) {
-    return cachedAccessToken.token
-  }
-
-  const clientId = process.env.REDDIT_CLIENT_ID?.trim()
-  const clientSecret = process.env.REDDIT_CLIENT_SECRET?.trim()
-
-  if (!clientId || !clientSecret) {
-    throw new Error(
-      "REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET must be configured to discover subreddits",
-    )
-  }
-
-  console.info("[productIdeas:subreddit] requesting reddit access token")
-  const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString(
-    "base64",
-  )
-  const response = await fetch("https://www.reddit.com/api/v1/access_token", {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-      "User-Agent": REDDIT_USER_AGENT,
-    },
-    body: new URLSearchParams({ grant_type: "client_credentials" }),
-  })
-
-  if (!response.ok) {
-    const errorBody = await response.text().catch(() => "")
-    throw new Error(
-      `Failed to obtain Reddit access token (status ${response.status}): ${errorBody}`,
-    )
-  }
-
-  const json = (await response.json()) as {
-    access_token?: string
-    token_type?: string
-    expires_in?: number
-    error?: string
-  }
-
-  if (json.error) {
-    throw new Error(`Reddit token error: ${json.error}`)
-  }
-
-  if (!json.access_token || json.token_type?.toLowerCase() !== "bearer") {
-    throw new Error("Invalid response when requesting Reddit access token")
-  }
-
-  const expiresInMs = (json.expires_in ?? 3600) * 1000
-  cachedAccessToken = {
-    token: json.access_token,
-    expiresAt: Date.now() + expiresInMs,
-  }
-
-  return json.access_token
 }
 
 async function generateSearchQueries({

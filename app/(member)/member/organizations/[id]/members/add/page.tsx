@@ -31,19 +31,21 @@ type Values = z.infer<typeof schema>
 
 export default function AddMemberPage() {
   const router = useRouter()
-  const { id } = useParams<{ id: string }>()
+  const params = useParams<{ id: string }>()
+  const organizationId = params?.id
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { email: "" },
   })
 
   async function onSubmit(values: Values) {
-    const res = await addMyOrganizationMemberAction(id as string, values.email)
+    if (!organizationId) return
+    const res = await addMyOrganizationMemberAction(organizationId, values.email)
     if ((res as any)?.error) {
       form.setError("email", { type: "server", message: (res as any).error })
       return
     }
-    router.push(memberOrganizationPath(id as string))
+    router.push(memberOrganizationPath(organizationId))
   }
 
   return (
