@@ -34,6 +34,7 @@ import {
 import {
   memberProductAnalyticsPath,
   memberProductEditPath,
+  memberProductIdeasPath,
   memberProductPath,
   productPath,
 } from "@/lib/routes"
@@ -43,6 +44,7 @@ import {
   Building2,
   Copy as CopyIcon,
   ExternalLink,
+  Sparkles,
   Github as GithubIcon,
   Globe,
   Mail,
@@ -114,6 +116,7 @@ export default async function ViewUserProductPage({
   const canManage = true
   const publicPath = productPath(productSlug)
   const analyticsPath = memberProductAnalyticsPath(productSlug)
+  const ideasPath = memberProductIdeasPath(productSlug)
   const hasAdvancedAnalytics = hasPlanFeature(
     product.plan ?? null,
     "analytics.advanced",
@@ -384,6 +387,13 @@ export default async function ViewUserProductPage({
                   status={product.status as any}
                   triggerClassName="h-8 px-3"
                 />
+              ) : null}
+              {canManage ? (
+                <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
+                  <Link href={ideasPath}>
+                    <Sparkles className="mr-2 h-4 w-4" /> Ideas
+                  </Link>
+                </Button>
               ) : null}
               {canManage && canViewAnalytics ? (
                 <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
