@@ -1,6 +1,12 @@
 "use client"
 
-import { useMemo, useState, useTransition } from "react"
+import {
+  useMemo,
+  useState,
+  useTransition,
+  type ComponentProps,
+  type ReactNode,
+} from "react"
 import Link from "next/link"
 import { formatDistanceToNowStrict } from "date-fns"
 import { toast } from "sonner"
@@ -28,7 +34,6 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
-import { Separator } from "@/components/atoms/separator"
 import {
   Table,
   TableBody,
@@ -38,15 +43,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/atoms/table"
+import { cn } from "@/lib/utils"
 
 const STATUS_STYLES: Record<
   ProductIdeaProfileStatus,
-  { label: string; badge: React.ComponentProps<typeof Badge>["variant"] }
+  { label: string; badge: ComponentProps<typeof Badge>["variant"] }
 > = {
   pending: { label: "Processing", badge: "secondary" },
   ready: { label: "Ready", badge: "success" },
   failed: { label: "Failed", badge: "destructive" },
 }
+
+const DEFAULT_PROFILE_MODEL = "gpt-4.1-mini"
+
+const DEFAULT_SUBREDDIT_MODEL = "gpt-4.1-mini"
 
 type ProductIdeasViewProps = {
   slug: string
@@ -58,6 +68,73 @@ type ProductIdeasViewProps = {
 type SummarySection = {
   title: string
   items: string[]
+}
+
+type MetricTone = "neutral" | "positive" | "warning" | "danger"
+
+const METRIC_TONE_STYLES: Record<MetricTone, string> = {
+  neutral: "text-foreground",
+  positive: "text-emerald-600",
+  warning: "text-amber-600",
+  danger: "text-destructive",
+}
+
+function MetricTile({
+  label,
+  value,
+  tone = "neutral",
+}: {
+  label: string
+  value: ReactNode
+  tone?: MetricTone
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+      <div className="text-xs font-semibold uppercase text-muted-foreground">
+        {label}
+      </div>
+      <div className={cn("mt-1 text-sm font-medium", METRIC_TONE_STYLES[tone])}>
+        {value}
+      </div>
+    </div>
+  )
+}
+
+function InfoNotice({
+  tone,
+  children,
+  size = "sm",
+}: {
+  tone: "info" | "error"
+  children: ReactNode
+  size?: "sm" | "xs"
+}) {
+  const base = "rounded-lg border p-3"
+  const textSize = size === "xs" ? "text-xs" : "text-sm"
+  if (tone === "error") {
+    return (
+      <div
+        className={cn(
+          base,
+          textSize,
+          "border-destructive/40 bg-destructive/10 text-destructive",
+        )}
+      >
+        {children}
+      </div>
+    )
+  }
+  return (
+    <div
+      className={cn(
+        base,
+        textSize,
+        "border-primary/20 bg-primary/5 text-primary",
+      )}
+    >
+      {children}
+    </div>
+  )
 }
 
 export function ProductIdeasView({
@@ -99,6 +176,8 @@ export function ProductIdeasView({
       ? (profile!.pages as ProductIdeaPageSnapshot[])
       : []
   }, [profile])
+
+  const pageCount = pages.length
 
   const erroredPages = useMemo(
     () => pages.filter((page) => page.status === "error"),
@@ -190,6 +269,7 @@ export function ProductIdeasView({
     : isRefreshing
       ? { label: "Processing", badge: "secondary" as const }
       : { label: "Not generated", badge: "outline" as const }
+
   const lastCrawled = profile?.lastCrawledAt
     ? formatDistanceToNowStrict(new Date(profile.lastCrawledAt), {
         addSuffix: true,
@@ -212,6 +292,8 @@ export function ProductIdeasView({
       : []
   }, [profile])
 
+  const hasSubredditResults = subreddits.length > 0
+
   const subredditStatus = profile?.subredditStatus ?? null
   const subredditStatusDisplay = subredditStatus
     ? STATUS_STYLES[subredditStatus]
@@ -223,159 +305,292 @@ export function ProductIdeasView({
       })
     : "Never"
 
+  const crawlerMetrics = [
+    {
+      label: "Last crawled",
+      value: lastCrawled,
+      tone: profile ? "neutral" : "warning",
+    },
+    {
+      label: "Pages captured",
+      value: profile ? (pageCount ? pageCount.toString() : "0") : "—",
+      tone: profile ? (pageCount ? "neutral" : "warning") : "neutral",
+    },
+    {
+      label: "Errors",
+      value: profile
+        ? erroredPages.length
+          ? `${erroredPages.length}`
+          : "0"
+        : "—",
+      tone: profile
+        ? erroredPages.length
+          ? ("danger" as MetricTone)
+          : ("positive" as MetricTone)
+        : "neutral",
+    },
+    {
+      label: "Model",
+      value: profile?.model ?? DEFAULT_PROFILE_MODEL,
+      tone: "neutral" as MetricTone,
+    },
+  ] as const satisfies ReadonlyArray<{
+    label: string
+    value: string
+    tone: MetricTone
+  }>
+
+  const subredditMetrics = [
+    {
+      label: "Last discovered",
+      value: lastSubredditDiscovery,
+      tone: profile ? "neutral" : "warning",
+    },
+    {
+      label: "Saved communities",
+      value: profile
+        ? hasSubredditResults
+          ? `${subreddits.length}`
+          : "0"
+        : "—",
+      tone: profile
+        ? hasSubredditResults
+          ? "positive"
+          : "warning"
+        : "neutral",
+    },
+    {
+      label: "Queries generated",
+      value: profile
+        ? subredditQueries.length
+          ? `${subredditQueries.length}`
+          : "0"
+        : "—",
+      tone: profile
+        ? subredditQueries.length
+          ? "neutral"
+          : "warning"
+        : "neutral",
+    },
+    {
+      label: "Model",
+      value: profile?.subredditModel ?? DEFAULT_SUBREDDIT_MODEL,
+      tone: "neutral" as MetricTone,
+    },
+  ] as const satisfies ReadonlyArray<{
+    label: string
+    value: string
+    tone: MetricTone
+  }>
+
+  const hasDiscoveredUrls = discoveredUrls.length > 0
+
+  const renderCrawlerEmptyState = () => {
+    if (profile || isRefreshing) return null
+    return (
+      <InfoNotice tone="info">
+        Run the crawler to capture a fresh profile from your live site. We will
+        parse the sitemap, summarize the content, and store the highlights for
+        reuse.
+      </InfoNotice>
+    )
+  }
+
+  const renderCrawlerProgress = () => {
+    if (!progressMessage) return null
+    return (
+      <InfoNotice tone="info" size="xs">
+        {progressMessage}
+      </InfoNotice>
+    )
+  }
+
+  const renderCrawlerError = () => {
+    if (!profile?.errorMessage) return null
+    return <InfoNotice tone="error">{profile.errorMessage}</InfoNotice>
+  }
+
+  const renderSubredditProgress = () => {
+    if (!subredditProgress) return null
+    return (
+      <InfoNotice tone="info" size="xs">
+        {subredditProgress}
+      </InfoNotice>
+    )
+  }
+
+  const renderSubredditError = () => {
+    if (!profile?.subredditErrorMessage) return null
+    return <InfoNotice tone="error">{profile.subredditErrorMessage}</InfoNotice>
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <Card>
-        <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <CardTitle className="text-xl font-semibold">
-              Product Intelligence Snapshot
-            </CardTitle>
-            <CardDescription>
-              {productName} •
-              <Link
-                href={websiteUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="ml-1 text-primary hover:underline"
+        <CardHeader className="space-y-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-3">
+              <div className="text-xs font-semibold uppercase text-muted-foreground">
+                Product profile
+              </div>
+              <div className="space-y-1">
+                <CardTitle className="text-2xl font-semibold">
+                  {productName}
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  <Link
+                    href={websiteUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    {websiteUrl}
+                  </Link>
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+              <Badge variant={statusDisplay.badge}>{statusDisplay.label}</Badge>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
               >
-                {websiteUrl}
-              </Link>
-            </CardDescription>
+                {isRefreshing
+                  ? "Refreshing…"
+                  : profile
+                    ? "Refresh profile"
+                    : "Run crawler"}
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-            <Badge variant={statusDisplay.badge}>{statusDisplay.label}</Badge>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-            >
-              {isRefreshing
-                ? "Refreshing…"
-                : profile
-                  ? "Refresh profile"
-                  : "Run crawler"}
-            </Button>
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {crawlerMetrics.map((metric) => (
+              <MetricTile
+                key={metric.label}
+                label={metric.label}
+                value={metric.value}
+                tone={metric.tone}
+              />
+            ))}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-1">
+          {renderCrawlerProgress()}
+          {renderCrawlerError()}
+          {renderCrawlerEmptyState()}
+          {profile && !isRefreshing && !summary && (
+            <InfoNotice tone="info" size="xs">
+              We captured the crawl but did not synthesize a summary yet.
+              Trigger another refresh if you recently updated the product site.
+            </InfoNotice>
+          )}
+          {hasDiscoveredUrls && (
+            <div className="space-y-2">
               <div className="text-xs font-semibold uppercase text-muted-foreground">
-                Last crawled
+                Sitemap sources
               </div>
-              <div className="text-sm text-foreground">{lastCrawled}</div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-xs font-semibold uppercase text-muted-foreground">
-                Model
+              <div className="flex flex-wrap gap-2">
+                {discoveredUrls.map((url) => (
+                  <Link
+                    key={url}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-primary"
+                  >
+                    {url}
+                  </Link>
+                ))}
               </div>
-              <div className="text-sm text-foreground">
-                {profile?.model ? profile.model : "gpt-4.1-mini"}
-              </div>
-            </div>
-          </div>
-          {profile?.errorMessage && (
-            <div className="rounded border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-              {profile.errorMessage}
-            </div>
-          )}
-          {progressMessage && (
-            <div className="rounded border border-primary/20 bg-primary/5 p-3 text-xs text-primary">
-              {progressMessage}
-            </div>
-          )}
-          {!profile && !isRefreshing && (
-            <div className="rounded border border-dashed border-slate-300 p-4 text-sm text-muted-foreground">
-              Run the crawler to capture a product profile from your live site.
-              We will parse the sitemap, summarize the content, and store the
-              highlights here for reuse.
-            </div>
-          )}
-          {!profile && isRefreshing && (
-            <div className="rounded border border-dashed border-primary/40 bg-primary/5 p-4 text-sm text-primary">
-              Crawling site and synthesizing summary… this usually takes ~30
-              seconds.
             </div>
           )}
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <CardTitle className="text-xl font-semibold">
-              Reddit Audience Discovery
-            </CardTitle>
+      {summary ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Product narrative</CardTitle>
             <CardDescription>
-              Generate and save the subreddits where this product&apos;s
-              community gathers.
+              Condensed from live website content and structured metadata.
             </CardDescription>
-          </div>
-          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-            <Badge variant={subredditStatusDisplay.badge}>
-              {subredditStatusDisplay.label}
-            </Badge>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleDiscoverSubreddits}
-              disabled={isDiscoveringSubreddits}
-            >
-              {isDiscoveringSubreddits
-                ? "Discovering…"
-                : subreddits.length
-                  ? "Rediscover subreddits"
-                  : "Discover subreddits"}
-            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {summary.overview && (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
+                {summary.overview}
+              </div>
+            )}
+            {!!summarySections.length && (
+              <div className="grid gap-4 md:grid-cols-2">
+                {summarySections.map((section) => (
+                  <div key={section.title} className="space-y-2">
+                    <div className="text-sm font-semibold text-foreground">
+                      {section.title}
+                    </div>
+                    <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                      {section.items.map((item, index) => (
+                        <li key={`${section.title}-${index}`}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <CardTitle>Reddit audience discovery</CardTitle>
+              <CardDescription>
+                Generate targeted search queries and capture the communities
+                that discuss this product category.
+              </CardDescription>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Badge variant={subredditStatusDisplay.badge}>
+                {subredditStatusDisplay.label}
+              </Badge>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleDiscoverSubreddits}
+                disabled={isDiscoveringSubreddits}
+              >
+                {isDiscoveringSubreddits
+                  ? "Discovering…"
+                  : hasSubredditResults
+                    ? "Rediscover subreddits"
+                    : "Discover subreddits"}
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-1">
-              <div className="text-xs font-semibold uppercase text-muted-foreground">
-                Last discovered
-              </div>
-              <div className="text-sm text-foreground">
-                {lastSubredditDiscovery}
-              </div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-xs font-semibold uppercase text-muted-foreground">
-                Query count
-              </div>
-              <div className="text-sm text-foreground">
-                {subredditQueries.length ? subredditQueries.length : "—"}
-              </div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-xs font-semibold uppercase text-muted-foreground">
-                Model
-              </div>
-              <div className="text-sm text-foreground">
-                {profile?.subredditModel
-                  ? profile.subredditModel
-                  : "gpt-4.1-mini"}
-              </div>
-            </div>
+        <CardContent className="space-y-6">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {subredditMetrics.map((metric) => (
+              <MetricTile
+                key={metric.label}
+                label={metric.label}
+                value={metric.value}
+                tone={metric.tone}
+              />
+            ))}
           </div>
-          {profile?.subredditErrorMessage && (
-            <div className="rounded border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-              {profile.subredditErrorMessage}
-            </div>
-          )}
-          {subredditProgress && (
-            <div className="rounded border border-primary/20 bg-primary/5 p-3 text-xs text-primary">
-              {subredditProgress}
-            </div>
-          )}
-          {!subreddits.length && !isDiscoveringSubreddits && (
-            <div className="rounded border border-dashed border-slate-300 p-4 text-sm text-muted-foreground">
-              Use the discovery tool to have Shipyard craft Reddit search
-              queries, resolve the best-fit communities, and cache them for
-              future research or outreach.
-            </div>
+          {renderSubredditProgress()}
+          {renderSubredditError()}
+          {!hasSubredditResults && !isDiscoveringSubreddits && (
+            <InfoNotice tone="info">
+              Use the discovery tool to craft Reddit search queries, resolve the
+              best-fit communities, and cache them for future research or
+              outreach.
+            </InfoNotice>
           )}
           {!!subredditQueries.length && (
             <div className="space-y-2">
@@ -386,11 +601,13 @@ export function ProductIdeasView({
                 {subredditQueries.map((item) => (
                   <div
                     key={item.query}
-                    className="rounded border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-foreground"
+                    className="max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-left text-sm shadow-sm"
                   >
-                    <div className="font-medium">{item.query}</div>
+                    <div className="font-medium text-foreground">
+                      {item.query}
+                    </div>
                     {item.rationale && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="mt-1 text-xs text-muted-foreground">
                         {item.rationale}
                       </div>
                     )}
@@ -399,180 +616,140 @@ export function ProductIdeasView({
               </div>
             </div>
           )}
-          {!!subreddits.length && (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Subreddit</TableHead>
-                  <TableHead className="w-[45%]">What they discuss</TableHead>
-                  <TableHead>Relevance</TableHead>
-                  <TableHead>Subscribers</TableHead>
-                  <TableHead>Matched queries</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {subreddits.map((subreddit) => (
-                  <TableRow key={subreddit.name}>
-                    <TableCell className="whitespace-nowrap">
-                      <Link
-                        href={subreddit.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        r/{subreddit.name}
-                      </Link>
-                      {subreddit.over18 && (
-                        <Badge variant="outline" className="ml-2 text-[10px]">
-                          18+
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
-                      <div>
-                        {subreddit.description || subreddit.title || "—"}
-                      </div>
-                      {subreddit.relevanceReason && (
-                        <div className="mt-2 text-xs text-primary">
-                          {subreddit.relevanceReason}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-sm text-foreground">
-                      {typeof subreddit.relevanceScore === "number"
-                        ? `${Math.round(subreddit.relevanceScore * 100)}%`
-                        : "—"}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-sm text-foreground">
-                      {typeof subreddit.subscribers === "number"
-                        ? subreddit.subscribers.toLocaleString()
-                        : "—"}
-                    </TableCell>
-                    <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
-                      {subreddit.matchedQueries?.length
-                        ? subreddit.matchedQueries.join(" • ")
-                        : "—"}
-                    </TableCell>
+          {hasSubredditResults && (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[160px]">Subreddit</TableHead>
+                    <TableHead className="min-w-[280px]">
+                      What they discuss
+                    </TableHead>
+                    <TableHead>Relevance</TableHead>
+                    <TableHead>Subscribers</TableHead>
+                    <TableHead>Matched queries</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-              <TableCaption>
-                {`${subreddits.length} subreddit${subreddits.length === 1 ? "" : "s"} saved for this product`}
-              </TableCaption>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {subreddits.map((subreddit) => (
+                    <TableRow key={subreddit.name}>
+                      <TableCell className="whitespace-nowrap">
+                        <Link
+                          href={subreddit.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          r/{subreddit.name}
+                        </Link>
+                        {subreddit.over18 && (
+                          <Badge
+                            variant="outline"
+                            className="ml-2 align-middle text-[10px]"
+                          >
+                            18+
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
+                        <div>
+                          {subreddit.description || subreddit.title || "—"}
+                        </div>
+                        {subreddit.relevanceReason && (
+                          <div className="mt-2 text-xs text-primary">
+                            {subreddit.relevanceReason}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-sm text-foreground">
+                        {typeof subreddit.relevanceScore === "number"
+                          ? `${Math.round(subreddit.relevanceScore * 100)}%`
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-sm text-foreground">
+                        {typeof subreddit.subscribers === "number"
+                          ? subreddit.subscribers.toLocaleString()
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                        {subreddit.matchedQueries?.length
+                          ? subreddit.matchedQueries.join(" • ")
+                          : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableCaption>
+                  {`${subreddits.length} subreddit${subreddits.length === 1 ? "" : "s"} saved for this product`}
+                </TableCaption>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
 
-      {summary && (
+      {!!pageCount && (
         <Card>
           <CardHeader>
-            <CardTitle>Product Overview</CardTitle>
+            <CardTitle>Crawled pages</CardTitle>
             <CardDescription>
-              Condensed from live website content and structured metadata.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="rounded border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
-              {summary.overview}
-            </div>
-            <Separator />
-            <div className="grid gap-4 md:grid-cols-2">
-              {summarySections.map((section) => (
-                <div key={section.title} className="space-y-2">
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {section.title}
-                  </h3>
-                  <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                    {section.items.map((item, index) => (
-                      <li key={`${section.title}-${index}`}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {!!pages.length && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Crawled Pages</CardTitle>
-            <CardDescription>
-              URLs sourced from the sitemap. We capture page metadata, headings,
-              and key copy blocks for analysis.
+              URLs sourced from the sitemap. We capture metadata and key copy
+              blocks for analysis.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>URL</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead className="w-1/2">Summary snippet</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pages.map((page) => (
-                  <TableRow key={page.url}>
-                    <TableCell className="max-w-[16rem] whitespace-normal break-words">
-                      <Link
-                        href={page.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        {page.url}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      {page.status === "ok" ? (
-                        <Badge variant="success">OK</Badge>
-                      ) : (
-                        <Badge variant="destructive">Error</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="max-w-[16rem] whitespace-normal break-words">
-                      {page.title || "—"}
-                    </TableCell>
-                    <TableCell className="whitespace-normal break-words text-muted-foreground">
-                      {page.textSnippet
-                        ? page.textSnippet.length > 180
-                          ? `${page.textSnippet.slice(0, 180)}…`
-                          : page.textSnippet
-                        : "—"}
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[220px]">URL</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="min-w-[180px]">Title</TableHead>
+                    <TableHead className="min-w-[320px]">
+                      Summary snippet
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-              <TableCaption>
-                {erroredPages.length
-                  ? `${erroredPages.length} page(s) failed during crawl`
-                  : `Fetched ${pages.length} page(s)`}
-              </TableCaption>
-            </Table>
-            {!!discoveredUrls.length && (
-              <div className="rounded border border-slate-200 bg-slate-50 p-3 text-xs text-muted-foreground">
-                <div className="mb-2 font-medium uppercase tracking-wide text-slate-500">
-                  Sitemap sources
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {discoveredUrls.map((url) => (
-                    <Link
-                      key={url}
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded border border-slate-200 bg-white px-2 py-1 hover:border-primary/60 hover:text-primary"
-                    >
-                      {url}
-                    </Link>
+                </TableHeader>
+                <TableBody>
+                  {pages.map((page) => (
+                    <TableRow key={page.url}>
+                      <TableCell className="max-w-[18rem] whitespace-normal break-words">
+                        <Link
+                          href={page.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          {page.url}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        {page.status === "ok" ? (
+                          <Badge variant="success">OK</Badge>
+                        ) : (
+                          <Badge variant="destructive">Error</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="max-w-[16rem] whitespace-normal break-words">
+                        {page.title || "—"}
+                      </TableCell>
+                      <TableCell className="whitespace-normal break-words text-muted-foreground">
+                        {page.textSnippet
+                          ? page.textSnippet.length > 220
+                            ? `${page.textSnippet.slice(0, 220)}…`
+                            : page.textSnippet
+                          : "—"}
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </div>
-              </div>
-            )}
+                </TableBody>
+                <TableCaption>
+                  {erroredPages.length
+                    ? `${erroredPages.length} page${erroredPages.length === 1 ? "" : "s"} failed during crawl`
+                    : `Fetched ${pageCount} page${pageCount === 1 ? "" : "s"}`}
+                </TableCaption>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       )}
