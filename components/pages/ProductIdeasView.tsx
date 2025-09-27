@@ -429,7 +429,9 @@ export function ProductIdeasView({
                       )}
                     </TableCell>
                     <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
-                      <div>{subreddit.description || subreddit.title || "—"}</div>
+                      <div>
+                        {subreddit.description || subreddit.title || "—"}
+                      </div>
                       {subreddit.relevanceReason && (
                         <div className="mt-2 text-xs text-primary">
                           {subreddit.relevanceReason}

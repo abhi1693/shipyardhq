@@ -78,7 +78,9 @@ const RelevanceResponseSchema = z.object({
 
 const MIN_RELEVANCE_SCORE = 0.35
 
-type RelevanceVerdict = z.infer<typeof RelevanceResponseSchema>["subreddits"][number]
+type RelevanceVerdict = z.infer<
+  typeof RelevanceResponseSchema
+>["subreddits"][number]
 
 let cachedAccessToken: {
   token: string
@@ -509,15 +511,13 @@ async function refineSubredditRecommendations({
 
     const raw = extractAssistantJson(response)
     const jsonText = coerceJsonText(raw)
-    const parsed = RelevanceResponseSchema.parse(
-      JSON.parse(jsonText || "{}"),
-    )
+    const parsed = RelevanceResponseSchema.parse(JSON.parse(jsonText || "{}"))
 
     const evaluationMap = new Map(
       parsed.subreddits.map((item) => [item.name.toLowerCase(), item]),
     )
 
-    const evaluated = (subreddits
+    const evaluated = subreddits
       .map((candidate) => {
         const verdict = evaluationMap.get(candidate.name.toLowerCase())
         if (!verdict) return null
@@ -540,7 +540,7 @@ async function refineSubredditRecommendations({
           } satisfies ProductIdeaSubreddit,
         }
       })
-      .filter(Boolean)) as {
+      .filter(Boolean) as {
       verdict: RelevanceVerdict
       decorated: ProductIdeaSubreddit
     }[]
@@ -551,21 +551,24 @@ async function refineSubredditRecommendations({
 
     let curated = evaluated
       .filter(
-        ({ verdict }) => verdict.keep && verdict.relevance >= MIN_RELEVANCE_SCORE,
+        ({ verdict }) =>
+          verdict.keep && verdict.relevance >= MIN_RELEVANCE_SCORE,
       )
       .map(({ decorated }) => decorated)
-      .sort((a, b) =>
-        (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0) ||
-        (b.score ?? 0) - (a.score ?? 0),
+      .sort(
+        (a, b) =>
+          (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0) ||
+          (b.score ?? 0) - (a.score ?? 0),
       )
 
     if (!curated.length) {
       curated = evaluated
         .filter(({ verdict }) => verdict.keep)
         .map(({ decorated }) => decorated)
-        .sort((a, b) =>
-          (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0) ||
-          (b.score ?? 0) - (a.score ?? 0),
+        .sort(
+          (a, b) =>
+            (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0) ||
+            (b.score ?? 0) - (a.score ?? 0),
         )
         .slice(0, Math.min(5, evaluated.length))
     }
@@ -573,9 +576,10 @@ async function refineSubredditRecommendations({
     if (!curated.length) {
       curated = evaluated
         .map(({ decorated }) => decorated)
-        .sort((a, b) =>
-          (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0) ||
-          (b.score ?? 0) - (a.score ?? 0),
+        .sort(
+          (a, b) =>
+            (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0) ||
+            (b.score ?? 0) - (a.score ?? 0),
         )
         .slice(0, Math.min(3, evaluated.length))
     }
@@ -704,9 +708,7 @@ export async function discoverProductSubreddits(
         JSON.stringify({
           queries,
           subreddits: finalSubreddits,
-          model: relevanceModel
-            ? `${model} → ${relevanceModel}`
-            : model,
+          model: relevanceModel ? `${model} → ${relevanceModel}` : model,
         }),
         { EX: REDDIT_CACHE_TTL_SECONDS },
       )

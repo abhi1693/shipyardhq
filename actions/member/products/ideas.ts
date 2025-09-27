@@ -61,29 +61,28 @@ function serializeIdeaProfile(
     : null
   const summary = record.summary ? (record.summary as ProductIdeaSummary) : null
   const subredditQueries = Array.isArray(record.subredditQueries)
-    ? (record.subredditQueries as unknown[]).reduce<ProductIdeaSubredditQuery[]>(
-        (acc, value) => {
-          if (
-            value !== null &&
-            typeof value === "object" &&
-            typeof (value as any).query === "string"
-          ) {
-            acc.push({
-              query: (value as any).query,
-              rationale:
-                typeof (value as any).rationale === "string"
-                  ? (value as any).rationale
-                  : null,
-              audience:
-                typeof (value as any).audience === "string"
-                  ? (value as any).audience
-                  : null,
-            })
-          }
-          return acc
-        },
-        [],
-      )
+    ? (record.subredditQueries as unknown[]).reduce<
+        ProductIdeaSubredditQuery[]
+      >((acc, value) => {
+        if (
+          value !== null &&
+          typeof value === "object" &&
+          typeof (value as any).query === "string"
+        ) {
+          acc.push({
+            query: (value as any).query,
+            rationale:
+              typeof (value as any).rationale === "string"
+                ? (value as any).rationale
+                : null,
+            audience:
+              typeof (value as any).audience === "string"
+                ? (value as any).audience
+                : null,
+          })
+        }
+        return acc
+      }, [])
     : null
   const subreddits = Array.isArray(record.subreddits)
     ? (record.subreddits as unknown[]).reduce<ProductIdeaSubreddit[]>(
