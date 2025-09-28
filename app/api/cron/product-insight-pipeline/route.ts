@@ -55,6 +55,7 @@ export async function GET(request: Request) {
           productId: job.productId,
           requestedByUserId: job.requestedByUserId ?? null,
           stageSetId: job.stageSetId,
+          discussionsMode: job.discussionsMode ?? undefined,
         })
 
         await markPipelineJobComplete(job.productId)

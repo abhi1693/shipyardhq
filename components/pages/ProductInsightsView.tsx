@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -52,6 +53,8 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/atoms/collapsible"
 import type { ChartConfig } from "@/components/atoms/chart"
 import { AnalyticsPieChart } from "@/components/molecules/AnalyticsPieChart"
+import { Switch } from "@/components/atoms/switch"
+import { Label } from "@/components/atoms/label"
 import { cn } from "@/lib/utils"
 
 const STATUS_STYLES: Record<
@@ -422,6 +425,17 @@ export function ProductInsightsView({
     { tone: "info" | "error"; message: string } | null
   >(null)
   const [isRunningPipeline, startPipelineTransition] = useTransition()
+  const [isDeepMode, setIsDeepMode] = useState(() => initialProfile?.redditMode === "deep")
+
+  const selectedHarvestMode = isDeepMode ? "deep" : "standard"
+  const deepHarvestSwitchId = useId()
+  const activeHarvestModeLabel = profile?.redditMode
+    ? profile.redditMode === "deep"
+      ? "Deep (expanded)"
+      : "Standard"
+    : selectedHarvestMode === "deep"
+      ? "Deep (requested)"
+      : "Standard"
 
   const summary = (profile?.summary || undefined) as
     | ProductInsightSummary
@@ -478,6 +492,7 @@ export function ProductInsightsView({
       const updated: SerializedInsightProfile = {
         ...prev,
         pipelineJobState: "queued",
+        redditMode: selectedHarvestMode,
       }
 
       const firstFailedIndex = stages.findIndex(({ statusKey }) => prev[statusKey] === "failed")
@@ -495,8 +510,26 @@ export function ProductInsightsView({
 
     startPipelineTransition(async () => {
       try {
-        const result = await scheduleProductInsightsPipeline(slug)
-        setProfile(result.profile)
+        const result = await scheduleProductInsightsPipeline(slug, {
+          discussionsMode: selectedHarvestMode,
+        })
+        setProfile((prev) => {
+          if (!result.profile) return prev
+          const nextProfile: SerializedInsightProfile = {
+            ...result.profile,
+            redditMode: result.executedInline
+              ? result.profile.redditMode ?? selectedHarvestMode
+              : selectedHarvestMode,
+          }
+          return nextProfile
+        })
+        if (result.executedInline) {
+          if (result.profile?.redditMode) {
+            setIsDeepMode(result.profile.redditMode === "deep")
+          }
+        } else {
+          setIsDeepMode(selectedHarvestMode === "deep")
+        }
 
         if (result.executedInline) {
           setProgressMessage("Latest crawl captured and summarized.")
@@ -1452,16 +1485,37 @@ export function ProductInsightsView({
               Refresh the crawl, subreddit discovery, discussion insights, and report in one click.
             </CardDescription>
           </div>
-          <Button
-            onClick={handleRunPipeline}
-            disabled={isPipelinePending}
-            className="w-full sm:w-auto"
-          >
-            {isPipelinePending ? "Pipeline in progress…" : "Run full pipeline"}
-          </Button>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
+            <div className="flex items-start justify-between gap-3 sm:items-center sm:justify-end">
+              <Label
+                htmlFor={deepHarvestSwitchId}
+                className="flex-1 flex-col items-start gap-1 text-left text-xs text-muted-foreground sm:items-end sm:text-right"
+              >
+                <span className="text-sm font-medium text-foreground">Deep harvest</span>
+                <span className="text-[11px]">
+                  Expand Reddit searches and pull full comment trees for top threads.
+                </span>
+              </Label>
+              <Switch
+                id={deepHarvestSwitchId}
+                checked={isDeepMode}
+                onCheckedChange={setIsDeepMode}
+                disabled={isPipelinePending}
+                aria-label="Toggle deep Reddit harvest"
+              />
+            </div>
+            <Button
+              onClick={handleRunPipeline}
+              disabled={isPipelinePending}
+              className="w-full sm:w-auto"
+            >
+              {isPipelinePending ? "Pipeline in progress…" : "Run full pipeline"}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3 text-xs text-muted-foreground">
           <div>Last report generated: {lastReportGenerated}</div>
+          <div>Discussion harvest: {activeHarvestModeLabel}</div>
           {pipelineNotice ? (
             <InfoNotice tone={pipelineNotice.tone} size="xs">
               {pipelineNotice.message}

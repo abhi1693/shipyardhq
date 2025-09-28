@@ -1,6 +1,7 @@
 import type {
   ProductInsightCommunityStageData,
   ProductInsightDiscussionStageData,
+  ProductInsightHarvestMode,
   ProductInsightProfilePayload,
   ProductInsightReportStageData,
   ProductInsightStageDataById,
@@ -31,6 +32,9 @@ export type PipelineStageContext = {
   requestedByUserId?: string | null
   stageViews: ProductInsightStageViewMap
   shared: PipelineStageSharedState
+  requestedModes?: {
+    discussions?: ProductInsightHarvestMode
+  }
 }
 
 export type StageRetryPolicy = {

@@ -6,6 +6,7 @@ import type {
   ProductInsightRedditDiscussionQuery,
   ProductInsightRedditInsightReport,
   ProductInsightRedditThread,
+  ProductInsightHarvestMode,
   ProductInsightSubreddit,
 } from "@/types/product-insights"
 import { getOpenAIClient } from "@/lib/server/openai"
@@ -35,14 +36,25 @@ function resolveCacheNamespace(base: string) {
 }
 
 const REDDIT_DISCUSSION_CACHE_NAMESPACE = resolveCacheNamespace(
-  "productInsights:redditDiscussions:v1",
+  "productInsights:redditDiscussions:v2",
 )
 const REDDIT_DISCUSSION_CACHE_TTL_SECONDS = 60 * 60 * 3
 const MAX_QUERIES = 6
 const MIN_QUERIES = 2
-const MAX_POSTS_PER_QUERY = 10
+const STANDARD_MAX_POSTS_PER_QUERY = 10
+const DEEP_MAX_POSTS_PER_QUERY = 25
+type RedditSearchTimeWindow = "hour" | "day" | "week" | "month" | "year" | "all"
+const STANDARD_SEARCH_TIME_WINDOW: RedditSearchTimeWindow = "year"
+const DEEP_SEARCH_TIME_WINDOW: RedditSearchTimeWindow = "all"
 const MAX_TOTAL_THREADS = 18
-const MAX_COMMENTS_PER_THREAD = 3
+const STANDARD_MAX_COMMENTS_PER_THREAD = 3
+const DEEP_MAX_COMMENTS_PER_THREAD = 120
+const DEEP_FULL_TREE_THREAD_LIMIT = 3
+const DEEP_TOP_LEVEL_COMMENT_LIMIT = 100
+
+const DEFAULT_HARVEST_MODE: ProductInsightHarvestMode = "standard"
+
+const HarvestModeSchema = z.enum(["standard", "deep"])
 
 const QueryPlanSchema = z.object({
   queries: z
@@ -63,6 +75,8 @@ const RedditCommentSchema = z.object({
   body: z.string(),
   score: z.number().optional().nullable(),
   createdAt: z.string().optional().nullable(),
+  parentId: z.string().optional().nullable(),
+  depth: z.number().optional().nullable(),
 })
 
 const RedditThreadSchema = z.object({
@@ -111,10 +125,11 @@ const CacheSchema = z.object({
   threads: z.array(RedditThreadSchema),
   insights: InsightReportSchema.nullable(),
   model: z.string(),
+  mode: HarvestModeSchema.optional(),
 })
 
-function buildCacheKey(productId: string) {
-  return `${REDDIT_DISCUSSION_CACHE_NAMESPACE}:${productId}`
+function buildCacheKey(productId: string, mode: ProductInsightHarvestMode) {
+  return `${REDDIT_DISCUSSION_CACHE_NAMESPACE}:${productId}:${mode}`
 }
 
 function sanitizeOptionalText(value?: string | null) {
@@ -426,9 +441,15 @@ function normalizeThread(data: Record<string, any>): ProductInsightRedditThread 
   }
 }
 
+type SearchThreadsOptions = {
+  maxPosts?: number
+  timeWindow?: RedditSearchTimeWindow
+}
+
 async function searchRedditThreads(
   query: ProductInsightRedditDiscussionQuery,
   accessToken: string,
+  options: SearchThreadsOptions = {},
 ): Promise<ProductInsightRedditThread[]> {
   const targetSubreddit = query.targetSubreddit
     ? normalizeSubredditName(query.targetSubreddit)
@@ -439,9 +460,15 @@ async function searchRedditThreads(
     : new URL("https://oauth.reddit.com/search")
 
   url.searchParams.set("q", query.query)
-  url.searchParams.set("limit", String(MAX_POSTS_PER_QUERY))
+  const requestedLimit = options.maxPosts ?? STANDARD_MAX_POSTS_PER_QUERY
+  const normalizedLimit = Math.max(
+    1,
+    Math.min(Math.floor(requestedLimit), 100),
+  )
+  url.searchParams.set("limit", String(normalizedLimit))
   url.searchParams.set("sort", "relevance")
-  url.searchParams.set("t", "year")
+  const timeWindow = options.timeWindow ?? STANDARD_SEARCH_TIME_WINDOW
+  url.searchParams.set("t", timeWindow)
   url.searchParams.set("type", "link")
   url.searchParams.set("include_over_18", "false")
   url.searchParams.set("show", "all")
@@ -489,14 +516,30 @@ async function searchRedditThreads(
   return threads
 }
 
-async function fetchTopComments(
+type FetchThreadCommentsOptions = {
+  topLevelLimit?: number
+  maxComments?: number
+  depth?: number | "all"
+}
+
+async function fetchThreadComments(
   postId: string,
   accessToken: string,
+  options: FetchThreadCommentsOptions = {},
 ): Promise<ProductInsightRedditComment[]> {
   const url = new URL(`https://oauth.reddit.com/comments/${postId}`)
-  url.searchParams.set("limit", String(MAX_COMMENTS_PER_THREAD))
+  const requestedLimit = options.topLevelLimit ?? STANDARD_MAX_COMMENTS_PER_THREAD
+  const normalizedLimit = Math.max(
+    1,
+    Math.min(Math.floor(requestedLimit), 200),
+  )
+  url.searchParams.set("limit", String(normalizedLimit))
   url.searchParams.set("sort", "top")
-  url.searchParams.set("depth", "1")
+  const normalizedDepth =
+    options.depth === "all"
+      ? 0
+      : Math.max(1, Math.min(10, Math.floor(options.depth ?? 1)))
+  url.searchParams.set("depth", String(normalizedDepth))
 
   const response = await fetch(url, {
     headers: {
@@ -511,34 +554,84 @@ async function fetchTopComments(
 
   const json = (await response.json()) as Array<RedditListing>
   const commentsListing = Array.isArray(json) ? json[1] : undefined
-  const commentChildren = commentsListing?.data?.children ?? []
+  const commentChildren = commentsListing?.data?.children as
+    | RedditListingChild[]
+    | undefined
   const comments: ProductInsightRedditComment[] = []
+  const visited = new Set<string>()
+  const maxComments = Math.max(
+    1,
+    Math.floor(options.maxComments ?? normalizedLimit),
+  )
+  const depthLimit =
+    options.depth === "all" || normalizedDepth === 0
+      ? Number.POSITIVE_INFINITY
+      : Math.max(1, Math.floor(options.depth ?? 1))
 
-  for (const child of commentChildren) {
-    const data = child?.data
-    if (!data || data.body === "[removed]" || data.body === "[deleted]") {
-      continue
-    }
+  const collectComments = (
+    children: RedditListingChild[] | undefined,
+    currentDepth: number,
+  ): boolean => {
+    if (!children?.length) return false
 
-    if (typeof data.id !== "string" || typeof data.body !== "string") {
-      continue
-    }
+    for (const child of children) {
+      if (!child || child.kind !== "t1" || !child.data) continue
+      const data = child.data
+      if (data.body === "[removed]" || data.body === "[deleted]") {
+        continue
+      }
+      if (typeof data.id !== "string" || typeof data.body !== "string") {
+        continue
+      }
+      if (visited.has(data.id)) {
+        continue
+      }
 
-    comments.push({
-      id: data.id,
-      body: truncateText(data.body, 420) ?? "",
-      author: typeof data.author === "string" ? data.author : null,
-      score: typeof data.score === "number" ? data.score : null,
-      createdAt:
+      const createdAt =
         typeof data.created_utc === "number"
           ? new Date(data.created_utc * 1000).toISOString()
-          : null,
-    })
+          : null
 
-    if (comments.length >= MAX_COMMENTS_PER_THREAD) {
-      break
+      comments.push({
+        id: data.id,
+        body: truncateText(data.body, 420) ?? "",
+        author: typeof data.author === "string" ? data.author : null,
+        score: typeof data.score === "number" ? data.score : null,
+        createdAt,
+        parentId:
+          typeof data.parent_id === "string" ? data.parent_id : null,
+        depth:
+          typeof data.depth === "number"
+            ? data.depth
+            : Math.max(0, currentDepth - 1),
+      })
+      visited.add(data.id)
+
+      if (comments.length >= maxComments) {
+        return true
+      }
+
+      if (currentDepth < depthLimit) {
+        const replies = data.replies
+        if (replies && typeof replies === "object") {
+          const replyChildren = Array.isArray(replies.data?.children)
+            ? (replies.data!.children as RedditListingChild[])
+            : undefined
+          const reachedLimit = collectComments(
+            replyChildren,
+            currentDepth + 1,
+          )
+          if (reachedLimit) {
+            return true
+          }
+        }
+      }
     }
+
+    return false
   }
+
+  collectComments(commentChildren, 1)
 
   return comments
 }
@@ -941,6 +1034,7 @@ export type DiscoverProductDiscussionsInput = {
   summary?: ProductInsightSummary | null
   subreddits?: ProductInsightSubreddit[] | null
   forceRefresh?: boolean
+  mode?: ProductInsightHarvestMode
 }
 
 export type DiscoverProductDiscussionsResult = {
@@ -949,21 +1043,30 @@ export type DiscoverProductDiscussionsResult = {
   insights: ProductInsightRedditInsightReport | null
   model: string
   fromCache: boolean
+  mode: ProductInsightHarvestMode
 }
 
 export async function discoverProductDiscussions(
   input: DiscoverProductDiscussionsInput,
 ): Promise<DiscoverProductDiscussionsResult> {
-  const { productId, product, summary, subreddits, forceRefresh } = input
+  const {
+    productId,
+    product,
+    summary,
+    subreddits,
+    forceRefresh,
+    mode = DEFAULT_HARVEST_MODE,
+  } = input
 
   const redis = await getRedisClient().catch(() => null)
-  const cacheKey = buildCacheKey(productId)
+  const cacheKey = buildCacheKey(productId, mode)
 
   if (redis && !forceRefresh) {
     const cached = await redis.get(cacheKey)
     if (cached) {
       try {
         const parsed = CacheSchema.parse(JSON.parse(cached))
+        const cachedMode = parsed.mode ?? DEFAULT_HARVEST_MODE
         console.info("[productInsights:reddit] discussion cache hit", {
           productId,
           threadCount: parsed.threads.length,
@@ -974,6 +1077,7 @@ export async function discoverProductDiscussions(
           insights: parsed.insights,
           model: parsed.model,
           fromCache: true,
+          mode: cachedMode,
         }
       } catch (error) {
         console.warn(
@@ -1042,23 +1146,52 @@ export async function discoverProductDiscussions(
     threads: ProductInsightRedditThread[]
   }> = []
 
-  for (const query of augmentedQueries) {
-    console.info("[productInsights:reddit] searching discussions", {
-      productId,
-      query: query.query,
-      targetSubreddit: query.targetSubreddit,
-    })
+  const runSearchPass = async (
+    pass: "standard" | "deep",
+    options: SearchThreadsOptions,
+  ) => {
+    for (const query of augmentedQueries) {
+      const logLabel =
+        pass === "deep"
+          ? "[productInsights:reddit] searching discussions (deep)"
+          : "[productInsights:reddit] searching discussions"
 
-    try {
-      const threads = await searchRedditThreads(query, accessToken)
-      queryResults.push({ query, threads })
-    } catch (error) {
-      console.error("[productInsights:reddit] discussion search failed", {
+      console.info(logLabel, {
         productId,
         query: query.query,
-        error,
+        targetSubreddit: query.targetSubreddit,
+        pass,
       })
+
+      try {
+        const threads = await searchRedditThreads(query, accessToken, options)
+        if (threads.length) {
+          queryResults.push({ query, threads })
+        }
+      } catch (error) {
+        const errorLabel =
+          pass === "deep"
+            ? "[productInsights:reddit] deep discussion search failed"
+            : "[productInsights:reddit] discussion search failed"
+        console.error(errorLabel, {
+          productId,
+          query: query.query,
+          error,
+        })
+      }
     }
+  }
+
+  await runSearchPass("standard", {
+    maxPosts: STANDARD_MAX_POSTS_PER_QUERY,
+    timeWindow: STANDARD_SEARCH_TIME_WINDOW,
+  })
+
+  if (mode === "deep") {
+    await runSearchPass("deep", {
+      maxPosts: DEEP_MAX_POSTS_PER_QUERY,
+      timeWindow: DEEP_SEARCH_TIME_WINDOW,
+    })
   }
 
   let mergedThreads = mergeAndRankThreads(queryResults, preferredSubredditSet)
@@ -1076,12 +1209,22 @@ export async function discoverProductDiscussions(
     }
   }
 
-  const commentFetchTargets = mergedThreads.slice(0, 6)
+  const commentFetchTargets = mergedThreads.slice(0, mode === "deep" ? 8 : 6)
 
   await Promise.all(
-    commentFetchTargets.map(async (thread) => {
+    commentFetchTargets.map(async (thread, index) => {
+      const useFullTree =
+        mode === "deep" && index < DEEP_FULL_TREE_THREAD_LIMIT
       try {
-        const comments = await fetchTopComments(thread.id, accessToken)
+        const comments = await fetchThreadComments(thread.id, accessToken, {
+          topLevelLimit: useFullTree
+            ? DEEP_TOP_LEVEL_COMMENT_LIMIT
+            : STANDARD_MAX_COMMENTS_PER_THREAD,
+          depth: useFullTree ? "all" : 1,
+          maxComments: useFullTree
+            ? DEEP_MAX_COMMENTS_PER_THREAD
+            : STANDARD_MAX_COMMENTS_PER_THREAD,
+        })
         thread.topComments = comments.length ? comments : null
       } catch (error) {
         console.warn("[productInsights:reddit] failed to fetch top comments", {
@@ -1150,6 +1293,7 @@ export async function discoverProductDiscussions(
     queryCount: augmentedQueries.length,
     threadCount: finalThreads.length,
     hasInsights: Boolean(insights),
+    mode,
   })
 
   if (redis && finalThreads.length) {
@@ -1161,6 +1305,7 @@ export async function discoverProductDiscussions(
           threads: finalThreads,
           insights,
           model: combinedModel,
+          mode,
         }),
         { EX: REDDIT_DISCUSSION_CACHE_TTL_SECONDS },
       )
@@ -1178,5 +1323,6 @@ export async function discoverProductDiscussions(
     insights,
     model: combinedModel,
     fromCache: false,
+    mode,
   }
 }

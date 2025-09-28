@@ -26,6 +26,7 @@ import type {
   ProductInsightStageSetId,
   ProductInsightStageView,
   ProductInsightStageViewMap,
+  ProductInsightHarvestMode,
 } from "@/types/product-insights"
 import {
   ProductInsightStatus,
@@ -450,6 +451,7 @@ export async function runProductInsightPipeline(job: {
   forcedStageIds?: Iterable<ProductInsightStageId>
   allowedStageIds?: Iterable<ProductInsightStageId>
   notifyOnCompletion?: boolean
+  discussionsMode?: ProductInsightHarvestMode
 }): Promise<PipelineResult> {
   const productRecord = await loadProductWithOwner(job.productId)
 
@@ -509,6 +511,9 @@ export async function runProductInsightPipeline(job: {
     requestedByUserId: job.requestedByUserId ?? null,
     stageViews,
     shared,
+    requestedModes: job.discussionsMode
+      ? { discussions: job.discussionsMode }
+      : undefined,
   }
 
   const orderedStages = plan.orderedStageIds

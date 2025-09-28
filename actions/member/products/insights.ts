@@ -13,6 +13,7 @@ import {
   serializeInsightProfile,
 } from "@/lib/server/productInsights/profile"
 import type {
+  ProductInsightHarvestMode,
   ProductInsightProfilePayload,
   ProductInsightProfileView,
   ProductInsightStageSetId,
@@ -70,14 +71,20 @@ export async function getProductInsightProfile(
   }
 }
 
+type SchedulePipelineOptions = {
+  stageSetId?: ProductInsightStageSetId
+  discussionsMode?: ProductInsightHarvestMode
+}
+
 export async function scheduleProductInsightsPipeline(
   slug: string,
-  stageSetId: ProductInsightStageSetId = "default",
+  options: SchedulePipelineOptions = {},
 ): Promise<{
   profile: ProductInsightProfilePayload | null
   executedInline: boolean
   alreadyQueued: boolean
 }> {
+  const { stageSetId = "default", discussionsMode } = options
   const { product } = await requireManageableProduct(slug, {
     unauthorizedRedirect: null,
     missingRedirect: null,
@@ -93,12 +100,16 @@ export async function scheduleProductInsightsPipeline(
     productId: product.id,
     requestedByUserId: product.userId,
     stageSetId,
+    discussionsMode: discussionsMode ?? null,
   })
 
   if (enqueueResult.queued) {
     const profile = await loadProfileForProduct(product.id)
     if (profile) {
       profile.pipelineJobState = "queued"
+      if (discussionsMode) {
+        profile.redditMode = discussionsMode
+      }
     }
 
     console.info("[productInsights:action] pipeline enqueued", {
@@ -111,6 +122,9 @@ export async function scheduleProductInsightsPipeline(
 
   if (enqueueResult.reason === "duplicate") {
     const profile = await loadProfileForProduct(product.id)
+    if (profile && discussionsMode) {
+      profile.redditMode = discussionsMode
+    }
 
     console.info("[productInsights:action] pipeline already active", {
       productId: product.id,
@@ -130,12 +144,14 @@ export async function scheduleProductInsightsPipeline(
     productId: product.id,
     requestedByUserId: product.userId,
     stageSetId,
+    discussionsMode,
   })
 
   await markPipelineJobComplete(product.id).catch(() => undefined)
 
   const profile = result.profile
   profile.pipelineJobState = "idle"
+  profile.redditMode = discussionsMode ?? profile.redditMode ?? null
 
   return { profile, executedInline: true, alreadyQueued: false }
 }

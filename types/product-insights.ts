@@ -42,6 +42,8 @@ export type ProductInsightRedditComment = {
   body: string
   score?: number | null
   createdAt?: string | null
+  parentId?: string | null
+  depth?: number | null
 }
 
 export type ProductInsightRedditThread = {
@@ -58,6 +60,8 @@ export type ProductInsightRedditThread = {
   matchedQueries?: string[] | null
   topComments?: ProductInsightRedditComment[] | null
 }
+
+export type ProductInsightHarvestMode = "standard" | "deep"
 
 export type ProductInsightRedditInsightItem = {
   insight: string
@@ -152,6 +156,7 @@ export type ProductInsightDiscussionStageData = {
   insights?: ProductInsightRedditInsightReport | null
   model?: string | null
   discoveredAt?: string | null
+  mode?: ProductInsightHarvestMode | null
 }
 
 export type ProductInsightReportStageData = {
@@ -251,6 +256,7 @@ export type ProductInsightProfilePayload = {
   redditStatus?: ProductInsightStatus | null
   redditErrorMessage?: string | null
   redditModel?: string | null
+  redditMode?: ProductInsightHarvestMode | null
   finalReport?: ProductInsightComprehensiveReport | null
   finalReportStatus?: ProductInsightStatus | null
   finalReportErrorMessage?: string | null

@@ -1,6 +1,7 @@
 import type { RedisClient } from "@/lib/server/redis"
 import { getRedisClient } from "@/lib/server/redis"
 import type {
+  ProductInsightHarvestMode,
   ProductInsightPipelineJobState,
   ProductInsightStageSetId,
 } from "@/types/product-insights"
@@ -12,10 +13,12 @@ type RawPipelineJob = {
   requestedAt: string
   attempts?: number
   stageSetId?: ProductInsightStageSetId
+  discussionsMode?: ProductInsightHarvestMode | null
 }
 
 export type PipelineQueueJob = RawPipelineJob & {
   stageSetId: ProductInsightStageSetId
+  discussionsMode?: ProductInsightHarvestMode | null
 }
 
 function normalizeStageSetId(
@@ -40,6 +43,7 @@ export async function enqueueProductInsightPipelineJob(job: {
   productId: string
   requestedByUserId?: string | null
   stageSetId?: ProductInsightStageSetId
+  discussionsMode?: ProductInsightHarvestMode | null
 }): Promise<{
   queued: boolean
   reason?: "duplicate" | "unavailable" | "error"
@@ -61,6 +65,7 @@ export async function enqueueProductInsightPipelineJob(job: {
       requestedAt: new Date().toISOString(),
       attempts: 0,
       stageSetId: normalizeStageSetId(job.stageSetId ?? null),
+      discussionsMode: job.discussionsMode ?? null,
     }
 
     await client.rPush(QUEUE_KEY, JSON.stringify(payload))
@@ -95,6 +100,7 @@ export async function dequeueProductInsightPipelineJobs(
           requestedAt: parsed.requestedAt ?? new Date().toISOString(),
           attempts: parsed.attempts ?? 0,
           stageSetId: normalizeStageSetId(parsed.stageSetId ?? null),
+          discussionsMode: parsed.discussionsMode ?? null,
         })
       }
     } catch (error) {
@@ -129,6 +135,7 @@ export async function requeuePipelineJob(job: PipelineQueueJob) {
     requestedAt: job.requestedAt,
     attempts,
     stageSetId: normalizeStageSetId(job.stageSetId),
+    discussionsMode: job.discussionsMode ?? null,
   }
   await client.rPush(QUEUE_KEY, JSON.stringify(payload)).catch((error) => {
     console.error("[productInsights:pipeline] failed to requeue job", {

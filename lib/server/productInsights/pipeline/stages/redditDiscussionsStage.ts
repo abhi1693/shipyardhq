@@ -16,12 +16,20 @@ export const redditDiscussionsStage: PipelineStage<
     maxAttempts: 3,
   },
   async execute(context) {
+    const requestedMode = context.requestedModes?.discussions
+    const previousMode =
+      context.shared.discussions?.mode === "deep" ||
+      context.stageViews?.["reddit.discussions"]?.metrics?.mode === "deep"
+        ? "deep"
+        : undefined
+    const resolvedMode = requestedMode ?? previousMode
     return discoverProductDiscussions({
       productId: context.productId,
       product: context.product,
       summary: context.shared.summary ?? undefined,
       subreddits: context.shared.communities?.subreddits ?? undefined,
       forceRefresh: true,
+      mode: resolvedMode,
     })
   },
   serialize(result) {
@@ -31,6 +39,7 @@ export const redditDiscussionsStage: PipelineStage<
       insights: result.insights ?? null,
       model: result.model,
       discoveredAt: new Date().toISOString(),
+      mode: result.mode,
     }
 
     return {
@@ -40,6 +49,7 @@ export const redditDiscussionsStage: PipelineStage<
         threadCount: result.threads.length,
         hasInsights: Boolean(result.insights),
         fromCache: result.fromCache ?? false,
+        mode: result.mode,
       },
       shared: {
         discussions: data,

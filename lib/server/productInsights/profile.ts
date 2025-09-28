@@ -263,6 +263,7 @@ export function serializeInsightProfile(
     redditStatus: discussionStage?.status ?? null,
     redditErrorMessage: discussionStage?.errorMessage ?? null,
     redditModel: discussionData?.model ?? null,
+    redditMode: discussionData?.mode ?? null,
     finalReport: reportData?.report ?? null,
     finalReportStatus: reportStage?.status ?? null,
     finalReportErrorMessage: reportStage?.errorMessage ?? null,
