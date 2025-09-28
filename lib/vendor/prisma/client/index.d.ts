@@ -59,10 +59,15 @@ export type ProductClickEvent = $Result.DefaultSelection<Prisma.$ProductClickEve
  */
 export type ProductTrafficEvent = $Result.DefaultSelection<Prisma.$ProductTrafficEventPayload>
 /**
- * Model ProductIdeaProfile
+ * Model ProductInsightProfile
  * 
  */
-export type ProductIdeaProfile = $Result.DefaultSelection<Prisma.$ProductIdeaProfilePayload>
+export type ProductInsightProfile = $Result.DefaultSelection<Prisma.$ProductInsightProfilePayload>
+/**
+ * Model ProductInsightStageResult
+ * 
+ */
+export type ProductInsightStageResult = $Result.DefaultSelection<Prisma.$ProductInsightStageResultPayload>
 /**
  * Model ProductUpvote
  * 
@@ -176,13 +181,13 @@ export const ProductStatus: {
 export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus]
 
 
-export const ProductIdeaProfileStatus: {
+export const ProductInsightStatus: {
   pending: 'pending',
   ready: 'ready',
   failed: 'failed'
 };
 
-export type ProductIdeaProfileStatus = (typeof ProductIdeaProfileStatus)[keyof typeof ProductIdeaProfileStatus]
+export type ProductInsightStatus = (typeof ProductInsightStatus)[keyof typeof ProductInsightStatus]
 
 
 export const Platform: {
@@ -258,9 +263,9 @@ export type ProductStatus = $Enums.ProductStatus
 
 export const ProductStatus: typeof $Enums.ProductStatus
 
-export type ProductIdeaProfileStatus = $Enums.ProductIdeaProfileStatus
+export type ProductInsightStatus = $Enums.ProductInsightStatus
 
-export const ProductIdeaProfileStatus: typeof $Enums.ProductIdeaProfileStatus
+export const ProductInsightStatus: typeof $Enums.ProductInsightStatus
 
 export type Platform = $Enums.Platform
 
@@ -495,14 +500,24 @@ export class PrismaClient<
   get productTrafficEvent(): Prisma.ProductTrafficEventDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.productIdeaProfile`: Exposes CRUD operations for the **ProductIdeaProfile** model.
+   * `prisma.productInsightProfile`: Exposes CRUD operations for the **ProductInsightProfile** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ProductIdeaProfiles
-    * const productIdeaProfiles = await prisma.productIdeaProfile.findMany()
+    * // Fetch zero or more ProductInsightProfiles
+    * const productInsightProfiles = await prisma.productInsightProfile.findMany()
     * ```
     */
-  get productIdeaProfile(): Prisma.ProductIdeaProfileDelegate<ExtArgs, ClientOptions>;
+  get productInsightProfile(): Prisma.ProductInsightProfileDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productInsightStageResult`: Exposes CRUD operations for the **ProductInsightStageResult** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductInsightStageResults
+    * const productInsightStageResults = await prisma.productInsightStageResult.findMany()
+    * ```
+    */
+  get productInsightStageResult(): Prisma.ProductInsightStageResultDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.productUpvote`: Exposes CRUD operations for the **ProductUpvote** model.
@@ -1102,7 +1117,8 @@ export namespace Prisma {
     ProductAnalytics: 'ProductAnalytics',
     ProductClickEvent: 'ProductClickEvent',
     ProductTrafficEvent: 'ProductTrafficEvent',
-    ProductIdeaProfile: 'ProductIdeaProfile',
+    ProductInsightProfile: 'ProductInsightProfile',
+    ProductInsightStageResult: 'ProductInsightStageResult',
     ProductUpvote: 'ProductUpvote',
     Organization: 'Organization',
     OrganizationMembership: 'OrganizationMembership',
@@ -1136,7 +1152,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "product" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productIdeaProfile" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
+      modelProps: "product" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1806,77 +1822,151 @@ export namespace Prisma {
           }
         }
       }
-      ProductIdeaProfile: {
-        payload: Prisma.$ProductIdeaProfilePayload<ExtArgs>
-        fields: Prisma.ProductIdeaProfileFieldRefs
+      ProductInsightProfile: {
+        payload: Prisma.$ProductInsightProfilePayload<ExtArgs>
+        fields: Prisma.ProductInsightProfileFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ProductIdeaProfileFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload> | null
+            args: Prisma.ProductInsightProfileFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ProductIdeaProfileFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload>
+            args: Prisma.ProductInsightProfileFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
           }
           findFirst: {
-            args: Prisma.ProductIdeaProfileFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload> | null
+            args: Prisma.ProductInsightProfileFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ProductIdeaProfileFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload>
+            args: Prisma.ProductInsightProfileFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
           }
           findMany: {
-            args: Prisma.ProductIdeaProfileFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload>[]
+            args: Prisma.ProductInsightProfileFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>[]
           }
           create: {
-            args: Prisma.ProductIdeaProfileCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload>
+            args: Prisma.ProductInsightProfileCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
           }
           createMany: {
-            args: Prisma.ProductIdeaProfileCreateManyArgs<ExtArgs>
+            args: Prisma.ProductInsightProfileCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ProductIdeaProfileCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload>[]
+            args: Prisma.ProductInsightProfileCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>[]
           }
           delete: {
-            args: Prisma.ProductIdeaProfileDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload>
+            args: Prisma.ProductInsightProfileDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
           }
           update: {
-            args: Prisma.ProductIdeaProfileUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload>
+            args: Prisma.ProductInsightProfileUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
           }
           deleteMany: {
-            args: Prisma.ProductIdeaProfileDeleteManyArgs<ExtArgs>
+            args: Prisma.ProductInsightProfileDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ProductIdeaProfileUpdateManyArgs<ExtArgs>
+            args: Prisma.ProductInsightProfileUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.ProductIdeaProfileUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload>[]
+            args: Prisma.ProductInsightProfileUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>[]
           }
           upsert: {
-            args: Prisma.ProductIdeaProfileUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductIdeaProfilePayload>
+            args: Prisma.ProductInsightProfileUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
           }
           aggregate: {
-            args: Prisma.ProductIdeaProfileAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateProductIdeaProfile>
+            args: Prisma.ProductInsightProfileAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductInsightProfile>
           }
           groupBy: {
-            args: Prisma.ProductIdeaProfileGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ProductIdeaProfileGroupByOutputType>[]
+            args: Prisma.ProductInsightProfileGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductInsightProfileGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ProductIdeaProfileCountArgs<ExtArgs>
-            result: $Utils.Optional<ProductIdeaProfileCountAggregateOutputType> | number
+            args: Prisma.ProductInsightProfileCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductInsightProfileCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProductInsightStageResult: {
+        payload: Prisma.$ProductInsightStageResultPayload<ExtArgs>
+        fields: Prisma.ProductInsightStageResultFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductInsightStageResultFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductInsightStageResultFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductInsightStageResultFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductInsightStageResultFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          findMany: {
+            args: Prisma.ProductInsightStageResultFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>[]
+          }
+          create: {
+            args: Prisma.ProductInsightStageResultCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          createMany: {
+            args: Prisma.ProductInsightStageResultCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductInsightStageResultCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductInsightStageResultDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          update: {
+            args: Prisma.ProductInsightStageResultUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductInsightStageResultDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductInsightStageResultUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductInsightStageResultUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductInsightStageResultUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductInsightStageResultAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductInsightStageResult>
+          }
+          groupBy: {
+            args: Prisma.ProductInsightStageResultGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductInsightStageResultGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductInsightStageResultCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductInsightStageResultCountAggregateOutputType> | number
           }
         }
       }
@@ -3095,7 +3185,8 @@ export namespace Prisma {
     productAnalytics?: ProductAnalyticsOmit
     productClickEvent?: ProductClickEventOmit
     productTrafficEvent?: ProductTrafficEventOmit
-    productIdeaProfile?: ProductIdeaProfileOmit
+    productInsightProfile?: ProductInsightProfileOmit
+    productInsightStageResult?: ProductInsightStageResultOmit
     productUpvote?: ProductUpvoteOmit
     organization?: OrganizationOmit
     organizationMembership?: OrganizationMembershipOmit
@@ -3268,6 +3359,37 @@ export namespace Prisma {
    */
   export type ProductCountOutputTypeCountMonthlyProductRankingArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MonthlyProductRankingWhereInput
+  }
+
+
+  /**
+   * Count Type ProductInsightProfileCountOutputType
+   */
+
+  export type ProductInsightProfileCountOutputType = {
+    stages: number
+  }
+
+  export type ProductInsightProfileCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stages?: boolean | ProductInsightProfileCountOutputTypeCountStagesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ProductInsightProfileCountOutputType without action
+   */
+  export type ProductInsightProfileCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfileCountOutputType
+     */
+    select?: ProductInsightProfileCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProductInsightProfileCountOutputType without action
+   */
+  export type ProductInsightProfileCountOutputTypeCountStagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductInsightStageResultWhereInput
   }
 
 
@@ -3908,7 +4030,7 @@ export namespace Prisma {
     metadata?: boolean | Product$metadataArgs<ExtArgs>
     analytics?: boolean | Product$analyticsArgs<ExtArgs>
     verification?: boolean | Product$verificationArgs<ExtArgs>
-    ideaProfile?: boolean | Product$ideaProfileArgs<ExtArgs>
+    insightProfile?: boolean | Product$insightProfileArgs<ExtArgs>
     ProductBadge?: boolean | Product$ProductBadgeArgs<ExtArgs>
     ProductMedia?: boolean | Product$ProductMediaArgs<ExtArgs>
     ProductUpvote?: boolean | Product$ProductUpvoteArgs<ExtArgs>
@@ -4020,7 +4142,7 @@ export namespace Prisma {
     metadata?: boolean | Product$metadataArgs<ExtArgs>
     analytics?: boolean | Product$analyticsArgs<ExtArgs>
     verification?: boolean | Product$verificationArgs<ExtArgs>
-    ideaProfile?: boolean | Product$ideaProfileArgs<ExtArgs>
+    insightProfile?: boolean | Product$insightProfileArgs<ExtArgs>
     ProductBadge?: boolean | Product$ProductBadgeArgs<ExtArgs>
     ProductMedia?: boolean | Product$ProductMediaArgs<ExtArgs>
     ProductUpvote?: boolean | Product$ProductUpvoteArgs<ExtArgs>
@@ -4053,7 +4175,7 @@ export namespace Prisma {
       metadata: Prisma.$ProductMetadataPayload<ExtArgs> | null
       analytics: Prisma.$ProductAnalyticsPayload<ExtArgs> | null
       verification: Prisma.$ProductVerificationPayload<ExtArgs> | null
-      ideaProfile: Prisma.$ProductIdeaProfilePayload<ExtArgs> | null
+      insightProfile: Prisma.$ProductInsightProfilePayload<ExtArgs> | null
       ProductBadge: Prisma.$ProductBadgePayload<ExtArgs>[]
       ProductMedia: Prisma.$ProductMediaPayload<ExtArgs>[]
       ProductUpvote: Prisma.$ProductUpvotePayload<ExtArgs>[]
@@ -4489,7 +4611,7 @@ export namespace Prisma {
     metadata<T extends Product$metadataArgs<ExtArgs> = {}>(args?: Subset<T, Product$metadataArgs<ExtArgs>>): Prisma__ProductMetadataClient<$Result.GetResult<Prisma.$ProductMetadataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     analytics<T extends Product$analyticsArgs<ExtArgs> = {}>(args?: Subset<T, Product$analyticsArgs<ExtArgs>>): Prisma__ProductAnalyticsClient<$Result.GetResult<Prisma.$ProductAnalyticsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     verification<T extends Product$verificationArgs<ExtArgs> = {}>(args?: Subset<T, Product$verificationArgs<ExtArgs>>): Prisma__ProductVerificationClient<$Result.GetResult<Prisma.$ProductVerificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    ideaProfile<T extends Product$ideaProfileArgs<ExtArgs> = {}>(args?: Subset<T, Product$ideaProfileArgs<ExtArgs>>): Prisma__ProductIdeaProfileClient<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    insightProfile<T extends Product$insightProfileArgs<ExtArgs> = {}>(args?: Subset<T, Product$insightProfileArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     ProductBadge<T extends Product$ProductBadgeArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductBadgeArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductBadgePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductMedia<T extends Product$ProductMediaArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductMediaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductUpvote<T extends Product$ProductUpvoteArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductUpvoteArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductUpvotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5042,22 +5164,22 @@ export namespace Prisma {
   }
 
   /**
-   * Product.ideaProfile
+   * Product.insightProfile
    */
-  export type Product$ideaProfileArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Product$insightProfileArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightProfileSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
-    where?: ProductIdeaProfileWhereInput
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    where?: ProductInsightProfileWhereInput
   }
 
   /**
@@ -14054,602 +14176,379 @@ export namespace Prisma {
 
 
   /**
-   * Model ProductIdeaProfile
+   * Model ProductInsightProfile
    */
 
-  export type AggregateProductIdeaProfile = {
-    _count: ProductIdeaProfileCountAggregateOutputType | null
-    _min: ProductIdeaProfileMinAggregateOutputType | null
-    _max: ProductIdeaProfileMaxAggregateOutputType | null
+  export type AggregateProductInsightProfile = {
+    _count: ProductInsightProfileCountAggregateOutputType | null
+    _min: ProductInsightProfileMinAggregateOutputType | null
+    _max: ProductInsightProfileMaxAggregateOutputType | null
   }
 
-  export type ProductIdeaProfileMinAggregateOutputType = {
+  export type ProductInsightProfileMinAggregateOutputType = {
     id: string | null
     productId: string | null
-    sitemapUrl: string | null
-    summaryText: string | null
-    subredditStatus: $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage: string | null
-    redditStatus: $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage: string | null
-    finalReportStatus: $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage: string | null
-    finalReportModel: string | null
-    status: $Enums.ProductIdeaProfileStatus | null
+    status: $Enums.ProductInsightStatus | null
     errorMessage: string | null
-    model: string | null
-    lastCrawledAt: Date | null
-    lastSubredditDiscoveryAt: Date | null
-    lastRedditDiscoveryAt: Date | null
-    lastFinalReportAt: Date | null
+    lastRunAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
-  export type ProductIdeaProfileMaxAggregateOutputType = {
+  export type ProductInsightProfileMaxAggregateOutputType = {
     id: string | null
     productId: string | null
-    sitemapUrl: string | null
-    summaryText: string | null
-    subredditStatus: $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage: string | null
-    redditStatus: $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage: string | null
-    finalReportStatus: $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage: string | null
-    finalReportModel: string | null
-    status: $Enums.ProductIdeaProfileStatus | null
+    status: $Enums.ProductInsightStatus | null
     errorMessage: string | null
-    model: string | null
-    lastCrawledAt: Date | null
-    lastSubredditDiscoveryAt: Date | null
-    lastRedditDiscoveryAt: Date | null
-    lastFinalReportAt: Date | null
+    lastRunAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
-  export type ProductIdeaProfileCountAggregateOutputType = {
+  export type ProductInsightProfileCountAggregateOutputType = {
     id: number
     productId: number
-    sitemapUrl: number
-    discoveredUrls: number
-    pages: number
-    summary: number
-    summaryText: number
-    subredditQueries: number
-    subreddits: number
-    subredditStatus: number
-    subredditErrorMessage: number
-    redditDiscussionQueries: number
-    redditDiscussions: number
-    redditInsights: number
-    redditStatus: number
-    redditErrorMessage: number
-    finalReport: number
-    finalReportStatus: number
-    finalReportErrorMessage: number
-    finalReportModel: number
     status: number
     errorMessage: number
-    model: number
-    lastCrawledAt: number
-    lastSubredditDiscoveryAt: number
-    lastRedditDiscoveryAt: number
-    lastFinalReportAt: number
+    lastRunAt: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
 
-  export type ProductIdeaProfileMinAggregateInputType = {
+  export type ProductInsightProfileMinAggregateInputType = {
     id?: true
     productId?: true
-    sitemapUrl?: true
-    summaryText?: true
-    subredditStatus?: true
-    subredditErrorMessage?: true
-    redditStatus?: true
-    redditErrorMessage?: true
-    finalReportStatus?: true
-    finalReportErrorMessage?: true
-    finalReportModel?: true
     status?: true
     errorMessage?: true
-    model?: true
-    lastCrawledAt?: true
-    lastSubredditDiscoveryAt?: true
-    lastRedditDiscoveryAt?: true
-    lastFinalReportAt?: true
+    lastRunAt?: true
     createdAt?: true
     updatedAt?: true
   }
 
-  export type ProductIdeaProfileMaxAggregateInputType = {
+  export type ProductInsightProfileMaxAggregateInputType = {
     id?: true
     productId?: true
-    sitemapUrl?: true
-    summaryText?: true
-    subredditStatus?: true
-    subredditErrorMessage?: true
-    redditStatus?: true
-    redditErrorMessage?: true
-    finalReportStatus?: true
-    finalReportErrorMessage?: true
-    finalReportModel?: true
     status?: true
     errorMessage?: true
-    model?: true
-    lastCrawledAt?: true
-    lastSubredditDiscoveryAt?: true
-    lastRedditDiscoveryAt?: true
-    lastFinalReportAt?: true
+    lastRunAt?: true
     createdAt?: true
     updatedAt?: true
   }
 
-  export type ProductIdeaProfileCountAggregateInputType = {
+  export type ProductInsightProfileCountAggregateInputType = {
     id?: true
     productId?: true
-    sitemapUrl?: true
-    discoveredUrls?: true
-    pages?: true
-    summary?: true
-    summaryText?: true
-    subredditQueries?: true
-    subreddits?: true
-    subredditStatus?: true
-    subredditErrorMessage?: true
-    redditDiscussionQueries?: true
-    redditDiscussions?: true
-    redditInsights?: true
-    redditStatus?: true
-    redditErrorMessage?: true
-    finalReport?: true
-    finalReportStatus?: true
-    finalReportErrorMessage?: true
-    finalReportModel?: true
     status?: true
     errorMessage?: true
-    model?: true
-    lastCrawledAt?: true
-    lastSubredditDiscoveryAt?: true
-    lastRedditDiscoveryAt?: true
-    lastFinalReportAt?: true
+    lastRunAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
   }
 
-  export type ProductIdeaProfileAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ProductIdeaProfile to aggregate.
+     * Filter which ProductInsightProfile to aggregate.
      */
-    where?: ProductIdeaProfileWhereInput
+    where?: ProductInsightProfileWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ProductIdeaProfiles to fetch.
+     * Determine the order of ProductInsightProfiles to fetch.
      */
-    orderBy?: ProductIdeaProfileOrderByWithRelationInput | ProductIdeaProfileOrderByWithRelationInput[]
+    orderBy?: ProductInsightProfileOrderByWithRelationInput | ProductInsightProfileOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ProductIdeaProfileWhereUniqueInput
+    cursor?: ProductInsightProfileWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ProductIdeaProfiles from the position of the cursor.
+     * Take `±n` ProductInsightProfiles from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ProductIdeaProfiles.
+     * Skip the first `n` ProductInsightProfiles.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ProductIdeaProfiles
+     * Count returned ProductInsightProfiles
     **/
-    _count?: true | ProductIdeaProfileCountAggregateInputType
+    _count?: true | ProductInsightProfileCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ProductIdeaProfileMinAggregateInputType
+    _min?: ProductInsightProfileMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ProductIdeaProfileMaxAggregateInputType
+    _max?: ProductInsightProfileMaxAggregateInputType
   }
 
-  export type GetProductIdeaProfileAggregateType<T extends ProductIdeaProfileAggregateArgs> = {
-        [P in keyof T & keyof AggregateProductIdeaProfile]: P extends '_count' | 'count'
+  export type GetProductInsightProfileAggregateType<T extends ProductInsightProfileAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductInsightProfile]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateProductIdeaProfile[P]>
-      : GetScalarType<T[P], AggregateProductIdeaProfile[P]>
+        : GetScalarType<T[P], AggregateProductInsightProfile[P]>
+      : GetScalarType<T[P], AggregateProductInsightProfile[P]>
   }
 
 
 
 
-  export type ProductIdeaProfileGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ProductIdeaProfileWhereInput
-    orderBy?: ProductIdeaProfileOrderByWithAggregationInput | ProductIdeaProfileOrderByWithAggregationInput[]
-    by: ProductIdeaProfileScalarFieldEnum[] | ProductIdeaProfileScalarFieldEnum
-    having?: ProductIdeaProfileScalarWhereWithAggregatesInput
+  export type ProductInsightProfileGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductInsightProfileWhereInput
+    orderBy?: ProductInsightProfileOrderByWithAggregationInput | ProductInsightProfileOrderByWithAggregationInput[]
+    by: ProductInsightProfileScalarFieldEnum[] | ProductInsightProfileScalarFieldEnum
+    having?: ProductInsightProfileScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ProductIdeaProfileCountAggregateInputType | true
-    _min?: ProductIdeaProfileMinAggregateInputType
-    _max?: ProductIdeaProfileMaxAggregateInputType
+    _count?: ProductInsightProfileCountAggregateInputType | true
+    _min?: ProductInsightProfileMinAggregateInputType
+    _max?: ProductInsightProfileMaxAggregateInputType
   }
 
-  export type ProductIdeaProfileGroupByOutputType = {
+  export type ProductInsightProfileGroupByOutputType = {
     id: string
     productId: string
-    sitemapUrl: string | null
-    discoveredUrls: JsonValue | null
-    pages: JsonValue | null
-    summary: JsonValue | null
-    summaryText: string | null
-    subredditQueries: JsonValue | null
-    subreddits: JsonValue | null
-    subredditStatus: $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage: string | null
-    redditDiscussionQueries: JsonValue | null
-    redditDiscussions: JsonValue | null
-    redditInsights: JsonValue | null
-    redditStatus: $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage: string | null
-    finalReport: JsonValue | null
-    finalReportStatus: $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage: string | null
-    finalReportModel: string | null
-    status: $Enums.ProductIdeaProfileStatus
+    status: $Enums.ProductInsightStatus
     errorMessage: string | null
-    model: string | null
-    lastCrawledAt: Date | null
-    lastSubredditDiscoveryAt: Date | null
-    lastRedditDiscoveryAt: Date | null
-    lastFinalReportAt: Date | null
+    lastRunAt: Date | null
     createdAt: Date
     updatedAt: Date
-    _count: ProductIdeaProfileCountAggregateOutputType | null
-    _min: ProductIdeaProfileMinAggregateOutputType | null
-    _max: ProductIdeaProfileMaxAggregateOutputType | null
+    _count: ProductInsightProfileCountAggregateOutputType | null
+    _min: ProductInsightProfileMinAggregateOutputType | null
+    _max: ProductInsightProfileMaxAggregateOutputType | null
   }
 
-  type GetProductIdeaProfileGroupByPayload<T extends ProductIdeaProfileGroupByArgs> = Prisma.PrismaPromise<
+  type GetProductInsightProfileGroupByPayload<T extends ProductInsightProfileGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ProductIdeaProfileGroupByOutputType, T['by']> &
+      PickEnumerable<ProductInsightProfileGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ProductIdeaProfileGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ProductInsightProfileGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ProductIdeaProfileGroupByOutputType[P]>
-            : GetScalarType<T[P], ProductIdeaProfileGroupByOutputType[P]>
+              : GetScalarType<T[P], ProductInsightProfileGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductInsightProfileGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ProductIdeaProfileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProductInsightProfileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     productId?: boolean
-    sitemapUrl?: boolean
-    discoveredUrls?: boolean
-    pages?: boolean
-    summary?: boolean
-    summaryText?: boolean
-    subredditQueries?: boolean
-    subreddits?: boolean
-    subredditStatus?: boolean
-    subredditErrorMessage?: boolean
-    redditDiscussionQueries?: boolean
-    redditDiscussions?: boolean
-    redditInsights?: boolean
-    redditStatus?: boolean
-    redditErrorMessage?: boolean
-    finalReport?: boolean
-    finalReportStatus?: boolean
-    finalReportErrorMessage?: boolean
-    finalReportModel?: boolean
     status?: boolean
     errorMessage?: boolean
-    model?: boolean
-    lastCrawledAt?: boolean
-    lastSubredditDiscoveryAt?: boolean
-    lastRedditDiscoveryAt?: boolean
-    lastFinalReportAt?: boolean
+    lastRunAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["productIdeaProfile"]>
+    stages?: boolean | ProductInsightProfile$stagesArgs<ExtArgs>
+    _count?: boolean | ProductInsightProfileCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productInsightProfile"]>
 
-  export type ProductIdeaProfileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProductInsightProfileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     productId?: boolean
-    sitemapUrl?: boolean
-    discoveredUrls?: boolean
-    pages?: boolean
-    summary?: boolean
-    summaryText?: boolean
-    subredditQueries?: boolean
-    subreddits?: boolean
-    subredditStatus?: boolean
-    subredditErrorMessage?: boolean
-    redditDiscussionQueries?: boolean
-    redditDiscussions?: boolean
-    redditInsights?: boolean
-    redditStatus?: boolean
-    redditErrorMessage?: boolean
-    finalReport?: boolean
-    finalReportStatus?: boolean
-    finalReportErrorMessage?: boolean
-    finalReportModel?: boolean
     status?: boolean
     errorMessage?: boolean
-    model?: boolean
-    lastCrawledAt?: boolean
-    lastSubredditDiscoveryAt?: boolean
-    lastRedditDiscoveryAt?: boolean
-    lastFinalReportAt?: boolean
+    lastRunAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["productIdeaProfile"]>
+  }, ExtArgs["result"]["productInsightProfile"]>
 
-  export type ProductIdeaProfileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ProductInsightProfileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     productId?: boolean
-    sitemapUrl?: boolean
-    discoveredUrls?: boolean
-    pages?: boolean
-    summary?: boolean
-    summaryText?: boolean
-    subredditQueries?: boolean
-    subreddits?: boolean
-    subredditStatus?: boolean
-    subredditErrorMessage?: boolean
-    redditDiscussionQueries?: boolean
-    redditDiscussions?: boolean
-    redditInsights?: boolean
-    redditStatus?: boolean
-    redditErrorMessage?: boolean
-    finalReport?: boolean
-    finalReportStatus?: boolean
-    finalReportErrorMessage?: boolean
-    finalReportModel?: boolean
     status?: boolean
     errorMessage?: boolean
-    model?: boolean
-    lastCrawledAt?: boolean
-    lastSubredditDiscoveryAt?: boolean
-    lastRedditDiscoveryAt?: boolean
-    lastFinalReportAt?: boolean
+    lastRunAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["productIdeaProfile"]>
+  }, ExtArgs["result"]["productInsightProfile"]>
 
-  export type ProductIdeaProfileSelectScalar = {
+  export type ProductInsightProfileSelectScalar = {
     id?: boolean
     productId?: boolean
-    sitemapUrl?: boolean
-    discoveredUrls?: boolean
-    pages?: boolean
-    summary?: boolean
-    summaryText?: boolean
-    subredditQueries?: boolean
-    subreddits?: boolean
-    subredditStatus?: boolean
-    subredditErrorMessage?: boolean
-    redditDiscussionQueries?: boolean
-    redditDiscussions?: boolean
-    redditInsights?: boolean
-    redditStatus?: boolean
-    redditErrorMessage?: boolean
-    finalReport?: boolean
-    finalReportStatus?: boolean
-    finalReportErrorMessage?: boolean
-    finalReportModel?: boolean
     status?: boolean
     errorMessage?: boolean
-    model?: boolean
-    lastCrawledAt?: boolean
-    lastSubredditDiscoveryAt?: boolean
-    lastRedditDiscoveryAt?: boolean
-    lastFinalReportAt?: boolean
+    lastRunAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ProductIdeaProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "sitemapUrl" | "discoveredUrls" | "pages" | "summary" | "summaryText" | "subredditQueries" | "subreddits" | "subredditStatus" | "subredditErrorMessage" | "redditDiscussionQueries" | "redditDiscussions" | "redditInsights" | "redditStatus" | "redditErrorMessage" | "finalReport" | "finalReportStatus" | "finalReportErrorMessage" | "finalReportModel" | "status" | "errorMessage" | "model" | "lastCrawledAt" | "lastSubredditDiscoveryAt" | "lastRedditDiscoveryAt" | "lastFinalReportAt" | "createdAt" | "updatedAt", ExtArgs["result"]["productIdeaProfile"]>
-  export type ProductIdeaProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "status" | "errorMessage" | "lastRunAt" | "createdAt" | "updatedAt", ExtArgs["result"]["productInsightProfile"]>
+  export type ProductInsightProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    stages?: boolean | ProductInsightProfile$stagesArgs<ExtArgs>
+    _count?: boolean | ProductInsightProfileCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ProductInsightProfileIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }
-  export type ProductIdeaProfileIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    product?: boolean | ProductDefaultArgs<ExtArgs>
-  }
-  export type ProductIdeaProfileIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }
 
-  export type $ProductIdeaProfilePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ProductIdeaProfile"
+  export type $ProductInsightProfilePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductInsightProfile"
     objects: {
       product: Prisma.$ProductPayload<ExtArgs>
+      stages: Prisma.$ProductInsightStageResultPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       productId: string
-      sitemapUrl: string | null
-      discoveredUrls: Prisma.JsonValue | null
-      pages: Prisma.JsonValue | null
-      summary: Prisma.JsonValue | null
-      summaryText: string | null
-      subredditQueries: Prisma.JsonValue | null
-      subreddits: Prisma.JsonValue | null
-      subredditStatus: $Enums.ProductIdeaProfileStatus | null
-      subredditErrorMessage: string | null
-      redditDiscussionQueries: Prisma.JsonValue | null
-      redditDiscussions: Prisma.JsonValue | null
-      redditInsights: Prisma.JsonValue | null
-      redditStatus: $Enums.ProductIdeaProfileStatus | null
-      redditErrorMessage: string | null
-      finalReport: Prisma.JsonValue | null
-      finalReportStatus: $Enums.ProductIdeaProfileStatus | null
-      finalReportErrorMessage: string | null
-      finalReportModel: string | null
-      status: $Enums.ProductIdeaProfileStatus
+      status: $Enums.ProductInsightStatus
       errorMessage: string | null
-      model: string | null
-      lastCrawledAt: Date | null
-      lastSubredditDiscoveryAt: Date | null
-      lastRedditDiscoveryAt: Date | null
-      lastFinalReportAt: Date | null
+      lastRunAt: Date | null
       createdAt: Date
       updatedAt: Date
-    }, ExtArgs["result"]["productIdeaProfile"]>
+    }, ExtArgs["result"]["productInsightProfile"]>
     composites: {}
   }
 
-  type ProductIdeaProfileGetPayload<S extends boolean | null | undefined | ProductIdeaProfileDefaultArgs> = $Result.GetResult<Prisma.$ProductIdeaProfilePayload, S>
+  type ProductInsightProfileGetPayload<S extends boolean | null | undefined | ProductInsightProfileDefaultArgs> = $Result.GetResult<Prisma.$ProductInsightProfilePayload, S>
 
-  type ProductIdeaProfileCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ProductIdeaProfileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: ProductIdeaProfileCountAggregateInputType | true
+  type ProductInsightProfileCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductInsightProfileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductInsightProfileCountAggregateInputType | true
     }
 
-  export interface ProductIdeaProfileDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductIdeaProfile'], meta: { name: 'ProductIdeaProfile' } }
+  export interface ProductInsightProfileDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductInsightProfile'], meta: { name: 'ProductInsightProfile' } }
     /**
-     * Find zero or one ProductIdeaProfile that matches the filter.
-     * @param {ProductIdeaProfileFindUniqueArgs} args - Arguments to find a ProductIdeaProfile
+     * Find zero or one ProductInsightProfile that matches the filter.
+     * @param {ProductInsightProfileFindUniqueArgs} args - Arguments to find a ProductInsightProfile
      * @example
-     * // Get one ProductIdeaProfile
-     * const productIdeaProfile = await prisma.productIdeaProfile.findUnique({
+     * // Get one ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ProductIdeaProfileFindUniqueArgs>(args: SelectSubset<T, ProductIdeaProfileFindUniqueArgs<ExtArgs>>): Prisma__ProductIdeaProfileClient<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends ProductInsightProfileFindUniqueArgs>(args: SelectSubset<T, ProductInsightProfileFindUniqueArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one ProductIdeaProfile that matches the filter or throw an error with `error.code='P2025'`
+     * Find one ProductInsightProfile that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {ProductIdeaProfileFindUniqueOrThrowArgs} args - Arguments to find a ProductIdeaProfile
+     * @param {ProductInsightProfileFindUniqueOrThrowArgs} args - Arguments to find a ProductInsightProfile
      * @example
-     * // Get one ProductIdeaProfile
-     * const productIdeaProfile = await prisma.productIdeaProfile.findUniqueOrThrow({
+     * // Get one ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ProductIdeaProfileFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductIdeaProfileFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductIdeaProfileClient<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends ProductInsightProfileFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductInsightProfileFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first ProductIdeaProfile that matches the filter.
+     * Find the first ProductInsightProfile that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductIdeaProfileFindFirstArgs} args - Arguments to find a ProductIdeaProfile
+     * @param {ProductInsightProfileFindFirstArgs} args - Arguments to find a ProductInsightProfile
      * @example
-     * // Get one ProductIdeaProfile
-     * const productIdeaProfile = await prisma.productIdeaProfile.findFirst({
+     * // Get one ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ProductIdeaProfileFindFirstArgs>(args?: SelectSubset<T, ProductIdeaProfileFindFirstArgs<ExtArgs>>): Prisma__ProductIdeaProfileClient<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends ProductInsightProfileFindFirstArgs>(args?: SelectSubset<T, ProductInsightProfileFindFirstArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first ProductIdeaProfile that matches the filter or
+     * Find the first ProductInsightProfile that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductIdeaProfileFindFirstOrThrowArgs} args - Arguments to find a ProductIdeaProfile
+     * @param {ProductInsightProfileFindFirstOrThrowArgs} args - Arguments to find a ProductInsightProfile
      * @example
-     * // Get one ProductIdeaProfile
-     * const productIdeaProfile = await prisma.productIdeaProfile.findFirstOrThrow({
+     * // Get one ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ProductIdeaProfileFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductIdeaProfileFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductIdeaProfileClient<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends ProductInsightProfileFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductInsightProfileFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more ProductIdeaProfiles that matches the filter.
+     * Find zero or more ProductInsightProfiles that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductIdeaProfileFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ProductInsightProfileFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ProductIdeaProfiles
-     * const productIdeaProfiles = await prisma.productIdeaProfile.findMany()
+     * // Get all ProductInsightProfiles
+     * const productInsightProfiles = await prisma.productInsightProfile.findMany()
      * 
-     * // Get first 10 ProductIdeaProfiles
-     * const productIdeaProfiles = await prisma.productIdeaProfile.findMany({ take: 10 })
+     * // Get first 10 ProductInsightProfiles
+     * const productInsightProfiles = await prisma.productInsightProfile.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const productIdeaProfileWithIdOnly = await prisma.productIdeaProfile.findMany({ select: { id: true } })
+     * const productInsightProfileWithIdOnly = await prisma.productInsightProfile.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ProductIdeaProfileFindManyArgs>(args?: SelectSubset<T, ProductIdeaProfileFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends ProductInsightProfileFindManyArgs>(args?: SelectSubset<T, ProductInsightProfileFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a ProductIdeaProfile.
-     * @param {ProductIdeaProfileCreateArgs} args - Arguments to create a ProductIdeaProfile.
+     * Create a ProductInsightProfile.
+     * @param {ProductInsightProfileCreateArgs} args - Arguments to create a ProductInsightProfile.
      * @example
-     * // Create one ProductIdeaProfile
-     * const ProductIdeaProfile = await prisma.productIdeaProfile.create({
+     * // Create one ProductInsightProfile
+     * const ProductInsightProfile = await prisma.productInsightProfile.create({
      *   data: {
-     *     // ... data to create a ProductIdeaProfile
+     *     // ... data to create a ProductInsightProfile
      *   }
      * })
      * 
      */
-    create<T extends ProductIdeaProfileCreateArgs>(args: SelectSubset<T, ProductIdeaProfileCreateArgs<ExtArgs>>): Prisma__ProductIdeaProfileClient<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends ProductInsightProfileCreateArgs>(args: SelectSubset<T, ProductInsightProfileCreateArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many ProductIdeaProfiles.
-     * @param {ProductIdeaProfileCreateManyArgs} args - Arguments to create many ProductIdeaProfiles.
+     * Create many ProductInsightProfiles.
+     * @param {ProductInsightProfileCreateManyArgs} args - Arguments to create many ProductInsightProfiles.
      * @example
-     * // Create many ProductIdeaProfiles
-     * const productIdeaProfile = await prisma.productIdeaProfile.createMany({
+     * // Create many ProductInsightProfiles
+     * const productInsightProfile = await prisma.productInsightProfile.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ProductIdeaProfileCreateManyArgs>(args?: SelectSubset<T, ProductIdeaProfileCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ProductInsightProfileCreateManyArgs>(args?: SelectSubset<T, ProductInsightProfileCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ProductIdeaProfiles and returns the data saved in the database.
-     * @param {ProductIdeaProfileCreateManyAndReturnArgs} args - Arguments to create many ProductIdeaProfiles.
+     * Create many ProductInsightProfiles and returns the data saved in the database.
+     * @param {ProductInsightProfileCreateManyAndReturnArgs} args - Arguments to create many ProductInsightProfiles.
      * @example
-     * // Create many ProductIdeaProfiles
-     * const productIdeaProfile = await prisma.productIdeaProfile.createManyAndReturn({
+     * // Create many ProductInsightProfiles
+     * const productInsightProfile = await prisma.productInsightProfile.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ProductIdeaProfiles and only return the `id`
-     * const productIdeaProfileWithIdOnly = await prisma.productIdeaProfile.createManyAndReturn({
+     * // Create many ProductInsightProfiles and only return the `id`
+     * const productInsightProfileWithIdOnly = await prisma.productInsightProfile.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -14659,28 +14558,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ProductIdeaProfileCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductIdeaProfileCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends ProductInsightProfileCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductInsightProfileCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a ProductIdeaProfile.
-     * @param {ProductIdeaProfileDeleteArgs} args - Arguments to delete one ProductIdeaProfile.
+     * Delete a ProductInsightProfile.
+     * @param {ProductInsightProfileDeleteArgs} args - Arguments to delete one ProductInsightProfile.
      * @example
-     * // Delete one ProductIdeaProfile
-     * const ProductIdeaProfile = await prisma.productIdeaProfile.delete({
+     * // Delete one ProductInsightProfile
+     * const ProductInsightProfile = await prisma.productInsightProfile.delete({
      *   where: {
-     *     // ... filter to delete one ProductIdeaProfile
+     *     // ... filter to delete one ProductInsightProfile
      *   }
      * })
      * 
      */
-    delete<T extends ProductIdeaProfileDeleteArgs>(args: SelectSubset<T, ProductIdeaProfileDeleteArgs<ExtArgs>>): Prisma__ProductIdeaProfileClient<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends ProductInsightProfileDeleteArgs>(args: SelectSubset<T, ProductInsightProfileDeleteArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one ProductIdeaProfile.
-     * @param {ProductIdeaProfileUpdateArgs} args - Arguments to update one ProductIdeaProfile.
+     * Update one ProductInsightProfile.
+     * @param {ProductInsightProfileUpdateArgs} args - Arguments to update one ProductInsightProfile.
      * @example
-     * // Update one ProductIdeaProfile
-     * const productIdeaProfile = await prisma.productIdeaProfile.update({
+     * // Update one ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14690,30 +14589,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ProductIdeaProfileUpdateArgs>(args: SelectSubset<T, ProductIdeaProfileUpdateArgs<ExtArgs>>): Prisma__ProductIdeaProfileClient<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends ProductInsightProfileUpdateArgs>(args: SelectSubset<T, ProductInsightProfileUpdateArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more ProductIdeaProfiles.
-     * @param {ProductIdeaProfileDeleteManyArgs} args - Arguments to filter ProductIdeaProfiles to delete.
+     * Delete zero or more ProductInsightProfiles.
+     * @param {ProductInsightProfileDeleteManyArgs} args - Arguments to filter ProductInsightProfiles to delete.
      * @example
-     * // Delete a few ProductIdeaProfiles
-     * const { count } = await prisma.productIdeaProfile.deleteMany({
+     * // Delete a few ProductInsightProfiles
+     * const { count } = await prisma.productInsightProfile.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ProductIdeaProfileDeleteManyArgs>(args?: SelectSubset<T, ProductIdeaProfileDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ProductInsightProfileDeleteManyArgs>(args?: SelectSubset<T, ProductInsightProfileDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ProductIdeaProfiles.
+     * Update zero or more ProductInsightProfiles.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductIdeaProfileUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ProductInsightProfileUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ProductIdeaProfiles
-     * const productIdeaProfile = await prisma.productIdeaProfile.updateMany({
+     * // Update many ProductInsightProfiles
+     * const productInsightProfile = await prisma.productInsightProfile.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14723,14 +14622,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ProductIdeaProfileUpdateManyArgs>(args: SelectSubset<T, ProductIdeaProfileUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ProductInsightProfileUpdateManyArgs>(args: SelectSubset<T, ProductInsightProfileUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ProductIdeaProfiles and returns the data updated in the database.
-     * @param {ProductIdeaProfileUpdateManyAndReturnArgs} args - Arguments to update many ProductIdeaProfiles.
+     * Update zero or more ProductInsightProfiles and returns the data updated in the database.
+     * @param {ProductInsightProfileUpdateManyAndReturnArgs} args - Arguments to update many ProductInsightProfiles.
      * @example
-     * // Update many ProductIdeaProfiles
-     * const productIdeaProfile = await prisma.productIdeaProfile.updateManyAndReturn({
+     * // Update many ProductInsightProfiles
+     * const productInsightProfile = await prisma.productInsightProfile.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14739,8 +14638,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more ProductIdeaProfiles and only return the `id`
-     * const productIdeaProfileWithIdOnly = await prisma.productIdeaProfile.updateManyAndReturn({
+     * // Update zero or more ProductInsightProfiles and only return the `id`
+     * const productInsightProfileWithIdOnly = await prisma.productInsightProfile.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -14753,56 +14652,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends ProductIdeaProfileUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductIdeaProfileUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends ProductInsightProfileUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductInsightProfileUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one ProductIdeaProfile.
-     * @param {ProductIdeaProfileUpsertArgs} args - Arguments to update or create a ProductIdeaProfile.
+     * Create or update one ProductInsightProfile.
+     * @param {ProductInsightProfileUpsertArgs} args - Arguments to update or create a ProductInsightProfile.
      * @example
-     * // Update or create a ProductIdeaProfile
-     * const productIdeaProfile = await prisma.productIdeaProfile.upsert({
+     * // Update or create a ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.upsert({
      *   create: {
-     *     // ... data to create a ProductIdeaProfile
+     *     // ... data to create a ProductInsightProfile
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ProductIdeaProfile we want to update
+     *     // ... the filter for the ProductInsightProfile we want to update
      *   }
      * })
      */
-    upsert<T extends ProductIdeaProfileUpsertArgs>(args: SelectSubset<T, ProductIdeaProfileUpsertArgs<ExtArgs>>): Prisma__ProductIdeaProfileClient<$Result.GetResult<Prisma.$ProductIdeaProfilePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends ProductInsightProfileUpsertArgs>(args: SelectSubset<T, ProductInsightProfileUpsertArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of ProductIdeaProfiles.
+     * Count the number of ProductInsightProfiles.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductIdeaProfileCountArgs} args - Arguments to filter ProductIdeaProfiles to count.
+     * @param {ProductInsightProfileCountArgs} args - Arguments to filter ProductInsightProfiles to count.
      * @example
-     * // Count the number of ProductIdeaProfiles
-     * const count = await prisma.productIdeaProfile.count({
+     * // Count the number of ProductInsightProfiles
+     * const count = await prisma.productInsightProfile.count({
      *   where: {
-     *     // ... the filter for the ProductIdeaProfiles we want to count
+     *     // ... the filter for the ProductInsightProfiles we want to count
      *   }
      * })
     **/
-    count<T extends ProductIdeaProfileCountArgs>(
-      args?: Subset<T, ProductIdeaProfileCountArgs>,
+    count<T extends ProductInsightProfileCountArgs>(
+      args?: Subset<T, ProductInsightProfileCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ProductIdeaProfileCountAggregateOutputType>
+          : GetScalarType<T['select'], ProductInsightProfileCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ProductIdeaProfile.
+     * Allows you to perform aggregations operations on a ProductInsightProfile.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductIdeaProfileAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ProductInsightProfileAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -14822,13 +14721,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ProductIdeaProfileAggregateArgs>(args: Subset<T, ProductIdeaProfileAggregateArgs>): Prisma.PrismaPromise<GetProductIdeaProfileAggregateType<T>>
+    aggregate<T extends ProductInsightProfileAggregateArgs>(args: Subset<T, ProductInsightProfileAggregateArgs>): Prisma.PrismaPromise<GetProductInsightProfileAggregateType<T>>
 
     /**
-     * Group by ProductIdeaProfile.
+     * Group by ProductInsightProfile.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductIdeaProfileGroupByArgs} args - Group by arguments.
+     * @param {ProductInsightProfileGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -14843,14 +14742,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ProductIdeaProfileGroupByArgs,
+      T extends ProductInsightProfileGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ProductIdeaProfileGroupByArgs['orderBy'] }
-        : { orderBy?: ProductIdeaProfileGroupByArgs['orderBy'] },
+        ? { orderBy: ProductInsightProfileGroupByArgs['orderBy'] }
+        : { orderBy?: ProductInsightProfileGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -14899,22 +14798,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ProductIdeaProfileGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductIdeaProfileGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ProductInsightProfileGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductInsightProfileGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ProductIdeaProfile model
+   * Fields of the ProductInsightProfile model
    */
-  readonly fields: ProductIdeaProfileFieldRefs;
+  readonly fields: ProductInsightProfileFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ProductIdeaProfile.
+   * The delegate class that acts as a "Promise-like" for ProductInsightProfile.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ProductIdeaProfileClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ProductInsightProfileClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     product<T extends ProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductDefaultArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    stages<T extends ProductInsightProfile$stagesArgs<ExtArgs> = {}>(args?: Subset<T, ProductInsightProfile$stagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14941,449 +14841,1592 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ProductIdeaProfile model
+   * Fields of the ProductInsightProfile model
    */
-  interface ProductIdeaProfileFieldRefs {
-    readonly id: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly productId: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly sitemapUrl: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly discoveredUrls: FieldRef<"ProductIdeaProfile", 'Json'>
-    readonly pages: FieldRef<"ProductIdeaProfile", 'Json'>
-    readonly summary: FieldRef<"ProductIdeaProfile", 'Json'>
-    readonly summaryText: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly subredditQueries: FieldRef<"ProductIdeaProfile", 'Json'>
-    readonly subreddits: FieldRef<"ProductIdeaProfile", 'Json'>
-    readonly subredditStatus: FieldRef<"ProductIdeaProfile", 'ProductIdeaProfileStatus'>
-    readonly subredditErrorMessage: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly redditDiscussionQueries: FieldRef<"ProductIdeaProfile", 'Json'>
-    readonly redditDiscussions: FieldRef<"ProductIdeaProfile", 'Json'>
-    readonly redditInsights: FieldRef<"ProductIdeaProfile", 'Json'>
-    readonly redditStatus: FieldRef<"ProductIdeaProfile", 'ProductIdeaProfileStatus'>
-    readonly redditErrorMessage: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly finalReport: FieldRef<"ProductIdeaProfile", 'Json'>
-    readonly finalReportStatus: FieldRef<"ProductIdeaProfile", 'ProductIdeaProfileStatus'>
-    readonly finalReportErrorMessage: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly finalReportModel: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly status: FieldRef<"ProductIdeaProfile", 'ProductIdeaProfileStatus'>
-    readonly errorMessage: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly model: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly lastCrawledAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
-    readonly lastSubredditDiscoveryAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
-    readonly lastRedditDiscoveryAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
-    readonly lastFinalReportAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
-    readonly createdAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
-    readonly updatedAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
+  interface ProductInsightProfileFieldRefs {
+    readonly id: FieldRef<"ProductInsightProfile", 'String'>
+    readonly productId: FieldRef<"ProductInsightProfile", 'String'>
+    readonly status: FieldRef<"ProductInsightProfile", 'ProductInsightStatus'>
+    readonly errorMessage: FieldRef<"ProductInsightProfile", 'String'>
+    readonly lastRunAt: FieldRef<"ProductInsightProfile", 'DateTime'>
+    readonly createdAt: FieldRef<"ProductInsightProfile", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProductInsightProfile", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ProductIdeaProfile findUnique
+   * ProductInsightProfile findUnique
    */
-  export type ProductIdeaProfileFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightProfileSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
+    include?: ProductInsightProfileInclude<ExtArgs> | null
     /**
-     * Filter, which ProductIdeaProfile to fetch.
+     * Filter, which ProductInsightProfile to fetch.
      */
-    where: ProductIdeaProfileWhereUniqueInput
+    where: ProductInsightProfileWhereUniqueInput
   }
 
   /**
-   * ProductIdeaProfile findUniqueOrThrow
+   * ProductInsightProfile findUniqueOrThrow
    */
-  export type ProductIdeaProfileFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightProfileSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
+    include?: ProductInsightProfileInclude<ExtArgs> | null
     /**
-     * Filter, which ProductIdeaProfile to fetch.
+     * Filter, which ProductInsightProfile to fetch.
      */
-    where: ProductIdeaProfileWhereUniqueInput
+    where: ProductInsightProfileWhereUniqueInput
   }
 
   /**
-   * ProductIdeaProfile findFirst
+   * ProductInsightProfile findFirst
    */
-  export type ProductIdeaProfileFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightProfileSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
+    include?: ProductInsightProfileInclude<ExtArgs> | null
     /**
-     * Filter, which ProductIdeaProfile to fetch.
+     * Filter, which ProductInsightProfile to fetch.
      */
-    where?: ProductIdeaProfileWhereInput
+    where?: ProductInsightProfileWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ProductIdeaProfiles to fetch.
+     * Determine the order of ProductInsightProfiles to fetch.
      */
-    orderBy?: ProductIdeaProfileOrderByWithRelationInput | ProductIdeaProfileOrderByWithRelationInput[]
+    orderBy?: ProductInsightProfileOrderByWithRelationInput | ProductInsightProfileOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ProductIdeaProfiles.
+     * Sets the position for searching for ProductInsightProfiles.
      */
-    cursor?: ProductIdeaProfileWhereUniqueInput
+    cursor?: ProductInsightProfileWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ProductIdeaProfiles from the position of the cursor.
+     * Take `±n` ProductInsightProfiles from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ProductIdeaProfiles.
+     * Skip the first `n` ProductInsightProfiles.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ProductIdeaProfiles.
+     * Filter by unique combinations of ProductInsightProfiles.
      */
-    distinct?: ProductIdeaProfileScalarFieldEnum | ProductIdeaProfileScalarFieldEnum[]
+    distinct?: ProductInsightProfileScalarFieldEnum | ProductInsightProfileScalarFieldEnum[]
   }
 
   /**
-   * ProductIdeaProfile findFirstOrThrow
+   * ProductInsightProfile findFirstOrThrow
    */
-  export type ProductIdeaProfileFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightProfileSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
+    include?: ProductInsightProfileInclude<ExtArgs> | null
     /**
-     * Filter, which ProductIdeaProfile to fetch.
+     * Filter, which ProductInsightProfile to fetch.
      */
-    where?: ProductIdeaProfileWhereInput
+    where?: ProductInsightProfileWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ProductIdeaProfiles to fetch.
+     * Determine the order of ProductInsightProfiles to fetch.
      */
-    orderBy?: ProductIdeaProfileOrderByWithRelationInput | ProductIdeaProfileOrderByWithRelationInput[]
+    orderBy?: ProductInsightProfileOrderByWithRelationInput | ProductInsightProfileOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ProductIdeaProfiles.
+     * Sets the position for searching for ProductInsightProfiles.
      */
-    cursor?: ProductIdeaProfileWhereUniqueInput
+    cursor?: ProductInsightProfileWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ProductIdeaProfiles from the position of the cursor.
+     * Take `±n` ProductInsightProfiles from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ProductIdeaProfiles.
+     * Skip the first `n` ProductInsightProfiles.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ProductIdeaProfiles.
+     * Filter by unique combinations of ProductInsightProfiles.
      */
-    distinct?: ProductIdeaProfileScalarFieldEnum | ProductIdeaProfileScalarFieldEnum[]
+    distinct?: ProductInsightProfileScalarFieldEnum | ProductInsightProfileScalarFieldEnum[]
   }
 
   /**
-   * ProductIdeaProfile findMany
+   * ProductInsightProfile findMany
    */
-  export type ProductIdeaProfileFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightProfileSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
+    include?: ProductInsightProfileInclude<ExtArgs> | null
     /**
-     * Filter, which ProductIdeaProfiles to fetch.
+     * Filter, which ProductInsightProfiles to fetch.
      */
-    where?: ProductIdeaProfileWhereInput
+    where?: ProductInsightProfileWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ProductIdeaProfiles to fetch.
+     * Determine the order of ProductInsightProfiles to fetch.
      */
-    orderBy?: ProductIdeaProfileOrderByWithRelationInput | ProductIdeaProfileOrderByWithRelationInput[]
+    orderBy?: ProductInsightProfileOrderByWithRelationInput | ProductInsightProfileOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ProductIdeaProfiles.
+     * Sets the position for listing ProductInsightProfiles.
      */
-    cursor?: ProductIdeaProfileWhereUniqueInput
+    cursor?: ProductInsightProfileWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ProductIdeaProfiles from the position of the cursor.
+     * Take `±n` ProductInsightProfiles from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ProductIdeaProfiles.
+     * Skip the first `n` ProductInsightProfiles.
      */
     skip?: number
-    distinct?: ProductIdeaProfileScalarFieldEnum | ProductIdeaProfileScalarFieldEnum[]
+    distinct?: ProductInsightProfileScalarFieldEnum | ProductInsightProfileScalarFieldEnum[]
   }
 
   /**
-   * ProductIdeaProfile create
+   * ProductInsightProfile create
    */
-  export type ProductIdeaProfileCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightProfileSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
+    include?: ProductInsightProfileInclude<ExtArgs> | null
     /**
-     * The data needed to create a ProductIdeaProfile.
+     * The data needed to create a ProductInsightProfile.
      */
-    data: XOR<ProductIdeaProfileCreateInput, ProductIdeaProfileUncheckedCreateInput>
+    data: XOR<ProductInsightProfileCreateInput, ProductInsightProfileUncheckedCreateInput>
   }
 
   /**
-   * ProductIdeaProfile createMany
+   * ProductInsightProfile createMany
    */
-  export type ProductIdeaProfileCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ProductIdeaProfiles.
+     * The data used to create many ProductInsightProfiles.
      */
-    data: ProductIdeaProfileCreateManyInput | ProductIdeaProfileCreateManyInput[]
+    data: ProductInsightProfileCreateManyInput | ProductInsightProfileCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ProductIdeaProfile createManyAndReturn
+   * ProductInsightProfile createManyAndReturn
    */
-  export type ProductIdeaProfileCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ProductInsightProfileSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
-     * The data used to create many ProductIdeaProfiles.
+     * The data used to create many ProductInsightProfiles.
      */
-    data: ProductIdeaProfileCreateManyInput | ProductIdeaProfileCreateManyInput[]
+    data: ProductInsightProfileCreateManyInput | ProductInsightProfileCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: ProductInsightProfileIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * ProductIdeaProfile update
+   * ProductInsightProfile update
    */
-  export type ProductIdeaProfileUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightProfileSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
+    include?: ProductInsightProfileInclude<ExtArgs> | null
     /**
-     * The data needed to update a ProductIdeaProfile.
+     * The data needed to update a ProductInsightProfile.
      */
-    data: XOR<ProductIdeaProfileUpdateInput, ProductIdeaProfileUncheckedUpdateInput>
+    data: XOR<ProductInsightProfileUpdateInput, ProductInsightProfileUncheckedUpdateInput>
     /**
-     * Choose, which ProductIdeaProfile to update.
+     * Choose, which ProductInsightProfile to update.
      */
-    where: ProductIdeaProfileWhereUniqueInput
+    where: ProductInsightProfileWhereUniqueInput
   }
 
   /**
-   * ProductIdeaProfile updateMany
+   * ProductInsightProfile updateMany
    */
-  export type ProductIdeaProfileUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ProductIdeaProfiles.
+     * The data used to update ProductInsightProfiles.
      */
-    data: XOR<ProductIdeaProfileUpdateManyMutationInput, ProductIdeaProfileUncheckedUpdateManyInput>
+    data: XOR<ProductInsightProfileUpdateManyMutationInput, ProductInsightProfileUncheckedUpdateManyInput>
     /**
-     * Filter which ProductIdeaProfiles to update
+     * Filter which ProductInsightProfiles to update
      */
-    where?: ProductIdeaProfileWhereInput
+    where?: ProductInsightProfileWhereInput
     /**
-     * Limit how many ProductIdeaProfiles to update.
+     * Limit how many ProductInsightProfiles to update.
      */
     limit?: number
   }
 
   /**
-   * ProductIdeaProfile updateManyAndReturn
+   * ProductInsightProfile updateManyAndReturn
    */
-  export type ProductIdeaProfileUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: ProductInsightProfileSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
-     * The data used to update ProductIdeaProfiles.
+     * The data used to update ProductInsightProfiles.
      */
-    data: XOR<ProductIdeaProfileUpdateManyMutationInput, ProductIdeaProfileUncheckedUpdateManyInput>
+    data: XOR<ProductInsightProfileUpdateManyMutationInput, ProductInsightProfileUncheckedUpdateManyInput>
     /**
-     * Filter which ProductIdeaProfiles to update
+     * Filter which ProductInsightProfiles to update
      */
-    where?: ProductIdeaProfileWhereInput
+    where?: ProductInsightProfileWhereInput
     /**
-     * Limit how many ProductIdeaProfiles to update.
+     * Limit how many ProductInsightProfiles to update.
      */
     limit?: number
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileIncludeUpdateManyAndReturn<ExtArgs> | null
+    include?: ProductInsightProfileIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * ProductIdeaProfile upsert
+   * ProductInsightProfile upsert
    */
-  export type ProductIdeaProfileUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightProfileSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
+    include?: ProductInsightProfileInclude<ExtArgs> | null
     /**
-     * The filter to search for the ProductIdeaProfile to update in case it exists.
+     * The filter to search for the ProductInsightProfile to update in case it exists.
      */
-    where: ProductIdeaProfileWhereUniqueInput
+    where: ProductInsightProfileWhereUniqueInput
     /**
-     * In case the ProductIdeaProfile found by the `where` argument doesn't exist, create a new ProductIdeaProfile with this data.
+     * In case the ProductInsightProfile found by the `where` argument doesn't exist, create a new ProductInsightProfile with this data.
      */
-    create: XOR<ProductIdeaProfileCreateInput, ProductIdeaProfileUncheckedCreateInput>
+    create: XOR<ProductInsightProfileCreateInput, ProductInsightProfileUncheckedCreateInput>
     /**
-     * In case the ProductIdeaProfile was found with the provided `where` argument, update it with this data.
+     * In case the ProductInsightProfile was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ProductIdeaProfileUpdateInput, ProductIdeaProfileUncheckedUpdateInput>
+    update: XOR<ProductInsightProfileUpdateInput, ProductInsightProfileUncheckedUpdateInput>
   }
 
   /**
-   * ProductIdeaProfile delete
+   * ProductInsightProfile delete
    */
-  export type ProductIdeaProfileDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightProfile
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightProfileSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightProfile
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
+    include?: ProductInsightProfileInclude<ExtArgs> | null
     /**
-     * Filter which ProductIdeaProfile to delete.
+     * Filter which ProductInsightProfile to delete.
      */
-    where: ProductIdeaProfileWhereUniqueInput
+    where: ProductInsightProfileWhereUniqueInput
   }
 
   /**
-   * ProductIdeaProfile deleteMany
+   * ProductInsightProfile deleteMany
    */
-  export type ProductIdeaProfileDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfileDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ProductIdeaProfiles to delete
+     * Filter which ProductInsightProfiles to delete
      */
-    where?: ProductIdeaProfileWhereInput
+    where?: ProductInsightProfileWhereInput
     /**
-     * Limit how many ProductIdeaProfiles to delete.
+     * Limit how many ProductInsightProfiles to delete.
      */
     limit?: number
   }
 
   /**
-   * ProductIdeaProfile without action
+   * ProductInsightProfile.stages
    */
-  export type ProductIdeaProfileDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ProductInsightProfile$stagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductIdeaProfile
+     * Select specific fields to fetch from the ProductInsightStageResult
      */
-    select?: ProductIdeaProfileSelect<ExtArgs> | null
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ProductIdeaProfile
+     * Omit specific fields from the ProductInsightStageResult
      */
-    omit?: ProductIdeaProfileOmit<ExtArgs> | null
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductIdeaProfileInclude<ExtArgs> | null
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    where?: ProductInsightStageResultWhereInput
+    orderBy?: ProductInsightStageResultOrderByWithRelationInput | ProductInsightStageResultOrderByWithRelationInput[]
+    cursor?: ProductInsightStageResultWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProductInsightStageResultScalarFieldEnum | ProductInsightStageResultScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightProfile without action
+   */
+  export type ProductInsightProfileDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProductInsightStageResult
+   */
+
+  export type AggregateProductInsightStageResult = {
+    _count: ProductInsightStageResultCountAggregateOutputType | null
+    _min: ProductInsightStageResultMinAggregateOutputType | null
+    _max: ProductInsightStageResultMaxAggregateOutputType | null
+  }
+
+  export type ProductInsightStageResultMinAggregateOutputType = {
+    id: string | null
+    profileId: string | null
+    stageId: string | null
+    providerType: string | null
+    status: $Enums.ProductInsightStatus | null
+    errorMessage: string | null
+    startedAt: Date | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductInsightStageResultMaxAggregateOutputType = {
+    id: string | null
+    profileId: string | null
+    stageId: string | null
+    providerType: string | null
+    status: $Enums.ProductInsightStatus | null
+    errorMessage: string | null
+    startedAt: Date | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductInsightStageResultCountAggregateOutputType = {
+    id: number
+    profileId: number
+    stageId: number
+    providerType: number
+    status: number
+    data: number
+    metrics: number
+    errorMessage: number
+    startedAt: number
+    completedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ProductInsightStageResultMinAggregateInputType = {
+    id?: true
+    profileId?: true
+    stageId?: true
+    providerType?: true
+    status?: true
+    errorMessage?: true
+    startedAt?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductInsightStageResultMaxAggregateInputType = {
+    id?: true
+    profileId?: true
+    stageId?: true
+    providerType?: true
+    status?: true
+    errorMessage?: true
+    startedAt?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductInsightStageResultCountAggregateInputType = {
+    id?: true
+    profileId?: true
+    stageId?: true
+    providerType?: true
+    status?: true
+    data?: true
+    metrics?: true
+    errorMessage?: true
+    startedAt?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ProductInsightStageResultAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductInsightStageResult to aggregate.
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightStageResults to fetch.
+     */
+    orderBy?: ProductInsightStageResultOrderByWithRelationInput | ProductInsightStageResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductInsightStageResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightStageResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightStageResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductInsightStageResults
+    **/
+    _count?: true | ProductInsightStageResultCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductInsightStageResultMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductInsightStageResultMaxAggregateInputType
+  }
+
+  export type GetProductInsightStageResultAggregateType<T extends ProductInsightStageResultAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductInsightStageResult]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductInsightStageResult[P]>
+      : GetScalarType<T[P], AggregateProductInsightStageResult[P]>
+  }
+
+
+
+
+  export type ProductInsightStageResultGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductInsightStageResultWhereInput
+    orderBy?: ProductInsightStageResultOrderByWithAggregationInput | ProductInsightStageResultOrderByWithAggregationInput[]
+    by: ProductInsightStageResultScalarFieldEnum[] | ProductInsightStageResultScalarFieldEnum
+    having?: ProductInsightStageResultScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductInsightStageResultCountAggregateInputType | true
+    _min?: ProductInsightStageResultMinAggregateInputType
+    _max?: ProductInsightStageResultMaxAggregateInputType
+  }
+
+  export type ProductInsightStageResultGroupByOutputType = {
+    id: string
+    profileId: string
+    stageId: string
+    providerType: string
+    status: $Enums.ProductInsightStatus
+    data: JsonValue | null
+    metrics: JsonValue | null
+    errorMessage: string | null
+    startedAt: Date | null
+    completedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ProductInsightStageResultCountAggregateOutputType | null
+    _min: ProductInsightStageResultMinAggregateOutputType | null
+    _max: ProductInsightStageResultMaxAggregateOutputType | null
+  }
+
+  type GetProductInsightStageResultGroupByPayload<T extends ProductInsightStageResultGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductInsightStageResultGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductInsightStageResultGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductInsightStageResultGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductInsightStageResultGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductInsightStageResultSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    profileId?: boolean
+    stageId?: boolean
+    providerType?: boolean
+    status?: boolean
+    data?: boolean
+    metrics?: boolean
+    errorMessage?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productInsightStageResult"]>
+
+  export type ProductInsightStageResultSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    profileId?: boolean
+    stageId?: boolean
+    providerType?: boolean
+    status?: boolean
+    data?: boolean
+    metrics?: boolean
+    errorMessage?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productInsightStageResult"]>
+
+  export type ProductInsightStageResultSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    profileId?: boolean
+    stageId?: boolean
+    providerType?: boolean
+    status?: boolean
+    data?: boolean
+    metrics?: boolean
+    errorMessage?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productInsightStageResult"]>
+
+  export type ProductInsightStageResultSelectScalar = {
+    id?: boolean
+    profileId?: boolean
+    stageId?: boolean
+    providerType?: boolean
+    status?: boolean
+    data?: boolean
+    metrics?: boolean
+    errorMessage?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ProductInsightStageResultOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "profileId" | "stageId" | "providerType" | "status" | "data" | "metrics" | "errorMessage" | "startedAt" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["productInsightStageResult"]>
+  export type ProductInsightStageResultInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }
+  export type ProductInsightStageResultIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }
+  export type ProductInsightStageResultIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }
+
+  export type $ProductInsightStageResultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductInsightStageResult"
+    objects: {
+      profile: Prisma.$ProductInsightProfilePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      profileId: string
+      stageId: string
+      providerType: string
+      status: $Enums.ProductInsightStatus
+      data: Prisma.JsonValue | null
+      metrics: Prisma.JsonValue | null
+      errorMessage: string | null
+      startedAt: Date | null
+      completedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["productInsightStageResult"]>
+    composites: {}
+  }
+
+  type ProductInsightStageResultGetPayload<S extends boolean | null | undefined | ProductInsightStageResultDefaultArgs> = $Result.GetResult<Prisma.$ProductInsightStageResultPayload, S>
+
+  type ProductInsightStageResultCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductInsightStageResultFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductInsightStageResultCountAggregateInputType | true
+    }
+
+  export interface ProductInsightStageResultDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductInsightStageResult'], meta: { name: 'ProductInsightStageResult' } }
+    /**
+     * Find zero or one ProductInsightStageResult that matches the filter.
+     * @param {ProductInsightStageResultFindUniqueArgs} args - Arguments to find a ProductInsightStageResult
+     * @example
+     * // Get one ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductInsightStageResultFindUniqueArgs>(args: SelectSubset<T, ProductInsightStageResultFindUniqueArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductInsightStageResult that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductInsightStageResultFindUniqueOrThrowArgs} args - Arguments to find a ProductInsightStageResult
+     * @example
+     * // Get one ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductInsightStageResultFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductInsightStageResultFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductInsightStageResult that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultFindFirstArgs} args - Arguments to find a ProductInsightStageResult
+     * @example
+     * // Get one ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductInsightStageResultFindFirstArgs>(args?: SelectSubset<T, ProductInsightStageResultFindFirstArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductInsightStageResult that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultFindFirstOrThrowArgs} args - Arguments to find a ProductInsightStageResult
+     * @example
+     * // Get one ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductInsightStageResultFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductInsightStageResultFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductInsightStageResults that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductInsightStageResults
+     * const productInsightStageResults = await prisma.productInsightStageResult.findMany()
+     * 
+     * // Get first 10 ProductInsightStageResults
+     * const productInsightStageResults = await prisma.productInsightStageResult.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productInsightStageResultWithIdOnly = await prisma.productInsightStageResult.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductInsightStageResultFindManyArgs>(args?: SelectSubset<T, ProductInsightStageResultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductInsightStageResult.
+     * @param {ProductInsightStageResultCreateArgs} args - Arguments to create a ProductInsightStageResult.
+     * @example
+     * // Create one ProductInsightStageResult
+     * const ProductInsightStageResult = await prisma.productInsightStageResult.create({
+     *   data: {
+     *     // ... data to create a ProductInsightStageResult
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductInsightStageResultCreateArgs>(args: SelectSubset<T, ProductInsightStageResultCreateArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductInsightStageResults.
+     * @param {ProductInsightStageResultCreateManyArgs} args - Arguments to create many ProductInsightStageResults.
+     * @example
+     * // Create many ProductInsightStageResults
+     * const productInsightStageResult = await prisma.productInsightStageResult.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductInsightStageResultCreateManyArgs>(args?: SelectSubset<T, ProductInsightStageResultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductInsightStageResults and returns the data saved in the database.
+     * @param {ProductInsightStageResultCreateManyAndReturnArgs} args - Arguments to create many ProductInsightStageResults.
+     * @example
+     * // Create many ProductInsightStageResults
+     * const productInsightStageResult = await prisma.productInsightStageResult.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductInsightStageResults and only return the `id`
+     * const productInsightStageResultWithIdOnly = await prisma.productInsightStageResult.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductInsightStageResultCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductInsightStageResultCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductInsightStageResult.
+     * @param {ProductInsightStageResultDeleteArgs} args - Arguments to delete one ProductInsightStageResult.
+     * @example
+     * // Delete one ProductInsightStageResult
+     * const ProductInsightStageResult = await prisma.productInsightStageResult.delete({
+     *   where: {
+     *     // ... filter to delete one ProductInsightStageResult
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductInsightStageResultDeleteArgs>(args: SelectSubset<T, ProductInsightStageResultDeleteArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductInsightStageResult.
+     * @param {ProductInsightStageResultUpdateArgs} args - Arguments to update one ProductInsightStageResult.
+     * @example
+     * // Update one ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductInsightStageResultUpdateArgs>(args: SelectSubset<T, ProductInsightStageResultUpdateArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductInsightStageResults.
+     * @param {ProductInsightStageResultDeleteManyArgs} args - Arguments to filter ProductInsightStageResults to delete.
+     * @example
+     * // Delete a few ProductInsightStageResults
+     * const { count } = await prisma.productInsightStageResult.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductInsightStageResultDeleteManyArgs>(args?: SelectSubset<T, ProductInsightStageResultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductInsightStageResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductInsightStageResults
+     * const productInsightStageResult = await prisma.productInsightStageResult.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductInsightStageResultUpdateManyArgs>(args: SelectSubset<T, ProductInsightStageResultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductInsightStageResults and returns the data updated in the database.
+     * @param {ProductInsightStageResultUpdateManyAndReturnArgs} args - Arguments to update many ProductInsightStageResults.
+     * @example
+     * // Update many ProductInsightStageResults
+     * const productInsightStageResult = await prisma.productInsightStageResult.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductInsightStageResults and only return the `id`
+     * const productInsightStageResultWithIdOnly = await prisma.productInsightStageResult.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductInsightStageResultUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductInsightStageResultUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductInsightStageResult.
+     * @param {ProductInsightStageResultUpsertArgs} args - Arguments to update or create a ProductInsightStageResult.
+     * @example
+     * // Update or create a ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.upsert({
+     *   create: {
+     *     // ... data to create a ProductInsightStageResult
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductInsightStageResult we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductInsightStageResultUpsertArgs>(args: SelectSubset<T, ProductInsightStageResultUpsertArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductInsightStageResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultCountArgs} args - Arguments to filter ProductInsightStageResults to count.
+     * @example
+     * // Count the number of ProductInsightStageResults
+     * const count = await prisma.productInsightStageResult.count({
+     *   where: {
+     *     // ... the filter for the ProductInsightStageResults we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductInsightStageResultCountArgs>(
+      args?: Subset<T, ProductInsightStageResultCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductInsightStageResultCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductInsightStageResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductInsightStageResultAggregateArgs>(args: Subset<T, ProductInsightStageResultAggregateArgs>): Prisma.PrismaPromise<GetProductInsightStageResultAggregateType<T>>
+
+    /**
+     * Group by ProductInsightStageResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductInsightStageResultGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductInsightStageResultGroupByArgs['orderBy'] }
+        : { orderBy?: ProductInsightStageResultGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductInsightStageResultGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductInsightStageResultGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductInsightStageResult model
+   */
+  readonly fields: ProductInsightStageResultFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductInsightStageResult.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductInsightStageResultClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    profile<T extends ProductInsightProfileDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductInsightProfileDefaultArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductInsightStageResult model
+   */
+  interface ProductInsightStageResultFieldRefs {
+    readonly id: FieldRef<"ProductInsightStageResult", 'String'>
+    readonly profileId: FieldRef<"ProductInsightStageResult", 'String'>
+    readonly stageId: FieldRef<"ProductInsightStageResult", 'String'>
+    readonly providerType: FieldRef<"ProductInsightStageResult", 'String'>
+    readonly status: FieldRef<"ProductInsightStageResult", 'ProductInsightStatus'>
+    readonly data: FieldRef<"ProductInsightStageResult", 'Json'>
+    readonly metrics: FieldRef<"ProductInsightStageResult", 'Json'>
+    readonly errorMessage: FieldRef<"ProductInsightStageResult", 'String'>
+    readonly startedAt: FieldRef<"ProductInsightStageResult", 'DateTime'>
+    readonly completedAt: FieldRef<"ProductInsightStageResult", 'DateTime'>
+    readonly createdAt: FieldRef<"ProductInsightStageResult", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProductInsightStageResult", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductInsightStageResult findUnique
+   */
+  export type ProductInsightStageResultFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightStageResult to fetch.
+     */
+    where: ProductInsightStageResultWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightStageResult findUniqueOrThrow
+   */
+  export type ProductInsightStageResultFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightStageResult to fetch.
+     */
+    where: ProductInsightStageResultWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightStageResult findFirst
+   */
+  export type ProductInsightStageResultFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightStageResult to fetch.
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightStageResults to fetch.
+     */
+    orderBy?: ProductInsightStageResultOrderByWithRelationInput | ProductInsightStageResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductInsightStageResults.
+     */
+    cursor?: ProductInsightStageResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightStageResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightStageResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductInsightStageResults.
+     */
+    distinct?: ProductInsightStageResultScalarFieldEnum | ProductInsightStageResultScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightStageResult findFirstOrThrow
+   */
+  export type ProductInsightStageResultFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightStageResult to fetch.
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightStageResults to fetch.
+     */
+    orderBy?: ProductInsightStageResultOrderByWithRelationInput | ProductInsightStageResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductInsightStageResults.
+     */
+    cursor?: ProductInsightStageResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightStageResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightStageResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductInsightStageResults.
+     */
+    distinct?: ProductInsightStageResultScalarFieldEnum | ProductInsightStageResultScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightStageResult findMany
+   */
+  export type ProductInsightStageResultFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightStageResults to fetch.
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightStageResults to fetch.
+     */
+    orderBy?: ProductInsightStageResultOrderByWithRelationInput | ProductInsightStageResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductInsightStageResults.
+     */
+    cursor?: ProductInsightStageResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightStageResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightStageResults.
+     */
+    skip?: number
+    distinct?: ProductInsightStageResultScalarFieldEnum | ProductInsightStageResultScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightStageResult create
+   */
+  export type ProductInsightStageResultCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProductInsightStageResult.
+     */
+    data: XOR<ProductInsightStageResultCreateInput, ProductInsightStageResultUncheckedCreateInput>
+  }
+
+  /**
+   * ProductInsightStageResult createMany
+   */
+  export type ProductInsightStageResultCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductInsightStageResults.
+     */
+    data: ProductInsightStageResultCreateManyInput | ProductInsightStageResultCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductInsightStageResult createManyAndReturn
+   */
+  export type ProductInsightStageResultCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductInsightStageResults.
+     */
+    data: ProductInsightStageResultCreateManyInput | ProductInsightStageResultCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductInsightStageResult update
+   */
+  export type ProductInsightStageResultUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProductInsightStageResult.
+     */
+    data: XOR<ProductInsightStageResultUpdateInput, ProductInsightStageResultUncheckedUpdateInput>
+    /**
+     * Choose, which ProductInsightStageResult to update.
+     */
+    where: ProductInsightStageResultWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightStageResult updateMany
+   */
+  export type ProductInsightStageResultUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductInsightStageResults.
+     */
+    data: XOR<ProductInsightStageResultUpdateManyMutationInput, ProductInsightStageResultUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductInsightStageResults to update
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * Limit how many ProductInsightStageResults to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductInsightStageResult updateManyAndReturn
+   */
+  export type ProductInsightStageResultUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductInsightStageResults.
+     */
+    data: XOR<ProductInsightStageResultUpdateManyMutationInput, ProductInsightStageResultUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductInsightStageResults to update
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * Limit how many ProductInsightStageResults to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductInsightStageResult upsert
+   */
+  export type ProductInsightStageResultUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProductInsightStageResult to update in case it exists.
+     */
+    where: ProductInsightStageResultWhereUniqueInput
+    /**
+     * In case the ProductInsightStageResult found by the `where` argument doesn't exist, create a new ProductInsightStageResult with this data.
+     */
+    create: XOR<ProductInsightStageResultCreateInput, ProductInsightStageResultUncheckedCreateInput>
+    /**
+     * In case the ProductInsightStageResult was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductInsightStageResultUpdateInput, ProductInsightStageResultUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductInsightStageResult delete
+   */
+  export type ProductInsightStageResultDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter which ProductInsightStageResult to delete.
+     */
+    where: ProductInsightStageResultWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightStageResult deleteMany
+   */
+  export type ProductInsightStageResultDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductInsightStageResults to delete
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * Limit how many ProductInsightStageResults to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductInsightStageResult without action
+   */
+  export type ProductInsightStageResultDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
   }
 
 
@@ -32297,39 +33340,35 @@ export namespace Prisma {
   export type ProductTrafficEventScalarFieldEnum = (typeof ProductTrafficEventScalarFieldEnum)[keyof typeof ProductTrafficEventScalarFieldEnum]
 
 
-  export const ProductIdeaProfileScalarFieldEnum: {
+  export const ProductInsightProfileScalarFieldEnum: {
     id: 'id',
     productId: 'productId',
-    sitemapUrl: 'sitemapUrl',
-    discoveredUrls: 'discoveredUrls',
-    pages: 'pages',
-    summary: 'summary',
-    summaryText: 'summaryText',
-    subredditQueries: 'subredditQueries',
-    subreddits: 'subreddits',
-    subredditStatus: 'subredditStatus',
-    subredditErrorMessage: 'subredditErrorMessage',
-    redditDiscussionQueries: 'redditDiscussionQueries',
-    redditDiscussions: 'redditDiscussions',
-    redditInsights: 'redditInsights',
-    redditStatus: 'redditStatus',
-    redditErrorMessage: 'redditErrorMessage',
-    finalReport: 'finalReport',
-    finalReportStatus: 'finalReportStatus',
-    finalReportErrorMessage: 'finalReportErrorMessage',
-    finalReportModel: 'finalReportModel',
     status: 'status',
     errorMessage: 'errorMessage',
-    model: 'model',
-    lastCrawledAt: 'lastCrawledAt',
-    lastSubredditDiscoveryAt: 'lastSubredditDiscoveryAt',
-    lastRedditDiscoveryAt: 'lastRedditDiscoveryAt',
-    lastFinalReportAt: 'lastFinalReportAt',
+    lastRunAt: 'lastRunAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
-  export type ProductIdeaProfileScalarFieldEnum = (typeof ProductIdeaProfileScalarFieldEnum)[keyof typeof ProductIdeaProfileScalarFieldEnum]
+  export type ProductInsightProfileScalarFieldEnum = (typeof ProductInsightProfileScalarFieldEnum)[keyof typeof ProductInsightProfileScalarFieldEnum]
+
+
+  export const ProductInsightStageResultScalarFieldEnum: {
+    id: 'id',
+    profileId: 'profileId',
+    stageId: 'stageId',
+    providerType: 'providerType',
+    status: 'status',
+    data: 'data',
+    metrics: 'metrics',
+    errorMessage: 'errorMessage',
+    startedAt: 'startedAt',
+    completedAt: 'completedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ProductInsightStageResultScalarFieldEnum = (typeof ProductInsightStageResultScalarFieldEnum)[keyof typeof ProductInsightStageResultScalarFieldEnum]
 
 
   export const ProductUpvoteScalarFieldEnum: {
@@ -32693,6 +33732,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'ProductInsightStatus'
+   */
+  export type EnumProductInsightStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductInsightStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProductInsightStatus[]'
+   */
+  export type ListEnumProductInsightStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductInsightStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Json'
    */
   export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -32703,20 +33756,6 @@ export namespace Prisma {
    * Reference to a field of type 'QueryMode'
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-  /**
-   * Reference to a field of type 'ProductIdeaProfileStatus'
-   */
-  export type EnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductIdeaProfileStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'ProductIdeaProfileStatus[]'
-   */
-  export type ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductIdeaProfileStatus[]'>
     
 
 
@@ -32829,7 +33868,7 @@ export namespace Prisma {
     metadata?: XOR<ProductMetadataNullableScalarRelationFilter, ProductMetadataWhereInput> | null
     analytics?: XOR<ProductAnalyticsNullableScalarRelationFilter, ProductAnalyticsWhereInput> | null
     verification?: XOR<ProductVerificationNullableScalarRelationFilter, ProductVerificationWhereInput> | null
-    ideaProfile?: XOR<ProductIdeaProfileNullableScalarRelationFilter, ProductIdeaProfileWhereInput> | null
+    insightProfile?: XOR<ProductInsightProfileNullableScalarRelationFilter, ProductInsightProfileWhereInput> | null
     ProductBadge?: ProductBadgeListRelationFilter
     ProductMedia?: ProductMediaListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
@@ -32872,7 +33911,7 @@ export namespace Prisma {
     metadata?: ProductMetadataOrderByWithRelationInput
     analytics?: ProductAnalyticsOrderByWithRelationInput
     verification?: ProductVerificationOrderByWithRelationInput
-    ideaProfile?: ProductIdeaProfileOrderByWithRelationInput
+    insightProfile?: ProductInsightProfileOrderByWithRelationInput
     ProductBadge?: ProductBadgeOrderByRelationAggregateInput
     ProductMedia?: ProductMediaOrderByRelationAggregateInput
     ProductUpvote?: ProductUpvoteOrderByRelationAggregateInput
@@ -32918,7 +33957,7 @@ export namespace Prisma {
     metadata?: XOR<ProductMetadataNullableScalarRelationFilter, ProductMetadataWhereInput> | null
     analytics?: XOR<ProductAnalyticsNullableScalarRelationFilter, ProductAnalyticsWhereInput> | null
     verification?: XOR<ProductVerificationNullableScalarRelationFilter, ProductVerificationWhereInput> | null
-    ideaProfile?: XOR<ProductIdeaProfileNullableScalarRelationFilter, ProductIdeaProfileWhereInput> | null
+    insightProfile?: XOR<ProductInsightProfileNullableScalarRelationFilter, ProductInsightProfileWhereInput> | null
     ProductBadge?: ProductBadgeListRelationFilter
     ProductMedia?: ProductMediaListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
@@ -33560,179 +34599,163 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"ProductTrafficEvent"> | Date | string
   }
 
-  export type ProductIdeaProfileWhereInput = {
-    AND?: ProductIdeaProfileWhereInput | ProductIdeaProfileWhereInput[]
-    OR?: ProductIdeaProfileWhereInput[]
-    NOT?: ProductIdeaProfileWhereInput | ProductIdeaProfileWhereInput[]
-    id?: StringFilter<"ProductIdeaProfile"> | string
-    productId?: StringFilter<"ProductIdeaProfile"> | string
-    sitemapUrl?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    discoveredUrls?: JsonNullableFilter<"ProductIdeaProfile">
-    pages?: JsonNullableFilter<"ProductIdeaProfile">
-    summary?: JsonNullableFilter<"ProductIdeaProfile">
-    summaryText?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    subredditQueries?: JsonNullableFilter<"ProductIdeaProfile">
-    subreddits?: JsonNullableFilter<"ProductIdeaProfile">
-    subredditStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    redditDiscussionQueries?: JsonNullableFilter<"ProductIdeaProfile">
-    redditDiscussions?: JsonNullableFilter<"ProductIdeaProfile">
-    redditInsights?: JsonNullableFilter<"ProductIdeaProfile">
-    redditStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    finalReport?: JsonNullableFilter<"ProductIdeaProfile">
-    finalReportStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    finalReportModel?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    status?: EnumProductIdeaProfileStatusFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus
-    errorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    model?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    lastCrawledAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
-    lastSubredditDiscoveryAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
-    lastRedditDiscoveryAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
-    lastFinalReportAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
-    createdAt?: DateTimeFilter<"ProductIdeaProfile"> | Date | string
-    updatedAt?: DateTimeFilter<"ProductIdeaProfile"> | Date | string
+  export type ProductInsightProfileWhereInput = {
+    AND?: ProductInsightProfileWhereInput | ProductInsightProfileWhereInput[]
+    OR?: ProductInsightProfileWhereInput[]
+    NOT?: ProductInsightProfileWhereInput | ProductInsightProfileWhereInput[]
+    id?: StringFilter<"ProductInsightProfile"> | string
+    productId?: StringFilter<"ProductInsightProfile"> | string
+    status?: EnumProductInsightStatusFilter<"ProductInsightProfile"> | $Enums.ProductInsightStatus
+    errorMessage?: StringNullableFilter<"ProductInsightProfile"> | string | null
+    lastRunAt?: DateTimeNullableFilter<"ProductInsightProfile"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+    stages?: ProductInsightStageResultListRelationFilter
   }
 
-  export type ProductIdeaProfileOrderByWithRelationInput = {
+  export type ProductInsightProfileOrderByWithRelationInput = {
     id?: SortOrder
     productId?: SortOrder
-    sitemapUrl?: SortOrderInput | SortOrder
-    discoveredUrls?: SortOrderInput | SortOrder
-    pages?: SortOrderInput | SortOrder
-    summary?: SortOrderInput | SortOrder
-    summaryText?: SortOrderInput | SortOrder
-    subredditQueries?: SortOrderInput | SortOrder
-    subreddits?: SortOrderInput | SortOrder
-    subredditStatus?: SortOrderInput | SortOrder
-    subredditErrorMessage?: SortOrderInput | SortOrder
-    redditDiscussionQueries?: SortOrderInput | SortOrder
-    redditDiscussions?: SortOrderInput | SortOrder
-    redditInsights?: SortOrderInput | SortOrder
-    redditStatus?: SortOrderInput | SortOrder
-    redditErrorMessage?: SortOrderInput | SortOrder
-    finalReport?: SortOrderInput | SortOrder
-    finalReportStatus?: SortOrderInput | SortOrder
-    finalReportErrorMessage?: SortOrderInput | SortOrder
-    finalReportModel?: SortOrderInput | SortOrder
     status?: SortOrder
     errorMessage?: SortOrderInput | SortOrder
-    model?: SortOrderInput | SortOrder
-    lastCrawledAt?: SortOrderInput | SortOrder
-    lastSubredditDiscoveryAt?: SortOrderInput | SortOrder
-    lastRedditDiscoveryAt?: SortOrderInput | SortOrder
-    lastFinalReportAt?: SortOrderInput | SortOrder
+    lastRunAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     product?: ProductOrderByWithRelationInput
+    stages?: ProductInsightStageResultOrderByRelationAggregateInput
   }
 
-  export type ProductIdeaProfileWhereUniqueInput = Prisma.AtLeast<{
+  export type ProductInsightProfileWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     productId?: string
-    AND?: ProductIdeaProfileWhereInput | ProductIdeaProfileWhereInput[]
-    OR?: ProductIdeaProfileWhereInput[]
-    NOT?: ProductIdeaProfileWhereInput | ProductIdeaProfileWhereInput[]
-    sitemapUrl?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    discoveredUrls?: JsonNullableFilter<"ProductIdeaProfile">
-    pages?: JsonNullableFilter<"ProductIdeaProfile">
-    summary?: JsonNullableFilter<"ProductIdeaProfile">
-    summaryText?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    subredditQueries?: JsonNullableFilter<"ProductIdeaProfile">
-    subreddits?: JsonNullableFilter<"ProductIdeaProfile">
-    subredditStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    redditDiscussionQueries?: JsonNullableFilter<"ProductIdeaProfile">
-    redditDiscussions?: JsonNullableFilter<"ProductIdeaProfile">
-    redditInsights?: JsonNullableFilter<"ProductIdeaProfile">
-    redditStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    finalReport?: JsonNullableFilter<"ProductIdeaProfile">
-    finalReportStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    finalReportModel?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    status?: EnumProductIdeaProfileStatusFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus
-    errorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    model?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    lastCrawledAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
-    lastSubredditDiscoveryAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
-    lastRedditDiscoveryAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
-    lastFinalReportAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
-    createdAt?: DateTimeFilter<"ProductIdeaProfile"> | Date | string
-    updatedAt?: DateTimeFilter<"ProductIdeaProfile"> | Date | string
+    AND?: ProductInsightProfileWhereInput | ProductInsightProfileWhereInput[]
+    OR?: ProductInsightProfileWhereInput[]
+    NOT?: ProductInsightProfileWhereInput | ProductInsightProfileWhereInput[]
+    status?: EnumProductInsightStatusFilter<"ProductInsightProfile"> | $Enums.ProductInsightStatus
+    errorMessage?: StringNullableFilter<"ProductInsightProfile"> | string | null
+    lastRunAt?: DateTimeNullableFilter<"ProductInsightProfile"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+    stages?: ProductInsightStageResultListRelationFilter
   }, "id" | "productId">
 
-  export type ProductIdeaProfileOrderByWithAggregationInput = {
+  export type ProductInsightProfileOrderByWithAggregationInput = {
     id?: SortOrder
     productId?: SortOrder
-    sitemapUrl?: SortOrderInput | SortOrder
-    discoveredUrls?: SortOrderInput | SortOrder
-    pages?: SortOrderInput | SortOrder
-    summary?: SortOrderInput | SortOrder
-    summaryText?: SortOrderInput | SortOrder
-    subredditQueries?: SortOrderInput | SortOrder
-    subreddits?: SortOrderInput | SortOrder
-    subredditStatus?: SortOrderInput | SortOrder
-    subredditErrorMessage?: SortOrderInput | SortOrder
-    redditDiscussionQueries?: SortOrderInput | SortOrder
-    redditDiscussions?: SortOrderInput | SortOrder
-    redditInsights?: SortOrderInput | SortOrder
-    redditStatus?: SortOrderInput | SortOrder
-    redditErrorMessage?: SortOrderInput | SortOrder
-    finalReport?: SortOrderInput | SortOrder
-    finalReportStatus?: SortOrderInput | SortOrder
-    finalReportErrorMessage?: SortOrderInput | SortOrder
-    finalReportModel?: SortOrderInput | SortOrder
     status?: SortOrder
     errorMessage?: SortOrderInput | SortOrder
-    model?: SortOrderInput | SortOrder
-    lastCrawledAt?: SortOrderInput | SortOrder
-    lastSubredditDiscoveryAt?: SortOrderInput | SortOrder
-    lastRedditDiscoveryAt?: SortOrderInput | SortOrder
-    lastFinalReportAt?: SortOrderInput | SortOrder
+    lastRunAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    _count?: ProductIdeaProfileCountOrderByAggregateInput
-    _max?: ProductIdeaProfileMaxOrderByAggregateInput
-    _min?: ProductIdeaProfileMinOrderByAggregateInput
+    _count?: ProductInsightProfileCountOrderByAggregateInput
+    _max?: ProductInsightProfileMaxOrderByAggregateInput
+    _min?: ProductInsightProfileMinOrderByAggregateInput
   }
 
-  export type ProductIdeaProfileScalarWhereWithAggregatesInput = {
-    AND?: ProductIdeaProfileScalarWhereWithAggregatesInput | ProductIdeaProfileScalarWhereWithAggregatesInput[]
-    OR?: ProductIdeaProfileScalarWhereWithAggregatesInput[]
-    NOT?: ProductIdeaProfileScalarWhereWithAggregatesInput | ProductIdeaProfileScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ProductIdeaProfile"> | string
-    productId?: StringWithAggregatesFilter<"ProductIdeaProfile"> | string
-    sitemapUrl?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
-    discoveredUrls?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
-    pages?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
-    summary?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
-    summaryText?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
-    subredditQueries?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
-    subreddits?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
-    subredditStatus?: EnumProductIdeaProfileStatusNullableWithAggregatesFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
-    redditDiscussionQueries?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
-    redditDiscussions?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
-    redditInsights?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
-    redditStatus?: EnumProductIdeaProfileStatusNullableWithAggregatesFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
-    finalReport?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
-    finalReportStatus?: EnumProductIdeaProfileStatusNullableWithAggregatesFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
-    finalReportModel?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
-    status?: EnumProductIdeaProfileStatusWithAggregatesFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus
-    errorMessage?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
-    model?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
-    lastCrawledAt?: DateTimeNullableWithAggregatesFilter<"ProductIdeaProfile"> | Date | string | null
-    lastSubredditDiscoveryAt?: DateTimeNullableWithAggregatesFilter<"ProductIdeaProfile"> | Date | string | null
-    lastRedditDiscoveryAt?: DateTimeNullableWithAggregatesFilter<"ProductIdeaProfile"> | Date | string | null
-    lastFinalReportAt?: DateTimeNullableWithAggregatesFilter<"ProductIdeaProfile"> | Date | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"ProductIdeaProfile"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"ProductIdeaProfile"> | Date | string
+  export type ProductInsightProfileScalarWhereWithAggregatesInput = {
+    AND?: ProductInsightProfileScalarWhereWithAggregatesInput | ProductInsightProfileScalarWhereWithAggregatesInput[]
+    OR?: ProductInsightProfileScalarWhereWithAggregatesInput[]
+    NOT?: ProductInsightProfileScalarWhereWithAggregatesInput | ProductInsightProfileScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductInsightProfile"> | string
+    productId?: StringWithAggregatesFilter<"ProductInsightProfile"> | string
+    status?: EnumProductInsightStatusWithAggregatesFilter<"ProductInsightProfile"> | $Enums.ProductInsightStatus
+    errorMessage?: StringNullableWithAggregatesFilter<"ProductInsightProfile"> | string | null
+    lastRunAt?: DateTimeNullableWithAggregatesFilter<"ProductInsightProfile"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ProductInsightProfile"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProductInsightProfile"> | Date | string
+  }
+
+  export type ProductInsightStageResultWhereInput = {
+    AND?: ProductInsightStageResultWhereInput | ProductInsightStageResultWhereInput[]
+    OR?: ProductInsightStageResultWhereInput[]
+    NOT?: ProductInsightStageResultWhereInput | ProductInsightStageResultWhereInput[]
+    id?: StringFilter<"ProductInsightStageResult"> | string
+    profileId?: StringFilter<"ProductInsightStageResult"> | string
+    stageId?: StringFilter<"ProductInsightStageResult"> | string
+    providerType?: StringFilter<"ProductInsightStageResult"> | string
+    status?: EnumProductInsightStatusFilter<"ProductInsightStageResult"> | $Enums.ProductInsightStatus
+    data?: JsonNullableFilter<"ProductInsightStageResult">
+    metrics?: JsonNullableFilter<"ProductInsightStageResult">
+    errorMessage?: StringNullableFilter<"ProductInsightStageResult"> | string | null
+    startedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+    profile?: XOR<ProductInsightProfileScalarRelationFilter, ProductInsightProfileWhereInput>
+  }
+
+  export type ProductInsightStageResultOrderByWithRelationInput = {
+    id?: SortOrder
+    profileId?: SortOrder
+    stageId?: SortOrder
+    providerType?: SortOrder
+    status?: SortOrder
+    data?: SortOrderInput | SortOrder
+    metrics?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    profile?: ProductInsightProfileOrderByWithRelationInput
+  }
+
+  export type ProductInsightStageResultWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    profileId_stageId_providerType?: ProductInsightStageResultProfileIdStageIdProviderTypeCompoundUniqueInput
+    AND?: ProductInsightStageResultWhereInput | ProductInsightStageResultWhereInput[]
+    OR?: ProductInsightStageResultWhereInput[]
+    NOT?: ProductInsightStageResultWhereInput | ProductInsightStageResultWhereInput[]
+    profileId?: StringFilter<"ProductInsightStageResult"> | string
+    stageId?: StringFilter<"ProductInsightStageResult"> | string
+    providerType?: StringFilter<"ProductInsightStageResult"> | string
+    status?: EnumProductInsightStatusFilter<"ProductInsightStageResult"> | $Enums.ProductInsightStatus
+    data?: JsonNullableFilter<"ProductInsightStageResult">
+    metrics?: JsonNullableFilter<"ProductInsightStageResult">
+    errorMessage?: StringNullableFilter<"ProductInsightStageResult"> | string | null
+    startedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+    profile?: XOR<ProductInsightProfileScalarRelationFilter, ProductInsightProfileWhereInput>
+  }, "id" | "profileId_stageId_providerType">
+
+  export type ProductInsightStageResultOrderByWithAggregationInput = {
+    id?: SortOrder
+    profileId?: SortOrder
+    stageId?: SortOrder
+    providerType?: SortOrder
+    status?: SortOrder
+    data?: SortOrderInput | SortOrder
+    metrics?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ProductInsightStageResultCountOrderByAggregateInput
+    _max?: ProductInsightStageResultMaxOrderByAggregateInput
+    _min?: ProductInsightStageResultMinOrderByAggregateInput
+  }
+
+  export type ProductInsightStageResultScalarWhereWithAggregatesInput = {
+    AND?: ProductInsightStageResultScalarWhereWithAggregatesInput | ProductInsightStageResultScalarWhereWithAggregatesInput[]
+    OR?: ProductInsightStageResultScalarWhereWithAggregatesInput[]
+    NOT?: ProductInsightStageResultScalarWhereWithAggregatesInput | ProductInsightStageResultScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductInsightStageResult"> | string
+    profileId?: StringWithAggregatesFilter<"ProductInsightStageResult"> | string
+    stageId?: StringWithAggregatesFilter<"ProductInsightStageResult"> | string
+    providerType?: StringWithAggregatesFilter<"ProductInsightStageResult"> | string
+    status?: EnumProductInsightStatusWithAggregatesFilter<"ProductInsightStageResult"> | $Enums.ProductInsightStatus
+    data?: JsonNullableWithAggregatesFilter<"ProductInsightStageResult">
+    metrics?: JsonNullableWithAggregatesFilter<"ProductInsightStageResult">
+    errorMessage?: StringNullableWithAggregatesFilter<"ProductInsightStageResult"> | string | null
+    startedAt?: DateTimeNullableWithAggregatesFilter<"ProductInsightStageResult"> | Date | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"ProductInsightStageResult"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ProductInsightStageResult"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProductInsightStageResult"> | Date | string
   }
 
   export type ProductUpvoteWhereInput = {
@@ -34799,7 +35822,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -34838,7 +35861,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -34877,7 +35900,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -34916,7 +35939,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -35622,225 +36645,179 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ProductIdeaProfileCreateInput = {
+  export type ProductInsightProfileCreateInput = {
     id?: string
-    sitemapUrl?: string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: string | null
-    finalReportModel?: string | null
-    status?: $Enums.ProductIdeaProfileStatus
+    status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
-    model?: string | null
-    lastCrawledAt?: Date | string | null
-    lastSubredditDiscoveryAt?: Date | string | null
-    lastRedditDiscoveryAt?: Date | string | null
-    lastFinalReportAt?: Date | string | null
+    lastRunAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    product: ProductCreateNestedOneWithoutIdeaProfileInput
+    product: ProductCreateNestedOneWithoutInsightProfileInput
+    stages?: ProductInsightStageResultCreateNestedManyWithoutProfileInput
   }
 
-  export type ProductIdeaProfileUncheckedCreateInput = {
+  export type ProductInsightProfileUncheckedCreateInput = {
     id?: string
     productId: string
-    sitemapUrl?: string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: string | null
-    finalReportModel?: string | null
-    status?: $Enums.ProductIdeaProfileStatus
+    status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
-    model?: string | null
-    lastCrawledAt?: Date | string | null
-    lastSubredditDiscoveryAt?: Date | string | null
-    lastRedditDiscoveryAt?: Date | string | null
-    lastFinalReportAt?: Date | string | null
+    lastRunAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    stages?: ProductInsightStageResultUncheckedCreateNestedManyWithoutProfileInput
   }
 
-  export type ProductIdeaProfileUpdateInput = {
+  export type ProductInsightProfileUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    sitemapUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    model?: NullableStringFieldUpdateOperationsInput | string | null
-    lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    product?: ProductUpdateOneRequiredWithoutIdeaProfileNestedInput
+    product?: ProductUpdateOneRequiredWithoutInsightProfileNestedInput
+    stages?: ProductInsightStageResultUpdateManyWithoutProfileNestedInput
   }
 
-  export type ProductIdeaProfileUncheckedUpdateInput = {
+  export type ProductInsightProfileUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
-    sitemapUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    model?: NullableStringFieldUpdateOperationsInput | string | null
-    lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stages?: ProductInsightStageResultUncheckedUpdateManyWithoutProfileNestedInput
   }
 
-  export type ProductIdeaProfileCreateManyInput = {
+  export type ProductInsightProfileCreateManyInput = {
     id?: string
     productId: string
-    sitemapUrl?: string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: string | null
-    finalReportModel?: string | null
-    status?: $Enums.ProductIdeaProfileStatus
+    status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
-    model?: string | null
-    lastCrawledAt?: Date | string | null
-    lastSubredditDiscoveryAt?: Date | string | null
-    lastRedditDiscoveryAt?: Date | string | null
-    lastFinalReportAt?: Date | string | null
+    lastRunAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type ProductIdeaProfileUpdateManyMutationInput = {
+  export type ProductInsightProfileUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    sitemapUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    model?: NullableStringFieldUpdateOperationsInput | string | null
-    lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ProductIdeaProfileUncheckedUpdateManyInput = {
+  export type ProductInsightProfileUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
-    sitemapUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    model?: NullableStringFieldUpdateOperationsInput | string | null
-    lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightStageResultCreateInput = {
+    id?: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    profile: ProductInsightProfileCreateNestedOneWithoutStagesInput
+  }
+
+  export type ProductInsightStageResultUncheckedCreateInput = {
+    id?: string
+    profileId: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightStageResultUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: ProductInsightProfileUpdateOneRequiredWithoutStagesNestedInput
+  }
+
+  export type ProductInsightStageResultUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    profileId?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightStageResultCreateManyInput = {
+    id?: string
+    profileId: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightStageResultUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightStageResultUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    profileId?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37080,9 +38057,9 @@ export namespace Prisma {
     isNot?: ProductVerificationWhereInput | null
   }
 
-  export type ProductIdeaProfileNullableScalarRelationFilter = {
-    is?: ProductIdeaProfileWhereInput | null
-    isNot?: ProductIdeaProfileWhereInput | null
+  export type ProductInsightProfileNullableScalarRelationFilter = {
+    is?: ProductInsightProfileWhereInput | null
+    isNot?: ProductInsightProfileWhereInput | null
   }
 
   export type ProductBadgeListRelationFilter = {
@@ -37718,6 +38695,63 @@ export namespace Prisma {
     ipHash?: SortOrder
     createdAt?: SortOrder
   }
+
+  export type EnumProductInsightStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductInsightStatus | EnumProductInsightStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductInsightStatusFilter<$PrismaModel> | $Enums.ProductInsightStatus
+  }
+
+  export type ProductInsightStageResultListRelationFilter = {
+    every?: ProductInsightStageResultWhereInput
+    some?: ProductInsightStageResultWhereInput
+    none?: ProductInsightStageResultWhereInput
+  }
+
+  export type ProductInsightStageResultOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProductInsightProfileCountOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    lastRunAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductInsightProfileMaxOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    lastRunAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductInsightProfileMinOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    lastRunAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumProductInsightStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductInsightStatus | EnumProductInsightStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductInsightStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductInsightStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProductInsightStatusFilter<$PrismaModel>
+    _max?: NestedEnumProductInsightStatusFilter<$PrismaModel>
+  }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -37742,94 +38776,54 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type EnumProductIdeaProfileStatusNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProductIdeaProfileStatus | EnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    in?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumProductIdeaProfileStatusNullableFilter<$PrismaModel> | $Enums.ProductIdeaProfileStatus | null
+  export type ProductInsightProfileScalarRelationFilter = {
+    is?: ProductInsightProfileWhereInput
+    isNot?: ProductInsightProfileWhereInput
   }
 
-  export type EnumProductIdeaProfileStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProductIdeaProfileStatus | EnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumProductIdeaProfileStatusFilter<$PrismaModel> | $Enums.ProductIdeaProfileStatus
+  export type ProductInsightStageResultProfileIdStageIdProviderTypeCompoundUniqueInput = {
+    profileId: string
+    stageId: string
+    providerType: string
   }
 
-  export type ProductIdeaProfileCountOrderByAggregateInput = {
+  export type ProductInsightStageResultCountOrderByAggregateInput = {
     id?: SortOrder
-    productId?: SortOrder
-    sitemapUrl?: SortOrder
-    discoveredUrls?: SortOrder
-    pages?: SortOrder
-    summary?: SortOrder
-    summaryText?: SortOrder
-    subredditQueries?: SortOrder
-    subreddits?: SortOrder
-    subredditStatus?: SortOrder
-    subredditErrorMessage?: SortOrder
-    redditDiscussionQueries?: SortOrder
-    redditDiscussions?: SortOrder
-    redditInsights?: SortOrder
-    redditStatus?: SortOrder
-    redditErrorMessage?: SortOrder
-    finalReport?: SortOrder
-    finalReportStatus?: SortOrder
-    finalReportErrorMessage?: SortOrder
-    finalReportModel?: SortOrder
+    profileId?: SortOrder
+    stageId?: SortOrder
+    providerType?: SortOrder
     status?: SortOrder
+    data?: SortOrder
+    metrics?: SortOrder
     errorMessage?: SortOrder
-    model?: SortOrder
-    lastCrawledAt?: SortOrder
-    lastSubredditDiscoveryAt?: SortOrder
-    lastRedditDiscoveryAt?: SortOrder
-    lastFinalReportAt?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type ProductIdeaProfileMaxOrderByAggregateInput = {
+  export type ProductInsightStageResultMaxOrderByAggregateInput = {
     id?: SortOrder
-    productId?: SortOrder
-    sitemapUrl?: SortOrder
-    summaryText?: SortOrder
-    subredditStatus?: SortOrder
-    subredditErrorMessage?: SortOrder
-    redditStatus?: SortOrder
-    redditErrorMessage?: SortOrder
-    finalReportStatus?: SortOrder
-    finalReportErrorMessage?: SortOrder
-    finalReportModel?: SortOrder
+    profileId?: SortOrder
+    stageId?: SortOrder
+    providerType?: SortOrder
     status?: SortOrder
     errorMessage?: SortOrder
-    model?: SortOrder
-    lastCrawledAt?: SortOrder
-    lastSubredditDiscoveryAt?: SortOrder
-    lastRedditDiscoveryAt?: SortOrder
-    lastFinalReportAt?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type ProductIdeaProfileMinOrderByAggregateInput = {
+  export type ProductInsightStageResultMinOrderByAggregateInput = {
     id?: SortOrder
-    productId?: SortOrder
-    sitemapUrl?: SortOrder
-    summaryText?: SortOrder
-    subredditStatus?: SortOrder
-    subredditErrorMessage?: SortOrder
-    redditStatus?: SortOrder
-    redditErrorMessage?: SortOrder
-    finalReportStatus?: SortOrder
-    finalReportErrorMessage?: SortOrder
-    finalReportModel?: SortOrder
+    profileId?: SortOrder
+    stageId?: SortOrder
+    providerType?: SortOrder
     status?: SortOrder
     errorMessage?: SortOrder
-    model?: SortOrder
-    lastCrawledAt?: SortOrder
-    lastSubredditDiscoveryAt?: SortOrder
-    lastRedditDiscoveryAt?: SortOrder
-    lastFinalReportAt?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -37858,26 +38852,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
     _max?: NestedJsonNullableFilter<$PrismaModel>
-  }
-
-  export type EnumProductIdeaProfileStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProductIdeaProfileStatus | EnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    in?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumProductIdeaProfileStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.ProductIdeaProfileStatus | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumProductIdeaProfileStatusNullableFilter<$PrismaModel>
-    _max?: NestedEnumProductIdeaProfileStatusNullableFilter<$PrismaModel>
-  }
-
-  export type EnumProductIdeaProfileStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProductIdeaProfileStatus | EnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumProductIdeaProfileStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductIdeaProfileStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumProductIdeaProfileStatusFilter<$PrismaModel>
-    _max?: NestedEnumProductIdeaProfileStatusFilter<$PrismaModel>
   }
 
   export type ProductUpvoteProductIdUserIdCompoundUniqueInput = {
@@ -38632,10 +39606,10 @@ export namespace Prisma {
     connect?: ProductVerificationWhereUniqueInput
   }
 
-  export type ProductIdeaProfileCreateNestedOneWithoutProductInput = {
-    create?: XOR<ProductIdeaProfileCreateWithoutProductInput, ProductIdeaProfileUncheckedCreateWithoutProductInput>
-    connectOrCreate?: ProductIdeaProfileCreateOrConnectWithoutProductInput
-    connect?: ProductIdeaProfileWhereUniqueInput
+  export type ProductInsightProfileCreateNestedOneWithoutProductInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutProductInput
+    connect?: ProductInsightProfileWhereUniqueInput
   }
 
   export type ProductBadgeCreateNestedManyWithoutProductInput = {
@@ -38705,10 +39679,10 @@ export namespace Prisma {
     connect?: ProductVerificationWhereUniqueInput
   }
 
-  export type ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput = {
-    create?: XOR<ProductIdeaProfileCreateWithoutProductInput, ProductIdeaProfileUncheckedCreateWithoutProductInput>
-    connectOrCreate?: ProductIdeaProfileCreateOrConnectWithoutProductInput
-    connect?: ProductIdeaProfileWhereUniqueInput
+  export type ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutProductInput
+    connect?: ProductInsightProfileWhereUniqueInput
   }
 
   export type ProductBadgeUncheckedCreateNestedManyWithoutProductInput = {
@@ -38872,14 +39846,14 @@ export namespace Prisma {
     update?: XOR<XOR<ProductVerificationUpdateToOneWithWhereWithoutProductInput, ProductVerificationUpdateWithoutProductInput>, ProductVerificationUncheckedUpdateWithoutProductInput>
   }
 
-  export type ProductIdeaProfileUpdateOneWithoutProductNestedInput = {
-    create?: XOR<ProductIdeaProfileCreateWithoutProductInput, ProductIdeaProfileUncheckedCreateWithoutProductInput>
-    connectOrCreate?: ProductIdeaProfileCreateOrConnectWithoutProductInput
-    upsert?: ProductIdeaProfileUpsertWithoutProductInput
-    disconnect?: ProductIdeaProfileWhereInput | boolean
-    delete?: ProductIdeaProfileWhereInput | boolean
-    connect?: ProductIdeaProfileWhereUniqueInput
-    update?: XOR<XOR<ProductIdeaProfileUpdateToOneWithWhereWithoutProductInput, ProductIdeaProfileUpdateWithoutProductInput>, ProductIdeaProfileUncheckedUpdateWithoutProductInput>
+  export type ProductInsightProfileUpdateOneWithoutProductNestedInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutProductInput
+    upsert?: ProductInsightProfileUpsertWithoutProductInput
+    disconnect?: ProductInsightProfileWhereInput | boolean
+    delete?: ProductInsightProfileWhereInput | boolean
+    connect?: ProductInsightProfileWhereUniqueInput
+    update?: XOR<XOR<ProductInsightProfileUpdateToOneWithWhereWithoutProductInput, ProductInsightProfileUpdateWithoutProductInput>, ProductInsightProfileUncheckedUpdateWithoutProductInput>
   }
 
   export type ProductBadgeUpdateManyWithoutProductNestedInput = {
@@ -39010,14 +39984,14 @@ export namespace Prisma {
     update?: XOR<XOR<ProductVerificationUpdateToOneWithWhereWithoutProductInput, ProductVerificationUpdateWithoutProductInput>, ProductVerificationUncheckedUpdateWithoutProductInput>
   }
 
-  export type ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput = {
-    create?: XOR<ProductIdeaProfileCreateWithoutProductInput, ProductIdeaProfileUncheckedCreateWithoutProductInput>
-    connectOrCreate?: ProductIdeaProfileCreateOrConnectWithoutProductInput
-    upsert?: ProductIdeaProfileUpsertWithoutProductInput
-    disconnect?: ProductIdeaProfileWhereInput | boolean
-    delete?: ProductIdeaProfileWhereInput | boolean
-    connect?: ProductIdeaProfileWhereUniqueInput
-    update?: XOR<XOR<ProductIdeaProfileUpdateToOneWithWhereWithoutProductInput, ProductIdeaProfileUpdateWithoutProductInput>, ProductIdeaProfileUncheckedUpdateWithoutProductInput>
+  export type ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutProductInput
+    upsert?: ProductInsightProfileUpsertWithoutProductInput
+    disconnect?: ProductInsightProfileWhereInput | boolean
+    delete?: ProductInsightProfileWhereInput | boolean
+    connect?: ProductInsightProfileWhereUniqueInput
+    update?: XOR<XOR<ProductInsightProfileUpdateToOneWithWhereWithoutProductInput, ProductInsightProfileUpdateWithoutProductInput>, ProductInsightProfileUncheckedUpdateWithoutProductInput>
   }
 
   export type ProductBadgeUncheckedUpdateManyWithoutProductNestedInput = {
@@ -39232,26 +40206,78 @@ export namespace Prisma {
     update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutTrafficEventsInput, ProductUpdateWithoutTrafficEventsInput>, ProductUncheckedUpdateWithoutTrafficEventsInput>
   }
 
-  export type ProductCreateNestedOneWithoutIdeaProfileInput = {
-    create?: XOR<ProductCreateWithoutIdeaProfileInput, ProductUncheckedCreateWithoutIdeaProfileInput>
-    connectOrCreate?: ProductCreateOrConnectWithoutIdeaProfileInput
+  export type ProductCreateNestedOneWithoutInsightProfileInput = {
+    create?: XOR<ProductCreateWithoutInsightProfileInput, ProductUncheckedCreateWithoutInsightProfileInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutInsightProfileInput
     connect?: ProductWhereUniqueInput
   }
 
-  export type NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput = {
-    set?: $Enums.ProductIdeaProfileStatus | null
+  export type ProductInsightStageResultCreateNestedManyWithoutProfileInput = {
+    create?: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput> | ProductInsightStageResultCreateWithoutProfileInput[] | ProductInsightStageResultUncheckedCreateWithoutProfileInput[]
+    connectOrCreate?: ProductInsightStageResultCreateOrConnectWithoutProfileInput | ProductInsightStageResultCreateOrConnectWithoutProfileInput[]
+    createMany?: ProductInsightStageResultCreateManyProfileInputEnvelope
+    connect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
   }
 
-  export type EnumProductIdeaProfileStatusFieldUpdateOperationsInput = {
-    set?: $Enums.ProductIdeaProfileStatus
+  export type ProductInsightStageResultUncheckedCreateNestedManyWithoutProfileInput = {
+    create?: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput> | ProductInsightStageResultCreateWithoutProfileInput[] | ProductInsightStageResultUncheckedCreateWithoutProfileInput[]
+    connectOrCreate?: ProductInsightStageResultCreateOrConnectWithoutProfileInput | ProductInsightStageResultCreateOrConnectWithoutProfileInput[]
+    createMany?: ProductInsightStageResultCreateManyProfileInputEnvelope
+    connect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
   }
 
-  export type ProductUpdateOneRequiredWithoutIdeaProfileNestedInput = {
-    create?: XOR<ProductCreateWithoutIdeaProfileInput, ProductUncheckedCreateWithoutIdeaProfileInput>
-    connectOrCreate?: ProductCreateOrConnectWithoutIdeaProfileInput
-    upsert?: ProductUpsertWithoutIdeaProfileInput
+  export type EnumProductInsightStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ProductInsightStatus
+  }
+
+  export type ProductUpdateOneRequiredWithoutInsightProfileNestedInput = {
+    create?: XOR<ProductCreateWithoutInsightProfileInput, ProductUncheckedCreateWithoutInsightProfileInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutInsightProfileInput
+    upsert?: ProductUpsertWithoutInsightProfileInput
     connect?: ProductWhereUniqueInput
-    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutIdeaProfileInput, ProductUpdateWithoutIdeaProfileInput>, ProductUncheckedUpdateWithoutIdeaProfileInput>
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutInsightProfileInput, ProductUpdateWithoutInsightProfileInput>, ProductUncheckedUpdateWithoutInsightProfileInput>
+  }
+
+  export type ProductInsightStageResultUpdateManyWithoutProfileNestedInput = {
+    create?: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput> | ProductInsightStageResultCreateWithoutProfileInput[] | ProductInsightStageResultUncheckedCreateWithoutProfileInput[]
+    connectOrCreate?: ProductInsightStageResultCreateOrConnectWithoutProfileInput | ProductInsightStageResultCreateOrConnectWithoutProfileInput[]
+    upsert?: ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput | ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput[]
+    createMany?: ProductInsightStageResultCreateManyProfileInputEnvelope
+    set?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    disconnect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    delete?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    connect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    update?: ProductInsightStageResultUpdateWithWhereUniqueWithoutProfileInput | ProductInsightStageResultUpdateWithWhereUniqueWithoutProfileInput[]
+    updateMany?: ProductInsightStageResultUpdateManyWithWhereWithoutProfileInput | ProductInsightStageResultUpdateManyWithWhereWithoutProfileInput[]
+    deleteMany?: ProductInsightStageResultScalarWhereInput | ProductInsightStageResultScalarWhereInput[]
+  }
+
+  export type ProductInsightStageResultUncheckedUpdateManyWithoutProfileNestedInput = {
+    create?: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput> | ProductInsightStageResultCreateWithoutProfileInput[] | ProductInsightStageResultUncheckedCreateWithoutProfileInput[]
+    connectOrCreate?: ProductInsightStageResultCreateOrConnectWithoutProfileInput | ProductInsightStageResultCreateOrConnectWithoutProfileInput[]
+    upsert?: ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput | ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput[]
+    createMany?: ProductInsightStageResultCreateManyProfileInputEnvelope
+    set?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    disconnect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    delete?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    connect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    update?: ProductInsightStageResultUpdateWithWhereUniqueWithoutProfileInput | ProductInsightStageResultUpdateWithWhereUniqueWithoutProfileInput[]
+    updateMany?: ProductInsightStageResultUpdateManyWithWhereWithoutProfileInput | ProductInsightStageResultUpdateManyWithWhereWithoutProfileInput[]
+    deleteMany?: ProductInsightStageResultScalarWhereInput | ProductInsightStageResultScalarWhereInput[]
+  }
+
+  export type ProductInsightProfileCreateNestedOneWithoutStagesInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutStagesInput, ProductInsightProfileUncheckedCreateWithoutStagesInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutStagesInput
+    connect?: ProductInsightProfileWhereUniqueInput
+  }
+
+  export type ProductInsightProfileUpdateOneRequiredWithoutStagesNestedInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutStagesInput, ProductInsightProfileUncheckedCreateWithoutStagesInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutStagesInput
+    upsert?: ProductInsightProfileUpsertWithoutStagesInput
+    connect?: ProductInsightProfileWhereUniqueInput
+    update?: XOR<XOR<ProductInsightProfileUpdateToOneWithWhereWithoutStagesInput, ProductInsightProfileUpdateWithoutStagesInput>, ProductInsightProfileUncheckedUpdateWithoutStagesInput>
   }
 
   export type ProductCreateNestedOneWithoutProductUpvoteInput = {
@@ -40431,18 +41457,21 @@ export namespace Prisma {
     _max?: NestedEnumDeviceCategoryFilter<$PrismaModel>
   }
 
-  export type NestedEnumProductIdeaProfileStatusNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProductIdeaProfileStatus | EnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    in?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumProductIdeaProfileStatusNullableFilter<$PrismaModel> | $Enums.ProductIdeaProfileStatus | null
+  export type NestedEnumProductInsightStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductInsightStatus | EnumProductInsightStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductInsightStatusFilter<$PrismaModel> | $Enums.ProductInsightStatus
   }
 
-  export type NestedEnumProductIdeaProfileStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProductIdeaProfileStatus | EnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumProductIdeaProfileStatusFilter<$PrismaModel> | $Enums.ProductIdeaProfileStatus
+  export type NestedEnumProductInsightStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductInsightStatus | EnumProductInsightStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductInsightStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductInsightStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProductInsightStatusFilter<$PrismaModel>
+    _max?: NestedEnumProductInsightStatusFilter<$PrismaModel>
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -40466,26 +41495,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type NestedEnumProductIdeaProfileStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProductIdeaProfileStatus | EnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    in?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumProductIdeaProfileStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.ProductIdeaProfileStatus | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumProductIdeaProfileStatusNullableFilter<$PrismaModel>
-    _max?: NestedEnumProductIdeaProfileStatusNullableFilter<$PrismaModel>
-  }
-
-  export type NestedEnumProductIdeaProfileStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ProductIdeaProfileStatus | EnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ProductIdeaProfileStatus[] | ListEnumProductIdeaProfileStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumProductIdeaProfileStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductIdeaProfileStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumProductIdeaProfileStatusFilter<$PrismaModel>
-    _max?: NestedEnumProductIdeaProfileStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumUserStatusFilter<$PrismaModel = never> = {
@@ -40793,71 +41802,29 @@ export namespace Prisma {
     create: XOR<ProductVerificationCreateWithoutProductInput, ProductVerificationUncheckedCreateWithoutProductInput>
   }
 
-  export type ProductIdeaProfileCreateWithoutProductInput = {
+  export type ProductInsightProfileCreateWithoutProductInput = {
     id?: string
-    sitemapUrl?: string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: string | null
-    finalReportModel?: string | null
-    status?: $Enums.ProductIdeaProfileStatus
+    status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
-    model?: string | null
-    lastCrawledAt?: Date | string | null
-    lastSubredditDiscoveryAt?: Date | string | null
-    lastRedditDiscoveryAt?: Date | string | null
-    lastFinalReportAt?: Date | string | null
+    lastRunAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    stages?: ProductInsightStageResultCreateNestedManyWithoutProfileInput
   }
 
-  export type ProductIdeaProfileUncheckedCreateWithoutProductInput = {
+  export type ProductInsightProfileUncheckedCreateWithoutProductInput = {
     id?: string
-    sitemapUrl?: string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: string | null
-    finalReportModel?: string | null
-    status?: $Enums.ProductIdeaProfileStatus
+    status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
-    model?: string | null
-    lastCrawledAt?: Date | string | null
-    lastSubredditDiscoveryAt?: Date | string | null
-    lastRedditDiscoveryAt?: Date | string | null
-    lastFinalReportAt?: Date | string | null
+    lastRunAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    stages?: ProductInsightStageResultUncheckedCreateNestedManyWithoutProfileInput
   }
 
-  export type ProductIdeaProfileCreateOrConnectWithoutProductInput = {
-    where: ProductIdeaProfileWhereUniqueInput
-    create: XOR<ProductIdeaProfileCreateWithoutProductInput, ProductIdeaProfileUncheckedCreateWithoutProductInput>
+  export type ProductInsightProfileCreateOrConnectWithoutProductInput = {
+    where: ProductInsightProfileWhereUniqueInput
+    create: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
   }
 
   export type ProductBadgeCreateWithoutProductInput = {
@@ -41333,77 +42300,35 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ProductIdeaProfileUpsertWithoutProductInput = {
-    update: XOR<ProductIdeaProfileUpdateWithoutProductInput, ProductIdeaProfileUncheckedUpdateWithoutProductInput>
-    create: XOR<ProductIdeaProfileCreateWithoutProductInput, ProductIdeaProfileUncheckedCreateWithoutProductInput>
-    where?: ProductIdeaProfileWhereInput
+  export type ProductInsightProfileUpsertWithoutProductInput = {
+    update: XOR<ProductInsightProfileUpdateWithoutProductInput, ProductInsightProfileUncheckedUpdateWithoutProductInput>
+    create: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
+    where?: ProductInsightProfileWhereInput
   }
 
-  export type ProductIdeaProfileUpdateToOneWithWhereWithoutProductInput = {
-    where?: ProductIdeaProfileWhereInput
-    data: XOR<ProductIdeaProfileUpdateWithoutProductInput, ProductIdeaProfileUncheckedUpdateWithoutProductInput>
+  export type ProductInsightProfileUpdateToOneWithWhereWithoutProductInput = {
+    where?: ProductInsightProfileWhereInput
+    data: XOR<ProductInsightProfileUpdateWithoutProductInput, ProductInsightProfileUncheckedUpdateWithoutProductInput>
   }
 
-  export type ProductIdeaProfileUpdateWithoutProductInput = {
+  export type ProductInsightProfileUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
-    sitemapUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    model?: NullableStringFieldUpdateOperationsInput | string | null
-    lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stages?: ProductInsightStageResultUpdateManyWithoutProfileNestedInput
   }
 
-  export type ProductIdeaProfileUncheckedUpdateWithoutProductInput = {
+  export type ProductInsightProfileUncheckedUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
-    sitemapUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    discoveredUrls?: NullableJsonNullValueInput | InputJsonValue
-    pages?: NullableJsonNullValueInput | InputJsonValue
-    summary?: NullableJsonNullValueInput | InputJsonValue
-    summaryText?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditQueries?: NullableJsonNullValueInput | InputJsonValue
-    subreddits?: NullableJsonNullValueInput | InputJsonValue
-    subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
-    redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
-    redditInsights?: NullableJsonNullValueInput | InputJsonValue
-    redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReport?: NullableJsonNullValueInput | InputJsonValue
-    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
-    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    model?: NullableStringFieldUpdateOperationsInput | string | null
-    lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stages?: ProductInsightStageResultUncheckedUpdateManyWithoutProfileNestedInput
   }
 
   export type ProductBadgeUpsertWithWhereUniqueWithoutProductInput = {
@@ -41645,7 +42570,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -41683,7 +42608,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -41737,7 +42662,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -41775,7 +42700,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -41813,7 +42738,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewCreateNestedManyWithoutProductInput
@@ -41851,7 +42776,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewUncheckedCreateNestedManyWithoutProductInput
@@ -41905,7 +42830,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUpdateManyWithoutProductNestedInput
@@ -41943,7 +42868,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUncheckedUpdateManyWithoutProductNestedInput
@@ -41980,7 +42905,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutProductInput
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -42018,7 +42943,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -42072,7 +42997,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutProductNestedInput
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -42110,7 +43035,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -42148,7 +43073,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -42186,7 +43111,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -42240,7 +43165,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -42278,7 +43203,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -42316,7 +43241,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutProductInput
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -42354,7 +43279,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -42408,7 +43333,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutProductNestedInput
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -42446,7 +43371,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -42485,7 +43410,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -42523,7 +43448,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -42577,7 +43502,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -42615,7 +43540,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -42653,7 +43578,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -42691,7 +43616,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -42745,7 +43670,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -42783,7 +43708,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -42792,7 +43717,7 @@ export namespace Prisma {
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
-  export type ProductCreateWithoutIdeaProfileInput = {
+  export type ProductCreateWithoutInsightProfileInput = {
     id?: string
     name: string
     slug: string
@@ -42830,7 +43755,7 @@ export namespace Prisma {
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
   }
 
-  export type ProductUncheckedCreateWithoutIdeaProfileInput = {
+  export type ProductUncheckedCreateWithoutInsightProfileInput = {
     id?: string
     name: string
     slug: string
@@ -42868,23 +43793,61 @@ export namespace Prisma {
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
   }
 
-  export type ProductCreateOrConnectWithoutIdeaProfileInput = {
+  export type ProductCreateOrConnectWithoutInsightProfileInput = {
     where: ProductWhereUniqueInput
-    create: XOR<ProductCreateWithoutIdeaProfileInput, ProductUncheckedCreateWithoutIdeaProfileInput>
+    create: XOR<ProductCreateWithoutInsightProfileInput, ProductUncheckedCreateWithoutInsightProfileInput>
   }
 
-  export type ProductUpsertWithoutIdeaProfileInput = {
-    update: XOR<ProductUpdateWithoutIdeaProfileInput, ProductUncheckedUpdateWithoutIdeaProfileInput>
-    create: XOR<ProductCreateWithoutIdeaProfileInput, ProductUncheckedCreateWithoutIdeaProfileInput>
+  export type ProductInsightStageResultCreateWithoutProfileInput = {
+    id?: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightStageResultUncheckedCreateWithoutProfileInput = {
+    id?: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightStageResultCreateOrConnectWithoutProfileInput = {
+    where: ProductInsightStageResultWhereUniqueInput
+    create: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput>
+  }
+
+  export type ProductInsightStageResultCreateManyProfileInputEnvelope = {
+    data: ProductInsightStageResultCreateManyProfileInput | ProductInsightStageResultCreateManyProfileInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProductUpsertWithoutInsightProfileInput = {
+    update: XOR<ProductUpdateWithoutInsightProfileInput, ProductUncheckedUpdateWithoutInsightProfileInput>
+    create: XOR<ProductCreateWithoutInsightProfileInput, ProductUncheckedCreateWithoutInsightProfileInput>
     where?: ProductWhereInput
   }
 
-  export type ProductUpdateToOneWithWhereWithoutIdeaProfileInput = {
+  export type ProductUpdateToOneWithWhereWithoutInsightProfileInput = {
     where?: ProductWhereInput
-    data: XOR<ProductUpdateWithoutIdeaProfileInput, ProductUncheckedUpdateWithoutIdeaProfileInput>
+    data: XOR<ProductUpdateWithoutInsightProfileInput, ProductUncheckedUpdateWithoutInsightProfileInput>
   }
 
-  export type ProductUpdateWithoutIdeaProfileInput = {
+  export type ProductUpdateWithoutInsightProfileInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
@@ -42922,7 +43885,7 @@ export namespace Prisma {
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
   }
 
-  export type ProductUncheckedUpdateWithoutIdeaProfileInput = {
+  export type ProductUncheckedUpdateWithoutInsightProfileInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
@@ -42960,6 +43923,96 @@ export namespace Prisma {
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
   }
 
+  export type ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput = {
+    where: ProductInsightStageResultWhereUniqueInput
+    update: XOR<ProductInsightStageResultUpdateWithoutProfileInput, ProductInsightStageResultUncheckedUpdateWithoutProfileInput>
+    create: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput>
+  }
+
+  export type ProductInsightStageResultUpdateWithWhereUniqueWithoutProfileInput = {
+    where: ProductInsightStageResultWhereUniqueInput
+    data: XOR<ProductInsightStageResultUpdateWithoutProfileInput, ProductInsightStageResultUncheckedUpdateWithoutProfileInput>
+  }
+
+  export type ProductInsightStageResultUpdateManyWithWhereWithoutProfileInput = {
+    where: ProductInsightStageResultScalarWhereInput
+    data: XOR<ProductInsightStageResultUpdateManyMutationInput, ProductInsightStageResultUncheckedUpdateManyWithoutProfileInput>
+  }
+
+  export type ProductInsightStageResultScalarWhereInput = {
+    AND?: ProductInsightStageResultScalarWhereInput | ProductInsightStageResultScalarWhereInput[]
+    OR?: ProductInsightStageResultScalarWhereInput[]
+    NOT?: ProductInsightStageResultScalarWhereInput | ProductInsightStageResultScalarWhereInput[]
+    id?: StringFilter<"ProductInsightStageResult"> | string
+    profileId?: StringFilter<"ProductInsightStageResult"> | string
+    stageId?: StringFilter<"ProductInsightStageResult"> | string
+    providerType?: StringFilter<"ProductInsightStageResult"> | string
+    status?: EnumProductInsightStatusFilter<"ProductInsightStageResult"> | $Enums.ProductInsightStatus
+    data?: JsonNullableFilter<"ProductInsightStageResult">
+    metrics?: JsonNullableFilter<"ProductInsightStageResult">
+    errorMessage?: StringNullableFilter<"ProductInsightStageResult"> | string | null
+    startedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+  }
+
+  export type ProductInsightProfileCreateWithoutStagesInput = {
+    id?: string
+    status?: $Enums.ProductInsightStatus
+    errorMessage?: string | null
+    lastRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    product: ProductCreateNestedOneWithoutInsightProfileInput
+  }
+
+  export type ProductInsightProfileUncheckedCreateWithoutStagesInput = {
+    id?: string
+    productId: string
+    status?: $Enums.ProductInsightStatus
+    errorMessage?: string | null
+    lastRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightProfileCreateOrConnectWithoutStagesInput = {
+    where: ProductInsightProfileWhereUniqueInput
+    create: XOR<ProductInsightProfileCreateWithoutStagesInput, ProductInsightProfileUncheckedCreateWithoutStagesInput>
+  }
+
+  export type ProductInsightProfileUpsertWithoutStagesInput = {
+    update: XOR<ProductInsightProfileUpdateWithoutStagesInput, ProductInsightProfileUncheckedUpdateWithoutStagesInput>
+    create: XOR<ProductInsightProfileCreateWithoutStagesInput, ProductInsightProfileUncheckedCreateWithoutStagesInput>
+    where?: ProductInsightProfileWhereInput
+  }
+
+  export type ProductInsightProfileUpdateToOneWithWhereWithoutStagesInput = {
+    where?: ProductInsightProfileWhereInput
+    data: XOR<ProductInsightProfileUpdateWithoutStagesInput, ProductInsightProfileUncheckedUpdateWithoutStagesInput>
+  }
+
+  export type ProductInsightProfileUpdateWithoutStagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutInsightProfileNestedInput
+  }
+
+  export type ProductInsightProfileUncheckedUpdateWithoutStagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ProductCreateWithoutProductUpvoteInput = {
     id?: string
     name: string
@@ -42989,7 +44042,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewCreateNestedManyWithoutProductInput
@@ -43027,7 +44080,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewUncheckedCreateNestedManyWithoutProductInput
@@ -43132,7 +44185,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUpdateManyWithoutProductNestedInput
@@ -43170,7 +44223,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUncheckedUpdateManyWithoutProductNestedInput
@@ -43290,7 +44343,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -43328,7 +44381,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -43723,7 +44776,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -43761,7 +44814,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -44125,7 +45178,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -44163,7 +45216,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -44268,7 +45321,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -44306,7 +45359,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -44508,7 +45561,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -44546,7 +45599,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -44652,7 +45705,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -44690,7 +45743,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -45258,7 +46311,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewCreateNestedManyWithoutProductInput
@@ -45296,7 +46349,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
-    ideaProfile?: ProductIdeaProfileUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewUncheckedCreateNestedManyWithoutProductInput
@@ -45350,7 +46403,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUpdateManyWithoutProductNestedInput
@@ -45388,7 +46441,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUncheckedUpdateManyWithoutProductNestedInput
@@ -45819,6 +46872,62 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ProductInsightStageResultCreateManyProfileInput = {
+    id?: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightStageResultUpdateWithoutProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightStageResultUncheckedUpdateWithoutProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightStageResultUncheckedUpdateManyWithoutProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrganizationMembershipCreateManyOrganizationInput = {
     id?: string
     userId: string
@@ -45906,7 +47015,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -45944,7 +47053,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -46086,7 +47195,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -46124,7 +47233,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -46374,7 +47483,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -46412,7 +47521,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -46533,7 +47642,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -46571,7 +47680,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
-    ideaProfile?: ProductIdeaProfileUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput

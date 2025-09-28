@@ -34,7 +34,7 @@ import {
 import {
   memberProductAnalyticsPath,
   memberProductEditPath,
-  memberProductIdeasPath,
+  memberProductInsightsPath,
   memberProductPath,
   productPath,
 } from "@/lib/routes"
@@ -116,7 +116,7 @@ export default async function ViewUserProductPage({
   const canManage = true
   const publicPath = productPath(productSlug)
   const analyticsPath = memberProductAnalyticsPath(productSlug)
-  const ideasPath = memberProductIdeasPath(productSlug)
+  const insightsPath = memberProductInsightsPath(productSlug)
   const hasAdvancedAnalytics = hasPlanFeature(
     product.plan ?? null,
     "analytics.advanced",
@@ -390,8 +390,8 @@ export default async function ViewUserProductPage({
               ) : null}
               {canManage ? (
                 <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
-                  <Link href={ideasPath}>
-                    <Sparkles className="mr-2 h-4 w-4" /> Ideas
+                  <Link href={insightsPath}>
+                    <Sparkles className="mr-2 h-4 w-4" /> Insights
                   </Link>
                 </Button>
               ) : null}

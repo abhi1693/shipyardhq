@@ -49,7 +49,7 @@ model Product {
   metadata              ProductMetadata?
   analytics             ProductAnalytics?
   verification          ProductVerification?
-  ideaProfile          ProductIdeaProfile?
+  insightProfile        ProductInsightProfile?
   ProductBadge          ProductBadge[]
   ProductMedia          ProductMedia[]
   ProductUpvote         ProductUpvote[]
@@ -118,7 +118,7 @@ enum ProductStatus {
   archived
 }
 
-enum ProductIdeaProfileStatus {
+enum ProductInsightStatus {
   pending
   ready
   failed
@@ -246,39 +246,40 @@ model ProductTrafficEvent {
   @@index([device])
 }
 
-model ProductIdeaProfile {
-  id               String                     @id @default(cuid())
-  productId        String                     @unique
-  sitemapUrl       String?
-  discoveredUrls   Json?
-  pages            Json?
-  summary          Json?
-  summaryText      String?                    @db.Text
-  subredditQueries Json?
-  subreddits       Json?
-  subredditStatus  ProductIdeaProfileStatus?
-  subredditErrorMessage String?              @db.Text
-  redditDiscussionQueries Json?
-  redditDiscussions Json?
-  redditInsights   Json?
-  redditStatus     ProductIdeaProfileStatus?
-  redditErrorMessage String?                 @db.Text
-  finalReport      Json?
-  finalReportStatus ProductIdeaProfileStatus?
-  finalReportErrorMessage String?            @db.Text
-  finalReportModel String?
-  status           ProductIdeaProfileStatus   @default(pending)
-  errorMessage     String?                    @db.Text
-  model            String?
-  lastCrawledAt    DateTime?
-  lastSubredditDiscoveryAt DateTime?
-  lastRedditDiscoveryAt DateTime?
-  lastFinalReportAt DateTime?
-  createdAt        DateTime                   @default(now())
-  updatedAt        DateTime                   @updatedAt
+model ProductInsightProfile {
+  id           String               @id @default(cuid())
+  productId    String               @unique
+  status       ProductInsightStatus @default(pending)
+  errorMessage String?              @db.Text
+  lastRunAt    DateTime?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product Product                     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stages  ProductInsightStageResult[]
 
+  @@index([status])
+  @@index([updatedAt])
+}
+
+model ProductInsightStageResult {
+  id           String               @id @default(cuid())
+  profileId    String
+  stageId      String
+  providerType String
+  status       ProductInsightStatus @default(pending)
+  data         Json?
+  metrics      Json?
+  errorMessage String?              @db.Text
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  profile ProductInsightProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, stageId, providerType])
+  @@index([profileId, stageId])
   @@index([status])
   @@index([updatedAt])
 }
@@ -331,29 +332,29 @@ model OrganizationMembership {
 }
 
 model User {
-  id              String     @id @default(cuid())
-  clerkId         String     @unique
-  email           String     @unique
-  firstName       String
-  lastName        String
-  role            String     @default("member")
-  roleIntent      String? // Why they signed up
-  heardFrom       String? // How they heard about us
-  status          UserStatus @default(active)
-  onboardedAt     DateTime?
-  suspendedAt     DateTime?
-  terminatedAt    DateTime?
+  id           String     @id @default(cuid())
+  clerkId      String     @unique
+  email        String     @unique
+  firstName    String
+  lastName     String
+  role         String     @default("member")
+  roleIntent   String? // Why they signed up
+  heardFrom    String? // How they heard about us
+  status       UserStatus @default(active)
+  onboardedAt  DateTime?
+  suspendedAt  DateTime?
+  terminatedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  products      Product[]
-  memberships   OrganizationMembership[]
-  ProductUpvote ProductUpvote[]
+  products       Product[]
+  memberships    OrganizationMembership[]
+  ProductUpvote  ProductUpvote[]
   productReviews ProductReview[]
-  Organization  Organization[]
-  feedback      MemberFeedback[]
-  purchases     UserPlanPurchase[]
+  Organization   Organization[]
+  feedback       MemberFeedback[]
+  purchases      UserPlanPurchase[]
 
   @@index([status])
   @@index([roleIntent])
