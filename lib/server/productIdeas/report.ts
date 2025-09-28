@@ -28,6 +28,32 @@ const MAX_EVIDENCE_PER_ITEM = 3
 const MAX_SECTION_ITEMS = 4
 const MAX_STRING_LENGTH = 360
 
+const RECOMMENDED_ACTION_PROPERTIES = {
+  title: { type: "string", minLength: 4 },
+  description: { type: "string", minLength: 8 },
+  priority: {
+    type: "string",
+    enum: ["high", "medium", "low", "watch"],
+    default: "watch",
+  },
+  timeframe: {
+    type: "string",
+    enum: ["immediate", "near-term", "long-term", "unspecified"],
+    default: "unspecified",
+  },
+  rationale: { type: "string", minLength: 0, default: "" },
+  successMetric: { type: "string", minLength: 0, default: "" },
+  supportingSignals: {
+    type: "array",
+    items: { type: "string", minLength: 4 },
+    minItems: 0,
+    maxItems: 4,
+    default: [],
+  },
+} as const
+
+const RECOMMENDED_ACTION_REQUIRED = Object.keys(RECOMMENDED_ACTION_PROPERTIES)
+
 function asTrimmedString(value: unknown): string | null {
   if (typeof value === "string") {
     const trimmed = value.trim()
@@ -70,6 +96,9 @@ function normalizeTimeframe(value: unknown): ProductIdeaReportActionTimeframe | 
   }
   if (normalized === "long-term" || normalized === "long term" || normalized === "later") {
     return "long-term"
+  }
+  if (normalized === "unspecified") {
+    return null
   }
   return null
 }
@@ -271,7 +300,7 @@ export async function createProductIdeaComprehensiveReport(
   const response = await openai.responses.create({
     model: MODEL,
     temperature: 0.2,
-    max_output_tokens: 1100,
+    max_output_tokens: 1600,
     text: {
       format: {
         type: "json_schema",
@@ -334,24 +363,8 @@ export async function createProductIdeaComprehensiveReport(
               items: {
                 type: "object",
                 additionalProperties: false,
-                properties: {
-                  title: { type: "string", minLength: 4 },
-                  description: { type: ["string", "null"] },
-                  priority: { type: ["string", "null"] },
-                  timeframe: {
-                    type: ["string", "null"],
-                    enum: ["immediate", "near-term", "long-term", null],
-                  },
-                  rationale: { type: ["string", "null"] },
-                  successMetric: { type: ["string", "null"] },
-                  supportingSignals: {
-                    type: ["array", "null"],
-                    items: { type: "string", minLength: 4 },
-                    minItems: 1,
-                    maxItems: 4,
-                  },
-                },
-                required: ["title", "description"],
+                properties: RECOMMENDED_ACTION_PROPERTIES,
+                required: RECOMMENDED_ACTION_REQUIRED,
               },
             },
             communityPlan: {
@@ -452,16 +465,87 @@ export async function createProductIdeaComprehensiveReport(
   } as any)
 
   const raw = extractAssistantJson(response)
-  const jsonText = coerceJsonText(raw)
-  let parsedJson: unknown
-  try {
-    parsedJson = JSON.parse(jsonText || "{}")
-  } catch (error) {
-    console.warn("[productIdeas:report] primary JSON.parse failed, attempting repair", {
+  const jsonText = coerceJsonText(raw) || "{}"
+
+  const sanitizedText = jsonText
+    .replace(/,(?=\s*[}\]])/g, "")
+    .replace(/\uFEFF/g, "")
+
+  const parseCandidates = [jsonText]
+  if (sanitizedText !== jsonText) {
+    parseCandidates.push(sanitizedText)
+  }
+
+  const parseAttempts: Array<{
+    phase: "primary" | "sanitized" | "repair"
+    success: boolean
+    error?: unknown
+  }> = []
+  let parsedJson: unknown | undefined
+
+  for (const [index, candidate] of parseCandidates.entries()) {
+    try {
+      parsedJson = JSON.parse(candidate)
+      parseAttempts.push({ phase: index === 0 ? "primary" : "sanitized", success: true })
+      break
+    } catch (error) {
+      parseAttempts.push({
+        phase: index === 0 ? "primary" : "sanitized",
+        success: false,
+        error,
+      })
+    }
+  }
+
+  if (typeof parsedJson === "undefined") {
+    for (const candidate of parseCandidates) {
+      try {
+        const repaired = jsonrepair(candidate)
+        parsedJson = JSON.parse(repaired)
+        parseAttempts.push({ phase: "repair", success: true })
+        break
+      } catch (error) {
+        parseAttempts.push({ phase: "repair", success: false, error })
+      }
+    }
+  }
+
+  if (typeof parsedJson === "undefined") {
+    console.error("[productIdeas:report] failed to parse report JSON", {
       productId,
-      error,
+      attempts: parseAttempts.map(({ phase, success, error }) => ({
+        phase,
+        success,
+        error: error ? `${error}` : undefined,
+      })),
+      preview: jsonText.slice(0, 2000),
     })
-    parsedJson = JSON.parse(jsonrepair(jsonText || "{}"))
+    throw new Error("failed to parse comprehensive report output")
+  }
+
+  const hadRepair = parseAttempts.some(
+    ({ phase, success }) => phase === "repair" && success,
+  )
+  const hadFailures = parseAttempts.some(({ success }) => !success)
+
+  if (hadFailures && !hadRepair) {
+    console.warn("[productIdeas:report] primary JSON.parse failed, sanitized succeeded", {
+      productId,
+      attempts: parseAttempts.map(({ phase, success, error }) => ({
+        phase,
+        success,
+        error: error ? `${error}` : undefined,
+      })),
+    })
+  } else if (hadRepair) {
+    console.warn("[productIdeas:report] primary JSON.parse failed, repair applied", {
+      productId,
+      attempts: parseAttempts.map(({ phase, success, error }) => ({
+        phase,
+        success,
+        error: error ? `${error}` : undefined,
+      })),
+    })
   }
 
   const parsed = ReportSchema.parse(parsedJson)

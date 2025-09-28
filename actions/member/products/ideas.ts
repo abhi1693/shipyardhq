@@ -24,8 +24,16 @@ import {
   ideaProfileSelect,
   serializeIdeaProfile,
 } from "@/lib/server/productIdeas/profile"
-import { enqueueProductIdeaPipelineJob } from "@/lib/server/productIdeas/pipelineQueue"
-import { runProductIdeaPipeline } from "@/lib/server/productIdeas/pipelineRunner"
+import {
+  enqueueProductIdeaPipelineJob,
+  getPipelineJobState,
+  isPipelineJobQueued,
+  markPipelineJobComplete,
+} from "@/lib/server/productIdeas/pipelineQueue"
+import {
+  determinePipelineRunPlan,
+  runProductIdeaPipeline,
+} from "@/lib/server/productIdeas/pipelineRunner"
 export async function getProductIdeaProfile(
   slug: string,
 ): Promise<ProductIdeaProfileView> {
@@ -49,12 +57,18 @@ export async function getProductIdeaProfile(
     throw new Error("Product not found")
   }
 
+  let ideaProfile = serializeIdeaProfile(record.ideaProfile)
+  if (ideaProfile) {
+    const pipelineJobState = await getPipelineJobState(record.id)
+    ideaProfile = { ...ideaProfile, pipelineJobState }
+  }
+
   return {
     id: record.id,
     name: record.name,
     slug: record.slug,
     websiteUrl: record.websiteUrl,
-    ideaProfile: serializeIdeaProfile(record.ideaProfile),
+    ideaProfile,
   }
 }
 
@@ -719,35 +733,58 @@ export async function scheduleProductIdeaInsightsPipeline(
     throw new Error("Cannot queue pipeline without a contact email")
   }
 
-  await prisma.productIdeaProfile.upsert({
+  const existingSnapshot = await prisma.productIdeaProfile.findUnique({
     where: { productId: productRecord.id },
-    create: {
-      productId: productRecord.id,
-      status: ProductIdeaProfileStatus.pending,
-      errorMessage: null,
-      subredditStatus: ProductIdeaProfileStatus.pending,
-      subredditErrorMessage: null,
-      redditStatus: ProductIdeaProfileStatus.pending,
-      redditErrorMessage: null,
-      finalReportStatus: ProductIdeaProfileStatus.pending,
-      finalReportErrorMessage: null,
-    },
-    update: {
-      status: ProductIdeaProfileStatus.pending,
-      errorMessage: null,
-      subredditStatus: ProductIdeaProfileStatus.pending,
-      subredditErrorMessage: null,
-      redditStatus: ProductIdeaProfileStatus.pending,
-      redditErrorMessage: null,
-      finalReportStatus: ProductIdeaProfileStatus.pending,
-      finalReportErrorMessage: null,
-    },
+    select: ideaProfileSelect,
   })
 
-  const queueResult = await enqueueProductIdeaPipelineJob({
+  const existingProfile = serializeIdeaProfile(existingSnapshot)
+  const plan = determinePipelineRunPlan(existingProfile)
+
+  const createPendingFields = {
+    productId: productRecord.id,
+    status: ProductIdeaProfileStatus.pending,
+    errorMessage: null,
+    subredditStatus: ProductIdeaProfileStatus.pending,
+    subredditErrorMessage: null,
+    redditStatus: ProductIdeaProfileStatus.pending,
+    redditErrorMessage: null,
+    finalReportStatus: ProductIdeaProfileStatus.pending,
+    finalReportErrorMessage: null,
+  }
+
+  const pendingUpdates: Prisma.ProductIdeaProfileUpdateInput = {}
+  if (plan.runCrawl) {
+    pendingUpdates.status = ProductIdeaProfileStatus.pending
+    pendingUpdates.errorMessage = null
+  }
+  if (plan.runSubreddits) {
+    pendingUpdates.subredditStatus = ProductIdeaProfileStatus.pending
+    pendingUpdates.subredditErrorMessage = null
+  }
+  if (plan.runReddit) {
+    pendingUpdates.redditStatus = ProductIdeaProfileStatus.pending
+    pendingUpdates.redditErrorMessage = null
+  }
+  if (plan.runReport) {
+    pendingUpdates.finalReportStatus = ProductIdeaProfileStatus.pending
+    pendingUpdates.finalReportErrorMessage = null
+  }
+
+  const queueJob = {
     productId: productRecord.id,
     requestedByUserId: currentUser.id,
-  })
+  }
+
+  let queueResult = await enqueueProductIdeaPipelineJob(queueJob)
+
+  if (queueResult.reason === "duplicate") {
+    const stillQueued = await isPipelineJobQueued(productRecord.id)
+    if (!stillQueued) {
+      await markPipelineJobComplete(productRecord.id)
+      queueResult = await enqueueProductIdeaPipelineJob(queueJob)
+    }
+  }
 
   if (!queueResult.queued && queueResult.reason !== "duplicate") {
     console.warn("[productIdeas:action] queue unavailable, running inline", {
@@ -755,30 +792,47 @@ export async function scheduleProductIdeaInsightsPipeline(
       reason: queueResult.reason,
     })
 
-    const { profile } = await runProductIdeaPipeline({
-      productId: productRecord.id,
-      requestedByUserId: currentUser.id,
-    })
+    const { profile } = await runProductIdeaPipeline(queueJob)
+    const pipelineJobState = await getPipelineJobState(productRecord.id)
 
     return {
-      profile,
+      profile: { ...profile, pipelineJobState },
       queued: false,
       executedInline: true,
     }
   }
 
-  const snapshot = await prisma.productIdeaProfile.findUnique({
+  if (queueResult.queued) {
+    await prisma.productIdeaProfile.upsert({
+      where: { productId: productRecord.id },
+      create: createPendingFields,
+      update: pendingUpdates,
+    })
+  }
+
+  let snapshot = await prisma.productIdeaProfile.findUnique({
     where: { productId: productRecord.id },
     select: ideaProfileSelect,
   })
+
+  if (!snapshot && queueResult.reason === "duplicate") {
+    snapshot = await prisma.productIdeaProfile.upsert({
+      where: { productId: productRecord.id },
+      create: createPendingFields,
+      update: {},
+      select: ideaProfileSelect,
+    })
+  }
 
   const serialized = serializeIdeaProfile(snapshot)
   if (!serialized) {
     throw new Error("Failed to load product idea profile")
   }
 
+  const pipelineJobState = await getPipelineJobState(productRecord.id)
+
   return {
-    profile: serialized,
+    profile: { ...serialized, pipelineJobState },
     queued: queueResult.queued,
     duplicate: queueResult.reason === "duplicate",
   }

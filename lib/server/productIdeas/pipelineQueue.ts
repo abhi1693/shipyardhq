@@ -1,4 +1,6 @@
+import type { RedisClient } from "@/lib/server/redis"
 import { getRedisClient } from "@/lib/server/redis"
+import type { ProductIdeaPipelineJobState } from "@/types/product-ideas"
 
 type RawPipelineJob = {
   productId: string
@@ -116,6 +118,35 @@ export async function requeuePipelineJob(job: PipelineQueueJob) {
   })
 }
 
+async function isPipelineJobQueuedOnClient(
+  client: RedisClient,
+  productId: string,
+): Promise<boolean> {
+  try {
+    const jobs = await client.lRange(QUEUE_KEY, 0, -1)
+    for (const raw of jobs) {
+      try {
+        const parsed = JSON.parse(raw) as RawPipelineJob | null
+        if (parsed?.productId === productId) {
+          return true
+        }
+      } catch (error) {
+        console.warn("[productIdeas:pipeline] failed to inspect queued job", {
+          raw,
+          error,
+        })
+      }
+    }
+    return false
+  } catch (error) {
+    console.warn("[productIdeas:pipeline] failed to inspect queue for job", {
+      productId,
+      error,
+    })
+    return false
+  }
+}
+
 export async function peekPipelineQueueLength(): Promise<number> {
   const client = await getRedisClient()
   if (!client) return 0
@@ -125,4 +156,32 @@ export async function peekPipelineQueueLength(): Promise<number> {
     console.warn("[productIdeas:pipeline] failed to read queue length", error)
     return 0
   }
+}
+
+export async function isPipelineJobQueued(productId: string): Promise<boolean> {
+  const client = await getRedisClient()
+  if (!client) return false
+  return isPipelineJobQueuedOnClient(client, productId)
+}
+
+export async function getPipelineJobState(
+  productId: string,
+): Promise<ProductIdeaPipelineJobState> {
+  const client = await getRedisClient()
+  if (!client) return "idle"
+
+  try {
+    const isActive = await client.sIsMember(ACTIVE_KEY, productId)
+    if (isActive) {
+      return "active"
+    }
+  } catch (error) {
+    console.warn("[productIdeas:pipeline] failed to inspect active jobs", {
+      productId,
+      error,
+    })
+  }
+
+  const queued = await isPipelineJobQueuedOnClient(client, productId)
+  return queued ? "queued" : "idle"
 }

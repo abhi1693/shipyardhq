@@ -14,6 +14,7 @@ import { toast } from "sonner"
 import { scheduleProductIdeaInsightsPipeline } from "@/actions/member/products/ideas"
 import type {
   ProductIdeaComprehensiveReport,
+  ProductIdeaPipelineJobState,
   ProductIdeaProfileStatus,
   ProductIdeaRedditDiscussionQuery,
   ProductIdeaRedditInsightReport,
@@ -349,21 +350,50 @@ export function ProductIdeasView({
     setDiscussionProgress("Queued for discussion analysis…")
     setReportProgress("Queued for comprehensive report…")
 
-    setProfile((prev) =>
-      prev
-        ? {
-            ...prev,
-            status: "pending",
-            errorMessage: null,
-            subredditStatus: "pending",
-            subredditErrorMessage: null,
-            redditStatus: "pending",
-            redditErrorMessage: null,
-            finalReportStatus: "pending",
-            finalReportErrorMessage: null,
+    setProfile((prev) => {
+      if (!prev) return prev
+
+      const stages: Array<{
+        statusKey: keyof SerializedIdeaProfile
+        errorKey: keyof SerializedIdeaProfile
+      }> = [
+        { statusKey: "status", errorKey: "errorMessage" },
+        {
+          statusKey: "subredditStatus",
+          errorKey: "subredditErrorMessage",
+        },
+        { statusKey: "redditStatus", errorKey: "redditErrorMessage" },
+        {
+          statusKey: "finalReportStatus",
+          errorKey: "finalReportErrorMessage",
+        },
+      ]
+
+      const firstFailedIndex = stages.findIndex(({ statusKey }) => {
+        const value = prev[statusKey]
+        return value === "failed"
+      })
+
+      const updated: Partial<SerializedIdeaProfile> = {
+        pipelineJobState: "queued",
+      }
+
+      if (firstFailedIndex === -1) {
+        for (const { statusKey, errorKey } of stages) {
+          updated[statusKey] = "pending" as SerializedIdeaProfile[typeof statusKey]
+          updated[errorKey] = null as SerializedIdeaProfile[typeof errorKey]
+        }
+      } else {
+        stages.forEach(({ statusKey, errorKey }, index) => {
+          if (index >= firstFailedIndex) {
+            updated[statusKey] = "pending" as SerializedIdeaProfile[typeof statusKey]
+            updated[errorKey] = null as SerializedIdeaProfile[typeof errorKey]
           }
-        : prev,
-    )
+        })
+      }
+
+      return { ...prev, ...updated }
+    })
 
     startPipelineTransition(async () => {
       try {
@@ -412,6 +442,9 @@ export function ProductIdeasView({
         setSubredditProgress(null)
         setDiscussionProgress(null)
         setReportProgress(null)
+        setProfile((prev) =>
+          prev ? { ...prev, pipelineJobState: "idle" } : prev,
+        )
         toast.error(message)
       }
     })
@@ -523,12 +556,13 @@ export function ProductIdeasView({
     tone: MetricTone
   }>
 
+  const pipelineJobState: ProductIdeaPipelineJobState =
+    profile?.pipelineJobState ?? "idle"
+
   const isPipelinePending =
     isRunningPipeline ||
-    profile?.status === "pending" ||
-    profile?.subredditStatus === "pending" ||
-    profile?.redditStatus === "pending" ||
-    profile?.finalReportStatus === "pending"
+    pipelineJobState === "queued" ||
+    pipelineJobState === "active"
 
   const subredditMetrics = [
     {

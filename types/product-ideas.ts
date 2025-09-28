@@ -5,6 +5,8 @@ import type {
 
 export type ProductIdeaProfileStatus = "pending" | "ready" | "failed"
 
+export type ProductIdeaPipelineJobState = "idle" | "queued" | "active"
+
 export type ProductIdeaSubredditQuery = {
   query: string
   rationale?: string | null
@@ -60,6 +62,7 @@ export type SerializedIdeaProfile = {
   lastFinalReportAt: string | null
   createdAt: string
   updatedAt: string
+  pipelineJobState?: ProductIdeaPipelineJobState
 }
 
 export type ProductIdeaProfileView = {
