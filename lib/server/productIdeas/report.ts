@@ -471,36 +471,32 @@ export async function createProductIdeaComprehensiveReport(
 
   const parsed = ReportSchema.parse(parsedJson)
 
-  const recommendedActions = (parsed.recommendedActions ?? [])
-    .map((action) => {
-      const title = asTrimmedString(action.title)
-      const description = asTrimmedString(action.description)
-      if (!title || !description) {
-        return null
-      }
+  const recommendedActions: ProductIdeaReportAction[] = []
+  for (const action of parsed.recommendedActions ?? []) {
+    const title = asTrimmedString(action.title)
+    const description = asTrimmedString(action.description)
+    if (!title || !description) {
+      continue
+    }
 
-      const rationale = asTrimmedString(action.rationale)
-      const successMetric = asTrimmedString(action.successMetric)
-      const supportingSignals = asStringArray(action.supportingSignals)?.slice(
-        0,
-        4,
-      )
+    const rationale = asTrimmedString(action.rationale)
+    const successMetric = asTrimmedString(action.successMetric)
+    const supportingSignals = asStringArray(action.supportingSignals)?.slice(0, 4)
 
-      const normalizedSignals = supportingSignals
-        ?.map((signal) => truncate(signal, 240))
-        .filter((entry): entry is string => Boolean(entry)) ?? null
+    const normalizedSignals = supportingSignals
+      ?.map((signal) => truncate(signal, 240))
+      .filter((entry): entry is string => Boolean(entry)) ?? null
 
-      return {
-        title: truncate(title, 160) ?? title,
-        description: truncate(description, 360) ?? description,
-        priority: normalizePriority(action.priority),
-        timeframe: normalizeTimeframe(action.timeframe),
-        rationale: truncate(rationale, 360),
-        successMetric: truncate(successMetric, 220),
-        supportingSignals: normalizedSignals,
-      }
+    recommendedActions.push({
+      title: truncate(title, 160) ?? title,
+      description: truncate(description, 360) ?? description,
+      priority: normalizePriority(action.priority),
+      timeframe: normalizeTimeframe(action.timeframe),
+      rationale: truncate(rationale, 360),
+      successMetric: truncate(successMetric, 220),
+      supportingSignals: normalizedSignals,
     })
-    .filter((entry): entry is ProductIdeaReportAction => Boolean(entry))
+  }
 
   const report: ProductIdeaComprehensiveReport = {
     executiveSummary: parsed.executiveSummary.trim(),

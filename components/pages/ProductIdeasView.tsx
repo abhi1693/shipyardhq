@@ -11,7 +11,7 @@ import Link from "next/link"
 import { formatDistanceToNowStrict } from "date-fns"
 import { toast } from "sonner"
 
-import { runProductIdeaInsightsPipeline } from "@/actions/member/products/ideas"
+import { scheduleProductIdeaInsightsPipeline } from "@/actions/member/products/ideas"
 import type {
   ProductIdeaComprehensiveReport,
   ProductIdeaProfileStatus,
@@ -367,22 +367,41 @@ export function ProductIdeasView({
 
     startPipelineTransition(async () => {
       try {
-        const updated = await runProductIdeaInsightsPipeline(slug)
-        setProfile(updated)
-        setProgressMessage("Latest crawl captured and summarized.")
-        setSubredditProgress("Subreddit recommendations refreshed.")
-        setDiscussionProgress("Reddit discussion insights updated.")
-        setReportProgress(
-          "Comprehensive report ready—check your inbox for the overview.",
-        )
-        setPipelineNotice({
-          tone: "info",
-          message:
-            "Pipeline complete. We just sent the insights recap to your email.",
-        })
-        toast.success(
-          "Insights pipeline completed. Check your email for the full report.",
-        )
+        const result = await scheduleProductIdeaInsightsPipeline(slug)
+        setProfile(result.profile)
+
+        if (result.executedInline) {
+          setProgressMessage("Latest crawl captured and summarized.")
+          setSubredditProgress("Subreddit recommendations refreshed.")
+          setDiscussionProgress("Reddit discussion insights updated.")
+          setReportProgress(
+            "Comprehensive report ready—check your inbox for the overview.",
+          )
+          setPipelineNotice({
+            tone: "info",
+            message:
+              "Pipeline completed immediately. We just sent the insights recap to your email.",
+          })
+          toast.success(
+            "Insights pipeline completed. Check your email for the full report.",
+          )
+        } else {
+          setProgressMessage("Crawl queued to run in the background.")
+          setSubredditProgress("Reddit discovery will run once the queue processes.")
+          setDiscussionProgress("Discussion analysis will start automatically.")
+          setReportProgress("Report synthesis will begin after upstream steps finish.")
+          setPipelineNotice({
+            tone: "info",
+            message: result.duplicate
+              ? "Insights pipeline is already running. We'll let you know when it's ready."
+              : "Pipeline queued successfully. We'll email you when the insights are ready.",
+          })
+          toast.success(
+            result.duplicate
+              ? "Pipeline already running. We'll notify you once it's done."
+              : "Pipeline queued. We'll email you when the insights are ready.",
+          )
+        }
       } catch (error) {
         const message =
           error instanceof Error

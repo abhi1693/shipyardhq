@@ -12,344 +12,20 @@ import { requireManageableProduct } from "@/lib/server/productAccess"
 import { ProductIdeaProfileStatus, Prisma } from "@/lib/vendor/prisma/client"
 import type {
   ProductIdeaProfileView,
-  ProductIdeaRedditDiscussionQuery,
-  ProductIdeaRedditInsightReport,
-  ProductIdeaRedditThread,
-  ProductIdeaComprehensiveReport,
   ProductIdeaSubreddit,
-  ProductIdeaSubredditQuery,
-  ProductIdeaRedditComment,
   SerializedIdeaProfile,
 } from "@/types/product-ideas"
 import { buildProductIdeaSummaryText } from "@/lib/server/productIdeas/summary"
 import type {
-  ProductIdeaPageSnapshot,
   ProductIdeaProductContext,
   ProductIdeaSummary,
 } from "@/lib/server/productIdeas/types"
 import {
-  getProductIdeaDiscussionModelLabel,
-  getProductIdeaSubredditModelLabel,
-} from "@/lib/server/productIdeas/config"
-import { sendProductIdeaInsightsReadyEmail } from "@/lib/server/email/productIdeaInsightsReady"
-
-const ideaProfileSelect = {
-  id: true,
-  productId: true,
-  sitemapUrl: true,
-  discoveredUrls: true,
-  pages: true,
-  summary: true,
-  summaryText: true,
-  subredditQueries: true,
-  subreddits: true,
-  subredditStatus: true,
-  subredditErrorMessage: true,
-  redditDiscussionQueries: true,
-  redditDiscussions: true,
-  redditInsights: true,
-  redditStatus: true,
-  redditErrorMessage: true,
-  finalReport: true,
-  finalReportStatus: true,
-  finalReportErrorMessage: true,
-  finalReportModel: true,
-  status: true,
-  errorMessage: true,
-  model: true,
-  lastSubredditDiscoveryAt: true,
-  lastRedditDiscoveryAt: true,
-  lastFinalReportAt: true,
-  lastCrawledAt: true,
-  createdAt: true,
-  updatedAt: true,
-} satisfies Prisma.ProductIdeaProfileSelect
-
-type IdeaProfileRecord = Prisma.ProductIdeaProfileGetPayload<{
-  select: typeof ideaProfileSelect
-}>
-
-function serializeIdeaProfile(
-  record: IdeaProfileRecord | null,
-): SerializedIdeaProfile | null {
-  if (!record) return null
-  const discoveredUrls = Array.isArray(record.discoveredUrls)
-    ? (record.discoveredUrls as unknown[]).filter(
-        (value): value is string => typeof value === "string",
-      )
-    : null
-  const pages = Array.isArray(record.pages)
-    ? (record.pages as unknown[] as ProductIdeaPageSnapshot[])
-    : null
-  const summary = record.summary ? (record.summary as ProductIdeaSummary) : null
-  const subredditQueries = Array.isArray(record.subredditQueries)
-    ? (record.subredditQueries as unknown[]).reduce<
-        ProductIdeaSubredditQuery[]
-      >((acc, value) => {
-        if (
-          value !== null &&
-          typeof value === "object" &&
-          typeof (value as any).query === "string"
-        ) {
-          acc.push({
-            query: (value as any).query,
-            rationale:
-              typeof (value as any).rationale === "string"
-                ? (value as any).rationale
-                : null,
-            audience:
-              typeof (value as any).audience === "string"
-                ? (value as any).audience
-                : null,
-          })
-        }
-        return acc
-      }, [])
-    : null
-  const subreddits = Array.isArray(record.subreddits)
-    ? (record.subreddits as unknown[]).reduce<ProductIdeaSubreddit[]>(
-        (acc, value) => {
-          if (
-            value !== null &&
-            typeof value === "object" &&
-            typeof (value as any).name === "string" &&
-            typeof (value as any).url === "string"
-          ) {
-            acc.push({
-              id:
-                typeof (value as any).id === "string"
-                  ? (value as any).id
-                  : null,
-              name: (value as any).name,
-              title:
-                typeof (value as any).title === "string"
-                  ? (value as any).title
-                  : null,
-              description:
-                typeof (value as any).description === "string"
-                  ? (value as any).description
-                  : null,
-              url: (value as any).url,
-              subscribers:
-                typeof (value as any).subscribers === "number"
-                  ? (value as any).subscribers
-                  : null,
-              activeUserCount:
-                typeof (value as any).activeUserCount === "number"
-                  ? (value as any).activeUserCount
-                  : null,
-              over18:
-                typeof (value as any).over18 === "boolean"
-                  ? (value as any).over18
-                  : null,
-              iconUrl:
-                typeof (value as any).iconUrl === "string"
-                  ? (value as any).iconUrl
-                  : null,
-              primaryTopic:
-                typeof (value as any).primaryTopic === "string"
-                  ? (value as any).primaryTopic
-                  : null,
-              score:
-                typeof (value as any).score === "number"
-                  ? (value as any).score
-                  : null,
-              matchedQueries: Array.isArray((value as any).matchedQueries)
-                ? ((value as any).matchedQueries as unknown[]).filter(
-                    (q): q is string => typeof q === "string",
-                  )
-                : null,
-              relevanceScore:
-                typeof (value as any).relevanceScore === "number"
-                  ? (value as any).relevanceScore
-                  : null,
-              relevanceReason:
-                typeof (value as any).relevanceReason === "string"
-                  ? (value as any).relevanceReason
-                  : null,
-            })
-          }
-          return acc
-        },
-        [],
-      )
-    : null
-
-  const redditDiscussionQueries = Array.isArray(record.redditDiscussionQueries)
-    ? (record.redditDiscussionQueries as unknown[]).reduce<
-        ProductIdeaRedditDiscussionQuery[]
-      >((acc, value) => {
-        if (
-          value !== null &&
-          typeof value === "object" &&
-          typeof (value as any).query === "string"
-        ) {
-          acc.push({
-            query: (value as any).query,
-            rationale:
-              typeof (value as any).rationale === "string"
-                ? (value as any).rationale
-                : null,
-            targetSubreddit:
-              typeof (value as any).targetSubreddit === "string"
-                ? (value as any).targetSubreddit
-                : null,
-          })
-        }
-        return acc
-      }, [])
-    : null
-
-  const redditDiscussions = Array.isArray(record.redditDiscussions)
-    ? (record.redditDiscussions as unknown[]).reduce<
-        ProductIdeaRedditThread[]
-      >((acc, value) => {
-        if (
-          value !== null &&
-          typeof value === "object" &&
-          typeof (value as any).id === "string" &&
-          typeof (value as any).title === "string" &&
-          typeof (value as any).permalink === "string"
-        ) {
-          acc.push({
-            id: (value as any).id,
-            title: (value as any).title,
-            url:
-              typeof (value as any).url === "string"
-                ? (value as any).url
-                : (value as any).permalink,
-            permalink: (value as any).permalink,
-            subreddit:
-              typeof (value as any).subreddit === "string"
-                ? (value as any).subreddit
-                : "",
-            author:
-              typeof (value as any).author === "string"
-                ? (value as any).author
-                : null,
-            score:
-              typeof (value as any).score === "number"
-                ? (value as any).score
-                : null,
-            numComments:
-              typeof (value as any).numComments === "number"
-                ? (value as any).numComments
-                : null,
-            createdAt:
-              typeof (value as any).createdAt === "string"
-                ? (value as any).createdAt
-                : null,
-            flairText:
-              typeof (value as any).flairText === "string"
-                ? (value as any).flairText
-                : null,
-            matchedQueries: Array.isArray((value as any).matchedQueries)
-              ? ((value as any).matchedQueries as unknown[]).filter(
-                  (entry): entry is string => typeof entry === "string",
-                )
-              : null,
-            topComments: Array.isArray((value as any).topComments)
-              ? ((value as any).topComments as unknown[]).reduce<
-                  ProductIdeaRedditComment[]
-                >((commentAcc, comment) => {
-                  if (
-                    comment !== null &&
-                    typeof comment === "object" &&
-                    typeof (comment as any).id === "string" &&
-                    typeof (comment as any).body === "string"
-                  ) {
-                    commentAcc.push({
-                      id: (comment as any).id,
-                      body: (comment as any).body,
-                      author:
-                        typeof (comment as any).author === "string"
-                          ? (comment as any).author
-                          : null,
-                      score:
-                        typeof (comment as any).score === "number"
-                          ? (comment as any).score
-                          : null,
-                      createdAt:
-                        typeof (comment as any).createdAt === "string"
-                          ? (comment as any).createdAt
-                          : null,
-                    })
-                  }
-                  return commentAcc
-                }, [])
-              : null,
-          })
-        }
-        return acc
-      }, [])
-    : null
-
-  let redditInsights: ProductIdeaRedditInsightReport | null = null
-  if (record.redditInsights && typeof record.redditInsights === "object") {
-    const raw = record.redditInsights as Record<string, unknown>
-    if (
-      "summary" in raw &&
-      typeof raw.summary === "string" &&
-      Array.isArray((raw as any).sections)
-    ) {
-      redditInsights = raw as ProductIdeaRedditInsightReport
-    }
-  }
-
-  let finalReport: ProductIdeaComprehensiveReport | null = null
-  if (record.finalReport && typeof record.finalReport === "object") {
-    const raw = record.finalReport as Record<string, unknown>
-    if (
-      typeof raw.executiveSummary === "string" &&
-      Array.isArray((raw as any).headlineHighlights)
-    ) {
-      finalReport = raw as ProductIdeaComprehensiveReport
-    }
-  }
-
-  return {
-    id: record.id,
-    productId: record.productId,
-    sitemapUrl: record.sitemapUrl,
-    discoveredUrls,
-    pages,
-    summary,
-    summaryText: record.summaryText,
-    status: record.status,
-    errorMessage: record.errorMessage,
-    model: record.model,
-    subredditQueries,
-    subreddits,
-    subredditStatus: record.subredditStatus ?? null,
-    subredditErrorMessage: record.subredditErrorMessage,
-    subredditModel: getProductIdeaSubredditModelLabel(),
-    redditDiscussionQueries,
-    redditDiscussions,
-    redditInsights,
-    redditStatus: record.redditStatus ?? null,
-    redditErrorMessage: record.redditErrorMessage,
-    redditModel: getProductIdeaDiscussionModelLabel(),
-    finalReport,
-    finalReportStatus: record.finalReportStatus ?? null,
-    finalReportErrorMessage: record.finalReportErrorMessage,
-    finalReportModel: record.finalReportModel,
-    lastCrawledAt: record.lastCrawledAt
-      ? record.lastCrawledAt.toISOString()
-      : null,
-    lastSubredditDiscoveryAt: record.lastSubredditDiscoveryAt
-      ? record.lastSubredditDiscoveryAt.toISOString()
-      : null,
-    lastRedditDiscoveryAt: record.lastRedditDiscoveryAt
-      ? record.lastRedditDiscoveryAt.toISOString()
-      : null,
-    lastFinalReportAt: record.lastFinalReportAt
-      ? record.lastFinalReportAt.toISOString()
-      : null,
-    createdAt: record.createdAt.toISOString(),
-    updatedAt: record.updatedAt.toISOString(),
-  }
-}
-
+  ideaProfileSelect,
+  serializeIdeaProfile,
+} from "@/lib/server/productIdeas/profile"
+import { enqueueProductIdeaPipelineJob } from "@/lib/server/productIdeas/pipelineQueue"
+import { runProductIdeaPipeline } from "@/lib/server/productIdeas/pipelineRunner"
 export async function getProductIdeaProfile(
   slug: string,
 ): Promise<ProductIdeaProfileView> {
@@ -1007,58 +683,103 @@ export async function refreshProductIdeaReport(
   }
 }
 
-export async function runProductIdeaInsightsPipeline(
+export async function scheduleProductIdeaInsightsPipeline(
   slug: string,
-): Promise<SerializedIdeaProfile> {
+): Promise<{
+  profile: SerializedIdeaProfile
+  queued: boolean
+  duplicate?: boolean
+  executedInline?: boolean
+}> {
   const { product, currentUser } = await requireManageableProduct(slug, {
     unauthorizedRedirect: null,
     missingRedirect: null,
   })
 
-  if (!currentUser.email) {
-    throw new Error("Cannot run pipeline without an email on file")
-  }
-
-  console.info("[productIdeas:action] full pipeline requested", {
-    productId: product.id,
-    productSlug: product.slug,
+  const productRecord = await prisma.product.findUnique({
+    where: { id: product.id },
+    select: {
+      id: true,
+      slug: true,
+      websiteUrl: true,
+      name: true,
+      user: { select: { email: true } },
+    },
   })
 
-  let latestProfile: SerializedIdeaProfile | null = null
+  if (!productRecord) {
+    throw new Error("Product not found")
+  }
 
-  try {
-    latestProfile = await refreshProductIdeaProfile(slug)
-    latestProfile = await refreshProductIdeaSubreddits(slug, { forceRefresh: true })
-    latestProfile = await refreshProductIdeaDiscussions(slug, { forceRefresh: true })
-    latestProfile = await refreshProductIdeaReport(slug)
+  if (!productRecord.websiteUrl) {
+    throw new Error("Product is missing a website URL")
+  }
 
-    if (!latestProfile) {
-      throw new Error("Pipeline completed without returning a profile")
+  if (!productRecord.user?.email) {
+    throw new Error("Cannot queue pipeline without a contact email")
+  }
+
+  await prisma.productIdeaProfile.upsert({
+    where: { productId: productRecord.id },
+    create: {
+      productId: productRecord.id,
+      status: ProductIdeaProfileStatus.pending,
+      errorMessage: null,
+      subredditStatus: ProductIdeaProfileStatus.pending,
+      subredditErrorMessage: null,
+      redditStatus: ProductIdeaProfileStatus.pending,
+      redditErrorMessage: null,
+      finalReportStatus: ProductIdeaProfileStatus.pending,
+      finalReportErrorMessage: null,
+    },
+    update: {
+      status: ProductIdeaProfileStatus.pending,
+      errorMessage: null,
+      subredditStatus: ProductIdeaProfileStatus.pending,
+      subredditErrorMessage: null,
+      redditStatus: ProductIdeaProfileStatus.pending,
+      redditErrorMessage: null,
+      finalReportStatus: ProductIdeaProfileStatus.pending,
+      finalReportErrorMessage: null,
+    },
+  })
+
+  const queueResult = await enqueueProductIdeaPipelineJob({
+    productId: productRecord.id,
+    requestedByUserId: currentUser.id,
+  })
+
+  if (!queueResult.queued && queueResult.reason !== "duplicate") {
+    console.warn("[productIdeas:action] queue unavailable, running inline", {
+      productId: productRecord.id,
+      reason: queueResult.reason,
+    })
+
+    const { profile } = await runProductIdeaPipeline({
+      productId: productRecord.id,
+      requestedByUserId: currentUser.id,
+    })
+
+    return {
+      profile,
+      queued: false,
+      executedInline: true,
     }
+  }
 
-    await sendProductIdeaInsightsReadyEmail({
-      productId: product.id,
-      productSlug: product.slug,
-      productName: product.name,
-      recipientEmail: currentUser.email,
-      profile: latestProfile,
-    })
+  const snapshot = await prisma.productIdeaProfile.findUnique({
+    where: { productId: productRecord.id },
+    select: ideaProfileSelect,
+  })
 
-    console.info("[productIdeas:action] full pipeline completed", {
-      productId: product.id,
-      productSlug: product.slug,
-    })
+  const serialized = serializeIdeaProfile(snapshot)
+  if (!serialized) {
+    throw new Error("Failed to load product idea profile")
+  }
 
-    return latestProfile
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Insights pipeline failed"
-    console.error("[productIdeas:action] full pipeline failed", {
-      productId: product.id,
-      productSlug: product.slug,
-      message,
-      error,
-    })
-    throw error
+  return {
+    profile: serialized,
+    queued: queueResult.queued,
+    duplicate: queueResult.reason === "duplicate",
   }
 }
