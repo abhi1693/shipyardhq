@@ -77,11 +77,8 @@ function buildInitialSharedState(
   const snapshot = extractStageData(profile, "product.snapshot")
   if (snapshot) {
     shared.snapshot = snapshot
-    shared.summary = snapshot.summary ?? profile?.summary ?? null
-    shared.summaryText = snapshot.summaryText ?? profile?.summaryText ?? null
-  } else {
-    shared.summary = profile?.summary ?? null
-    shared.summaryText = profile?.summaryText ?? null
+    shared.summary = snapshot.summary ?? null
+    shared.summaryText = snapshot.summaryText ?? null
   }
 
   const communities = extractStageData(profile, "reddit.communities")
@@ -430,10 +427,29 @@ type PipelineResult = {
   summaryText?: string | null
 }
 
+function ensureStageDependencies(stageIds: Set<ProductInsightStageId>) {
+  const queue = Array.from(stageIds)
+  while (queue.length) {
+    const current = queue.pop()
+    if (!current) continue
+    const definition = PRODUCT_INSIGHT_STAGE_MAP[current]
+    if (!definition) continue
+    for (const dependency of definition.dependencies) {
+      if (!stageIds.has(dependency)) {
+        stageIds.add(dependency)
+        queue.push(dependency)
+      }
+    }
+  }
+}
+
 export async function runProductInsightPipeline(job: {
   productId: string
   requestedByUserId?: string | null
   stageSetId?: ProductInsightStageSetId
+  forcedStageIds?: Iterable<ProductInsightStageId>
+  allowedStageIds?: Iterable<ProductInsightStageId>
+  notifyOnCompletion?: boolean
 }): Promise<PipelineResult> {
   const productRecord = await loadProductWithOwner(job.productId)
 
@@ -455,9 +471,25 @@ export async function runProductInsightPipeline(job: {
   })
 
   const existingProfile = serializeInsightProfile(existingSnapshot)
-  const { stageSetId, forcedStageIds, allowedStageIds } = resolveStageSet(
-    job.stageSetId,
-  )
+  const stageSelection = resolveStageSet(job.stageSetId)
+  const selectedStageSetId = job.stageSetId ?? stageSelection.stageSetId
+
+  const forcedStageIds = job.forcedStageIds
+    ? new Set(job.forcedStageIds)
+    : new Set(stageSelection.forcedStageIds)
+
+  const allowedStageIds = job.allowedStageIds
+    ? new Set(job.allowedStageIds)
+    : new Set(stageSelection.allowedStageIds)
+
+  if (job.forcedStageIds) {
+    for (const stageId of forcedStageIds) {
+      allowedStageIds.add(stageId)
+    }
+  }
+
+  ensureStageDependencies(allowedStageIds)
+
   const plan = determinePipelineRunPlan(existingProfile, {
     forcedStageIds,
     allowedStageIds,
@@ -502,7 +534,7 @@ export async function runProductInsightPipeline(job: {
         console.info("[productInsights:pipeline] stage starting", {
           productId: productRecord.id,
           stageId: stage.id,
-          stageSetId,
+          stageSetId: selectedStageSetId,
           attempt,
           maxAttempts,
         })
@@ -542,7 +574,7 @@ export async function runProductInsightPipeline(job: {
           console.error("[productInsights:pipeline] stage failed", {
             productId: productRecord.id,
             stageId: stage.id,
-            stageSetId,
+            stageSetId: selectedStageSetId,
             attempt,
             maxAttempts,
             message,
@@ -554,7 +586,7 @@ export async function runProductInsightPipeline(job: {
         console.warn("[productInsights:pipeline] stage attempt failed", {
           productId: productRecord.id,
           stageId: stage.id,
-          stageSetId,
+          stageSetId: selectedStageSetId,
           attempt,
           maxAttempts,
           message,
@@ -583,18 +615,20 @@ export async function runProductInsightPipeline(job: {
     throw new Error("Failed to load updated product insight profile")
   }
 
-  await sendProductInsightInsightsReadyEmail({
-    productId: productRecord.id,
-    productSlug: productRecord.slug,
-    productName: productRecord.name,
-    recipientEmail: productRecord.user!.email!,
-    profile: finalProfile,
-  })
+  if (job.notifyOnCompletion !== false) {
+    await sendProductInsightInsightsReadyEmail({
+      productId: productRecord.id,
+      productSlug: productRecord.slug,
+      productName: productRecord.name,
+      recipientEmail: productRecord.user!.email!,
+      profile: finalProfile,
+    })
 
-  console.info("[productInsights:pipeline] insights email dispatched", {
-    productId: productRecord.id,
-    recipient: productRecord.user!.email,
-  })
+    console.info("[productInsights:pipeline] insights email dispatched", {
+      productId: productRecord.id,
+      recipient: productRecord.user!.email,
+    })
+  }
 
   return {
     profile: finalProfile,

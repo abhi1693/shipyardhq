@@ -2,7 +2,10 @@ import ProductInsightInsightsReadyEmail from "@/lib/email/templates/product/prod
 import { sendEmail } from "@/lib/email/resend"
 import { getAppBaseUrl } from "@/lib/email/utils"
 import { memberProductInsightsPath } from "@/lib/routes"
-import type { ProductInsightProfilePayload } from "@/types/product-insights"
+import type {
+  ProductInsightProfilePayload,
+  ProductInsightStageView,
+} from "@/types/product-insights"
 
 type SendProductInsightInsightsReadyEmailOptions = {
   productId: string
@@ -31,9 +34,22 @@ export async function sendProductInsightInsightsReadyEmail({
     throw new Error("Cannot send pipeline email without a recipient")
   }
 
-  const finalReport = profile.finalReport
+  const snapshotStage = profile.stages?.["product.snapshot"] as
+    | ProductInsightStageView<"product.snapshot">
+    | undefined
+  const communityStage = profile.stages?.["reddit.communities"] as
+    | ProductInsightStageView<"reddit.communities">
+    | undefined
+  const discussionStage = profile.stages?.["reddit.discussions"] as
+    | ProductInsightStageView<"reddit.discussions">
+    | undefined
+  const reportStage = profile.stages?.["report.comprehensive"] as
+    | ProductInsightStageView<"report.comprehensive">
+    | undefined
+
+  const finalReport = reportStage?.data?.report ?? null
   if (!finalReport) {
-    throw new Error("Cannot send pipeline email without a final report")
+    throw new Error("Cannot send pipeline email without a final report stage")
   }
 
   const baseUrl = getAppBaseUrl()
@@ -43,7 +59,10 @@ export async function sendProductInsightInsightsReadyEmail({
   const highlightPoints = (finalReport.headlineHighlights ?? []).slice(0, 3)
   const summarySnippet =
     truncate(finalReport.executiveSummary, 540) ??
-    truncate(profile.summary?.overview, 540)
+    truncate(snapshotStage?.data?.summary?.overview ?? null, 540)
+
+  const communityCount = communityStage?.data?.subreddits?.length ?? 0
+  const threadCount = discussionStage?.data?.threads?.length ?? 0
 
   await sendEmail({
     to: recipientEmail,
@@ -53,8 +72,8 @@ export async function sendProductInsightInsightsReadyEmail({
         productName={productName}
         insightsUrl={insightsUrl}
         highlightCount={highlightCount}
-        communityCount={profile.subreddits?.length ?? 0}
-        threadCount={profile.redditDiscussions?.length ?? 0}
+        communityCount={communityCount}
+        threadCount={threadCount}
         highlightPoints={highlightPoints}
         summary={summarySnippet}
       />

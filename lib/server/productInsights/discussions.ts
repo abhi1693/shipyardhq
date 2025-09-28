@@ -189,12 +189,14 @@ function buildFallbackSubredditQuery({
   product: ProductInsightProductContext
   summary?: ProductInsightSummary | null
   subredditName: string
-}): ProductInsightRedditDiscussionQuery {
-  const name = product.name?.trim()
-  const candidates: string[] = []
-  if (name) {
-    candidates.push(name)
+}): ProductInsightRedditDiscussionQuery | null {
+  const productName = sanitizeOptionalText(product.name)
+  if (!productName) {
+    return null
   }
+
+  const candidates: string[] = []
+  candidates.push(productName)
   if (summary?.painPointsAddressed?.length) {
     candidates.push(summary.painPointsAddressed[0]!)
   } else if (summary?.keyFeatures?.length) {
@@ -211,8 +213,11 @@ function buildFallbackSubredditQuery({
     ),
   )
 
-  const base = unique.slice(0, 2).join(" ") || name || subredditName
-  const query = `${base} "ShipyardHQ" feedback`
+  const modifiers = unique
+    .filter((value) => value.toLowerCase() !== productName.toLowerCase())
+    .slice(0, 2)
+  const base = [`"${productName}"`, ...modifiers].join(" ") || `"${productName}"`
+  const query = `${base} feedback`
 
   return {
     query,
@@ -235,6 +240,7 @@ async function generateDiscussionQueries(
 }> {
   const { product, summary, subreddits } = input
   const openai = getOpenAIClient()
+  const productName = sanitizeOptionalText(product.name)
   const payload: Record<string, unknown> = {
     objective:
       "Draft focused Reddit search queries that will surface discussions highlighting user sentiment, wins, gaps, and requested improvements for the product.",
@@ -272,6 +278,19 @@ async function generateDiscussionQueries(
       matchedQueries: entry.matchedQueries ?? [],
     }))
   }
+
+  const guidance: string[] = [
+    "Prefer multi-keyword phrases tailored to workflows, jobs-to-be-done, or competitor comparisons.",
+    "Include subreddit filters when a community is explicitly relevant.",
+    "Mix positive, negative, and exploratory angles to capture what works and what fails.",
+    "Avoid including the word 'reddit' or site filters in the query text.",
+    productName
+      ? `Blend ${productName} (and near variations of its brand name) with launch pains, analytics, pricing, or collaboration angles so the product is explicit in the search context.`
+      : "Blend the product's name with launch pains, analytics, pricing, or collaboration angles so the product stays explicit in the search context.",
+    "Ensure at least one distinct query is crafted for each provided subreddit that focuses on launches, growth, analytics, or indie maker workflows.",
+    "Balance first-hand feedback (e.g., 'experience', 'review'), comparison/alternatives, and problem-oriented searches (e.g., 'pain points', 'pricing issues').",
+    "Prioritize searches that surface unmet needs, enhancement ideas, or reformulations rather than reiterating existing capabilities listed in existingCapabilities.",
+  ]
 
   console.info("[productInsights:reddit] generating discussion query plan", {
     hasSummary: Boolean(summary),
@@ -322,16 +341,7 @@ async function generateDiscussionQueries(
         role: "user",
         content: JSON.stringify({
           ...payload,
-          guidance: [
-            "Prefer multi-keyword phrases tailored to workflows, jobs-to-be-done, or competitor comparisons.",
-            "Include subreddit filters when a community is explicitly relevant.",
-            "Mix positive, negative, and exploratory angles to capture what works and what fails.",
-            "Avoid including the word 'reddit' or site filters in the query text.",
-            "Blend ShipyardHQ (and variations like 'Shipyard HQ') with launch pains, analytics, pricing, or collaboration angles so the product is explicitly part of the search context.",
-            "Ensure at least one distinct query is crafted for each provided subreddit that focuses on launches, growth, analytics, or indie maker workflows.",
-            "Balance first-hand feedback (e.g., 'experience', 'review'), comparison/alternatives, and problem-oriented searches (e.g., 'pain points', 'pricing issues').",
-            "Prioritize searches that surface unmet needs, enhancement ideas, or reformulations rather than reiterating existing capabilities listed in existingCapabilities.",
-          ],
+          guidance,
         }),
       },
     ],
@@ -1007,13 +1017,15 @@ export async function discoverProductDiscussions(
       if (!normalized || normalizedExistingTargets.has(normalized)) {
         continue
       }
-      augmentedQueries.push(
-        buildFallbackSubredditQuery({
-          product,
-          summary,
-          subredditName: subreddit.name,
-        }),
-      )
+      const fallbackQuery = buildFallbackSubredditQuery({
+        product,
+        summary,
+        subredditName: subreddit.name,
+      })
+      if (!fallbackQuery) {
+        continue
+      }
+      augmentedQueries.push(fallbackQuery)
       normalizedExistingTargets.add(normalized)
     }
 
