@@ -27,7 +27,6 @@ import {
 import {
   enqueueProductIdeaPipelineJob,
   getPipelineJobState,
-  isPipelineJobQueued,
   markPipelineJobComplete,
 } from "@/lib/server/productIdeas/pipelineQueue"
 import {
@@ -779,8 +778,8 @@ export async function scheduleProductIdeaInsightsPipeline(
   let queueResult = await enqueueProductIdeaPipelineJob(queueJob)
 
   if (queueResult.reason === "duplicate") {
-    const stillQueued = await isPipelineJobQueued(productRecord.id)
-    if (!stillQueued) {
+    const jobState = await getPipelineJobState(productRecord.id)
+    if (jobState === "idle") {
       await markPipelineJobComplete(productRecord.id)
       queueResult = await enqueueProductIdeaPipelineJob(queueJob)
     }
