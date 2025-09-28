@@ -10,6 +10,7 @@ import type {
   ProductIdeaComprehensiveReport,
   ProductIdeaRedditInsightReport,
   ProductIdeaRedditThread,
+  ProductIdeaReportAction,
   ProductIdeaReportActionPriority,
   ProductIdeaReportActionTimeframe,
   ProductIdeaSubreddit,
@@ -27,8 +28,51 @@ const MAX_EVIDENCE_PER_ITEM = 3
 const MAX_SECTION_ITEMS = 4
 const MAX_STRING_LENGTH = 360
 
-const PrioritySchema = z.enum(["high", "medium", "low", "watch"])
-const TimeframeSchema = z.enum(["immediate", "near-term", "long-term"])
+function asTrimmedString(value: unknown): string | null {
+  if (typeof value === "string") {
+    const trimmed = value.trim()
+    return trimmed.length ? trimmed : null
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    const str = String(value).trim()
+    return str.length ? str : null
+  }
+  return null
+}
+
+function asStringArray(value: unknown): string[] | null {
+  if (!Array.isArray(value)) return null
+  const result = value
+    .map((entry) => asTrimmedString(entry))
+    .filter((entry): entry is string => Boolean(entry))
+  return result.length ? result : null
+}
+
+function normalizePriority(value: unknown): ProductIdeaReportActionPriority {
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase()
+    if (normalized === "high" || normalized === "medium" || normalized === "low") {
+      return normalized
+    }
+    if (normalized === "monitor" || normalized === "watch") {
+      return "watch"
+    }
+  }
+  return "watch"
+}
+
+function normalizeTimeframe(value: unknown): ProductIdeaReportActionTimeframe | null {
+  if (typeof value !== "string") return null
+  const normalized = value.trim().toLowerCase()
+  if (normalized === "immediate") return "immediate"
+  if (normalized === "near-term" || normalized === "near term" || normalized === "soon") {
+    return "near-term"
+  }
+  if (normalized === "long-term" || normalized === "long term" || normalized === "later") {
+    return "long-term"
+  }
+  return null
+}
 
 const ReportSchema = z.object({
   executiveSummary: z.string().min(1),
@@ -56,25 +100,21 @@ const ReportSchema = z.object({
   recommendedActions: z
     .array(
       z.object({
-        title: z.string().min(1),
-        description: z.string().min(1),
-        priority: PrioritySchema,
-        timeframe: z
-          .union([TimeframeSchema, z.null()])
-          .optional()
-          .nullable(),
-        rationale: z.string().optional().nullable(),
-        successMetric: z.string().optional().nullable(),
+        title: z.union([z.string(), z.number()]),
+        description: z.union([z.string(), z.number(), z.null()]).optional(),
+        priority: z.union([z.string(), z.number(), z.null()]).optional(),
+        timeframe: z.union([z.string(), z.number(), z.null()]).optional(),
+        rationale: z.union([z.string(), z.number(), z.null()]).optional(),
+        successMetric: z.union([z.string(), z.number(), z.null()]).optional(),
         supportingSignals: z
-          .array(z.string().min(1))
-          .min(1)
-          .max(4)
+          .array(z.union([z.string(), z.number()]))
           .optional()
           .nullable(),
       }),
     )
-    .min(2)
-    .max(6),
+    .max(6)
+    .optional()
+    .default([]),
   communityPlan: z
     .array(
       z.object({
@@ -138,18 +178,23 @@ function sanitizeInsights(
   insights?: ProductIdeaRedditInsightReport | null,
 ) {
   if (!insights) return null
+  const sections = Array.isArray(insights.sections)
+    ? insights.sections.slice(0, 3)
+    : []
   return {
     summary: truncate(insights.summary, 640),
     recommendedFocus: insights.recommendedFocus?.slice(0, 5) ?? null,
-    sections: insights.sections.slice(0, 3).map((section) => ({
+    sections: sections.map((section) => ({
       title: section.title,
       description: truncate(section.description, 360),
-      items: section.items.slice(0, MAX_SECTION_ITEMS).map((item) => ({
-        insight: truncate(item.insight, 320),
-        sentiment: item.sentiment ?? null,
-        audience: truncate(item.audience, 160),
-        evidence: item.evidence?.slice(0, MAX_EVIDENCE_PER_ITEM) ?? null,
-      })),
+      items: Array.isArray(section.items)
+        ? section.items.slice(0, MAX_SECTION_ITEMS).map((item) => ({
+            insight: truncate(item.insight, 320),
+            sentiment: item.sentiment ?? null,
+            audience: truncate(item.audience, 160),
+            evidence: item.evidence?.slice(0, MAX_EVIDENCE_PER_ITEM) ?? null,
+          }))
+        : [],
     })),
   }
 }
@@ -286,37 +331,24 @@ export async function createProductIdeaComprehensiveReport(
               type: "array",
               minItems: 2,
               maxItems: 6,
-              items: {
+            items: {
                 type: "object",
                 additionalProperties: false,
                 properties: {
                   title: { type: "string", minLength: 4 },
-                  description: { type: "string", minLength: 12 },
-                  priority: {
-                    type: "string",
-                    enum: ["high", "medium", "low", "watch"],
-                  },
+                  description: { type: ["string", "null"] },
+                  priority: { type: ["string", "null"] },
                   timeframe: {
                     type: ["string", "null"],
                     enum: ["immediate", "near-term", "long-term", null],
                   },
-                  rationale: {
-                    anyOf: [
-                      { type: "string", minLength: 10 },
-                      { type: "null" },
-                    ],
-                  },
-                  successMetric: {
-                    anyOf: [
-                      { type: "string", minLength: 6 },
-                      { type: "null" },
-                    ],
-                  },
+                  rationale: { type: ["string", "null"] },
+                  successMetric: { type: ["string", "null"] },
                   supportingSignals: {
                     anyOf: [
                       {
                         type: "array",
-                        items: { type: "string", minLength: 6 },
+                        items: { type: "string", minLength: 4 },
                         minItems: 1,
                         maxItems: 4,
                       },
@@ -324,15 +356,7 @@ export async function createProductIdeaComprehensiveReport(
                     ],
                   },
                 },
-                required: [
-                  "title",
-                  "description",
-                  "priority",
-                  "timeframe",
-                  "rationale",
-                  "successMetric",
-                  "supportingSignals",
-                ],
+                required: ["title"],
               },
             },
             communityPlan: {
@@ -447,6 +471,37 @@ export async function createProductIdeaComprehensiveReport(
 
   const parsed = ReportSchema.parse(parsedJson)
 
+  const recommendedActions = (parsed.recommendedActions ?? [])
+    .map((action) => {
+      const title = asTrimmedString(action.title)
+      const description = asTrimmedString(action.description)
+      if (!title || !description) {
+        return null
+      }
+
+      const rationale = asTrimmedString(action.rationale)
+      const successMetric = asTrimmedString(action.successMetric)
+      const supportingSignals = asStringArray(action.supportingSignals)?.slice(
+        0,
+        4,
+      )
+
+      const normalizedSignals = supportingSignals
+        ?.map((signal) => truncate(signal, 240))
+        .filter((entry): entry is string => Boolean(entry)) ?? null
+
+      return {
+        title: truncate(title, 160) ?? title,
+        description: truncate(description, 360) ?? description,
+        priority: normalizePriority(action.priority),
+        timeframe: normalizeTimeframe(action.timeframe),
+        rationale: truncate(rationale, 360),
+        successMetric: truncate(successMetric, 220),
+        supportingSignals: normalizedSignals,
+      }
+    })
+    .filter((entry): entry is ProductIdeaReportAction => Boolean(entry))
+
   const report: ProductIdeaComprehensiveReport = {
     executiveSummary: parsed.executiveSummary.trim(),
     headlineHighlights: parsed.headlineHighlights.map((item) => item.trim()),
@@ -460,17 +515,7 @@ export async function createProductIdeaComprehensiveReport(
       summary: section.summary?.trim() ?? null,
       highlights: section.highlights.map((item) => item.trim()),
     })),
-    recommendedActions: parsed.recommendedActions.map((action) => ({
-      title: action.title.trim(),
-      description: action.description.trim(),
-      priority: action.priority as ProductIdeaReportActionPriority,
-      timeframe: ((action.timeframe ?? undefined) as ProductIdeaReportActionTimeframe | undefined) ?? null,
-      rationale: action.rationale?.trim() ?? null,
-      successMetric: action.successMetric?.trim() ?? null,
-      supportingSignals: action.supportingSignals?.map((signal) =>
-        signal.trim(),
-      ) ?? null,
-    })),
+    recommendedActions,
     communityPlan: parsed.communityPlan
       ?.map((plan) => ({
         objective: plan.objective.trim(),
