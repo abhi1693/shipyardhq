@@ -331,7 +331,7 @@ export async function createProductIdeaComprehensiveReport(
               type: "array",
               minItems: 2,
               maxItems: 6,
-            items: {
+              items: {
                 type: "object",
                 additionalProperties: false,
                 properties: {
@@ -356,7 +356,6 @@ export async function createProductIdeaComprehensiveReport(
                     ],
                   },
                 },
-                required: ["title"],
               },
             },
             communityPlan: {
