@@ -61,14 +61,6 @@ const STATUS_STYLES: Record<
   failed: { label: "Failed", badge: "destructive" },
 }
 
-const DEFAULT_PROFILE_MODEL = "gpt-4.1-mini"
-
-const DEFAULT_SUBREDDIT_MODEL =
-  process.env.NEXT_PUBLIC_PRODUCT_IDEA_SUBREDDIT_MODEL ?? "gpt-4.1-mini"
-const DEFAULT_DISCUSSION_MODEL =
-  process.env.NEXT_PUBLIC_PRODUCT_IDEA_DISCUSSION_MODEL ??
-  "gpt-4.1 → gpt-4.1-mini"
-
 const SENTIMENT_BADGE_VARIANT: Record<
   "positive" | "negative" | "neutral",
   ComponentProps<typeof Badge>["variant"]
@@ -614,11 +606,6 @@ export function ProductIdeasView({
           : ("positive" as MetricTone)
         : "neutral",
     },
-    {
-      label: "Model",
-      value: profile?.model ?? DEFAULT_PROFILE_MODEL,
-      tone: "neutral" as MetricTone,
-    },
   ] as const satisfies ReadonlyArray<{
     label: string
     value: string
@@ -656,11 +643,6 @@ export function ProductIdeasView({
           ? "neutral"
           : "warning"
         : "neutral",
-    },
-    {
-      label: "Model",
-      value: profile?.subredditModel ?? DEFAULT_SUBREDDIT_MODEL,
-      tone: "neutral" as MetricTone,
     },
   ] as const satisfies ReadonlyArray<{
     label: string
@@ -712,11 +694,6 @@ export function ProductIdeasView({
           ? "positive"
           : "warning"
         : "neutral",
-    },
-    {
-      label: "Model",
-      value: profile?.redditModel ?? DEFAULT_DISCUSSION_MODEL,
-      tone: "neutral" as MetricTone,
     },
   ] as const satisfies ReadonlyArray<{
     label: string
@@ -1250,7 +1227,7 @@ export function ProductIdeasView({
               <div className="space-y-1">
                 <div className="text-sm font-semibold text-foreground">Focus areas</div>
                 <div className="text-xs text-muted-foreground">
-                  Model-suggested clusters summarizing what the community is talking about right now.
+                  Automatically grouped clusters summarizing what the community is talking about right now.
                 </div>
               </div>
               {discussionInsights.recommendedFocus?.length ? (
@@ -1451,9 +1428,8 @@ export function ProductIdeasView({
         }
       >
         <>
-          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-            <span>Last generated: {lastReportGenerated}</span>
-            <span>Model: {profile?.finalReportModel ?? "—"}</span>
+          <div className="text-xs text-muted-foreground">
+            Last generated: {lastReportGenerated}
           </div>
           {renderReportProgress()}
           {renderReportError()}

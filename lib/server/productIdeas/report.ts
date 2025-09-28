@@ -170,6 +170,16 @@ function sanitizeThreads(
   }))
 }
 
+type ReportPayload = {
+  product: ProductIdeaProductContext
+  summary?: ProductIdeaSummary | null
+  summaryText: string | null
+  subreddits: ReturnType<typeof sanitizeSubreddits>
+  redditInsights: ReturnType<typeof sanitizeInsights>
+  redditThreads: ReturnType<typeof sanitizeThreads>
+  existingCapabilities?: string[]
+}
+
 type CreateReportInput = {
   productId: string
   product: ProductIdeaProductContext
@@ -193,7 +203,7 @@ export async function createProductIdeaComprehensiveReport(
 
   const openai = getOpenAIClient()
 
-  const payload: Record<string, unknown> = {
+  const payload: ReportPayload = {
     product,
     summary,
     summaryText: truncate(summaryText, 1200),
