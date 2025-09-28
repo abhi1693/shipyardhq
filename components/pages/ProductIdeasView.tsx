@@ -523,6 +523,13 @@ export function ProductIdeasView({
     tone: MetricTone
   }>
 
+  const isPipelinePending =
+    isRunningPipeline ||
+    profile?.status === "pending" ||
+    profile?.subredditStatus === "pending" ||
+    profile?.redditStatus === "pending" ||
+    profile?.finalReportStatus === "pending"
+
   const subredditMetrics = [
     {
       label: "Last discovered",
@@ -805,10 +812,10 @@ export function ProductIdeasView({
           </div>
           <Button
             onClick={handleRunPipeline}
-            disabled={isRunningPipeline}
+            disabled={isPipelinePending}
             className="w-full sm:w-auto"
           >
-            {isRunningPipeline ? "Running pipeline…" : "Run full pipeline"}
+            {isPipelinePending ? "Pipeline in progress…" : "Run full pipeline"}
           </Button>
         </CardHeader>
         <CardContent className="space-y-3 text-xs text-muted-foreground">
