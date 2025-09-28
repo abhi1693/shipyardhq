@@ -345,17 +345,13 @@ export async function createProductIdeaComprehensiveReport(
                   rationale: { type: ["string", "null"] },
                   successMetric: { type: ["string", "null"] },
                   supportingSignals: {
-                    anyOf: [
-                      {
-                        type: "array",
-                        items: { type: "string", minLength: 4 },
-                        minItems: 1,
-                        maxItems: 4,
-                      },
-                      { type: "null" },
-                    ],
+                    type: ["array", "null"],
+                    items: { type: "string", minLength: 4 },
+                    minItems: 1,
+                    maxItems: 4,
                   },
                 },
+                required: ["title", "description"],
               },
             },
             communityPlan: {

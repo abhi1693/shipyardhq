@@ -1,3 +1,4 @@
+import { jsonrepair } from "jsonrepair"
 import { z } from "zod"
 
 import type {
@@ -145,7 +146,7 @@ function safeParseJson<T>(text: string, context: string): T {
 
   try {
     return attempt(text)
-  } catch {
+  } catch (primaryError) {
     const sanitized = text
       .replace(/,(?=\s*[}\]])/g, "")
       .replace(/\uFEFF/g, "")
@@ -153,14 +154,28 @@ function safeParseJson<T>(text: string, context: string): T {
     try {
       return attempt(sanitized)
     } catch (secondaryError) {
-      console.error(
-        "[productIdeas:reddit] failed to parse model JSON",
-        {
-          context,
-          original: text?.slice(0, 2000),
-          error: secondaryError,
-        },
+      const attempts = [text, sanitized].filter(
+        (candidate, index, self) =>
+          typeof candidate === "string" && self.indexOf(candidate) === index,
       )
+
+      const repairErrors: string[] = []
+
+      for (const candidate of attempts) {
+        try {
+          const repaired = jsonrepair(candidate)
+          return attempt(repaired)
+        } catch (error) {
+          repairErrors.push(`${error}`)
+        }
+      }
+
+      console.error("[productIdeas:reddit] failed to parse model JSON", {
+        context,
+        original: text?.slice(0, 2000),
+        error: secondaryError,
+        previousErrors: [primaryError, ...repairErrors].map((error) => `${error}`),
+      })
       throw secondaryError
     }
   }
