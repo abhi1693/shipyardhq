@@ -11,12 +11,7 @@ import Link from "next/link"
 import { formatDistanceToNowStrict } from "date-fns"
 import { toast } from "sonner"
 
-import {
-  refreshProductIdeaDiscussions,
-  refreshProductIdeaProfile,
-  refreshProductIdeaSubreddits,
-  refreshProductIdeaReport,
-} from "@/actions/member/products/ideas"
+import { runProductIdeaInsightsPipeline } from "@/actions/member/products/ideas"
 import type {
   ProductIdeaComprehensiveReport,
   ProductIdeaProfileStatus,
@@ -300,17 +295,17 @@ export function ProductIdeasView({
     initialProfile,
   )
   const [progressMessage, setProgressMessage] = useState<string | null>(null)
-  const [isRefreshing, startTransition] = useTransition()
   const [subredditProgress, setSubredditProgress] = useState<string | null>(
     null,
   )
-  const [isDiscoveringSubreddits, startSubredditTransition] = useTransition()
   const [discussionProgress, setDiscussionProgress] = useState<string | null>(
     null,
   )
-  const [isDiscoveringDiscussions, startDiscussionTransition] = useTransition()
   const [reportProgress, setReportProgress] = useState<string | null>(null)
-  const [isGeneratingReport, startReportTransition] = useTransition()
+  const [pipelineNotice, setPipelineNotice] = useState<
+    { tone: "info" | "error"; message: string } | null
+  >(null)
+  const [isRunningPipeline, startPipelineTransition] = useTransition()
 
   const summary = (profile?.summary || undefined) as
     | ProductIdeaSummary
@@ -343,164 +338,61 @@ export function ProductIdeasView({
     [pages],
   )
 
-  const handleRefresh = () => {
-    startTransition(async () => {
-      setProgressMessage("Starting crawl and synthesis…")
-      setProfile((prev) =>
-        prev
-          ? {
-              ...prev,
-              status: "pending",
-              errorMessage: null,
-              lastCrawledAt: prev.lastCrawledAt,
-            }
-          : prev,
-      )
-      try {
-        setProgressMessage("Discovering sitemap and fetching pages…")
-        const updated = await refreshProductIdeaProfile(slug)
-        setProfile(updated)
-        setProgressMessage("Summary generated successfully.")
-        toast.success("Product profile updated")
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Failed to refresh product profile"
-        setProfile((prev) =>
-          prev ? { ...prev, status: "failed", errorMessage: message } : prev,
-        )
-        setProgressMessage(
-          "Crawler run failed. Check console logs for details.",
-        )
-        toast.error(message)
-      }
+  const handleRunPipeline = () => {
+    setPipelineNotice({
+      tone: "info",
+      message:
+        "Running the full insights pipeline. We will email you once everything is ready.",
     })
-  }
+    setProgressMessage("Starting crawl and synthesis…")
+    setSubredditProgress("Preparing Reddit discovery…")
+    setDiscussionProgress("Queued for discussion analysis…")
+    setReportProgress("Queued for comprehensive report…")
 
-  const handleDiscoverSubreddits = () => {
-    startSubredditTransition(async () => {
-      const shouldForceRefresh = Array.isArray(profile?.subreddits)
-        ? (profile!.subreddits as ProductIdeaSubreddit[]).length > 0
-        : false
-      setProfile((prev) =>
-        prev
-          ? {
-              ...prev,
-              subredditStatus: "pending",
-              subredditErrorMessage: null,
-            }
-          : prev,
-      )
-      setSubredditProgress("Preparing Reddit discovery…")
-      try {
-        setSubredditProgress("Generating targeted search queries…")
-        const updated = await refreshProductIdeaSubreddits(slug, {
-          forceRefresh: shouldForceRefresh,
-        })
-        setProfile(updated)
-        setSubredditProgress("Subreddit recommendations updated.")
-        toast.success("Relevant subreddits discovered")
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Failed to discover subreddits"
-        setSubredditProgress(
-          "Subreddit discovery failed. Check console logs for details.",
-        )
-        setProfile((prev) =>
-          prev
-            ? {
-                ...prev,
-                subredditStatus: "failed",
-                subredditErrorMessage: message,
-              }
-            : prev,
-        )
-        toast.error(message)
-      }
-    })
-  }
+    setProfile((prev) =>
+      prev
+        ? {
+            ...prev,
+            status: "pending",
+            errorMessage: null,
+            subredditStatus: "pending",
+            subredditErrorMessage: null,
+            redditStatus: "pending",
+            redditErrorMessage: null,
+            finalReportStatus: "pending",
+            finalReportErrorMessage: null,
+          }
+        : prev,
+    )
 
-  const handleDiscoverDiscussions = () => {
-    startDiscussionTransition(async () => {
-      const shouldForceRefresh = Array.isArray(profile?.redditDiscussions)
-        ? (profile!.redditDiscussions as ProductIdeaRedditThread[]).length > 0
-        : false
-      setProfile((prev) =>
-        prev
-          ? {
-              ...prev,
-              redditStatus: "pending",
-              redditErrorMessage: null,
-            }
-          : prev,
-      )
-      setDiscussionProgress("Generating discussion search plan…")
+    startPipelineTransition(async () => {
       try {
-        const updated = await refreshProductIdeaDiscussions(slug, {
-          forceRefresh: shouldForceRefresh,
-        })
+        const updated = await runProductIdeaInsightsPipeline(slug)
         setProfile(updated)
-        setDiscussionProgress("Reddit insights refreshed.")
-        toast.success("Reddit discussion insights updated")
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Failed to analyze Reddit discussions"
-        setDiscussionProgress(
-          "Discussion analysis failed. Check console logs for details.",
-        )
-        setProfile((prev) =>
-          prev
-            ? {
-                ...prev,
-                redditStatus: "failed",
-                redditErrorMessage: message,
-              }
-            : prev,
-        )
-        toast.error(message)
-      }
-    })
-  }
-
-  const handleGenerateReport = () => {
-    startReportTransition(async () => {
-      setProfile((prev) =>
-        prev
-          ? {
-              ...prev,
-              finalReportStatus: "pending",
-              finalReportErrorMessage: null,
-            }
-          : prev,
-      )
-      setReportProgress("Synthesizing comprehensive report…")
-      try {
-        const updated = await refreshProductIdeaReport(slug)
-        setProfile(updated)
-        setReportProgress("Comprehensive report ready.")
-        toast.success("Comprehensive report generated")
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Failed to generate comprehensive report"
+        setProgressMessage("Latest crawl captured and summarized.")
+        setSubredditProgress("Subreddit recommendations refreshed.")
+        setDiscussionProgress("Reddit discussion insights updated.")
         setReportProgress(
-          "Report generation failed. Check console logs for details.",
+          "Comprehensive report ready—check your inbox for the overview.",
         )
-        setProfile((prev) =>
-          prev
-            ? {
-                ...prev,
-                finalReportStatus: "failed",
-                finalReportErrorMessage: message,
-              }
-            : prev,
+        setPipelineNotice({
+          tone: "info",
+          message:
+            "Pipeline complete. We just sent the insights recap to your email.",
+        })
+        toast.success(
+          "Insights pipeline completed. Check your email for the full report.",
         )
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Failed to run insights pipeline"
+        setPipelineNotice({ tone: "error", message })
+        setProgressMessage(null)
+        setSubredditProgress(null)
+        setDiscussionProgress(null)
+        setReportProgress(null)
         toast.error(message)
       }
     })
@@ -508,7 +400,7 @@ export function ProductIdeasView({
 
   const statusDisplay = profile
     ? STATUS_STYLES[profile.status]
-    : isRefreshing
+    : isRunningPipeline
       ? { label: "Processing", badge: "secondary" as const }
       : { label: "Not generated", badge: "outline" as const }
 
@@ -802,7 +694,7 @@ export function ProductIdeasView({
   const hasDiscoveredUrls = discoveredUrls.length > 0
 
   const renderCrawlerEmptyState = () => {
-    if (profile || isRefreshing) return null
+    if (profile || isRunningPipeline) return null
     return (
       <InfoNotice tone="info">
         Run the crawler to capture a fresh profile from your live site. We will
@@ -884,28 +776,45 @@ export function ProductIdeasView({
 
   return (
     <div className="space-y-10">
+      <Card>
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <CardTitle>Run full pipeline</CardTitle>
+            <CardDescription>
+              Refresh the crawl, subreddit discovery, discussion insights, and report in one click.
+            </CardDescription>
+          </div>
+          <Button
+            onClick={handleRunPipeline}
+            disabled={isRunningPipeline}
+            className="w-full sm:w-auto"
+          >
+            {isRunningPipeline ? "Running pipeline…" : "Run full pipeline"}
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-3 text-xs text-muted-foreground">
+          <div>Last report generated: {lastReportGenerated}</div>
+          {pipelineNotice ? (
+            <InfoNotice tone={pipelineNotice.tone} size="xs">
+              {pipelineNotice.message}
+            </InfoNotice>
+          ) : (
+            <div>
+              We will email you when the latest insights are ready. Expect a
+              summary with key highlights and recommended actions.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <FlowOverview stages={flowStageSummaries} />
 
       <StageCard
         step="Step 1"
         title="Product foundation"
-        description="Run the crawler to capture live messaging and structure for this product."
+        description="The pipeline crawler captures live messaging and structure for this product."
         status={statusDisplay}
         metrics={crawlerMetrics}
-        actions={
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            {isRefreshing
-              ? "Refreshing…"
-              : profile
-                ? "Refresh profile"
-                : "Run crawler"}
-          </Button>
-        }
       >
         <>
           <section className="space-y-1">
@@ -927,10 +836,10 @@ export function ProductIdeasView({
           {renderCrawlerError()}
           {renderCrawlerEmptyState()}
 
-          {profile && !isRefreshing && !summary && (
+          {profile && !isRunningPipeline && !summary && (
             <InfoNotice tone="info" size="xs">
-              We captured the crawl but did not synthesize a summary yet. Trigger
-              another refresh if you recently updated the product site.
+              We captured the crawl but did not synthesize a summary yet. Run
+              the full pipeline again if you recently updated the product site.
             </InfoNotice>
           )}
 
@@ -1057,30 +966,18 @@ export function ProductIdeasView({
       <StageCard
         step="Step 2"
         title="Audience discovery"
-        description="Generate Reddit search plans and capture the communities that match this product."
+        description="The pipeline generates Reddit search plans and captures the communities that match this product."
         status={subredditStatusDisplay}
         metrics={subredditMetrics}
-        actions={
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={handleDiscoverSubreddits}
-            disabled={isDiscoveringSubreddits}
-          >
-            {isDiscoveringSubreddits
-              ? "Discovering…"
-              : hasSubredditResults
-                ? "Rediscover subreddits"
-                : "Discover subreddits"}
-          </Button>
-        }
       >
         <>
           {renderSubredditProgress()}
           {renderSubredditError()}
-          {!hasSubredditResults && !isDiscoveringSubreddits && (
+          {!hasSubredditResults && !isRunningPipeline && (
             <InfoNotice tone="info">
-              Use the discovery tool to craft Reddit search queries, resolve the best-fit communities, and cache them for future research or outreach.
+              Run the full pipeline to craft Reddit search queries, resolve the
+              best-fit communities, and cache them for future research or
+              outreach.
             </InfoNotice>
           )}
           {!!subredditQueries.length && (
@@ -1179,27 +1076,14 @@ export function ProductIdeasView({
         description="Review Reddit conversations to surface wins, friction, and opportunities."
         status={discussionStatusDisplay}
         metrics={discussionMetrics}
-        actions={
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={handleDiscoverDiscussions}
-            disabled={isDiscoveringDiscussions}
-          >
-            {isDiscoveringDiscussions
-              ? "Analyzing…"
-              : hasDiscussionThreads || discussionInsights
-                ? "Refresh insights"
-                : "Analyze discussions"}
-          </Button>
-        }
       >
         <>
           {renderDiscussionProgress()}
           {renderDiscussionError()}
-          {!hasDiscussionThreads && !isDiscoveringDiscussions && (
+          {!hasDiscussionThreads && !isRunningPipeline && (
             <InfoNotice tone="info">
-              Generate a discovery pass to sample the latest conversations from your saved communities.
+              Run the pipeline to sample the latest conversations from your
+              saved communities.
             </InfoNotice>
           )}
           {!!discussionQueries.length && (
@@ -1414,18 +1298,6 @@ export function ProductIdeasView({
         description="Merge product narrative, community intelligence, and Reddit signals into a single plan."
         status={reportStatusDisplay}
         metrics={reportMetrics}
-        actions={
-          <Button
-            onClick={handleGenerateReport}
-            disabled={isGeneratingReport || reportStatus === "pending"}
-          >
-            {isGeneratingReport
-              ? "Synthesizing…"
-              : hasFinalReport
-                ? "Refresh report"
-                : "Generate report"}
-          </Button>
-        }
       >
         <>
           <div className="text-xs text-muted-foreground">
@@ -1433,9 +1305,11 @@ export function ProductIdeasView({
           </div>
           {renderReportProgress()}
           {renderReportError()}
-          {!hasFinalReport && !isGeneratingReport && (
+          {!hasFinalReport && !isRunningPipeline && (
             <InfoNotice tone="info">
-              Generate the comprehensive report once you have at least a product profile and Reddit insights. We will combine every section here so you know where to focus next.
+              Run the pipeline after the profile and Reddit insights are ready to
+              generate the comprehensive report that combines every section into
+              a single focus plan.
             </InfoNotice>
           )}
           {finalReport && (

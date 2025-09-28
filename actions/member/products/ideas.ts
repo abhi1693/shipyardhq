@@ -31,6 +31,7 @@ import {
   getProductIdeaDiscussionModelLabel,
   getProductIdeaSubredditModelLabel,
 } from "@/lib/server/productIdeas/config"
+import { sendProductIdeaInsightsReadyEmail } from "@/lib/server/email/productIdeaInsightsReady"
 
 const ideaProfileSelect = {
   id: true,
@@ -1002,6 +1003,62 @@ export async function refreshProductIdeaReport(
         /* ignore */
       })
 
+    throw error
+  }
+}
+
+export async function runProductIdeaInsightsPipeline(
+  slug: string,
+): Promise<SerializedIdeaProfile> {
+  const { product, currentUser } = await requireManageableProduct(slug, {
+    unauthorizedRedirect: null,
+    missingRedirect: null,
+  })
+
+  if (!currentUser.email) {
+    throw new Error("Cannot run pipeline without an email on file")
+  }
+
+  console.info("[productIdeas:action] full pipeline requested", {
+    productId: product.id,
+    productSlug: product.slug,
+  })
+
+  let latestProfile: SerializedIdeaProfile | null = null
+
+  try {
+    latestProfile = await refreshProductIdeaProfile(slug)
+    latestProfile = await refreshProductIdeaSubreddits(slug, { forceRefresh: true })
+    latestProfile = await refreshProductIdeaDiscussions(slug, { forceRefresh: true })
+    latestProfile = await refreshProductIdeaReport(slug)
+
+    if (!latestProfile) {
+      throw new Error("Pipeline completed without returning a profile")
+    }
+
+    await sendProductIdeaInsightsReadyEmail({
+      productId: product.id,
+      productSlug: product.slug,
+      productName: product.name,
+      recipientEmail: currentUser.email,
+      profile: latestProfile,
+    })
+
+    console.info("[productIdeas:action] full pipeline completed", {
+      productId: product.id,
+      productSlug: product.slug,
+    })
+
+    return latestProfile
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Insights pipeline failed"
+    console.error("[productIdeas:action] full pipeline failed", {
+      productId: product.id,
+      productSlug: product.slug,
+      message,
+      error,
+    })
     throw error
   }
 }
