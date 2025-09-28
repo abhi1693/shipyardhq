@@ -4,6 +4,7 @@ import {
   crawlProductWebsite,
   discoverProductDiscussions,
   discoverProductSubreddits,
+  createProductIdeaComprehensiveReport,
   synthesizeProductIdea,
 } from "@/lib/server/productIdeas"
 import prisma from "@/lib/prisma"
@@ -14,6 +15,7 @@ import type {
   ProductIdeaRedditDiscussionQuery,
   ProductIdeaRedditInsightReport,
   ProductIdeaRedditThread,
+  ProductIdeaComprehensiveReport,
   ProductIdeaSubreddit,
   ProductIdeaSubredditQuery,
   ProductIdeaRedditComment,
@@ -25,6 +27,10 @@ import type {
   ProductIdeaProductContext,
   ProductIdeaSummary,
 } from "@/lib/server/productIdeas/types"
+import {
+  getProductIdeaDiscussionModelLabel,
+  getProductIdeaSubredditModelLabel,
+} from "@/lib/server/productIdeas/config"
 
 const ideaProfileSelect = {
   id: true,
@@ -38,18 +44,21 @@ const ideaProfileSelect = {
   subreddits: true,
   subredditStatus: true,
   subredditErrorMessage: true,
-  subredditModel: true,
   redditDiscussionQueries: true,
   redditDiscussions: true,
   redditInsights: true,
   redditStatus: true,
   redditErrorMessage: true,
-  redditModel: true,
+  finalReport: true,
+  finalReportStatus: true,
+  finalReportErrorMessage: true,
+  finalReportModel: true,
   status: true,
   errorMessage: true,
   model: true,
   lastSubredditDiscoveryAt: true,
   lastRedditDiscoveryAt: true,
+  lastFinalReportAt: true,
   lastCrawledAt: true,
   createdAt: true,
   updatedAt: true,
@@ -286,6 +295,17 @@ function serializeIdeaProfile(
     }
   }
 
+  let finalReport: ProductIdeaComprehensiveReport | null = null
+  if (record.finalReport && typeof record.finalReport === "object") {
+    const raw = record.finalReport as Record<string, unknown>
+    if (
+      typeof raw.executiveSummary === "string" &&
+      Array.isArray((raw as any).headlineHighlights)
+    ) {
+      finalReport = raw as ProductIdeaComprehensiveReport
+    }
+  }
+
   return {
     id: record.id,
     productId: record.productId,
@@ -301,13 +321,17 @@ function serializeIdeaProfile(
     subreddits,
     subredditStatus: record.subredditStatus ?? null,
     subredditErrorMessage: record.subredditErrorMessage,
-    subredditModel: record.subredditModel,
+    subredditModel: getProductIdeaSubredditModelLabel(),
     redditDiscussionQueries,
     redditDiscussions,
     redditInsights,
     redditStatus: record.redditStatus ?? null,
     redditErrorMessage: record.redditErrorMessage,
-    redditModel: record.redditModel,
+    redditModel: getProductIdeaDiscussionModelLabel(),
+    finalReport,
+    finalReportStatus: record.finalReportStatus ?? null,
+    finalReportErrorMessage: record.finalReportErrorMessage,
+    finalReportModel: record.finalReportModel,
     lastCrawledAt: record.lastCrawledAt
       ? record.lastCrawledAt.toISOString()
       : null,
@@ -316,6 +340,9 @@ function serializeIdeaProfile(
       : null,
     lastRedditDiscoveryAt: record.lastRedditDiscoveryAt
       ? record.lastRedditDiscoveryAt.toISOString()
+      : null,
+    lastFinalReportAt: record.lastFinalReportAt
+      ? record.lastFinalReportAt.toISOString()
       : null,
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
@@ -584,7 +611,6 @@ export async function refreshProductIdeaSubreddits(
         subreddits: discovery.subreddits,
         subredditStatus: ProductIdeaProfileStatus.ready,
         subredditErrorMessage: null,
-        subredditModel: discovery.model,
         lastSubredditDiscoveryAt: new Date(),
       },
       select: ideaProfileSelect,
@@ -596,7 +622,9 @@ export async function refreshProductIdeaSubreddits(
       fromCache: discovery.fromCache,
     })
 
-    return serializeIdeaProfile(updated)!
+    const serialized = serializeIdeaProfile(updated)!
+    serialized.subredditModel = discovery.model
+    return serialized
   } catch (error) {
     const message =
       error instanceof Error
@@ -797,7 +825,6 @@ export async function refreshProductIdeaDiscussions(
           discovery.insights ?? Prisma.JsonNull,
         redditStatus: ProductIdeaProfileStatus.ready,
         redditErrorMessage: null,
-        redditModel: discovery.model,
         lastRedditDiscoveryAt: new Date(),
       },
       select: ideaProfileSelect,
@@ -810,7 +837,9 @@ export async function refreshProductIdeaDiscussions(
       fromCache: discovery.fromCache,
     })
 
-    return serializeIdeaProfile(updated)!
+    const serialized = serializeIdeaProfile(updated)!
+    serialized.redditModel = discovery.model
+    return serialized
   } catch (error) {
     const message =
       error instanceof Error
@@ -829,6 +858,144 @@ export async function refreshProductIdeaDiscussions(
           redditStatus: ProductIdeaProfileStatus.failed,
           redditErrorMessage: message,
           lastRedditDiscoveryAt: new Date(),
+        },
+      })
+      .catch(() => {
+        /* ignore */
+      })
+
+    throw error
+  }
+}
+
+export async function refreshProductIdeaReport(
+  slug: string,
+): Promise<SerializedIdeaProfile> {
+  const { product } = await requireManageableProduct(slug, {
+    unauthorizedRedirect: null,
+    missingRedirect: null,
+  })
+
+  console.info("[productIdeas:action] report requested", {
+    productId: product.id,
+    productSlug: product.slug,
+  })
+
+  const productRecord = await prisma.product.findUnique({
+    where: { id: product.id },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      tagline: true,
+      description: true,
+      pricingModel: true,
+      startingPriceCents: true,
+      currencyCode: true,
+      type: true,
+      keywords: true,
+      platforms: true,
+    },
+  })
+
+  if (!productRecord) {
+    throw new Error("Product not found")
+  }
+
+  const existingProfile = await prisma.productIdeaProfile.findUnique({
+    where: { productId: productRecord.id },
+    select: { id: true },
+  })
+
+  if (!existingProfile) {
+    await prisma.productIdeaProfile.create({
+      data: {
+        productId: productRecord.id,
+      },
+    })
+  }
+
+  await prisma.productIdeaProfile.update({
+    where: { productId: productRecord.id },
+    data: {
+      finalReportStatus: ProductIdeaProfileStatus.pending,
+      finalReportErrorMessage: null,
+    },
+  })
+
+  const profileSnapshot = await prisma.productIdeaProfile.findUnique({
+    where: { productId: productRecord.id },
+    select: ideaProfileSelect,
+  })
+
+  if (!profileSnapshot) {
+    throw new Error("Product idea profile missing")
+  }
+
+  const serializedProfile = serializeIdeaProfile(profileSnapshot)
+  if (!serializedProfile) {
+    throw new Error("Failed to load product idea profile")
+  }
+
+  const productContext: ProductIdeaProductContext = {
+    name: productRecord.name,
+    tagline: productRecord.tagline,
+    description: productRecord.description,
+    pricingModel: productRecord.pricingModel,
+    startingPriceCents: productRecord.startingPriceCents,
+    currencyCode: productRecord.currencyCode,
+    type: productRecord.type,
+    keywords: productRecord.keywords ?? undefined,
+    platforms: productRecord.platforms ?? undefined,
+  }
+
+  try {
+    const result = await createProductIdeaComprehensiveReport({
+      productId: productRecord.id,
+      product: productContext,
+      summary: serializedProfile.summary ?? undefined,
+      summaryText: serializedProfile.summaryText ?? undefined,
+      subreddits: serializedProfile.subreddits ?? undefined,
+      insights: serializedProfile.redditInsights ?? undefined,
+      threads: serializedProfile.redditDiscussions ?? undefined,
+    })
+
+    const updated = await prisma.productIdeaProfile.update({
+      where: { productId: productRecord.id },
+      data: {
+        finalReport: result.report,
+        finalReportStatus: ProductIdeaProfileStatus.ready,
+        finalReportErrorMessage: null,
+        finalReportModel: result.model,
+        lastFinalReportAt: new Date(),
+      },
+      select: ideaProfileSelect,
+    })
+
+    console.info("[productIdeas:action] report completed", {
+      productId: productRecord.id,
+      highlightCount: result.report.headlineHighlights.length,
+    })
+
+    return serializeIdeaProfile(updated)!
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unexpected comprehensive report failure"
+    console.error("[productIdeas:action] report failed", {
+      productId: productRecord.id,
+      message,
+      error,
+    })
+
+    await prisma.productIdeaProfile
+      .update({
+        where: { productId: productRecord.id },
+        data: {
+          finalReportStatus: ProductIdeaProfileStatus.failed,
+          finalReportErrorMessage: message,
+          lastFinalReportAt: new Date(),
         },
       })
       .catch(() => {

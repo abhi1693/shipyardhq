@@ -14070,16 +14070,18 @@ export namespace Prisma {
     summaryText: string | null
     subredditStatus: $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage: string | null
-    subredditModel: string | null
     redditStatus: $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage: string | null
-    redditModel: string | null
+    finalReportStatus: $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage: string | null
+    finalReportModel: string | null
     status: $Enums.ProductIdeaProfileStatus | null
     errorMessage: string | null
     model: string | null
     lastCrawledAt: Date | null
     lastSubredditDiscoveryAt: Date | null
     lastRedditDiscoveryAt: Date | null
+    lastFinalReportAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -14091,16 +14093,18 @@ export namespace Prisma {
     summaryText: string | null
     subredditStatus: $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage: string | null
-    subredditModel: string | null
     redditStatus: $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage: string | null
-    redditModel: string | null
+    finalReportStatus: $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage: string | null
+    finalReportModel: string | null
     status: $Enums.ProductIdeaProfileStatus | null
     errorMessage: string | null
     model: string | null
     lastCrawledAt: Date | null
     lastSubredditDiscoveryAt: Date | null
     lastRedditDiscoveryAt: Date | null
+    lastFinalReportAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -14117,19 +14121,22 @@ export namespace Prisma {
     subreddits: number
     subredditStatus: number
     subredditErrorMessage: number
-    subredditModel: number
     redditDiscussionQueries: number
     redditDiscussions: number
     redditInsights: number
     redditStatus: number
     redditErrorMessage: number
-    redditModel: number
+    finalReport: number
+    finalReportStatus: number
+    finalReportErrorMessage: number
+    finalReportModel: number
     status: number
     errorMessage: number
     model: number
     lastCrawledAt: number
     lastSubredditDiscoveryAt: number
     lastRedditDiscoveryAt: number
+    lastFinalReportAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -14143,16 +14150,18 @@ export namespace Prisma {
     summaryText?: true
     subredditStatus?: true
     subredditErrorMessage?: true
-    subredditModel?: true
     redditStatus?: true
     redditErrorMessage?: true
-    redditModel?: true
+    finalReportStatus?: true
+    finalReportErrorMessage?: true
+    finalReportModel?: true
     status?: true
     errorMessage?: true
     model?: true
     lastCrawledAt?: true
     lastSubredditDiscoveryAt?: true
     lastRedditDiscoveryAt?: true
+    lastFinalReportAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -14164,16 +14173,18 @@ export namespace Prisma {
     summaryText?: true
     subredditStatus?: true
     subredditErrorMessage?: true
-    subredditModel?: true
     redditStatus?: true
     redditErrorMessage?: true
-    redditModel?: true
+    finalReportStatus?: true
+    finalReportErrorMessage?: true
+    finalReportModel?: true
     status?: true
     errorMessage?: true
     model?: true
     lastCrawledAt?: true
     lastSubredditDiscoveryAt?: true
     lastRedditDiscoveryAt?: true
+    lastFinalReportAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -14190,19 +14201,22 @@ export namespace Prisma {
     subreddits?: true
     subredditStatus?: true
     subredditErrorMessage?: true
-    subredditModel?: true
     redditDiscussionQueries?: true
     redditDiscussions?: true
     redditInsights?: true
     redditStatus?: true
     redditErrorMessage?: true
-    redditModel?: true
+    finalReport?: true
+    finalReportStatus?: true
+    finalReportErrorMessage?: true
+    finalReportModel?: true
     status?: true
     errorMessage?: true
     model?: true
     lastCrawledAt?: true
     lastSubredditDiscoveryAt?: true
     lastRedditDiscoveryAt?: true
+    lastFinalReportAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -14292,19 +14306,22 @@ export namespace Prisma {
     subreddits: JsonValue | null
     subredditStatus: $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage: string | null
-    subredditModel: string | null
     redditDiscussionQueries: JsonValue | null
     redditDiscussions: JsonValue | null
     redditInsights: JsonValue | null
     redditStatus: $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage: string | null
-    redditModel: string | null
+    finalReport: JsonValue | null
+    finalReportStatus: $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage: string | null
+    finalReportModel: string | null
     status: $Enums.ProductIdeaProfileStatus
     errorMessage: string | null
     model: string | null
     lastCrawledAt: Date | null
     lastSubredditDiscoveryAt: Date | null
     lastRedditDiscoveryAt: Date | null
+    lastFinalReportAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: ProductIdeaProfileCountAggregateOutputType | null
@@ -14338,19 +14355,22 @@ export namespace Prisma {
     subreddits?: boolean
     subredditStatus?: boolean
     subredditErrorMessage?: boolean
-    subredditModel?: boolean
     redditDiscussionQueries?: boolean
     redditDiscussions?: boolean
     redditInsights?: boolean
     redditStatus?: boolean
     redditErrorMessage?: boolean
-    redditModel?: boolean
+    finalReport?: boolean
+    finalReportStatus?: boolean
+    finalReportErrorMessage?: boolean
+    finalReportModel?: boolean
     status?: boolean
     errorMessage?: boolean
     model?: boolean
     lastCrawledAt?: boolean
     lastSubredditDiscoveryAt?: boolean
     lastRedditDiscoveryAt?: boolean
+    lastFinalReportAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -14368,19 +14388,22 @@ export namespace Prisma {
     subreddits?: boolean
     subredditStatus?: boolean
     subredditErrorMessage?: boolean
-    subredditModel?: boolean
     redditDiscussionQueries?: boolean
     redditDiscussions?: boolean
     redditInsights?: boolean
     redditStatus?: boolean
     redditErrorMessage?: boolean
-    redditModel?: boolean
+    finalReport?: boolean
+    finalReportStatus?: boolean
+    finalReportErrorMessage?: boolean
+    finalReportModel?: boolean
     status?: boolean
     errorMessage?: boolean
     model?: boolean
     lastCrawledAt?: boolean
     lastSubredditDiscoveryAt?: boolean
     lastRedditDiscoveryAt?: boolean
+    lastFinalReportAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -14398,19 +14421,22 @@ export namespace Prisma {
     subreddits?: boolean
     subredditStatus?: boolean
     subredditErrorMessage?: boolean
-    subredditModel?: boolean
     redditDiscussionQueries?: boolean
     redditDiscussions?: boolean
     redditInsights?: boolean
     redditStatus?: boolean
     redditErrorMessage?: boolean
-    redditModel?: boolean
+    finalReport?: boolean
+    finalReportStatus?: boolean
+    finalReportErrorMessage?: boolean
+    finalReportModel?: boolean
     status?: boolean
     errorMessage?: boolean
     model?: boolean
     lastCrawledAt?: boolean
     lastSubredditDiscoveryAt?: boolean
     lastRedditDiscoveryAt?: boolean
+    lastFinalReportAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -14428,24 +14454,27 @@ export namespace Prisma {
     subreddits?: boolean
     subredditStatus?: boolean
     subredditErrorMessage?: boolean
-    subredditModel?: boolean
     redditDiscussionQueries?: boolean
     redditDiscussions?: boolean
     redditInsights?: boolean
     redditStatus?: boolean
     redditErrorMessage?: boolean
-    redditModel?: boolean
+    finalReport?: boolean
+    finalReportStatus?: boolean
+    finalReportErrorMessage?: boolean
+    finalReportModel?: boolean
     status?: boolean
     errorMessage?: boolean
     model?: boolean
     lastCrawledAt?: boolean
     lastSubredditDiscoveryAt?: boolean
     lastRedditDiscoveryAt?: boolean
+    lastFinalReportAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ProductIdeaProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "sitemapUrl" | "discoveredUrls" | "pages" | "summary" | "summaryText" | "subredditQueries" | "subreddits" | "subredditStatus" | "subredditErrorMessage" | "subredditModel" | "redditDiscussionQueries" | "redditDiscussions" | "redditInsights" | "redditStatus" | "redditErrorMessage" | "redditModel" | "status" | "errorMessage" | "model" | "lastCrawledAt" | "lastSubredditDiscoveryAt" | "lastRedditDiscoveryAt" | "createdAt" | "updatedAt", ExtArgs["result"]["productIdeaProfile"]>
+  export type ProductIdeaProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "sitemapUrl" | "discoveredUrls" | "pages" | "summary" | "summaryText" | "subredditQueries" | "subreddits" | "subredditStatus" | "subredditErrorMessage" | "redditDiscussionQueries" | "redditDiscussions" | "redditInsights" | "redditStatus" | "redditErrorMessage" | "finalReport" | "finalReportStatus" | "finalReportErrorMessage" | "finalReportModel" | "status" | "errorMessage" | "model" | "lastCrawledAt" | "lastSubredditDiscoveryAt" | "lastRedditDiscoveryAt" | "lastFinalReportAt" | "createdAt" | "updatedAt", ExtArgs["result"]["productIdeaProfile"]>
   export type ProductIdeaProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }
@@ -14473,19 +14502,22 @@ export namespace Prisma {
       subreddits: Prisma.JsonValue | null
       subredditStatus: $Enums.ProductIdeaProfileStatus | null
       subredditErrorMessage: string | null
-      subredditModel: string | null
       redditDiscussionQueries: Prisma.JsonValue | null
       redditDiscussions: Prisma.JsonValue | null
       redditInsights: Prisma.JsonValue | null
       redditStatus: $Enums.ProductIdeaProfileStatus | null
       redditErrorMessage: string | null
-      redditModel: string | null
+      finalReport: Prisma.JsonValue | null
+      finalReportStatus: $Enums.ProductIdeaProfileStatus | null
+      finalReportErrorMessage: string | null
+      finalReportModel: string | null
       status: $Enums.ProductIdeaProfileStatus
       errorMessage: string | null
       model: string | null
       lastCrawledAt: Date | null
       lastSubredditDiscoveryAt: Date | null
       lastRedditDiscoveryAt: Date | null
+      lastFinalReportAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["productIdeaProfile"]>
@@ -14923,19 +14955,22 @@ export namespace Prisma {
     readonly subreddits: FieldRef<"ProductIdeaProfile", 'Json'>
     readonly subredditStatus: FieldRef<"ProductIdeaProfile", 'ProductIdeaProfileStatus'>
     readonly subredditErrorMessage: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly subredditModel: FieldRef<"ProductIdeaProfile", 'String'>
     readonly redditDiscussionQueries: FieldRef<"ProductIdeaProfile", 'Json'>
     readonly redditDiscussions: FieldRef<"ProductIdeaProfile", 'Json'>
     readonly redditInsights: FieldRef<"ProductIdeaProfile", 'Json'>
     readonly redditStatus: FieldRef<"ProductIdeaProfile", 'ProductIdeaProfileStatus'>
     readonly redditErrorMessage: FieldRef<"ProductIdeaProfile", 'String'>
-    readonly redditModel: FieldRef<"ProductIdeaProfile", 'String'>
+    readonly finalReport: FieldRef<"ProductIdeaProfile", 'Json'>
+    readonly finalReportStatus: FieldRef<"ProductIdeaProfile", 'ProductIdeaProfileStatus'>
+    readonly finalReportErrorMessage: FieldRef<"ProductIdeaProfile", 'String'>
+    readonly finalReportModel: FieldRef<"ProductIdeaProfile", 'String'>
     readonly status: FieldRef<"ProductIdeaProfile", 'ProductIdeaProfileStatus'>
     readonly errorMessage: FieldRef<"ProductIdeaProfile", 'String'>
     readonly model: FieldRef<"ProductIdeaProfile", 'String'>
     readonly lastCrawledAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
     readonly lastSubredditDiscoveryAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
     readonly lastRedditDiscoveryAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
+    readonly lastFinalReportAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
     readonly createdAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
     readonly updatedAt: FieldRef<"ProductIdeaProfile", 'DateTime'>
   }
@@ -32274,19 +32309,22 @@ export namespace Prisma {
     subreddits: 'subreddits',
     subredditStatus: 'subredditStatus',
     subredditErrorMessage: 'subredditErrorMessage',
-    subredditModel: 'subredditModel',
     redditDiscussionQueries: 'redditDiscussionQueries',
     redditDiscussions: 'redditDiscussions',
     redditInsights: 'redditInsights',
     redditStatus: 'redditStatus',
     redditErrorMessage: 'redditErrorMessage',
-    redditModel: 'redditModel',
+    finalReport: 'finalReport',
+    finalReportStatus: 'finalReportStatus',
+    finalReportErrorMessage: 'finalReportErrorMessage',
+    finalReportModel: 'finalReportModel',
     status: 'status',
     errorMessage: 'errorMessage',
     model: 'model',
     lastCrawledAt: 'lastCrawledAt',
     lastSubredditDiscoveryAt: 'lastSubredditDiscoveryAt',
     lastRedditDiscoveryAt: 'lastRedditDiscoveryAt',
+    lastFinalReportAt: 'lastFinalReportAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -33537,19 +33575,22 @@ export namespace Prisma {
     subreddits?: JsonNullableFilter<"ProductIdeaProfile">
     subredditStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    subredditModel?: StringNullableFilter<"ProductIdeaProfile"> | string | null
     redditDiscussionQueries?: JsonNullableFilter<"ProductIdeaProfile">
     redditDiscussions?: JsonNullableFilter<"ProductIdeaProfile">
     redditInsights?: JsonNullableFilter<"ProductIdeaProfile">
     redditStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    redditModel?: StringNullableFilter<"ProductIdeaProfile"> | string | null
+    finalReport?: JsonNullableFilter<"ProductIdeaProfile">
+    finalReportStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
+    finalReportModel?: StringNullableFilter<"ProductIdeaProfile"> | string | null
     status?: EnumProductIdeaProfileStatusFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus
     errorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
     model?: StringNullableFilter<"ProductIdeaProfile"> | string | null
     lastCrawledAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
     lastSubredditDiscoveryAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
     lastRedditDiscoveryAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
+    lastFinalReportAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
     createdAt?: DateTimeFilter<"ProductIdeaProfile"> | Date | string
     updatedAt?: DateTimeFilter<"ProductIdeaProfile"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
@@ -33567,19 +33608,22 @@ export namespace Prisma {
     subreddits?: SortOrderInput | SortOrder
     subredditStatus?: SortOrderInput | SortOrder
     subredditErrorMessage?: SortOrderInput | SortOrder
-    subredditModel?: SortOrderInput | SortOrder
     redditDiscussionQueries?: SortOrderInput | SortOrder
     redditDiscussions?: SortOrderInput | SortOrder
     redditInsights?: SortOrderInput | SortOrder
     redditStatus?: SortOrderInput | SortOrder
     redditErrorMessage?: SortOrderInput | SortOrder
-    redditModel?: SortOrderInput | SortOrder
+    finalReport?: SortOrderInput | SortOrder
+    finalReportStatus?: SortOrderInput | SortOrder
+    finalReportErrorMessage?: SortOrderInput | SortOrder
+    finalReportModel?: SortOrderInput | SortOrder
     status?: SortOrder
     errorMessage?: SortOrderInput | SortOrder
     model?: SortOrderInput | SortOrder
     lastCrawledAt?: SortOrderInput | SortOrder
     lastSubredditDiscoveryAt?: SortOrderInput | SortOrder
     lastRedditDiscoveryAt?: SortOrderInput | SortOrder
+    lastFinalReportAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     product?: ProductOrderByWithRelationInput
@@ -33600,19 +33644,22 @@ export namespace Prisma {
     subreddits?: JsonNullableFilter<"ProductIdeaProfile">
     subredditStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    subredditModel?: StringNullableFilter<"ProductIdeaProfile"> | string | null
     redditDiscussionQueries?: JsonNullableFilter<"ProductIdeaProfile">
     redditDiscussions?: JsonNullableFilter<"ProductIdeaProfile">
     redditInsights?: JsonNullableFilter<"ProductIdeaProfile">
     redditStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
-    redditModel?: StringNullableFilter<"ProductIdeaProfile"> | string | null
+    finalReport?: JsonNullableFilter<"ProductIdeaProfile">
+    finalReportStatus?: EnumProductIdeaProfileStatusNullableFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
+    finalReportModel?: StringNullableFilter<"ProductIdeaProfile"> | string | null
     status?: EnumProductIdeaProfileStatusFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus
     errorMessage?: StringNullableFilter<"ProductIdeaProfile"> | string | null
     model?: StringNullableFilter<"ProductIdeaProfile"> | string | null
     lastCrawledAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
     lastSubredditDiscoveryAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
     lastRedditDiscoveryAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
+    lastFinalReportAt?: DateTimeNullableFilter<"ProductIdeaProfile"> | Date | string | null
     createdAt?: DateTimeFilter<"ProductIdeaProfile"> | Date | string
     updatedAt?: DateTimeFilter<"ProductIdeaProfile"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
@@ -33630,19 +33677,22 @@ export namespace Prisma {
     subreddits?: SortOrderInput | SortOrder
     subredditStatus?: SortOrderInput | SortOrder
     subredditErrorMessage?: SortOrderInput | SortOrder
-    subredditModel?: SortOrderInput | SortOrder
     redditDiscussionQueries?: SortOrderInput | SortOrder
     redditDiscussions?: SortOrderInput | SortOrder
     redditInsights?: SortOrderInput | SortOrder
     redditStatus?: SortOrderInput | SortOrder
     redditErrorMessage?: SortOrderInput | SortOrder
-    redditModel?: SortOrderInput | SortOrder
+    finalReport?: SortOrderInput | SortOrder
+    finalReportStatus?: SortOrderInput | SortOrder
+    finalReportErrorMessage?: SortOrderInput | SortOrder
+    finalReportModel?: SortOrderInput | SortOrder
     status?: SortOrder
     errorMessage?: SortOrderInput | SortOrder
     model?: SortOrderInput | SortOrder
     lastCrawledAt?: SortOrderInput | SortOrder
     lastSubredditDiscoveryAt?: SortOrderInput | SortOrder
     lastRedditDiscoveryAt?: SortOrderInput | SortOrder
+    lastFinalReportAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ProductIdeaProfileCountOrderByAggregateInput
@@ -33665,19 +33715,22 @@ export namespace Prisma {
     subreddits?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
     subredditStatus?: EnumProductIdeaProfileStatusNullableWithAggregatesFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
-    subredditModel?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
     redditDiscussionQueries?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
     redditDiscussions?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
     redditInsights?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
     redditStatus?: EnumProductIdeaProfileStatusNullableWithAggregatesFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
-    redditModel?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
+    finalReport?: JsonNullableWithAggregatesFilter<"ProductIdeaProfile">
+    finalReportStatus?: EnumProductIdeaProfileStatusNullableWithAggregatesFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
+    finalReportModel?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
     status?: EnumProductIdeaProfileStatusWithAggregatesFilter<"ProductIdeaProfile"> | $Enums.ProductIdeaProfileStatus
     errorMessage?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
     model?: StringNullableWithAggregatesFilter<"ProductIdeaProfile"> | string | null
     lastCrawledAt?: DateTimeNullableWithAggregatesFilter<"ProductIdeaProfile"> | Date | string | null
     lastSubredditDiscoveryAt?: DateTimeNullableWithAggregatesFilter<"ProductIdeaProfile"> | Date | string | null
     lastRedditDiscoveryAt?: DateTimeNullableWithAggregatesFilter<"ProductIdeaProfile"> | Date | string | null
+    lastFinalReportAt?: DateTimeNullableWithAggregatesFilter<"ProductIdeaProfile"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ProductIdeaProfile"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ProductIdeaProfile"> | Date | string
   }
@@ -35580,19 +35633,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: string | null
-    subredditModel?: string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: string | null
-    redditModel?: string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: string | null
+    finalReportModel?: string | null
     status?: $Enums.ProductIdeaProfileStatus
     errorMessage?: string | null
     model?: string | null
     lastCrawledAt?: Date | string | null
     lastSubredditDiscoveryAt?: Date | string | null
     lastRedditDiscoveryAt?: Date | string | null
+    lastFinalReportAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     product: ProductCreateNestedOneWithoutIdeaProfileInput
@@ -35610,19 +35666,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: string | null
-    subredditModel?: string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: string | null
-    redditModel?: string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: string | null
+    finalReportModel?: string | null
     status?: $Enums.ProductIdeaProfileStatus
     errorMessage?: string | null
     model?: string | null
     lastCrawledAt?: Date | string | null
     lastSubredditDiscoveryAt?: Date | string | null
     lastRedditDiscoveryAt?: Date | string | null
+    lastFinalReportAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -35638,19 +35697,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditModel?: NullableStringFieldUpdateOperationsInput | string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditModel?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     model?: NullableStringFieldUpdateOperationsInput | string | null
     lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     product?: ProductUpdateOneRequiredWithoutIdeaProfileNestedInput
@@ -35668,19 +35730,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditModel?: NullableStringFieldUpdateOperationsInput | string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditModel?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     model?: NullableStringFieldUpdateOperationsInput | string | null
     lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -35697,19 +35762,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: string | null
-    subredditModel?: string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: string | null
-    redditModel?: string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: string | null
+    finalReportModel?: string | null
     status?: $Enums.ProductIdeaProfileStatus
     errorMessage?: string | null
     model?: string | null
     lastCrawledAt?: Date | string | null
     lastSubredditDiscoveryAt?: Date | string | null
     lastRedditDiscoveryAt?: Date | string | null
+    lastFinalReportAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -35725,19 +35793,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditModel?: NullableStringFieldUpdateOperationsInput | string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditModel?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     model?: NullableStringFieldUpdateOperationsInput | string | null
     lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -35754,19 +35825,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditModel?: NullableStringFieldUpdateOperationsInput | string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditModel?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     model?: NullableStringFieldUpdateOperationsInput | string | null
     lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37694,19 +37768,22 @@ export namespace Prisma {
     subreddits?: SortOrder
     subredditStatus?: SortOrder
     subredditErrorMessage?: SortOrder
-    subredditModel?: SortOrder
     redditDiscussionQueries?: SortOrder
     redditDiscussions?: SortOrder
     redditInsights?: SortOrder
     redditStatus?: SortOrder
     redditErrorMessage?: SortOrder
-    redditModel?: SortOrder
+    finalReport?: SortOrder
+    finalReportStatus?: SortOrder
+    finalReportErrorMessage?: SortOrder
+    finalReportModel?: SortOrder
     status?: SortOrder
     errorMessage?: SortOrder
     model?: SortOrder
     lastCrawledAt?: SortOrder
     lastSubredditDiscoveryAt?: SortOrder
     lastRedditDiscoveryAt?: SortOrder
+    lastFinalReportAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -37718,16 +37795,18 @@ export namespace Prisma {
     summaryText?: SortOrder
     subredditStatus?: SortOrder
     subredditErrorMessage?: SortOrder
-    subredditModel?: SortOrder
     redditStatus?: SortOrder
     redditErrorMessage?: SortOrder
-    redditModel?: SortOrder
+    finalReportStatus?: SortOrder
+    finalReportErrorMessage?: SortOrder
+    finalReportModel?: SortOrder
     status?: SortOrder
     errorMessage?: SortOrder
     model?: SortOrder
     lastCrawledAt?: SortOrder
     lastSubredditDiscoveryAt?: SortOrder
     lastRedditDiscoveryAt?: SortOrder
+    lastFinalReportAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -37739,16 +37818,18 @@ export namespace Prisma {
     summaryText?: SortOrder
     subredditStatus?: SortOrder
     subredditErrorMessage?: SortOrder
-    subredditModel?: SortOrder
     redditStatus?: SortOrder
     redditErrorMessage?: SortOrder
-    redditModel?: SortOrder
+    finalReportStatus?: SortOrder
+    finalReportErrorMessage?: SortOrder
+    finalReportModel?: SortOrder
     status?: SortOrder
     errorMessage?: SortOrder
     model?: SortOrder
     lastCrawledAt?: SortOrder
     lastSubredditDiscoveryAt?: SortOrder
     lastRedditDiscoveryAt?: SortOrder
+    lastFinalReportAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -40723,19 +40804,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: string | null
-    subredditModel?: string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: string | null
-    redditModel?: string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: string | null
+    finalReportModel?: string | null
     status?: $Enums.ProductIdeaProfileStatus
     errorMessage?: string | null
     model?: string | null
     lastCrawledAt?: Date | string | null
     lastSubredditDiscoveryAt?: Date | string | null
     lastRedditDiscoveryAt?: Date | string | null
+    lastFinalReportAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -40751,19 +40835,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: string | null
-    subredditModel?: string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: string | null
-    redditModel?: string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: string | null
+    finalReportModel?: string | null
     status?: $Enums.ProductIdeaProfileStatus
     errorMessage?: string | null
     model?: string | null
     lastCrawledAt?: Date | string | null
     lastSubredditDiscoveryAt?: Date | string | null
     lastRedditDiscoveryAt?: Date | string | null
+    lastFinalReportAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -41268,19 +41355,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditModel?: NullableStringFieldUpdateOperationsInput | string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditModel?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     model?: NullableStringFieldUpdateOperationsInput | string | null
     lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -41296,19 +41386,22 @@ export namespace Prisma {
     subreddits?: NullableJsonNullValueInput | InputJsonValue
     subredditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     subredditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    subredditModel?: NullableStringFieldUpdateOperationsInput | string | null
     redditDiscussionQueries?: NullableJsonNullValueInput | InputJsonValue
     redditDiscussions?: NullableJsonNullValueInput | InputJsonValue
     redditInsights?: NullableJsonNullValueInput | InputJsonValue
     redditStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
     redditErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
-    redditModel?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReport?: NullableJsonNullValueInput | InputJsonValue
+    finalReportStatus?: NullableEnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus | null
+    finalReportErrorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    finalReportModel?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumProductIdeaProfileStatusFieldUpdateOperationsInput | $Enums.ProductIdeaProfileStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     model?: NullableStringFieldUpdateOperationsInput | string | null
     lastCrawledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSubredditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastRedditDiscoveryAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastFinalReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

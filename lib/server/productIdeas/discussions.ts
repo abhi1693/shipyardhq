@@ -21,6 +21,10 @@ import {
   getRedditAccessToken,
   getRedditUserAgent,
 } from "./redditClient"
+import {
+  getProductIdeaDiscussionInsightModel,
+  getProductIdeaDiscussionQueryModel,
+} from "./config"
 
 const REDDIT_USER_AGENT = getRedditUserAgent()
 function resolveCacheNamespace(base: string) {
@@ -239,6 +243,7 @@ async function generateDiscussionQueries(
       painPointsAddressed: summary.painPointsAddressed,
       toneAndStyle: summary.toneAndStyle,
     }
+    payload.existingCapabilities = summary.keyFeatures ?? []
   }
 
   if (Array.isArray(subreddits) && subreddits.length) {
@@ -258,8 +263,10 @@ async function generateDiscussionQueries(
     subredditCount: subreddits?.length ?? 0,
   })
 
+  const queryModel = getProductIdeaDiscussionQueryModel()
+
   const response = await openai.responses.create({
-    model: "gpt-4.1",
+    model: queryModel,
     temperature: 0.25,
     max_output_tokens: 850,
     text: {
@@ -308,6 +315,7 @@ async function generateDiscussionQueries(
             "Blend ShipyardHQ (and variations like 'Shipyard HQ') with launch pains, analytics, pricing, or collaboration angles so the product is explicitly part of the search context.",
             "Ensure at least one distinct query is crafted for each provided subreddit that focuses on launches, growth, analytics, or indie maker workflows.",
             "Balance first-hand feedback (e.g., 'experience', 'review'), comparison/alternatives, and problem-oriented searches (e.g., 'pain points', 'pricing issues').",
+            "Prioritize searches that surface unmet needs, enhancement ideas, or reformulations rather than reiterating existing capabilities listed in existingCapabilities.",
           ],
         }),
       },
@@ -344,7 +352,7 @@ async function generateDiscussionQueries(
 
   return {
     queries,
-    model: "gpt-4.1-mini",
+    model: queryModel,
   }
 }
 
@@ -617,6 +625,7 @@ async function filterThreadsByRelevance({
   }
 
   const openai = getOpenAIClient()
+  const insightModel = getProductIdeaDiscussionInsightModel()
   const sampleThreads = eligibleThreads.slice(0, 18).map((thread) => ({
     id: thread.id,
     title: thread.title,
@@ -632,7 +641,7 @@ async function filterThreadsByRelevance({
 
   try {
     const response = await openai.responses.create({
-      model: "gpt-4.1-mini",
+      model: insightModel,
       temperature: 0.15,
       max_output_tokens: 800,
       text: {
@@ -679,11 +688,13 @@ async function filterThreadsByRelevance({
               summary,
               subreddits,
               threads: sampleThreads,
+              existingCapabilities: summary?.keyFeatures ?? [],
             },
             keepGuidelines: [
               "Keep threads that mention the product, similar launch platforms, product hunt launches, or launch workflows relevant to the described audience.",
               "Drop threads that are clearly unrelated (gaming updates, unrelated consumer products, personal stories).",
               "Favor discussions from the curated subreddits or threads that match the generated queries.",
+              "Prioritize posts where users share friction, unmet needs, or enhancement requests over those merely praising existing capabilities.",
             ],
           }),
         },
@@ -753,6 +764,7 @@ async function synthesizeInsights({
   }
 
   const openai = getOpenAIClient()
+  const insightModel = getProductIdeaDiscussionInsightModel()
 
   const trimmedThreads = threads.map((thread) => ({
     id: thread.id,
@@ -781,13 +793,17 @@ async function synthesizeInsights({
     threads: trimmedThreads,
   }
 
+  if (summary?.keyFeatures?.length) {
+    payload.existingCapabilities = summary.keyFeatures
+  }
+
   console.info("[productIdeas:reddit] synthesizing discussion insights", {
     threadCount: threads.length,
   })
 
   try {
     const response = await openai.responses.create({
-      model: "gpt-4.1-mini",
+      model: insightModel,
       temperature: 0.2,
       max_output_tokens: 1100,
       text: {
@@ -868,6 +884,7 @@ async function synthesizeInsights({
               "Each insight should reference at least one supporting thread or comment ID in references.",
               "Capture both positive signals and unresolved frustrations.",
               "Include recommended focus areas summarizing the most urgent priorities.",
+              "Emphasize improvements, enhancements, or unresolved needs rather than restating existing capabilities unless you propose how to extend them.",
             ],
             context: payload,
           }),
@@ -883,7 +900,7 @@ async function synthesizeInsights({
 
     return {
       insights: parsed,
-      model: "gpt-4.1-mini",
+      model: insightModel,
     }
   } catch (error) {
     console.error("[productIdeas:reddit] insight synthesis failed", {

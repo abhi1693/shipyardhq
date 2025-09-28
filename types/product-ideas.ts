@@ -50,9 +50,14 @@ export type SerializedIdeaProfile = {
   redditStatus?: ProductIdeaProfileStatus | null
   redditErrorMessage?: string | null
   redditModel?: string | null
+  finalReport?: ProductIdeaComprehensiveReport | null
+  finalReportStatus?: ProductIdeaProfileStatus | null
+  finalReportErrorMessage?: string | null
+  finalReportModel?: string | null
   lastCrawledAt: string | null
   lastSubredditDiscoveryAt: string | null
   lastRedditDiscoveryAt: string | null
+  lastFinalReportAt: string | null
   createdAt: string
   updatedAt: string
 }
@@ -112,4 +117,54 @@ export type ProductIdeaRedditInsightReport = {
   summary: string
   sections: ProductIdeaRedditInsightSection[]
   recommendedFocus?: string[] | null
+}
+
+export type ProductIdeaReportActionPriority =
+  | "high"
+  | "medium"
+  | "low"
+  | "watch"
+
+export type ProductIdeaReportActionTimeframe =
+  | "immediate"
+  | "near-term"
+  | "long-term"
+
+export type ProductIdeaReportAction = {
+  title: string
+  description: string
+  priority: ProductIdeaReportActionPriority
+  timeframe?: ProductIdeaReportActionTimeframe | null
+  rationale?: string | null
+  successMetric?: string | null
+  supportingSignals?: string[] | null
+}
+
+export type ProductIdeaReportSection = {
+  title: string
+  summary?: string | null
+  highlights: string[]
+}
+
+export type ProductIdeaCommunityPlan = {
+  objective: string
+  targetSubreddits: string[]
+  tactics: string[]
+  successSignal?: string | null
+}
+
+export type ProductIdeaReportDataSource = {
+  label: string
+  entries: string[]
+}
+
+export type ProductIdeaComprehensiveReport = {
+  executiveSummary: string
+  headlineHighlights: string[]
+  opportunityAreas: ProductIdeaReportSection[]
+  customerSignals: ProductIdeaReportSection[]
+  recommendedActions: ProductIdeaReportAction[]
+  communityPlan?: ProductIdeaCommunityPlan[] | null
+  metricsToWatch?: string[] | null
+  supportingData?: ProductIdeaReportDataSource[] | null
 }

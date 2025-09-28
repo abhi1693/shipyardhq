@@ -18,6 +18,10 @@ import {
   getRedditAccessToken,
   getRedditUserAgent,
 } from "./redditClient"
+import {
+  getProductIdeaSubredditModel,
+  getProductIdeaSubredditRelevanceModel,
+} from "./config"
 
 const REDDIT_CACHE_TTL_SECONDS = 60 * 60 * 6 // 6 hours
 
@@ -151,12 +155,14 @@ async function generateSearchQueries({
       "Exclude broad, generic communities (e.g. r/technology, r/startups, r/marketing) unless the product explicitly serves them.",
       "Prioritize queries that surface practitioners, buyers, or power users who match the product's described audience.",
       "Return null for rationale or audience when you cannot infer them with confidence.",
+      "Favor queries that expose unmet needs, friction, or enhancement opportunities instead of echoing existing feature descriptions.",
     ],
     product: productDetails,
   }
 
   if (summary) {
     payload.summary = summary
+    payload.existingCapabilities = summary.keyFeatures ?? []
   }
 
   console.info("[productIdeas:subreddit] generating query plan", {
@@ -165,8 +171,10 @@ async function generateSearchQueries({
     platformCount: product.platforms?.length ?? 0,
   })
 
+  const queryModel = getProductIdeaSubredditModel()
+
   const response = await openai.responses.create({
-    model: "gpt-4.1-mini",
+    model: queryModel,
     temperature: 0.2,
     max_output_tokens: 750,
     text: {
@@ -235,7 +243,7 @@ async function generateSearchQueries({
 
   return {
     queries,
-    model: "gpt-4.1-mini",
+    model: queryModel,
   }
 }
 
@@ -394,13 +402,19 @@ async function refineSubredditRecommendations({
     })),
   }
 
+  if (summary?.keyFeatures?.length) {
+    evaluationPayload.existingCapabilities = summary.keyFeatures
+  }
+
   console.info("[productIdeas:subreddit] evaluating relevance with model", {
     candidateCount: subreddits.length,
   })
 
+  const evaluationModel = getProductIdeaSubredditRelevanceModel()
+
   try {
     const response = await openai.responses.create({
-      model: "gpt-4.1-mini",
+      model: evaluationModel,
       temperature: 0.1,
       max_output_tokens: 900,
       text: {
@@ -448,6 +462,8 @@ async function refineSubredditRecommendations({
               "If the subreddit is off-topic, set keep=false and explain why in the rationale.",
               "Reference the matched queries and product details to justify each score.",
               "Evaluate every provided candidate; do not introduce new subreddit names.",
+              "Down-rank communities that only celebrate existing features without discussing improvements, gaps, or alternatives.",
+              "Favor subreddits where members share frustrations, wish lists, or upgrade ideas that the product could address.",
             ],
             context: evaluationPayload,
           }),
@@ -537,7 +553,7 @@ async function refineSubredditRecommendations({
 
     return {
       subreddits: curated,
-      model: "gpt-4.1-mini",
+      model: evaluationModel,
     }
   } catch (error) {
     console.error("[productIdeas:subreddit] relevance evaluation failed", {

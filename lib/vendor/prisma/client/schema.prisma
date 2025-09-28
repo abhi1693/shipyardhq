@@ -258,19 +258,22 @@ model ProductIdeaProfile {
   subreddits               Json?
   subredditStatus          ProductIdeaProfileStatus?
   subredditErrorMessage    String?                   @db.Text
-  subredditModel           String?
   redditDiscussionQueries  Json?
   redditDiscussions        Json?
   redditInsights           Json?
   redditStatus             ProductIdeaProfileStatus?
   redditErrorMessage       String?                   @db.Text
-  redditModel              String?
+  finalReport              Json?
+  finalReportStatus        ProductIdeaProfileStatus?
+  finalReportErrorMessage  String?                   @db.Text
+  finalReportModel         String?
   status                   ProductIdeaProfileStatus  @default(pending)
   errorMessage             String?                   @db.Text
   model                    String?
   lastCrawledAt            DateTime?
   lastSubredditDiscoveryAt DateTime?
   lastRedditDiscoveryAt    DateTime?
+  lastFinalReportAt        DateTime?
   createdAt                DateTime                  @default(now())
   updatedAt                DateTime                  @updatedAt
 
