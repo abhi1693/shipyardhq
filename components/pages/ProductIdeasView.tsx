@@ -468,46 +468,29 @@ export function ProductIdeasView({
     setProfile((prev) => {
       if (!prev) return prev
 
-      const stages: Array<{
-        statusKey: keyof SerializedIdeaProfile
-        errorKey: keyof SerializedIdeaProfile
-      }> = [
+      const stages = [
         { statusKey: "status", errorKey: "errorMessage" },
-        {
-          statusKey: "subredditStatus",
-          errorKey: "subredditErrorMessage",
-        },
+        { statusKey: "subredditStatus", errorKey: "subredditErrorMessage" },
         { statusKey: "redditStatus", errorKey: "redditErrorMessage" },
-        {
-          statusKey: "finalReportStatus",
-          errorKey: "finalReportErrorMessage",
-        },
-      ]
+        { statusKey: "finalReportStatus", errorKey: "finalReportErrorMessage" },
+      ] as const
 
-      const firstFailedIndex = stages.findIndex(({ statusKey }) => {
-        const value = prev[statusKey]
-        return value === "failed"
-      })
-
-      const updated: Partial<SerializedIdeaProfile> = {
+      const updated: SerializedIdeaProfile = {
+        ...prev,
         pipelineJobState: "queued",
       }
 
-      if (firstFailedIndex === -1) {
-        for (const { statusKey, errorKey } of stages) {
-          updated[statusKey] = "pending" as SerializedIdeaProfile[typeof statusKey]
-          updated[errorKey] = null as SerializedIdeaProfile[typeof errorKey]
-        }
-      } else {
-        stages.forEach(({ statusKey, errorKey }, index) => {
-          if (index >= firstFailedIndex) {
-            updated[statusKey] = "pending" as SerializedIdeaProfile[typeof statusKey]
-            updated[errorKey] = null as SerializedIdeaProfile[typeof errorKey]
-          }
-        })
-      }
+      const firstFailedIndex = stages.findIndex(({ statusKey }) => prev[statusKey] === "failed")
 
-      return { ...prev, ...updated }
+      stages.forEach(({ statusKey, errorKey }, index) => {
+        if (firstFailedIndex === -1 || index >= firstFailedIndex) {
+          // reset downstream stages so the new pipeline run can progress cleanly
+          updated[statusKey] = "pending"
+          updated[errorKey] = null
+        }
+      })
+
+      return updated
     })
 
     startPipelineTransition(async () => {
@@ -1195,6 +1178,16 @@ export function ProductIdeasView({
     return { data, total }
   }, [discussionInsights])
 
+  type SnapshotChartEntry = { key: string; label: string; value: number }
+  type SnapshotChartResult = {
+    type: "sentiment" | "actions"
+    title: string
+    description: string
+    data: SnapshotChartEntry[]
+    total: number
+    colors: Record<string, string>
+  }
+
   const actionPriorityDistribution = useMemo(() => {
     const actions = finalReport?.recommendedActions ?? []
     if (!actions.length) return null
@@ -1220,7 +1213,13 @@ export function ProductIdeasView({
         value,
       }))
 
-    return { data, total: actions.length }
+    const mapped: SnapshotChartEntry[] = data.map((entry) => ({
+      key: entry.key,
+      label: entry.label,
+      value: entry.value,
+    }))
+
+    return { data: mapped, total: actions.length }
   }, [finalReport])
 
   const snapshotChart = useMemo(() => {
@@ -1237,10 +1236,14 @@ export function ProductIdeasView({
         type: "sentiment" as const,
         title: "Sentiment mix",
         description: "How Reddit conversations are trending right now.",
-        data: sentimentDistribution.data,
+        data: sentimentDistribution.data.map((entry) => ({
+          key: entry.key,
+          label: entry.label,
+          value: entry.value,
+        })),
         total: sentimentDistribution.total,
         colors,
-      }
+      } satisfies SnapshotChartResult
     }
 
     if (actionPriorityDistribution) {
@@ -1257,10 +1260,14 @@ export function ProductIdeasView({
         type: "actions" as const,
         title: "Action priority mix",
         description: "Distribution of recommended actions by urgency.",
-        data: actionPriorityDistribution.data,
+        data: actionPriorityDistribution.data.map((entry) => ({
+          key: entry.key,
+          label: entry.label,
+          value: entry.value,
+        })),
         total: actionPriorityDistribution.total,
         colors,
-      }
+      } satisfies SnapshotChartResult
     }
 
     return null
@@ -2372,15 +2379,8 @@ export function ProductIdeasView({
                         className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <div className="space-y-1">
-                            <div className="text-sm font-semibold text-foreground">
-                              {section?.title ?? `Cluster ${sectionIndex + 1}`}
-                            </div>
-                            {section?.summary ? (
-                              <div className="text-xs text-muted-foreground">
-                                {section.summary}
-                              </div>
-                            ) : null}
+                          <div className="text-sm font-semibold text-foreground">
+                            {section?.title ?? `Cluster ${sectionIndex + 1}`}
                           </div>
                           {sectionItems.length ? (
                             <Badge variant="outline" className="text-[11px]">
