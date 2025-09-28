@@ -597,6 +597,128 @@ export function ProductIdeasView({
 
   const hasSubredditResults = subreddits.length > 0
 
+  const topSubreddits = useMemo(() => {
+    if (!subreddits.length) return []
+    return [...subreddits]
+      .sort((a, b) => {
+        const aScore = typeof a.relevanceScore === "number" ? a.relevanceScore : -1
+        const bScore = typeof b.relevanceScore === "number" ? b.relevanceScore : -1
+        if (bScore !== aScore) return bScore - aScore
+        const aSubscribers = typeof a.subscribers === "number" ? a.subscribers : 0
+        const bSubscribers = typeof b.subscribers === "number" ? b.subscribers : 0
+        return bSubscribers - aSubscribers
+      })
+      .slice(0, 4)
+  }, [subreddits])
+
+  const communityStats = useMemo(() => {
+    let subscriberTotal = 0
+    let nsfwCount = 0
+    let relevanceSum = 0
+    let relevanceCount = 0
+    const matchedQuerySet = new Set<string>()
+    const queryMatchCounts = new Map<string, number>()
+
+    for (const subreddit of subreddits) {
+      if (typeof subreddit.subscribers === "number") {
+        subscriberTotal += subreddit.subscribers
+      }
+      if (subreddit.over18) {
+        nsfwCount += 1
+      }
+      if (typeof subreddit.relevanceScore === "number") {
+        relevanceSum += subreddit.relevanceScore
+        relevanceCount += 1
+      }
+      if (Array.isArray(subreddit.matchedQueries)) {
+        for (const query of subreddit.matchedQueries) {
+          if (!query) continue
+          matchedQuerySet.add(query)
+          queryMatchCounts.set(query, (queryMatchCounts.get(query) ?? 0) + 1)
+        }
+      }
+    }
+
+    let queriesCovered = 0
+    for (const query of subredditQueries) {
+      if (matchedQuerySet.has(query.query)) {
+        queriesCovered += 1
+      }
+    }
+
+    const queryCoveragePercent =
+      subredditQueries.length > 0
+        ? (queriesCovered / subredditQueries.length) * 100
+        : null
+
+    return {
+      totalSubscribers: subscriberTotal,
+      nsfwCount,
+      avgRelevance: relevanceCount ? relevanceSum / relevanceCount : null,
+      queriesCovered,
+      queryCoveragePercent,
+      queryMatchCounts,
+    }
+  }, [subreddits, subredditQueries])
+
+  const avgRelevancePercent =
+    communityStats.avgRelevance !== null ? communityStats.avgRelevance * 100 : null
+  const coveragePercent = communityStats.queryCoveragePercent
+
+  const discoveryQuickFacts: Array<{ label: string; value: string; tone: MetricTone }> = [
+    {
+      label: "Audience reach",
+      value: communityStats.totalSubscribers
+        ? `${COUNT_FORMATTER.format(communityStats.totalSubscribers)} people`
+        : "—",
+      tone: communityStats.totalSubscribers ? "positive" : "neutral",
+    },
+    {
+      label: "Avg relevance",
+      value:
+        avgRelevancePercent !== null
+          ? `${PERCENT_FORMATTER.format(avgRelevancePercent)}% match`
+          : "—",
+      tone:
+        avgRelevancePercent !== null
+          ? avgRelevancePercent >= 70
+            ? "positive"
+            : avgRelevancePercent >= 40
+              ? "neutral"
+              : "warning"
+          : "neutral",
+    },
+    {
+      label: "Adult-only communities",
+      value: `${communityStats.nsfwCount} group${communityStats.nsfwCount === 1 ? "" : "s"}`,
+      tone: communityStats.nsfwCount ? "warning" : "neutral",
+    },
+    {
+      label: "Query coverage",
+      value:
+        coveragePercent !== null
+          ? `${PERCENT_FORMATTER.format(coveragePercent)}% coverage`
+          : subredditQueries.length
+            ? "0% coverage"
+            : "—",
+      tone:
+        coveragePercent !== null
+          ? coveragePercent >= 75
+            ? "positive"
+            : coveragePercent >= 40
+              ? "neutral"
+              : "warning"
+          : subredditQueries.length
+            ? "danger"
+            : "neutral",
+    },
+  ]
+
+  const shouldShowSubredditEmptyState = !hasSubredditResults && !isRunningPipeline
+  const shouldSurfaceSubredditNotices = Boolean(
+    subredditProgress || profile?.subredditErrorMessage || shouldShowSubredditEmptyState,
+  )
+
   const subredditStatus = profile?.subredditStatus ?? null
   const subredditStatusDisplay = subredditStatus
     ? STATUS_STYLES[subredditStatus]
@@ -727,44 +849,6 @@ export function ProductIdeasView({
     isRunningPipeline ||
     pipelineJobState === "queued" ||
     pipelineJobState === "active"
-
-  const subredditMetrics = [
-    {
-      label: "Last discovered",
-      value: lastSubredditDiscovery,
-      tone: profile ? "neutral" : "warning",
-    },
-    {
-      label: "Saved communities",
-      value: profile
-        ? hasSubredditResults
-          ? `${subreddits.length}`
-          : "0"
-        : "—",
-      tone: profile
-        ? hasSubredditResults
-          ? "positive"
-          : "warning"
-        : "neutral",
-    },
-    {
-      label: "Queries generated",
-      value: profile
-        ? subredditQueries.length
-          ? `${subredditQueries.length}`
-          : "0"
-        : "—",
-      tone: profile
-        ? subredditQueries.length
-          ? "neutral"
-          : "warning"
-        : "neutral",
-    },
-  ] as const satisfies ReadonlyArray<{
-    label: string
-    value: string
-    tone: MetricTone
-  }>
 
   const discussionMetrics = [
     {
@@ -1590,107 +1674,278 @@ export function ProductIdeasView({
         title="Audience discovery"
         description="The pipeline generates Reddit search plans and captures the communities that match this product."
         status={subredditStatusDisplay}
-        metrics={subredditMetrics}
         collapsible
         defaultOpen={shouldOpenSubredditStage}
       >
         <>
-          {renderSubredditProgress()}
-          {renderSubredditError()}
-          {!hasSubredditResults && !isRunningPipeline && (
-            <InfoNotice tone="info">
-              Run the full pipeline to craft Reddit search queries, resolve the
-              best-fit communities, and cache them for future research or
-              outreach.
-            </InfoNotice>
-          )}
-          {!!subredditQueries.length && (
-            <section className="space-y-2">
-              <div className="text-xs font-semibold uppercase text-muted-foreground">
-                Generated search queries
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {subredditQueries.map((item) => (
-                  <div
-                    key={item.query}
-                    className="max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-left text-sm shadow-sm"
-                  >
-                    <div className="font-medium text-foreground">{item.query}</div>
-                    {item.rationale && (
-                      <div className="mt-1 text-xs text-muted-foreground">{item.rationale}</div>
+          <div className="space-y-6">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.9fr)]">
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-sm font-semibold text-foreground">
+                        Search plan
+                      </div>
+                      {subredditQueries.length ? (
+                        <Badge variant="outline" className="text-[11px]">
+                          {COUNT_FORMATTER.format(subredditQueries.length)} quer
+                          {subredditQueries.length === 1 ? "y" : "ies"}
+                        </Badge>
+                      ) : null}
+                    </div>
+                    {subredditQueries.length ? (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {subredditQueries.map((item) => {
+                          const matchCount =
+                            communityStats.queryMatchCounts.get(item.query) ?? 0
+                          return (
+                            <div
+                              key={item.query}
+                              className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="font-semibold leading-snug text-foreground">
+                                  {item.query}
+                                </div>
+                                <Badge
+                                  variant={matchCount ? "secondary" : "outline"}
+                                  className="text-[10px]"
+                                >
+                                  {matchCount
+                                    ? `${matchCount} match${matchCount === 1 ? "" : "es"}`
+                                    : "No matches yet"}
+                                </Badge>
+                              </div>
+                              {item.rationale ? (
+                                <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                  {item.rationale}
+                                </div>
+                              ) : null}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
+                        Run the discovery step to generate targeted Reddit search queries for this product.
+                      </div>
                     )}
                   </div>
-                ))}
-              </div>
-            </section>
-          )}
-          {hasSubredditResults && (
-            <section className="space-y-3">
-              <div className="text-sm font-semibold text-foreground">
-                Saved communities
-              </div>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="min-w-[160px]">Subreddit</TableHead>
-                      <TableHead className="min-w-[280px]">What they discuss</TableHead>
-                      <TableHead>Relevance</TableHead>
-                      <TableHead>Subscribers</TableHead>
-                      <TableHead>Matched queries</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {subreddits.map((subreddit) => (
-                      <TableRow key={subreddit.name}>
-                        <TableCell className="whitespace-nowrap">
-                          <Link
-                            href={subreddit.url ?? `https://reddit.com/r/${subreddit.name}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="font-semibold text-primary hover:underline"
-                          >
-                            r/{subreddit.name}
-                          </Link>
-                          {subreddit.over18 && (
-                            <Badge variant="outline" className="ml-2 align-middle text-[10px]">
-                              18+
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
-                          <div>{subreddit.description || subreddit.title || "—"}</div>
-                          {subreddit.relevanceReason && (
-                            <div className="mt-2 text-xs text-primary">
-                              {subreddit.relevanceReason}
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap text-sm text-foreground">
-                          {typeof subreddit.relevanceScore === "number"
-                            ? `${Math.round(subreddit.relevanceScore * 100)}%`
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap text-sm text-foreground">
-                          {typeof subreddit.subscribers === "number"
-                            ? subreddit.subscribers.toLocaleString()
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
-                          {subreddit.matchedQueries?.length
-                            ? subreddit.matchedQueries.join(" • ")
-                            : "—"}
-                        </TableCell>
-                      </TableRow>
+                  {topSubreddits.length ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-semibold text-foreground">
+                          Priority communities
+                        </div>
+                        <Badge variant="secondary" className="text-[11px]">
+                          Top {topSubreddits.length}
+                        </Badge>
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {topSubreddits.map((subreddit) => {
+                          const relevancePercent =
+                            typeof subreddit.relevanceScore === "number"
+                              ? Math.round(subreddit.relevanceScore * 100)
+                              : null
+                          const memberCount =
+                            typeof subreddit.subscribers === "number"
+                              ? COUNT_FORMATTER.format(subreddit.subscribers)
+                              : null
+                          const description =
+                            subreddit.relevanceReason ||
+                            subreddit.description ||
+                            subreddit.title ||
+                            null
+                          const trimmedDescription =
+                            description && description.length > 140
+                              ? `${description.slice(0, 140)}…`
+                              : description
+                          const queryBadgeLabel = subreddit.matchedQueries?.length
+                            ? `${subreddit.matchedQueries.length} query${
+                                subreddit.matchedQueries.length === 1 ? "" : "es"
+                              }`
+                            : null
+                          return (
+                            <Link
+                              key={subreddit.name}
+                              href={
+                                subreddit.url ?? `https://reddit.com/r/${subreddit.name}`
+                              }
+                              target="_blank"
+                              rel="noreferrer"
+                              className="group rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="text-sm font-semibold text-foreground">
+                                  r/{subreddit.name}
+                                </div>
+                                {relevancePercent !== null ? (
+                                  <Badge
+                                    variant={
+                                      relevancePercent >= 70
+                                        ? "secondary"
+                                        : relevancePercent >= 40
+                                          ? "outline"
+                                          : "destructive"
+                                    }
+                                    className="text-[10px]"
+                                  >
+                                    {relevancePercent}% match
+                                  </Badge>
+                                ) : null}
+                              </div>
+                              {trimmedDescription ? (
+                                <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                  {trimmedDescription}
+                                </div>
+                              ) : null}
+                              <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                {memberCount ? (
+                                  <span className="font-medium text-foreground">
+                                    {memberCount} members
+                                  </span>
+                                ) : null}
+                                {queryBadgeLabel ? (
+                                  <Badge variant="outline" className="text-[10px]">
+                                    {queryBadgeLabel}
+                                  </Badge>
+                                ) : null}
+                                {subreddit.over18 ? (
+                                  <Badge variant="destructive" className="text-[10px] uppercase">
+                                    18+
+                                  </Badge>
+                                ) : null}
+                              </div>
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-semibold uppercase text-muted-foreground">
+                      Discovery health
+                    </div>
+                    {hasSubredditResults ? (
+                      <Badge variant="secondary" className="text-[11px]">
+                        {COUNT_FORMATTER.format(subreddits.length)} saved
+                      </Badge>
+                    ) : null}
+                  </div>
+                  <div className="grid gap-3">
+                    {discoveryQuickFacts.map((fact) => (
+                      <div
+                        key={fact.label}
+                        className={cn(
+                          "rounded-lg border p-3 text-left text-sm shadow-sm",
+                          FACT_TONE_STYLES[fact.tone],
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          {fact.label}
+                        </div>
+                        <div className="mt-1 text-sm font-semibold">{fact.value}</div>
+                      </div>
                     ))}
-                  </TableBody>
-                  <TableCaption>
-                    {`${subreddits.length} subreddit${subreddits.length === 1 ? "" : "s"} saved for this product`}
-                  </TableCaption>
-                </Table>
+                  </div>
+                  {shouldSurfaceSubredditNotices ? (
+                    <div className="space-y-2">
+                      {renderSubredditProgress()}
+                      {renderSubredditError()}
+                      {shouldShowSubredditEmptyState ? (
+                        <InfoNotice tone="info" size="xs">
+                          Run the full pipeline to craft Reddit search plans, resolve the best-fit communities, and cache them for future research or outreach.
+                        </InfoNotice>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </section>
-          )}
+            {hasSubredditResults ? (
+              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      Saved communities roster
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Full detail on reach, match rationale, and the queries that drove discovery.
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="self-start text-[11px]">
+                    {COUNT_FORMATTER.format(subreddits.length)} community
+                    {subreddits.length === 1 ? "" : "ies"}
+                  </Badge>
+                </div>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="min-w-[160px]">Subreddit</TableHead>
+                        <TableHead className="min-w-[280px]">What they discuss</TableHead>
+                        <TableHead>Relevance</TableHead>
+                        <TableHead>Subscribers</TableHead>
+                        <TableHead>Matched queries</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {subreddits.map((subreddit) => (
+                        <TableRow key={subreddit.name}>
+                          <TableCell className="whitespace-nowrap">
+                            <Link
+                              href={
+                                subreddit.url ?? `https://reddit.com/r/${subreddit.name}`
+                              }
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-semibold text-primary hover:underline"
+                            >
+                              r/{subreddit.name}
+                            </Link>
+                            {subreddit.over18 && (
+                              <Badge variant="outline" className="ml-2 align-middle text-[10px]">
+                                18+
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
+                            <div>{subreddit.description || subreddit.title || "—"}</div>
+                            {subreddit.relevanceReason && (
+                              <div className="mt-2 text-xs text-primary">
+                                {subreddit.relevanceReason}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-sm text-foreground">
+                            {typeof subreddit.relevanceScore === "number"
+                              ? `${Math.round(subreddit.relevanceScore * 100)}%`
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-sm text-foreground">
+                            {typeof subreddit.subscribers === "number"
+                              ? subreddit.subscribers.toLocaleString()
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                            {subreddit.matchedQueries?.length
+                              ? subreddit.matchedQueries.join(" • ")
+                              : "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                    <TableCaption>
+                      {`${subreddits.length} subreddit${subreddits.length === 1 ? "" : "s"} saved for this product`}
+                    </TableCaption>
+                  </Table>
+                </div>
+              </section>
+            ) : null}
+          </div>
         </>
       </StageCard>
 
