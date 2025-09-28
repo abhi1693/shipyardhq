@@ -1,7 +1,9 @@
 "use client"
 
 import {
+  useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
   type ComponentProps,
@@ -10,6 +12,7 @@ import {
 import Link from "next/link"
 import { formatDistanceToNowStrict } from "date-fns"
 import { toast } from "sonner"
+import { ChevronDownIcon } from "lucide-react"
 
 import { scheduleProductIdeaInsightsPipeline } from "@/actions/member/products/ideas"
 import type {
@@ -46,6 +49,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/atoms/table"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/atoms/collapsible"
+import type { ChartConfig } from "@/components/atoms/chart"
+import { AnalyticsPieChart } from "@/components/molecules/AnalyticsPieChart"
 import { cn } from "@/lib/utils"
 
 const STATUS_STYLES: Record<
@@ -75,6 +81,12 @@ const SENTIMENT_BADGE_LABEL: Record<
   neutral: "Neutral",
 }
 
+const SENTIMENT_COLORS: Record<"positive" | "negative" | "neutral", string> = {
+  positive: "var(--chart-2)",
+  negative: "var(--destructive)",
+  neutral: "var(--chart-3)",
+}
+
 const ACTION_PRIORITY_BADGE: Record<
   ProductIdeaReportActionPriority,
   { label: string; badge: ComponentProps<typeof Badge>["variant"] }
@@ -84,6 +96,21 @@ const ACTION_PRIORITY_BADGE: Record<
   low: { label: "Low priority", badge: "outline" },
   watch: { label: "Monitor", badge: "secondary" },
 }
+
+const ACTION_PRIORITY_COLORS: Record<ProductIdeaReportActionPriority, string> = {
+  high: "var(--destructive)",
+  medium: "var(--chart-1)",
+  low: "var(--chart-2)",
+  watch: "var(--chart-4)",
+}
+
+const COUNT_FORMATTER = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0,
+})
+
+const PERCENT_FORMATTER = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 1,
+})
 
 type ProductIdeasViewProps = {
   slug: string
@@ -179,6 +206,8 @@ type StageCardProps = {
   status: { label: string; badge: ComponentProps<typeof Badge>["variant"] }
   actions?: ReactNode
   metrics?: ReadonlyArray<{ label: string; value: ReactNode; tone?: MetricTone }>
+  collapsible?: boolean
+  defaultOpen?: boolean
   children: ReactNode
 }
 
@@ -189,40 +218,96 @@ function StageCard({
   status,
   actions,
   metrics,
+  collapsible = false,
+  defaultOpen = true,
   children,
 }: StageCardProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen)
+  const previousDefaultOpen = useRef(defaultOpen)
+
+  useEffect(() => {
+    if (!collapsible) {
+      previousDefaultOpen.current = defaultOpen
+      return
+    }
+
+    if (defaultOpen && !previousDefaultOpen.current) {
+      setIsOpen(true)
+    }
+
+    previousDefaultOpen.current = defaultOpen
+  }, [collapsible, defaultOpen])
+
+  const header = (
+    withTrigger: boolean,
+  ) => (
+    <CardHeader className="space-y-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <StageBadge label={step} />
+            <CardTitle>{title}</CardTitle>
+          </div>
+          <CardDescription>{description}</CardDescription>
+        </div>
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-end">
+          <Badge variant={status.badge} className="text-xs">
+            {status.label}
+          </Badge>
+          {actions}
+          {withTrigger ? (
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-muted-foreground transition hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                )}
+              >
+                {isOpen ? "Hide details" : "Show details"}
+                <ChevronDownIcon
+                  className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-200",
+                    isOpen ? "rotate-180" : "rotate-0",
+                  )}
+                  aria-hidden
+                />
+              </button>
+            </CollapsibleTrigger>
+          ) : null}
+        </div>
+      </div>
+      {!!metrics?.length && (
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {metrics.map((metric) => (
+            <MetricTile
+              key={metric.label}
+              label={metric.label}
+              value={metric.value}
+              tone={metric.tone ?? "neutral"}
+            />
+          ))}
+        </div>
+      )}
+    </CardHeader>
+  )
+
+  if (!collapsible) {
+    return (
+      <Card>
+        {header(false)}
+        <CardContent className="space-y-6">{children}</CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
-      <CardHeader className="space-y-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <StageBadge label={step} />
-              <CardTitle>{title}</CardTitle>
-            </div>
-            <CardDescription>{description}</CardDescription>
-          </div>
-          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-end">
-            <Badge variant={status.badge} className="text-xs">
-              {status.label}
-            </Badge>
-            {actions}
-          </div>
-        </div>
-        {!!metrics?.length && (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {metrics.map((metric) => (
-              <MetricTile
-                key={metric.label}
-                label={metric.label}
-                value={metric.value}
-                tone={metric.tone ?? "neutral"}
-              />
-            ))}
-          </div>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-6">{children}</CardContent>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        {header(true)}
+        <CollapsibleContent asChild>
+          <CardContent className="space-y-6">{children}</CardContent>
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   )
 }
@@ -696,6 +781,208 @@ export function ProductIdeasView({
     tone: MetricTone
   }>
 
+  const snapshotMetrics = [
+    {
+      label: "Pages captured",
+      value: profile
+        ? pageCount
+          ? COUNT_FORMATTER.format(pageCount)
+          : "0"
+        : "—",
+      tone: profile ? (pageCount ? "neutral" : "warning") : "neutral",
+    },
+    {
+      label: "Communities mapped",
+      value: profile
+        ? hasSubredditResults
+          ? COUNT_FORMATTER.format(subreddits.length)
+          : "0"
+        : "—",
+      tone: profile
+        ? hasSubredditResults
+          ? "positive"
+          : "warning"
+        : "neutral",
+    },
+    {
+      label: "Live threads",
+      value: profile
+        ? hasDiscussionThreads
+          ? COUNT_FORMATTER.format(discussionThreads.length)
+          : "0"
+        : "—",
+      tone: profile
+        ? hasDiscussionThreads
+          ? "positive"
+          : "warning"
+        : "neutral",
+    },
+    {
+      label: "Action items",
+      value: finalReport
+        ? actionCount
+          ? COUNT_FORMATTER.format(actionCount)
+          : "0"
+        : "—",
+      tone: finalReport
+        ? actionCount >= 3
+          ? "positive"
+          : actionCount
+            ? "neutral"
+            : "warning"
+        : "neutral",
+    },
+  ] as const satisfies ReadonlyArray<{
+    label: string
+    value: string
+    tone: MetricTone
+  }>
+
+  const statusSnapshot = [
+    { label: "Crawler", value: lastCrawled },
+    { label: "Communities", value: lastSubredditDiscovery },
+    { label: "Conversations", value: lastDiscussionDiscovery },
+    { label: "Report", value: lastReportGenerated },
+  ] as const
+
+  const sentimentDistribution = useMemo(() => {
+    if (!discussionInsights?.sections?.length) return null
+
+    const counts: Record<"positive" | "negative" | "neutral", number> = {
+      positive: 0,
+      negative: 0,
+      neutral: 0,
+    }
+
+    for (const section of discussionInsights.sections) {
+      for (const item of section.items ?? []) {
+        if (!item?.sentiment) continue
+        if (item.sentiment in counts) {
+          counts[item.sentiment as keyof typeof counts] += 1
+        }
+      }
+    }
+
+    const total = Object.values(counts).reduce((sum, value) => sum + value, 0)
+    if (!total) return null
+
+    const data = (Object.entries(counts) as Array<
+      [keyof typeof counts, number]
+    >)
+      .filter(([, value]) => value > 0)
+      .map(([key, value]) => ({
+        key,
+        label: SENTIMENT_BADGE_LABEL[key],
+        value,
+      }))
+
+    return { data, total }
+  }, [discussionInsights])
+
+  const actionPriorityDistribution = useMemo(() => {
+    const actions = finalReport?.recommendedActions ?? []
+    if (!actions.length) return null
+
+    const counts: Record<ProductIdeaReportActionPriority, number> = {
+      high: 0,
+      medium: 0,
+      low: 0,
+      watch: 0,
+    }
+
+    for (const action of actions) {
+      counts[action.priority] += 1
+    }
+
+    const data = (Object.entries(counts) as Array<
+      [ProductIdeaReportActionPriority, number]
+    >)
+      .filter(([, value]) => value > 0)
+      .map(([priority, value]) => ({
+        key: priority,
+        label: ACTION_PRIORITY_BADGE[priority].label,
+        value,
+      }))
+
+    return { data, total: actions.length }
+  }, [finalReport])
+
+  const snapshotChart = useMemo(() => {
+    if (sentimentDistribution) {
+      const colors = Object.fromEntries(
+        sentimentDistribution.data.map((entry) => [
+          entry.key,
+          SENTIMENT_COLORS[entry.key as keyof typeof SENTIMENT_COLORS] ??
+            "var(--chart-2)",
+        ]),
+      )
+
+      return {
+        type: "sentiment" as const,
+        title: "Sentiment mix",
+        description: "How Reddit conversations are trending right now.",
+        data: sentimentDistribution.data,
+        total: sentimentDistribution.total,
+        colors,
+      }
+    }
+
+    if (actionPriorityDistribution) {
+      const colors = Object.fromEntries(
+        actionPriorityDistribution.data.map((entry) => [
+          entry.key,
+          ACTION_PRIORITY_COLORS[
+            entry.key as ProductIdeaReportActionPriority
+          ] ?? "var(--chart-2)",
+        ]),
+      )
+
+      return {
+        type: "actions" as const,
+        title: "Action priority mix",
+        description: "Distribution of recommended actions by urgency.",
+        data: actionPriorityDistribution.data,
+        total: actionPriorityDistribution.total,
+        colors,
+      }
+    }
+
+    return null
+  }, [actionPriorityDistribution, sentimentDistribution])
+
+  const snapshotChartConfig = useMemo<ChartConfig | null>(() => {
+    if (!snapshotChart) return null
+    return Object.fromEntries(
+      snapshotChart.data.map((entry) => [
+        entry.key,
+        {
+          label: entry.label,
+          color: snapshotChart.colors[entry.key] ?? "var(--chart-2)",
+        },
+      ]),
+    ) as ChartConfig
+  }, [snapshotChart])
+
+  const shouldOpenCrawlerStage = true
+  const shouldOpenSubredditStage =
+    hasSubredditResults ||
+    !!subredditProgress ||
+    !!profile?.subredditErrorMessage ||
+    subredditStatus === "pending" ||
+    subredditStatus === "failed"
+  const shouldOpenDiscussionStage =
+    hasDiscussionThreads ||
+    !!discussionProgress ||
+    !!profile?.redditErrorMessage ||
+    discussionStatus === "pending" ||
+    discussionStatus === "failed"
+  const shouldOpenReportStage =
+    hasFinalReport ||
+    !!reportProgress ||
+    !!profile?.finalReportErrorMessage ||
+    reportStatus === "pending" ||
+    reportStatus === "failed"
+
   const flowStageSummaries: FlowStageSummary[] = [
     {
       step: "Step 1",
@@ -867,6 +1154,116 @@ export function ProductIdeasView({
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle>Insights snapshot</CardTitle>
+          <CardDescription>
+            Quick pulse across crawl coverage, audience discovery, and the current action plan.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+            <div className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {snapshotMetrics.map((metric) => (
+                  <MetricTile
+                    key={metric.label}
+                    label={metric.label}
+                    value={metric.value}
+                    tone={metric.tone}
+                  />
+                ))}
+              </div>
+              <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                {statusSnapshot.map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                  >
+                    <span className="font-semibold text-foreground">{item.label}</span>
+                    <span className="ml-auto text-foreground">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-3">
+              {snapshotChart && snapshotChartConfig ? (
+                <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      {snapshotChart.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {snapshotChart.description}
+                    </div>
+                  </div>
+                  <AnalyticsPieChart
+                    className="border-none p-0 shadow-none"
+                    data={snapshotChart.data}
+                    config={snapshotChartConfig}
+                    dataKey="value"
+                    nameKey="label"
+                    height={220}
+                    innerRadius={60}
+                    pieProps={{ paddingAngle: 2 }}
+                    tooltip={{
+                      labelFormatter: (label) =>
+                        typeof label === "string" || typeof label === "number"
+                          ? String(label)
+                          : "",
+                      valueFormatter: (value) => {
+                        const percent = snapshotChart.total
+                          ? (value / snapshotChart.total) * 100
+                          : 0
+                        return `${COUNT_FORMATTER.format(value)} (${PERCENT_FORMATTER.format(percent)}%)`
+                      },
+                    }}
+                    getCellProps={(entry) => ({
+                      fill:
+                        snapshotChart.colors[entry.key as string] ??
+                        "var(--chart-2)",
+                      stroke: "var(--card)",
+                    })}
+                  />
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    {snapshotChart.data.map((entry) => {
+                      const percent = snapshotChart.total
+                        ? (entry.value / snapshotChart.total) * 100
+                        : 0
+                      return (
+                        <div
+                          key={entry.key}
+                          className="flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2"
+                        >
+                          <span
+                            className="h-2.5 w-2.5 rounded-full"
+                            style={{
+                              backgroundColor:
+                                snapshotChart.colors[entry.key] ?? "var(--chart-2)",
+                            }}
+                          />
+                          <span className="flex-1 font-medium text-foreground">
+                            {entry.label}
+                          </span>
+                          <span className="font-semibold text-foreground">
+                            {COUNT_FORMATTER.format(entry.value)}
+                          </span>
+                          <span>({PERCENT_FORMATTER.format(percent)}%)</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex h-full min-h-[220px] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-xs text-muted-foreground">
+                  Run the insights pipeline to visualise sentiment and action mix at a glance.
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <FlowOverview stages={flowStageSummaries} />
 
       <StageCard
@@ -875,6 +1272,8 @@ export function ProductIdeasView({
         description="The pipeline crawler captures live messaging and structure for this product."
         status={statusDisplay}
         metrics={crawlerMetrics}
+        collapsible
+        defaultOpen={shouldOpenCrawlerStage}
       >
         <>
           <section className="space-y-1">
@@ -1029,6 +1428,8 @@ export function ProductIdeasView({
         description="The pipeline generates Reddit search plans and captures the communities that match this product."
         status={subredditStatusDisplay}
         metrics={subredditMetrics}
+        collapsible
+        defaultOpen={shouldOpenSubredditStage}
       >
         <>
           {renderSubredditProgress()}
@@ -1136,6 +1537,8 @@ export function ProductIdeasView({
         description="Review Reddit conversations to surface wins, friction, and opportunities."
         status={discussionStatusDisplay}
         metrics={discussionMetrics}
+        collapsible
+        defaultOpen={shouldOpenDiscussionStage}
       >
         <>
           {renderDiscussionProgress()}
@@ -1358,6 +1761,8 @@ export function ProductIdeasView({
         description="Merge product narrative, community intelligence, and Reddit signals into a single plan."
         status={reportStatusDisplay}
         metrics={reportMetrics}
+        collapsible
+        defaultOpen={shouldOpenReportStage}
       >
         <>
           <div className="text-xs text-muted-foreground">
