@@ -1008,6 +1008,27 @@ export function ProductIdeasView({
 
   const finalReport =
     (profile?.finalReport as ProductIdeaComprehensiveReport | null) ?? null
+  const headlineHighlights = Array.isArray(finalReport?.headlineHighlights)
+    ? finalReport!.headlineHighlights
+    : []
+  const opportunityAreas = Array.isArray(finalReport?.opportunityAreas)
+    ? finalReport!.opportunityAreas
+    : []
+  const customerSignals = Array.isArray(finalReport?.customerSignals)
+    ? finalReport!.customerSignals
+    : []
+  const recommendedActions = Array.isArray(finalReport?.recommendedActions)
+    ? finalReport!.recommendedActions
+    : []
+  const communityPlan = Array.isArray(finalReport?.communityPlan)
+    ? finalReport!.communityPlan
+    : []
+  const metricsToWatch = Array.isArray(finalReport?.metricsToWatch)
+    ? finalReport!.metricsToWatch
+    : []
+  const supportingData = Array.isArray(finalReport?.supportingData)
+    ? finalReport!.supportingData
+    : []
   const reportStatus = profile?.finalReportStatus ?? null
   const reportStatusDisplay = reportStatus
     ? STATUS_STYLES[reportStatus]
@@ -1017,12 +1038,15 @@ export function ProductIdeasView({
         addSuffix: true,
       })
     : "Never"
-  const headlineCount = finalReport?.headlineHighlights?.length ?? 0
-  const actionCount = finalReport?.recommendedActions?.length ?? 0
-  const opportunityCount = finalReport?.opportunityAreas?.length ?? 0
+  const headlineCount = headlineHighlights.length
+  const actionCount = recommendedActions.length
+  const opportunityCount = opportunityAreas.length
   const hasFinalReport = Boolean(finalReport)
 
-  const reportMetrics = [
+  const communityPlanCount = communityPlan.length
+  const metricsToWatchCount = metricsToWatch.length
+
+  const reportQuickFacts: Array<{ label: string; value: string; tone: MetricTone }> = [
     {
       label: "Last generated",
       value: lastReportGenerated,
@@ -1030,24 +1054,48 @@ export function ProductIdeasView({
     },
     {
       label: "Highlights",
-      value: headlineCount ? `${headlineCount} key points` : "—",
+      value: headlineCount
+        ? `${COUNT_FORMATTER.format(headlineCount)} key point${headlineCount === 1 ? "" : "s"}`
+        : "—",
       tone: headlineCount ? "positive" : "neutral",
     },
     {
       label: "Recommended actions",
-      value: actionCount ? `${actionCount} actions` : "—",
-      tone: actionCount >= 3 ? "positive" : actionCount ? "neutral" : "warning",
+      value: actionCount
+        ? `${COUNT_FORMATTER.format(actionCount)} action${actionCount === 1 ? "" : "s"}`
+        : "—",
+      tone:
+        actionCount >= 3 ? "positive" : actionCount ? "neutral" : hasFinalReport ? "warning" : "neutral",
     },
     {
       label: "Opportunity areas",
-      value: opportunityCount ? `${opportunityCount} focus areas` : "—",
-      tone: opportunityCount ? "neutral" : "warning",
+      value: opportunityCount
+        ? `${COUNT_FORMATTER.format(opportunityCount)} focus area${
+            opportunityCount === 1 ? "" : "s"
+          }`
+        : "—",
+      tone: opportunityCount ? "neutral" : hasFinalReport ? "warning" : "neutral",
     },
-  ] as const satisfies ReadonlyArray<{
-    label: string
-    value: string
-    tone: MetricTone
-  }>
+    {
+      label: "Community plays",
+      value: communityPlanCount
+        ? `${COUNT_FORMATTER.format(communityPlanCount)} play${communityPlanCount === 1 ? "" : "s"}`
+        : "—",
+      tone: communityPlanCount ? "positive" : hasFinalReport ? "warning" : "neutral",
+    },
+    {
+      label: "Metrics tracked",
+      value: metricsToWatchCount
+        ? `${COUNT_FORMATTER.format(metricsToWatchCount)}`
+        : "—",
+      tone: metricsToWatchCount ? "neutral" : hasFinalReport ? "warning" : "neutral",
+    },
+  ]
+
+  const shouldShowReportEmptyState = !hasFinalReport && !isRunningPipeline
+  const shouldSurfaceReportNotices = Boolean(
+    reportProgress || profile?.finalReportErrorMessage || shouldShowReportEmptyState,
+  )
 
   const snapshotMetrics = [
     {
@@ -2522,243 +2570,404 @@ export function ProductIdeasView({
         </>
       </StageCard>
 
+
       <StageCard
         step="Step 4"
         title="Comprehensive report"
         description="Merge product narrative, community intelligence, and Reddit signals into a single plan."
         status={reportStatusDisplay}
-        metrics={reportMetrics}
         collapsible
         defaultOpen={shouldOpenReportStage}
       >
         <>
-          <div className="text-xs text-muted-foreground">
-            Last generated: {lastReportGenerated}
-          </div>
-          {renderReportProgress()}
-          {renderReportError()}
-          {!hasFinalReport && !isRunningPipeline && (
-            <InfoNotice tone="info">
-              Run the pipeline after the profile and Reddit insights are ready to
-              generate the comprehensive report that combines every section into
-              a single focus plan.
-            </InfoNotice>
-          )}
-          {finalReport && (
-            <section className="space-y-6">
-              {finalReport.executiveSummary && (
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
-                  {finalReport.executiveSummary}
-                </div>
-              )}
-              {!!(finalReport.headlineHighlights?.length ?? 0) && (
-                <div className="space-y-2">
-                  <div className="text-xs font-semibold uppercase text-muted-foreground">
-                    Headline highlights
-                  </div>
-                  <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
-                    {finalReport.headlineHighlights.map((highlight, index) => (
-                      <li key={`headline-${index}`}>{highlight}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {!!(finalReport.opportunityAreas?.length ?? 0) && (
-                <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase text-muted-foreground">
-                    Opportunity areas
-                  </div>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {finalReport.opportunityAreas.map((area, index) => (
-                      <div
-                        key={`opportunity-${index}`}
-                        className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-                      >
-                        <div className="text-sm font-semibold text-foreground">
-                          {area.title}
-                        </div>
-                        {area.summary && (
-                          <div className="mt-1 text-sm text-muted-foreground">
-                            {area.summary}
-                          </div>
-                        )}
-                        {!!(area.highlights?.length ?? 0) && (
-                          <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                            {area.highlights.map((item, itemIndex) => (
-                              <li key={`opportunity-${index}-${itemIndex}`}>{item}</li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {!!(finalReport.customerSignals?.length ?? 0) && (
-                <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase text-muted-foreground">
-                    Customer signals
-                  </div>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {finalReport.customerSignals.map((section, index) => (
-                      <div
-                        key={`signal-${index}`}
-                        className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-                      >
-                        <div className="text-sm font-semibold text-foreground">
-                          {section.title}
-                        </div>
-                        {section.summary && (
-                          <div className="mt-1 text-sm text-muted-foreground">
-                            {section.summary}
-                          </div>
-                        )}
-                        {!!(section.highlights?.length ?? 0) && (
-                          <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                            {section.highlights.map((item, itemIndex) => (
-                              <li key={`signal-${index}-${itemIndex}`}>{item}</li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {!!(finalReport.recommendedActions?.length ?? 0) && (
-                <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase text-muted-foreground">
-                    Recommended actions
-                  </div>
+          <div className="space-y-6">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
+                <div className="space-y-6">
                   <div className="space-y-3">
-                    {finalReport.recommendedActions.map((action, index) => {
-                      const priority = ACTION_PRIORITY_BADGE[action.priority]
-                      const timeframeLabel = formatActionTimeframe(action.timeframe)
-                      return (
-                        <div
-                          key={`action-${index}`}
-                          className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-                        >
-                          <div className="flex flex-wrap items-start justify-between gap-3">
-                            <div className="space-y-1">
-                              <div className="text-sm font-semibold text-foreground">
-                                {action.title}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-sm font-semibold text-foreground">
+                        Executive summary
+                      </div>
+                      {headlineCount ? (
+                        <Badge variant="secondary" className="text-[11px]">
+                          {COUNT_FORMATTER.format(headlineCount)} highlight{headlineCount === 1 ? '' : 's'}
+                        </Badge>
+                      ) : null}
+                    </div>
+                    {finalReport?.executiveSummary ? (
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
+                        {finalReport.executiveSummary}
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs text-muted-foreground">
+                        Generate the comprehensive report to summarize product positioning and surfaced opportunities.
+                      </div>
+                    )}
+                  </div>
+
+                  {headlineHighlights.length ? (
+                    <div className="space-y-2">
+                      <div className="text-xs font-semibold uppercase text-muted-foreground">
+                        Headline highlights
+                      </div>
+                      <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                        {headlineHighlights.map((highlight, index) => (
+                          <li key={`headline-${index}`}>{highlight}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  {recommendedActions.length ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-semibold text-foreground">
+                          Priority snapshot
+                        </div>
+                        <Badge variant="outline" className="text-[11px]">
+                          {COUNT_FORMATTER.format(actionCount)} action{actionCount === 1 ? '' : 's'}
+                        </Badge>
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        {recommendedActions.slice(0, 2).map((action, index) => {
+                          const priority = ACTION_PRIORITY_BADGE[action.priority]
+                          const timeframeLabel = formatActionTimeframe(action.timeframe)
+                          const trimmedDescription =
+                            action.description && action.description.length > 200
+                              ? `${action.description.slice(0, 200)}…`
+                              : action.description || null
+                          return (
+                            <div
+                              key={`action-highlight-${index}`}
+                              className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="space-y-1">
+                                  <div className="text-sm font-semibold text-foreground">
+                                    {action.title}
+                                  </div>
+                                  {timeframeLabel ? (
+                                    <div className="text-xs text-primary">{timeframeLabel}</div>
+                                  ) : null}
+                                </div>
+                                {priority ? (
+                                  <Badge variant={priority.badge} className="text-[11px]">
+                                    {priority.label}
+                                  </Badge>
+                                ) : null}
                               </div>
-                              {timeframeLabel && (
-                                <div className="text-xs text-primary">{timeframeLabel}</div>
-                              )}
+                              {trimmedDescription ? (
+                                <div className="text-sm leading-relaxed text-muted-foreground">
+                                  {trimmedDescription}
+                                </div>
+                              ) : null}
+                              {action.successMetric ? (
+                                <div className="mt-auto text-[11px] text-muted-foreground">
+                                  Success metric: {action.successMetric}
+                                </div>
+                              ) : null}
                             </div>
-                            {priority && (
-                              <Badge variant={priority.badge} className="text-[11px]">
-                                {priority.label}
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="mt-2 text-sm text-muted-foreground">
-                            {action.description}
-                          </div>
-                          {action.rationale && (
-                            <div className="mt-2 rounded-md border border-slate-100 bg-slate-50 p-3 text-xs text-muted-foreground">
-                              <div className="font-medium text-foreground">Why this matters</div>
-                              <div className="mt-1 leading-relaxed">{action.rationale}</div>
-                            </div>
-                          )}
-                          {action.successMetric && (
-                            <div className="mt-2 text-[11px] text-primary">
-                              Success metric: {action.successMetric}
-                            </div>
-                          )}
-                          {!!(action.supportingSignals?.length ?? 0) && (
-                            <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                              {action.supportingSignals!.map((signal, signalIndex) => (
-                                <li key={`action-${index}-${signalIndex}`}>{signal}</li>
-                              ))}
-                            </ul>
-                          )}
+                          )
+                        })}
+                      </div>
+                      {actionCount > 2 ? (
+                        <div className="text-[11px] text-muted-foreground">
+                          {COUNT_FORMATTER.format(actionCount - 2)} more action{actionCount - 2 === 1 ? '' : 's'} listed below
                         </div>
-                      )
-                    })}
-                  </div>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
-              )}
-              {!!(finalReport.communityPlan?.length ?? 0) && (
-                <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase text-muted-foreground">
-                    Community plan
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-semibold uppercase text-muted-foreground">
+                      Report health
+                    </div>
+                    <Badge variant={reportStatusDisplay.badge} className="text-[11px]">
+                      {reportStatusDisplay.label}
+                    </Badge>
                   </div>
-                  <div className="space-y-3">
-                    {finalReport.communityPlan!.map((plan, index) => (
+                  <div className="grid gap-3">
+                    {reportQuickFacts.map((fact) => (
                       <div
-                        key={`community-${index}`}
-                        className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                        key={fact.label}
+                        className={cn(
+                          "rounded-lg border p-3 text-left text-sm shadow-sm",
+                          FACT_TONE_STYLES[fact.tone],
+                        )}
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <div className="text-sm font-semibold text-foreground">
-                            {plan.objective}
-                          </div>
-                          {plan.successSignal && (
-                            <Badge variant="secondary" className="text-[11px]">
-                              Success signal: {plan.successSignal}
-                            </Badge>
-                          )}
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          {fact.label}
                         </div>
-                        {!!(plan.targetSubreddits?.length ?? 0) && (
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            Target communities: {plan.targetSubreddits.join(" • ")}
-                          </div>
-                        )}
-                        {!!(plan.tactics?.length ?? 0) && (
-                          <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                            {plan.tactics!.map((tactic, tacticIndex) => (
-                              <li key={`community-${index}-${tacticIndex}`}>{tactic}</li>
-                            ))}
-                          </ul>
-                        )}
+                        <div className="mt-1 text-sm font-semibold">{fact.value}</div>
                       </div>
                     ))}
                   </div>
+                  {shouldSurfaceReportNotices ? (
+                    <div className="space-y-2">
+                      {renderReportProgress()}
+                      {renderReportError()}
+                      {shouldShowReportEmptyState ? (
+                        <InfoNotice tone="info" size="xs">
+                          Run the pipeline after the crawler, audience, and discussion stages finish to generate the comprehensive plan.
+                        </InfoNotice>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
-              )}
-              {!!(finalReport.metricsToWatch?.length ?? 0) && (
-                <div className="space-y-2">
-                  <div className="text-xs font-semibold uppercase text-muted-foreground">
+              </div>
+            </section>
+
+            {opportunityAreas.length ? (
+              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      Opportunity areas
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      The biggest positioning gaps and growth angles from the synthesized report.
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="self-start text-[11px]">
+                    {COUNT_FORMATTER.format(opportunityAreas.length)} area{opportunityAreas.length === 1 ? '' : 's'}
+                  </Badge>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {opportunityAreas.map((area, index) => (
+                    <div
+                      key={`opportunity-${index}`}
+                      className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                    >
+                      <div className="text-sm font-semibold text-foreground">{area.title}</div>
+                      {area.summary ? (
+                        <div className="text-sm text-muted-foreground">{area.summary}</div>
+                      ) : null}
+                      {Array.isArray(area.highlights) && area.highlights.length ? (
+                        <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                          {area.highlights.map((item, itemIndex) => (
+                            <li key={`opportunity-${index}-${itemIndex}`}>{item}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {customerSignals.length ? (
+              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      Customer signals
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Synthesized evidence from discussions, testimonials, and product reviews.
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="self-start text-[11px]">
+                    {COUNT_FORMATTER.format(customerSignals.length)} section{customerSignals.length === 1 ? '' : 's'}
+                  </Badge>
+                </div>
+                <div className="space-y-3">
+                  {customerSignals.map((section, index) => (
+                    <div
+                      key={`signal-${index}`}
+                      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                    >
+                      <div className="text-sm font-semibold text-foreground">
+                        {section.title}
+                      </div>
+                      {section.summary ? (
+                        <div className="mt-1 text-sm text-muted-foreground">
+                          {section.summary}
+                        </div>
+                      ) : null}
+                      {Array.isArray(section.highlights) && section.highlights.length ? (
+                        <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                          {section.highlights.map((item, itemIndex) => (
+                            <li key={`signal-${index}-${itemIndex}`}>{item}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {recommendedActions.length ? (
+              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      Recommended actions
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Prioritized experiments and follow-ups grounded in the captured signals.
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="self-start text-[11px]">
+                    {COUNT_FORMATTER.format(recommendedActions.length)} action{recommendedActions.length === 1 ? '' : 's'}
+                  </Badge>
+                </div>
+                <div className="space-y-3">
+                  {recommendedActions.map((action, index) => {
+                    const priority = ACTION_PRIORITY_BADGE[action.priority]
+                    const timeframeLabel = formatActionTimeframe(action.timeframe)
+                    return (
+                      <div
+                        key={`action-${index}`}
+                        className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <div className="text-sm font-semibold text-foreground">
+                              {action.title}
+                            </div>
+                            {timeframeLabel ? (
+                              <div className="text-xs text-primary">{timeframeLabel}</div>
+                            ) : null}
+                          </div>
+                          {priority ? (
+                            <Badge variant={priority.badge} className="text-[11px]">
+                              {priority.label}
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <div className="mt-2 text-sm text-muted-foreground">
+                          {action.description}
+                        </div>
+                        {action.rationale ? (
+                          <div className="mt-2 rounded-md border border-slate-100 bg-slate-50 p-3 text-xs text-muted-foreground">
+                            <div className="font-medium text-foreground">Why this matters</div>
+                            <div className="mt-1 leading-relaxed">{action.rationale}</div>
+                          </div>
+                        ) : null}
+                        {action.successMetric ? (
+                          <div className="mt-2 text-[11px] text-primary">
+                            Success metric: {action.successMetric}
+                          </div>
+                        ) : null}
+                        {Array.isArray(action.supportingSignals) && action.supportingSignals.length ? (
+                          <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                            {action.supportingSignals.map((signal, signalIndex) => (
+                              <li key={`action-${index}-${signalIndex}`}>{signal}</li>
+                            ))}
+                          </ul>
+                        ) : null}
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            ) : null}
+
+            {communityPlan.length ? (
+              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      Community plan
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Outreach objectives tailored to the subreddits uncovered earlier in the pipeline.
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="self-start text-[11px]">
+                    {COUNT_FORMATTER.format(communityPlan.length)} objective{communityPlan.length === 1 ? '' : 's'}
+                  </Badge>
+                </div>
+                <div className="space-y-3">
+                  {communityPlan.map((plan, index) => (
+                    <div
+                      key={`community-${index}`}
+                      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="text-sm font-semibold text-foreground">
+                          {plan.objective}
+                        </div>
+                        {plan.successSignal ? (
+                          <Badge variant="secondary" className="text-[11px]">
+                            Success signal: {plan.successSignal}
+                          </Badge>
+                        ) : null}
+                      </div>
+                      {Array.isArray(plan.targetSubreddits) && plan.targetSubreddits.length ? (
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Target communities: {plan.targetSubreddits.join(' • ')}
+                        </div>
+                      ) : null}
+                      {Array.isArray(plan.tactics) && plan.tactics.length ? (
+                        <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                          {plan.tactics.map((tactic, tacticIndex) => (
+                            <li key={`community-${index}-${tacticIndex}`}>{tactic}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {metricsToWatch.length ? (
+              <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold text-foreground">
                     Metrics to watch
                   </div>
-                  <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
-                    {finalReport.metricsToWatch!.map((metric, index) => (
-                      <li key={`metric-${index}`}>{metric}</li>
-                    ))}
-                  </ul>
+                  <Badge variant="outline" className="text-[11px]">
+                    {COUNT_FORMATTER.format(metricsToWatch.length)} metric{metricsToWatch.length === 1 ? '' : 's'}
+                  </Badge>
                 </div>
-              )}
-              {!!(finalReport.supportingData?.length ?? 0) && (
-                <div className="space-y-2">
-                  <div className="text-xs font-semibold uppercase text-muted-foreground">
+                <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                  {metricsToWatch.map((metric, index) => (
+                    <li key={`metric-${index}`}>{metric}</li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+
+            {supportingData.length ? (
+              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold text-foreground">
                     Supporting data
                   </div>
-                  <div className="space-y-2">
-                    {finalReport.supportingData!.map((entry, index) => (
-                      <div
-                        key={`support-${index}`}
-                        className="rounded-lg border border-slate-200 bg-white p-3 text-xs text-muted-foreground"
-                      >
-                        <div className="text-sm font-semibold text-foreground">
-                          {entry.label}
-                        </div>
+                  <Badge variant="outline" className="text-[11px]">
+                    {COUNT_FORMATTER.format(supportingData.length)} dataset{supportingData.length === 1 ? '' : 's'}
+                  </Badge>
+                </div>
+                <div className="space-y-3">
+                  {supportingData.map((entry, index) => (
+                    <div
+                      key={`support-${index}`}
+                      className="rounded-lg border border-slate-200 bg-white p-3 text-xs text-muted-foreground"
+                    >
+                      <div className="text-sm font-semibold text-foreground">
+                        {entry.label}
+                      </div>
+                      {Array.isArray(entry.entries) && entry.entries.length ? (
                         <ul className="mt-2 list-disc space-y-1 pl-4">
                           {entry.entries.map((item, itemIndex) => (
                             <li key={`support-${index}-${itemIndex}`}>{item}</li>
                           ))}
                         </ul>
-                      </div>
-                    ))}
-                  </div>
+                      ) : null}
+                    </div>
+                  ))}
                 </div>
-              )}
-            </section>
-          )}
+              </section>
+            ) : null}
+          </div>
         </>
       </StageCard>
+
     </div>
   )
 }
