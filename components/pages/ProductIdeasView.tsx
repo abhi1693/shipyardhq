@@ -745,14 +745,116 @@ export function ProductIdeasView({
   const discussionInsights =
     (profile?.redditInsights as ProductIdeaRedditInsightReport | null) ?? null
 
+  const discussionSections = useMemo(() => {
+    if (!Array.isArray(discussionInsights?.sections)) return []
+    return discussionInsights!.sections!.filter(Boolean)
+  }, [discussionInsights])
+
+  const focusAreas = useMemo(() => {
+    if (!Array.isArray(discussionInsights?.recommendedFocus)) return []
+    return (discussionInsights!.recommendedFocus as string[]).filter(
+      (entry): entry is string => typeof entry === "string" && entry.length > 0,
+    )
+  }, [discussionInsights])
+
+  const totalFocusAreas = focusAreas.length
+
+  const discussionSignals = useMemo(
+    () => {
+      const signals: Array<{
+        id: string
+        sectionTitle: string | null
+        insight: string
+        sentiment: "positive" | "negative" | "neutral" | null
+        audience: string | null
+        primaryEvidence: string | null
+        evidenceCount: number
+        references: string[] | null
+      }> = []
+
+      discussionSections.forEach((section, sectionIndex) => {
+        const sectionTitle =
+          typeof section?.title === "string" && section.title.length > 0
+            ? section.title
+            : null
+        const sectionItems = Array.isArray(section?.items) ? section.items : []
+
+        sectionItems.forEach((item, itemIndex) => {
+          if (!item) return
+          const insightText =
+            typeof item.insight === "string" && item.insight.length > 0
+              ? item.insight
+              : "Untitled insight"
+          const sentiment =
+            item.sentiment === "positive" ||
+            item.sentiment === "negative" ||
+            item.sentiment === "neutral"
+              ? item.sentiment
+              : null
+          const evidenceEntries = Array.isArray(item.evidence)
+            ? item.evidence.filter(
+                (entry): entry is string =>
+                  typeof entry === "string" && entry.length > 0,
+              )
+            : []
+          const references = Array.isArray(item.references)
+            ? item.references.filter(
+                (entry): entry is string =>
+                  typeof entry === "string" && entry.length > 0,
+              )
+            : []
+
+          signals.push({
+            id: `${sectionIndex}-${itemIndex}`,
+            sectionTitle,
+            insight: insightText,
+            sentiment,
+            audience:
+              typeof item.audience === "string" && item.audience.length > 0
+                ? item.audience
+                : null,
+            primaryEvidence: evidenceEntries[0] ?? null,
+            evidenceCount: evidenceEntries.length,
+            references: references.length ? references : null,
+          })
+        })
+      })
+
+      return signals
+    },
+    [discussionSections],
+  )
+
+  const sentimentCounts = useMemo(
+    () =>
+      discussionSignals.reduce(
+        (acc, signal) => {
+          if (signal.sentiment) {
+            acc[signal.sentiment] += 1
+          }
+          return acc
+        },
+        {
+          positive: 0,
+          negative: 0,
+          neutral: 0,
+        } as Record<"positive" | "negative" | "neutral", number>,
+      ),
+    [discussionSignals],
+  )
+
+  const totalSignals = discussionSignals.length
+  const topDiscussionSignals = useMemo(
+    () => discussionSignals.slice(0, 4),
+    [discussionSignals],
+  )
+
   const hasDiscussionThreads = discussionThreads.length > 0
 
   const totalCommentsSampled = discussionThreads.reduce((sum, thread) => {
     const commentCount = thread.topComments?.length ?? 0
     return sum + commentCount
   }, 0)
-
-  const totalFocusAreas = discussionInsights?.recommendedFocus?.length ?? 0
 
   const discussionStatus = profile?.redditStatus ?? null
   const discussionStatusDisplay = discussionStatus
@@ -764,6 +866,60 @@ export function ProductIdeasView({
         addSuffix: true,
       })
     : "Never"
+
+  const discussionQuickFacts: Array<{ label: string; value: string; tone: MetricTone }> = [
+    {
+      label: "Last analyzed",
+      value: lastDiscussionDiscovery,
+      tone: profile ? "neutral" : "warning",
+    },
+    {
+      label: "Threads captured",
+      value: profile
+        ? hasDiscussionThreads
+          ? `${COUNT_FORMATTER.format(discussionThreads.length)}`
+          : "0"
+        : "—",
+      tone: profile
+        ? hasDiscussionThreads
+          ? "positive"
+          : "warning"
+        : "neutral",
+    },
+    {
+      label: "Comments reviewed",
+      value: profile
+        ? totalCommentsSampled
+          ? `${COUNT_FORMATTER.format(totalCommentsSampled)}`
+          : "0"
+        : "—",
+      tone: profile
+        ? totalCommentsSampled
+          ? "neutral"
+          : "warning"
+        : "neutral",
+    },
+    {
+      label: "Focus themes",
+      value: discussionInsights
+        ? totalFocusAreas
+          ? `${COUNT_FORMATTER.format(totalFocusAreas)}`
+          : "0"
+        : "—",
+      tone: discussionInsights
+        ? totalFocusAreas
+          ? "positive"
+          : "warning"
+        : "neutral",
+    },
+  ]
+
+  const sentimentTotal =
+    sentimentCounts.positive + sentimentCounts.negative + sentimentCounts.neutral
+  const shouldShowDiscussionEmptyState = !hasDiscussionThreads && !isRunningPipeline
+  const shouldSurfaceDiscussionNotices = Boolean(
+    discussionProgress || profile?.redditErrorMessage || shouldShowDiscussionEmptyState,
+  )
 
   const successfulPages = Math.max(pageCount - erroredPages.length, 0)
   const crawlerHealthPercent = pageCount
@@ -849,57 +1005,6 @@ export function ProductIdeasView({
     isRunningPipeline ||
     pipelineJobState === "queued" ||
     pipelineJobState === "active"
-
-  const discussionMetrics = [
-    {
-      label: "Last analyzed",
-      value: lastDiscussionDiscovery,
-      tone: profile ? "neutral" : "warning",
-    },
-    {
-      label: "Threads captured",
-      value: profile
-        ? hasDiscussionThreads
-          ? `${discussionThreads.length}`
-          : "0"
-        : "—",
-      tone: profile
-        ? hasDiscussionThreads
-          ? "positive"
-          : "warning"
-        : "neutral",
-    },
-    {
-      label: "Comments sampled",
-      value: profile
-        ? totalCommentsSampled
-          ? `${totalCommentsSampled}`
-          : "0"
-        : "—",
-      tone: profile
-        ? totalCommentsSampled
-          ? "neutral"
-          : "warning"
-        : "neutral",
-    },
-    {
-      label: "Focus areas",
-      value: discussionInsights
-        ? totalFocusAreas
-          ? `${totalFocusAreas}`
-          : "0"
-        : "—",
-      tone: discussionInsights
-        ? totalFocusAreas
-          ? "positive"
-          : "warning"
-        : "neutral",
-    },
-  ] as const satisfies ReadonlyArray<{
-    label: string
-    value: string
-    tone: MetricTone
-  }>
 
   const finalReport =
     (profile?.finalReport as ProductIdeaComprehensiveReport | null) ?? null
@@ -1948,228 +2053,472 @@ export function ProductIdeasView({
           </div>
         </>
       </StageCard>
-
       <StageCard
         step="Step 3"
         title="Discussion insights"
         description="Review Reddit conversations to surface wins, friction, and opportunities."
         status={discussionStatusDisplay}
-        metrics={discussionMetrics}
         collapsible
         defaultOpen={shouldOpenDiscussionStage}
       >
         <>
-          {renderDiscussionProgress()}
-          {renderDiscussionError()}
-          {!hasDiscussionThreads && !isRunningPipeline && (
-            <InfoNotice tone="info">
-              Run the pipeline to sample the latest conversations from your
-              saved communities.
-            </InfoNotice>
-          )}
-          {!!discussionQueries.length && (
-            <section className="space-y-2">
-              <div className="text-xs font-semibold uppercase text-muted-foreground">
-                Discussion queries
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {discussionQueries.map((query) => (
-                  <div
-                    key={query.query}
-                    className="max-w-xs rounded-md border border-slate-200 bg-white px-3 py-2 text-left text-sm shadow-sm"
-                  >
-                    <div className="font-medium text-foreground">{query.query}</div>
-                    {query.rationale && (
-                      <div className="mt-1 text-xs text-muted-foreground">{query.rationale}</div>
+          <div className="space-y-6">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-sm font-semibold text-foreground">
+                        Discussion queries
+                      </div>
+                      {discussionQueries.length ? (
+                        <Badge variant="outline" className="text-[11px]">
+                          {COUNT_FORMATTER.format(discussionQueries.length)} quer
+                          {discussionQueries.length === 1 ? "y" : "ies"}
+                        </Badge>
+                      ) : null}
+                    </div>
+                    {discussionQueries.length ? (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {discussionQueries.map((query) => (
+                          <div
+                            key={query.query}
+                            className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                          >
+                            <div className="font-semibold leading-snug text-foreground">
+                              {query.query}
+                            </div>
+                            {query.rationale ? (
+                              <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                {query.rationale}
+                              </div>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
+                        Run the pipeline to craft Reddit discussion queries that capture fresh sentiment from your saved communities.
+                      </div>
                     )}
                   </div>
-                ))}
-              </div>
-            </section>
-          )}
-          {discussionInsights && (
-            <section className="space-y-4">
-              <div className="space-y-1">
-                <div className="text-sm font-semibold text-foreground">Focus areas</div>
-                <div className="text-xs text-muted-foreground">
-                  Automatically grouped clusters summarizing what the community is talking about right now.
-                </div>
-              </div>
-              {discussionInsights.recommendedFocus?.length ? (
-                <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
-                  {discussionInsights.recommendedFocus.map((item, index) => (
-                    <li key={`focus-${index}`}>{item}</li>
-                  ))}
-                </ul>
-              ) : (
-                <InfoNotice tone="info" size="xs">
-                  No focus areas yet—try broadening the subreddit pool or rerunning the analysis later today.
-                </InfoNotice>
-              )}
-              {discussionInsights.sections?.length ? (
-                <div className="space-y-4">
-                  {discussionInsights.sections.map((section, sectionIndex) => (
-                    <div key={`${section.title}-${sectionIndex}`} className="space-y-3">
-                      <div className="text-sm font-semibold text-foreground">
-                        {section.title}
+
+                  {discussionInsights ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-semibold text-foreground">
+                          Focus themes
+                        </div>
+                        {focusAreas.length ? (
+                          <Badge variant="secondary" className="text-[11px]">
+                            {COUNT_FORMATTER.format(focusAreas.length)} theme
+                            {focusAreas.length === 1 ? "" : "s"}
+                          </Badge>
+                        ) : null}
                       </div>
-                      <div className="grid gap-3 md:grid-cols-2">
-                        {section.items?.map((item, itemIndex) => {
-                          const sentimentVariant = item.sentiment
-                            ? SENTIMENT_BADGE_VARIANT[item.sentiment]
-                            : null
-                          const sentimentLabel = item.sentiment
-                            ? SENTIMENT_BADGE_LABEL[item.sentiment]
-                            : null
+                      {focusAreas.length ? (
+                        <div className="flex flex-wrap gap-2">
+                          {focusAreas.map((item, index) => (
+                            <Badge key={`focus-${index}`} variant="outline" className="text-[11px]">
+                              {item}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <InfoNotice tone="info" size="xs">
+                          No focus areas yet—try broadening the subreddit pool or rerunning the analysis later today.
+                        </InfoNotice>
+                      )}
+                    </div>
+                  ) : null}
+
+                  {discussionInsights ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-semibold text-foreground">
+                          Signal highlights
+                        </div>
+                        {totalSignals ? (
+                          <Badge variant="outline" className="text-[11px]">
+                            {COUNT_FORMATTER.format(totalSignals)} signal
+                            {totalSignals === 1 ? "" : "s"}
+                          </Badge>
+                        ) : null}
+                      </div>
+                      {topDiscussionSignals.length ? (
+                        <div className="grid gap-3 md:grid-cols-2">
+                          {topDiscussionSignals.map((signal) => {
+                            const sentimentLabel = signal.sentiment
+                              ? SENTIMENT_BADGE_LABEL[signal.sentiment]
+                              : null
+                            const sentimentVariant = signal.sentiment
+                              ? SENTIMENT_BADGE_VARIANT[signal.sentiment]
+                              : null
+                            return (
+                              <div
+                                key={signal.id}
+                                className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="text-sm font-semibold leading-snug text-foreground">
+                                    {signal.insight}
+                                  </div>
+                                  {sentimentVariant && sentimentLabel ? (
+                                    <Badge variant={sentimentVariant} className="text-[11px]">
+                                      {sentimentLabel}
+                                    </Badge>
+                                  ) : null}
+                                </div>
+                                {signal.sectionTitle ? (
+                                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                    From {signal.sectionTitle}
+                                  </div>
+                                ) : null}
+                                {signal.audience ? (
+                                  <div className="text-xs text-primary">
+                                    Audience: {signal.audience}
+                                  </div>
+                                ) : null}
+                                {signal.primaryEvidence ? (
+                                  <blockquote className="rounded-lg border border-slate-200 bg-white p-3 text-xs leading-relaxed text-muted-foreground">
+                                    “{signal.primaryEvidence}”
+                                  </blockquote>
+                                ) : null}
+                                <div className="mt-auto flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                  <span>
+                                    {signal.evidenceCount} evidence
+                                    {signal.evidenceCount === 1 ? "" : "s"}
+                                  </span>
+                                  {signal.references ? (
+                                    <span>
+                                      References: {signal.references.join(" • ")}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <InfoNotice tone="info" size="xs">
+                          We did not identify specific insight sections from the sampled threads yet. Try rerunning the analysis with a refreshed crawl or broadened subreddit list.
+                        </InfoNotice>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-semibold uppercase text-muted-foreground">
+                      Insight health
+                    </div>
+                    {hasDiscussionThreads ? (
+                      <Badge variant="secondary" className="text-[11px]">
+                        {COUNT_FORMATTER.format(discussionThreads.length)} thread
+                        {discussionThreads.length === 1 ? "" : "s"}
+                      </Badge>
+                    ) : null}
+                  </div>
+                  <div className="grid gap-3">
+                    {discussionQuickFacts.map((fact) => (
+                      <div
+                        key={fact.label}
+                        className={cn(
+                          "rounded-lg border p-3 text-left text-sm shadow-sm",
+                          FACT_TONE_STYLES[fact.tone],
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          {fact.label}
+                        </div>
+                        <div className="mt-1 text-sm font-semibold">{fact.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {sentimentTotal ? (
+                    <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex items-center justify-between text-xs font-semibold uppercase text-muted-foreground">
+                        <span>Sentiment mix</span>
+                        <span className="text-muted-foreground">
+                          {COUNT_FORMATTER.format(totalSignals)} signal
+                          {totalSignals === 1 ? "" : "s"}
+                        </span>
+                      </div>
+                      <div className="flex h-2 w-full overflow-hidden rounded-full bg-white">
+                        {(["positive", "neutral", "negative"] as const).map((key) => {
+                          const value = sentimentCounts[key]
+                          if (!value) return null
+                          const percent = (value / sentimentTotal) * 100
                           return (
                             <div
-                              key={`${section.title}-${itemIndex}`}
-                              className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
-                            >
-                              <div className="flex flex-wrap items-start justify-between gap-2">
-                                <div className="text-sm font-medium text-foreground">
-                                  {item.insight}
-                                </div>
-                                {sentimentVariant && sentimentLabel && (
-                                  <Badge variant={sentimentVariant} className="text-[11px]">
-                                    {sentimentLabel}
-                                  </Badge>
-                                )}
-                              </div>
-                              {item.audience && (
-                                <div className="mt-1 text-xs text-primary">
-                                  Audience: {item.audience}
-                                </div>
-                              )}
-                              {!!(item.evidence?.length ?? 0) && (
-                                <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                                  {item.evidence!.map((evidence, evidenceIndex) => (
-                                    <li key={`evidence-${sectionIndex}-${itemIndex}-${evidenceIndex}`}>
-                                      {evidence}
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                              {!!(item.references?.length ?? 0) && (
-                                <div className="mt-2 text-[11px] text-muted-foreground">
-                                  References: {item.references!.join(", ")}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        )}
+                              key={key}
+                              className="h-full"
+                              style={{ width: `${percent}%`, backgroundColor: SENTIMENT_COLORS[key] }}
+                            />
+                          )
+                        })}
+                      </div>
+                      <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <span
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: SENTIMENT_COLORS.positive }}
+                          />
+                          {COUNT_FORMATTER.format(sentimentCounts.positive)} positive
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: SENTIMENT_COLORS.neutral }}
+                          />
+                          {COUNT_FORMATTER.format(sentimentCounts.neutral)} neutral
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: SENTIMENT_COLORS.negative }}
+                          />
+                          {COUNT_FORMATTER.format(sentimentCounts.negative)} negative
+                        </span>
                       </div>
                     </div>
-                  ))}
+                  ) : null}
+                  {shouldSurfaceDiscussionNotices ? (
+                    <div className="space-y-2">
+                      {renderDiscussionProgress()}
+                      {renderDiscussionError()}
+                      {shouldShowDiscussionEmptyState ? (
+                        <InfoNotice tone="info" size="xs">
+                          Run the pipeline to sample the latest conversations from your saved communities.
+                        </InfoNotice>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
-              ) : (
-                <InfoNotice tone="info" size="xs">
-                  We did not identify specific insight sections from the sampled threads yet. Try rerunning the analysis with a refreshed crawl or broadened subreddit list.
-                </InfoNotice>
-              )}
-            </section>
-          )}
-          {hasDiscussionThreads && (
-            <section className="space-y-3">
-              <div className="text-sm font-semibold text-foreground">
-                Sampled discussions
               </div>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="min-w-[240px]">Discussion</TableHead>
-                      <TableHead>Community</TableHead>
-                      <TableHead className="min-w-[140px]">Signals</TableHead>
-                      <TableHead className="min-w-[180px]">Matched queries</TableHead>
-                      <TableHead className="min-w-[260px]">Top insight</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {discussionThreads.map((thread) => {
-                      const topComment = thread.topComments?.[0] ?? null
-                      const additionalComments = Math.max(
-                        (thread.topComments?.length ?? 0) - 1,
-                        0,
-                      )
-                      const preview = topComment?.body
-                        ? topComment.body.length > 200
-                          ? `${topComment.body.slice(0, 200)}…`
-                          : topComment.body
-                        : null
-                      const relativeCreated = thread.createdAt
-                        ? formatDistanceToNowStrict(new Date(thread.createdAt), {
-                            addSuffix: true,
-                          })
-                        : null
-                      return (
-                        <TableRow key={thread.id}>
-                          <TableCell className="whitespace-normal break-words text-sm text-foreground">
-                            <Link
-                              href={thread.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="font-medium text-primary hover:underline"
-                            >
-                              {thread.title}
-                            </Link>
-                            {thread.flairText && (
-                              <div className="mt-1 text-[11px] text-muted-foreground">
-                                {thread.flairText}
-                              </div>
-                            )}
-                            {relativeCreated && (
-                              <div className="mt-1 text-[11px] text-muted-foreground">
-                                {relativeCreated}
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap text-sm text-primary">
-                            r/{thread.subreddit}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap text-sm text-foreground">
-                            <div>
-                              {typeof thread.score === "number"
-                                ? `${thread.score.toLocaleString()} upvotes`
-                                : "—"}
+            </section>
+
+            {discussionSections.length ? (
+              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      Insight clusters
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Automatically grouped clusters summarizing what the community is talking about right now.
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="self-start text-[11px]">
+                    {COUNT_FORMATTER.format(discussionSections.length)} cluster
+                    {discussionSections.length === 1 ? "" : "s"}
+                  </Badge>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {discussionSections.map((section, sectionIndex) => {
+                    const sectionItems = Array.isArray(section?.items) ? section.items : []
+                    return (
+                      <div
+                        key={`cluster-${sectionIndex}-${section?.title ?? "untitled"}`}
+                        className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-1">
+                            <div className="text-sm font-semibold text-foreground">
+                              {section?.title ?? `Cluster ${sectionIndex + 1}`}
                             </div>
-                            <div className="text-xs text-muted-foreground">
-                              {typeof thread.numComments === "number"
-                                ? `${thread.numComments} comments`
-                                : ""}
-                            </div>
-                          </TableCell>
-                          <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
-                            {thread.matchedQueries?.length
-                              ? thread.matchedQueries.join(" • ")
-                              : "—"}
-                          </TableCell>
-                          <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
-                            {preview ? (
-                              <div className="space-y-1">
-                                <div>“{preview}”</div>
-                                <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                                  {topComment?.author && <span>by {topComment.author}</span>}
-                                  {typeof topComment?.score === "number" && (
-                                    <span>{topComment.score} upvotes</span>
-                                  )}
-                                  {additionalComments > 0 && (
-                                    <span>+{additionalComments} more</span>
-                                  )}
+                            {section?.summary ? (
+                              <div className="text-xs text-muted-foreground">
+                                {section.summary}
+                              </div>
+                            ) : null}
+                          </div>
+                          {sectionItems.length ? (
+                            <Badge variant="outline" className="text-[11px]">
+                              {COUNT_FORMATTER.format(sectionItems.length)}
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <div className="space-y-3">
+                          {sectionItems.length ? (
+                            sectionItems.map((item, itemIndex) => {
+                              const hasSentiment =
+                                item?.sentiment === "positive" ||
+                                item?.sentiment === "negative" ||
+                                item?.sentiment === "neutral"
+                              const sentimentKey = hasSentiment
+                                ? (item.sentiment as "positive" | "negative" | "neutral")
+                                : null
+                              const sentimentVariant = sentimentKey
+                                ? SENTIMENT_BADGE_VARIANT[sentimentKey]
+                                : null
+                              const sentimentLabel = sentimentKey
+                                ? SENTIMENT_BADGE_LABEL[sentimentKey]
+                                : null
+                              return (
+                                <div
+                                  key={`cluster-${sectionIndex}-${itemIndex}`}
+                                  className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="text-sm font-medium text-foreground">
+                                      {item?.insight ?? "Insight"}
+                                    </div>
+                                    {sentimentVariant && sentimentLabel ? (
+                                      <Badge variant={sentimentVariant} className="text-[11px]">
+                                        {sentimentLabel}
+                                      </Badge>
+                                    ) : null}
+                                  </div>
+                                  {item?.audience ? (
+                                    <div className="text-xs text-primary">
+                                      Audience: {item.audience}
+                                    </div>
+                                  ) : null}
+                                  {Array.isArray(item?.evidence) && item.evidence.length ? (
+                                    <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                                      {item.evidence.map((evidence, evidenceIndex) => (
+                                        <li key={`cluster-${sectionIndex}-${itemIndex}-evidence-${evidenceIndex}`}>
+                                          {evidence}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ) : null}
+                                  {Array.isArray(item?.references) && item.references.length ? (
+                                    <div className="text-[11px] text-muted-foreground">
+                                      References: {item.references.join(", ")}
+                                    </div>
+                                  ) : null}
                                 </div>
+                              )
+                            })
+                          ) : (
+                            <InfoNotice tone="info" size="xs">
+                              No individual signals captured for this cluster yet.
+                            </InfoNotice>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            ) : null}
+
+            {hasDiscussionThreads ? (
+              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      Sampled discussions
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Latest Reddit threads captured for this run with top comment highlights.
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="self-start text-[11px]">
+                    {COUNT_FORMATTER.format(discussionThreads.length)} thread
+                    {discussionThreads.length === 1 ? "" : "s"}
+                  </Badge>
+                </div>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="min-w-[240px]">Discussion</TableHead>
+                        <TableHead>Community</TableHead>
+                        <TableHead className="min-w-[140px]">Signals</TableHead>
+                        <TableHead className="min-w-[180px]">Matched queries</TableHead>
+                        <TableHead className="min-w-[260px]">Top insight</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {discussionThreads.map((thread) => {
+                        const topComment = thread.topComments?.[0] ?? null
+                        const additionalComments = Math.max(
+                          (thread.topComments?.length ?? 0) - 1,
+                          0,
+                        )
+                        const preview = topComment?.body
+                          ? topComment.body.length > 200
+                            ? `${topComment.body.slice(0, 200)}…`
+                            : topComment.body
+                          : null
+                        const relativeCreated = thread.createdAt
+                          ? formatDistanceToNowStrict(new Date(thread.createdAt), {
+                              addSuffix: true,
+                            })
+                          : null
+                        return (
+                          <TableRow key={thread.id}>
+                            <TableCell className="whitespace-normal break-words text-sm text-foreground">
+                              <Link
+                                href={thread.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-medium text-primary hover:underline"
+                              >
+                                {thread.title}
+                              </Link>
+                              {thread.flairText ? (
+                                <div className="mt-1 text-[11px] text-muted-foreground">
+                                  {thread.flairText}
+                                </div>
+                              ) : null}
+                              {relativeCreated ? (
+                                <div className="mt-1 text-[11px] text-muted-foreground">
+                                  {relativeCreated}
+                                </div>
+                              ) : null}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-sm text-primary">
+                              r/{thread.subreddit}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-sm text-foreground">
+                              <div>
+                                {typeof thread.score === "number"
+                                  ? `${thread.score.toLocaleString()} upvotes`
+                                  : "—"}
                               </div>
-                            ) : (
-                              "—"
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            </section>
-          )}
+                              <div className="text-xs text-muted-foreground">
+                                {typeof thread.numComments === "number"
+                                  ? `${thread.numComments} comments`
+                                  : ""}
+                              </div>
+                            </TableCell>
+                            <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                              {thread.matchedQueries?.length
+                                ? thread.matchedQueries.join(" • ")
+                                : "—"}
+                            </TableCell>
+                            <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                              {preview ? (
+                                <div className="space-y-1">
+                                  <div>“{preview}”</div>
+                                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                    {topComment?.author ? <span>by {topComment.author}</span> : null}
+                                    {typeof topComment?.score === "number" ? (
+                                      <span>{topComment.score} upvotes</span>
+                                    ) : null}
+                                    {additionalComments > 0 ? (
+                                      <span>+{additionalComments} more</span>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              ) : (
+                                "—"
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </section>
+            ) : null}
+          </div>
         </>
       </StageCard>
 
