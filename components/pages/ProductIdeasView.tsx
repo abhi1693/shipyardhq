@@ -126,11 +126,41 @@ type SummarySection = {
 
 type MetricTone = "neutral" | "positive" | "warning" | "danger"
 
+type SitemapEntryStatus = "ok" | "error" | "unknown"
+
 const METRIC_TONE_STYLES: Record<MetricTone, string> = {
   neutral: "text-foreground",
   positive: "text-emerald-600",
   warning: "text-amber-600",
   danger: "text-destructive",
+}
+
+const FACT_TONE_STYLES: Record<MetricTone, string> = {
+  neutral: "border-slate-200 bg-slate-50 text-foreground",
+  positive: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  warning: "border-amber-200 bg-amber-50 text-amber-700",
+  danger: "border-destructive/40 bg-destructive/10 text-destructive",
+}
+
+const METRIC_TONE_BAR: Record<MetricTone, string> = {
+  neutral: "bg-slate-300",
+  positive: "bg-emerald-500",
+  warning: "bg-amber-500",
+  danger: "bg-destructive",
+}
+
+const SITEMAP_ITEM_STYLES: Record<SitemapEntryStatus, string> = {
+  ok: "border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:text-emerald-800",
+  error:
+    "border-destructive/40 bg-destructive/10 text-destructive hover:border-destructive/60",
+  unknown:
+    "border-slate-200 bg-slate-50 text-muted-foreground hover:border-primary/40 hover:text-primary",
+}
+
+const SITEMAP_INDICATOR_STYLES: Record<SitemapEntryStatus, string> = {
+  ok: "bg-emerald-500",
+  error: "bg-destructive",
+  unknown: "bg-slate-400",
 }
 
 function MetricTile({
@@ -547,9 +577,11 @@ export function ProductIdeasView({
       })
     : "Never"
 
-  const discoveredUrls = Array.isArray(profile?.discoveredUrls)
-    ? (profile!.discoveredUrls as string[])
-    : []
+  const discoveredUrls = useMemo(() => {
+    return Array.isArray(profile?.discoveredUrls)
+      ? (profile!.discoveredUrls as string[])
+      : []
+  }, [profile])
 
   const subredditQueries = useMemo(() => {
     return Array.isArray(profile?.subredditQueries)
@@ -611,35 +643,82 @@ export function ProductIdeasView({
       })
     : "Never"
 
-  const crawlerMetrics = [
+  const successfulPages = Math.max(pageCount - erroredPages.length, 0)
+  const crawlerHealthPercent = pageCount
+    ? Math.round((successfulPages / pageCount) * 100)
+    : 0
+  const crawlerHealthTone: MetricTone = pageCount
+    ? crawlerHealthPercent >= 85
+      ? "positive"
+      : crawlerHealthPercent >= 60
+        ? "warning"
+        : "danger"
+    : "neutral"
+
+  const crawlerFactBase = [
     {
-      label: "Last crawled",
+      factLabel: "Last crawl",
+      metricLabel: "Last crawled",
       value: lastCrawled,
-      tone: profile ? "neutral" : "warning",
+      tone: profile ? (lastCrawled === "Never" ? "warning" : "neutral") : "warning",
     },
     {
-      label: "Pages captured",
-      value: profile ? (pageCount ? pageCount.toString() : "0") : "—",
+      factLabel: "Pages captured",
+      value: profile ? COUNT_FORMATTER.format(pageCount) : "—",
       tone: profile ? (pageCount ? "neutral" : "warning") : "neutral",
     },
     {
-      label: "Errors",
-      value: profile
-        ? erroredPages.length
-          ? `${erroredPages.length}`
-          : "0"
-        : "—",
+      factLabel: "Errors found",
+      metricLabel: "Errors",
+      value: profile ? COUNT_FORMATTER.format(erroredPages.length) : "—",
       tone: profile
         ? erroredPages.length
-          ? ("danger" as MetricTone)
-          : ("positive" as MetricTone)
+          ? "danger"
+          : "positive"
         : "neutral",
     },
   ] as const satisfies ReadonlyArray<{
-    label: string
+    factLabel: string
+    metricLabel?: string
     value: string
     tone: MetricTone
   }>
+
+  const sitemapEntries = useMemo(() => {
+    const seen = new Set<string>()
+    const entries: Array<{ url: string; status: SitemapEntryStatus }> = []
+
+    for (const page of pages) {
+      if (!page?.url || seen.has(page.url)) continue
+      seen.add(page.url)
+      entries.push({
+        url: page.url,
+        status: page.status === "ok" ? "ok" : "error",
+      })
+    }
+
+    for (const url of discoveredUrls) {
+      if (!url || seen.has(url)) continue
+      seen.add(url)
+      entries.push({ url, status: "unknown" })
+    }
+
+    return entries
+  }, [discoveredUrls, pages])
+
+  const sitemapEntryCount = sitemapEntries.length
+  const sitemapErrorCount = sitemapEntries.filter((entry) => entry.status === "error").length
+  const hasSitemapEntries = sitemapEntryCount > 0
+
+  const productQuickFacts = crawlerFactBase.map((entry) => ({
+    label: entry.factLabel,
+    value: entry.value,
+    tone: entry.tone,
+  }))
+
+  const hasCrawlerNotices = Boolean(
+    progressMessage || profile?.errorMessage || (!profile && !isRunningPipeline),
+  )
 
   const pipelineJobState: ProductIdeaPipelineJobState =
     profile?.pipelineJobState ?? "idle"
@@ -1038,8 +1117,6 @@ export function ProductIdeasView({
     },
   ]
 
-  const hasDiscoveredUrls = discoveredUrls.length > 0
-
   const renderCrawlerEmptyState = () => {
     if (profile || isRunningPipeline) return null
     return (
@@ -1271,154 +1348,240 @@ export function ProductIdeasView({
         title="Product foundation"
         description="The pipeline crawler captures live messaging and structure for this product."
         status={statusDisplay}
-        metrics={crawlerMetrics}
         collapsible
         defaultOpen={shouldOpenCrawlerStage}
       >
         <>
-          <section className="space-y-1">
-            <div className="text-xs font-semibold uppercase text-muted-foreground">
-              Product
-            </div>
-            <div className="text-xl font-semibold text-foreground">{productName}</div>
-            <Link
-              href={websiteUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-sm text-primary hover:underline"
-            >
-              {websiteUrl}
-            </Link>
-          </section>
-
-          {renderCrawlerProgress()}
-          {renderCrawlerError()}
-          {renderCrawlerEmptyState()}
-
-          {profile && !isRunningPipeline && !summary && (
-            <InfoNotice tone="info" size="xs">
-              We captured the crawl but did not synthesize a summary yet. Run
-              the full pipeline again if you recently updated the product site.
-            </InfoNotice>
-          )}
-
-          {summary && (
-            <section className="space-y-4">
-              <div className="space-y-1">
-                <div className="text-sm font-semibold text-foreground">
-                  Product narrative
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Condensed from live website content and structured metadata.
-                </div>
-              </div>
-              {summary.overview && (
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
-                  {summary.overview}
-                </div>
-              )}
-              {!!summarySections.length && (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {summarySections.map((section) => (
-                    <div key={section.title} className="space-y-2">
-                      <div className="text-sm font-semibold text-foreground">
-                        {section.title}
-                      </div>
-                      <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
-                        {section.items.map((item, index) => (
-                          <li key={`${section.title}-${index}`}>{item}</li>
-                        ))}
-                      </ul>
+          <div className="space-y-6">
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-3">
+                    <div className="text-xs font-semibold uppercase text-muted-foreground">
+                      Product
                     </div>
-                  ))}
+                    <div className="space-y-2">
+                      <div className="text-2xl font-semibold text-foreground">
+                        {productName}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant={statusDisplay.badge} className="text-[11px]">
+                          {statusDisplay.label}
+                        </Badge>
+                        <Link
+                          href={websiteUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 rounded-full border border-transparent bg-primary/5 px-3 py-1 text-xs font-semibold text-primary transition hover:border-primary/40 hover:bg-primary/10"
+                        >
+                          Visit live site
+                        </Link>
+                      </div>
+                      <Link
+                        href={websiteUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="break-all text-xs text-muted-foreground hover:text-primary"
+                      >
+                        {websiteUrl}
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="grid flex-none gap-3 sm:grid-cols-3">
+                    {productQuickFacts.map((fact) => (
+                      <div
+                        key={fact.label}
+                        className={cn(
+                          "rounded-lg border p-3 text-left text-sm shadow-sm",
+                          FACT_TONE_STYLES[fact.tone],
+                        )}
+                      >
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          {fact.label}
+                        </div>
+                        <div className="mt-1 text-sm font-semibold">{fact.value}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              )}
-            </section>
-          )}
+                {profile ? (
+                  pageCount ? (
+                    <div className="mt-5 space-y-2">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Crawler health</span>
+                        <span
+                          className={cn(
+                            "font-semibold",
+                            METRIC_TONE_STYLES[crawlerHealthTone],
+                          )}
+                        >
+                          {crawlerHealthPercent}% success
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-slate-200">
+                        <div
+                          className={cn(
+                            "h-2 rounded-full transition-all",
+                            METRIC_TONE_BAR[crawlerHealthTone],
+                          )}
+                          style={{ width: `${crawlerHealthPercent}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{COUNT_FORMATTER.format(successfulPages)} ok</span>
+                        <span
+                          className={cn(
+                            "font-medium",
+                            erroredPages.length ? "text-destructive" : "text-muted-foreground",
+                          )}
+                        >
+                          {COUNT_FORMATTER.format(erroredPages.length)} errors
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-5 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-xs text-muted-foreground">
+                      We captured the profile metadata but no crawlable pages. Check that the sitemap is reachable and rerun the crawler.
+                    </div>
+                  )
+                ) : null}
+                {hasCrawlerNotices ? (
+                  <div className="mt-5 space-y-2">
+                    {renderCrawlerProgress()}
+                    {renderCrawlerError()}
+                    {renderCrawlerEmptyState()}
+                  </div>
+                ) : null}
 
-          {hasDiscoveredUrls && (
-            <section className="space-y-2">
-              <div className="text-xs font-semibold uppercase text-muted-foreground">
-                Sitemap sources
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {discoveredUrls.map((url) => (
-                  <Link
-                    key={url}
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-primary"
-                  >
-                    {url}
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
+                <div className="mt-6 space-y-3 border-t border-slate-200 pt-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">
+                        Sitemap sources
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Live URLs captured during the last crawl.
+                      </div>
+                    </div>
+                    <Badge
+                      variant={
+                        hasSitemapEntries
+                          ? sitemapErrorCount
+                            ? "destructive"
+                            : "secondary"
+                          : "outline"
+                      }
+                      className="text-[11px]"
+                    >
+                      {hasSitemapEntries
+                        ? sitemapErrorCount
+                          ? `${COUNT_FORMATTER.format(sitemapEntryCount)} URL${sitemapEntryCount === 1 ? "" : "s"} • ${COUNT_FORMATTER.format(sitemapErrorCount)} error${sitemapErrorCount === 1 ? "" : "s"}`
+                          : `${COUNT_FORMATTER.format(sitemapEntryCount)} URL${sitemapEntryCount === 1 ? "" : "s"}`
+                        : "None yet"}
+                    </Badge>
+                  </div>
 
-          {!!pageCount && (
-            <section className="space-y-3">
-              <div className="space-y-1">
-                <div className="text-sm font-semibold text-foreground">
-                  Crawl inventory
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  URLs sourced from the sitemap. We capture metadata and key copy blocks for analysis.
-                </div>
-              </div>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="min-w-[220px]">URL</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="min-w-[180px]">Title</TableHead>
-                      <TableHead className="min-w-[320px]">Summary snippet</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pages.map((page) => (
-                      <TableRow key={page.url}>
-                        <TableCell className="max-w-[18rem] whitespace-normal break-words">
+                  {hasSitemapEntries ? (
+                    <>
+                      {sitemapErrorCount ? (
+                        <InfoNotice tone="error" size="xs">
+                          {sitemapErrorCount === 1
+                            ? "1 URL returned an error during the last crawl."
+                            : `${COUNT_FORMATTER.format(sitemapErrorCount)} URLs returned errors during the last crawl.`}
+                        </InfoNotice>
+                      ) : null}
+
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {sitemapEntries.map((entry) => (
                           <Link
-                            href={page.url}
+                            key={entry.url}
+                            href={entry.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-primary hover:underline"
+                            className={cn(
+                              "group flex items-start gap-2 rounded-md border px-3 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                              SITEMAP_ITEM_STYLES[entry.status],
+                            )}
                           >
-                            {page.url}
+                            <span
+                              className={cn(
+                                "mt-1 h-2 w-2 flex-shrink-0 rounded-full",
+                                SITEMAP_INDICATOR_STYLES[entry.status],
+                              )}
+                            />
+                            <span className="break-all leading-relaxed">{entry.url}</span>
                           </Link>
-                        </TableCell>
-                        <TableCell>
-                          {page.status === "ok" ? (
-                            <Badge variant="success">OK</Badge>
-                          ) : (
-                            <Badge variant="destructive">Error</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="max-w-[16rem] whitespace-normal break-words">
-                          {page.title || "—"}
-                        </TableCell>
-                        <TableCell className="whitespace-normal break-words text-muted-foreground">
-                          {page.textSnippet
-                            ? page.textSnippet.length > 220
-                              ? `${page.textSnippet.slice(0, 220)}…`
-                              : page.textSnippet
-                            : "—"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                  <TableCaption>
-                    {erroredPages.length
-                      ? `${erroredPages.length} page${erroredPages.length === 1 ? "" : "s"} failed during crawl`
-                      : `Fetched ${pageCount} page${pageCount === 1 ? "" : "s"}`}
-                  </TableCaption>
-                </Table>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-xs text-muted-foreground">
+                      Run the crawler to capture sitemap URLs for this product.
+                    </div>
+                  )}
+                </div>
+              </section>
+              <div className="space-y-6">
+                {profile && !isRunningPipeline && !summary ? (
+                  <InfoNotice tone="info" size="xs">
+                    We captured the crawl but did not synthesize a summary yet. Run the full pipeline again if you recently updated the product site.
+                  </InfoNotice>
+                ) : null}
+
+                {summary ? (
+                  <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                      <div>
+                        <div className="text-sm font-semibold text-foreground">
+                          Product narrative
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Condensed from live website content and structured metadata.
+                        </div>
+                      </div>
+                      <Badge variant="secondary" className="self-start text-[11px]">
+                        {summarySections.length
+                          ? `${summarySections.length} theme${summarySections.length === 1 ? "" : "s"}`
+                          : "Overview"}
+                      </Badge>
+                    </div>
+                    {summary.overview ? (
+                      <blockquote className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
+                        {summary.overview}
+                      </blockquote>
+                    ) : null}
+                    {!!summarySections.length && (
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {summarySections.map((section) => (
+                          <div
+                            key={section.title}
+                            className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="text-sm font-semibold text-foreground">
+                                {section.title}
+                              </div>
+                              <Badge variant="outline" className="text-[11px]">
+                                {COUNT_FORMATTER.format(section.items.length)}
+                              </Badge>
+                            </div>
+                            <ul className="space-y-2 text-sm text-muted-foreground">
+                              {section.items.map((item, index) => (
+                                <li key={`${section.title}-${index}`} className="flex gap-2">
+                                  <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
+                                  <span>{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                ) : null}
               </div>
-            </section>
-          )}
+            </div>
+          </div>
         </>
       </StageCard>
 
