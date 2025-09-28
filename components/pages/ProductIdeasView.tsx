@@ -1387,7 +1387,7 @@ export function ProductIdeasView({
                       </Link>
                     </div>
                   </div>
-                  <div className="grid flex-none gap-3 sm:grid-cols-3">
+                  <div className="grid flex-none gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {productQuickFacts.map((fact) => (
                       <div
                         key={fact.label}
