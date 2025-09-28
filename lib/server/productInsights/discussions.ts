@@ -608,7 +608,7 @@ const ThreadRelevanceSchema = z.object({
         id: z.string(),
         keep: z.boolean(),
         relevance: z.number().min(0).max(1),
-        rationale: z.string().min(3),
+        rationale: z.string().min(3).optional().nullable(),
       }),
     )
     .min(1),

@@ -15,6 +15,7 @@ import {
 import type {
   ProductInsightProfilePayload,
   ProductInsightProfileView,
+  ProductInsightStageSetId,
 } from "@/types/product-insights"
 
 async function loadProfileForProduct(
@@ -69,7 +70,10 @@ export async function getProductInsightProfile(
   }
 }
 
-export async function scheduleProductInsightsPipeline(slug: string): Promise<{
+export async function scheduleProductInsightsPipeline(
+  slug: string,
+  stageSetId: ProductInsightStageSetId = "default",
+): Promise<{
   profile: ProductInsightProfilePayload | null
   executedInline: boolean
   alreadyQueued: boolean
@@ -82,11 +86,13 @@ export async function scheduleProductInsightsPipeline(slug: string): Promise<{
   console.info("[productInsights:action] pipeline requested", {
     productId: product.id,
     productSlug: product.slug,
+    stageSetId,
   })
 
   const enqueueResult = await enqueueProductInsightPipelineJob({
     productId: product.id,
     requestedByUserId: product.userId,
+    stageSetId,
   })
 
   if (enqueueResult.queued) {
@@ -97,6 +103,7 @@ export async function scheduleProductInsightsPipeline(slug: string): Promise<{
 
     console.info("[productInsights:action] pipeline enqueued", {
       productId: product.id,
+      stageSetId,
     })
 
     return { profile, executedInline: false, alreadyQueued: false }
@@ -107,6 +114,7 @@ export async function scheduleProductInsightsPipeline(slug: string): Promise<{
 
     console.info("[productInsights:action] pipeline already active", {
       productId: product.id,
+      stageSetId,
     })
 
     return { profile, executedInline: false, alreadyQueued: true }
@@ -115,11 +123,13 @@ export async function scheduleProductInsightsPipeline(slug: string): Promise<{
   console.warn("[productInsights:action] queue unavailable, executing inline", {
     productId: product.id,
     reason: enqueueResult.reason,
+    stageSetId,
   })
 
   const result = await runProductInsightPipeline({
     productId: product.id,
     requestedByUserId: product.userId,
+    stageSetId,
   })
 
   await markPipelineJobComplete(product.id).catch(() => undefined)

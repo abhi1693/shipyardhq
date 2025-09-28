@@ -1,15 +1,31 @@
 import type { RedisClient } from "@/lib/server/redis"
 import { getRedisClient } from "@/lib/server/redis"
-import type { ProductInsightPipelineJobState } from "@/types/product-insights"
+import type {
+  ProductInsightPipelineJobState,
+  ProductInsightStageSetId,
+} from "@/types/product-insights"
+import { PRODUCT_INSIGHT_STAGE_SET_MAP } from "@/lib/server/productInsights/stages"
 
 type RawPipelineJob = {
   productId: string
   requestedByUserId?: string | null
   requestedAt: string
   attempts?: number
+  stageSetId?: ProductInsightStageSetId
 }
 
-export type PipelineQueueJob = RawPipelineJob
+export type PipelineQueueJob = RawPipelineJob & {
+  stageSetId: ProductInsightStageSetId
+}
+
+function normalizeStageSetId(
+  stageSetId?: ProductInsightStageSetId | null,
+): ProductInsightStageSetId {
+  if (stageSetId && PRODUCT_INSIGHT_STAGE_SET_MAP[stageSetId]) {
+    return stageSetId
+  }
+  return "default"
+}
 
 function resolveNamespace(base: string) {
   const prefix =
@@ -23,6 +39,7 @@ const ACTIVE_KEY = resolveNamespace("productInsights:pipeline:v1:active")
 export async function enqueueProductInsightPipelineJob(job: {
   productId: string
   requestedByUserId?: string | null
+  stageSetId?: ProductInsightStageSetId
 }): Promise<{
   queued: boolean
   reason?: "duplicate" | "unavailable" | "error"
@@ -43,6 +60,7 @@ export async function enqueueProductInsightPipelineJob(job: {
       requestedByUserId: job.requestedByUserId ?? null,
       requestedAt: new Date().toISOString(),
       attempts: 0,
+      stageSetId: normalizeStageSetId(job.stageSetId ?? null),
     }
 
     await client.rPush(QUEUE_KEY, JSON.stringify(payload))
@@ -76,6 +94,7 @@ export async function dequeueProductInsightPipelineJobs(
           requestedByUserId: parsed.requestedByUserId ?? null,
           requestedAt: parsed.requestedAt ?? new Date().toISOString(),
           attempts: parsed.attempts ?? 0,
+          stageSetId: normalizeStageSetId(parsed.stageSetId ?? null),
         })
       }
     } catch (error) {
@@ -109,6 +128,7 @@ export async function requeuePipelineJob(job: PipelineQueueJob) {
     requestedByUserId: job.requestedByUserId ?? null,
     requestedAt: job.requestedAt,
     attempts,
+    stageSetId: normalizeStageSetId(job.stageSetId),
   }
   await client.rPush(QUEUE_KEY, JSON.stringify(payload)).catch((error) => {
     console.error("[productInsights:pipeline] failed to requeue job", {

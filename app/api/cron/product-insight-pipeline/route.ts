@@ -54,6 +54,7 @@ export async function GET(request: Request) {
         await runProductInsightPipeline({
           productId: job.productId,
           requestedByUserId: job.requestedByUserId ?? null,
+          stageSetId: job.stageSetId,
         })
 
         await markPipelineJobComplete(job.productId)
@@ -61,6 +62,7 @@ export async function GET(request: Request) {
           productId: job.productId,
           status: "completed",
           attempts: job.attempts ?? 0,
+          stageSetId: job.stageSetId,
         })
       } catch (error) {
         const attempts = (job.attempts ?? 0) + 1
@@ -73,18 +75,21 @@ export async function GET(request: Request) {
             productId: job.productId,
             attempts,
             error,
+            stageSetId: job.stageSetId,
           })
           results.push({
             productId: job.productId,
             status: "failed",
             attempts,
             error: message,
+            stageSetId: job.stageSetId,
           })
         } else {
           console.warn("[productInsights:pipeline] job failed; requeueing", {
             productId: job.productId,
             attempts,
             error,
+            stageSetId: job.stageSetId,
           })
           await requeuePipelineJob(job)
           results.push({
@@ -92,6 +97,7 @@ export async function GET(request: Request) {
             status: "requeued",
             attempts,
             error: message,
+            stageSetId: job.stageSetId,
           })
         }
       }

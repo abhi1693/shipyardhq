@@ -1,22 +1,10 @@
 import prisma from "@/lib/prisma"
-import {
-  crawlProductWebsite,
-  discoverProductDiscussions,
-  discoverProductSubreddits,
-  createProductInsightComprehensiveReport,
-  synthesizeProductInsight,
-} from "@/lib/server/productInsights"
-import { buildProductInsightSummaryText } from "@/lib/server/productInsights/summary"
+import { PIPELINE_STAGE_REGISTRY } from "@/lib/server/productInsights/pipeline/stages"
 import type {
-  ProductInsightCommunityStageData,
-  ProductInsightDiscussionStageData,
-  ProductInsightProfilePayload,
-  ProductInsightReportStageData,
-  ProductInsightSnapshotStageData,
-  ProductInsightStageDataById,
-  ProductInsightStageDefinition,
-  ProductInsightStageId,
-} from "@/types/product-insights"
+  PipelineStage,
+  PipelineStageContext,
+  PipelineStageSharedState,
+} from "@/lib/server/productInsights/pipeline/types"
 import {
   insightProfileSelect,
   serializeInsightProfile,
@@ -24,30 +12,50 @@ import {
 import {
   PRODUCT_INSIGHT_STAGE_DEFINITIONS,
   PRODUCT_INSIGHT_STAGE_MAP,
+  PRODUCT_INSIGHT_STAGE_SET_MAP,
 } from "@/lib/server/productInsights/stages"
 import { sendProductInsightInsightsReadyEmail } from "@/lib/server/email/productInsightsReady"
 import type {
   ProductInsightProductContext,
   ProductInsightSummary,
 } from "@/lib/server/productInsights/types"
+import type {
+  ProductInsightProfilePayload,
+  ProductInsightStageDataById,
+  ProductInsightStageId,
+  ProductInsightStageSetId,
+  ProductInsightStageView,
+  ProductInsightStageViewMap,
+} from "@/types/product-insights"
 import {
   ProductInsightStatus,
   Prisma,
 } from "@/lib/vendor/prisma/client"
 
-export type PipelineRunPlan = Record<ProductInsightStageId, boolean>
+export type PipelineRunPlan = {
+  shouldRun: Record<ProductInsightStageId, boolean>
+  forcedStageIds: Set<ProductInsightStageId>
+  allowedStageIds: Set<ProductInsightStageId>
+  orderedStageIds: ProductInsightStageId[]
+}
 
 type ProductRecord = NonNullable<
   Awaited<ReturnType<typeof loadProductWithOwner>>
 >
 
-type StageDataBundle = {
-  snapshot: ProductInsightSnapshotStageData | null
-  summary: ProductInsightSummary | null
-  summaryText: string | null
-  communities: ProductInsightCommunityStageData | null
-  discussions: ProductInsightDiscussionStageData | null
-  report: ProductInsightReportStageData | null
+function hasUsableStageData(data: unknown): boolean {
+  if (data == null) return false
+  if (Array.isArray(data)) return data.length > 0
+  if (typeof data === "object") {
+    return Object.keys(data as Record<string, unknown>).length > 0
+  }
+  return true
+}
+
+function parseTimestamp(value?: string | null): number | null {
+  if (!value) return null
+  const time = Date.parse(value)
+  return Number.isFinite(time) ? time : null
 }
 
 function extractStageData<K extends ProductInsightStageId>(
@@ -61,36 +69,173 @@ function extractStageData<K extends ProductInsightStageId>(
   return stage.data as ProductInsightStageDataById[K] | null
 }
 
-export function determinePipelineRunPlan(
+function buildInitialSharedState(
   profile: ProductInsightProfilePayload | null,
-): PipelineRunPlan {
-  const plan: PipelineRunPlan = {
-    "product.snapshot": true,
-    "reddit.communities": true,
-    "reddit.discussions": true,
-    "report.comprehensive": true,
+): PipelineStageSharedState {
+  const shared: PipelineStageSharedState = {}
+
+  const snapshot = extractStageData(profile, "product.snapshot")
+  if (snapshot) {
+    shared.snapshot = snapshot
+    shared.summary = snapshot.summary ?? profile?.summary ?? null
+    shared.summaryText = snapshot.summaryText ?? profile?.summaryText ?? null
+  } else {
+    shared.summary = profile?.summary ?? null
+    shared.summaryText = profile?.summaryText ?? null
   }
 
-  const stages = PRODUCT_INSIGHT_STAGE_DEFINITIONS.slice().sort(
+  const communities = extractStageData(profile, "reddit.communities")
+  if (communities) {
+    shared.communities = communities
+  }
+
+  const discussions = extractStageData(profile, "reddit.discussions")
+  if (discussions) {
+    shared.discussions = discussions
+  }
+
+  const report = extractStageData(profile, "report.comprehensive")
+  if (report) {
+    shared.report = report
+  }
+
+  return shared
+}
+
+function mergeSharedState(
+  shared: PipelineStageSharedState,
+  updates?: Partial<PipelineStageSharedState>,
+) {
+  if (!updates) return
+  for (const [key, value] of Object.entries(updates)) {
+    if (typeof value === "undefined") continue
+    ;(shared as Record<string, unknown>)[key] = value
+  }
+}
+
+function resolveStageSet(
+  stageSetId?: ProductInsightStageSetId,
+): {
+  stageSetId: ProductInsightStageSetId
+  forcedStageIds: Set<ProductInsightStageId>
+  allowedStageIds: Set<ProductInsightStageId>
+} {
+  const fallback = PRODUCT_INSIGHT_STAGE_SET_MAP["default"]
+  const stageSet = stageSetId
+    ? PRODUCT_INSIGHT_STAGE_SET_MAP[stageSetId] ?? fallback
+    : fallback
+  const forcedStageIds = new Set<ProductInsightStageId>(stageSet.stages)
+  const allowedStageIds = new Set<ProductInsightStageId>(forcedStageIds)
+
+  const queue: ProductInsightStageId[] = Array.from(allowedStageIds)
+  while (queue.length) {
+    const current = queue.pop()
+    if (!current) continue
+    const definition = PRODUCT_INSIGHT_STAGE_MAP[current]
+    if (!definition) continue
+    for (const dependency of definition.dependencies) {
+      if (!allowedStageIds.has(dependency)) {
+        allowedStageIds.add(dependency)
+        queue.push(dependency)
+      }
+    }
+  }
+
+  return {
+    stageSetId: stageSet.id,
+    forcedStageIds,
+    allowedStageIds,
+  }
+}
+
+function isStageReady(
+  profile: ProductInsightProfilePayload | null,
+  stageId: ProductInsightStageId,
+): boolean {
+  const view = profile?.stages?.[stageId]
+  if (!view) return false
+  if (view.status !== "ready") return false
+  return hasUsableStageData(view.data)
+}
+
+function dependencyIsNewer(
+  profile: ProductInsightProfilePayload | null,
+  stageId: ProductInsightStageId,
+  dependencyId: ProductInsightStageId,
+): boolean {
+  const stageView = profile?.stages?.[stageId]
+  const dependencyView = profile?.stages?.[dependencyId]
+  if (!dependencyView) return true
+  const dependencyCompletedAt = parseTimestamp(dependencyView.completedAt)
+  if (dependencyCompletedAt === null) return true
+  const stageCompletedAt = parseTimestamp(stageView?.completedAt)
+  if (stageCompletedAt === null) return true
+  return dependencyCompletedAt > stageCompletedAt
+}
+
+export function determinePipelineRunPlan(
+  profile: ProductInsightProfilePayload | null,
+  options: {
+    forcedStageIds?: Iterable<ProductInsightStageId>
+    allowedStageIds?: Iterable<ProductInsightStageId>
+  } = {},
+): PipelineRunPlan {
+  const stageOrder = PRODUCT_INSIGHT_STAGE_DEFINITIONS.slice().sort(
     (a, b) => a.order - b.order,
   )
 
-  for (const stage of stages) {
-    const view = profile?.stages[stage.id]
-    const dependenciesScheduled = stage.dependencies.some((dependency) =>
-      plan[dependency] === true,
+  const forcedStageIds = new Set<ProductInsightStageId>(
+    options.forcedStageIds ?? stageOrder.map((stage) => stage.id),
+  )
+
+  const allowedStageIds = new Set<ProductInsightStageId>(
+    options.allowedStageIds ?? stageOrder.map((stage) => stage.id),
+  )
+
+  const shouldRun = Object.fromEntries(
+    stageOrder.map((stage) => [stage.id, false]),
+  ) as Record<ProductInsightStageId, boolean>
+
+  for (const stage of stageOrder) {
+    if (!allowedStageIds.has(stage.id)) {
+      shouldRun[stage.id] = false
+      continue
+    }
+
+    const forced = forcedStageIds.has(stage.id)
+    const ready = isStageReady(profile, stage.id)
+    const dependencyScheduled = stage.dependencies.some(
+      (dependency) => shouldRun[dependency],
     )
-    const hasReadyData = Boolean(
-      view &&
-        view.status === "ready" &&
-        view.data &&
-        (!Array.isArray(view.data) || view.data.length > 0),
+    const dependencyIncomplete = stage.dependencies.some(
+      (dependency) => !isStageReady(profile, dependency),
+    )
+    const dependencyNewer = stage.dependencies.some((dependency) =>
+      dependencyIsNewer(profile, stage.id, dependency),
     )
 
-    plan[stage.id] = dependenciesScheduled || !hasReadyData
+    const shouldConsider =
+      forced ||
+      !ready ||
+      dependencyScheduled ||
+      dependencyIncomplete ||
+      dependencyNewer
+
+    if (!shouldConsider) {
+      shouldRun[stage.id] = false
+      continue
+    }
+
+    shouldRun[stage.id] =
+      forced || !ready || dependencyScheduled || dependencyIncomplete || dependencyNewer
   }
 
-  return plan
+  return {
+    shouldRun,
+    forcedStageIds,
+    allowedStageIds,
+    orderedStageIds: stageOrder.map((stage) => stage.id),
+  }
 }
 
 async function loadProductWithOwner(productId: string) {
@@ -152,10 +297,7 @@ async function ensureProfilePending(productId: string) {
   })
 }
 
-function stageWhere(
-  profileId: string,
-  stage: ProductInsightStageDefinition,
-) {
+function stageWhere(profileId: string, stage: PipelineStage) {
   return {
     profileId_stageId_providerType: {
       profileId,
@@ -167,7 +309,7 @@ function stageWhere(
 
 async function markStagePending(
   profileId: string,
-  stage: ProductInsightStageDefinition,
+  stage: PipelineStage,
 ) {
   await prisma.productInsightStageResult.upsert({
     where: stageWhere(profileId, stage),
@@ -195,7 +337,7 @@ async function markStagePending(
 
 async function markStageReady(
   profileId: string,
-  stage: ProductInsightStageDefinition,
+  stage: PipelineStage,
   data: unknown,
   metrics: Record<string, unknown> | null,
 ) {
@@ -213,7 +355,7 @@ async function markStageReady(
 
 async function markStageFailed(
   profileId: string,
-  stage: ProductInsightStageDefinition,
+  stage: PipelineStage,
   message: string,
   metrics?: Record<string, unknown> | null,
 ) {
@@ -246,6 +388,42 @@ async function updateProfileStatus(
   })
 }
 
+function buildStageView<K extends ProductInsightStageId>(
+  stageId: K,
+  serialized: {
+    data: ProductInsightStageDataById[K]
+    metrics?: Record<string, unknown> | null
+  },
+): ProductInsightStageView<K> {
+  const definition = PRODUCT_INSIGHT_STAGE_MAP[stageId]
+  const stage = PIPELINE_STAGE_REGISTRY[stageId]
+  const timestamp = new Date().toISOString()
+
+  return {
+    stageId,
+    label: definition.label,
+    providerType: stage.providerType,
+    dependencies: stage.dependencies,
+    renderer: definition.renderer,
+    status: ProductInsightStatus.ready,
+    data: serialized.data,
+    metrics: serialized.metrics ?? null,
+    errorMessage: null,
+    startedAt: timestamp,
+    completedAt: timestamp,
+  }
+}
+
+function cloneStageViews(
+  views: ProductInsightStageViewMap | undefined,
+): ProductInsightStageViewMap {
+  return { ...(views ?? {}) }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 type PipelineResult = {
   profile: ProductInsightProfilePayload
   summary?: ProductInsightSummary | null
@@ -255,6 +433,7 @@ type PipelineResult = {
 export async function runProductInsightPipeline(job: {
   productId: string
   requestedByUserId?: string | null
+  stageSetId?: ProductInsightStageSetId
 }): Promise<PipelineResult> {
   const productRecord = await loadProductWithOwner(job.productId)
 
@@ -276,243 +455,116 @@ export async function runProductInsightPipeline(job: {
   })
 
   const existingProfile = serializeInsightProfile(existingSnapshot)
-  const plan = determinePipelineRunPlan(existingProfile)
+  const { stageSetId, forcedStageIds, allowedStageIds } = resolveStageSet(
+    job.stageSetId,
+  )
+  const plan = determinePipelineRunPlan(existingProfile, {
+    forcedStageIds,
+    allowedStageIds,
+  })
 
   const profileRef = await ensureProfilePending(productRecord.id)
   const productContext = buildProductContext(productRecord)
 
-  const existingSnapshotData = extractStageData(existingProfile, "product.snapshot")
-  const existingCommunityData = extractStageData(
-    existingProfile,
-    "reddit.communities",
-  )
-  const existingDiscussionData = extractStageData(
-    existingProfile,
-    "reddit.discussions",
-  )
-  const existingReportData = extractStageData(
-    existingProfile,
-    "report.comprehensive",
-  )
+  const shared = buildInitialSharedState(existingProfile)
+  const stageViews = cloneStageViews(existingProfile?.stages)
 
-  const stages: StageDataBundle = {
-    snapshot: existingSnapshotData,
-    summary:
-      existingSnapshotData?.summary ?? existingProfile?.summary ?? null,
-    summaryText:
-      existingSnapshotData?.summaryText ?? existingProfile?.summaryText ?? null,
-    communities: existingCommunityData,
-    discussions: existingDiscussionData,
-    report: existingReportData,
+  const stageContext: PipelineStageContext = {
+    productId: productRecord.id,
+    websiteUrl: productRecord.websiteUrl,
+    product: productContext,
+    profile: existingProfile,
+    requestedByUserId: job.requestedByUserId ?? null,
+    stageViews,
+    shared,
   }
 
-  const snapshotStage = PRODUCT_INSIGHT_STAGE_MAP["product.snapshot"]
-  if (plan["product.snapshot"]) {
-    await markStagePending(profileRef.id, snapshotStage)
-    try {
-      console.info("[productInsights:pipeline] snapshot starting", {
-        productId: productRecord.id,
-        websiteUrl: productRecord.websiteUrl,
-      })
+  const orderedStages = plan.orderedStageIds
+    .filter((stageId) => plan.allowedStageIds.has(stageId))
+    .map((stageId) => PIPELINE_STAGE_REGISTRY[stageId])
+    .filter((stage): stage is PipelineStage => Boolean(stage))
 
-      const crawl = await crawlProductWebsite(productRecord.websiteUrl)
-      const synthesis = await synthesizeProductInsight(crawl, productContext)
-      const summaryText = buildProductInsightSummaryText(synthesis.summary)
-
-      stages.snapshot = {
-        sitemapUrl: crawl.sitemapUrl ?? undefined,
-        discoveredUrls: crawl.discoveredUrls ?? [],
-        pages: crawl.pages,
-        summary: synthesis.summary ?? null,
-        summaryText,
-        model: synthesis.model,
-        fetchedAt: crawl.fetchedAt,
-      }
-      stages.summary = synthesis.summary ?? null
-      stages.summaryText = summaryText
-
-      await markStageReady(profileRef.id, snapshotStage, stages.snapshot, {
-        pageCount: crawl.pages.length,
-        discoveredUrlCount: crawl.discoveredUrls.length,
-      })
-
-      console.info("[productInsights:pipeline] snapshot completed", {
-        productId: productRecord.id,
-        pageCount: crawl.pages.length,
-        discoveredUrls: crawl.discoveredUrls.length,
-      })
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Snapshot stage failed"
-      await markStageFailed(profileRef.id, snapshotStage, message)
-      await updateProfileStatus(productRecord.id, ProductInsightStatus.failed, {
-        errorMessage: message,
-      })
-      console.error("[productInsights:pipeline] snapshot failed", {
-        productId: productRecord.id,
-        message,
-        error,
-      })
-      throw error
+  for (const stage of orderedStages) {
+    if (!plan.shouldRun[stage.id]) {
+      continue
     }
-  }
 
-  const communityStage = PRODUCT_INSIGHT_STAGE_MAP["reddit.communities"]
-  if (plan["reddit.communities"]) {
-    await markStagePending(profileRef.id, communityStage)
-    try {
-      console.info("[productInsights:pipeline] community discovery starting", {
-        productId: productRecord.id,
-      })
+    await markStagePending(profileRef.id, stage)
 
-      const discovery = await discoverProductSubreddits({
-        productId: productRecord.id,
-        product: productContext,
-        summary: stages.summary ?? undefined,
-        forceRefresh: true,
-      })
+    const maxAttempts = Math.max(1, stage.retryPolicy?.maxAttempts ?? 1)
+    const backoffMs = Math.max(0, stage.retryPolicy?.backoffMs ?? 0)
 
-      stages.communities = {
-        queries: discovery.queries,
-        subreddits: discovery.subreddits,
-        model: discovery.model,
-        discoveredAt: new Date().toISOString(),
+    let attempt = 0
+
+    while (attempt < maxAttempts) {
+      attempt += 1
+      try {
+        console.info("[productInsights:pipeline] stage starting", {
+          productId: productRecord.id,
+          stageId: stage.id,
+          stageSetId,
+          attempt,
+          maxAttempts,
+        })
+
+        const result = await stage.execute(stageContext)
+        const serialized = stage.serialize(result, stageContext)
+
+        await markStageReady(
+          profileRef.id,
+          stage,
+          serialized.data,
+          serialized.metrics ?? null,
+        )
+
+        mergeSharedState(shared, serialized.shared)
+        stageViews[stage.id] = buildStageView(stage.id, serialized)
+
+        console.info("[productInsights:pipeline] stage completed", {
+          productId: productRecord.id,
+          stageId: stage.id,
+        })
+
+        break
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Stage execution failed"
+
+        if (attempt >= maxAttempts) {
+          await markStageFailed(profileRef.id, stage, message)
+          await updateProfileStatus(
+            productRecord.id,
+            ProductInsightStatus.failed,
+            {
+              errorMessage: message,
+            },
+          )
+          console.error("[productInsights:pipeline] stage failed", {
+            productId: productRecord.id,
+            stageId: stage.id,
+            stageSetId,
+            attempt,
+            maxAttempts,
+            message,
+            error,
+          })
+          throw error
+        }
+
+        console.warn("[productInsights:pipeline] stage attempt failed", {
+          productId: productRecord.id,
+          stageId: stage.id,
+          stageSetId,
+          attempt,
+          maxAttempts,
+          message,
+          error,
+        })
+
+        if (backoffMs > 0) {
+          await sleep(backoffMs)
+        }
       }
-
-      await markStageReady(profileRef.id, communityStage, stages.communities, {
-        queryCount: discovery.queries.length,
-        communityCount: discovery.subreddits.length,
-        fromCache: discovery.fromCache ?? false,
-      })
-
-      console.info("[productInsights:pipeline] community discovery completed", {
-        productId: productRecord.id,
-        communityCount: discovery.subreddits.length,
-        queryCount: discovery.queries.length,
-        fromCache: discovery.fromCache,
-      })
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Community discovery stage failed"
-      await markStageFailed(profileRef.id, communityStage, message)
-      await updateProfileStatus(productRecord.id, ProductInsightStatus.failed, {
-        errorMessage: message,
-      })
-      console.error("[productInsights:pipeline] community discovery failed", {
-        productId: productRecord.id,
-        message,
-        error,
-      })
-      throw error
-    }
-  }
-
-  const discussionStage = PRODUCT_INSIGHT_STAGE_MAP["reddit.discussions"]
-  if (plan["reddit.discussions"]) {
-    await markStagePending(profileRef.id, discussionStage)
-    try {
-      console.info("[productInsights:pipeline] discussion discovery starting", {
-        productId: productRecord.id,
-      })
-
-      const discovery = await discoverProductDiscussions({
-        productId: productRecord.id,
-        product: productContext,
-        summary: stages.summary ?? undefined,
-        subreddits: stages.communities?.subreddits ?? undefined,
-        forceRefresh: true,
-      })
-
-      stages.discussions = {
-        queries: discovery.queries,
-        threads: discovery.threads,
-        insights: discovery.insights ?? null,
-        model: discovery.model,
-        discoveredAt: new Date().toISOString(),
-      }
-
-      await markStageReady(profileRef.id, discussionStage, stages.discussions, {
-        queryCount: discovery.queries.length,
-        threadCount: discovery.threads.length,
-        hasInsights: Boolean(discovery.insights),
-        fromCache: discovery.fromCache ?? false,
-      })
-
-      console.info("[productInsights:pipeline] discussion discovery completed", {
-        productId: productRecord.id,
-        threadCount: discovery.threads.length,
-        hasInsights: Boolean(discovery.insights),
-        fromCache: discovery.fromCache,
-      })
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Discussion discovery stage failed"
-      await markStageFailed(profileRef.id, discussionStage, message)
-      await updateProfileStatus(productRecord.id, ProductInsightStatus.failed, {
-        errorMessage: message,
-      })
-      console.error("[productInsights:pipeline] discussion discovery failed", {
-        productId: productRecord.id,
-        message,
-        error,
-      })
-      throw error
-    }
-  }
-
-  const reportStage = PRODUCT_INSIGHT_STAGE_MAP["report.comprehensive"]
-  if (plan["report.comprehensive"]) {
-    await markStagePending(profileRef.id, reportStage)
-
-    try {
-      console.info("[productInsights:pipeline] report synthesis starting", {
-        productId: productRecord.id,
-      })
-
-      const result = await createProductInsightComprehensiveReport({
-        productId: productRecord.id,
-        product: productContext,
-        summary: stages.summary ?? undefined,
-        summaryText: stages.summaryText ?? undefined,
-        subreddits: stages.communities?.subreddits ?? undefined,
-        insights: stages.discussions?.insights ?? undefined,
-        threads: stages.discussions?.threads ?? undefined,
-      })
-
-      stages.report = {
-        report: result.report,
-        model: result.model,
-        generatedAt: new Date().toISOString(),
-      }
-
-      await markStageReady(profileRef.id, reportStage, stages.report, {
-        highlightCount: result.report.headlineHighlights.length,
-        actionCount: result.report.recommendedActions.length,
-      })
-
-      console.info("[productInsights:pipeline] report synthesis completed", {
-        productId: productRecord.id,
-        highlightCount: result.report.headlineHighlights.length,
-      })
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Comprehensive report stage failed"
-      await markStageFailed(profileRef.id, reportStage, message)
-      await updateProfileStatus(productRecord.id, ProductInsightStatus.failed, {
-        errorMessage: message,
-      })
-      console.error("[productInsights:pipeline] report synthesis failed", {
-        productId: productRecord.id,
-        message,
-        error,
-      })
-      throw error
     }
   }
 
@@ -546,7 +598,7 @@ export async function runProductInsightPipeline(job: {
 
   return {
     profile: finalProfile,
-    summary: stages.summary,
-    summaryText: stages.summaryText,
+    summary: shared.summary ?? null,
+    summaryText: shared.summaryText ?? null,
   }
 }

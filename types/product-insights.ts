@@ -172,6 +172,19 @@ export type ProductInsightStageRendererHint =
   | "discussion-list"
   | "comprehensive-report"
 
+export type ProductInsightStageSetId =
+  | "default"
+  | "snapshot-only"
+  | "reddit-refresh"
+  | "report-refresh"
+
+export type ProductInsightStageSetDefinition = {
+  id: ProductInsightStageSetId
+  label: string
+  description?: string
+  stages: ProductInsightStageId[]
+}
+
 export type ProductInsightStageDefinition = {
   id: ProductInsightStageId
   order: number
