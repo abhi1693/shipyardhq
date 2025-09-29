@@ -8,13 +8,13 @@ import {
 import type {
   ProductInsightCompetitor,
   ProductInsightCompetitorStageData,
+  ProductInsightSnapshotStageData,
 } from "@/types/product-insights"
 
 import { getProductInsightCompetitorModel } from "./config"
 import type {
   ProductInsightProductContext,
   ProductInsightSummary,
-  ProductInsightSnapshotStageData,
 } from "./types"
 
 const MAX_COMPETITORS = 8

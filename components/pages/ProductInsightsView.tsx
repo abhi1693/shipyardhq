@@ -95,6 +95,12 @@ const SENTIMENT_COLORS: Record<"positive" | "negative" | "neutral", string> = {
   neutral: "var(--chart-3)",
 }
 
+type SentimentKey = "positive" | "negative" | "neutral"
+
+function isSentimentKey(value: unknown): value is SentimentKey {
+  return value === "positive" || value === "negative" || value === "neutral"
+}
+
 const ACTION_PRIORITY_BADGE: Record<
   ProductInsightReportActionPriority,
   { label: string; badge: ComponentProps<typeof Badge>["variant"] }
@@ -1217,10 +1223,16 @@ const summarySections: SummarySection[] = useMemo(() => {
     },
   ]
 
-  const sentimentDistribution = useMemo(() => {
+  const sentimentDistribution = useMemo<
+    | {
+        data: Array<{ key: SentimentKey; label: string; value: number }>
+        total: number
+      }
+    | null
+  >(() => {
     if (!discussionInsights?.sections?.length) return null
 
-    const counts: Record<"positive" | "negative" | "neutral", number> = {
+    const counts: Record<SentimentKey, number> = {
       positive: 0,
       negative: 0,
       neutral: 0,
@@ -1229,8 +1241,8 @@ const summarySections: SummarySection[] = useMemo(() => {
     for (const section of discussionInsights.sections) {
       for (const item of section.items ?? []) {
         if (!item?.sentiment) continue
-        if (item.sentiment in counts) {
-          counts[item.sentiment as keyof typeof counts] += 1
+        if (isSentimentKey(item.sentiment)) {
+          counts[item.sentiment] += 1
         }
       }
     }
@@ -1239,7 +1251,7 @@ const summarySections: SummarySection[] = useMemo(() => {
     if (!total) return null
 
     const data = (
-      Object.entries(counts) as Array<[keyof typeof counts, number]>
+      Object.entries(counts) as Array<[SentimentKey, number]>
     )
       .filter(([, value]) => value > 0)
       .map(([key, value]) => ({
@@ -1350,9 +1362,13 @@ const summarySections: SummarySection[] = useMemo(() => {
 
   const sentimentSummaryText = useMemo(() => {
     if (!sentimentDistribution) return null
-    const counts = { positive: 0, negative: 0, neutral: 0 }
-    sentimentDistribution.data.forEach((entry: any) => {
-      if (entry.key === "positive" || entry.key === "negative" || entry.key === "neutral") {
+    const counts: Record<SentimentKey, number> = {
+      positive: 0,
+      negative: 0,
+      neutral: 0,
+    }
+    sentimentDistribution.data.forEach((entry) => {
+      if (isSentimentKey(entry.key)) {
         counts[entry.key] = entry.value
       }
     })

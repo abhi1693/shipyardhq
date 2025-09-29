@@ -423,6 +423,7 @@ async function generateDiscussionQueries(
 }
 
 type RedditListingChild = {
+  kind?: string
   data?: Record<string, any>
 }
 
