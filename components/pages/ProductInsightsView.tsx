@@ -482,7 +482,7 @@ export function ProductInsightsView({
     })
     setProgressMessage("Starting crawl and synthesis…")
     setCompetitorProgress("Mapping competitive landscape…")
-    setSubredditProgress("Preparing Reddit discovery…")
+    setSubredditProgress("Preparing community discovery…")
     setDiscussionProgress("Queued for discussion analysis…")
     setReportProgress("Queued for comprehensive report…")
 
@@ -542,8 +542,8 @@ export function ProductInsightsView({
         if (result.executedInline) {
           setProgressMessage("Latest crawl captured and summarized.")
           setCompetitorProgress("Competitive intel refreshed.")
-          setSubredditProgress("Subreddit recommendations refreshed.")
-          setDiscussionProgress("Reddit discussion insights updated.")
+          setSubredditProgress("Community recommendations refreshed.")
+          setDiscussionProgress("Discussion insights updated.")
           setReportProgress(
             "Comprehensive report ready—check your inbox for the overview.",
           )
@@ -560,7 +560,7 @@ export function ProductInsightsView({
           setCompetitorProgress(
             "Competitor research will run after the crawl finishes.",
           )
-          setSubredditProgress("Reddit discovery will run once the queue processes.")
+          setSubredditProgress("Community discovery will run once the queue processes.")
           setDiscussionProgress("Discussion analysis will start automatically.")
           setReportProgress("Report synthesis will begin after upstream steps finish.")
           setPipelineNotice({
@@ -1338,7 +1338,7 @@ export function ProductInsightsView({
       return {
         type: "sentiment" as const,
         title: "Sentiment mix",
-        description: "How Reddit conversations are trending right now.",
+        description: "How community conversations are trending right now.",
         data: sentimentDistribution.data.map((entry) => ({
           key: entry.key,
           label: entry.label,
@@ -1439,7 +1439,7 @@ export function ProductInsightsView({
     {
       step: "Step 3",
       title: "Audience discovery",
-      description: "Find active Reddit communities for this product space.",
+      description: "Find active communities for this product space.",
       status: subredditStatusDisplay,
       metrics: [
         { label: "Last pass", value: lastSubredditDiscovery },
@@ -1599,7 +1599,7 @@ export function ProductInsightsView({
           <div className="space-y-1">
             <CardTitle>Run full pipeline</CardTitle>
             <CardDescription>
-              Refresh the crawl, subreddit discovery, discussion insights, and report in one click.
+              Refresh the crawl, community discovery, discussion insights, and report in one click.
             </CardDescription>
           </div>
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
@@ -1610,7 +1610,7 @@ export function ProductInsightsView({
               >
                 <span className="text-sm font-medium text-foreground">Deep harvest</span>
                 <span className="text-[11px]">
-                  Expand Reddit searches and pull full comment trees for top threads.
+                  Expand discovery searches and pull full comment trees for top threads.
                 </span>
               </Label>
               <Switch
@@ -1618,7 +1618,7 @@ export function ProductInsightsView({
                 checked={isDeepMode}
                 onCheckedChange={setIsDeepMode}
                 disabled={isPipelinePending}
-                aria-label="Toggle deep Reddit harvest"
+                aria-label="Toggle deep discussion harvest"
               />
             </div>
             <Button
@@ -2199,7 +2199,7 @@ export function ProductInsightsView({
       <StageCard
         step="Step 3"
         title="Audience discovery"
-        description="The pipeline generates Reddit search plans and captures the communities that match this product."
+        description="The pipeline generates community search plans and captures the groups that match this product."
         status={subredditStatusDisplay}
         collapsible
         defaultOpen={shouldOpenSubredditStage}
@@ -2255,7 +2255,7 @@ export function ProductInsightsView({
                       </div>
                     ) : (
                       <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
-                        Run the discovery step to generate targeted Reddit search queries for this product.
+                        Run discovery to generate targeted community search queries for this product.
                       </div>
                     )}
                   </div>
@@ -2385,7 +2385,7 @@ export function ProductInsightsView({
                       {renderSubredditCoverageNotice()}
                       {shouldShowSubredditEmptyState ? (
                         <InfoNotice tone="info" size="xs">
-                          Run the full pipeline to craft Reddit search plans, resolve the best-fit communities, and cache them for future research or outreach.
+                          Run the full pipeline to craft community search plans, resolve the best-fit groups, and cache them for future research or outreach.
                         </InfoNotice>
                       ) : null}
                     </div>
@@ -2479,7 +2479,7 @@ export function ProductInsightsView({
       <StageCard
         step="Step 4"
         title="Discussion insights"
-        description="Review Reddit conversations to surface wins, friction, and opportunities."
+        description="Review community conversations to surface wins, friction, and opportunities."
         status={discussionStatusDisplay}
         collapsible
         defaultOpen={shouldOpenDiscussionStage}
@@ -2521,7 +2521,7 @@ export function ProductInsightsView({
                       </div>
                     ) : (
                       <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
-                        Run the pipeline to craft Reddit discussion queries that capture fresh sentiment from your saved communities.
+                        Run the pipeline to craft discussion queries that capture fresh sentiment from your saved communities.
                       </div>
                     )}
                   </div>
@@ -2830,7 +2830,7 @@ export function ProductInsightsView({
                       Sampled discussions
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Latest Reddit threads captured for this run with top comment highlights.
+                      Latest discussion threads captured for this run with top comment highlights.
                     </div>
                   </div>
                   <Badge variant="outline" className="self-start text-[11px]">
@@ -2942,7 +2942,7 @@ export function ProductInsightsView({
       <StageCard
         step="Step 5"
         title="Comprehensive report"
-        description="Merge product narrative, community intelligence, and Reddit signals into a single plan."
+        description="Merge product narrative, community intelligence, and discussion signals into a single plan."
         status={reportStatusDisplay}
         collapsible
         defaultOpen={shouldOpenReportStage}
