@@ -116,6 +116,8 @@ const PERCENT_FORMATTER = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 1,
 })
 
+const REQUIRED_QUERY_COVERAGE_PERCENT = 70
+
 type ProductInsightsViewProps = {
   slug: string
   productName: string
@@ -743,6 +745,8 @@ export function ProductInsightsView({
   const avgRelevancePercent =
     communityStats.avgRelevance !== null ? communityStats.avgRelevance * 100 : null
   const coveragePercent = communityStats.queryCoveragePercent
+  const coverageNeedsAttention =
+    coveragePercent !== null && coveragePercent < REQUIRED_QUERY_COVERAGE_PERCENT
 
   const discoveryQuickFacts: Array<{ label: string; value: string; tone: MetricTone }> = [
     {
@@ -795,7 +799,10 @@ export function ProductInsightsView({
 
   const shouldShowSubredditEmptyState = !hasSubredditResults && !isRunningPipeline
   const shouldSurfaceSubredditNotices = Boolean(
-    subredditProgress || profile?.subredditErrorMessage || shouldShowSubredditEmptyState,
+    subredditProgress ||
+      profile?.subredditErrorMessage ||
+      shouldShowSubredditEmptyState ||
+      coverageNeedsAttention,
   )
 
   const subredditStatus = profile?.subredditStatus ?? null
@@ -1531,6 +1538,16 @@ export function ProductInsightsView({
   const renderSubredditError = () => {
     if (!profile?.subredditErrorMessage) return null
     return <InfoNotice tone="error">{profile.subredditErrorMessage}</InfoNotice>
+  }
+
+  const renderSubredditCoverageNotice = () => {
+    if (!coverageNeedsAttention || coveragePercent === null) return null
+    return (
+      <InfoNotice tone="info" size="xs">
+        Discovery matched {PERCENT_FORMATTER.format(coveragePercent)}% of the planned
+        queries. Queue another pipeline run once fresh crawl data is available so we can push toward the 70% target.
+      </InfoNotice>
+    )
   }
 
   const renderDiscussionProgress = () => {
@@ -2373,6 +2390,7 @@ export function ProductInsightsView({
                     <div className="space-y-2">
                       {renderSubredditProgress()}
                       {renderSubredditError()}
+                      {renderSubredditCoverageNotice()}
                       {shouldShowSubredditEmptyState ? (
                         <InfoNotice tone="info" size="xs">
                           Run the full pipeline to craft Reddit search plans, resolve the best-fit communities, and cache them for future research or outreach.
@@ -2539,7 +2557,7 @@ export function ProductInsightsView({
                         </div>
                       ) : (
                         <InfoNotice tone="info" size="xs">
-                          No focus areas yet—try broadening the subreddit pool or rerunning the analysis later today.
+                          No focus areas yet—rerun the analysis after the next pipeline cycle to capture more community signals.
                         </InfoNotice>
                       )}
                     </div>
@@ -2614,7 +2632,7 @@ export function ProductInsightsView({
                         </div>
                       ) : (
                         <InfoNotice tone="info" size="xs">
-                          We did not identify specific insight sections from the sampled threads yet. Try rerunning the analysis with a refreshed crawl or broadened subreddit list.
+                          We did not identify specific insight sections from the sampled threads yet. Rerun the analysis once the crawler has fresh data to expand coverage.
                         </InfoNotice>
                       )}
                     </div>

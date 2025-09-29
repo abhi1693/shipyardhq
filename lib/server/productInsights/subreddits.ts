@@ -76,6 +76,8 @@ const DiscoverResultSchema = z.object({
   ),
   subreddits: z.array(SubredditSchema),
   model: z.string(),
+  queryCoverage: z.number().optional().nullable(),
+  matchedQueryCount: z.number().optional().nullable(),
 })
 
 const RelevanceResponseSchema = z.object({
@@ -92,6 +94,232 @@ const RelevanceResponseSchema = z.object({
 })
 
 const MIN_RELEVANCE_SCORE = 0.35
+const MIN_QUERY_MATCH_COVERAGE = 0.7
+
+type NormalizedQueryIndex = Map<string, { original: string; indices: number[] }>
+
+function normalizeQueryKey(value?: string | null) {
+  if (!value) return null
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  const normalized = trimmed.toLowerCase()
+  return normalized.length ? normalized : null
+}
+
+function indexQueries(
+  queries: ProductInsightSubredditQuery[],
+): NormalizedQueryIndex {
+  const map: NormalizedQueryIndex = new Map()
+  queries.forEach((entry, index) => {
+    const key = normalizeQueryKey(entry?.query)
+    if (!key) return
+    const existing = map.get(key)
+    if (existing) {
+      existing.indices.push(index)
+    } else {
+      map.set(key, { original: entry.query.trim(), indices: [index] })
+    }
+  })
+  return map
+}
+
+function computeCoverage(
+  queriesByKey: NormalizedQueryIndex,
+  subreddits: ProductInsightSubreddit[],
+): {
+  coverage: number
+  matchedCount: number
+  matchedKeys: Set<string>
+  totalQueries: number
+} {
+  const matchedKeys = new Set<string>()
+
+  for (const subreddit of subreddits) {
+    if (!Array.isArray(subreddit.matchedQueries)) continue
+    for (const raw of subreddit.matchedQueries) {
+      const key = normalizeQueryKey(raw)
+      if (key && queriesByKey.has(key)) {
+        matchedKeys.add(key)
+      }
+    }
+  }
+
+  let matchedCount = 0
+  let totalQueries = 0
+  for (const [key, descriptor] of queriesByKey.entries()) {
+    totalQueries += descriptor.indices.length
+    if (matchedKeys.has(key)) {
+      matchedCount += descriptor.indices.length
+    }
+  }
+
+  const coverage = totalQueries > 0 ? matchedCount / totalQueries : 1
+  return { coverage, matchedCount, matchedKeys, totalQueries }
+}
+
+function coverageFallbackReason(labels: string[]) {
+  if (!labels.length) return "Coverage fallback"
+  if (labels.length === 1) {
+    return `Coverage fallback for "${labels[0]}"`
+  }
+  const formatted = labels
+    .slice(0, 3)
+    .map((label) => `"${label}"`)
+    .join(", ")
+  const extra = labels.length > 3 ? " and others" : ""
+  return `Coverage fallback for ${formatted}${extra}`
+}
+
+function sortScore(subreddit: ProductInsightSubreddit): number {
+  return (
+    subreddit.relevanceScore ?? subreddit.score ?? subreddit.subscribers ?? 0
+  )
+}
+
+function boostCoverage({
+  queries,
+  selected,
+  fallbackPool,
+  minimumCoverage,
+}: {
+  queries: ProductInsightSubredditQuery[]
+  selected: ProductInsightSubreddit[]
+  fallbackPool: ProductInsightSubreddit[]
+  minimumCoverage: number
+}): {
+  subreddits: ProductInsightSubreddit[]
+  coverage: number
+  matchedCount: number
+} {
+  if (!queries.length) {
+    const deduped = dedupeSubreddits(selected)
+    return { subreddits: deduped, coverage: 1, matchedCount: 0 }
+  }
+
+  const queriesByKey = indexQueries(queries)
+  const baseList = dedupeSubreddits(selected)
+  const baseStats = computeCoverage(queriesByKey, baseList)
+
+  if (baseStats.coverage >= minimumCoverage) {
+    return {
+      subreddits: baseList,
+      coverage: baseStats.coverage,
+      matchedCount: baseStats.matchedCount,
+    }
+  }
+
+  const existingNames = new Set(
+    baseList
+      .map((entry) => entry.name?.toLowerCase())
+      .filter((value): value is string => Boolean(value)),
+  )
+
+  const unmatchedKeys = new Set<string>()
+  for (const key of queriesByKey.keys()) {
+    if (!baseStats.matchedKeys.has(key)) {
+      unmatchedKeys.add(key)
+    }
+  }
+
+  const additions: ProductInsightSubreddit[] = []
+
+  const fallbackCandidates = fallbackPool
+    .filter((candidate) => {
+      const nameKey = candidate.name?.toLowerCase()
+      if (!nameKey || existingNames.has(nameKey)) return false
+      return true
+    })
+    .map((candidate) => {
+      const keys = new Set<string>()
+      if (Array.isArray(candidate.matchedQueries)) {
+        for (const raw of candidate.matchedQueries) {
+          const key = normalizeQueryKey(raw)
+          if (key && queriesByKey.has(key)) {
+            keys.add(key)
+          }
+        }
+      }
+      return {
+        candidate,
+        keys,
+        score: sortScore(candidate),
+      }
+    })
+    .filter((entry) => entry.keys.size > 0)
+
+  while (unmatchedKeys.size && fallbackCandidates.length) {
+    let bestIndex = -1
+    let bestScore = -Infinity
+    let bestKeys: Set<string> | null = null
+
+    for (let index = 0; index < fallbackCandidates.length; index += 1) {
+      const entry = fallbackCandidates[index]
+      const coverageKeys = new Set<string>()
+      entry.keys.forEach((key) => {
+        if (unmatchedKeys.has(key)) {
+          coverageKeys.add(key)
+        }
+      })
+      if (!coverageKeys.size) continue
+      const candidateScore = coverageKeys.size * 1000 + entry.score
+      if (candidateScore > bestScore) {
+        bestScore = candidateScore
+        bestIndex = index
+        bestKeys = coverageKeys
+      }
+    }
+
+    if (bestIndex === -1 || !bestKeys?.size) {
+      break
+    }
+
+    const { candidate } = fallbackCandidates.splice(bestIndex, 1)[0]!
+    const noteLabels = Array.from(bestKeys).map(
+      (key) => queriesByKey.get(key)?.original ?? key,
+    )
+    const reason = coverageFallbackReason(noteLabels)
+    const augmented: ProductInsightSubreddit = {
+      ...candidate,
+      relevanceReason: candidate.relevanceReason
+        ? `${candidate.relevanceReason} • ${reason}`
+        : reason,
+    }
+
+    additions.push(augmented)
+
+    const nameKey = augmented.name?.toLowerCase()
+    if (nameKey) {
+      existingNames.add(nameKey)
+    }
+
+    bestKeys.forEach((key) => {
+      unmatchedKeys.delete(key)
+    })
+  }
+
+  const combined = dedupeSubreddits([...baseList, ...additions])
+  const finalStats = computeCoverage(queriesByKey, combined)
+
+  return {
+    subreddits: combined.sort((a, b) => sortScore(b) - sortScore(a)),
+    coverage: finalStats.coverage,
+    matchedCount: finalStats.matchedCount,
+  }
+}
+
+function dedupeSubreddits(
+  subreddits: ProductInsightSubreddit[],
+): ProductInsightSubreddit[] {
+  const map = new Map<string, ProductInsightSubreddit>()
+  for (const subreddit of subreddits) {
+    const key = subreddit.name?.toLowerCase()
+    if (!key) continue
+    if (!map.has(key)) {
+      map.set(key, subreddit)
+    }
+  }
+  return Array.from(map.values())
+}
 
 type RelevanceVerdict = z.infer<
   typeof RelevanceResponseSchema
@@ -575,6 +803,8 @@ export type DiscoverProductSubredditsResult = {
   subreddits: ProductInsightSubreddit[]
   model: string
   fromCache: boolean
+  queryCoverage: number
+  matchedQueryCount: number
 }
 
 export async function discoverProductSubreddits(
@@ -589,6 +819,18 @@ export async function discoverProductSubreddits(
     if (cached) {
       try {
         const parsed = DiscoverResultSchema.parse(JSON.parse(cached))
+        const coverageStats = computeCoverage(
+          indexQueries(parsed.queries),
+          parsed.subreddits,
+        )
+        const cachedCoverage =
+          typeof parsed.queryCoverage === "number"
+            ? parsed.queryCoverage
+            : coverageStats.coverage
+        const cachedMatchedCount =
+          typeof parsed.matchedQueryCount === "number"
+            ? parsed.matchedQueryCount
+            : coverageStats.matchedCount
         console.info("[productInsights:subreddit] cache hit", {
           productId,
           subredditCount: parsed.subreddits.length,
@@ -598,6 +840,8 @@ export async function discoverProductSubreddits(
           subreddits: parsed.subreddits,
           model: parsed.model,
           fromCache: true,
+          queryCoverage: cachedCoverage,
+          matchedQueryCount: cachedMatchedCount,
         }
       } catch (error) {
         console.warn("[productInsights:subreddit] failed to parse cached result", {
@@ -663,6 +907,30 @@ export async function discoverProductSubreddits(
     curatedCount: finalSubreddits.length,
   })
 
+  const coverageResult = boostCoverage({
+    queries,
+    selected: finalSubreddits,
+    fallbackPool: merged,
+    minimumCoverage: MIN_QUERY_MATCH_COVERAGE,
+  })
+
+  finalSubreddits = coverageResult.subreddits
+
+  if (coverageResult.coverage < MIN_QUERY_MATCH_COVERAGE && queries.length) {
+    console.warn("[productInsights:subreddit] query coverage below target", {
+      productId,
+      coverage: coverageResult.coverage,
+      minimum: MIN_QUERY_MATCH_COVERAGE,
+      queryCount: queries.length,
+    })
+  } else if (coverageResult.coverage >= MIN_QUERY_MATCH_COVERAGE && queries.length) {
+    console.info("[productInsights:subreddit] query coverage achieved", {
+      productId,
+      coverage: coverageResult.coverage,
+      queryCount: queries.length,
+    })
+  }
+
   if (redis && merged.length) {
     try {
       await redis.set(
@@ -671,6 +939,8 @@ export async function discoverProductSubreddits(
           queries,
           subreddits: finalSubreddits,
           model: relevanceModel ? `${model} → ${relevanceModel}` : model,
+          queryCoverage: coverageResult.coverage,
+          matchedQueryCount: coverageResult.matchedCount,
         }),
         { EX: REDDIT_CACHE_TTL_SECONDS },
       )
@@ -690,5 +960,7 @@ export async function discoverProductSubreddits(
     subreddits: finalSubreddits,
     model: relevanceModel ? `${model} → ${relevanceModel}` : model,
     fromCache: false,
+    queryCoverage: coverageResult.coverage,
+    matchedQueryCount: coverageResult.matchedCount,
   }
 }

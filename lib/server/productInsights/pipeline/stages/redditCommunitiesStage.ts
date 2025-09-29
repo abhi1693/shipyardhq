@@ -29,6 +29,8 @@ export const redditCommunitiesStage: PipelineStage<
       subreddits: result.subreddits,
       model: result.model,
       discoveredAt: new Date().toISOString(),
+      queryCoverage: result.queryCoverage,
+      matchedQueryCount: result.matchedQueryCount,
     }
 
     return {
@@ -37,6 +39,8 @@ export const redditCommunitiesStage: PipelineStage<
         queryCount: result.queries.length,
         communityCount: result.subreddits.length,
         fromCache: result.fromCache ?? false,
+        queryCoverage: result.queryCoverage,
+        matchedQueryCount: result.matchedQueryCount,
       },
       shared: {
         communities: data,

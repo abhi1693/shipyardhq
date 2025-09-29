@@ -110,6 +110,12 @@ function parseCommunityData(
     model: typeof record.model === "string" ? record.model : undefined,
     discoveredAt:
       typeof record.discoveredAt === "string" ? record.discoveredAt : undefined,
+    queryCoverage:
+      typeof record.queryCoverage === "number" ? record.queryCoverage : undefined,
+    matchedQueryCount:
+      typeof record.matchedQueryCount === "number"
+        ? record.matchedQueryCount
+        : undefined,
   }
 }
 

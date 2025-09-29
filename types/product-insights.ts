@@ -162,6 +162,8 @@ export type ProductInsightCommunityStageData = {
   subreddits: ProductInsightSubreddit[]
   model?: string | null
   discoveredAt?: string | null
+  queryCoverage?: number | null
+  matchedQueryCount?: number | null
 }
 
 export type ProductInsightDiscussionStageData = {
