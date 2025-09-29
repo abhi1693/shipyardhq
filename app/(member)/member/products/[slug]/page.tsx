@@ -219,6 +219,15 @@ export default async function ViewUserProductPage({
   const websiteHost = formatHost(product.websiteUrl) ?? product.websiteUrl
   const ctaLabel = product.ctaLabel ?? ""
   const ctaUrl = product.ctaUrl ?? ""
+  const ctaHost = (() => {
+    if (!ctaUrl) return ""
+    try {
+      const host = new URL(ctaUrl).hostname.replace(/^www\./, "")
+      return host || ctaUrl
+    } catch {
+      return ctaUrl
+    }
+  })()
   const hasCtaPair = Boolean(ctaLabel && ctaUrl)
   const metadata = product.metadata
 
@@ -557,6 +566,68 @@ export default async function ViewUserProductPage({
         ]}
         relationships={
           <div className="grid grid-cols-12 gap-6">
+            <Card className="col-span-12 md:col-span-8">
+              <CardHeader>
+                <CardTitle className="text-base">Media Gallery</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div className="text-muted-foreground">
+                    {`Images: ${(product.ProductMedia || []).length}/6`}
+                  </div>
+                  <div className="text-muted-foreground">
+                    Tips: 3–6 screenshots (1280×720). Banner 1200×628.
+                  </div>
+                </div>
+                <ProductMediaManager
+                  productId={product.id}
+                  media={
+                    product.ProductMedia?.map(
+                      (
+                        m: NonNullable<typeof product.ProductMedia>[number],
+                      ) => ({
+                        id: m.id,
+                        imageUrl: m.imageUrl,
+                      }),
+                    ) ?? []
+                  }
+                  canEdit={canManage}
+                  max={6}
+                />
+              </CardContent>
+            </Card>
+            <div className="col-span-12 md:col-span-4">
+              <PerformanceCard
+                upvotes={product.analytics?.upvotes ?? 0}
+                clicks={product.analytics?.clicks ?? 0}
+                upvoters={upvoters as any}
+                badges={(product.ProductBadge || []) as any}
+                productName={product.name}
+                tagline={product.tagline}
+                hasBanner={Boolean(product.bannerImage)}
+                ogImageUrl={product.bannerImage || product.logo}
+                editHref={memberProductEditPath(product.slug)}
+                reviewAverage={
+                  reviewSummary.totalReviews ? reviewSummary.averageRating : null
+                }
+                reviewCount={reviewSummary.totalReviews}
+                recentReviews={reviewSummary.reviews
+                  .slice(0, 3)
+                  .map((review) => ({
+                    id: review.id,
+                    rating: review.rating,
+                    message: review.message,
+                    createdAt:
+                      review.createdAt instanceof Date
+                        ? review.createdAt.toISOString()
+                        : new Date(review.createdAt).toISOString(),
+                    reviewer: reviewerDisplayName(
+                      review.user.firstName,
+                      review.user.lastName,
+                    ),
+                  }))}
+              />
+            </div>
             <Card className="col-span-12 md:col-span-4">
               <CardHeader>
                 <CardTitle className="text-base">Branding</CardTitle>
@@ -570,7 +641,6 @@ export default async function ViewUserProductPage({
                 />
               </CardContent>
             </Card>
-
             <Card className="col-span-12 md:col-span-4">
               <CardHeader>
                 <CardTitle className="text-base">
@@ -601,9 +671,7 @@ export default async function ViewUserProductPage({
                       ) : null}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
+                    <span className={placeholderTextClass}>{placeholder()}</span>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -618,9 +686,7 @@ export default async function ViewUserProductPage({
                       ))}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
+                    <span className={placeholderTextClass}>{placeholder()}</span>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -635,14 +701,11 @@ export default async function ViewUserProductPage({
                       ))}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
+                    <span className={placeholderTextClass}>{placeholder()}</span>
                   )}
                 </div>
               </CardContent>
             </Card>
-
             <Card className="col-span-12 md:col-span-4">
               <CardHeader>
                 <CardTitle className="text-base">Links</CardTitle>
@@ -664,9 +727,7 @@ export default async function ViewUserProductPage({
                       </Link>
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
+                    <span className={placeholderTextClass}>{placeholder()}</span>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -684,15 +745,13 @@ export default async function ViewUserProductPage({
                         className={`${accentChipClass} max-w-full`}
                       >
                         <span className="truncate max-w-[18rem]">
-                          {ctaLabel}
+                          {ctaHost ?? ctaUrl}
                         </span>
                       </Link>
                     </div>
                   ) : (
                     <div className="space-y-1">
-                      <span className={placeholderTextClass}>
-                        {placeholder()}
-                      </span>
+                      <span className={placeholderTextClass}>{placeholder()}</span>
                       {(ctaLabel && !ctaUrl) || (!ctaLabel && ctaUrl) ? (
                         <p className="text-xs text-destructive">
                           Tip: Provide both CTA label and URL for a complete
@@ -738,73 +797,11 @@ export default async function ViewUserProductPage({
                       })}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>
-                      {placeholder()}
-                    </span>
+                    <span className={placeholderTextClass}>{placeholder()}</span>
                   )}
                 </div>
               </CardContent>
             </Card>
-            <Card className="col-span-12 md:col-span-8">
-              <CardHeader>
-                <CardTitle className="text-base">Media Gallery</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-                  <div className="text-muted-foreground">
-                    {`Images: ${(product.ProductMedia || []).length}/6`}
-                  </div>
-                  <div className="text-muted-foreground">
-                    Tips: 3–6 screenshots (1280×720). Banner 1200×628.
-                  </div>
-                </div>
-                <ProductMediaManager
-                  productId={product.id}
-                  media={
-                    product.ProductMedia?.map(
-                      (
-                        m: NonNullable<typeof product.ProductMedia>[number],
-                      ) => ({
-                        id: m.id,
-                        imageUrl: m.imageUrl,
-                      }),
-                    ) ?? []
-                  }
-                  canEdit={canManage}
-                  max={6}
-                />
-              </CardContent>
-            </Card>
-            <PerformanceCard
-              upvotes={product.analytics?.upvotes ?? 0}
-              clicks={product.analytics?.clicks ?? 0}
-              upvoters={upvoters as any}
-              badges={(product.ProductBadge || []) as any}
-              productName={product.name}
-              tagline={product.tagline}
-              hasBanner={Boolean(product.bannerImage)}
-              ogImageUrl={product.bannerImage || product.logo}
-              editHref={memberProductEditPath(product.slug)}
-              reviewAverage={
-                reviewSummary.totalReviews ? reviewSummary.averageRating : null
-              }
-              reviewCount={reviewSummary.totalReviews}
-              recentReviews={reviewSummary.reviews
-                .slice(0, 3)
-                .map((review) => ({
-                  id: review.id,
-                  rating: review.rating,
-                  message: review.message,
-                  createdAt:
-                    review.createdAt instanceof Date
-                      ? review.createdAt.toISOString()
-                      : new Date(review.createdAt).toISOString(),
-                  reviewer: reviewerDisplayName(
-                    review.user.firstName,
-                    review.user.lastName,
-                  ),
-                }))}
-            />
             <Card className="col-span-12">
               <CardHeader className="pb-0">
                 <CardTitle className="text-base">Description</CardTitle>
