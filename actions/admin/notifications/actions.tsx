@@ -1,5 +1,7 @@
 "use server"
 
+import { renderAsync } from "@react-email/render"
+
 import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
@@ -594,6 +596,32 @@ export async function sendBuilderOutreachEmailsAction(
       sentPercentage: calculatePercentage(sent, totalRecipients),
       failedPercentage: calculatePercentage(failed.length, totalRecipients),
     },
+  }
+}
+
+export async function renderBuilderOutreachEmailPreviewAction(params?: {
+  firstName?: string | null
+  email?: string | null
+}): Promise<string | null> {
+  try {
+    await requireAdmin()
+  } catch {
+    return null
+  }
+
+  const normalizedFirstName = params?.firstName?.trim()
+  const fallbackName = params?.email
+    ? deriveFirstNameFromEmail(params.email) ?? null
+    : null
+  const resolvedFirstName = normalizedFirstName || fallbackName || undefined
+
+  try {
+    return await renderAsync(
+      <BuilderOutreachEmail firstName={resolvedFirstName} />,
+    )
+  } catch (error) {
+    console.error("Failed to render builder outreach email preview", error)
+    return null
   }
 }
 
