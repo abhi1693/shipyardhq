@@ -27879,6 +27879,7 @@ export namespace Prisma {
     featureId: number
     enabled: number
     isExperimental: number
+    config: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -27911,6 +27912,7 @@ export namespace Prisma {
     featureId?: true
     enabled?: true
     isExperimental?: true
+    config?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -27994,6 +27996,7 @@ export namespace Prisma {
     featureId: string
     enabled: boolean
     isExperimental: boolean
+    config: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: PlanFeatureAssignmentCountAggregateOutputType | null
@@ -28021,6 +28024,7 @@ export namespace Prisma {
     featureId?: boolean
     enabled?: boolean
     isExperimental?: boolean
+    config?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     plan?: boolean | PlanDefaultArgs<ExtArgs>
@@ -28033,6 +28037,7 @@ export namespace Prisma {
     featureId?: boolean
     enabled?: boolean
     isExperimental?: boolean
+    config?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     plan?: boolean | PlanDefaultArgs<ExtArgs>
@@ -28045,6 +28050,7 @@ export namespace Prisma {
     featureId?: boolean
     enabled?: boolean
     isExperimental?: boolean
+    config?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     plan?: boolean | PlanDefaultArgs<ExtArgs>
@@ -28057,11 +28063,12 @@ export namespace Prisma {
     featureId?: boolean
     enabled?: boolean
     isExperimental?: boolean
+    config?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PlanFeatureAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "planId" | "featureId" | "enabled" | "isExperimental" | "createdAt" | "updatedAt", ExtArgs["result"]["planFeatureAssignment"]>
+  export type PlanFeatureAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "planId" | "featureId" | "enabled" | "isExperimental" | "config" | "createdAt" | "updatedAt", ExtArgs["result"]["planFeatureAssignment"]>
   export type PlanFeatureAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     plan?: boolean | PlanDefaultArgs<ExtArgs>
     feature?: boolean | PlanFeatureDefaultArgs<ExtArgs>
@@ -28087,6 +28094,7 @@ export namespace Prisma {
       featureId: string
       enabled: boolean
       isExperimental: boolean
+      config: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["planFeatureAssignment"]>
@@ -28519,6 +28527,7 @@ export namespace Prisma {
     readonly featureId: FieldRef<"PlanFeatureAssignment", 'String'>
     readonly enabled: FieldRef<"PlanFeatureAssignment", 'Boolean'>
     readonly isExperimental: FieldRef<"PlanFeatureAssignment", 'Boolean'>
+    readonly config: FieldRef<"PlanFeatureAssignment", 'Json'>
     readonly createdAt: FieldRef<"PlanFeatureAssignment", 'DateTime'>
     readonly updatedAt: FieldRef<"PlanFeatureAssignment", 'DateTime'>
   }
@@ -33516,6 +33525,7 @@ export namespace Prisma {
     featureId: 'featureId',
     enabled: 'enabled',
     isExperimental: 'isExperimental',
+    config: 'config',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -35510,6 +35520,7 @@ export namespace Prisma {
     featureId?: StringFilter<"PlanFeatureAssignment"> | string
     enabled?: BoolFilter<"PlanFeatureAssignment"> | boolean
     isExperimental?: BoolFilter<"PlanFeatureAssignment"> | boolean
+    config?: JsonNullableFilter<"PlanFeatureAssignment">
     createdAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     updatedAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     plan?: XOR<PlanScalarRelationFilter, PlanWhereInput>
@@ -35522,6 +35533,7 @@ export namespace Prisma {
     featureId?: SortOrder
     enabled?: SortOrder
     isExperimental?: SortOrder
+    config?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     plan?: PlanOrderByWithRelationInput
@@ -35538,6 +35550,7 @@ export namespace Prisma {
     featureId?: StringFilter<"PlanFeatureAssignment"> | string
     enabled?: BoolFilter<"PlanFeatureAssignment"> | boolean
     isExperimental?: BoolFilter<"PlanFeatureAssignment"> | boolean
+    config?: JsonNullableFilter<"PlanFeatureAssignment">
     createdAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     updatedAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     plan?: XOR<PlanScalarRelationFilter, PlanWhereInput>
@@ -35550,6 +35563,7 @@ export namespace Prisma {
     featureId?: SortOrder
     enabled?: SortOrder
     isExperimental?: SortOrder
+    config?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: PlanFeatureAssignmentCountOrderByAggregateInput
@@ -35566,6 +35580,7 @@ export namespace Prisma {
     featureId?: StringWithAggregatesFilter<"PlanFeatureAssignment"> | string
     enabled?: BoolWithAggregatesFilter<"PlanFeatureAssignment"> | boolean
     isExperimental?: BoolWithAggregatesFilter<"PlanFeatureAssignment"> | boolean
+    config?: JsonNullableWithAggregatesFilter<"PlanFeatureAssignment">
     createdAt?: DateTimeWithAggregatesFilter<"PlanFeatureAssignment"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PlanFeatureAssignment"> | Date | string
   }
@@ -37641,6 +37656,7 @@ export namespace Prisma {
     id?: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     plan: PlanCreateNestedOneWithoutAssignmentsInput
@@ -37653,6 +37669,7 @@ export namespace Prisma {
     featureId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -37661,6 +37678,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     plan?: PlanUpdateOneRequiredWithoutAssignmentsNestedInput
@@ -37673,6 +37691,7 @@ export namespace Prisma {
     featureId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37683,6 +37702,7 @@ export namespace Prisma {
     featureId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -37691,6 +37711,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37701,6 +37722,7 @@ export namespace Prisma {
     featureId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -39424,6 +39446,7 @@ export namespace Prisma {
     featureId?: SortOrder
     enabled?: SortOrder
     isExperimental?: SortOrder
+    config?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -45767,6 +45790,7 @@ export namespace Prisma {
     id?: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     feature: PlanFeatureCreateNestedOneWithoutAssignmentsInput
@@ -45777,6 +45801,7 @@ export namespace Prisma {
     featureId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -45858,6 +45883,7 @@ export namespace Prisma {
     featureId?: StringFilter<"PlanFeatureAssignment"> | string
     enabled?: BoolFilter<"PlanFeatureAssignment"> | boolean
     isExperimental?: BoolFilter<"PlanFeatureAssignment"> | boolean
+    config?: JsonNullableFilter<"PlanFeatureAssignment">
     createdAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     updatedAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
   }
@@ -45882,6 +45908,7 @@ export namespace Prisma {
     id?: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     plan: PlanCreateNestedOneWithoutAssignmentsInput
@@ -45892,6 +45919,7 @@ export namespace Prisma {
     planId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -47602,6 +47630,7 @@ export namespace Prisma {
     featureId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -47721,6 +47750,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     feature?: PlanFeatureUpdateOneRequiredWithoutAssignmentsNestedInput
@@ -47731,6 +47761,7 @@ export namespace Prisma {
     featureId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -47740,6 +47771,7 @@ export namespace Prisma {
     featureId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -47773,6 +47805,7 @@ export namespace Prisma {
     planId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -47781,6 +47814,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     plan?: PlanUpdateOneRequiredWithoutAssignmentsNestedInput
@@ -47791,6 +47825,7 @@ export namespace Prisma {
     planId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -47800,6 +47835,7 @@ export namespace Prisma {
     planId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -61,6 +61,7 @@ import { AnalyticsPieChart } from "@/components/molecules/AnalyticsPieChart"
 import { Switch } from "@/components/atoms/switch"
 import { Label } from "@/components/atoms/label"
 import { cn } from "@/lib/utils"
+import { formatInsightsUsage } from "@/lib/productInsights/insightsUsage"
 
 const STATUS_STYLES: Record<
   ProductInsightStatus,
@@ -447,54 +448,90 @@ const summarySections: SummarySection[] = useMemo(() => {
   )
 
   const handleRunPipeline = () => {
-    setPipelineNotice({
-      tone: "info",
-      message:
-        "Running the full insights pipeline. We will email you once everything is ready.",
-    })
-    setProgressMessage("Starting crawl and synthesis…")
-    setCompetitorProgress("Mapping competitive landscape…")
-    setSubredditProgress("Preparing community discovery…")
-    setDiscussionProgress("Queued for discussion analysis…")
-    setReportProgress("Queued for comprehensive report…")
-
-    setProfile((prev) => {
-      if (!prev) return prev
-
-      const stages = [
-        { statusKey: "status", errorKey: "errorMessage" },
-        { statusKey: "competitorStatus", errorKey: "competitorErrorMessage" },
-        { statusKey: "subredditStatus", errorKey: "subredditErrorMessage" },
-        { statusKey: "redditStatus", errorKey: "redditErrorMessage" },
-        { statusKey: "finalReportStatus", errorKey: "finalReportErrorMessage" },
-      ] as const
-
-      const updated: SerializedInsightProfile = {
-        ...prev,
-        pipelineJobState: "queued",
-        redditMode: selectedHarvestMode,
-      }
-
-      const firstFailedIndex = stages.findIndex(
-        ({ statusKey }) => prev[statusKey] === "failed",
-      )
-
-      stages.forEach(({ statusKey, errorKey }, index) => {
-        if (firstFailedIndex === -1 || index >= firstFailedIndex) {
-          // reset downstream stages so the new pipeline run can progress cleanly
-          updated[statusKey] = "pending"
-          updated[errorKey] = null
-        }
-      })
-
-      return updated
-    })
+    setPipelineNotice(null)
+    setProgressMessage(null)
+    setCompetitorProgress(null)
+    setSubredditProgress(null)
+    setDiscussionProgress(null)
+    setReportProgress(null)
 
     startPipelineTransition(async () => {
       try {
         const result = await scheduleProductInsightsPipeline(slug, {
           discussionsMode: selectedHarvestMode,
         })
+
+        if (result.throttled) {
+          const { reason, nextAllowedAt, policy } = result.throttled
+          let message: string
+
+          if (reason === "missing_feature") {
+            message =
+              "Your current plan does not include Product Insights runs. Upgrade to unlock additional refreshes."
+          } else {
+            const formattedWindow = nextAllowedAt
+              ? formatDistanceToNowStrict(new Date(nextAllowedAt), {
+                  addSuffix: true,
+                })
+              : "later"
+            const limitLabel =
+              policy?.usageLimit && policy.usageInterval
+                ? formatInsightsUsage({
+                    usageLimit: policy.usageLimit,
+                    usageInterval: policy.usageInterval,
+                  }).toLowerCase()
+                : "current"
+            message = `You've reached the ${limitLabel} limit for insights runs. Try again ${formattedWindow}.`
+          }
+
+          setPipelineNotice({ tone: "error", message })
+          setProfile((prev) => (result.profile ? { ...result.profile } : prev))
+          toast.error(message)
+          return
+        }
+
+        setPipelineNotice({
+          tone: "info",
+          message:
+            "Running the full insights pipeline. We will email you once everything is ready.",
+        })
+        setProgressMessage("Starting crawl and synthesis…")
+        setCompetitorProgress("Mapping competitive landscape…")
+        setSubredditProgress("Preparing community discovery…")
+        setDiscussionProgress("Queued for discussion analysis…")
+        setReportProgress("Queued for comprehensive report…")
+
+        setProfile((prev) => {
+          if (!prev) return prev
+
+          const stages = [
+            { statusKey: "status", errorKey: "errorMessage" },
+            { statusKey: "competitorStatus", errorKey: "competitorErrorMessage" },
+            { statusKey: "subredditStatus", errorKey: "subredditErrorMessage" },
+            { statusKey: "redditStatus", errorKey: "redditErrorMessage" },
+            { statusKey: "finalReportStatus", errorKey: "finalReportErrorMessage" },
+          ] as const
+
+          const updated: SerializedInsightProfile = {
+            ...prev,
+            pipelineJobState: "queued",
+            redditMode: selectedHarvestMode,
+          }
+
+          const firstFailedIndex = stages.findIndex(
+            ({ statusKey }) => prev[statusKey] === "failed",
+          )
+
+          stages.forEach(({ statusKey, errorKey }, index) => {
+            if (firstFailedIndex === -1 || index >= firstFailedIndex) {
+              updated[statusKey] = "pending"
+              updated[errorKey] = null
+            }
+          })
+
+          return updated
+        })
+
         setProfile((prev) => {
           if (!result.profile) return prev
           const nextProfile: SerializedInsightProfile = {
@@ -505,6 +542,7 @@ const summarySections: SummarySection[] = useMemo(() => {
           }
           return nextProfile
         })
+
         if (result.executedInline) {
           if (result.profile?.redditMode) {
             setIsDeepMode(result.profile.redditMode === "deep")

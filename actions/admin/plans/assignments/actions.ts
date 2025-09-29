@@ -1,7 +1,9 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { Prisma } from "@/lib/vendor/prisma/client"
+import { Prisma, TimeInterval } from "@/lib/vendor/prisma/client"
+import { INSIGHTS_PIPELINE_FEATURE_KEY } from "@/lib/constants"
+import { buildInsightsUsageConfig } from "@/lib/productInsights/insightsUsage"
 
 export async function getAssignedFeatures(
   args: Prisma.PlanFeatureAssignmentFindManyArgs = {},
@@ -48,10 +50,21 @@ type Input = {
   featureId: string
   enabled?: boolean
   isExperimental?: boolean
+  usageLimit?: number | null
+  usageInterval?: TimeInterval | null
 }
 
 export async function createPlanFeatureAssignment(data: Input) {
   try {
+    const feature = await prisma.planFeature.findUnique({
+      where: { id: data.featureId },
+      select: { key: true },
+    })
+
+    if (!feature) {
+      return { error: "Selected feature does not exist." }
+    }
+
     const exists = await prisma.planFeatureAssignment.findUnique({
       where: {
         planId_featureId: {
@@ -65,12 +78,26 @@ export async function createPlanFeatureAssignment(data: Input) {
       return { error: "This feature is already assigned to this plan." }
     }
 
+    const usagePolicy =
+      feature.key === INSIGHTS_PIPELINE_FEATURE_KEY
+        ? buildInsightsUsageConfig(data.usageLimit, data.usageInterval)
+        : { usageLimit: null, usageInterval: null }
+
+    const configJson =
+      usagePolicy.usageLimit !== null && usagePolicy.usageInterval !== null
+        ? {
+            usageLimit: usagePolicy.usageLimit,
+            usageInterval: usagePolicy.usageInterval,
+          }
+        : Prisma.JsonNull
+
     await prisma.planFeatureAssignment.create({
       data: {
         planId: data.planId,
         featureId: data.featureId,
         enabled: data.enabled ?? false,
         isExperimental: data.isExperimental ?? false,
+        config: configJson,
       },
     })
 
@@ -86,6 +113,8 @@ type UpdateAssignmentInput = {
   featureId: string
   enabled?: boolean
   isExperimental?: boolean
+  usageLimit?: number | null
+  usageInterval?: TimeInterval | null
 }
 
 export async function updatePlanFeatureAssignmentAction(
@@ -93,6 +122,17 @@ export async function updatePlanFeatureAssignmentAction(
   input: UpdateAssignmentInput,
 ) {
   try {
+    const feature = await prisma.planFeature.findUnique({
+      where: { id: input.featureId },
+      select: { key: true },
+    })
+
+    if (!feature) {
+      return {
+        error: "Selected feature does not exist.",
+      }
+    }
+
     // Check for duplicate (other than self)
     const exists = await prisma.planFeatureAssignment.findFirst({
       where: {
@@ -109,6 +149,19 @@ export async function updatePlanFeatureAssignmentAction(
       }
     }
 
+    const usagePolicy =
+      feature.key === INSIGHTS_PIPELINE_FEATURE_KEY
+        ? buildInsightsUsageConfig(input.usageLimit, input.usageInterval)
+        : { usageLimit: null, usageInterval: null }
+
+    const configJson =
+      usagePolicy.usageLimit !== null && usagePolicy.usageInterval !== null
+        ? {
+            usageLimit: usagePolicy.usageLimit,
+            usageInterval: usagePolicy.usageInterval,
+          }
+        : Prisma.JsonNull
+
     await prisma.planFeatureAssignment.update({
       where: { id },
       data: {
@@ -116,6 +169,7 @@ export async function updatePlanFeatureAssignmentAction(
         featureId: input.featureId,
         enabled: input.enabled ?? false,
         isExperimental: input.isExperimental ?? false,
+        config: configJson,
       },
     })
 

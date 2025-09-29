@@ -486,6 +486,7 @@ model PlanFeatureAssignment {
   featureId      String
   enabled        Boolean
   isExperimental Boolean  @default(false)
+  config         Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

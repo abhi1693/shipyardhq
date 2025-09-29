@@ -12,6 +12,10 @@ import {
   insightProfileSelect,
   serializeInsightProfile,
 } from "@/lib/server/productInsights/profile"
+import {
+  evaluateInsightsPipelineAccess,
+  type InsightsPipelinePolicy,
+} from "@/lib/server/productInsights/access"
 import type {
   ProductInsightHarvestMode,
   ProductInsightProfilePayload,
@@ -76,19 +80,51 @@ type SchedulePipelineOptions = {
   discussionsMode?: ProductInsightHarvestMode
 }
 
-export async function scheduleProductInsightsPipeline(
-  slug: string,
-  options: SchedulePipelineOptions = {},
-): Promise<{
+type SchedulePipelineResult = {
   profile: ProductInsightProfilePayload | null
   executedInline: boolean
   alreadyQueued: boolean
-}> {
+  throttled?: {
+    reason: "missing_feature" | "limit_reached"
+    nextAllowedAt: string | null
+    policy: InsightsPipelinePolicy | null
+  }
+}
+
+export async function scheduleProductInsightsPipeline(
+  slug: string,
+  options: SchedulePipelineOptions = {},
+): Promise<SchedulePipelineResult> {
   const { stageSetId = "default", discussionsMode } = options
   const { product } = await requireManageableProduct(slug, {
     unauthorizedRedirect: null,
     missingRedirect: null,
   })
+
+  const currentProfile = await loadProfileForProduct(product.id)
+
+  const access = await evaluateInsightsPipelineAccess({
+    productId: product.id,
+    userId: product.userId,
+    lastRunAt: currentProfile?.lastRunAt
+      ? new Date(currentProfile.lastRunAt)
+      : null,
+  })
+
+  if (!access.ok) {
+    return {
+      profile: currentProfile,
+      executedInline: false,
+      alreadyQueued: false,
+      throttled: {
+        reason: access.reason,
+        nextAllowedAt: access.nextAllowedAt
+          ? access.nextAllowedAt.toISOString()
+          : null,
+        policy: access.policy ?? null,
+      },
+    }
+  }
 
   console.info("[productInsights:action] pipeline requested", {
     productId: product.id,
