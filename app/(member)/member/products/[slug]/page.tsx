@@ -41,7 +41,6 @@ import ShareOnXButton from "@/components/molecules/ShareOnXButton"
 import {
   BarChart3,
   Building2,
-  Copy as CopyIcon,
   ExternalLink,
   Sparkles,
   Github as GithubIcon,
@@ -79,6 +78,14 @@ const sectionLabelClass =
   "text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground"
 const actionGroupClass =
   "flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70"
+const radiantButtonWrapperClass =
+  "relative inline-flex items-center justify-center"
+const radiantButtonGlowClass =
+  "pointer-events-none absolute inset-0 -z-10 animate-pulse rounded-full bg-[radial-gradient(circle,var(--brand-1)/0.32,transparent_70%)] blur-sm"
+const radiantSecondaryWrapperClass =
+  "relative inline-flex items-center justify-center"
+const radiantSecondaryGlowClass =
+  "pointer-events-none absolute inset-0 -z-10 animate-pulse rounded-full bg-[radial-gradient(circle,rgba(29,155,240,0.35),transparent_70%)] blur-sm"
 
 export default async function ViewUserProductPage({
   params,
@@ -378,52 +385,53 @@ export default async function ViewUserProductPage({
         deletable={isOwner}
         editable={canManage}
         headingActionsLeft={
-          <div className="flex flex-wrap items-center gap-3">
-            <div className={actionGroupClass}>
-              {canManage ? (
-                <ProductStatusMenu
-                  productId={product.id}
-                  status={product.status as any}
-                  triggerClassName="h-8 px-3"
-                />
-              ) : null}
-              {canManage ? (
-                <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {canManage ? (
+              <div className={radiantButtonWrapperClass}>
+                <span className={radiantButtonGlowClass} />
+                <Button
+                  size="sm"
+                  className="h-9 px-4 shadow-[0_16px_32px_-18px_rgba(7,78,134,0.5)] transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-16px_rgba(7,78,134,0.65)]"
+                  asChild
+                >
                   <Link href={insightsPath}>
-                    <Sparkles className="mr-2 h-4 w-4" /> Insights
+                    <Sparkles className="mr-2 h-4 w-4" /> Explore Insights
                   </Link>
                 </Button>
-              ) : null}
-              {canManage && canViewAnalytics ? (
-                <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
-                  <Link href={analyticsPath}>
-                    <BarChart3 className="mr-2 h-4 w-4" /> Analytics
-                  </Link>
-                </Button>
-              ) : null}
-            </div>
-
-            <div className={actionGroupClass}>
-              <ProductBadgeCelebrationTrigger />
-              <CopyButton
-                text={publicPath}
-                resolveAbsolute
+              </div>
+            ) : null}
+            {canManage && canViewAnalytics ? (
+              <Button
+                variant="outline"
                 size="sm"
-                variant="secondary"
-                className="h-8 px-3"
+                className="h-9 px-4 border-[color:var(--brand-1)/0.45] text-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)/0.08]"
+                asChild
               >
-                <>
-                  <CopyIcon className="mr-2 h-4 w-4" /> Copy link
-                </>
-              </CopyButton>
+                <Link href={analyticsPath}>
+                  <BarChart3 className="mr-2 h-4 w-4" /> Open Analytics
+                </Link>
+              </Button>
+            ) : null}
+            <div className={radiantSecondaryWrapperClass}>
+              <span className={radiantSecondaryGlowClass} />
               <ShareOnXButton
                 path={publicPath}
                 productName={product.name}
                 tagline={product.tagline}
-                variant="ghost"
-                className="h-8 px-3"
+                variant="default"
+                className="h-9 px-4 shadow-[0_12px_28px_-18px_rgba(29,155,240,0.6)] transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-16px_rgba(29,155,240,0.65)]"
               />
             </div>
+            <div className={actionGroupClass}>
+              <ProductBadgeCelebrationTrigger />
+            </div>
+            {canManage ? (
+              <ProductStatusMenu
+                productId={product.id}
+                status={product.status as any}
+                triggerClassName="h-8 px-3"
+              />
+            ) : null}
           </div>
         }
         topRowExtras={[
@@ -543,99 +551,6 @@ export default async function ViewUserProductPage({
                   )
                 })()}
 
-                {(() => {
-                  const currentPrice = currentPlanPublic
-                    ? currentPlanPublic.price
-                    : 0
-                  const upgradableAll = allPlans.filter(
-                    (p) => p.price > currentPrice,
-                  )
-                  const upgradable = nextPlan
-                    ? upgradableAll.filter((p) => p.id !== nextPlan.id)
-                    : upgradableAll
-                  if (!upgradable.length) return null
-                  return (
-                    <div className="space-y-3">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                        Other plans
-                      </div>
-                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        {upgradable.map((p) => {
-                          const nf = new Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                          })
-                          const pctRaw = p.discount ?? 0
-                          const pct = Math.min(Math.max(pctRaw, 0), 100)
-                          const originalCents = p.price
-                          const discountedCents =
-                            pct > 0 && pct < 100
-                              ? Math.round(originalCents * (1 - pct / 100))
-                              : originalCents
-                          const original =
-                            pct > 0 && pct < 100
-                              ? nf.format(originalCents / 100)
-                              : null
-                          const priceText = nf.format(discountedCents / 100)
-                          return (
-                            <form
-                              key={p.id}
-                              action={choosePlan}
-                              className="contents"
-                            >
-                              <input type="hidden" name="planId" value={p.id} />
-                              <div className={calloutPanelClass}>
-                                <div className="flex items-center justify-between text-sm font-medium text-foreground">
-                                  <span className="truncate">{p.name}</span>
-                                  {p.isDefault ? (
-                                    <Badge variant="outline">Default</Badge>
-                                  ) : null}
-                                </div>
-                                <div className="mt-2 flex flex-wrap items-baseline gap-2 text-xs text-muted-foreground">
-                                  {original ? (
-                                    <span className="line-through">
-                                      {original}
-                                    </span>
-                                  ) : null}
-                                  <span className="text-lg font-semibold text-foreground">
-                                    {priceText}
-                                  </span>
-                                  {pct > 0 ? (
-                                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-                                      Save{" "}
-                                      {new Intl.NumberFormat("en-US", {
-                                        maximumFractionDigits: 2,
-                                      }).format(pct)}
-                                      %
-                                    </span>
-                                  ) : null}
-                                </div>
-                                <div className="mt-1 text-[11px] text-muted-foreground">
-                                  Boosts your launch for{" "}
-                                  {(p as any).boostForDays ?? 0} day(s)
-                                </div>
-                                {p.description ? (
-                                  <p className="mt-2 line-clamp-3 text-xs text-muted-foreground">
-                                    {p.description}
-                                  </p>
-                                ) : null}
-                                <div className="mt-3">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="w-full"
-                                  >
-                                    Buy now
-                                  </Button>
-                                </div>
-                              </div>
-                            </form>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )
-                })()}
               </CardContent>
             </Card>
           ) : null,
