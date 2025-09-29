@@ -2455,7 +2455,7 @@ export function ProductInsightsView({
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="text-sm font-semibold text-foreground">
-                                  r/{subreddit.name}
+                                  {subreddit.name}
                                 </div>
                                 {relevancePercent !== null ? (
                                   <Badge
@@ -2566,8 +2566,9 @@ export function ProductInsightsView({
                     </div>
                   </div>
                   <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(subreddits.length)} community
-                    {subreddits.length === 1 ? "" : "ies"}
+                    {`${COUNT_FORMATTER.format(subreddits.length)} ${
+                      subreddits.length === 1 ? "community" : "communities"
+                    }`}
                   </Badge>
                 </div>
                 <div className="overflow-x-auto">
@@ -2575,7 +2576,7 @@ export function ProductInsightsView({
                     <TableHeader>
                       <TableRow>
                         <TableHead className="min-w-[160px]">
-                          Subreddit
+                          Community
                         </TableHead>
                         <TableHead className="min-w-[280px]">
                           What they discuss
@@ -2598,7 +2599,7 @@ export function ProductInsightsView({
                               rel="noreferrer"
                               className="font-semibold text-primary hover:underline"
                             >
-                              r/{subreddit.name}
+                              {subreddit.name}
                             </Link>
                             {subreddit.over18 && (
                               <Badge
@@ -2638,7 +2639,9 @@ export function ProductInsightsView({
                       ))}
                     </TableBody>
                     <TableCaption>
-                      {`${subreddits.length} subreddit${subreddits.length === 1 ? "" : "s"} saved for this product`}
+                      {`${subreddits.length} ${
+                        subreddits.length === 1 ? "community" : "communities"
+                      } saved for this product`}
                     </TableCaption>
                   </Table>
                 </div>
@@ -3521,7 +3524,7 @@ export function ProductInsightsView({
                       Community plan
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Outreach objectives tailored to the subreddits uncovered
+                      Outreach objectives tailored to the communities uncovered
                       earlier in the pipeline.
                     </div>
                   </div>
