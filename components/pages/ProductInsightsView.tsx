@@ -420,19 +420,19 @@ export function ProductInsightsView({
     | ProductInsightSummary
     | undefined
 
-const summarySections: SummarySection[] = useMemo(() => {
-  if (!summary) return []
-  return [
-    { title: "Value propositions", items: summary.valuePropositions || [] },
-    { title: "Target users", items: summary.targetUsers || [] },
-    { title: "Key features", items: summary.keyFeatures || [] },
-    {
-      title: "Pain points addressed",
-      items: summary.painPointsAddressed || [],
-    },
-    { title: "Tone & style", items: summary.toneAndStyle || [] },
-  ].filter((section) => section.items.length)
-}, [summary])
+  const summarySections: SummarySection[] = useMemo(() => {
+    if (!summary) return []
+    return [
+      { title: "Value propositions", items: summary.valuePropositions || [] },
+      { title: "Target users", items: summary.targetUsers || [] },
+      { title: "Key features", items: summary.keyFeatures || [] },
+      {
+        title: "Pain points addressed",
+        items: summary.painPointsAddressed || [],
+      },
+      { title: "Tone & style", items: summary.toneAndStyle || [] },
+    ].filter((section) => section.items.length)
+  }, [summary])
 
   const pages = useMemo(() => {
     return Array.isArray(profile?.pages)
@@ -506,10 +506,16 @@ const summarySections: SummarySection[] = useMemo(() => {
 
           const stages = [
             { statusKey: "status", errorKey: "errorMessage" },
-            { statusKey: "competitorStatus", errorKey: "competitorErrorMessage" },
+            {
+              statusKey: "competitorStatus",
+              errorKey: "competitorErrorMessage",
+            },
             { statusKey: "subredditStatus", errorKey: "subredditErrorMessage" },
             { statusKey: "redditStatus", errorKey: "redditErrorMessage" },
-            { statusKey: "finalReportStatus", errorKey: "finalReportErrorMessage" },
+            {
+              statusKey: "finalReportStatus",
+              errorKey: "finalReportErrorMessage",
+            },
           ] as const
 
           const updated: SerializedInsightProfile = {
@@ -1202,15 +1208,17 @@ const summarySections: SummarySection[] = useMemo(() => {
         : isRunningPipeline
           ? "Processing"
           : "Not generated",
-      tone: statusDisplay.badge === "success"
-        ? "positive"
-        : statusDisplay.badge === "destructive"
-          ? "danger"
-          : statusDisplay.badge === "secondary"
-            ? "neutral"
-            : "warning",
+      tone:
+        statusDisplay.badge === "success"
+          ? "positive"
+          : statusDisplay.badge === "destructive"
+            ? "danger"
+            : statusDisplay.badge === "secondary"
+              ? "neutral"
+              : "warning",
       icon: "🧱",
-      caption: lastCrawled !== "Never" ? `Last run ${lastCrawled}` : "Not yet run",
+      caption:
+        lastCrawled !== "Never" ? `Last run ${lastCrawled}` : "Not yet run",
     },
     {
       label: "Community discovery",
@@ -1223,9 +1231,10 @@ const summarySections: SummarySection[] = useMemo(() => {
           ? "warning"
           : "neutral",
       icon: "🧭",
-      caption: coveragePercent !== null
-        ? `${PERCENT_FORMATTER.format(coveragePercent)}% query match`
-        : "Awaiting coverage",
+      caption:
+        coveragePercent !== null
+          ? `${PERCENT_FORMATTER.format(coveragePercent)}% query match`
+          : "Awaiting coverage",
     },
     {
       label: "Discussion insights",
@@ -1255,19 +1264,17 @@ const summarySections: SummarySection[] = useMemo(() => {
           ? "warning"
           : "neutral",
       icon: "📊",
-      caption: lastReportGenerated !== "Never"
-        ? `Updated ${lastReportGenerated}`
-        : "Awaiting synthesis",
+      caption:
+        lastReportGenerated !== "Never"
+          ? `Updated ${lastReportGenerated}`
+          : "Awaiting synthesis",
     },
   ]
 
-  const sentimentDistribution = useMemo<
-    | {
-        data: Array<{ key: SentimentKey; label: string; value: number }>
-        total: number
-      }
-    | null
-  >(() => {
+  const sentimentDistribution = useMemo<{
+    data: Array<{ key: SentimentKey; label: string; value: number }>
+    total: number
+  } | null>(() => {
     if (!discussionInsights?.sections?.length) return null
 
     const counts: Record<SentimentKey, number> = {
@@ -1288,9 +1295,7 @@ const summarySections: SummarySection[] = useMemo(() => {
     const total = Object.values(counts).reduce((sum, value) => sum + value, 0)
     if (!total) return null
 
-    const data = (
-      Object.entries(counts) as Array<[SentimentKey, number]>
-    )
+    const data = (Object.entries(counts) as Array<[SentimentKey, number]>)
       .filter(([, value]) => value > 0)
       .map(([key, value]) => ({
         key,
@@ -1756,7 +1761,10 @@ const summarySections: SummarySection[] = useMemo(() => {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <StageBadge label={stage.step} />
-                      <Badge variant={stage.status.badge} className="text-[11px]">
+                      <Badge
+                        variant={stage.status.badge}
+                        className="text-[11px]"
+                      >
                         {stage.status.label}
                       </Badge>
                     </div>
@@ -1785,7 +1793,7 @@ const summarySections: SummarySection[] = useMemo(() => {
                 ))}
               </div>
             </div>
-              <div className="space-y-3">
+            <div className="space-y-3">
               {snapshotChart && snapshotChartConfig ? (
                 <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                   <div>
@@ -1878,16 +1886,12 @@ const summarySections: SummarySection[] = useMemo(() => {
         metrics={[
           {
             label: "Pages captured",
-            value: profile
-              ? COUNT_FORMATTER.format(pageCount)
-              : "—",
+            value: profile ? COUNT_FORMATTER.format(pageCount) : "—",
             tone: pageCount ? "positive" : "warning",
           },
           {
             label: "Errors",
-            value: profile
-              ? COUNT_FORMATTER.format(erroredPages.length)
-              : "—",
+            value: profile ? COUNT_FORMATTER.format(erroredPages.length) : "—",
             tone: erroredPages.length ? "danger" : "positive",
           },
           {
@@ -2156,7 +2160,8 @@ const summarySections: SummarySection[] = useMemo(() => {
             label: "Gap signals",
             value: COUNT_FORMATTER.format(
               sortedCompetitors.filter(
-                (entry) => Array.isArray(entry.weaknesses) && entry.weaknesses.length,
+                (entry) =>
+                  Array.isArray(entry.weaknesses) && entry.weaknesses.length,
               ).length,
             ),
             tone: "neutral",
@@ -2173,14 +2178,14 @@ const summarySections: SummarySection[] = useMemo(() => {
         <>
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                <span>Since last run:</span>
-                <span>
-                  {hasCompetitorResults
-                    ? `${COUNT_FORMATTER.format(sortedCompetitors.length)} competitors mapped`
-                    : "Landscape ready to refresh"}
-                </span>
+              <span>Since last run:</span>
+              <span>
+                {hasCompetitorResults
+                  ? `${COUNT_FORMATTER.format(sortedCompetitors.length)} competitors mapped`
+                  : "Landscape ready to refresh"}
+              </span>
             </div>
-              <div className="space-y-6">
+            <div className="space-y-6">
               <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                 <div>
                   <div className="text-sm font-semibold text-foreground">
@@ -2262,12 +2267,18 @@ const summarySections: SummarySection[] = useMemo(() => {
                           </div>
                           <div className="flex flex-wrap items-center gap-2 text-[11px]">
                             {similarityPercent !== null ? (
-                              <Badge variant="secondary" className="text-[10px]">
+                              <Badge
+                                variant="secondary"
+                                className="text-[10px]"
+                              >
                                 {similarityPercent}% overlap
                               </Badge>
                             ) : null}
                             {maturityLabel ? (
-                              <Badge variant="outline" className="text-[10px] capitalize">
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] capitalize"
+                              >
                                 {maturityLabel}
                               </Badge>
                             ) : null}
@@ -2803,7 +2814,8 @@ const summarySections: SummarySection[] = useMemo(() => {
                           💬
                         </span>
                         <span>
-                          Run the pipeline to craft discussion queries that capture fresh sentiment from your saved communities.
+                          Run the pipeline to craft discussion queries that
+                          capture fresh sentiment from your saved communities.
                         </span>
                       </div>
                     )}
@@ -3286,9 +3298,7 @@ const summarySections: SummarySection[] = useMemo(() => {
         metrics={[
           {
             label: "Actions",
-            value: hasFinalReport
-              ? COUNT_FORMATTER.format(actionCount)
-              : "0",
+            value: hasFinalReport ? COUNT_FORMATTER.format(actionCount) : "0",
             tone: hasFinalReport ? "positive" : "warning",
           },
           {
@@ -3723,7 +3733,6 @@ const summarySections: SummarySection[] = useMemo(() => {
                 </ul>
               </section>
             ) : null}
-
           </div>
         </>
       </StageCard>

@@ -56,7 +56,8 @@ const schema = z
       .string()
       .optional()
       .refine(
-        (value) => !value || (!Number.isNaN(Number(value)) && Number(value) > 0),
+        (value) =>
+          !value || (!Number.isNaN(Number(value)) && Number(value) > 0),
         "Usage limit must be a positive number",
       ),
     usageInterval: z.string().optional(),

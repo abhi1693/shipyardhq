@@ -29,7 +29,9 @@ export function parseInsightsUsageConfig(value: unknown): InsightsUsagePolicy {
   const intervalValue = record.usageInterval
 
   const limit =
-    typeof limitValue === "number" && Number.isFinite(limitValue) && limitValue > 0
+    typeof limitValue === "number" &&
+    Number.isFinite(limitValue) &&
+    limitValue > 0
       ? Math.floor(limitValue)
       : null
 
@@ -67,7 +69,9 @@ export function computeInsightsCooldownMs(
   return Math.floor(intervalMs / policy.usageLimit)
 }
 
-export function formatInsightsUsage(policy: InsightsUsagePolicy | null): string {
+export function formatInsightsUsage(
+  policy: InsightsUsagePolicy | null,
+): string {
   if (!policy || policy.usageLimit === null || policy.usageInterval === null) {
     return "Unlimited"
   }
