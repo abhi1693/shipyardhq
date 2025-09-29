@@ -1,46 +1,41 @@
 # Repository Guidelines
 
-Shipyard HQ uses a Next.js App Router stack with Prisma and Tailwind; follow these notes to stay aligned with the existing patterns.
+Shipyard HQ is a Next.js App Router app backed by Prisma and Tailwind. Follow the steps below to stay aligned with team workflows.
 
 ## Project Structure & Module Organization
-
-- `app/` holds App Router routes, layouts, and API handlers; keep route segment folders lowercase.
-- `components/` follows Atomic Design (`atoms/` → `molecules/` → `organisms/` → `pages/` → `layout/`); only import upward in that chain.
-- `lib/` stores shared client/server utilities; `types/` carries reusable TypeScript definitions.
-- Prisma schema, migrations, and `seed.ts` live in `prisma/`; static assets belong in `public/`.
+- `app/` defines routes, layouts, and API handlers; keep segment folders lowercase and colocate route-specific utilities inside the segment.
+- `components/` implements Atomic Design (`atoms/` → `molecules/` → `organisms/` → `pages/` → `layout/`); only import upward in that chain.
+- `hooks/`, `lib/`, and `types/` hold reusable logic shared across routes; avoid circular imports by keeping domain logic in `lib/`.
+- `prisma/` stores the schema, migrations, and seeds (`seed.ts` plus domain-specific seeds); regenerate clients with `npm run prisma:generate`.
+- UI assets live in `public/`; scripts and automation belong in `scripts/`; Cypress specs live in `cypress/`.
 
 ## Build, Test, and Development Commands
-
-- `npm run dev` starts the local Next.js server with hot reload.
-- `npm run build` compiles a production bundle; run before shipping.
-- `npm start` serves the compiled app for smoke checks.
-- `npm run lint` executes ESLint with the Next.js config; fix all warnings.
-- `npm run format` applies the repository Prettier settings.
-- Prisma workflows: `npm run prisma:init`, `npm run prisma:deploy`, `npm run prisma:generate`, `npm run prisma:seed`.
-- After every big feature update, run `npm run lint`, then `npm run format`, and finally `npm run build`; resolve issues before continuing to ensure a clean state, and only then add or update the required unit tests.
+- `npm run dev` launches the Next.js dev server with hot reload.
+- `npm run build` compiles for production; run it before every PR.
+- `npm start` serves the built app for smoke checks.
+- `npm run lint` and `npm run format` apply ESLint and Prettier (2-space indent, semicolons per config); keep both clean.
+- Prisma lifecycle: `npm run prisma:init`, `npm run prisma:deploy`, `npm run prisma:migrate:reset`, `npm run prisma:seed`.
+- Testing: `npm run test` (Vitest w/ coverage), `npm run test:watch`, `npm run test:e2e` or `npm run test:e2e:open` (Cypress).
 
 ## Coding Style & Naming Conventions
-
-- TypeScript, React 19, and Tailwind CSS 4 are standard; default to functional components.
-- Formatting uses Prettier (2-space indent, semicolons per config); run `npm run format` before PRs.
-- Name components in PascalCase (`ExampleButton.tsx`), hooks/utilities in camelCase, and env vars in SCREAMING_SNAKE_CASE.
+- Use TypeScript with functional React 19 components and Tailwind CSS 4; prefer server components unless you need client-side hooks.
+- Name components in PascalCase (`InvoicesPanel.tsx`), hooks/utilities in camelCase, env vars in SCREAMING_SNAKE_CASE.
+- Keep route folders lowercase, and apply Tailwind utility-first styling; add semantic helper classes in `lib/` if reused.
+- Rely on Prettier (`npm run format`) and respect ESLint autofix suggestions before pushing.
 
 ## Testing Guidelines
-
-- No runner yet, but prefer Vitest or Jest when adding tests.
-- Place specs as `*.test.ts` / `*.test.tsx` near sources or in `__tests__/`.
-- Keep `npm run lint` passing and add targeted unit coverage for reusable logic or critical UI paths.
-- Agents must update, add, or delete all unit tests affected by their changes, run the updated suite, and ensure it passes with 100% coverage.
+- Target 100% coverage with Vitest; place specs as `*.test.ts` / `*.test.tsx` alongside the code or in `__tests__/`.
+- Mock Clerk, Prisma, and network calls using helpers in `lib/` or `vitest.setup.tsx`.
+- Update or add tests with every logic change; run `npm run test` and `npm run lint` locally before requesting review.
+- Use Cypress for flows that span multiple routes; keep fixtures in `cypress/fixtures/`.
 
 ## Commit & Pull Request Guidelines
-
-- Use Conventional Commits (e.g., `feat: add leaderboard page`, `fix: handle auth edge cases`).
-- PRs should describe scope, link issues, and include screenshots or GIFs for UI updates.
-- Document Prisma migration impacts and note rollback steps when schema changes ship.
-- Confirm build, lint, and seed (if touched) before requesting review.
+- Follow Conventional Commits (`feat:`, `fix:`, `chore:`); scoped examples: `feat(app/dashboard): add usage graph`.
+- PRs must describe scope, link related Linear/Jira issues, and include screenshots or GIFs for UI changes.
+- Confirm `npm run lint`, `npm run format`, `npm run build`, and relevant Prisma commands have been executed; note schema impacts and rollback steps.
+- Document any new env vars in `README.md` or team docs before merging.
 
 ## Security & Configuration Tips
-
 - Required env vars: `DATABASE_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `DODO_API_KEY`.
-- Keep secrets in `.env.local`; never commit them.
-- Initialize databases with `npm run prisma:init`, then `npx prisma migrate reset --force` to sync schemas.
+- Store secrets in `.env.local`; never commit them. For resets, run `npm run prisma:init` then `npx prisma migrate reset --force`.
+- Avoid logging sensitive payloads; scrub identifiers before sending data to third-party services or analytics.
