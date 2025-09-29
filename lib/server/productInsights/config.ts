@@ -2,6 +2,7 @@ const DEFAULT_SUBREDDIT_MODEL = "gpt-4.1-mini"
 const DEFAULT_SUBREDDIT_RELEVANCE_MODEL = "gpt-4.1-mini"
 const DEFAULT_DISCUSSION_QUERY_MODEL = "gpt-4.1"
 const DEFAULT_DISCUSSION_INSIGHT_MODEL = "gpt-4.1-mini"
+const DEFAULT_COMPETITOR_MODEL = "gpt-4.1-mini"
 
 export function getProductInsightSubredditModel(): string {
   const envName =
@@ -29,6 +30,13 @@ export function getProductInsightDiscussionInsightModel(): string {
     process.env.PRODUCT_INSIGHT_DISCUSSION_INSIGHT_MODEL?.trim() ||
     process.env.PRODUCT_IDEA_DISCUSSION_INSIGHT_MODEL?.trim()
   return envName || DEFAULT_DISCUSSION_INSIGHT_MODEL
+}
+
+export function getProductInsightCompetitorModel(): string {
+  const envName =
+    process.env.PRODUCT_INSIGHT_COMPETITOR_MODEL?.trim() ||
+    process.env.PRODUCT_IDEA_COMPETITOR_MODEL?.trim()
+  return envName || DEFAULT_COMPETITOR_MODEL
 }
 
 export function getProductInsightDiscussionModelLabel(): string {

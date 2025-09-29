@@ -11,7 +11,11 @@ export const redditDiscussionsStage: PipelineStage<
 > = {
   id: "reddit.discussions",
   providerType: "reddit",
-  dependencies: ["product.snapshot", "reddit.communities"],
+  dependencies: [
+    "product.snapshot",
+    "product.competitors",
+    "reddit.communities",
+  ],
   retryPolicy: {
     maxAttempts: 3,
   },
@@ -28,6 +32,7 @@ export const redditDiscussionsStage: PipelineStage<
       product: context.product,
       summary: context.shared.summary ?? undefined,
       subreddits: context.shared.communities?.subreddits ?? undefined,
+      competitors: context.shared.competitors?.competitors ?? undefined,
       forceRefresh: true,
       mode: resolvedMode,
     })

@@ -8,6 +8,7 @@ import type {
   ProductInsightRedditThread,
   ProductInsightHarvestMode,
   ProductInsightSubreddit,
+  ProductInsightCompetitor,
 } from "@/types/product-insights"
 import { getOpenAIClient } from "@/lib/server/openai"
 import {
@@ -245,6 +246,7 @@ type GenerateDiscussionQueriesInput = {
   product: ProductInsightProductContext
   summary?: ProductInsightSummary | null
   subreddits?: ProductInsightSubreddit[] | null
+  competitors?: ProductInsightCompetitor[] | null
 }
 
 async function generateDiscussionQueries(
@@ -253,7 +255,7 @@ async function generateDiscussionQueries(
   queries: ProductInsightRedditDiscussionQuery[]
   model: string
 }> {
-  const { product, summary, subreddits } = input
+  const { product, summary, subreddits, competitors } = input
   const openai = getOpenAIClient()
   const productName = sanitizeOptionalText(product.name)
   const payload: Record<string, unknown> = {
@@ -294,6 +296,22 @@ async function generateDiscussionQueries(
     }))
   }
 
+  const competitorProfiles = Array.isArray(competitors)
+    ? competitors
+        .filter((entry) => Boolean(entry?.name?.trim()))
+        .slice(0, 6)
+    : []
+
+  if (competitorProfiles.length) {
+    payload.competitorLandscape = competitorProfiles.map((entry) => ({
+      name: entry.name,
+      focusArea: entry.focusArea ?? null,
+      positioning: entry.positioning ?? null,
+      differentiators: entry.differentiators ?? null,
+      weaknesses: entry.weaknesses ?? null,
+    }))
+  }
+
   const guidance: string[] = [
     "Prefer multi-keyword phrases tailored to workflows, jobs-to-be-done, or competitor comparisons.",
     "Include subreddit filters when a community is explicitly relevant.",
@@ -306,6 +324,18 @@ async function generateDiscussionQueries(
     "Balance first-hand feedback (e.g., 'experience', 'review'), comparison/alternatives, and problem-oriented searches (e.g., 'pain points', 'pricing issues').",
     "Prioritize searches that surface unmet needs, enhancement ideas, or reformulations rather than reiterating existing capabilities listed in existingCapabilities.",
   ]
+
+  if (competitorProfiles.length) {
+    const competitorNames = competitorProfiles.map((entry) => entry.name)
+    guidance.push(
+      `Design comparison queries that juxtapose ${productName ?? "the product"} against competitors like ${competitorNames
+        .slice(0, 3)
+        .join(", ")}.`,
+    )
+    guidance.push(
+      "Surface pain-point language where users complain about switching costs or gaps versus those competitors.",
+    )
+  }
 
   console.info("[productInsights:reddit] generating discussion query plan", {
     hasSummary: Boolean(summary),
@@ -1033,6 +1063,7 @@ export type DiscoverProductDiscussionsInput = {
   product: ProductInsightProductContext
   summary?: ProductInsightSummary | null
   subreddits?: ProductInsightSubreddit[] | null
+  competitors?: ProductInsightCompetitor[] | null
   forceRefresh?: boolean
   mode?: ProductInsightHarvestMode
 }
@@ -1054,6 +1085,7 @@ export async function discoverProductDiscussions(
     product,
     summary,
     subreddits,
+    competitors,
     forceRefresh,
     mode = DEFAULT_HARVEST_MODE,
   } = input
@@ -1097,6 +1129,7 @@ export async function discoverProductDiscussions(
     product,
     summary,
     subreddits,
+    competitors,
   })
 
   const preferredSubredditSet = new Set(

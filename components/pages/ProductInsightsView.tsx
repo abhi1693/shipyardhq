@@ -24,6 +24,7 @@ import type {
   ProductInsightRedditThread,
   ProductInsightReportActionPriority,
   ProductInsightStatus,
+  ProductInsightCompetitor,
   ProductInsightSubreddit,
   ProductInsightSubredditQuery,
   SerializedInsightProfile,
@@ -365,7 +366,7 @@ function FlowOverview({ stages }: { stages: FlowStageSummary[] }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {stages.map((stage) => (
             <div
               key={stage.title}
@@ -414,6 +415,9 @@ export function ProductInsightsView({
     initialProfile,
   )
   const [progressMessage, setProgressMessage] = useState<string | null>(null)
+  const [competitorProgress, setCompetitorProgress] = useState<string | null>(
+    null,
+  )
   const [subredditProgress, setSubredditProgress] = useState<string | null>(
     null,
   )
@@ -475,6 +479,7 @@ export function ProductInsightsView({
         "Running the full insights pipeline. We will email you once everything is ready.",
     })
     setProgressMessage("Starting crawl and synthesis…")
+    setCompetitorProgress("Mapping competitive landscape…")
     setSubredditProgress("Preparing Reddit discovery…")
     setDiscussionProgress("Queued for discussion analysis…")
     setReportProgress("Queued for comprehensive report…")
@@ -484,6 +489,7 @@ export function ProductInsightsView({
 
       const stages = [
         { statusKey: "status", errorKey: "errorMessage" },
+        { statusKey: "competitorStatus", errorKey: "competitorErrorMessage" },
         { statusKey: "subredditStatus", errorKey: "subredditErrorMessage" },
         { statusKey: "redditStatus", errorKey: "redditErrorMessage" },
         { statusKey: "finalReportStatus", errorKey: "finalReportErrorMessage" },
@@ -533,6 +539,7 @@ export function ProductInsightsView({
 
         if (result.executedInline) {
           setProgressMessage("Latest crawl captured and summarized.")
+          setCompetitorProgress("Competitive intel refreshed.")
           setSubredditProgress("Subreddit recommendations refreshed.")
           setDiscussionProgress("Reddit discussion insights updated.")
           setReportProgress(
@@ -548,6 +555,9 @@ export function ProductInsightsView({
           )
         } else {
           setProgressMessage("Crawl queued to run in the background.")
+          setCompetitorProgress(
+            "Competitor research will run after the crawl finishes.",
+          )
           setSubredditProgress("Reddit discovery will run once the queue processes.")
           setDiscussionProgress("Discussion analysis will start automatically.")
           setReportProgress("Report synthesis will begin after upstream steps finish.")
@@ -570,6 +580,7 @@ export function ProductInsightsView({
             : "Failed to run insights pipeline"
         setPipelineNotice({ tone: "error", message })
         setProgressMessage(null)
+        setCompetitorProgress(null)
         setSubredditProgress(null)
         setDiscussionProgress(null)
         setReportProgress(null)
@@ -598,6 +609,58 @@ export function ProductInsightsView({
       ? (profile!.discoveredUrls as string[])
       : []
   }, [profile])
+
+  const competitors = useMemo(() => {
+    return Array.isArray(profile?.competitors)
+      ? (profile!.competitors as ProductInsightCompetitor[])
+      : []
+  }, [profile])
+
+  const sortedCompetitors = useMemo(() => {
+    if (!competitors.length) return []
+    return [...competitors].sort((a, b) => {
+      const aScore = typeof a.similarityScore === "number" ? a.similarityScore : -1
+      const bScore = typeof b.similarityScore === "number" ? b.similarityScore : -1
+      if (bScore !== aScore) return bScore - aScore
+      const aName = a.name?.toLowerCase() ?? ""
+      const bName = b.name?.toLowerCase() ?? ""
+      return aName.localeCompare(bName)
+    })
+  }, [competitors])
+
+  const competitorResearchNotes = useMemo(() => {
+    if (!Array.isArray(profile?.competitorResearchNotes)) return []
+    return profile!.competitorResearchNotes.filter(
+      (note): note is string => typeof note === "string" && note.trim().length > 0,
+    )
+  }, [profile])
+
+  const competitorModel = profile?.competitorModel ?? null
+
+  const hasCompetitorResults = sortedCompetitors.length > 0
+
+  const competitorStatus = profile?.competitorStatus ?? null
+  const competitorStatusDisplay = competitorStatus
+    ? STATUS_STYLES[competitorStatus]
+    : { label: "Not started", badge: "outline" as const }
+
+  const lastCompetitorDiscovery = profile?.lastCompetitorDiscoveryAt
+    ? formatDistanceToNowStrict(new Date(profile.lastCompetitorDiscoveryAt), {
+        addSuffix: true,
+      })
+    : "Never"
+
+  const shouldShowCompetitorEmptyState = !hasCompetitorResults && !isRunningPipeline
+  const shouldSurfaceCompetitorNotices = Boolean(
+    competitorProgress || profile?.competitorErrorMessage || shouldShowCompetitorEmptyState,
+  )
+
+  const shouldOpenCompetitorStage =
+    hasCompetitorResults ||
+    !!competitorProgress ||
+    !!profile?.competitorErrorMessage ||
+    competitorStatus === "pending" ||
+    competitorStatus === "failed"
 
   const subredditQueries = useMemo(() => {
     return Array.isArray(profile?.subredditQueries)
@@ -1355,6 +1418,19 @@ export function ProductInsightsView({
     },
     {
       step: "Step 2",
+      title: "Competitive landscape",
+      description: "Map adjacent solutions and differentiation cues.",
+      status: competitorStatusDisplay,
+      metrics: [
+        { label: "Last pass", value: lastCompetitorDiscovery },
+        {
+          label: "Competitors",
+          value: profile ? (hasCompetitorResults ? `${competitors.length}` : "0") : "—",
+        },
+      ],
+    },
+    {
+      step: "Step 3",
       title: "Audience discovery",
       description: "Find active Reddit communities for this product space.",
       status: subredditStatusDisplay,
@@ -1367,7 +1443,7 @@ export function ProductInsightsView({
       ],
     },
     {
-      step: "Step 3",
+      step: "Step 4",
       title: "Discussion insights",
       description: "Pull live conversations to reveal wins and friction.",
       status: discussionStatusDisplay,
@@ -1380,7 +1456,7 @@ export function ProductInsightsView({
       ],
     },
     {
-      step: "Step 4",
+      step: "Step 5",
       title: "Actionable report",
       description: "Synthesize everything into a focused execution plan.",
       status: reportStatusDisplay,
@@ -1417,6 +1493,30 @@ export function ProductInsightsView({
   const renderCrawlerError = () => {
     if (!profile?.errorMessage) return null
     return <InfoNotice tone="error">{profile.errorMessage}</InfoNotice>
+  }
+
+  const renderCompetitorProgress = () => {
+    if (!competitorProgress) return null
+    return (
+      <InfoNotice tone="info" size="xs">
+        {competitorProgress}
+      </InfoNotice>
+    )
+  }
+
+  const renderCompetitorError = () => {
+    if (!profile?.competitorErrorMessage) return null
+    return <InfoNotice tone="error">{profile.competitorErrorMessage}</InfoNotice>
+  }
+
+  const renderCompetitorEmptyState = () => {
+    if (!shouldShowCompetitorEmptyState) return null
+    return (
+      <InfoNotice tone="info" size="xs">
+        Run the pipeline to benchmark competitive alternatives and cache them for
+        future research.
+      </InfoNotice>
+    )
   }
 
   const renderSubredditProgress = () => {
@@ -1885,6 +1985,210 @@ export function ProductInsightsView({
 
       <StageCard
         step="Step 2"
+        title="Competitive landscape"
+        description="Identify the alternatives buyers evaluate alongside this product before diving into community signals."
+        status={competitorStatusDisplay}
+        collapsible
+        defaultOpen={shouldOpenCompetitorStage}
+        metrics={[
+          { label: "Last pass", value: lastCompetitorDiscovery },
+          {
+            label: "Competitors",
+            value: profile ? (hasCompetitorResults ? `${competitors.length}` : "0") : "—",
+          },
+          { label: "Model", value: competitorModel ?? "—" },
+        ]}
+      >
+        <>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="space-y-6">
+              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <div className="text-sm font-semibold text-foreground">
+                    Competitive snapshot
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Direct and adjacent products highlighted from the crawl and synthesis context.
+                  </div>
+                </div>
+                {competitorModel ? (
+                  <Badge variant="outline" className="self-start text-[11px]">
+                    {competitorModel}
+                  </Badge>
+                ) : null}
+              </div>
+
+              {shouldSurfaceCompetitorNotices ? (
+                <div className="space-y-2">
+                  {renderCompetitorProgress()}
+                  {renderCompetitorError()}
+                  {renderCompetitorEmptyState()}
+                </div>
+              ) : null}
+
+              {hasCompetitorResults ? (
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {sortedCompetitors.map((competitor, index) => {
+                    const differentiators = Array.isArray(competitor.differentiators)
+                      ? competitor.differentiators.filter(
+                          (item): item is string =>
+                            typeof item === "string" && item.trim().length > 0,
+                        )
+                      : []
+                    const strengths = Array.isArray(competitor.strengths)
+                      ? competitor.strengths.filter(
+                          (item): item is string =>
+                            typeof item === "string" && item.trim().length > 0,
+                        )
+                      : []
+                    const weaknesses = Array.isArray(competitor.weaknesses)
+                      ? competitor.weaknesses.filter(
+                          (item): item is string =>
+                            typeof item === "string" && item.trim().length > 0,
+                        )
+                      : []
+                    const similarityPercent =
+                      typeof competitor.similarityScore === "number"
+                        ? Math.round(competitor.similarityScore * 100)
+                        : null
+                    const maturityLabel = competitor.maturity
+                      ? competitor.maturity.charAt(0).toUpperCase() +
+                        competitor.maturity.slice(1)
+                      : null
+                    const focusArea = competitor.focusArea?.trim() || null
+                    const positioning = competitor.positioning?.trim() || null
+                    const source = competitor.source?.trim() || null
+                    const visitUrl = competitor.url ?? null
+
+                    return (
+                      <div
+                        key={`${competitor.name || "competitor"}-${index}`}
+                        className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <div className="text-sm font-semibold text-foreground">
+                              {competitor.name || "Competitor"}
+                            </div>
+                            {focusArea ? (
+                              <div className="text-xs text-muted-foreground">{focusArea}</div>
+                            ) : null}
+                            {positioning ? (
+                              <div className="text-xs text-muted-foreground">{positioning}</div>
+                            ) : null}
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            {similarityPercent !== null ? (
+                              <Badge variant="secondary" className="text-[10px]">
+                                {similarityPercent}% overlap
+                              </Badge>
+                            ) : null}
+                            {maturityLabel ? (
+                              <Badge variant="outline" className="text-[10px] capitalize">
+                                {maturityLabel}
+                              </Badge>
+                            ) : null}
+                            {visitUrl ? (
+                              <Link
+                                href={visitUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-[11px] font-semibold text-primary transition hover:underline"
+                              >
+                                Visit site
+                              </Link>
+                            ) : null}
+                          </div>
+                        </div>
+                        {competitor.description ? (
+                          <p className="text-xs leading-relaxed text-muted-foreground">
+                            {competitor.description}
+                          </p>
+                        ) : null}
+                        <div className="space-y-3 text-xs text-muted-foreground">
+                          {differentiators.length ? (
+                            <div>
+                              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                Differentiators
+                              </div>
+                              <div className="mt-1 flex flex-wrap gap-2">
+                                {differentiators.map((item) => (
+                                  <span
+                                    key={`${competitor.name}-diff-${item}`}
+                                    className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
+                                  >
+                                    {item}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null}
+                          {strengths.length ? (
+                            <div>
+                              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                Strengths
+                              </div>
+                              <ul className="mt-1 space-y-1">
+                                {strengths.map((item) => (
+                                  <li
+                                    key={`${competitor.name}-strength-${item}`}
+                                    className="leading-relaxed"
+                                  >
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : null}
+                          {weaknesses.length ? (
+                            <div>
+                              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                Gaps
+                              </div>
+                              <ul className="mt-1 space-y-1">
+                                {weaknesses.map((item) => (
+                                  <li
+                                    key={`${competitor.name}-weakness-${item}`}
+                                    className="leading-relaxed"
+                                  >
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : null}
+                          {source ? (
+                            <div className="text-[11px] text-muted-foreground">
+                              Source: {source}
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : null}
+
+              {competitorResearchNotes.length ? (
+                <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <div className="text-sm font-semibold text-foreground">Analyst notes</div>
+                  <ul className="space-y-2 text-xs leading-relaxed text-muted-foreground">
+                    {competitorResearchNotes.map((note, index) => (
+                      <li key={`${index}-${note.slice(0, 24)}`} className="flex gap-2">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" />
+                        <span>{note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        </>
+      </StageCard>
+
+      <StageCard
+        step="Step 3"
         title="Audience discovery"
         description="The pipeline generates Reddit search plans and captures the communities that match this product."
         status={subredditStatusDisplay}
@@ -2163,7 +2467,7 @@ export function ProductInsightsView({
         </>
       </StageCard>
       <StageCard
-        step="Step 3"
+        step="Step 4"
         title="Discussion insights"
         description="Review Reddit conversations to surface wins, friction, and opportunities."
         status={discussionStatusDisplay}
@@ -2626,7 +2930,7 @@ export function ProductInsightsView({
 
 
       <StageCard
-        step="Step 4"
+        step="Step 5"
         title="Comprehensive report"
         description="Merge product narrative, community intelligence, and Reddit signals into a single plan."
         status={reportStatusDisplay}

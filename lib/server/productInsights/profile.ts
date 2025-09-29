@@ -2,6 +2,7 @@ import type { Prisma } from "@/lib/vendor/prisma/client"
 
 import type {
   ProductInsightCommunityStageData,
+  ProductInsightCompetitorStageData,
   ProductInsightDiscussionStageData,
   ProductInsightProfilePayload,
   ProductInsightStageDataById,
@@ -112,6 +113,31 @@ function parseCommunityData(
   }
 }
 
+function parseCompetitorData(
+  value: Prisma.JsonValue | null,
+): ProductInsightCompetitorStageData | null {
+  const record = asRecord(value)
+  if (!record) return null
+
+  const competitors = Array.isArray(record.competitors)
+    ? (record.competitors as unknown[] as ProductInsightCompetitorStageData["competitors"])
+    : []
+
+  const researchNotes = Array.isArray(record.researchNotes)
+    ? record.researchNotes.filter((entry): entry is string => typeof entry === "string")
+    : null
+
+  const generatedAt =
+    typeof record.generatedAt === "string" ? record.generatedAt : undefined
+
+  return {
+    competitors,
+    model: typeof record.model === "string" ? record.model : undefined,
+    generatedAt,
+    researchNotes: researchNotes ?? null,
+  }
+}
+
 function parseDiscussionData(
   value: Prisma.JsonValue | null,
 ): ProductInsightDiscussionStageData | null {
@@ -165,6 +191,8 @@ function parseStageData(
   switch (stageId) {
     case "product.snapshot":
       return parseSnapshotData(value)
+    case "product.competitors":
+      return parseCompetitorData(value)
     case "reddit.communities":
       return parseCommunityData(value)
     case "reddit.discussions":
@@ -230,11 +258,13 @@ export function serializeInsightProfile(
   }
 
   const snapshotStage = stages["product.snapshot"]
+  const competitorStage = stages["product.competitors"]
   const communityStage = stages["reddit.communities"]
   const discussionStage = stages["reddit.discussions"]
   const reportStage = stages["report.comprehensive"]
 
   const snapshotData = snapshotStage?.data as ProductInsightSnapshotStageData | null
+  const competitorData = competitorStage?.data as ProductInsightCompetitorStageData | null
   const communityData = communityStage?.data as ProductInsightCommunityStageData | null
   const discussionData = discussionStage?.data as ProductInsightDiscussionStageData | null
   const reportData = reportStage?.data as ProductInsightReportStageData | null
@@ -252,6 +282,11 @@ export function serializeInsightProfile(
     summary: snapshotData?.summary ?? null,
     summaryText: snapshotData?.summaryText ?? null,
     model: snapshotData?.model ?? null,
+    competitors: competitorData?.competitors ?? null,
+    competitorStatus: competitorStage?.status ?? null,
+    competitorErrorMessage: competitorStage?.errorMessage ?? null,
+    competitorModel: competitorData?.model ?? null,
+    competitorResearchNotes: competitorData?.researchNotes ?? null,
     subredditQueries: communityData?.queries ?? null,
     subreddits: communityData?.subreddits ?? null,
     subredditStatus: communityStage?.status ?? null,
@@ -269,6 +304,7 @@ export function serializeInsightProfile(
     finalReportErrorMessage: reportStage?.errorMessage ?? null,
     finalReportModel: reportData?.model ?? null,
     lastCrawledAt: snapshotStage?.completedAt ?? null,
+    lastCompetitorDiscoveryAt: competitorStage?.completedAt ?? null,
     lastSubredditDiscoveryAt: communityStage?.completedAt ?? null,
     lastRedditDiscoveryAt: discussionStage?.completedAt ?? null,
     lastFinalReportAt: reportStage?.completedAt ?? null,

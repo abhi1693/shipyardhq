@@ -1,5 +1,6 @@
 import type {
   ProductInsightCommunityStageData,
+  ProductInsightCompetitorStageData,
   ProductInsightDiscussionStageData,
   ProductInsightHarvestMode,
   ProductInsightProfilePayload,
@@ -19,6 +20,7 @@ export type PipelineStageSharedState = {
   snapshot?: ProductInsightSnapshotStageData | null
   summary?: ProductInsightSummary | null
   summaryText?: string | null
+  competitors?: ProductInsightCompetitorStageData | null
   communities?: ProductInsightCommunityStageData | null
   discussions?: ProductInsightDiscussionStageData | null
   report?: ProductInsightReportStageData | null

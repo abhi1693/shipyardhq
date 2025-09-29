@@ -133,6 +133,20 @@ export type ProductInsightComprehensiveReport = {
   supportingData?: ProductInsightReportDataSource[] | null
 }
 
+export type ProductInsightCompetitor = {
+  name: string
+  description?: string | null
+  url?: string | null
+  focusArea?: string | null
+  differentiators?: string[] | null
+  positioning?: string | null
+  maturity?: "emerging" | "established" | "enterprise" | null
+  strengths?: string[] | null
+  weaknesses?: string[] | null
+  source?: string | null
+  similarityScore?: number | null
+}
+
 export type ProductInsightSnapshotStageData = {
   sitemapUrl?: string | null
   discoveredUrls?: string[] | null
@@ -165,14 +179,23 @@ export type ProductInsightReportStageData = {
   generatedAt?: string | null
 }
 
+export type ProductInsightCompetitorStageData = {
+  competitors: ProductInsightCompetitor[]
+  model?: string | null
+  generatedAt?: string | null
+  researchNotes?: string[] | null
+}
+
 export type ProductInsightStageId =
   | "product.snapshot"
+  | "product.competitors"
   | "reddit.communities"
   | "reddit.discussions"
   | "report.comprehensive"
 
 export type ProductInsightStageRendererHint =
   | "snapshot"
+  | "competitor-list"
   | "community-list"
   | "discussion-list"
   | "comprehensive-report"
@@ -202,6 +225,7 @@ export type ProductInsightStageDefinition = {
 
 export type ProductInsightStageDataById = {
   "product.snapshot": ProductInsightSnapshotStageData
+  "product.competitors": ProductInsightCompetitorStageData
   "reddit.communities": ProductInsightCommunityStageData
   "reddit.discussions": ProductInsightDiscussionStageData
   "report.comprehensive": ProductInsightReportStageData
@@ -245,6 +269,10 @@ export type ProductInsightProfilePayload = {
   summary?: ProductInsightSummary | null
   summaryText?: string | null
   model?: string | null
+  competitors?: ProductInsightCompetitor[] | null
+  competitorStatus?: ProductInsightStatus | null
+  competitorErrorMessage?: string | null
+  competitorModel?: string | null
   subredditQueries?: ProductInsightSubredditQuery[] | null
   subreddits?: ProductInsightSubreddit[] | null
   subredditStatus?: ProductInsightStatus | null
@@ -262,9 +290,11 @@ export type ProductInsightProfilePayload = {
   finalReportErrorMessage?: string | null
   finalReportModel?: string | null
   lastCrawledAt: string | null
+  lastCompetitorDiscoveryAt?: string | null
   lastSubredditDiscoveryAt: string | null
   lastRedditDiscoveryAt: string | null
   lastFinalReportAt: string | null
+  competitorResearchNotes?: string[] | null
   createdAt?: string | null
   updatedAt?: string | null
 }

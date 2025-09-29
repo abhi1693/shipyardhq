@@ -82,6 +82,11 @@ function buildInitialSharedState(
     shared.summaryText = snapshot.summaryText ?? null
   }
 
+  const competitors = extractStageData(profile, "product.competitors")
+  if (competitors) {
+    shared.competitors = competitors
+  }
+
   const communities = extractStageData(profile, "reddit.communities")
   if (communities) {
     shared.communities = communities
