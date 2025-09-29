@@ -28,10 +28,7 @@ import type {
   ProductInsightStageViewMap,
   ProductInsightHarvestMode,
 } from "@/types/product-insights"
-import {
-  ProductInsightStatus,
-  Prisma,
-} from "@/lib/vendor/prisma/client"
+import { ProductInsightStatus, Prisma } from "@/lib/vendor/prisma/client"
 
 export type PipelineRunPlan = {
   shouldRun: Record<ProductInsightStageId, boolean>
@@ -116,16 +113,14 @@ function mergeSharedState(
   }
 }
 
-function resolveStageSet(
-  stageSetId?: ProductInsightStageSetId,
-): {
+function resolveStageSet(stageSetId?: ProductInsightStageSetId): {
   stageSetId: ProductInsightStageSetId
   forcedStageIds: Set<ProductInsightStageId>
   allowedStageIds: Set<ProductInsightStageId>
 } {
   const fallback = PRODUCT_INSIGHT_STAGE_SET_MAP["default"]
   const stageSet = stageSetId
-    ? PRODUCT_INSIGHT_STAGE_SET_MAP[stageSetId] ?? fallback
+    ? (PRODUCT_INSIGHT_STAGE_SET_MAP[stageSetId] ?? fallback)
     : fallback
   const forcedStageIds = new Set<ProductInsightStageId>(stageSet.stages)
   const allowedStageIds = new Set<ProductInsightStageId>(forcedStageIds)
@@ -230,7 +225,11 @@ export function determinePipelineRunPlan(
     }
 
     shouldRun[stage.id] =
-      forced || !ready || dependencyScheduled || dependencyIncomplete || dependencyNewer
+      forced ||
+      !ready ||
+      dependencyScheduled ||
+      dependencyIncomplete ||
+      dependencyNewer
   }
 
   return {
@@ -267,7 +266,9 @@ async function loadProductWithOwner(productId: string) {
   })
 }
 
-function buildProductContext(record: ProductRecord): ProductInsightProductContext {
+function buildProductContext(
+  record: ProductRecord,
+): ProductInsightProductContext {
   return {
     name: record.name,
     tagline: record.tagline,
@@ -310,10 +311,7 @@ function stageWhere(profileId: string, stage: PipelineStage) {
   }
 }
 
-async function markStagePending(
-  profileId: string,
-  stage: PipelineStage,
-) {
+async function markStagePending(profileId: string, stage: PipelineStage) {
   await prisma.productInsightStageResult.upsert({
     where: stageWhere(profileId, stage),
     create: {

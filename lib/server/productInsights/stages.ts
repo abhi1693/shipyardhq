@@ -78,7 +78,9 @@ export const PRODUCT_INSIGHT_STAGE_SETS: ProductInsightStageSetDefinition[] = [
     id: "default",
     label: "Full Pipeline",
     description: "Run all configured insight stages",
-    stages: PIPELINE_STAGES_IN_ORDER.map((stage) => stage.id as ProductInsightStageId),
+    stages: PIPELINE_STAGES_IN_ORDER.map(
+      (stage) => stage.id as ProductInsightStageId,
+    ),
   },
   {
     id: "snapshot-only",
@@ -89,7 +91,8 @@ export const PRODUCT_INSIGHT_STAGE_SETS: ProductInsightStageSetDefinition[] = [
   {
     id: "reddit-refresh",
     label: "Reddit Intelligence Refresh",
-    description: "Rebuild Reddit communities, discussions, and roll up the report",
+    description:
+      "Rebuild Reddit communities, discussions, and roll up the report",
     stages: [
       "reddit.communities",
       "reddit.discussions",

@@ -251,7 +251,8 @@ export type ProductInsightStageView<
   completedAt: string | null
 }
 
-export type ProductInsightStageViewAny = ProductInsightStageView<ProductInsightStageId>
+export type ProductInsightStageViewAny =
+  ProductInsightStageView<ProductInsightStageId>
 
 export type ProductInsightStageViewMap = Partial<
   Record<ProductInsightStageId, ProductInsightStageViewAny>

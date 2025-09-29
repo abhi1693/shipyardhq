@@ -40,7 +40,10 @@ export default function AddMemberPage() {
 
   async function onSubmit(values: Values) {
     if (!organizationId) return
-    const res = await addMyOrganizationMemberAction(organizationId, values.email)
+    const res = await addMyOrganizationMemberAction(
+      organizationId,
+      values.email,
+    )
     if ((res as any)?.error) {
       form.setError("email", { type: "server", message: (res as any).error })
       return

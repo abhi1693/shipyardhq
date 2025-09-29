@@ -14,10 +14,7 @@ import type {
   ProductInsightSubreddit,
   ProductInsightSubredditQuery,
 } from "@/types/product-insights"
-import {
-  getRedditAccessToken,
-  getRedditUserAgent,
-} from "./redditClient"
+import { getRedditAccessToken, getRedditUserAgent } from "./redditClient"
 import {
   getProductInsightSubredditModel,
   getProductInsightSubredditRelevanceModel,
@@ -458,11 +455,13 @@ async function generateSearchQueries({
     throw error
   }
 
-  const queries: ProductInsightSubredditQuery[] = parsed.queries.map((item) => ({
-    query: item.query.trim(),
-    rationale: item.rationale?.trim() || null,
-    audience: sanitizeAudienceValue(item.audience),
-  }))
+  const queries: ProductInsightSubredditQuery[] = parsed.queries.map(
+    (item) => ({
+      query: item.query.trim(),
+      rationale: item.rationale?.trim() || null,
+      audience: sanitizeAudienceValue(item.audience),
+    }),
+  )
 
   console.info("[productInsights:subreddit] query plan ready", {
     queryCount: queries.length,
@@ -844,10 +843,13 @@ export async function discoverProductSubreddits(
           matchedQueryCount: cachedMatchedCount,
         }
       } catch (error) {
-        console.warn("[productInsights:subreddit] failed to parse cached result", {
-          productId,
-          error,
-        })
+        console.warn(
+          "[productInsights:subreddit] failed to parse cached result",
+          {
+            productId,
+            error,
+          },
+        )
       }
     }
   }
@@ -923,7 +925,10 @@ export async function discoverProductSubreddits(
       minimum: MIN_QUERY_MATCH_COVERAGE,
       queryCount: queries.length,
     })
-  } else if (coverageResult.coverage >= MIN_QUERY_MATCH_COVERAGE && queries.length) {
+  } else if (
+    coverageResult.coverage >= MIN_QUERY_MATCH_COVERAGE &&
+    queries.length
+  ) {
     console.info("[productInsights:subreddit] query coverage achieved", {
       productId,
       coverage: coverageResult.coverage,

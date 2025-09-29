@@ -77,7 +77,11 @@ function asStringArray(value: unknown): string[] | null {
 function normalizePriority(value: unknown): ProductInsightReportActionPriority {
   if (typeof value === "string") {
     const normalized = value.trim().toLowerCase()
-    if (normalized === "high" || normalized === "medium" || normalized === "low") {
+    if (
+      normalized === "high" ||
+      normalized === "medium" ||
+      normalized === "low"
+    ) {
       return normalized
     }
     if (normalized === "monitor" || normalized === "watch") {
@@ -87,14 +91,24 @@ function normalizePriority(value: unknown): ProductInsightReportActionPriority {
   return "watch"
 }
 
-function normalizeTimeframe(value: unknown): ProductInsightReportActionTimeframe | null {
+function normalizeTimeframe(
+  value: unknown,
+): ProductInsightReportActionTimeframe | null {
   if (typeof value !== "string") return null
   const normalized = value.trim().toLowerCase()
   if (normalized === "immediate") return "immediate"
-  if (normalized === "near-term" || normalized === "near term" || normalized === "soon") {
+  if (
+    normalized === "near-term" ||
+    normalized === "near term" ||
+    normalized === "soon"
+  ) {
     return "near-term"
   }
-  if (normalized === "long-term" || normalized === "long term" || normalized === "later") {
+  if (
+    normalized === "long-term" ||
+    normalized === "long term" ||
+    normalized === "later"
+  ) {
     return "long-term"
   }
   if (normalized === "unspecified") {
@@ -148,17 +162,19 @@ const ReportSchema = z.object({
     .array(
       z.object({
         objective: z.string().min(1),
-        targetSubreddits: z
-          .array(z.string().min(2))
-          .min(1)
-          .max(MAX_SUBREDDITS),
+        targetSubreddits: z.array(z.string().min(2)).min(1).max(MAX_SUBREDDITS),
         tactics: z.array(z.string().min(1)).min(1).max(5),
         successSignal: z.string().optional().nullable(),
       }),
     )
     .optional()
     .nullable(),
-  metricsToWatch: z.array(z.string().min(1)).min(1).max(6).optional().nullable(),
+  metricsToWatch: z
+    .array(z.string().min(1))
+    .min(1)
+    .max(6)
+    .optional()
+    .nullable(),
   supportingData: z
     .array(
       z.object({
@@ -190,22 +206,18 @@ function sanitizeSubreddits(
   }
 > {
   if (!Array.isArray(subreddits)) return []
-  return subreddits
-    .slice(0, MAX_SUBREDDITS)
-    .map((entry) => ({
-      name: entry.name,
-      title: truncate(entry.title),
-      description: truncate(entry.description, 420),
-      primaryTopic: truncate(entry.primaryTopic, 120),
-      relevanceScore: entry.relevanceScore ?? null,
-      subscribers: entry.subscribers ?? null,
-      matchedQueries: entry.matchedQueries?.slice(0, 3) ?? null,
-    }))
+  return subreddits.slice(0, MAX_SUBREDDITS).map((entry) => ({
+    name: entry.name,
+    title: truncate(entry.title),
+    description: truncate(entry.description, 420),
+    primaryTopic: truncate(entry.primaryTopic, 120),
+    relevanceScore: entry.relevanceScore ?? null,
+    subscribers: entry.subscribers ?? null,
+    matchedQueries: entry.matchedQueries?.slice(0, 3) ?? null,
+  }))
 }
 
-function sanitizeInsights(
-  insights?: ProductInsightRedditInsightReport | null,
-) {
+function sanitizeInsights(insights?: ProductInsightRedditInsightReport | null) {
   if (!insights) return null
   const sections = Array.isArray(insights.sections)
     ? insights.sections.slice(0, 3)
@@ -228,9 +240,7 @@ function sanitizeInsights(
   }
 }
 
-function sanitizeThreads(
-  threads?: ProductInsightRedditThread[] | null,
-) {
+function sanitizeThreads(threads?: ProductInsightRedditThread[] | null) {
   if (!Array.isArray(threads)) return []
   return threads.slice(0, MAX_THREADS).map((thread) => ({
     title: truncate(thread.title, 260),
@@ -272,8 +282,15 @@ type CreateReportResult = {
 export async function createProductInsightComprehensiveReport(
   input: CreateReportInput,
 ): Promise<CreateReportResult> {
-  const { productId, product, summary, summaryText, subreddits, insights, threads } =
-    input
+  const {
+    productId,
+    product,
+    summary,
+    summaryText,
+    subreddits,
+    insights,
+    threads,
+  } = input
 
   const openai = getOpenAIClient()
 
@@ -387,10 +404,7 @@ export async function createProductInsightComprehensiveReport(
                     items: { type: "string", minLength: 6 },
                   },
                   successSignal: {
-                    anyOf: [
-                      { type: "string", minLength: 6 },
-                      { type: "null" },
-                    ],
+                    anyOf: [{ type: "string", minLength: 6 }, { type: "null" }],
                   },
                 },
                 required: [
@@ -486,7 +500,10 @@ export async function createProductInsightComprehensiveReport(
   for (const [index, candidate] of parseCandidates.entries()) {
     try {
       parsedJson = JSON.parse(candidate)
-      parseAttempts.push({ phase: index === 0 ? "primary" : "sanitized", success: true })
+      parseAttempts.push({
+        phase: index === 0 ? "primary" : "sanitized",
+        success: true,
+      })
       break
     } catch (error) {
       parseAttempts.push({
@@ -529,23 +546,29 @@ export async function createProductInsightComprehensiveReport(
   const hadFailures = parseAttempts.some(({ success }) => !success)
 
   if (hadFailures && !hadRepair) {
-    console.warn("[productInsights:report] primary JSON.parse failed, sanitized succeeded", {
-      productId,
-      attempts: parseAttempts.map(({ phase, success, error }) => ({
-        phase,
-        success,
-        error: error ? `${error}` : undefined,
-      })),
-    })
+    console.warn(
+      "[productInsights:report] primary JSON.parse failed, sanitized succeeded",
+      {
+        productId,
+        attempts: parseAttempts.map(({ phase, success, error }) => ({
+          phase,
+          success,
+          error: error ? `${error}` : undefined,
+        })),
+      },
+    )
   } else if (hadRepair) {
-    console.warn("[productInsights:report] primary JSON.parse failed, repair applied", {
-      productId,
-      attempts: parseAttempts.map(({ phase, success, error }) => ({
-        phase,
-        success,
-        error: error ? `${error}` : undefined,
-      })),
-    })
+    console.warn(
+      "[productInsights:report] primary JSON.parse failed, repair applied",
+      {
+        productId,
+        attempts: parseAttempts.map(({ phase, success, error }) => ({
+          phase,
+          success,
+          error: error ? `${error}` : undefined,
+        })),
+      },
+    )
   }
 
   const parsed = ReportSchema.parse(parsedJson)
@@ -560,11 +583,15 @@ export async function createProductInsightComprehensiveReport(
 
     const rationale = asTrimmedString(action.rationale)
     const successMetric = asTrimmedString(action.successMetric)
-    const supportingSignals = asStringArray(action.supportingSignals)?.slice(0, 4)
+    const supportingSignals = asStringArray(action.supportingSignals)?.slice(
+      0,
+      4,
+    )
 
-    const normalizedSignals = supportingSignals
-      ?.map((signal) => truncate(signal, 240))
-      .filter((entry): entry is string => Boolean(entry)) ?? null
+    const normalizedSignals =
+      supportingSignals
+        ?.map((signal) => truncate(signal, 240))
+        .filter((entry): entry is string => Boolean(entry)) ?? null
 
     recommendedActions.push({
       title: truncate(title, 160) ?? title,
@@ -591,21 +618,24 @@ export async function createProductInsightComprehensiveReport(
       highlights: section.highlights.map((item) => item.trim()),
     })),
     recommendedActions,
-    communityPlan: parsed.communityPlan
-      ?.map((plan) => ({
-        objective: plan.objective.trim(),
-        targetSubreddits: plan.targetSubreddits.map((entry) => entry.trim()),
-        tactics: plan.tactics.map((entry) => entry.trim()),
-        successSignal: plan.successSignal?.trim() ?? null,
-      }))
-      .filter((plan) => plan.targetSubreddits.length > 0) ?? null,
-    metricsToWatch: parsed.metricsToWatch?.map((metric) => metric.trim()) ?? null,
-    supportingData: parsed.supportingData
-      ?.map((entry) => ({
-        label: entry.label.trim(),
-        entries: entry.entries.map((item) => item.trim()),
-      }))
-      .filter((entry) => entry.entries.length > 0) ?? null,
+    communityPlan:
+      parsed.communityPlan
+        ?.map((plan) => ({
+          objective: plan.objective.trim(),
+          targetSubreddits: plan.targetSubreddits.map((entry) => entry.trim()),
+          tactics: plan.tactics.map((entry) => entry.trim()),
+          successSignal: plan.successSignal?.trim() ?? null,
+        }))
+        .filter((plan) => plan.targetSubreddits.length > 0) ?? null,
+    metricsToWatch:
+      parsed.metricsToWatch?.map((metric) => metric.trim()) ?? null,
+    supportingData:
+      parsed.supportingData
+        ?.map((entry) => ({
+          label: entry.label.trim(),
+          entries: entry.entries.map((item) => item.trim()),
+        }))
+        .filter((entry) => entry.entries.length > 0) ?? null,
   }
 
   console.info("[productInsights:report] report synthesized", {

@@ -158,10 +158,13 @@ async function isPipelineJobQueuedOnClient(
           return true
         }
       } catch (error) {
-        console.warn("[productInsights:pipeline] failed to inspect queued job", {
-          raw,
-          error,
-        })
+        console.warn(
+          "[productInsights:pipeline] failed to inspect queued job",
+          {
+            raw,
+            error,
+          },
+        )
       }
     }
     return false
@@ -180,7 +183,10 @@ export async function peekPipelineQueueLength(): Promise<number> {
   try {
     return await client.lLen(QUEUE_KEY)
   } catch (error) {
-    console.warn("[productInsights:pipeline] failed to read queue length", error)
+    console.warn(
+      "[productInsights:pipeline] failed to read queue length",
+      error,
+    )
     return 0
   }
 }

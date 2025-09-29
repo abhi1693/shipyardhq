@@ -51,7 +51,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/atoms/table"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/atoms/collapsible"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/atoms/collapsible"
 import type { ChartConfig } from "@/components/atoms/chart"
 import { AnalyticsPieChart } from "@/components/molecules/AnalyticsPieChart"
 import { Switch } from "@/components/atoms/switch"
@@ -101,7 +105,10 @@ const ACTION_PRIORITY_BADGE: Record<
   watch: { label: "Monitor", badge: "secondary" },
 }
 
-const ACTION_PRIORITY_COLORS: Record<ProductInsightReportActionPriority, string> = {
+const ACTION_PRIORITY_COLORS: Record<
+  ProductInsightReportActionPriority,
+  string
+> = {
   high: "var(--destructive)",
   medium: "var(--chart-1)",
   low: "var(--chart-2)",
@@ -241,7 +248,11 @@ type StageCardProps = {
   description: string
   status: { label: string; badge: ComponentProps<typeof Badge>["variant"] }
   actions?: ReactNode
-  metrics?: ReadonlyArray<{ label: string; value: ReactNode; tone?: MetricTone }>
+  metrics?: ReadonlyArray<{
+    label: string
+    value: ReactNode
+    tone?: MetricTone
+  }>
   collapsible?: boolean
   defaultOpen?: boolean
   children: ReactNode
@@ -274,9 +285,7 @@ function StageCard({
     previousDefaultOpen.current = defaultOpen
   }, [collapsible, defaultOpen])
 
-  const header = (
-    withTrigger: boolean,
-  ) => (
+  const header = (withTrigger: boolean) => (
     <CardHeader className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-2">
@@ -395,7 +404,9 @@ function FlowOverview({ stages }: { stages: FlowStageSummary[] }) {
                     className="flex items-center justify-between gap-3"
                   >
                     <dt>{metric.label}</dt>
-                    <dd className="font-medium text-foreground">{metric.value}</dd>
+                    <dd className="font-medium text-foreground">
+                      {metric.value}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -427,11 +438,14 @@ export function ProductInsightsView({
     null,
   )
   const [reportProgress, setReportProgress] = useState<string | null>(null)
-  const [pipelineNotice, setPipelineNotice] = useState<
-    { tone: "info" | "error"; message: string } | null
-  >(null)
+  const [pipelineNotice, setPipelineNotice] = useState<{
+    tone: "info" | "error"
+    message: string
+  } | null>(null)
   const [isRunningPipeline, startPipelineTransition] = useTransition()
-  const [isDeepMode, setIsDeepMode] = useState(() => initialProfile?.redditMode === "deep")
+  const [isDeepMode, setIsDeepMode] = useState(
+    () => initialProfile?.redditMode === "deep",
+  )
 
   const selectedHarvestMode = isDeepMode ? "deep" : "standard"
   const deepHarvestSwitchId = useId()
@@ -503,7 +517,9 @@ export function ProductInsightsView({
         redditMode: selectedHarvestMode,
       }
 
-      const firstFailedIndex = stages.findIndex(({ statusKey }) => prev[statusKey] === "failed")
+      const firstFailedIndex = stages.findIndex(
+        ({ statusKey }) => prev[statusKey] === "failed",
+      )
 
       stages.forEach(({ statusKey, errorKey }, index) => {
         if (firstFailedIndex === -1 || index >= firstFailedIndex) {
@@ -526,7 +542,7 @@ export function ProductInsightsView({
           const nextProfile: SerializedInsightProfile = {
             ...result.profile,
             redditMode: result.executedInline
-              ? result.profile.redditMode ?? selectedHarvestMode
+              ? (result.profile.redditMode ?? selectedHarvestMode)
               : selectedHarvestMode,
           }
           return nextProfile
@@ -560,9 +576,13 @@ export function ProductInsightsView({
           setCompetitorProgress(
             "Competitor research will run after the crawl finishes.",
           )
-          setSubredditProgress("Community discovery will run once the queue processes.")
+          setSubredditProgress(
+            "Community discovery will run once the queue processes.",
+          )
           setDiscussionProgress("Discussion analysis will start automatically.")
-          setReportProgress("Report synthesis will begin after upstream steps finish.")
+          setReportProgress(
+            "Report synthesis will begin after upstream steps finish.",
+          )
           setPipelineNotice({
             tone: "info",
             message: result.alreadyQueued
@@ -621,8 +641,10 @@ export function ProductInsightsView({
   const sortedCompetitors = useMemo(() => {
     if (!competitors.length) return []
     return [...competitors].sort((a, b) => {
-      const aScore = typeof a.similarityScore === "number" ? a.similarityScore : -1
-      const bScore = typeof b.similarityScore === "number" ? b.similarityScore : -1
+      const aScore =
+        typeof a.similarityScore === "number" ? a.similarityScore : -1
+      const bScore =
+        typeof b.similarityScore === "number" ? b.similarityScore : -1
       if (bScore !== aScore) return bScore - aScore
       const aName = a.name?.toLowerCase() ?? ""
       const bName = b.name?.toLowerCase() ?? ""
@@ -633,7 +655,8 @@ export function ProductInsightsView({
   const competitorResearchNotes = useMemo(() => {
     if (!Array.isArray(profile?.competitorResearchNotes)) return []
     return profile!.competitorResearchNotes.filter(
-      (note): note is string => typeof note === "string" && note.trim().length > 0,
+      (note): note is string =>
+        typeof note === "string" && note.trim().length > 0,
     )
   }, [profile])
 
@@ -652,9 +675,12 @@ export function ProductInsightsView({
       })
     : "Never"
 
-  const shouldShowCompetitorEmptyState = !hasCompetitorResults && !isRunningPipeline
+  const shouldShowCompetitorEmptyState =
+    !hasCompetitorResults && !isRunningPipeline
   const shouldSurfaceCompetitorNotices = Boolean(
-    competitorProgress || profile?.competitorErrorMessage || shouldShowCompetitorEmptyState,
+    competitorProgress ||
+      profile?.competitorErrorMessage ||
+      shouldShowCompetitorEmptyState,
   )
 
   const shouldOpenCompetitorStage =
@@ -682,11 +708,15 @@ export function ProductInsightsView({
     if (!subreddits.length) return []
     return [...subreddits]
       .sort((a, b) => {
-        const aScore = typeof a.relevanceScore === "number" ? a.relevanceScore : -1
-        const bScore = typeof b.relevanceScore === "number" ? b.relevanceScore : -1
+        const aScore =
+          typeof a.relevanceScore === "number" ? a.relevanceScore : -1
+        const bScore =
+          typeof b.relevanceScore === "number" ? b.relevanceScore : -1
         if (bScore !== aScore) return bScore - aScore
-        const aSubscribers = typeof a.subscribers === "number" ? a.subscribers : 0
-        const bSubscribers = typeof b.subscribers === "number" ? b.subscribers : 0
+        const aSubscribers =
+          typeof a.subscribers === "number" ? a.subscribers : 0
+        const bSubscribers =
+          typeof b.subscribers === "number" ? b.subscribers : 0
         return bSubscribers - aSubscribers
       })
       .slice(0, 4)
@@ -743,12 +773,19 @@ export function ProductInsightsView({
   }, [subreddits, subredditQueries])
 
   const avgRelevancePercent =
-    communityStats.avgRelevance !== null ? communityStats.avgRelevance * 100 : null
+    communityStats.avgRelevance !== null
+      ? communityStats.avgRelevance * 100
+      : null
   const coveragePercent = communityStats.queryCoveragePercent
   const coverageNeedsAttention =
-    coveragePercent !== null && coveragePercent < REQUIRED_QUERY_COVERAGE_PERCENT
+    coveragePercent !== null &&
+    coveragePercent < REQUIRED_QUERY_COVERAGE_PERCENT
 
-  const discoveryQuickFacts: Array<{ label: string; value: string; tone: MetricTone }> = [
+  const discoveryQuickFacts: Array<{
+    label: string
+    value: string
+    tone: MetricTone
+  }> = [
     {
       label: "Audience reach",
       value: communityStats.totalSubscribers
@@ -797,7 +834,8 @@ export function ProductInsightsView({
     },
   ]
 
-  const shouldShowSubredditEmptyState = !hasSubredditResults && !isRunningPipeline
+  const shouldShowSubredditEmptyState =
+    !hasSubredditResults && !isRunningPipeline
   const shouldSurfaceSubredditNotices = Boolean(
     subredditProgress ||
       profile?.subredditErrorMessage ||
@@ -818,7 +856,8 @@ export function ProductInsightsView({
 
   const discussionQueries = useMemo(() => {
     return Array.isArray(profile?.redditDiscussionQueries)
-      ? (profile!.redditDiscussionQueries as ProductInsightRedditDiscussionQuery[])
+      ? (profile!
+          .redditDiscussionQueries as ProductInsightRedditDiscussionQuery[])
       : []
   }, [profile])
 
@@ -829,7 +868,8 @@ export function ProductInsightsView({
   }, [profile])
 
   const discussionInsights =
-    (profile?.redditInsights as ProductInsightRedditInsightReport | null) ?? null
+    (profile?.redditInsights as ProductInsightRedditInsightReport | null) ??
+    null
 
   const discussionSections = useMemo(() => {
     if (!Array.isArray(discussionInsights?.sections)) return []
@@ -845,71 +885,68 @@ export function ProductInsightsView({
 
   const totalFocusAreas = focusAreas.length
 
-  const discussionSignals = useMemo(
-    () => {
-      const signals: Array<{
-        id: string
-        sectionTitle: string | null
-        insight: string
-        sentiment: "positive" | "negative" | "neutral" | null
-        audience: string | null
-        primaryEvidence: string | null
-        evidenceCount: number
-        references: string[] | null
-      }> = []
+  const discussionSignals = useMemo(() => {
+    const signals: Array<{
+      id: string
+      sectionTitle: string | null
+      insight: string
+      sentiment: "positive" | "negative" | "neutral" | null
+      audience: string | null
+      primaryEvidence: string | null
+      evidenceCount: number
+      references: string[] | null
+    }> = []
 
-      discussionSections.forEach((section, sectionIndex) => {
-        const sectionTitle =
-          typeof section?.title === "string" && section.title.length > 0
-            ? section.title
+    discussionSections.forEach((section, sectionIndex) => {
+      const sectionTitle =
+        typeof section?.title === "string" && section.title.length > 0
+          ? section.title
+          : null
+      const sectionItems = Array.isArray(section?.items) ? section.items : []
+
+      sectionItems.forEach((item, itemIndex) => {
+        if (!item) return
+        const insightText =
+          typeof item.insight === "string" && item.insight.length > 0
+            ? item.insight
+            : "Untitled insight"
+        const sentiment =
+          item.sentiment === "positive" ||
+          item.sentiment === "negative" ||
+          item.sentiment === "neutral"
+            ? item.sentiment
             : null
-        const sectionItems = Array.isArray(section?.items) ? section.items : []
+        const evidenceEntries = Array.isArray(item.evidence)
+          ? item.evidence.filter(
+              (entry): entry is string =>
+                typeof entry === "string" && entry.length > 0,
+            )
+          : []
+        const references = Array.isArray(item.references)
+          ? item.references.filter(
+              (entry): entry is string =>
+                typeof entry === "string" && entry.length > 0,
+            )
+          : []
 
-        sectionItems.forEach((item, itemIndex) => {
-          if (!item) return
-          const insightText =
-            typeof item.insight === "string" && item.insight.length > 0
-              ? item.insight
-              : "Untitled insight"
-          const sentiment =
-            item.sentiment === "positive" ||
-            item.sentiment === "negative" ||
-            item.sentiment === "neutral"
-              ? item.sentiment
-              : null
-          const evidenceEntries = Array.isArray(item.evidence)
-            ? item.evidence.filter(
-                (entry): entry is string =>
-                  typeof entry === "string" && entry.length > 0,
-              )
-            : []
-          const references = Array.isArray(item.references)
-            ? item.references.filter(
-                (entry): entry is string =>
-                  typeof entry === "string" && entry.length > 0,
-              )
-            : []
-
-          signals.push({
-            id: `${sectionIndex}-${itemIndex}`,
-            sectionTitle,
-            insight: insightText,
-            sentiment,
-            audience:
-              typeof item.audience === "string" && item.audience.length > 0
-                ? item.audience
-                : null,
-            primaryEvidence: evidenceEntries[0] ?? null,
-            evidenceCount: evidenceEntries.length,
-            references: references.length ? references : null,
-          })
+        signals.push({
+          id: `${sectionIndex}-${itemIndex}`,
+          sectionTitle,
+          insight: insightText,
+          sentiment,
+          audience:
+            typeof item.audience === "string" && item.audience.length > 0
+              ? item.audience
+              : null,
+          primaryEvidence: evidenceEntries[0] ?? null,
+          evidenceCount: evidenceEntries.length,
+          references: references.length ? references : null,
         })
       })
+    })
 
-      return signals
-    },
-    [discussionSections],
-  )
+    return signals
+  }, [discussionSections])
 
   const sentimentCounts = useMemo(
     () =>
@@ -953,7 +990,11 @@ export function ProductInsightsView({
       })
     : "Never"
 
-  const discussionQuickFacts: Array<{ label: string; value: string; tone: MetricTone }> = [
+  const discussionQuickFacts: Array<{
+    label: string
+    value: string
+    tone: MetricTone
+  }> = [
     {
       label: "Last analyzed",
       value: lastDiscussionDiscovery,
@@ -1001,10 +1042,15 @@ export function ProductInsightsView({
   ]
 
   const sentimentTotal =
-    sentimentCounts.positive + sentimentCounts.negative + sentimentCounts.neutral
-  const shouldShowDiscussionEmptyState = !hasDiscussionThreads && !isRunningPipeline
+    sentimentCounts.positive +
+    sentimentCounts.negative +
+    sentimentCounts.neutral
+  const shouldShowDiscussionEmptyState =
+    !hasDiscussionThreads && !isRunningPipeline
   const shouldSurfaceDiscussionNotices = Boolean(
-    discussionProgress || profile?.redditErrorMessage || shouldShowDiscussionEmptyState,
+    discussionProgress ||
+      profile?.redditErrorMessage ||
+      shouldShowDiscussionEmptyState,
   )
 
   const successfulPages = Math.max(pageCount - erroredPages.length, 0)
@@ -1024,7 +1070,11 @@ export function ProductInsightsView({
       factLabel: "Last crawl",
       metricLabel: "Last crawled",
       value: lastCrawled,
-      tone: profile ? (lastCrawled === "Never" ? "warning" : "neutral") : "warning",
+      tone: profile
+        ? lastCrawled === "Never"
+          ? "warning"
+          : "neutral"
+        : "warning",
     },
     {
       factLabel: "Pages captured",
@@ -1035,11 +1085,7 @@ export function ProductInsightsView({
       factLabel: "Errors found",
       metricLabel: "Errors",
       value: profile ? COUNT_FORMATTER.format(erroredPages.length) : "—",
-      tone: profile
-        ? erroredPages.length
-          ? "danger"
-          : "positive"
-        : "neutral",
+      tone: profile ? (erroredPages.length ? "danger" : "positive") : "neutral",
     },
   ] as const satisfies ReadonlyArray<{
     factLabel: string
@@ -1071,7 +1117,9 @@ export function ProductInsightsView({
   }, [discoveredUrls, pages])
 
   const sitemapEntryCount = sitemapEntries.length
-  const sitemapErrorCount = sitemapEntries.filter((entry) => entry.status === "error").length
+  const sitemapErrorCount = sitemapEntries.filter(
+    (entry) => entry.status === "error",
+  ).length
   const hasSitemapEntries = sitemapEntryCount > 0
 
   const productQuickFacts = crawlerFactBase.map((entry) => ({
@@ -1081,7 +1129,9 @@ export function ProductInsightsView({
   }))
 
   const hasCrawlerNotices = Boolean(
-    progressMessage || profile?.errorMessage || (!profile && !isRunningPipeline),
+    progressMessage ||
+      profile?.errorMessage ||
+      (!profile && !isRunningPipeline),
   )
 
   const pipelineJobState: ProductInsightPipelineJobState =
@@ -1132,7 +1182,11 @@ export function ProductInsightsView({
   const communityPlanCount = communityPlan.length
   const metricsToWatchCount = metricsToWatch.length
 
-  const reportQuickFacts: Array<{ label: string; value: string; tone: MetricTone }> = [
+  const reportQuickFacts: Array<{
+    label: string
+    value: string
+    tone: MetricTone
+  }> = [
     {
       label: "Last generated",
       value: lastReportGenerated,
@@ -1151,7 +1205,13 @@ export function ProductInsightsView({
         ? `${COUNT_FORMATTER.format(actionCount)} action${actionCount === 1 ? "" : "s"}`
         : "—",
       tone:
-        actionCount >= 3 ? "positive" : actionCount ? "neutral" : hasFinalReport ? "warning" : "neutral",
+        actionCount >= 3
+          ? "positive"
+          : actionCount
+            ? "neutral"
+            : hasFinalReport
+              ? "warning"
+              : "neutral",
     },
     {
       label: "Opportunity areas",
@@ -1160,27 +1220,41 @@ export function ProductInsightsView({
             opportunityCount === 1 ? "" : "s"
           }`
         : "—",
-      tone: opportunityCount ? "neutral" : hasFinalReport ? "warning" : "neutral",
+      tone: opportunityCount
+        ? "neutral"
+        : hasFinalReport
+          ? "warning"
+          : "neutral",
     },
     {
       label: "Community plays",
       value: communityPlanCount
         ? `${COUNT_FORMATTER.format(communityPlanCount)} play${communityPlanCount === 1 ? "" : "s"}`
         : "—",
-      tone: communityPlanCount ? "positive" : hasFinalReport ? "warning" : "neutral",
+      tone: communityPlanCount
+        ? "positive"
+        : hasFinalReport
+          ? "warning"
+          : "neutral",
     },
     {
       label: "Metrics tracked",
       value: metricsToWatchCount
         ? `${COUNT_FORMATTER.format(metricsToWatchCount)}`
         : "—",
-      tone: metricsToWatchCount ? "neutral" : hasFinalReport ? "warning" : "neutral",
+      tone: metricsToWatchCount
+        ? "neutral"
+        : hasFinalReport
+          ? "warning"
+          : "neutral",
     },
   ]
 
   const shouldShowReportEmptyState = !hasFinalReport && !isRunningPipeline
   const shouldSurfaceReportNotices = Boolean(
-    reportProgress || profile?.finalReportErrorMessage || shouldShowReportEmptyState,
+    reportProgress ||
+      profile?.finalReportErrorMessage ||
+      shouldShowReportEmptyState,
   )
 
   const snapshotMetrics = [
@@ -1268,9 +1342,9 @@ export function ProductInsightsView({
     const total = Object.values(counts).reduce((sum, value) => sum + value, 0)
     if (!total) return null
 
-    const data = (Object.entries(counts) as Array<
-      [keyof typeof counts, number]
-    >)
+    const data = (
+      Object.entries(counts) as Array<[keyof typeof counts, number]>
+    )
       .filter(([, value]) => value > 0)
       .map(([key, value]) => ({
         key,
@@ -1306,9 +1380,11 @@ export function ProductInsightsView({
       counts[action.priority] += 1
     }
 
-    const data = (Object.entries(counts) as Array<
-      [ProductInsightReportActionPriority, number]
-    >)
+    const data = (
+      Object.entries(counts) as Array<
+        [ProductInsightReportActionPriority, number]
+      >
+    )
       .filter(([, value]) => value > 0)
       .map(([priority, value]) => ({
         key: priority,
@@ -1432,7 +1508,11 @@ export function ProductInsightsView({
         { label: "Last pass", value: lastCompetitorDiscovery },
         {
           label: "Competitors",
-          value: profile ? (hasCompetitorResults ? `${competitors.length}` : "0") : "—",
+          value: profile
+            ? hasCompetitorResults
+              ? `${competitors.length}`
+              : "0"
+            : "—",
         },
       ],
     },
@@ -1445,7 +1525,11 @@ export function ProductInsightsView({
         { label: "Last pass", value: lastSubredditDiscovery },
         {
           label: "Communities",
-          value: profile ? (hasSubredditResults ? `${subreddits.length}` : "0") : "—",
+          value: profile
+            ? hasSubredditResults
+              ? `${subreddits.length}`
+              : "0"
+            : "—",
         },
       ],
     },
@@ -1458,7 +1542,11 @@ export function ProductInsightsView({
         { label: "Last pass", value: lastDiscussionDiscovery },
         {
           label: "Threads",
-          value: profile ? (hasDiscussionThreads ? `${discussionThreads.length}` : "0") : "—",
+          value: profile
+            ? hasDiscussionThreads
+              ? `${discussionThreads.length}`
+              : "0"
+            : "—",
         },
       ],
     },
@@ -1513,15 +1601,17 @@ export function ProductInsightsView({
 
   const renderCompetitorError = () => {
     if (!profile?.competitorErrorMessage) return null
-    return <InfoNotice tone="error">{profile.competitorErrorMessage}</InfoNotice>
+    return (
+      <InfoNotice tone="error">{profile.competitorErrorMessage}</InfoNotice>
+    )
   }
 
   const renderCompetitorEmptyState = () => {
     if (!shouldShowCompetitorEmptyState) return null
     return (
       <InfoNotice tone="info" size="xs">
-        Run the pipeline to benchmark competitive alternatives and cache them for
-        future research.
+        Run the pipeline to benchmark competitive alternatives and cache them
+        for future research.
       </InfoNotice>
     )
   }
@@ -1544,8 +1634,9 @@ export function ProductInsightsView({
     if (!coverageNeedsAttention || coveragePercent === null) return null
     return (
       <InfoNotice tone="info" size="xs">
-        Discovery matched {PERCENT_FORMATTER.format(coveragePercent)}% of the planned
-        queries. Queue another pipeline run once fresh crawl data is available so we can push toward the 70% target.
+        Discovery matched {PERCENT_FORMATTER.format(coveragePercent)}% of the
+        planned queries. Queue another pipeline run once fresh crawl data is
+        available so we can push toward the 70% target.
       </InfoNotice>
     )
   }
@@ -1575,7 +1666,9 @@ export function ProductInsightsView({
 
   const renderReportError = () => {
     if (!profile?.finalReportErrorMessage) return null
-    return <InfoNotice tone="error">{profile.finalReportErrorMessage}</InfoNotice>
+    return (
+      <InfoNotice tone="error">{profile.finalReportErrorMessage}</InfoNotice>
+    )
   }
 
   const formatActionTimeframe = (value?: string | null) => {
@@ -1599,7 +1692,8 @@ export function ProductInsightsView({
           <div className="space-y-1">
             <CardTitle>Run full pipeline</CardTitle>
             <CardDescription>
-              Refresh the crawl, community discovery, discussion insights, and report in one click.
+              Refresh the crawl, community discovery, discussion insights, and
+              report in one click.
             </CardDescription>
           </div>
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
@@ -1608,9 +1702,12 @@ export function ProductInsightsView({
                 htmlFor={deepHarvestSwitchId}
                 className="flex-1 flex-col items-start gap-1 text-left text-xs text-muted-foreground sm:items-end sm:text-right"
               >
-                <span className="text-sm font-medium text-foreground">Deep harvest</span>
+                <span className="text-sm font-medium text-foreground">
+                  Deep harvest
+                </span>
                 <span className="text-[11px]">
-                  Expand discovery searches and pull full comment trees for top threads.
+                  Expand discovery searches and pull full comment trees for top
+                  threads.
                 </span>
               </Label>
               <Switch
@@ -1626,7 +1723,9 @@ export function ProductInsightsView({
               disabled={isPipelinePending}
               className="w-full sm:w-auto"
             >
-              {isPipelinePending ? "Pipeline in progress…" : "Run full pipeline"}
+              {isPipelinePending
+                ? "Pipeline in progress…"
+                : "Run full pipeline"}
             </Button>
           </div>
         </CardHeader>
@@ -1650,7 +1749,8 @@ export function ProductInsightsView({
         <CardHeader className="space-y-1">
           <CardTitle>Insights snapshot</CardTitle>
           <CardDescription>
-            Quick pulse across crawl coverage, audience discovery, and the current action plan.
+            Quick pulse across crawl coverage, audience discovery, and the
+            current action plan.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1672,8 +1772,12 @@ export function ProductInsightsView({
                     key={item.label}
                     className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
                   >
-                    <span className="font-semibold text-foreground">{item.label}</span>
-                    <span className="ml-auto text-foreground">{item.value}</span>
+                    <span className="font-semibold text-foreground">
+                      {item.label}
+                    </span>
+                    <span className="ml-auto text-foreground">
+                      {item.value}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -1731,7 +1835,8 @@ export function ProductInsightsView({
                             className="h-2.5 w-2.5 rounded-full"
                             style={{
                               backgroundColor:
-                                snapshotChart.colors[entry.key] ?? "var(--chart-2)",
+                                snapshotChart.colors[entry.key] ??
+                                "var(--chart-2)",
                             }}
                           />
                           <span className="flex-1 font-medium text-foreground">
@@ -1748,7 +1853,8 @@ export function ProductInsightsView({
                 </div>
               ) : (
                 <div className="flex h-full min-h-[220px] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-xs text-muted-foreground">
-                  Run the insights pipeline to visualise sentiment and action mix at a glance.
+                  Run the insights pipeline to visualise sentiment and action
+                  mix at a glance.
                 </div>
               )}
             </div>
@@ -1780,7 +1886,10 @@ export function ProductInsightsView({
                         {productName}
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant={statusDisplay.badge} className="text-[11px]">
+                        <Badge
+                          variant={statusDisplay.badge}
+                          className="text-[11px]"
+                        >
                           {statusDisplay.label}
                         </Badge>
                         <Link
@@ -1814,7 +1923,9 @@ export function ProductInsightsView({
                         <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                           {fact.label}
                         </div>
-                        <div className="mt-1 text-sm font-semibold">{fact.value}</div>
+                        <div className="mt-1 text-sm font-semibold">
+                          {fact.value}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1843,11 +1954,15 @@ export function ProductInsightsView({
                         />
                       </div>
                       <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{COUNT_FORMATTER.format(successfulPages)} ok</span>
+                        <span>
+                          {COUNT_FORMATTER.format(successfulPages)} ok
+                        </span>
                         <span
                           className={cn(
                             "font-medium",
-                            erroredPages.length ? "text-destructive" : "text-muted-foreground",
+                            erroredPages.length
+                              ? "text-destructive"
+                              : "text-muted-foreground",
                           )}
                         >
                           {COUNT_FORMATTER.format(erroredPages.length)} errors
@@ -1856,7 +1971,8 @@ export function ProductInsightsView({
                     </div>
                   ) : (
                     <div className="mt-5 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-xs text-muted-foreground">
-                      We captured the profile metadata but no crawlable pages. Check that the sitemap is reachable and rerun the crawler.
+                      We captured the profile metadata but no crawlable pages.
+                      Check that the sitemap is reachable and rerun the crawler.
                     </div>
                   )
                 ) : null}
@@ -1924,7 +2040,9 @@ export function ProductInsightsView({
                                 SITEMAP_INDICATOR_STYLES[entry.status],
                               )}
                             />
-                            <span className="break-all leading-relaxed">{entry.url}</span>
+                            <span className="break-all leading-relaxed">
+                              {entry.url}
+                            </span>
                           </Link>
                         ))}
                       </div>
@@ -1939,7 +2057,9 @@ export function ProductInsightsView({
               <div className="space-y-6">
                 {profile && !isRunningPipeline && !summary ? (
                   <InfoNotice tone="info" size="xs">
-                    We captured the crawl but did not synthesize a summary yet. Run the full pipeline again if you recently updated the product site.
+                    We captured the crawl but did not synthesize a summary yet.
+                    Run the full pipeline again if you recently updated the
+                    product site.
                   </InfoNotice>
                 ) : null}
 
@@ -1951,10 +2071,14 @@ export function ProductInsightsView({
                           Product narrative
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          Condensed from live website content and structured metadata.
+                          Condensed from live website content and structured
+                          metadata.
                         </div>
                       </div>
-                      <Badge variant="secondary" className="self-start text-[11px]">
+                      <Badge
+                        variant="secondary"
+                        className="self-start text-[11px]"
+                      >
                         {summarySections.length
                           ? `${summarySections.length} theme${summarySections.length === 1 ? "" : "s"}`
                           : "Overview"}
@@ -1982,7 +2106,10 @@ export function ProductInsightsView({
                             </div>
                             <ul className="space-y-2 text-sm text-muted-foreground">
                               {section.items.map((item, index) => (
-                                <li key={`${section.title}-${index}`} className="flex gap-2">
+                                <li
+                                  key={`${section.title}-${index}`}
+                                  className="flex gap-2"
+                                >
                                   <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
                                   <span>{item}</span>
                                 </li>
@@ -2017,7 +2144,8 @@ export function ProductInsightsView({
                     Competitive snapshot
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Direct and adjacent products highlighted from the crawl and synthesis context.
+                    Direct and adjacent products highlighted from the crawl and
+                    synthesis context.
                   </div>
                 </div>
                 {competitorModel ? (
@@ -2038,7 +2166,9 @@ export function ProductInsightsView({
               {hasCompetitorResults ? (
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {sortedCompetitors.map((competitor, index) => {
-                    const differentiators = Array.isArray(competitor.differentiators)
+                    const differentiators = Array.isArray(
+                      competitor.differentiators,
+                    )
                       ? competitor.differentiators.filter(
                           (item): item is string =>
                             typeof item === "string" && item.trim().length > 0,
@@ -2080,20 +2210,30 @@ export function ProductInsightsView({
                               {competitor.name || "Competitor"}
                             </div>
                             {focusArea ? (
-                              <div className="text-xs text-muted-foreground">{focusArea}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {focusArea}
+                              </div>
                             ) : null}
                             {positioning ? (
-                              <div className="text-xs text-muted-foreground">{positioning}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {positioning}
+                              </div>
                             ) : null}
                           </div>
                           <div className="flex flex-col items-end gap-2">
                             {similarityPercent !== null ? (
-                              <Badge variant="secondary" className="text-[10px]">
+                              <Badge
+                                variant="secondary"
+                                className="text-[10px]"
+                              >
                                 {similarityPercent}% overlap
                               </Badge>
                             ) : null}
                             {maturityLabel ? (
-                              <Badge variant="outline" className="text-[10px] capitalize">
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] capitalize"
+                              >
                                 {maturityLabel}
                               </Badge>
                             ) : null}
@@ -2180,10 +2320,15 @@ export function ProductInsightsView({
 
               {competitorResearchNotes.length ? (
                 <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <div className="text-sm font-semibold text-foreground">Analyst notes</div>
+                  <div className="text-sm font-semibold text-foreground">
+                    Analyst notes
+                  </div>
                   <ul className="space-y-2 text-xs leading-relaxed text-muted-foreground">
                     {competitorResearchNotes.map((note, index) => (
-                      <li key={`${index}-${note.slice(0, 24)}`} className="flex gap-2">
+                      <li
+                        key={`${index}-${note.slice(0, 24)}`}
+                        className="flex gap-2"
+                      >
                         <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" />
                         <span>{note}</span>
                       </li>
@@ -2255,7 +2400,8 @@ export function ProductInsightsView({
                       </div>
                     ) : (
                       <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
-                        Run discovery to generate targeted community search queries for this product.
+                        Run discovery to generate targeted community search
+                        queries for this product.
                       </div>
                     )}
                   </div>
@@ -2288,16 +2434,20 @@ export function ProductInsightsView({
                             description && description.length > 140
                               ? `${description.slice(0, 140)}…`
                               : description
-                          const queryBadgeLabel = subreddit.matchedQueries?.length
+                          const queryBadgeLabel = subreddit.matchedQueries
+                            ?.length
                             ? `${subreddit.matchedQueries.length} query${
-                                subreddit.matchedQueries.length === 1 ? "" : "es"
+                                subreddit.matchedQueries.length === 1
+                                  ? ""
+                                  : "es"
                               }`
                             : null
                           return (
                             <Link
                               key={subreddit.name}
                               href={
-                                subreddit.url ?? `https://reddit.com/r/${subreddit.name}`
+                                subreddit.url ??
+                                `https://reddit.com/r/${subreddit.name}`
                               }
                               target="_blank"
                               rel="noreferrer"
@@ -2334,12 +2484,18 @@ export function ProductInsightsView({
                                   </span>
                                 ) : null}
                                 {queryBadgeLabel ? (
-                                  <Badge variant="outline" className="text-[10px]">
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px]"
+                                  >
                                     {queryBadgeLabel}
                                   </Badge>
                                 ) : null}
                                 {subreddit.over18 ? (
-                                  <Badge variant="destructive" className="text-[10px] uppercase">
+                                  <Badge
+                                    variant="destructive"
+                                    className="text-[10px] uppercase"
+                                  >
                                     18+
                                   </Badge>
                                 ) : null}
@@ -2374,7 +2530,9 @@ export function ProductInsightsView({
                         <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                           {fact.label}
                         </div>
-                        <div className="mt-1 text-sm font-semibold">{fact.value}</div>
+                        <div className="mt-1 text-sm font-semibold">
+                          {fact.value}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -2385,7 +2543,9 @@ export function ProductInsightsView({
                       {renderSubredditCoverageNotice()}
                       {shouldShowSubredditEmptyState ? (
                         <InfoNotice tone="info" size="xs">
-                          Run the full pipeline to craft community search plans, resolve the best-fit groups, and cache them for future research or outreach.
+                          Run the full pipeline to craft community search plans,
+                          resolve the best-fit groups, and cache them for future
+                          research or outreach.
                         </InfoNotice>
                       ) : null}
                     </div>
@@ -2401,7 +2561,8 @@ export function ProductInsightsView({
                       Saved communities roster
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Full detail on reach, match rationale, and the queries that drove discovery.
+                      Full detail on reach, match rationale, and the queries
+                      that drove discovery.
                     </div>
                   </div>
                   <Badge variant="outline" className="self-start text-[11px]">
@@ -2413,8 +2574,12 @@ export function ProductInsightsView({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="min-w-[160px]">Subreddit</TableHead>
-                        <TableHead className="min-w-[280px]">What they discuss</TableHead>
+                        <TableHead className="min-w-[160px]">
+                          Subreddit
+                        </TableHead>
+                        <TableHead className="min-w-[280px]">
+                          What they discuss
+                        </TableHead>
                         <TableHead>Relevance</TableHead>
                         <TableHead>Subscribers</TableHead>
                         <TableHead>Matched queries</TableHead>
@@ -2426,7 +2591,8 @@ export function ProductInsightsView({
                           <TableCell className="whitespace-nowrap">
                             <Link
                               href={
-                                subreddit.url ?? `https://reddit.com/r/${subreddit.name}`
+                                subreddit.url ??
+                                `https://reddit.com/r/${subreddit.name}`
                               }
                               target="_blank"
                               rel="noreferrer"
@@ -2435,13 +2601,18 @@ export function ProductInsightsView({
                               r/{subreddit.name}
                             </Link>
                             {subreddit.over18 && (
-                              <Badge variant="outline" className="ml-2 align-middle text-[10px]">
+                              <Badge
+                                variant="outline"
+                                className="ml-2 align-middle text-[10px]"
+                              >
                                 18+
                               </Badge>
                             )}
                           </TableCell>
                           <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
-                            <div>{subreddit.description || subreddit.title || "—"}</div>
+                            <div>
+                              {subreddit.description || subreddit.title || "—"}
+                            </div>
                             {subreddit.relevanceReason && (
                               <div className="mt-2 text-xs text-primary">
                                 {subreddit.relevanceReason}
@@ -2496,7 +2667,8 @@ export function ProductInsightsView({
                       </div>
                       {discussionQueries.length ? (
                         <Badge variant="outline" className="text-[11px]">
-                          {COUNT_FORMATTER.format(discussionQueries.length)} quer
+                          {COUNT_FORMATTER.format(discussionQueries.length)}{" "}
+                          quer
                           {discussionQueries.length === 1 ? "y" : "ies"}
                         </Badge>
                       ) : null}
@@ -2521,7 +2693,8 @@ export function ProductInsightsView({
                       </div>
                     ) : (
                       <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
-                        Run the pipeline to craft discussion queries that capture fresh sentiment from your saved communities.
+                        Run the pipeline to craft discussion queries that
+                        capture fresh sentiment from your saved communities.
                       </div>
                     )}
                   </div>
@@ -2542,14 +2715,19 @@ export function ProductInsightsView({
                       {focusAreas.length ? (
                         <div className="flex flex-wrap gap-2">
                           {focusAreas.map((item, index) => (
-                            <Badge key={`focus-${index}`} variant="outline" className="text-[11px]">
+                            <Badge
+                              key={`focus-${index}`}
+                              variant="outline"
+                              className="text-[11px]"
+                            >
                               {item}
                             </Badge>
                           ))}
                         </div>
                       ) : (
                         <InfoNotice tone="info" size="xs">
-                          No focus areas yet—rerun the analysis after the next pipeline cycle to capture more community signals.
+                          No focus areas yet—rerun the analysis after the next
+                          pipeline cycle to capture more community signals.
                         </InfoNotice>
                       )}
                     </div>
@@ -2587,7 +2765,10 @@ export function ProductInsightsView({
                                     {signal.insight}
                                   </div>
                                   {sentimentVariant && sentimentLabel ? (
-                                    <Badge variant={sentimentVariant} className="text-[11px]">
+                                    <Badge
+                                      variant={sentimentVariant}
+                                      className="text-[11px]"
+                                    >
                                       {sentimentLabel}
                                     </Badge>
                                   ) : null}
@@ -2614,7 +2795,8 @@ export function ProductInsightsView({
                                   </span>
                                   {signal.references ? (
                                     <span>
-                                      References: {signal.references.join(" • ")}
+                                      References:{" "}
+                                      {signal.references.join(" • ")}
                                     </span>
                                   ) : null}
                                 </div>
@@ -2624,7 +2806,9 @@ export function ProductInsightsView({
                         </div>
                       ) : (
                         <InfoNotice tone="info" size="xs">
-                          We did not identify specific insight sections from the sampled threads yet. Rerun the analysis once the crawler has fresh data to expand coverage.
+                          We did not identify specific insight sections from the
+                          sampled threads yet. Rerun the analysis once the
+                          crawler has fresh data to expand coverage.
                         </InfoNotice>
                       )}
                     </div>
@@ -2638,7 +2822,8 @@ export function ProductInsightsView({
                     </div>
                     {hasDiscussionThreads ? (
                       <Badge variant="secondary" className="text-[11px]">
-                        {COUNT_FORMATTER.format(discussionThreads.length)} thread
+                        {COUNT_FORMATTER.format(discussionThreads.length)}{" "}
+                        thread
                         {discussionThreads.length === 1 ? "" : "s"}
                       </Badge>
                     ) : null}
@@ -2655,7 +2840,9 @@ export function ProductInsightsView({
                         <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                           {fact.label}
                         </div>
-                        <div className="mt-1 text-sm font-semibold">{fact.value}</div>
+                        <div className="mt-1 text-sm font-semibold">
+                          {fact.value}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -2669,40 +2856,54 @@ export function ProductInsightsView({
                         </span>
                       </div>
                       <div className="flex h-2 w-full overflow-hidden rounded-full bg-white">
-                        {(["positive", "neutral", "negative"] as const).map((key) => {
-                          const value = sentimentCounts[key]
-                          if (!value) return null
-                          const percent = (value / sentimentTotal) * 100
-                          return (
-                            <div
-                              key={key}
-                              className="h-full"
-                              style={{ width: `${percent}%`, backgroundColor: SENTIMENT_COLORS[key] }}
-                            />
-                          )
-                        })}
+                        {(["positive", "neutral", "negative"] as const).map(
+                          (key) => {
+                            const value = sentimentCounts[key]
+                            if (!value) return null
+                            const percent = (value / sentimentTotal) * 100
+                            return (
+                              <div
+                                key={key}
+                                className="h-full"
+                                style={{
+                                  width: `${percent}%`,
+                                  backgroundColor: SENTIMENT_COLORS[key],
+                                }}
+                              />
+                            )
+                          },
+                        )}
                       </div>
                       <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <span
                             className="h-2 w-2 rounded-full"
-                            style={{ backgroundColor: SENTIMENT_COLORS.positive }}
+                            style={{
+                              backgroundColor: SENTIMENT_COLORS.positive,
+                            }}
                           />
-                          {COUNT_FORMATTER.format(sentimentCounts.positive)} positive
+                          {COUNT_FORMATTER.format(sentimentCounts.positive)}{" "}
+                          positive
                         </span>
                         <span className="flex items-center gap-1">
                           <span
                             className="h-2 w-2 rounded-full"
-                            style={{ backgroundColor: SENTIMENT_COLORS.neutral }}
+                            style={{
+                              backgroundColor: SENTIMENT_COLORS.neutral,
+                            }}
                           />
-                          {COUNT_FORMATTER.format(sentimentCounts.neutral)} neutral
+                          {COUNT_FORMATTER.format(sentimentCounts.neutral)}{" "}
+                          neutral
                         </span>
                         <span className="flex items-center gap-1">
                           <span
                             className="h-2 w-2 rounded-full"
-                            style={{ backgroundColor: SENTIMENT_COLORS.negative }}
+                            style={{
+                              backgroundColor: SENTIMENT_COLORS.negative,
+                            }}
                           />
-                          {COUNT_FORMATTER.format(sentimentCounts.negative)} negative
+                          {COUNT_FORMATTER.format(sentimentCounts.negative)}{" "}
+                          negative
                         </span>
                       </div>
                     </div>
@@ -2713,7 +2914,8 @@ export function ProductInsightsView({
                       {renderDiscussionError()}
                       {shouldShowDiscussionEmptyState ? (
                         <InfoNotice tone="info" size="xs">
-                          Run the pipeline to sample the latest conversations from your saved communities.
+                          Run the pipeline to sample the latest conversations
+                          from your saved communities.
                         </InfoNotice>
                       ) : null}
                     </div>
@@ -2730,7 +2932,8 @@ export function ProductInsightsView({
                       Insight clusters
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Automatically grouped clusters summarizing what the community is talking about right now.
+                      Automatically grouped clusters summarizing what the
+                      community is talking about right now.
                     </div>
                   </div>
                   <Badge variant="outline" className="self-start text-[11px]">
@@ -2740,7 +2943,9 @@ export function ProductInsightsView({
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   {discussionSections.map((section, sectionIndex) => {
-                    const sectionItems = Array.isArray(section?.items) ? section.items : []
+                    const sectionItems = Array.isArray(section?.items)
+                      ? section.items
+                      : []
                     return (
                       <div
                         key={`cluster-${sectionIndex}-${section?.title ?? "untitled"}`}
@@ -2764,7 +2969,10 @@ export function ProductInsightsView({
                                 item?.sentiment === "negative" ||
                                 item?.sentiment === "neutral"
                               const sentimentKey = hasSentiment
-                                ? (item.sentiment as "positive" | "negative" | "neutral")
+                                ? (item.sentiment as
+                                    | "positive"
+                                    | "negative"
+                                    | "neutral")
                                 : null
                               const sentimentVariant = sentimentKey
                                 ? SENTIMENT_BADGE_VARIANT[sentimentKey]
@@ -2782,7 +2990,10 @@ export function ProductInsightsView({
                                       {item?.insight ?? "Insight"}
                                     </div>
                                     {sentimentVariant && sentimentLabel ? (
-                                      <Badge variant={sentimentVariant} className="text-[11px]">
+                                      <Badge
+                                        variant={sentimentVariant}
+                                        className="text-[11px]"
+                                      >
                                         {sentimentLabel}
                                       </Badge>
                                     ) : null}
@@ -2792,16 +3003,22 @@ export function ProductInsightsView({
                                       Audience: {item.audience}
                                     </div>
                                   ) : null}
-                                  {Array.isArray(item?.evidence) && item.evidence.length ? (
+                                  {Array.isArray(item?.evidence) &&
+                                  item.evidence.length ? (
                                     <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                                      {item.evidence.map((evidence, evidenceIndex) => (
-                                        <li key={`cluster-${sectionIndex}-${itemIndex}-evidence-${evidenceIndex}`}>
-                                          {evidence}
-                                        </li>
-                                      ))}
+                                      {item.evidence.map(
+                                        (evidence, evidenceIndex) => (
+                                          <li
+                                            key={`cluster-${sectionIndex}-${itemIndex}-evidence-${evidenceIndex}`}
+                                          >
+                                            {evidence}
+                                          </li>
+                                        ),
+                                      )}
                                     </ul>
                                   ) : null}
-                                  {Array.isArray(item?.references) && item.references.length ? (
+                                  {Array.isArray(item?.references) &&
+                                  item.references.length ? (
                                     <div className="text-[11px] text-muted-foreground">
                                       References: {item.references.join(", ")}
                                     </div>
@@ -2811,7 +3028,8 @@ export function ProductInsightsView({
                             })
                           ) : (
                             <InfoNotice tone="info" size="xs">
-                              No individual signals captured for this cluster yet.
+                              No individual signals captured for this cluster
+                              yet.
                             </InfoNotice>
                           )}
                         </div>
@@ -2830,7 +3048,8 @@ export function ProductInsightsView({
                       Sampled discussions
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Latest discussion threads captured for this run with top comment highlights.
+                      Latest discussion threads captured for this run with top
+                      comment highlights.
                     </div>
                   </div>
                   <Badge variant="outline" className="self-start text-[11px]">
@@ -2842,11 +3061,17 @@ export function ProductInsightsView({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="min-w-[240px]">Discussion</TableHead>
+                        <TableHead className="min-w-[240px]">
+                          Discussion
+                        </TableHead>
                         <TableHead>Community</TableHead>
                         <TableHead className="min-w-[140px]">Signals</TableHead>
-                        <TableHead className="min-w-[180px]">Matched queries</TableHead>
-                        <TableHead className="min-w-[260px]">Top insight</TableHead>
+                        <TableHead className="min-w-[180px]">
+                          Matched queries
+                        </TableHead>
+                        <TableHead className="min-w-[260px]">
+                          Top insight
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -2862,9 +3087,12 @@ export function ProductInsightsView({
                             : topComment.body
                           : null
                         const relativeCreated = thread.createdAt
-                          ? formatDistanceToNowStrict(new Date(thread.createdAt), {
-                              addSuffix: true,
-                            })
+                          ? formatDistanceToNowStrict(
+                              new Date(thread.createdAt),
+                              {
+                                addSuffix: true,
+                              },
+                            )
                           : null
                         return (
                           <TableRow key={thread.id}>
@@ -2913,7 +3141,9 @@ export function ProductInsightsView({
                                 <div className="space-y-1">
                                   <div>“{preview}”</div>
                                   <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                                    {topComment?.author ? <span>by {topComment.author}</span> : null}
+                                    {topComment?.author ? (
+                                      <span>by {topComment.author}</span>
+                                    ) : null}
                                     {typeof topComment?.score === "number" ? (
                                       <span>{topComment.score} upvotes</span>
                                     ) : null}
@@ -2938,7 +3168,6 @@ export function ProductInsightsView({
         </>
       </StageCard>
 
-
       <StageCard
         step="Step 5"
         title="Comprehensive report"
@@ -2959,7 +3188,8 @@ export function ProductInsightsView({
                       </div>
                       {headlineCount ? (
                         <Badge variant="secondary" className="text-[11px]">
-                          {COUNT_FORMATTER.format(headlineCount)} highlight{headlineCount === 1 ? '' : 's'}
+                          {COUNT_FORMATTER.format(headlineCount)} highlight
+                          {headlineCount === 1 ? "" : "s"}
                         </Badge>
                       ) : null}
                     </div>
@@ -2969,7 +3199,8 @@ export function ProductInsightsView({
                       </div>
                     ) : (
                       <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs text-muted-foreground">
-                        Generate the comprehensive report to summarize product positioning and surfaced opportunities.
+                        Generate the comprehensive report to summarize product
+                        positioning and surfaced opportunities.
                       </div>
                     )}
                   </div>
@@ -2994,15 +3225,20 @@ export function ProductInsightsView({
                           Priority snapshot
                         </div>
                         <Badge variant="outline" className="text-[11px]">
-                          {COUNT_FORMATTER.format(actionCount)} action{actionCount === 1 ? '' : 's'}
+                          {COUNT_FORMATTER.format(actionCount)} action
+                          {actionCount === 1 ? "" : "s"}
                         </Badge>
                       </div>
                       <div className="grid gap-3 md:grid-cols-2">
                         {recommendedActions.slice(0, 2).map((action, index) => {
-                          const priority = ACTION_PRIORITY_BADGE[action.priority]
-                          const timeframeLabel = formatActionTimeframe(action.timeframe)
+                          const priority =
+                            ACTION_PRIORITY_BADGE[action.priority]
+                          const timeframeLabel = formatActionTimeframe(
+                            action.timeframe,
+                          )
                           const trimmedDescription =
-                            action.description && action.description.length > 200
+                            action.description &&
+                            action.description.length > 200
                               ? `${action.description.slice(0, 200)}…`
                               : action.description || null
                           return (
@@ -3016,11 +3252,16 @@ export function ProductInsightsView({
                                     {action.title}
                                   </div>
                                   {timeframeLabel ? (
-                                    <div className="text-xs text-primary">{timeframeLabel}</div>
+                                    <div className="text-xs text-primary">
+                                      {timeframeLabel}
+                                    </div>
                                   ) : null}
                                 </div>
                                 {priority ? (
-                                  <Badge variant={priority.badge} className="text-[11px]">
+                                  <Badge
+                                    variant={priority.badge}
+                                    className="text-[11px]"
+                                  >
                                     {priority.label}
                                   </Badge>
                                 ) : null}
@@ -3041,7 +3282,8 @@ export function ProductInsightsView({
                       </div>
                       {actionCount > 2 ? (
                         <div className="text-[11px] text-muted-foreground">
-                          {COUNT_FORMATTER.format(actionCount - 2)} more action{actionCount - 2 === 1 ? '' : 's'} listed below
+                          {COUNT_FORMATTER.format(actionCount - 2)} more action
+                          {actionCount - 2 === 1 ? "" : "s"} listed below
                         </div>
                       ) : null}
                     </div>
@@ -3052,7 +3294,10 @@ export function ProductInsightsView({
                     <div className="text-xs font-semibold uppercase text-muted-foreground">
                       Report health
                     </div>
-                    <Badge variant={reportStatusDisplay.badge} className="text-[11px]">
+                    <Badge
+                      variant={reportStatusDisplay.badge}
+                      className="text-[11px]"
+                    >
                       {reportStatusDisplay.label}
                     </Badge>
                   </div>
@@ -3068,7 +3313,9 @@ export function ProductInsightsView({
                         <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                           {fact.label}
                         </div>
-                        <div className="mt-1 text-sm font-semibold">{fact.value}</div>
+                        <div className="mt-1 text-sm font-semibold">
+                          {fact.value}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -3078,7 +3325,9 @@ export function ProductInsightsView({
                       {renderReportError()}
                       {shouldShowReportEmptyState ? (
                         <InfoNotice tone="info" size="xs">
-                          Run the pipeline after the crawler, audience, and discussion stages finish to generate the comprehensive plan.
+                          Run the pipeline after the crawler, audience, and
+                          discussion stages finish to generate the comprehensive
+                          plan.
                         </InfoNotice>
                       ) : null}
                     </div>
@@ -3095,11 +3344,13 @@ export function ProductInsightsView({
                       Opportunity areas
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      The biggest positioning gaps and growth angles from the synthesized report.
+                      The biggest positioning gaps and growth angles from the
+                      synthesized report.
                     </div>
                   </div>
                   <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(opportunityAreas.length)} area{opportunityAreas.length === 1 ? '' : 's'}
+                    {COUNT_FORMATTER.format(opportunityAreas.length)} area
+                    {opportunityAreas.length === 1 ? "" : "s"}
                   </Badge>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
@@ -3108,14 +3359,21 @@ export function ProductInsightsView({
                       key={`opportunity-${index}`}
                       className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
                     >
-                      <div className="text-sm font-semibold text-foreground">{area.title}</div>
+                      <div className="text-sm font-semibold text-foreground">
+                        {area.title}
+                      </div>
                       {area.summary ? (
-                        <div className="text-sm text-muted-foreground">{area.summary}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {area.summary}
+                        </div>
                       ) : null}
-                      {Array.isArray(area.highlights) && area.highlights.length ? (
+                      {Array.isArray(area.highlights) &&
+                      area.highlights.length ? (
                         <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
                           {area.highlights.map((item, itemIndex) => (
-                            <li key={`opportunity-${index}-${itemIndex}`}>{item}</li>
+                            <li key={`opportunity-${index}-${itemIndex}`}>
+                              {item}
+                            </li>
                           ))}
                         </ul>
                       ) : null}
@@ -3133,11 +3391,13 @@ export function ProductInsightsView({
                       Customer signals
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Synthesized evidence from discussions, testimonials, and product reviews.
+                      Synthesized evidence from discussions, testimonials, and
+                      product reviews.
                     </div>
                   </div>
                   <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(customerSignals.length)} section{customerSignals.length === 1 ? '' : 's'}
+                    {COUNT_FORMATTER.format(customerSignals.length)} section
+                    {customerSignals.length === 1 ? "" : "s"}
                   </Badge>
                 </div>
                 <div className="space-y-3">
@@ -3154,7 +3414,8 @@ export function ProductInsightsView({
                           {section.summary}
                         </div>
                       ) : null}
-                      {Array.isArray(section.highlights) && section.highlights.length ? (
+                      {Array.isArray(section.highlights) &&
+                      section.highlights.length ? (
                         <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
                           {section.highlights.map((item, itemIndex) => (
                             <li key={`signal-${index}-${itemIndex}`}>{item}</li>
@@ -3175,17 +3436,21 @@ export function ProductInsightsView({
                       Recommended actions
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Prioritized experiments and follow-ups grounded in the captured signals.
+                      Prioritized experiments and follow-ups grounded in the
+                      captured signals.
                     </div>
                   </div>
                   <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(recommendedActions.length)} action{recommendedActions.length === 1 ? '' : 's'}
+                    {COUNT_FORMATTER.format(recommendedActions.length)} action
+                    {recommendedActions.length === 1 ? "" : "s"}
                   </Badge>
                 </div>
                 <div className="space-y-3">
                   {recommendedActions.map((action, index) => {
                     const priority = ACTION_PRIORITY_BADGE[action.priority]
-                    const timeframeLabel = formatActionTimeframe(action.timeframe)
+                    const timeframeLabel = formatActionTimeframe(
+                      action.timeframe,
+                    )
                     return (
                       <div
                         key={`action-${index}`}
@@ -3197,11 +3462,16 @@ export function ProductInsightsView({
                               {action.title}
                             </div>
                             {timeframeLabel ? (
-                              <div className="text-xs text-primary">{timeframeLabel}</div>
+                              <div className="text-xs text-primary">
+                                {timeframeLabel}
+                              </div>
                             ) : null}
                           </div>
                           {priority ? (
-                            <Badge variant={priority.badge} className="text-[11px]">
+                            <Badge
+                              variant={priority.badge}
+                              className="text-[11px]"
+                            >
                               {priority.label}
                             </Badge>
                           ) : null}
@@ -3211,8 +3481,12 @@ export function ProductInsightsView({
                         </div>
                         {action.rationale ? (
                           <div className="mt-2 rounded-md border border-slate-100 bg-slate-50 p-3 text-xs text-muted-foreground">
-                            <div className="font-medium text-foreground">Why this matters</div>
-                            <div className="mt-1 leading-relaxed">{action.rationale}</div>
+                            <div className="font-medium text-foreground">
+                              Why this matters
+                            </div>
+                            <div className="mt-1 leading-relaxed">
+                              {action.rationale}
+                            </div>
                           </div>
                         ) : null}
                         {action.successMetric ? (
@@ -3220,11 +3494,16 @@ export function ProductInsightsView({
                             Success metric: {action.successMetric}
                           </div>
                         ) : null}
-                        {Array.isArray(action.supportingSignals) && action.supportingSignals.length ? (
+                        {Array.isArray(action.supportingSignals) &&
+                        action.supportingSignals.length ? (
                           <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                            {action.supportingSignals.map((signal, signalIndex) => (
-                              <li key={`action-${index}-${signalIndex}`}>{signal}</li>
-                            ))}
+                            {action.supportingSignals.map(
+                              (signal, signalIndex) => (
+                                <li key={`action-${index}-${signalIndex}`}>
+                                  {signal}
+                                </li>
+                              ),
+                            )}
                           </ul>
                         ) : null}
                       </div>
@@ -3242,11 +3521,13 @@ export function ProductInsightsView({
                       Community plan
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Outreach objectives tailored to the subreddits uncovered earlier in the pipeline.
+                      Outreach objectives tailored to the subreddits uncovered
+                      earlier in the pipeline.
                     </div>
                   </div>
                   <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(communityPlan.length)} objective{communityPlan.length === 1 ? '' : 's'}
+                    {COUNT_FORMATTER.format(communityPlan.length)} objective
+                    {communityPlan.length === 1 ? "" : "s"}
                   </Badge>
                 </div>
                 <div className="space-y-3">
@@ -3265,15 +3546,19 @@ export function ProductInsightsView({
                           </Badge>
                         ) : null}
                       </div>
-                      {Array.isArray(plan.targetSubreddits) && plan.targetSubreddits.length ? (
+                      {Array.isArray(plan.targetSubreddits) &&
+                      plan.targetSubreddits.length ? (
                         <div className="mt-1 text-xs text-muted-foreground">
-                          Target communities: {plan.targetSubreddits.join(' • ')}
+                          Target communities:{" "}
+                          {plan.targetSubreddits.join(" • ")}
                         </div>
                       ) : null}
                       {Array.isArray(plan.tactics) && plan.tactics.length ? (
                         <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
                           {plan.tactics.map((tactic, tacticIndex) => (
-                            <li key={`community-${index}-${tacticIndex}`}>{tactic}</li>
+                            <li key={`community-${index}-${tacticIndex}`}>
+                              {tactic}
+                            </li>
                           ))}
                         </ul>
                       ) : null}
@@ -3290,7 +3575,8 @@ export function ProductInsightsView({
                     Metrics to watch
                   </div>
                   <Badge variant="outline" className="text-[11px]">
-                    {COUNT_FORMATTER.format(metricsToWatch.length)} metric{metricsToWatch.length === 1 ? '' : 's'}
+                    {COUNT_FORMATTER.format(metricsToWatch.length)} metric
+                    {metricsToWatch.length === 1 ? "" : "s"}
                   </Badge>
                 </div>
                 <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
@@ -3308,7 +3594,8 @@ export function ProductInsightsView({
                     Supporting data
                   </div>
                   <Badge variant="outline" className="text-[11px]">
-                    {COUNT_FORMATTER.format(supportingData.length)} dataset{supportingData.length === 1 ? '' : 's'}
+                    {COUNT_FORMATTER.format(supportingData.length)} dataset
+                    {supportingData.length === 1 ? "" : "s"}
                   </Badge>
                 </div>
                 <div className="space-y-3">
@@ -3323,7 +3610,9 @@ export function ProductInsightsView({
                       {Array.isArray(entry.entries) && entry.entries.length ? (
                         <ul className="mt-2 list-disc space-y-1 pl-4">
                           {entry.entries.map((item, itemIndex) => (
-                            <li key={`support-${index}-${itemIndex}`}>{item}</li>
+                            <li key={`support-${index}-${itemIndex}`}>
+                              {item}
+                            </li>
                           ))}
                         </ul>
                       ) : null}
@@ -3335,7 +3624,6 @@ export function ProductInsightsView({
           </div>
         </>
       </StageCard>
-
     </div>
   )
 }

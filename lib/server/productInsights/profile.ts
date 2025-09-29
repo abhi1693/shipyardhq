@@ -50,7 +50,9 @@ export type InsightProfileRecord = Prisma.ProductInsightProfileGetPayload<{
 
 type StageRecord = InsightProfileRecord["stages"][number]
 
-function asRecord(value: Prisma.JsonValue | null): Record<string, unknown> | null {
+function asRecord(
+  value: Prisma.JsonValue | null,
+): Record<string, unknown> | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return null
   }
@@ -59,7 +61,9 @@ function asRecord(value: Prisma.JsonValue | null): Record<string, unknown> | nul
 
 function parseStringArray(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null
-  const items = value.filter((entry): entry is string => typeof entry === "string")
+  const items = value.filter(
+    (entry): entry is string => typeof entry === "string",
+  )
   return items.length ? items : null
 }
 
@@ -111,7 +115,9 @@ function parseCommunityData(
     discoveredAt:
       typeof record.discoveredAt === "string" ? record.discoveredAt : undefined,
     queryCoverage:
-      typeof record.queryCoverage === "number" ? record.queryCoverage : undefined,
+      typeof record.queryCoverage === "number"
+        ? record.queryCoverage
+        : undefined,
     matchedQueryCount:
       typeof record.matchedQueryCount === "number"
         ? record.matchedQueryCount
@@ -130,7 +136,9 @@ function parseCompetitorData(
     : []
 
   const researchNotes = Array.isArray(record.researchNotes)
-    ? record.researchNotes.filter((entry): entry is string => typeof entry === "string")
+    ? record.researchNotes.filter(
+        (entry): entry is string => typeof entry === "string",
+      )
     : null
 
   const generatedAt =
@@ -181,9 +189,7 @@ function parseReportData(
       report: record.report as ProductInsightReportStageData["report"],
       model: typeof record.model === "string" ? record.model : undefined,
       generatedAt:
-        typeof record.generatedAt === "string"
-          ? record.generatedAt
-          : undefined,
+        typeof record.generatedAt === "string" ? record.generatedAt : undefined,
     }
   }
 
@@ -224,7 +230,9 @@ function coerceStageRecord(
 ): StageRecord | null {
   const definition = PRODUCT_INSIGHT_STAGE_MAP[stageId]
   const byProvider = records.find(
-    (entry) => entry.stageId === stageId && entry.providerType === definition.providerType,
+    (entry) =>
+      entry.stageId === stageId &&
+      entry.providerType === definition.providerType,
   )
   if (byProvider) return byProvider
   return records.find((entry) => entry.stageId === stageId) ?? null
@@ -241,7 +249,9 @@ export function serializeInsightProfile(
   for (const definition of PRODUCT_INSIGHT_STAGE_DEFINITIONS) {
     const stageRecord = coerceStageRecord(definition.id, stageRecords)
     const data = stageRecord
-      ? (parseStageData(definition.id, stageRecord.data) as ProductInsightStageDataById[typeof definition.id] | null)
+      ? (parseStageData(definition.id, stageRecord.data) as
+          | ProductInsightStageDataById[typeof definition.id]
+          | null)
       : null
 
     stages[definition.id] = {
@@ -269,17 +279,22 @@ export function serializeInsightProfile(
   const discussionStage = stages["reddit.discussions"]
   const reportStage = stages["report.comprehensive"]
 
-  const snapshotData = snapshotStage?.data as ProductInsightSnapshotStageData | null
-  const competitorData = competitorStage?.data as ProductInsightCompetitorStageData | null
-  const communityData = communityStage?.data as ProductInsightCommunityStageData | null
-  const discussionData = discussionStage?.data as ProductInsightDiscussionStageData | null
+  const snapshotData =
+    snapshotStage?.data as ProductInsightSnapshotStageData | null
+  const competitorData =
+    competitorStage?.data as ProductInsightCompetitorStageData | null
+  const communityData =
+    communityStage?.data as ProductInsightCommunityStageData | null
+  const discussionData =
+    discussionStage?.data as ProductInsightDiscussionStageData | null
   const reportData = reportStage?.data as ProductInsightReportStageData | null
 
   return {
     id: record.id,
     productId: record.productId,
     status: snapshotStage?.status ?? (record.status as ProductInsightStatus),
-    errorMessage: snapshotStage?.errorMessage ?? record.errorMessage ?? undefined,
+    errorMessage:
+      snapshotStage?.errorMessage ?? record.errorMessage ?? undefined,
     lastRunAt: record.lastRunAt ? record.lastRunAt.toISOString() : null,
     stages,
     sitemapUrl: snapshotData?.sitemapUrl ?? null,

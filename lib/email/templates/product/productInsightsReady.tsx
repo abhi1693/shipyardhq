@@ -118,23 +118,15 @@ export function ProductInsightInsightsReadyEmail({
           label="Key takeaways"
           value={`${highlightCount} headline${highlightCount === 1 ? "" : "s"}`}
         />
-        <Metric
-          label="Saved communities"
-          value={`${communityCount}`}
-        />
-        <Metric
-          label="Discussion threads"
-          value={`${threadCount}`}
-        />
+        <Metric label="Saved communities" value={`${communityCount}`} />
+        <Metric label="Discussion threads" value={`${threadCount}`} />
       </ul>
 
       {renderSummary(summary)}
 
       {highlightPoints.length ? (
         <>
-          <p style={paragraphStyle}>
-            Top highlights waiting in your report:
-          </p>
+          <p style={paragraphStyle}>Top highlights waiting in your report:</p>
           {renderHighlights(highlightPoints)}
         </>
       ) : null}
@@ -149,4 +141,3 @@ export function ProductInsightInsightsReadyEmail({
 }
 
 export default ProductInsightInsightsReadyEmail
-

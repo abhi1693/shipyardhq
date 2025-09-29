@@ -10,9 +10,7 @@ import type {
   ProductInsightCompetitorStageData,
 } from "@/types/product-insights"
 
-import {
-  getProductInsightCompetitorModel,
-} from "./config"
+import { getProductInsightCompetitorModel } from "./config"
 import type {
   ProductInsightProductContext,
   ProductInsightSummary,
@@ -29,7 +27,10 @@ const CompetitorSchema = z.object({
   focusArea: z.string().optional().nullable(),
   differentiators: z.array(z.string()).optional().nullable(),
   positioning: z.string().optional().nullable(),
-  maturity: z.enum(["emerging", "established", "enterprise"]).optional().nullable(),
+  maturity: z
+    .enum(["emerging", "established", "enterprise"])
+    .optional()
+    .nullable(),
   strengths: z.array(z.string()).optional().nullable(),
   weaknesses: z.array(z.string()).optional().nullable(),
   source: z.string().optional().nullable(),
@@ -171,10 +172,13 @@ export async function discoverProductCompetitors(
   const openai = getOpenAIClient()
   const model = getProductInsightCompetitorModel()
 
-  console.info("[productInsights:competitors] generating competitor landscape", {
-    productId,
-    model,
-  })
+  console.info(
+    "[productInsights:competitors] generating competitor landscape",
+    {
+      productId,
+      model,
+    },
+  )
 
   const response = await openai.responses.create({
     model,
@@ -224,7 +228,11 @@ export async function discoverProductCompetitors(
                     maxItems: 6,
                   },
                   source: { type: ["string", "null"] },
-                  similarityScore: { type: ["number", "null"], minimum: 0, maximum: 1 },
+                  similarityScore: {
+                    type: ["number", "null"],
+                    minimum: 0,
+                    maximum: 1,
+                  },
                 },
                 required: [
                   "name",
@@ -268,9 +276,7 @@ export async function discoverProductCompetitors(
 
   const rawJson = extractAssistantJson(response)
   const jsonText = coerceJsonText(rawJson)
-  const parsed = CompetitorResponseSchema.parse(
-    JSON.parse(jsonText || "{}"),
-  )
+  const parsed = CompetitorResponseSchema.parse(JSON.parse(jsonText || "{}"))
 
   const competitors = parsed.competitors
     .map((entry) => sanitizeCompetitor(entry))

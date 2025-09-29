@@ -218,7 +218,9 @@ async function discoverSitemaps(
     processed.add(target)
     let response: Response
     try {
-      console.info("[productInsights:crawler] fetching sitemap", { url: target })
+      console.info("[productInsights:crawler] fetching sitemap", {
+        url: target,
+      })
       response = await fetchWithTimeout(target, options)
     } catch {
       continue

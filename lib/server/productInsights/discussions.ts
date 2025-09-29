@@ -20,10 +20,7 @@ import type {
   ProductInsightProductContext,
   ProductInsightSummary,
 } from "@/lib/server/productInsights/types"
-import {
-  getRedditAccessToken,
-  getRedditUserAgent,
-} from "./redditClient"
+import { getRedditAccessToken, getRedditUserAgent } from "./redditClient"
 import {
   getProductInsightDiscussionInsightModel,
   getProductInsightDiscussionQueryModel,
@@ -163,9 +160,7 @@ function safeParseJson<T>(text: string, context: string): T {
   try {
     return attempt(text)
   } catch (primaryError) {
-    const sanitized = text
-      .replace(/,(?=\s*[}\]])/g, "")
-      .replace(/\uFEFF/g, "")
+    const sanitized = text.replace(/,(?=\s*[}\]])/g, "").replace(/\uFEFF/g, "")
 
     try {
       return attempt(sanitized)
@@ -190,7 +185,9 @@ function safeParseJson<T>(text: string, context: string): T {
         context,
         original: text?.slice(0, 2000),
         error: secondaryError,
-        previousErrors: [primaryError, ...repairErrors].map((error) => `${error}`),
+        previousErrors: [primaryError, ...repairErrors].map(
+          (error) => `${error}`,
+        ),
       })
       throw secondaryError
     }
@@ -232,7 +229,8 @@ function buildFallbackSubredditQuery({
   const modifiers = unique
     .filter((value) => value.toLowerCase() !== productName.toLowerCase())
     .slice(0, 2)
-  const base = [`"${productName}"`, ...modifiers].join(" ") || `"${productName}"`
+  const base =
+    [`"${productName}"`, ...modifiers].join(" ") || `"${productName}"`
   const query = `${base} feedback`
 
   return {
@@ -297,9 +295,7 @@ async function generateDiscussionQueries(
   }
 
   const competitorProfiles = Array.isArray(competitors)
-    ? competitors
-        .filter((entry) => Boolean(entry?.name?.trim()))
-        .slice(0, 6)
+    ? competitors.filter((entry) => Boolean(entry?.name?.trim())).slice(0, 6)
     : []
 
   if (competitorProfiles.length) {
@@ -436,8 +432,14 @@ type RedditListing = {
   }
 }
 
-function normalizeThread(data: Record<string, any>): ProductInsightRedditThread | null {
-  if (!data || typeof data.id !== "string" || typeof data.permalink !== "string") {
+function normalizeThread(
+  data: Record<string, any>,
+): ProductInsightRedditThread | null {
+  if (
+    !data ||
+    typeof data.id !== "string" ||
+    typeof data.permalink !== "string"
+  ) {
     return null
   }
 
@@ -447,9 +449,10 @@ function normalizeThread(data: Record<string, any>): ProductInsightRedditThread 
 
   const permalink: string = data.permalink
   const postUrl = `https://reddit.com${permalink}`
-  const createdAt = typeof data.created_utc === "number"
-    ? new Date(data.created_utc * 1000).toISOString()
-    : undefined
+  const createdAt =
+    typeof data.created_utc === "number"
+      ? new Date(data.created_utc * 1000).toISOString()
+      : undefined
 
   return {
     id: data.id,
@@ -491,10 +494,7 @@ async function searchRedditThreads(
 
   url.searchParams.set("q", query.query)
   const requestedLimit = options.maxPosts ?? STANDARD_MAX_POSTS_PER_QUERY
-  const normalizedLimit = Math.max(
-    1,
-    Math.min(Math.floor(requestedLimit), 100),
-  )
+  const normalizedLimit = Math.max(1, Math.min(Math.floor(requestedLimit), 100))
   url.searchParams.set("limit", String(normalizedLimit))
   url.searchParams.set("sort", "relevance")
   const timeWindow = options.timeWindow ?? STANDARD_SEARCH_TIME_WINDOW
@@ -558,11 +558,9 @@ async function fetchThreadComments(
   options: FetchThreadCommentsOptions = {},
 ): Promise<ProductInsightRedditComment[]> {
   const url = new URL(`https://oauth.reddit.com/comments/${postId}`)
-  const requestedLimit = options.topLevelLimit ?? STANDARD_MAX_COMMENTS_PER_THREAD
-  const normalizedLimit = Math.max(
-    1,
-    Math.min(Math.floor(requestedLimit), 200),
-  )
+  const requestedLimit =
+    options.topLevelLimit ?? STANDARD_MAX_COMMENTS_PER_THREAD
+  const normalizedLimit = Math.max(1, Math.min(Math.floor(requestedLimit), 200))
   url.searchParams.set("limit", String(normalizedLimit))
   url.searchParams.set("sort", "top")
   const normalizedDepth =
@@ -628,8 +626,7 @@ async function fetchThreadComments(
         author: typeof data.author === "string" ? data.author : null,
         score: typeof data.score === "number" ? data.score : null,
         createdAt,
-        parentId:
-          typeof data.parent_id === "string" ? data.parent_id : null,
+        parentId: typeof data.parent_id === "string" ? data.parent_id : null,
         depth:
           typeof data.depth === "number"
             ? data.depth
@@ -647,10 +644,7 @@ async function fetchThreadComments(
           const replyChildren = Array.isArray(replies.data?.children)
             ? (replies.data!.children as RedditListingChild[])
             : undefined
-          const reachedLimit = collectComments(
-            replyChildren,
-            currentDepth + 1,
-          )
+          const reachedLimit = collectComments(replyChildren, currentDepth + 1)
           if (reachedLimit) {
             return true
           }
@@ -673,10 +667,7 @@ function mergeAndRankThreads(
   }>,
   preferredSubreddits?: Set<string>,
 ): ProductInsightRedditThread[] {
-  const map = new Map<
-    string,
-    ProductInsightRedditThread & { score: number }
-  >()
+  const map = new Map<string, ProductInsightRedditThread & { score: number }>()
 
   for (const result of queryResults) {
     for (const thread of result.threads) {
@@ -783,7 +774,7 @@ async function filterThreadsByRelevance({
     numComments: thread.numComments ?? null,
     topComment:
       thread.topComments && thread.topComments.length
-        ? thread.topComments[0]?.body ?? null
+        ? (thread.topComments[0]?.body ?? null)
         : null,
   }))
 
@@ -855,9 +846,7 @@ async function filterThreadsByRelevance({
       safeParseJson(jsonText || "{}", "thread_relevance"),
     )
 
-    const evaluation = new Map(
-      parsed.threads.map((entry) => [entry.id, entry]),
-    )
+    const evaluation = new Map(parsed.threads.map((entry) => [entry.id, entry]))
 
     const MIN_KEEP_SCORE = 0.45
 
@@ -889,9 +878,12 @@ async function filterThreadsByRelevance({
 
     return curated
   } catch (error) {
-    console.error("[productInsights:reddit] thread relevance screening failed", {
-      error,
-    })
+    console.error(
+      "[productInsights:reddit] thread relevance screening failed",
+      {
+        error,
+      },
+    )
     return eligibleThreads.slice(0, Math.min(10, eligibleThreads.length))
   }
 }
@@ -906,7 +898,10 @@ async function synthesizeInsights({
   summary?: ProductInsightSummary | null
   subreddits?: ProductInsightSubreddit[] | null
   threads: ProductInsightRedditThread[]
-}): Promise<{ insights: ProductInsightRedditInsightReport; model: string } | null> {
+}): Promise<{
+  insights: ProductInsightRedditInsightReport
+  model: string
+} | null> {
   if (!threads.length) {
     return null
   }
@@ -1169,10 +1164,13 @@ export async function discoverProductDiscussions(
     }
 
     if (augmentedQueries.length > queries.length) {
-      console.info("[productInsights:reddit] added fallback subreddit queries", {
-        productId,
-        added: augmentedQueries.length - queries.length,
-      })
+      console.info(
+        "[productInsights:reddit] added fallback subreddit queries",
+        {
+          productId,
+          added: augmentedQueries.length - queries.length,
+        },
+      )
     }
   }
 
@@ -1244,8 +1242,7 @@ export async function discoverProductDiscussions(
 
   await Promise.all(
     commentFetchTargets.map(async (thread, index) => {
-      const useFullTree =
-        mode === "deep" && index < DEEP_FULL_TREE_THREAD_LIMIT
+      const useFullTree = mode === "deep" && index < DEEP_FULL_TREE_THREAD_LIMIT
       try {
         const comments = await fetchThreadComments(thread.id, accessToken, {
           topLevelLimit: useFullTree
@@ -1316,10 +1313,13 @@ export async function discoverProductDiscussions(
       finalThreads = mergedThreads.slice(0, Math.min(8, mergedThreads.length))
     } else {
       finalThreads = []
-      console.info("[productInsights:reddit] no threads matched selected communities", {
-        productId,
-        preferredSubredditCount: preferredSubredditSet.size,
-      })
+      console.info(
+        "[productInsights:reddit] no threads matched selected communities",
+        {
+          productId,
+          preferredSubredditCount: preferredSubredditSet.size,
+        },
+      )
     }
   }
 

@@ -48,7 +48,9 @@ export function getProductInsightDiscussionModelLabel(): string {
 export function getProductInsightSubredditModelLabel(): string {
   const primary = getProductInsightSubredditModel()
   const relevance = getProductInsightSubredditRelevanceModel()
-  return relevance && relevance !== primary ? `${primary} → ${relevance}` : primary
+  return relevance && relevance !== primary
+    ? `${primary} → ${relevance}`
+    : primary
 }
 
 export const DEFAULT_PUBLIC_SUBREDDIT_MODEL = DEFAULT_SUBREDDIT_MODEL
