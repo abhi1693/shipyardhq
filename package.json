@@ -18,7 +18,7 @@
     "prisma:seed:plan-features": "tsx prisma/seed.plan-features.ts",
     "prisma:seed:plans": "tsx prisma/seed.plans.ts",
     "prisma:seed:prod": "npm run prisma:seed:categories && npm run prisma:seed:usecases && npm run prisma:seed:plan-features",
-    "postinstall": "npm run prisma:deploy",
+    "postinstall": "npm run prisma:deploy && npm run prisma:seed:plan-features",
     "test": "vitest run --coverage --reporter=verbose",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
