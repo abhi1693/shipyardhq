@@ -2007,14 +2007,6 @@ export function ProductInsightsView({
         status={competitorStatusDisplay}
         collapsible
         defaultOpen={shouldOpenCompetitorStage}
-        metrics={[
-          { label: "Last pass", value: lastCompetitorDiscovery },
-          {
-            label: "Competitors",
-            value: profile ? (hasCompetitorResults ? `${competitors.length}` : "0") : "—",
-          },
-          { label: "Model", value: competitorModel ?? "—" },
-        ]}
       >
         <>
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
