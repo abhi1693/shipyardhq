@@ -19,7 +19,10 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
           <li>Lifetime vote and click totals to gauge overall demand</li>
           <li>Total page views across your launch window</li>
           <li>Interactive trends with selectable ranges from 7 to 90 days</li>
-          <li>One Insights pipeline run every week for competitive and community research</li>
+          <li>
+            One Insights pipeline run every week for competitive and community
+            research
+          </li>
         </ul>
       </div>
     ),
@@ -36,9 +39,15 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
         </p>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>Website snapshots highlight positioning gaps and quick wins</li>
-          <li>Competitor dossiers detail differentiators, strengths, and links</li>
-          <li>Community and discussion insights surface the conversations to join</li>
-          <li>Executive summaries outline next experiments and success metrics</li>
+          <li>
+            Competitor dossiers detail differentiators, strengths, and links
+          </li>
+          <li>
+            Community and discussion insights surface the conversations to join
+          </li>
+          <li>
+            Executive summaries outline next experiments and success metrics
+          </li>
         </ul>
       </div>
     ),
@@ -55,7 +64,10 @@ export const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
           <li>Click-through rates split by referrer, device, and browser</li>
           <li>Visitor loyalty, retention cohorts, and repeat engagement</li>
           <li>Operating system and traffic channel breakdowns per campaign</li>
-          <li>Additional Insights credits so you can rerun reports between major launches</li>
+          <li>
+            Additional Insights credits so you can rerun reports between major
+            launches
+          </li>
         </ul>
       </div>
     ),

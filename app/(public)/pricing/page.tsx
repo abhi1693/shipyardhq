@@ -160,7 +160,8 @@ export default async function PricingPage() {
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Track signal across every tier and trigger Insights runs for
-                competitive, community, and action reports—free includes one run per week and upgrades add more credits.
+                competitive, community, and action reports—free includes one run
+                per week and upgrades add more credits.
               </p>
             </div>
           </div>
@@ -190,8 +191,14 @@ export default async function PricingPage() {
         eyebrow="Insights included"
         title="Insights credits scale with your plan"
         description="Every plan includes the Insights pipeline. Start with a weekly run on free listings and add more credits with paid placements to keep competitor intel, community sentiment, and prioritized actions fresh."
-        primaryCta={{ label: "Unlock insights with Shipyard", href: "/register" }}
-        secondaryCta={{ label: "See analytics & insights", href: ANALYTICS_PATH }}
+        primaryCta={{
+          label: "Unlock insights with Shipyard",
+          href: "/register",
+        }}
+        secondaryCta={{
+          label: "See analytics & insights",
+          href: ANALYTICS_PATH,
+        }}
       />
 
       {subscriptionPlans.length > 0 && (
@@ -208,8 +215,7 @@ export default async function PricingPage() {
             </h2>
             <p className="mt-3 text-muted-foreground">
               Subscriptions unlock shared organizations, advanced analytics,
-              recurring Insights credits, and dedicated collaboration
-              resources.
+              recurring Insights credits, and dedicated collaboration resources.
             </p>
           </div>
           <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">

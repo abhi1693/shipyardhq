@@ -239,7 +239,10 @@ export default function WhyShipyardPage() {
         title="Insights keeps your crew aligned after launch day"
         description="Request a run for any eligible product to blend analytics with competitor research, community sentiment, and prioritized plays in one briefing—free plans include a weekly run and higher tiers add more credits."
         primaryCta={{ label: "Start using insights", href: "/register" }}
-        secondaryCta={{ label: "Explore analytics & insights", href: ANALYTICS_PATH }}
+        secondaryCta={{
+          label: "Explore analytics & insights",
+          href: ANALYTICS_PATH,
+        }}
       />
 
       <PublicContainer

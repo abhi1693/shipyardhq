@@ -64,8 +64,7 @@ const DEFAULT_SECONDARY_CTA: CTAConfig = {
 export function InsightsShowcase({
   eyebrow = "Introducing Insights",
   title = "Insights turns signal into your next roadmap move",
-  description =
-    "Launch the Shipyard Insights pipeline to pair your analytics with competitive, community, and sentiment intelligence—free plans include one run each week and upgrades add more credits.",
+  description = "Launch the Shipyard Insights pipeline to pair your analytics with competitive, community, and sentiment intelligence—free plans include one run each week and upgrades add more credits.",
   primaryCta = DEFAULT_PRIMARY_CTA,
   secondaryCta = DEFAULT_SECONDARY_CTA,
 }: InsightsShowcaseProps = {}) {
@@ -125,20 +124,24 @@ export function InsightsShowcase({
       </div>
 
       <div className="relative grid gap-6 lg:grid-cols-4">
-        {INSIGHT_STAGES.map(({ title: stageTitle, description: stageDescription, Icon }) => (
-          <article
-            key={stageTitle}
-            className="flex h-full flex-col gap-4 rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/85 p-6 text-left shadow-[0px_30px_70px_-50px_rgba(7,58,104,0.7)] backdrop-blur"
-          >
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--brand-2)/0.16] text-[color:var(--brand-2)] shadow-[0px_14px_30px_-20px_rgba(7,58,104,0.6)]">
-              <Icon className="h-6 w-6" />
-            </span>
-            <h3 className="text-lg font-semibold text-foreground">{stageTitle}</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {stageDescription}
-            </p>
-          </article>
-        ))}
+        {INSIGHT_STAGES.map(
+          ({ title: stageTitle, description: stageDescription, Icon }) => (
+            <article
+              key={stageTitle}
+              className="flex h-full flex-col gap-4 rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/85 p-6 text-left shadow-[0px_30px_70px_-50px_rgba(7,58,104,0.7)] backdrop-blur"
+            >
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--brand-2)/0.16] text-[color:var(--brand-2)] shadow-[0px_14px_30px_-20px_rgba(7,58,104,0.6)]">
+                <Icon className="h-6 w-6" />
+              </span>
+              <h3 className="text-lg font-semibold text-foreground">
+                {stageTitle}
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {stageDescription}
+              </p>
+            </article>
+          ),
+        )}
       </div>
 
       <div className="relative rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/90 px-8 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.65)] backdrop-blur">
@@ -154,7 +157,8 @@ export function InsightsShowcase({
           ))}
         </ul>
         <p className="mt-6 text-xs uppercase tracking-[0.28em] text-muted-foreground">
-          Pipeline runs update as new signals roll in—free plans refresh weekly, while higher tiers add extra credits for faster iteration.
+          Pipeline runs update as new signals roll in—free plans refresh weekly,
+          while higher tiers add extra credits for faster iteration.
         </p>
       </div>
     </PublicContainer>
