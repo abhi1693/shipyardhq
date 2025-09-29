@@ -17,6 +17,12 @@ const FEATURES = [
       "We submit your listing to Google and Bing for faster indexing.",
   },
   {
+    key: "insights.pipeline",
+    name: "Product Insights Pipeline",
+    description:
+      "Run the competitive, community, and discussion analysis pipeline for your product.",
+  },
+  {
     key: "analytics.advanced",
     name: "Advanced Analytics",
     description: "Unlocks advanced traffic dashboards",

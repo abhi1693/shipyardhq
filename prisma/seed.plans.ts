@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url"
 
 import {
   PlanType,
+  Prisma,
   PrismaClient,
   TimeInterval,
 } from "@/lib/vendor/prisma/client"
@@ -15,11 +16,17 @@ type PlanSeed = {
   price: number
   isDefault?: boolean
   boostForDays?: number
-  featureKeys: string[]
+  features: PlanFeatureAssignmentSeed[]
   paymentFrequencyCount?: number
   paymentFrequencyInterval?: TimeInterval
   subscriptionPeriodCount?: number
   subscriptionPeriodInterval?: TimeInterval
+}
+
+type PlanFeatureAssignmentSeed = {
+  key: string
+  enabled?: boolean
+  config?: Prisma.JsonValue
 }
 
 // Prod-safe plans with additive feature assignments; uses upsert and compound unique
@@ -32,7 +39,15 @@ const PLANS: PlanSeed[] = [
     price: 0,
     isDefault: true,
     boostForDays: 1,
-    featureKeys: ["analytics.basic", "product.sitemap", "backlink"],
+    features: [
+      { key: "analytics.basic" },
+      { key: "product.sitemap" },
+      { key: "backlink" },
+      {
+        key: "insights.pipeline",
+        config: { usageLimit: 1, usageInterval: "week" },
+      },
+    ],
   },
   {
     name: "Featured",
@@ -42,12 +57,16 @@ const PLANS: PlanSeed[] = [
     price: 1900,
     isDefault: false,
     boostForDays: 14,
-    featureKeys: [
-      "analytics.basic",
-      "product.sitemap",
-      "featured",
-      "priorityPlacement",
-      "homepage",
+    features: [
+      { key: "analytics.basic" },
+      { key: "product.sitemap" },
+      { key: "featured" },
+      { key: "priorityPlacement" },
+      { key: "homepage" },
+      {
+        key: "insights.pipeline",
+        config: { usageLimit: 1, usageInterval: "day" },
+      },
     ],
   },
   {
@@ -58,18 +77,22 @@ const PLANS: PlanSeed[] = [
     price: 4900,
     isDefault: false,
     boostForDays: 30,
-    featureKeys: [
-      "analytics.basic",
-      "analytics.advanced",
-      "product.sitemap",
-      "featured",
-      "priorityPlacement",
-      "homepage",
-      "stickyBanner",
-      "customCTA",
-      "earlyAccess",
-      "newsletterPromotion",
-      "backlink",
+    features: [
+      { key: "analytics.basic" },
+      { key: "analytics.advanced" },
+      { key: "product.sitemap" },
+      { key: "featured" },
+      { key: "priorityPlacement" },
+      { key: "homepage" },
+      { key: "stickyBanner" },
+      { key: "customCTA" },
+      { key: "earlyAccess" },
+      { key: "newsletterPromotion" },
+      { key: "backlink" },
+      {
+        key: "insights.pipeline",
+        config: { usageLimit: null },
+      },
     ],
   },
   {
@@ -80,13 +103,17 @@ const PLANS: PlanSeed[] = [
     price: 9900,
     isDefault: false,
     boostForDays: 30,
-    featureKeys: [
-      "analytics.basic",
-      "analytics.advanced",
-      "product.sitemap",
-      "priorityPlacement",
-      "homepage",
-      "organization",
+    features: [
+      { key: "analytics.basic" },
+      { key: "analytics.advanced" },
+      { key: "product.sitemap" },
+      { key: "priorityPlacement" },
+      { key: "homepage" },
+      { key: "organization" },
+      {
+        key: "insights.pipeline",
+        config: { usageLimit: null },
+      },
     ],
     paymentFrequencyCount: 1,
     paymentFrequencyInterval: TimeInterval.month,
@@ -137,18 +164,26 @@ export async function seedPlans(prisma: PrismaClient) {
       },
     })
 
-    for (const key of p.featureKeys) {
-      const featureId = featureByKey.get(key)
+    for (const assignment of p.features) {
+      const featureId = featureByKey.get(assignment.key)
       if (!featureId) {
         console.warn(
-          `Plan ${p.slug}: missing feature '${key}', skip assignment`,
+          `Plan ${p.slug}: missing feature '${assignment.key}', skip assignment`,
         )
         continue
       }
       await prisma.planFeatureAssignment.upsert({
         where: { planId_featureId: { planId: plan.id, featureId } },
-        update: { enabled: true },
-        create: { planId: plan.id, featureId, enabled: true },
+        update: {
+          enabled: assignment.enabled ?? true,
+          config: assignment.config ?? Prisma.JsonNull,
+        },
+        create: {
+          planId: plan.id,
+          featureId,
+          enabled: assignment.enabled ?? true,
+          config: assignment.config ?? Prisma.JsonNull,
+        },
       })
     }
 

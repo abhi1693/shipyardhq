@@ -47,7 +47,8 @@ type Values = z.infer<typeof schema>
 
 export default function EditOrganizationPage() {
   const router = useRouter()
-  const { id } = useParams<{ id: string }>()
+  const params = useParams<{ id: string }>()
+  const organizationId = params?.id
   const [initial, setInitial] = useState<Values | null>(null)
   const form = useForm<Values>({
     resolver: zodResolver(schema),
@@ -56,8 +57,8 @@ export default function EditOrganizationPage() {
 
   useEffect(() => {
     ;(async () => {
-      if (!id) return
-      const org = (await getMyOrganizationById(id as string)) as {
+      if (!organizationId) return
+      const org = (await getMyOrganizationById(organizationId)) as {
         name: string
         url: string
       } | null
@@ -67,10 +68,11 @@ export default function EditOrganizationPage() {
       form.reset({ name: org.name, url: normalizedUrl })
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [organizationId])
 
   async function onSubmit(values: Values) {
-    const res = await updateMyOrganizationAction(id as string, {
+    if (!organizationId) return
+    const res = await updateMyOrganizationAction(organizationId, {
       ...values,
       url: ensureUrlHasSchema(values.url),
     })
@@ -78,7 +80,7 @@ export default function EditOrganizationPage() {
       form.setError("url", { type: "server", message: (res as any).error })
       return
     }
-    router.push(memberOrganizationPath(id as string))
+    router.push(memberOrganizationPath(organizationId))
   }
 
   if (!initial) return null

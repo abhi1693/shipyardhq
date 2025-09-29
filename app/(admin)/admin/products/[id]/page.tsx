@@ -37,7 +37,7 @@ import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { BarChart3 } from "lucide-react"
+import { BarChart3, Sparkles } from "lucide-react"
 import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
 import { adminPath, productPath } from "@/lib/routes"
 
@@ -81,6 +81,11 @@ export default async function ViewProductPage({
             productId={product.id}
             status={product.status as any}
           />
+          <Button variant="outline" size="sm" asChild>
+            <Link href={adminPath("products", product.id, "insights")}>
+              <Sparkles className="mr-2 h-4 w-4" /> Insights
+            </Link>
+          </Button>
           <Button variant="outline" size="sm" asChild>
             <Link href={adminPath("products", product.id, "analytics")}>
               <BarChart3 className="mr-2 h-4 w-4" /> Analytics

@@ -43,7 +43,7 @@ interface SidebarProps {
 }
 
 export default function AppSidebar(props: SidebarProps) {
-  const pathname = usePathname()
+  const pathname = usePathname() ?? "/"
   const { navItems = [], showBillingPortal = false } = props
 
   const [isPortalPending, startPortal] = useTransition()

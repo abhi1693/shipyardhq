@@ -13,8 +13,9 @@ export function LeaderboardMonthSelect({
   current: string
 }) {
   const router = useRouter()
-  const pathname = usePathname()
+  const pathname = usePathname() ?? ""
   const search = useSearchParams()
+  const searchString = search?.toString() ?? ""
 
   if (!months.length) {
     return null
@@ -33,7 +34,7 @@ export function LeaderboardMonthSelect({
   const handleChange = (nextValue: string) => {
     const target = buildQuery(
       pathname,
-      search,
+      searchString,
       nextValue === defaultValue ? { month: undefined } : { month: nextValue },
     )
     router.push(target)

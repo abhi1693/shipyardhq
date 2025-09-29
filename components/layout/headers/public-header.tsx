@@ -34,13 +34,13 @@ const navLinks = [
 ]
 
 export default function PublicHeader() {
-  const pathname = usePathname()
+  const pathname = usePathname() ?? "/"
   const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
 
   const isActive = (href: string) => pathname === href
 
-  const searchParamsString = searchParams.toString()
+  const searchParamsString = searchParams?.toString() ?? ""
   const currentLocation = searchParamsString
     ? `${pathname}?${searchParamsString}`
     : pathname

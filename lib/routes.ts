@@ -88,6 +88,9 @@ export const memberProductEditPath = (slug: string) =>
 export const memberProductAnalyticsPath = (slug: string) =>
   `${memberProductPath(slug)}/analytics`
 
+export const memberProductInsightsPath = (slug: string) =>
+  `${memberProductPath(slug)}/insights`
+
 export const memberProductDeletePath = (slug: string) =>
   `${memberProductPath(slug)}/delete`
 

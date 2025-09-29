@@ -14,6 +14,7 @@ import { Button } from "@/components/atoms/button"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, PRICING_PATH } from "@/lib/routes"
 import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
+import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 
 const HERO_HIGHLIGHTS = [
   {
@@ -31,6 +32,11 @@ const HERO_HIGHLIGHTS = [
     description:
       "Shipyard’s audience is a tight harbor of builders, investors, and operators actively scouting new products to champion.",
   },
+  {
+    title: "Insights on autopilot",
+    description:
+      "Spin up the Insights pipeline—free plans include one run every week to map competitors, community chatter, and recommended experiments without leaving the harbor.",
+  },
 ]
 
 const CORE_REASONS = [
@@ -42,9 +48,9 @@ const CORE_REASONS = [
   },
   {
     icon: <IconChartArrows size={24} />,
-    title: "Analytics you can act on",
+    title: "Insights you can act on",
     description:
-      "See who is checking out your launch, where they came from, and how engagement shifts across the first 72 hours.",
+      "Pair real-time analytics with an automated insights pipeline that benchmarks competitors, uncovers sentiment, and highlights the next experiments to run.",
   },
   {
     icon: <IconUsersGroup size={24} />,
@@ -85,11 +91,11 @@ const MAKER_REALITIES: MakerReality[] = [
   },
   {
     icon: IconLinkOff,
-    title: "Analytics you can act on",
+    title: "Insights without extra tooling",
     description:
-      "We built {link} so your launch insights live beside your listing—referrers, engagement curves, and retention cohorts without extra tracking setup.",
+      "We built {link} so your launch intelligence lives beside your listing—from analytics to competitor research and community sentiment—with a weekly run included for free and no extra setup or spreadsheets required.",
     highlight: {
-      label: "Shipyard Analytics",
+      label: "Shipyard Insights",
       href: ANALYTICS_PATH,
     },
   },
@@ -113,9 +119,9 @@ const COMPARISON_POINTS = [
   {
     feature: "Growth intelligence",
     shipyard:
-      "Real-time analytics across votes, clicks, referrers, and retention with plan-based depth.",
+      "Real-time analytics plus automated Insights reports that cover competitors, sentiment, and prioritized actions for your crew.",
     others:
-      "Basic view counters—no insight into who showed up or why they bounced.",
+      "Basic view counters—no intelligence on who showed up, what they said, or how to respond.",
   },
   {
     feature: "Post-launch momentum",
@@ -135,19 +141,19 @@ const MOMENTUM_STEPS = [
   {
     title: "Convert faster",
     detail:
-      "Analytics and messaging feedback loops help you iterate copy, pricing, and onboarding in hours—not weeks.",
+      "Analytics and Insights feedback loops help you iterate copy, pricing, and onboarding in hours—not weeks.",
   },
   {
     title: "Scale further",
     detail:
-      "Unlock premium placements the moment you spot traction, keeping the spotlight on your product while it climbs.",
+      "Insights highlights when to amplify reach—unlock premium placements the moment momentum spikes and keep the spotlight on your product.",
   },
 ]
 
 export const metadata = buildPageMetadata({
   title: "Why Shipyard",
   description:
-    "List your product where builders, investors, and operators gather. Shipyard pairs curated discovery with analytics and crew support so every launch hits with purpose.",
+    "List your product where builders, investors, and operators gather. Shipyard pairs curated discovery with analytics, insights, and crew support so every launch hits with purpose.",
 })
 
 export default function WhyShipyardPage() {
@@ -190,8 +196,8 @@ export default function WhyShipyardPage() {
           </h1>
           <p className="text-lg text-muted-foreground">
             Shipyard is the only launch platform engineered for enduring growth:
-            curated discovery, guided preparation, and analytics that keep your
-            team focused on what moves the needle.
+            curated discovery, guided preparation, and analytics plus insights
+            that keep your team focused on what moves the needle.
           </p>
         </div>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -211,7 +217,7 @@ export default function WhyShipyardPage() {
             <Link href={PRICING_PATH}>Explore plans</Link>
           </Button>
         </div>
-        <div className="mt-14 grid gap-6 sm:grid-cols-3">
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {HERO_HIGHLIGHTS.map((highlight) => (
             <div
               key={highlight.title}
@@ -227,6 +233,17 @@ export default function WhyShipyardPage() {
           ))}
         </div>
       </PublicContainer>
+
+      <InsightsShowcase
+        eyebrow="Shipyard Insights"
+        title="Insights keeps your crew aligned after launch day"
+        description="Request a run for any eligible product to blend analytics with competitor research, community sentiment, and prioritized plays in one briefing—free plans include a weekly run and higher tiers add more credits."
+        primaryCta={{ label: "Start using insights", href: "/register" }}
+        secondaryCta={{
+          label: "Explore analytics & insights",
+          href: ANALYTICS_PATH,
+        }}
+      />
 
       <PublicContainer
         as="section"

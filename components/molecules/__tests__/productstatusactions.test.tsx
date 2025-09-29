@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import React from "react"
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 
 const refresh = vi.fn()
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }))
@@ -25,11 +26,12 @@ describe("ProductStatusActions", () => {
     ;(actions.setProductStatusAction as any).mockResolvedValueOnce({})
     ;(actions.setProductStatusAction as any).mockResolvedValueOnce({})
     render(<ProductStatusActions productId="p1" status="draft" />)
+    const user = userEvent.setup()
     // Publish and Archive present; Unpublish absent
     expect(screen.getByRole("button", { name: /publish/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /archive/i })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: /unpublish/i })).toBeNull()
-    await screen.getByRole("button", { name: /publish/i }).click()
+    await user.click(screen.getByRole("button", { name: /publish/i }))
     expect(actions.setProductStatusAction).toHaveBeenCalledWith(
       "p1",
       "published",
@@ -42,7 +44,8 @@ describe("ProductStatusActions", () => {
   it("archives from draft when Archive is clicked", async () => {
     ;(actions.setProductStatusAction as any).mockResolvedValueOnce({})
     render(<ProductStatusActions productId="p1" status="draft" />)
-    await screen.getByRole("button", { name: /archive/i }).click()
+    const user = userEvent.setup()
+    await user.click(screen.getByRole("button", { name: /archive/i }))
     expect(actions.setProductStatusAction).toHaveBeenCalledWith(
       "p1",
       "archived",
@@ -54,10 +57,11 @@ describe("ProductStatusActions", () => {
       error: "nope",
     })
     render(<ProductStatusActions productId="p1" status="published" />)
+    const user = userEvent.setup()
     expect(
       screen.getByRole("button", { name: /unpublish/i }),
     ).toBeInTheDocument()
-    await screen.getByRole("button", { name: /unpublish/i }).click()
+    await user.click(screen.getByRole("button", { name: /unpublish/i }))
     expect(actions.setProductStatusAction).toHaveBeenCalledWith("p1", "draft")
     expect(toast.error).toHaveBeenCalled()
     expect(refresh).toHaveBeenCalled()
@@ -66,6 +70,7 @@ describe("ProductStatusActions", () => {
   it("shows correct buttons for archived", async () => {
     ;(actions.setProductStatusAction as any).mockResolvedValueOnce({})
     render(<ProductStatusActions productId="p1" status="archived" />)
+    const user = userEvent.setup()
     expect(
       screen.getByRole("button", { name: /unarchive/i }),
     ).toBeInTheDocument()
@@ -73,7 +78,7 @@ describe("ProductStatusActions", () => {
     expect(screen.queryByRole("button", { name: /^Archive$/i })).toBeNull()
 
     // Unarchive transitions back to draft
-    await screen.getByRole("button", { name: /unarchive/i }).click()
+    await user.click(screen.getByRole("button", { name: /unarchive/i }))
     expect(actions.setProductStatusAction).toHaveBeenCalledWith("p1", "draft")
   })
 })

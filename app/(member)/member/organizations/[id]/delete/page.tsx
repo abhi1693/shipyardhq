@@ -18,13 +18,14 @@ import DeleteButton from "@/components/molecules/DeleteButton"
 
 export default function DeleteOrganizationPage() {
   const router = useRouter()
-  const { id } = useParams<{ id: string }>()
+  const params = useParams<{ id: string }>()
+  const organizationId = params?.id
   const [orgName, setOrgName] = useState<string>("")
   const [orgUrl, setOrgUrl] = useState<string>("")
   useEffect(() => {
     ;(async () => {
-      if (!id) return
-      const org = (await getMyOrganizationById(id as string)) as {
+      if (!organizationId) return
+      const org = (await getMyOrganizationById(organizationId)) as {
         name: string
         url: string
       } | null
@@ -32,10 +33,11 @@ export default function DeleteOrganizationPage() {
       setOrgName(org.name)
       setOrgUrl(org.url)
     })()
-  }, [id, router])
+  }, [organizationId, router])
 
   async function onDelete() {
-    const res = await deleteMyOrganizationAction(id as string)
+    if (!organizationId) return
+    const res = await deleteMyOrganizationAction(organizationId)
     if ((res as any)?.error) return alert((res as any).error)
     router.push(MEMBER_ORGANIZATIONS_PATH)
   }

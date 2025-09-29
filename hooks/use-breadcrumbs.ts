@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { useMemo } from "react"
 
 export function useBreadcrumbs() {
-  const pathname = usePathname()
+  const pathname = usePathname() ?? "/"
 
   return useMemo(() => {
     // If no exact match, fall back to generating breadcrumbs from the path

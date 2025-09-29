@@ -59,6 +59,16 @@ export type ProductClickEvent = $Result.DefaultSelection<Prisma.$ProductClickEve
  */
 export type ProductTrafficEvent = $Result.DefaultSelection<Prisma.$ProductTrafficEventPayload>
 /**
+ * Model ProductInsightProfile
+ * 
+ */
+export type ProductInsightProfile = $Result.DefaultSelection<Prisma.$ProductInsightProfilePayload>
+/**
+ * Model ProductInsightStageResult
+ * 
+ */
+export type ProductInsightStageResult = $Result.DefaultSelection<Prisma.$ProductInsightStageResultPayload>
+/**
  * Model ProductUpvote
  * 
  */
@@ -171,6 +181,15 @@ export const ProductStatus: {
 export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus]
 
 
+export const ProductInsightStatus: {
+  pending: 'pending',
+  ready: 'ready',
+  failed: 'failed'
+};
+
+export type ProductInsightStatus = (typeof ProductInsightStatus)[keyof typeof ProductInsightStatus]
+
+
 export const Platform: {
   web: 'web',
   ios: 'ios',
@@ -243,6 +262,10 @@ export const PricingModel: typeof $Enums.PricingModel
 export type ProductStatus = $Enums.ProductStatus
 
 export const ProductStatus: typeof $Enums.ProductStatus
+
+export type ProductInsightStatus = $Enums.ProductInsightStatus
+
+export const ProductInsightStatus: typeof $Enums.ProductInsightStatus
 
 export type Platform = $Enums.Platform
 
@@ -475,6 +498,26 @@ export class PrismaClient<
     * ```
     */
   get productTrafficEvent(): Prisma.ProductTrafficEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productInsightProfile`: Exposes CRUD operations for the **ProductInsightProfile** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductInsightProfiles
+    * const productInsightProfiles = await prisma.productInsightProfile.findMany()
+    * ```
+    */
+  get productInsightProfile(): Prisma.ProductInsightProfileDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productInsightStageResult`: Exposes CRUD operations for the **ProductInsightStageResult** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductInsightStageResults
+    * const productInsightStageResults = await prisma.productInsightStageResult.findMany()
+    * ```
+    */
+  get productInsightStageResult(): Prisma.ProductInsightStageResultDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.productUpvote`: Exposes CRUD operations for the **ProductUpvote** model.
@@ -1074,6 +1117,8 @@ export namespace Prisma {
     ProductAnalytics: 'ProductAnalytics',
     ProductClickEvent: 'ProductClickEvent',
     ProductTrafficEvent: 'ProductTrafficEvent',
+    ProductInsightProfile: 'ProductInsightProfile',
+    ProductInsightStageResult: 'ProductInsightStageResult',
     ProductUpvote: 'ProductUpvote',
     Organization: 'Organization',
     OrganizationMembership: 'OrganizationMembership',
@@ -1107,7 +1152,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "product" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
+      modelProps: "product" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1774,6 +1819,154 @@ export namespace Prisma {
           count: {
             args: Prisma.ProductTrafficEventCountArgs<ExtArgs>
             result: $Utils.Optional<ProductTrafficEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProductInsightProfile: {
+        payload: Prisma.$ProductInsightProfilePayload<ExtArgs>
+        fields: Prisma.ProductInsightProfileFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductInsightProfileFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductInsightProfileFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
+          }
+          findFirst: {
+            args: Prisma.ProductInsightProfileFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductInsightProfileFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
+          }
+          findMany: {
+            args: Prisma.ProductInsightProfileFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>[]
+          }
+          create: {
+            args: Prisma.ProductInsightProfileCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
+          }
+          createMany: {
+            args: Prisma.ProductInsightProfileCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductInsightProfileCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>[]
+          }
+          delete: {
+            args: Prisma.ProductInsightProfileDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
+          }
+          update: {
+            args: Prisma.ProductInsightProfileUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductInsightProfileDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductInsightProfileUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductInsightProfileUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductInsightProfileUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightProfilePayload>
+          }
+          aggregate: {
+            args: Prisma.ProductInsightProfileAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductInsightProfile>
+          }
+          groupBy: {
+            args: Prisma.ProductInsightProfileGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductInsightProfileGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductInsightProfileCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductInsightProfileCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProductInsightStageResult: {
+        payload: Prisma.$ProductInsightStageResultPayload<ExtArgs>
+        fields: Prisma.ProductInsightStageResultFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductInsightStageResultFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductInsightStageResultFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductInsightStageResultFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductInsightStageResultFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          findMany: {
+            args: Prisma.ProductInsightStageResultFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>[]
+          }
+          create: {
+            args: Prisma.ProductInsightStageResultCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          createMany: {
+            args: Prisma.ProductInsightStageResultCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductInsightStageResultCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductInsightStageResultDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          update: {
+            args: Prisma.ProductInsightStageResultUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductInsightStageResultDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductInsightStageResultUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductInsightStageResultUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductInsightStageResultUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductInsightStageResultPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductInsightStageResultAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductInsightStageResult>
+          }
+          groupBy: {
+            args: Prisma.ProductInsightStageResultGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductInsightStageResultGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductInsightStageResultCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductInsightStageResultCountAggregateOutputType> | number
           }
         }
       }
@@ -2992,6 +3185,8 @@ export namespace Prisma {
     productAnalytics?: ProductAnalyticsOmit
     productClickEvent?: ProductClickEventOmit
     productTrafficEvent?: ProductTrafficEventOmit
+    productInsightProfile?: ProductInsightProfileOmit
+    productInsightStageResult?: ProductInsightStageResultOmit
     productUpvote?: ProductUpvoteOmit
     organization?: OrganizationOmit
     organizationMembership?: OrganizationMembershipOmit
@@ -3164,6 +3359,37 @@ export namespace Prisma {
    */
   export type ProductCountOutputTypeCountMonthlyProductRankingArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MonthlyProductRankingWhereInput
+  }
+
+
+  /**
+   * Count Type ProductInsightProfileCountOutputType
+   */
+
+  export type ProductInsightProfileCountOutputType = {
+    stages: number
+  }
+
+  export type ProductInsightProfileCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stages?: boolean | ProductInsightProfileCountOutputTypeCountStagesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ProductInsightProfileCountOutputType without action
+   */
+  export type ProductInsightProfileCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfileCountOutputType
+     */
+    select?: ProductInsightProfileCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProductInsightProfileCountOutputType without action
+   */
+  export type ProductInsightProfileCountOutputTypeCountStagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductInsightStageResultWhereInput
   }
 
 
@@ -3804,6 +4030,7 @@ export namespace Prisma {
     metadata?: boolean | Product$metadataArgs<ExtArgs>
     analytics?: boolean | Product$analyticsArgs<ExtArgs>
     verification?: boolean | Product$verificationArgs<ExtArgs>
+    insightProfile?: boolean | Product$insightProfileArgs<ExtArgs>
     ProductBadge?: boolean | Product$ProductBadgeArgs<ExtArgs>
     ProductMedia?: boolean | Product$ProductMediaArgs<ExtArgs>
     ProductUpvote?: boolean | Product$ProductUpvoteArgs<ExtArgs>
@@ -3915,6 +4142,7 @@ export namespace Prisma {
     metadata?: boolean | Product$metadataArgs<ExtArgs>
     analytics?: boolean | Product$analyticsArgs<ExtArgs>
     verification?: boolean | Product$verificationArgs<ExtArgs>
+    insightProfile?: boolean | Product$insightProfileArgs<ExtArgs>
     ProductBadge?: boolean | Product$ProductBadgeArgs<ExtArgs>
     ProductMedia?: boolean | Product$ProductMediaArgs<ExtArgs>
     ProductUpvote?: boolean | Product$ProductUpvoteArgs<ExtArgs>
@@ -3947,6 +4175,7 @@ export namespace Prisma {
       metadata: Prisma.$ProductMetadataPayload<ExtArgs> | null
       analytics: Prisma.$ProductAnalyticsPayload<ExtArgs> | null
       verification: Prisma.$ProductVerificationPayload<ExtArgs> | null
+      insightProfile: Prisma.$ProductInsightProfilePayload<ExtArgs> | null
       ProductBadge: Prisma.$ProductBadgePayload<ExtArgs>[]
       ProductMedia: Prisma.$ProductMediaPayload<ExtArgs>[]
       ProductUpvote: Prisma.$ProductUpvotePayload<ExtArgs>[]
@@ -4382,6 +4611,7 @@ export namespace Prisma {
     metadata<T extends Product$metadataArgs<ExtArgs> = {}>(args?: Subset<T, Product$metadataArgs<ExtArgs>>): Prisma__ProductMetadataClient<$Result.GetResult<Prisma.$ProductMetadataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     analytics<T extends Product$analyticsArgs<ExtArgs> = {}>(args?: Subset<T, Product$analyticsArgs<ExtArgs>>): Prisma__ProductAnalyticsClient<$Result.GetResult<Prisma.$ProductAnalyticsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     verification<T extends Product$verificationArgs<ExtArgs> = {}>(args?: Subset<T, Product$verificationArgs<ExtArgs>>): Prisma__ProductVerificationClient<$Result.GetResult<Prisma.$ProductVerificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    insightProfile<T extends Product$insightProfileArgs<ExtArgs> = {}>(args?: Subset<T, Product$insightProfileArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     ProductBadge<T extends Product$ProductBadgeArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductBadgeArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductBadgePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductMedia<T extends Product$ProductMediaArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductMediaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductMediaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ProductUpvote<T extends Product$ProductUpvoteArgs<ExtArgs> = {}>(args?: Subset<T, Product$ProductUpvoteArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductUpvotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4931,6 +5161,25 @@ export namespace Prisma {
      */
     include?: ProductVerificationInclude<ExtArgs> | null
     where?: ProductVerificationWhereInput
+  }
+
+  /**
+   * Product.insightProfile
+   */
+  export type Product$insightProfileArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    where?: ProductInsightProfileWhereInput
   }
 
   /**
@@ -13923,6 +14172,2261 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ProductTrafficEventInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProductInsightProfile
+   */
+
+  export type AggregateProductInsightProfile = {
+    _count: ProductInsightProfileCountAggregateOutputType | null
+    _min: ProductInsightProfileMinAggregateOutputType | null
+    _max: ProductInsightProfileMaxAggregateOutputType | null
+  }
+
+  export type ProductInsightProfileMinAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    status: $Enums.ProductInsightStatus | null
+    errorMessage: string | null
+    lastRunAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductInsightProfileMaxAggregateOutputType = {
+    id: string | null
+    productId: string | null
+    status: $Enums.ProductInsightStatus | null
+    errorMessage: string | null
+    lastRunAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductInsightProfileCountAggregateOutputType = {
+    id: number
+    productId: number
+    status: number
+    errorMessage: number
+    lastRunAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ProductInsightProfileMinAggregateInputType = {
+    id?: true
+    productId?: true
+    status?: true
+    errorMessage?: true
+    lastRunAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductInsightProfileMaxAggregateInputType = {
+    id?: true
+    productId?: true
+    status?: true
+    errorMessage?: true
+    lastRunAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductInsightProfileCountAggregateInputType = {
+    id?: true
+    productId?: true
+    status?: true
+    errorMessage?: true
+    lastRunAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ProductInsightProfileAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductInsightProfile to aggregate.
+     */
+    where?: ProductInsightProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightProfiles to fetch.
+     */
+    orderBy?: ProductInsightProfileOrderByWithRelationInput | ProductInsightProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductInsightProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductInsightProfiles
+    **/
+    _count?: true | ProductInsightProfileCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductInsightProfileMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductInsightProfileMaxAggregateInputType
+  }
+
+  export type GetProductInsightProfileAggregateType<T extends ProductInsightProfileAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductInsightProfile]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductInsightProfile[P]>
+      : GetScalarType<T[P], AggregateProductInsightProfile[P]>
+  }
+
+
+
+
+  export type ProductInsightProfileGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductInsightProfileWhereInput
+    orderBy?: ProductInsightProfileOrderByWithAggregationInput | ProductInsightProfileOrderByWithAggregationInput[]
+    by: ProductInsightProfileScalarFieldEnum[] | ProductInsightProfileScalarFieldEnum
+    having?: ProductInsightProfileScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductInsightProfileCountAggregateInputType | true
+    _min?: ProductInsightProfileMinAggregateInputType
+    _max?: ProductInsightProfileMaxAggregateInputType
+  }
+
+  export type ProductInsightProfileGroupByOutputType = {
+    id: string
+    productId: string
+    status: $Enums.ProductInsightStatus
+    errorMessage: string | null
+    lastRunAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ProductInsightProfileCountAggregateOutputType | null
+    _min: ProductInsightProfileMinAggregateOutputType | null
+    _max: ProductInsightProfileMaxAggregateOutputType | null
+  }
+
+  type GetProductInsightProfileGroupByPayload<T extends ProductInsightProfileGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductInsightProfileGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductInsightProfileGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductInsightProfileGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductInsightProfileGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductInsightProfileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    status?: boolean
+    errorMessage?: boolean
+    lastRunAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    stages?: boolean | ProductInsightProfile$stagesArgs<ExtArgs>
+    _count?: boolean | ProductInsightProfileCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productInsightProfile"]>
+
+  export type ProductInsightProfileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    status?: boolean
+    errorMessage?: boolean
+    lastRunAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productInsightProfile"]>
+
+  export type ProductInsightProfileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    productId?: boolean
+    status?: boolean
+    errorMessage?: boolean
+    lastRunAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productInsightProfile"]>
+
+  export type ProductInsightProfileSelectScalar = {
+    id?: boolean
+    productId?: boolean
+    status?: boolean
+    errorMessage?: boolean
+    lastRunAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ProductInsightProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "status" | "errorMessage" | "lastRunAt" | "createdAt" | "updatedAt", ExtArgs["result"]["productInsightProfile"]>
+  export type ProductInsightProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+    stages?: boolean | ProductInsightProfile$stagesArgs<ExtArgs>
+    _count?: boolean | ProductInsightProfileCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ProductInsightProfileIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type ProductInsightProfileIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+
+  export type $ProductInsightProfilePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductInsightProfile"
+    objects: {
+      product: Prisma.$ProductPayload<ExtArgs>
+      stages: Prisma.$ProductInsightStageResultPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      productId: string
+      status: $Enums.ProductInsightStatus
+      errorMessage: string | null
+      lastRunAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["productInsightProfile"]>
+    composites: {}
+  }
+
+  type ProductInsightProfileGetPayload<S extends boolean | null | undefined | ProductInsightProfileDefaultArgs> = $Result.GetResult<Prisma.$ProductInsightProfilePayload, S>
+
+  type ProductInsightProfileCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductInsightProfileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductInsightProfileCountAggregateInputType | true
+    }
+
+  export interface ProductInsightProfileDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductInsightProfile'], meta: { name: 'ProductInsightProfile' } }
+    /**
+     * Find zero or one ProductInsightProfile that matches the filter.
+     * @param {ProductInsightProfileFindUniqueArgs} args - Arguments to find a ProductInsightProfile
+     * @example
+     * // Get one ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductInsightProfileFindUniqueArgs>(args: SelectSubset<T, ProductInsightProfileFindUniqueArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductInsightProfile that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductInsightProfileFindUniqueOrThrowArgs} args - Arguments to find a ProductInsightProfile
+     * @example
+     * // Get one ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductInsightProfileFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductInsightProfileFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductInsightProfile that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightProfileFindFirstArgs} args - Arguments to find a ProductInsightProfile
+     * @example
+     * // Get one ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductInsightProfileFindFirstArgs>(args?: SelectSubset<T, ProductInsightProfileFindFirstArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductInsightProfile that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightProfileFindFirstOrThrowArgs} args - Arguments to find a ProductInsightProfile
+     * @example
+     * // Get one ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductInsightProfileFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductInsightProfileFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductInsightProfiles that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightProfileFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductInsightProfiles
+     * const productInsightProfiles = await prisma.productInsightProfile.findMany()
+     * 
+     * // Get first 10 ProductInsightProfiles
+     * const productInsightProfiles = await prisma.productInsightProfile.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productInsightProfileWithIdOnly = await prisma.productInsightProfile.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductInsightProfileFindManyArgs>(args?: SelectSubset<T, ProductInsightProfileFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductInsightProfile.
+     * @param {ProductInsightProfileCreateArgs} args - Arguments to create a ProductInsightProfile.
+     * @example
+     * // Create one ProductInsightProfile
+     * const ProductInsightProfile = await prisma.productInsightProfile.create({
+     *   data: {
+     *     // ... data to create a ProductInsightProfile
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductInsightProfileCreateArgs>(args: SelectSubset<T, ProductInsightProfileCreateArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductInsightProfiles.
+     * @param {ProductInsightProfileCreateManyArgs} args - Arguments to create many ProductInsightProfiles.
+     * @example
+     * // Create many ProductInsightProfiles
+     * const productInsightProfile = await prisma.productInsightProfile.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductInsightProfileCreateManyArgs>(args?: SelectSubset<T, ProductInsightProfileCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductInsightProfiles and returns the data saved in the database.
+     * @param {ProductInsightProfileCreateManyAndReturnArgs} args - Arguments to create many ProductInsightProfiles.
+     * @example
+     * // Create many ProductInsightProfiles
+     * const productInsightProfile = await prisma.productInsightProfile.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductInsightProfiles and only return the `id`
+     * const productInsightProfileWithIdOnly = await prisma.productInsightProfile.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductInsightProfileCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductInsightProfileCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductInsightProfile.
+     * @param {ProductInsightProfileDeleteArgs} args - Arguments to delete one ProductInsightProfile.
+     * @example
+     * // Delete one ProductInsightProfile
+     * const ProductInsightProfile = await prisma.productInsightProfile.delete({
+     *   where: {
+     *     // ... filter to delete one ProductInsightProfile
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductInsightProfileDeleteArgs>(args: SelectSubset<T, ProductInsightProfileDeleteArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductInsightProfile.
+     * @param {ProductInsightProfileUpdateArgs} args - Arguments to update one ProductInsightProfile.
+     * @example
+     * // Update one ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductInsightProfileUpdateArgs>(args: SelectSubset<T, ProductInsightProfileUpdateArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductInsightProfiles.
+     * @param {ProductInsightProfileDeleteManyArgs} args - Arguments to filter ProductInsightProfiles to delete.
+     * @example
+     * // Delete a few ProductInsightProfiles
+     * const { count } = await prisma.productInsightProfile.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductInsightProfileDeleteManyArgs>(args?: SelectSubset<T, ProductInsightProfileDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductInsightProfiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightProfileUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductInsightProfiles
+     * const productInsightProfile = await prisma.productInsightProfile.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductInsightProfileUpdateManyArgs>(args: SelectSubset<T, ProductInsightProfileUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductInsightProfiles and returns the data updated in the database.
+     * @param {ProductInsightProfileUpdateManyAndReturnArgs} args - Arguments to update many ProductInsightProfiles.
+     * @example
+     * // Update many ProductInsightProfiles
+     * const productInsightProfile = await prisma.productInsightProfile.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductInsightProfiles and only return the `id`
+     * const productInsightProfileWithIdOnly = await prisma.productInsightProfile.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductInsightProfileUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductInsightProfileUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductInsightProfile.
+     * @param {ProductInsightProfileUpsertArgs} args - Arguments to update or create a ProductInsightProfile.
+     * @example
+     * // Update or create a ProductInsightProfile
+     * const productInsightProfile = await prisma.productInsightProfile.upsert({
+     *   create: {
+     *     // ... data to create a ProductInsightProfile
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductInsightProfile we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductInsightProfileUpsertArgs>(args: SelectSubset<T, ProductInsightProfileUpsertArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductInsightProfiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightProfileCountArgs} args - Arguments to filter ProductInsightProfiles to count.
+     * @example
+     * // Count the number of ProductInsightProfiles
+     * const count = await prisma.productInsightProfile.count({
+     *   where: {
+     *     // ... the filter for the ProductInsightProfiles we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductInsightProfileCountArgs>(
+      args?: Subset<T, ProductInsightProfileCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductInsightProfileCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductInsightProfile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightProfileAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductInsightProfileAggregateArgs>(args: Subset<T, ProductInsightProfileAggregateArgs>): Prisma.PrismaPromise<GetProductInsightProfileAggregateType<T>>
+
+    /**
+     * Group by ProductInsightProfile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightProfileGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductInsightProfileGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductInsightProfileGroupByArgs['orderBy'] }
+        : { orderBy?: ProductInsightProfileGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductInsightProfileGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductInsightProfileGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductInsightProfile model
+   */
+  readonly fields: ProductInsightProfileFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductInsightProfile.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductInsightProfileClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    product<T extends ProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductDefaultArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    stages<T extends ProductInsightProfile$stagesArgs<ExtArgs> = {}>(args?: Subset<T, ProductInsightProfile$stagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductInsightProfile model
+   */
+  interface ProductInsightProfileFieldRefs {
+    readonly id: FieldRef<"ProductInsightProfile", 'String'>
+    readonly productId: FieldRef<"ProductInsightProfile", 'String'>
+    readonly status: FieldRef<"ProductInsightProfile", 'ProductInsightStatus'>
+    readonly errorMessage: FieldRef<"ProductInsightProfile", 'String'>
+    readonly lastRunAt: FieldRef<"ProductInsightProfile", 'DateTime'>
+    readonly createdAt: FieldRef<"ProductInsightProfile", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProductInsightProfile", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductInsightProfile findUnique
+   */
+  export type ProductInsightProfileFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightProfile to fetch.
+     */
+    where: ProductInsightProfileWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightProfile findUniqueOrThrow
+   */
+  export type ProductInsightProfileFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightProfile to fetch.
+     */
+    where: ProductInsightProfileWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightProfile findFirst
+   */
+  export type ProductInsightProfileFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightProfile to fetch.
+     */
+    where?: ProductInsightProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightProfiles to fetch.
+     */
+    orderBy?: ProductInsightProfileOrderByWithRelationInput | ProductInsightProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductInsightProfiles.
+     */
+    cursor?: ProductInsightProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductInsightProfiles.
+     */
+    distinct?: ProductInsightProfileScalarFieldEnum | ProductInsightProfileScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightProfile findFirstOrThrow
+   */
+  export type ProductInsightProfileFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightProfile to fetch.
+     */
+    where?: ProductInsightProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightProfiles to fetch.
+     */
+    orderBy?: ProductInsightProfileOrderByWithRelationInput | ProductInsightProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductInsightProfiles.
+     */
+    cursor?: ProductInsightProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductInsightProfiles.
+     */
+    distinct?: ProductInsightProfileScalarFieldEnum | ProductInsightProfileScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightProfile findMany
+   */
+  export type ProductInsightProfileFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightProfiles to fetch.
+     */
+    where?: ProductInsightProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightProfiles to fetch.
+     */
+    orderBy?: ProductInsightProfileOrderByWithRelationInput | ProductInsightProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductInsightProfiles.
+     */
+    cursor?: ProductInsightProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightProfiles.
+     */
+    skip?: number
+    distinct?: ProductInsightProfileScalarFieldEnum | ProductInsightProfileScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightProfile create
+   */
+  export type ProductInsightProfileCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProductInsightProfile.
+     */
+    data: XOR<ProductInsightProfileCreateInput, ProductInsightProfileUncheckedCreateInput>
+  }
+
+  /**
+   * ProductInsightProfile createMany
+   */
+  export type ProductInsightProfileCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductInsightProfiles.
+     */
+    data: ProductInsightProfileCreateManyInput | ProductInsightProfileCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductInsightProfile createManyAndReturn
+   */
+  export type ProductInsightProfileCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductInsightProfiles.
+     */
+    data: ProductInsightProfileCreateManyInput | ProductInsightProfileCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductInsightProfile update
+   */
+  export type ProductInsightProfileUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProductInsightProfile.
+     */
+    data: XOR<ProductInsightProfileUpdateInput, ProductInsightProfileUncheckedUpdateInput>
+    /**
+     * Choose, which ProductInsightProfile to update.
+     */
+    where: ProductInsightProfileWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightProfile updateMany
+   */
+  export type ProductInsightProfileUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductInsightProfiles.
+     */
+    data: XOR<ProductInsightProfileUpdateManyMutationInput, ProductInsightProfileUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductInsightProfiles to update
+     */
+    where?: ProductInsightProfileWhereInput
+    /**
+     * Limit how many ProductInsightProfiles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductInsightProfile updateManyAndReturn
+   */
+  export type ProductInsightProfileUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductInsightProfiles.
+     */
+    data: XOR<ProductInsightProfileUpdateManyMutationInput, ProductInsightProfileUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductInsightProfiles to update
+     */
+    where?: ProductInsightProfileWhereInput
+    /**
+     * Limit how many ProductInsightProfiles to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductInsightProfile upsert
+   */
+  export type ProductInsightProfileUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProductInsightProfile to update in case it exists.
+     */
+    where: ProductInsightProfileWhereUniqueInput
+    /**
+     * In case the ProductInsightProfile found by the `where` argument doesn't exist, create a new ProductInsightProfile with this data.
+     */
+    create: XOR<ProductInsightProfileCreateInput, ProductInsightProfileUncheckedCreateInput>
+    /**
+     * In case the ProductInsightProfile was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductInsightProfileUpdateInput, ProductInsightProfileUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductInsightProfile delete
+   */
+  export type ProductInsightProfileDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+    /**
+     * Filter which ProductInsightProfile to delete.
+     */
+    where: ProductInsightProfileWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightProfile deleteMany
+   */
+  export type ProductInsightProfileDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductInsightProfiles to delete
+     */
+    where?: ProductInsightProfileWhereInput
+    /**
+     * Limit how many ProductInsightProfiles to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductInsightProfile.stages
+   */
+  export type ProductInsightProfile$stagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    where?: ProductInsightStageResultWhereInput
+    orderBy?: ProductInsightStageResultOrderByWithRelationInput | ProductInsightStageResultOrderByWithRelationInput[]
+    cursor?: ProductInsightStageResultWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProductInsightStageResultScalarFieldEnum | ProductInsightStageResultScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightProfile without action
+   */
+  export type ProductInsightProfileDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightProfile
+     */
+    select?: ProductInsightProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightProfile
+     */
+    omit?: ProductInsightProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightProfileInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProductInsightStageResult
+   */
+
+  export type AggregateProductInsightStageResult = {
+    _count: ProductInsightStageResultCountAggregateOutputType | null
+    _min: ProductInsightStageResultMinAggregateOutputType | null
+    _max: ProductInsightStageResultMaxAggregateOutputType | null
+  }
+
+  export type ProductInsightStageResultMinAggregateOutputType = {
+    id: string | null
+    profileId: string | null
+    stageId: string | null
+    providerType: string | null
+    status: $Enums.ProductInsightStatus | null
+    errorMessage: string | null
+    startedAt: Date | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductInsightStageResultMaxAggregateOutputType = {
+    id: string | null
+    profileId: string | null
+    stageId: string | null
+    providerType: string | null
+    status: $Enums.ProductInsightStatus | null
+    errorMessage: string | null
+    startedAt: Date | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductInsightStageResultCountAggregateOutputType = {
+    id: number
+    profileId: number
+    stageId: number
+    providerType: number
+    status: number
+    data: number
+    metrics: number
+    errorMessage: number
+    startedAt: number
+    completedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ProductInsightStageResultMinAggregateInputType = {
+    id?: true
+    profileId?: true
+    stageId?: true
+    providerType?: true
+    status?: true
+    errorMessage?: true
+    startedAt?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductInsightStageResultMaxAggregateInputType = {
+    id?: true
+    profileId?: true
+    stageId?: true
+    providerType?: true
+    status?: true
+    errorMessage?: true
+    startedAt?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductInsightStageResultCountAggregateInputType = {
+    id?: true
+    profileId?: true
+    stageId?: true
+    providerType?: true
+    status?: true
+    data?: true
+    metrics?: true
+    errorMessage?: true
+    startedAt?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ProductInsightStageResultAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductInsightStageResult to aggregate.
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightStageResults to fetch.
+     */
+    orderBy?: ProductInsightStageResultOrderByWithRelationInput | ProductInsightStageResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductInsightStageResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightStageResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightStageResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductInsightStageResults
+    **/
+    _count?: true | ProductInsightStageResultCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductInsightStageResultMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductInsightStageResultMaxAggregateInputType
+  }
+
+  export type GetProductInsightStageResultAggregateType<T extends ProductInsightStageResultAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductInsightStageResult]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductInsightStageResult[P]>
+      : GetScalarType<T[P], AggregateProductInsightStageResult[P]>
+  }
+
+
+
+
+  export type ProductInsightStageResultGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductInsightStageResultWhereInput
+    orderBy?: ProductInsightStageResultOrderByWithAggregationInput | ProductInsightStageResultOrderByWithAggregationInput[]
+    by: ProductInsightStageResultScalarFieldEnum[] | ProductInsightStageResultScalarFieldEnum
+    having?: ProductInsightStageResultScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductInsightStageResultCountAggregateInputType | true
+    _min?: ProductInsightStageResultMinAggregateInputType
+    _max?: ProductInsightStageResultMaxAggregateInputType
+  }
+
+  export type ProductInsightStageResultGroupByOutputType = {
+    id: string
+    profileId: string
+    stageId: string
+    providerType: string
+    status: $Enums.ProductInsightStatus
+    data: JsonValue | null
+    metrics: JsonValue | null
+    errorMessage: string | null
+    startedAt: Date | null
+    completedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ProductInsightStageResultCountAggregateOutputType | null
+    _min: ProductInsightStageResultMinAggregateOutputType | null
+    _max: ProductInsightStageResultMaxAggregateOutputType | null
+  }
+
+  type GetProductInsightStageResultGroupByPayload<T extends ProductInsightStageResultGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductInsightStageResultGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductInsightStageResultGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductInsightStageResultGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductInsightStageResultGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductInsightStageResultSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    profileId?: boolean
+    stageId?: boolean
+    providerType?: boolean
+    status?: boolean
+    data?: boolean
+    metrics?: boolean
+    errorMessage?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productInsightStageResult"]>
+
+  export type ProductInsightStageResultSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    profileId?: boolean
+    stageId?: boolean
+    providerType?: boolean
+    status?: boolean
+    data?: boolean
+    metrics?: boolean
+    errorMessage?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productInsightStageResult"]>
+
+  export type ProductInsightStageResultSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    profileId?: boolean
+    stageId?: boolean
+    providerType?: boolean
+    status?: boolean
+    data?: boolean
+    metrics?: boolean
+    errorMessage?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["productInsightStageResult"]>
+
+  export type ProductInsightStageResultSelectScalar = {
+    id?: boolean
+    profileId?: boolean
+    stageId?: boolean
+    providerType?: boolean
+    status?: boolean
+    data?: boolean
+    metrics?: boolean
+    errorMessage?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ProductInsightStageResultOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "profileId" | "stageId" | "providerType" | "status" | "data" | "metrics" | "errorMessage" | "startedAt" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["productInsightStageResult"]>
+  export type ProductInsightStageResultInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }
+  export type ProductInsightStageResultIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }
+  export type ProductInsightStageResultIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    profile?: boolean | ProductInsightProfileDefaultArgs<ExtArgs>
+  }
+
+  export type $ProductInsightStageResultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductInsightStageResult"
+    objects: {
+      profile: Prisma.$ProductInsightProfilePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      profileId: string
+      stageId: string
+      providerType: string
+      status: $Enums.ProductInsightStatus
+      data: Prisma.JsonValue | null
+      metrics: Prisma.JsonValue | null
+      errorMessage: string | null
+      startedAt: Date | null
+      completedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["productInsightStageResult"]>
+    composites: {}
+  }
+
+  type ProductInsightStageResultGetPayload<S extends boolean | null | undefined | ProductInsightStageResultDefaultArgs> = $Result.GetResult<Prisma.$ProductInsightStageResultPayload, S>
+
+  type ProductInsightStageResultCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductInsightStageResultFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductInsightStageResultCountAggregateInputType | true
+    }
+
+  export interface ProductInsightStageResultDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductInsightStageResult'], meta: { name: 'ProductInsightStageResult' } }
+    /**
+     * Find zero or one ProductInsightStageResult that matches the filter.
+     * @param {ProductInsightStageResultFindUniqueArgs} args - Arguments to find a ProductInsightStageResult
+     * @example
+     * // Get one ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductInsightStageResultFindUniqueArgs>(args: SelectSubset<T, ProductInsightStageResultFindUniqueArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductInsightStageResult that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductInsightStageResultFindUniqueOrThrowArgs} args - Arguments to find a ProductInsightStageResult
+     * @example
+     * // Get one ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductInsightStageResultFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductInsightStageResultFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductInsightStageResult that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultFindFirstArgs} args - Arguments to find a ProductInsightStageResult
+     * @example
+     * // Get one ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductInsightStageResultFindFirstArgs>(args?: SelectSubset<T, ProductInsightStageResultFindFirstArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductInsightStageResult that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultFindFirstOrThrowArgs} args - Arguments to find a ProductInsightStageResult
+     * @example
+     * // Get one ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductInsightStageResultFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductInsightStageResultFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductInsightStageResults that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductInsightStageResults
+     * const productInsightStageResults = await prisma.productInsightStageResult.findMany()
+     * 
+     * // Get first 10 ProductInsightStageResults
+     * const productInsightStageResults = await prisma.productInsightStageResult.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productInsightStageResultWithIdOnly = await prisma.productInsightStageResult.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductInsightStageResultFindManyArgs>(args?: SelectSubset<T, ProductInsightStageResultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductInsightStageResult.
+     * @param {ProductInsightStageResultCreateArgs} args - Arguments to create a ProductInsightStageResult.
+     * @example
+     * // Create one ProductInsightStageResult
+     * const ProductInsightStageResult = await prisma.productInsightStageResult.create({
+     *   data: {
+     *     // ... data to create a ProductInsightStageResult
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductInsightStageResultCreateArgs>(args: SelectSubset<T, ProductInsightStageResultCreateArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductInsightStageResults.
+     * @param {ProductInsightStageResultCreateManyArgs} args - Arguments to create many ProductInsightStageResults.
+     * @example
+     * // Create many ProductInsightStageResults
+     * const productInsightStageResult = await prisma.productInsightStageResult.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductInsightStageResultCreateManyArgs>(args?: SelectSubset<T, ProductInsightStageResultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductInsightStageResults and returns the data saved in the database.
+     * @param {ProductInsightStageResultCreateManyAndReturnArgs} args - Arguments to create many ProductInsightStageResults.
+     * @example
+     * // Create many ProductInsightStageResults
+     * const productInsightStageResult = await prisma.productInsightStageResult.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductInsightStageResults and only return the `id`
+     * const productInsightStageResultWithIdOnly = await prisma.productInsightStageResult.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductInsightStageResultCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductInsightStageResultCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductInsightStageResult.
+     * @param {ProductInsightStageResultDeleteArgs} args - Arguments to delete one ProductInsightStageResult.
+     * @example
+     * // Delete one ProductInsightStageResult
+     * const ProductInsightStageResult = await prisma.productInsightStageResult.delete({
+     *   where: {
+     *     // ... filter to delete one ProductInsightStageResult
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductInsightStageResultDeleteArgs>(args: SelectSubset<T, ProductInsightStageResultDeleteArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductInsightStageResult.
+     * @param {ProductInsightStageResultUpdateArgs} args - Arguments to update one ProductInsightStageResult.
+     * @example
+     * // Update one ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductInsightStageResultUpdateArgs>(args: SelectSubset<T, ProductInsightStageResultUpdateArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductInsightStageResults.
+     * @param {ProductInsightStageResultDeleteManyArgs} args - Arguments to filter ProductInsightStageResults to delete.
+     * @example
+     * // Delete a few ProductInsightStageResults
+     * const { count } = await prisma.productInsightStageResult.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductInsightStageResultDeleteManyArgs>(args?: SelectSubset<T, ProductInsightStageResultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductInsightStageResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductInsightStageResults
+     * const productInsightStageResult = await prisma.productInsightStageResult.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductInsightStageResultUpdateManyArgs>(args: SelectSubset<T, ProductInsightStageResultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductInsightStageResults and returns the data updated in the database.
+     * @param {ProductInsightStageResultUpdateManyAndReturnArgs} args - Arguments to update many ProductInsightStageResults.
+     * @example
+     * // Update many ProductInsightStageResults
+     * const productInsightStageResult = await prisma.productInsightStageResult.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductInsightStageResults and only return the `id`
+     * const productInsightStageResultWithIdOnly = await prisma.productInsightStageResult.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductInsightStageResultUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductInsightStageResultUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductInsightStageResult.
+     * @param {ProductInsightStageResultUpsertArgs} args - Arguments to update or create a ProductInsightStageResult.
+     * @example
+     * // Update or create a ProductInsightStageResult
+     * const productInsightStageResult = await prisma.productInsightStageResult.upsert({
+     *   create: {
+     *     // ... data to create a ProductInsightStageResult
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductInsightStageResult we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductInsightStageResultUpsertArgs>(args: SelectSubset<T, ProductInsightStageResultUpsertArgs<ExtArgs>>): Prisma__ProductInsightStageResultClient<$Result.GetResult<Prisma.$ProductInsightStageResultPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductInsightStageResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultCountArgs} args - Arguments to filter ProductInsightStageResults to count.
+     * @example
+     * // Count the number of ProductInsightStageResults
+     * const count = await prisma.productInsightStageResult.count({
+     *   where: {
+     *     // ... the filter for the ProductInsightStageResults we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductInsightStageResultCountArgs>(
+      args?: Subset<T, ProductInsightStageResultCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductInsightStageResultCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductInsightStageResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductInsightStageResultAggregateArgs>(args: Subset<T, ProductInsightStageResultAggregateArgs>): Prisma.PrismaPromise<GetProductInsightStageResultAggregateType<T>>
+
+    /**
+     * Group by ProductInsightStageResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductInsightStageResultGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductInsightStageResultGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductInsightStageResultGroupByArgs['orderBy'] }
+        : { orderBy?: ProductInsightStageResultGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductInsightStageResultGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductInsightStageResultGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductInsightStageResult model
+   */
+  readonly fields: ProductInsightStageResultFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductInsightStageResult.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductInsightStageResultClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    profile<T extends ProductInsightProfileDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductInsightProfileDefaultArgs<ExtArgs>>): Prisma__ProductInsightProfileClient<$Result.GetResult<Prisma.$ProductInsightProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductInsightStageResult model
+   */
+  interface ProductInsightStageResultFieldRefs {
+    readonly id: FieldRef<"ProductInsightStageResult", 'String'>
+    readonly profileId: FieldRef<"ProductInsightStageResult", 'String'>
+    readonly stageId: FieldRef<"ProductInsightStageResult", 'String'>
+    readonly providerType: FieldRef<"ProductInsightStageResult", 'String'>
+    readonly status: FieldRef<"ProductInsightStageResult", 'ProductInsightStatus'>
+    readonly data: FieldRef<"ProductInsightStageResult", 'Json'>
+    readonly metrics: FieldRef<"ProductInsightStageResult", 'Json'>
+    readonly errorMessage: FieldRef<"ProductInsightStageResult", 'String'>
+    readonly startedAt: FieldRef<"ProductInsightStageResult", 'DateTime'>
+    readonly completedAt: FieldRef<"ProductInsightStageResult", 'DateTime'>
+    readonly createdAt: FieldRef<"ProductInsightStageResult", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProductInsightStageResult", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductInsightStageResult findUnique
+   */
+  export type ProductInsightStageResultFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightStageResult to fetch.
+     */
+    where: ProductInsightStageResultWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightStageResult findUniqueOrThrow
+   */
+  export type ProductInsightStageResultFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightStageResult to fetch.
+     */
+    where: ProductInsightStageResultWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightStageResult findFirst
+   */
+  export type ProductInsightStageResultFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightStageResult to fetch.
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightStageResults to fetch.
+     */
+    orderBy?: ProductInsightStageResultOrderByWithRelationInput | ProductInsightStageResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductInsightStageResults.
+     */
+    cursor?: ProductInsightStageResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightStageResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightStageResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductInsightStageResults.
+     */
+    distinct?: ProductInsightStageResultScalarFieldEnum | ProductInsightStageResultScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightStageResult findFirstOrThrow
+   */
+  export type ProductInsightStageResultFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightStageResult to fetch.
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightStageResults to fetch.
+     */
+    orderBy?: ProductInsightStageResultOrderByWithRelationInput | ProductInsightStageResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductInsightStageResults.
+     */
+    cursor?: ProductInsightStageResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightStageResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightStageResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductInsightStageResults.
+     */
+    distinct?: ProductInsightStageResultScalarFieldEnum | ProductInsightStageResultScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightStageResult findMany
+   */
+  export type ProductInsightStageResultFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter, which ProductInsightStageResults to fetch.
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductInsightStageResults to fetch.
+     */
+    orderBy?: ProductInsightStageResultOrderByWithRelationInput | ProductInsightStageResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductInsightStageResults.
+     */
+    cursor?: ProductInsightStageResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductInsightStageResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductInsightStageResults.
+     */
+    skip?: number
+    distinct?: ProductInsightStageResultScalarFieldEnum | ProductInsightStageResultScalarFieldEnum[]
+  }
+
+  /**
+   * ProductInsightStageResult create
+   */
+  export type ProductInsightStageResultCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProductInsightStageResult.
+     */
+    data: XOR<ProductInsightStageResultCreateInput, ProductInsightStageResultUncheckedCreateInput>
+  }
+
+  /**
+   * ProductInsightStageResult createMany
+   */
+  export type ProductInsightStageResultCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductInsightStageResults.
+     */
+    data: ProductInsightStageResultCreateManyInput | ProductInsightStageResultCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductInsightStageResult createManyAndReturn
+   */
+  export type ProductInsightStageResultCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductInsightStageResults.
+     */
+    data: ProductInsightStageResultCreateManyInput | ProductInsightStageResultCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductInsightStageResult update
+   */
+  export type ProductInsightStageResultUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProductInsightStageResult.
+     */
+    data: XOR<ProductInsightStageResultUpdateInput, ProductInsightStageResultUncheckedUpdateInput>
+    /**
+     * Choose, which ProductInsightStageResult to update.
+     */
+    where: ProductInsightStageResultWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightStageResult updateMany
+   */
+  export type ProductInsightStageResultUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductInsightStageResults.
+     */
+    data: XOR<ProductInsightStageResultUpdateManyMutationInput, ProductInsightStageResultUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductInsightStageResults to update
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * Limit how many ProductInsightStageResults to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductInsightStageResult updateManyAndReturn
+   */
+  export type ProductInsightStageResultUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductInsightStageResults.
+     */
+    data: XOR<ProductInsightStageResultUpdateManyMutationInput, ProductInsightStageResultUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductInsightStageResults to update
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * Limit how many ProductInsightStageResults to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProductInsightStageResult upsert
+   */
+  export type ProductInsightStageResultUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProductInsightStageResult to update in case it exists.
+     */
+    where: ProductInsightStageResultWhereUniqueInput
+    /**
+     * In case the ProductInsightStageResult found by the `where` argument doesn't exist, create a new ProductInsightStageResult with this data.
+     */
+    create: XOR<ProductInsightStageResultCreateInput, ProductInsightStageResultUncheckedCreateInput>
+    /**
+     * In case the ProductInsightStageResult was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductInsightStageResultUpdateInput, ProductInsightStageResultUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductInsightStageResult delete
+   */
+  export type ProductInsightStageResultDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
+    /**
+     * Filter which ProductInsightStageResult to delete.
+     */
+    where: ProductInsightStageResultWhereUniqueInput
+  }
+
+  /**
+   * ProductInsightStageResult deleteMany
+   */
+  export type ProductInsightStageResultDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductInsightStageResults to delete
+     */
+    where?: ProductInsightStageResultWhereInput
+    /**
+     * Limit how many ProductInsightStageResults to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductInsightStageResult without action
+   */
+  export type ProductInsightStageResultDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductInsightStageResult
+     */
+    select?: ProductInsightStageResultSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductInsightStageResult
+     */
+    omit?: ProductInsightStageResultOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInsightStageResultInclude<ExtArgs> | null
   }
 
 
@@ -25375,6 +27879,7 @@ export namespace Prisma {
     featureId: number
     enabled: number
     isExperimental: number
+    config: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -25407,6 +27912,7 @@ export namespace Prisma {
     featureId?: true
     enabled?: true
     isExperimental?: true
+    config?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -25490,6 +27996,7 @@ export namespace Prisma {
     featureId: string
     enabled: boolean
     isExperimental: boolean
+    config: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: PlanFeatureAssignmentCountAggregateOutputType | null
@@ -25517,6 +28024,7 @@ export namespace Prisma {
     featureId?: boolean
     enabled?: boolean
     isExperimental?: boolean
+    config?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     plan?: boolean | PlanDefaultArgs<ExtArgs>
@@ -25529,6 +28037,7 @@ export namespace Prisma {
     featureId?: boolean
     enabled?: boolean
     isExperimental?: boolean
+    config?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     plan?: boolean | PlanDefaultArgs<ExtArgs>
@@ -25541,6 +28050,7 @@ export namespace Prisma {
     featureId?: boolean
     enabled?: boolean
     isExperimental?: boolean
+    config?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     plan?: boolean | PlanDefaultArgs<ExtArgs>
@@ -25553,11 +28063,12 @@ export namespace Prisma {
     featureId?: boolean
     enabled?: boolean
     isExperimental?: boolean
+    config?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PlanFeatureAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "planId" | "featureId" | "enabled" | "isExperimental" | "createdAt" | "updatedAt", ExtArgs["result"]["planFeatureAssignment"]>
+  export type PlanFeatureAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "planId" | "featureId" | "enabled" | "isExperimental" | "config" | "createdAt" | "updatedAt", ExtArgs["result"]["planFeatureAssignment"]>
   export type PlanFeatureAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     plan?: boolean | PlanDefaultArgs<ExtArgs>
     feature?: boolean | PlanFeatureDefaultArgs<ExtArgs>
@@ -25583,6 +28094,7 @@ export namespace Prisma {
       featureId: string
       enabled: boolean
       isExperimental: boolean
+      config: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["planFeatureAssignment"]>
@@ -26015,6 +28527,7 @@ export namespace Prisma {
     readonly featureId: FieldRef<"PlanFeatureAssignment", 'String'>
     readonly enabled: FieldRef<"PlanFeatureAssignment", 'Boolean'>
     readonly isExperimental: FieldRef<"PlanFeatureAssignment", 'Boolean'>
+    readonly config: FieldRef<"PlanFeatureAssignment", 'Json'>
     readonly createdAt: FieldRef<"PlanFeatureAssignment", 'DateTime'>
     readonly updatedAt: FieldRef<"PlanFeatureAssignment", 'DateTime'>
   }
@@ -30836,6 +33349,37 @@ export namespace Prisma {
   export type ProductTrafficEventScalarFieldEnum = (typeof ProductTrafficEventScalarFieldEnum)[keyof typeof ProductTrafficEventScalarFieldEnum]
 
 
+  export const ProductInsightProfileScalarFieldEnum: {
+    id: 'id',
+    productId: 'productId',
+    status: 'status',
+    errorMessage: 'errorMessage',
+    lastRunAt: 'lastRunAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ProductInsightProfileScalarFieldEnum = (typeof ProductInsightProfileScalarFieldEnum)[keyof typeof ProductInsightProfileScalarFieldEnum]
+
+
+  export const ProductInsightStageResultScalarFieldEnum: {
+    id: 'id',
+    profileId: 'profileId',
+    stageId: 'stageId',
+    providerType: 'providerType',
+    status: 'status',
+    data: 'data',
+    metrics: 'metrics',
+    errorMessage: 'errorMessage',
+    startedAt: 'startedAt',
+    completedAt: 'completedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ProductInsightStageResultScalarFieldEnum = (typeof ProductInsightStageResultScalarFieldEnum)[keyof typeof ProductInsightStageResultScalarFieldEnum]
+
+
   export const ProductUpvoteScalarFieldEnum: {
     id: 'id',
     productId: 'productId',
@@ -30981,6 +33525,7 @@ export namespace Prisma {
     featureId: 'featureId',
     enabled: 'enabled',
     isExperimental: 'isExperimental',
+    config: 'config',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -31039,6 +33584,14 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
   export const QueryMode: {
     default: 'default',
     insensitive: 'insensitive'
@@ -31053,6 +33606,15 @@ export namespace Prisma {
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -31180,6 +33742,34 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'ProductInsightStatus'
+   */
+  export type EnumProductInsightStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductInsightStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProductInsightStatus[]'
+   */
+  export type ListEnumProductInsightStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductInsightStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'UserStatus'
    */
   export type EnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserStatus'>
@@ -31288,6 +33878,7 @@ export namespace Prisma {
     metadata?: XOR<ProductMetadataNullableScalarRelationFilter, ProductMetadataWhereInput> | null
     analytics?: XOR<ProductAnalyticsNullableScalarRelationFilter, ProductAnalyticsWhereInput> | null
     verification?: XOR<ProductVerificationNullableScalarRelationFilter, ProductVerificationWhereInput> | null
+    insightProfile?: XOR<ProductInsightProfileNullableScalarRelationFilter, ProductInsightProfileWhereInput> | null
     ProductBadge?: ProductBadgeListRelationFilter
     ProductMedia?: ProductMediaListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
@@ -31330,6 +33921,7 @@ export namespace Prisma {
     metadata?: ProductMetadataOrderByWithRelationInput
     analytics?: ProductAnalyticsOrderByWithRelationInput
     verification?: ProductVerificationOrderByWithRelationInput
+    insightProfile?: ProductInsightProfileOrderByWithRelationInput
     ProductBadge?: ProductBadgeOrderByRelationAggregateInput
     ProductMedia?: ProductMediaOrderByRelationAggregateInput
     ProductUpvote?: ProductUpvoteOrderByRelationAggregateInput
@@ -31375,6 +33967,7 @@ export namespace Prisma {
     metadata?: XOR<ProductMetadataNullableScalarRelationFilter, ProductMetadataWhereInput> | null
     analytics?: XOR<ProductAnalyticsNullableScalarRelationFilter, ProductAnalyticsWhereInput> | null
     verification?: XOR<ProductVerificationNullableScalarRelationFilter, ProductVerificationWhereInput> | null
+    insightProfile?: XOR<ProductInsightProfileNullableScalarRelationFilter, ProductInsightProfileWhereInput> | null
     ProductBadge?: ProductBadgeListRelationFilter
     ProductMedia?: ProductMediaListRelationFilter
     ProductUpvote?: ProductUpvoteListRelationFilter
@@ -32014,6 +34607,165 @@ export namespace Prisma {
     city?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
     ipHash?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ProductTrafficEvent"> | Date | string
+  }
+
+  export type ProductInsightProfileWhereInput = {
+    AND?: ProductInsightProfileWhereInput | ProductInsightProfileWhereInput[]
+    OR?: ProductInsightProfileWhereInput[]
+    NOT?: ProductInsightProfileWhereInput | ProductInsightProfileWhereInput[]
+    id?: StringFilter<"ProductInsightProfile"> | string
+    productId?: StringFilter<"ProductInsightProfile"> | string
+    status?: EnumProductInsightStatusFilter<"ProductInsightProfile"> | $Enums.ProductInsightStatus
+    errorMessage?: StringNullableFilter<"ProductInsightProfile"> | string | null
+    lastRunAt?: DateTimeNullableFilter<"ProductInsightProfile"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+    stages?: ProductInsightStageResultListRelationFilter
+  }
+
+  export type ProductInsightProfileOrderByWithRelationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    lastRunAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    product?: ProductOrderByWithRelationInput
+    stages?: ProductInsightStageResultOrderByRelationAggregateInput
+  }
+
+  export type ProductInsightProfileWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    productId?: string
+    AND?: ProductInsightProfileWhereInput | ProductInsightProfileWhereInput[]
+    OR?: ProductInsightProfileWhereInput[]
+    NOT?: ProductInsightProfileWhereInput | ProductInsightProfileWhereInput[]
+    status?: EnumProductInsightStatusFilter<"ProductInsightProfile"> | $Enums.ProductInsightStatus
+    errorMessage?: StringNullableFilter<"ProductInsightProfile"> | string | null
+    lastRunAt?: DateTimeNullableFilter<"ProductInsightProfile"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
+    product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
+    stages?: ProductInsightStageResultListRelationFilter
+  }, "id" | "productId">
+
+  export type ProductInsightProfileOrderByWithAggregationInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    lastRunAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ProductInsightProfileCountOrderByAggregateInput
+    _max?: ProductInsightProfileMaxOrderByAggregateInput
+    _min?: ProductInsightProfileMinOrderByAggregateInput
+  }
+
+  export type ProductInsightProfileScalarWhereWithAggregatesInput = {
+    AND?: ProductInsightProfileScalarWhereWithAggregatesInput | ProductInsightProfileScalarWhereWithAggregatesInput[]
+    OR?: ProductInsightProfileScalarWhereWithAggregatesInput[]
+    NOT?: ProductInsightProfileScalarWhereWithAggregatesInput | ProductInsightProfileScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductInsightProfile"> | string
+    productId?: StringWithAggregatesFilter<"ProductInsightProfile"> | string
+    status?: EnumProductInsightStatusWithAggregatesFilter<"ProductInsightProfile"> | $Enums.ProductInsightStatus
+    errorMessage?: StringNullableWithAggregatesFilter<"ProductInsightProfile"> | string | null
+    lastRunAt?: DateTimeNullableWithAggregatesFilter<"ProductInsightProfile"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ProductInsightProfile"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProductInsightProfile"> | Date | string
+  }
+
+  export type ProductInsightStageResultWhereInput = {
+    AND?: ProductInsightStageResultWhereInput | ProductInsightStageResultWhereInput[]
+    OR?: ProductInsightStageResultWhereInput[]
+    NOT?: ProductInsightStageResultWhereInput | ProductInsightStageResultWhereInput[]
+    id?: StringFilter<"ProductInsightStageResult"> | string
+    profileId?: StringFilter<"ProductInsightStageResult"> | string
+    stageId?: StringFilter<"ProductInsightStageResult"> | string
+    providerType?: StringFilter<"ProductInsightStageResult"> | string
+    status?: EnumProductInsightStatusFilter<"ProductInsightStageResult"> | $Enums.ProductInsightStatus
+    data?: JsonNullableFilter<"ProductInsightStageResult">
+    metrics?: JsonNullableFilter<"ProductInsightStageResult">
+    errorMessage?: StringNullableFilter<"ProductInsightStageResult"> | string | null
+    startedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+    profile?: XOR<ProductInsightProfileScalarRelationFilter, ProductInsightProfileWhereInput>
+  }
+
+  export type ProductInsightStageResultOrderByWithRelationInput = {
+    id?: SortOrder
+    profileId?: SortOrder
+    stageId?: SortOrder
+    providerType?: SortOrder
+    status?: SortOrder
+    data?: SortOrderInput | SortOrder
+    metrics?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    profile?: ProductInsightProfileOrderByWithRelationInput
+  }
+
+  export type ProductInsightStageResultWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    profileId_stageId_providerType?: ProductInsightStageResultProfileIdStageIdProviderTypeCompoundUniqueInput
+    AND?: ProductInsightStageResultWhereInput | ProductInsightStageResultWhereInput[]
+    OR?: ProductInsightStageResultWhereInput[]
+    NOT?: ProductInsightStageResultWhereInput | ProductInsightStageResultWhereInput[]
+    profileId?: StringFilter<"ProductInsightStageResult"> | string
+    stageId?: StringFilter<"ProductInsightStageResult"> | string
+    providerType?: StringFilter<"ProductInsightStageResult"> | string
+    status?: EnumProductInsightStatusFilter<"ProductInsightStageResult"> | $Enums.ProductInsightStatus
+    data?: JsonNullableFilter<"ProductInsightStageResult">
+    metrics?: JsonNullableFilter<"ProductInsightStageResult">
+    errorMessage?: StringNullableFilter<"ProductInsightStageResult"> | string | null
+    startedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+    profile?: XOR<ProductInsightProfileScalarRelationFilter, ProductInsightProfileWhereInput>
+  }, "id" | "profileId_stageId_providerType">
+
+  export type ProductInsightStageResultOrderByWithAggregationInput = {
+    id?: SortOrder
+    profileId?: SortOrder
+    stageId?: SortOrder
+    providerType?: SortOrder
+    status?: SortOrder
+    data?: SortOrderInput | SortOrder
+    metrics?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ProductInsightStageResultCountOrderByAggregateInput
+    _max?: ProductInsightStageResultMaxOrderByAggregateInput
+    _min?: ProductInsightStageResultMinOrderByAggregateInput
+  }
+
+  export type ProductInsightStageResultScalarWhereWithAggregatesInput = {
+    AND?: ProductInsightStageResultScalarWhereWithAggregatesInput | ProductInsightStageResultScalarWhereWithAggregatesInput[]
+    OR?: ProductInsightStageResultScalarWhereWithAggregatesInput[]
+    NOT?: ProductInsightStageResultScalarWhereWithAggregatesInput | ProductInsightStageResultScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductInsightStageResult"> | string
+    profileId?: StringWithAggregatesFilter<"ProductInsightStageResult"> | string
+    stageId?: StringWithAggregatesFilter<"ProductInsightStageResult"> | string
+    providerType?: StringWithAggregatesFilter<"ProductInsightStageResult"> | string
+    status?: EnumProductInsightStatusWithAggregatesFilter<"ProductInsightStageResult"> | $Enums.ProductInsightStatus
+    data?: JsonNullableWithAggregatesFilter<"ProductInsightStageResult">
+    metrics?: JsonNullableWithAggregatesFilter<"ProductInsightStageResult">
+    errorMessage?: StringNullableWithAggregatesFilter<"ProductInsightStageResult"> | string | null
+    startedAt?: DateTimeNullableWithAggregatesFilter<"ProductInsightStageResult"> | Date | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"ProductInsightStageResult"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ProductInsightStageResult"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProductInsightStageResult"> | Date | string
   }
 
   export type ProductUpvoteWhereInput = {
@@ -32768,6 +35520,7 @@ export namespace Prisma {
     featureId?: StringFilter<"PlanFeatureAssignment"> | string
     enabled?: BoolFilter<"PlanFeatureAssignment"> | boolean
     isExperimental?: BoolFilter<"PlanFeatureAssignment"> | boolean
+    config?: JsonNullableFilter<"PlanFeatureAssignment">
     createdAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     updatedAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     plan?: XOR<PlanScalarRelationFilter, PlanWhereInput>
@@ -32780,6 +35533,7 @@ export namespace Prisma {
     featureId?: SortOrder
     enabled?: SortOrder
     isExperimental?: SortOrder
+    config?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     plan?: PlanOrderByWithRelationInput
@@ -32796,6 +35550,7 @@ export namespace Prisma {
     featureId?: StringFilter<"PlanFeatureAssignment"> | string
     enabled?: BoolFilter<"PlanFeatureAssignment"> | boolean
     isExperimental?: BoolFilter<"PlanFeatureAssignment"> | boolean
+    config?: JsonNullableFilter<"PlanFeatureAssignment">
     createdAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     updatedAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     plan?: XOR<PlanScalarRelationFilter, PlanWhereInput>
@@ -32808,6 +35563,7 @@ export namespace Prisma {
     featureId?: SortOrder
     enabled?: SortOrder
     isExperimental?: SortOrder
+    config?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: PlanFeatureAssignmentCountOrderByAggregateInput
@@ -32824,6 +35580,7 @@ export namespace Prisma {
     featureId?: StringWithAggregatesFilter<"PlanFeatureAssignment"> | string
     enabled?: BoolWithAggregatesFilter<"PlanFeatureAssignment"> | boolean
     isExperimental?: BoolWithAggregatesFilter<"PlanFeatureAssignment"> | boolean
+    config?: JsonNullableWithAggregatesFilter<"PlanFeatureAssignment">
     createdAt?: DateTimeWithAggregatesFilter<"PlanFeatureAssignment"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PlanFeatureAssignment"> | Date | string
   }
@@ -33080,6 +35837,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -33118,6 +35876,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -33156,6 +35915,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -33194,6 +35954,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -33897,6 +36658,183 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     ipHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightProfileCreateInput = {
+    id?: string
+    status?: $Enums.ProductInsightStatus
+    errorMessage?: string | null
+    lastRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    product: ProductCreateNestedOneWithoutInsightProfileInput
+    stages?: ProductInsightStageResultCreateNestedManyWithoutProfileInput
+  }
+
+  export type ProductInsightProfileUncheckedCreateInput = {
+    id?: string
+    productId: string
+    status?: $Enums.ProductInsightStatus
+    errorMessage?: string | null
+    lastRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    stages?: ProductInsightStageResultUncheckedCreateNestedManyWithoutProfileInput
+  }
+
+  export type ProductInsightProfileUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutInsightProfileNestedInput
+    stages?: ProductInsightStageResultUpdateManyWithoutProfileNestedInput
+  }
+
+  export type ProductInsightProfileUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stages?: ProductInsightStageResultUncheckedUpdateManyWithoutProfileNestedInput
+  }
+
+  export type ProductInsightProfileCreateManyInput = {
+    id?: string
+    productId: string
+    status?: $Enums.ProductInsightStatus
+    errorMessage?: string | null
+    lastRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightProfileUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightProfileUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightStageResultCreateInput = {
+    id?: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    profile: ProductInsightProfileCreateNestedOneWithoutStagesInput
+  }
+
+  export type ProductInsightStageResultUncheckedCreateInput = {
+    id?: string
+    profileId: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightStageResultUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: ProductInsightProfileUpdateOneRequiredWithoutStagesNestedInput
+  }
+
+  export type ProductInsightStageResultUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    profileId?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightStageResultCreateManyInput = {
+    id?: string
+    profileId: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightStageResultUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightStageResultUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    profileId?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductUpvoteCreateInput = {
@@ -34718,6 +37656,7 @@ export namespace Prisma {
     id?: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     plan: PlanCreateNestedOneWithoutAssignmentsInput
@@ -34730,6 +37669,7 @@ export namespace Prisma {
     featureId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -34738,6 +37678,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     plan?: PlanUpdateOneRequiredWithoutAssignmentsNestedInput
@@ -34750,6 +37691,7 @@ export namespace Prisma {
     featureId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -34760,6 +37702,7 @@ export namespace Prisma {
     featureId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -34768,6 +37711,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -34778,6 +37722,7 @@ export namespace Prisma {
     featureId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -35132,6 +38077,11 @@ export namespace Prisma {
   export type ProductVerificationNullableScalarRelationFilter = {
     is?: ProductVerificationWhereInput | null
     isNot?: ProductVerificationWhereInput | null
+  }
+
+  export type ProductInsightProfileNullableScalarRelationFilter = {
+    is?: ProductInsightProfileWhereInput | null
+    isNot?: ProductInsightProfileWhereInput | null
   }
 
   export type ProductBadgeListRelationFilter = {
@@ -35768,6 +38718,164 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type EnumProductInsightStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductInsightStatus | EnumProductInsightStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductInsightStatusFilter<$PrismaModel> | $Enums.ProductInsightStatus
+  }
+
+  export type ProductInsightStageResultListRelationFilter = {
+    every?: ProductInsightStageResultWhereInput
+    some?: ProductInsightStageResultWhereInput
+    none?: ProductInsightStageResultWhereInput
+  }
+
+  export type ProductInsightStageResultOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProductInsightProfileCountOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    lastRunAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductInsightProfileMaxOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    lastRunAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductInsightProfileMinOrderByAggregateInput = {
+    id?: SortOrder
+    productId?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    lastRunAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumProductInsightStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductInsightStatus | EnumProductInsightStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductInsightStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductInsightStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProductInsightStatusFilter<$PrismaModel>
+    _max?: NestedEnumProductInsightStatusFilter<$PrismaModel>
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type ProductInsightProfileScalarRelationFilter = {
+    is?: ProductInsightProfileWhereInput
+    isNot?: ProductInsightProfileWhereInput
+  }
+
+  export type ProductInsightStageResultProfileIdStageIdProviderTypeCompoundUniqueInput = {
+    profileId: string
+    stageId: string
+    providerType: string
+  }
+
+  export type ProductInsightStageResultCountOrderByAggregateInput = {
+    id?: SortOrder
+    profileId?: SortOrder
+    stageId?: SortOrder
+    providerType?: SortOrder
+    status?: SortOrder
+    data?: SortOrder
+    metrics?: SortOrder
+    errorMessage?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductInsightStageResultMaxOrderByAggregateInput = {
+    id?: SortOrder
+    profileId?: SortOrder
+    stageId?: SortOrder
+    providerType?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductInsightStageResultMinOrderByAggregateInput = {
+    id?: SortOrder
+    profileId?: SortOrder
+    stageId?: SortOrder
+    providerType?: SortOrder
+    status?: SortOrder
+    errorMessage?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
   export type ProductUpvoteProductIdUserIdCompoundUniqueInput = {
     productId: string
     userId: string
@@ -36338,6 +39446,7 @@ export namespace Prisma {
     featureId?: SortOrder
     enabled?: SortOrder
     isExperimental?: SortOrder
+    config?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -36520,6 +39629,12 @@ export namespace Prisma {
     connect?: ProductVerificationWhereUniqueInput
   }
 
+  export type ProductInsightProfileCreateNestedOneWithoutProductInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutProductInput
+    connect?: ProductInsightProfileWhereUniqueInput
+  }
+
   export type ProductBadgeCreateNestedManyWithoutProductInput = {
     create?: XOR<ProductBadgeCreateWithoutProductInput, ProductBadgeUncheckedCreateWithoutProductInput> | ProductBadgeCreateWithoutProductInput[] | ProductBadgeUncheckedCreateWithoutProductInput[]
     connectOrCreate?: ProductBadgeCreateOrConnectWithoutProductInput | ProductBadgeCreateOrConnectWithoutProductInput[]
@@ -36585,6 +39700,12 @@ export namespace Prisma {
     create?: XOR<ProductVerificationCreateWithoutProductInput, ProductVerificationUncheckedCreateWithoutProductInput>
     connectOrCreate?: ProductVerificationCreateOrConnectWithoutProductInput
     connect?: ProductVerificationWhereUniqueInput
+  }
+
+  export type ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutProductInput
+    connect?: ProductInsightProfileWhereUniqueInput
   }
 
   export type ProductBadgeUncheckedCreateNestedManyWithoutProductInput = {
@@ -36748,6 +39869,16 @@ export namespace Prisma {
     update?: XOR<XOR<ProductVerificationUpdateToOneWithWhereWithoutProductInput, ProductVerificationUpdateWithoutProductInput>, ProductVerificationUncheckedUpdateWithoutProductInput>
   }
 
+  export type ProductInsightProfileUpdateOneWithoutProductNestedInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutProductInput
+    upsert?: ProductInsightProfileUpsertWithoutProductInput
+    disconnect?: ProductInsightProfileWhereInput | boolean
+    delete?: ProductInsightProfileWhereInput | boolean
+    connect?: ProductInsightProfileWhereUniqueInput
+    update?: XOR<XOR<ProductInsightProfileUpdateToOneWithWhereWithoutProductInput, ProductInsightProfileUpdateWithoutProductInput>, ProductInsightProfileUncheckedUpdateWithoutProductInput>
+  }
+
   export type ProductBadgeUpdateManyWithoutProductNestedInput = {
     create?: XOR<ProductBadgeCreateWithoutProductInput, ProductBadgeUncheckedCreateWithoutProductInput> | ProductBadgeCreateWithoutProductInput[] | ProductBadgeUncheckedCreateWithoutProductInput[]
     connectOrCreate?: ProductBadgeCreateOrConnectWithoutProductInput | ProductBadgeCreateOrConnectWithoutProductInput[]
@@ -36874,6 +40005,16 @@ export namespace Prisma {
     delete?: ProductVerificationWhereInput | boolean
     connect?: ProductVerificationWhereUniqueInput
     update?: XOR<XOR<ProductVerificationUpdateToOneWithWhereWithoutProductInput, ProductVerificationUpdateWithoutProductInput>, ProductVerificationUncheckedUpdateWithoutProductInput>
+  }
+
+  export type ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutProductInput
+    upsert?: ProductInsightProfileUpsertWithoutProductInput
+    disconnect?: ProductInsightProfileWhereInput | boolean
+    delete?: ProductInsightProfileWhereInput | boolean
+    connect?: ProductInsightProfileWhereUniqueInput
+    update?: XOR<XOR<ProductInsightProfileUpdateToOneWithWhereWithoutProductInput, ProductInsightProfileUpdateWithoutProductInput>, ProductInsightProfileUncheckedUpdateWithoutProductInput>
   }
 
   export type ProductBadgeUncheckedUpdateManyWithoutProductNestedInput = {
@@ -37086,6 +40227,80 @@ export namespace Prisma {
     upsert?: ProductUpsertWithoutTrafficEventsInput
     connect?: ProductWhereUniqueInput
     update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutTrafficEventsInput, ProductUpdateWithoutTrafficEventsInput>, ProductUncheckedUpdateWithoutTrafficEventsInput>
+  }
+
+  export type ProductCreateNestedOneWithoutInsightProfileInput = {
+    create?: XOR<ProductCreateWithoutInsightProfileInput, ProductUncheckedCreateWithoutInsightProfileInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutInsightProfileInput
+    connect?: ProductWhereUniqueInput
+  }
+
+  export type ProductInsightStageResultCreateNestedManyWithoutProfileInput = {
+    create?: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput> | ProductInsightStageResultCreateWithoutProfileInput[] | ProductInsightStageResultUncheckedCreateWithoutProfileInput[]
+    connectOrCreate?: ProductInsightStageResultCreateOrConnectWithoutProfileInput | ProductInsightStageResultCreateOrConnectWithoutProfileInput[]
+    createMany?: ProductInsightStageResultCreateManyProfileInputEnvelope
+    connect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+  }
+
+  export type ProductInsightStageResultUncheckedCreateNestedManyWithoutProfileInput = {
+    create?: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput> | ProductInsightStageResultCreateWithoutProfileInput[] | ProductInsightStageResultUncheckedCreateWithoutProfileInput[]
+    connectOrCreate?: ProductInsightStageResultCreateOrConnectWithoutProfileInput | ProductInsightStageResultCreateOrConnectWithoutProfileInput[]
+    createMany?: ProductInsightStageResultCreateManyProfileInputEnvelope
+    connect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+  }
+
+  export type EnumProductInsightStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ProductInsightStatus
+  }
+
+  export type ProductUpdateOneRequiredWithoutInsightProfileNestedInput = {
+    create?: XOR<ProductCreateWithoutInsightProfileInput, ProductUncheckedCreateWithoutInsightProfileInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutInsightProfileInput
+    upsert?: ProductUpsertWithoutInsightProfileInput
+    connect?: ProductWhereUniqueInput
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutInsightProfileInput, ProductUpdateWithoutInsightProfileInput>, ProductUncheckedUpdateWithoutInsightProfileInput>
+  }
+
+  export type ProductInsightStageResultUpdateManyWithoutProfileNestedInput = {
+    create?: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput> | ProductInsightStageResultCreateWithoutProfileInput[] | ProductInsightStageResultUncheckedCreateWithoutProfileInput[]
+    connectOrCreate?: ProductInsightStageResultCreateOrConnectWithoutProfileInput | ProductInsightStageResultCreateOrConnectWithoutProfileInput[]
+    upsert?: ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput | ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput[]
+    createMany?: ProductInsightStageResultCreateManyProfileInputEnvelope
+    set?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    disconnect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    delete?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    connect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    update?: ProductInsightStageResultUpdateWithWhereUniqueWithoutProfileInput | ProductInsightStageResultUpdateWithWhereUniqueWithoutProfileInput[]
+    updateMany?: ProductInsightStageResultUpdateManyWithWhereWithoutProfileInput | ProductInsightStageResultUpdateManyWithWhereWithoutProfileInput[]
+    deleteMany?: ProductInsightStageResultScalarWhereInput | ProductInsightStageResultScalarWhereInput[]
+  }
+
+  export type ProductInsightStageResultUncheckedUpdateManyWithoutProfileNestedInput = {
+    create?: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput> | ProductInsightStageResultCreateWithoutProfileInput[] | ProductInsightStageResultUncheckedCreateWithoutProfileInput[]
+    connectOrCreate?: ProductInsightStageResultCreateOrConnectWithoutProfileInput | ProductInsightStageResultCreateOrConnectWithoutProfileInput[]
+    upsert?: ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput | ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput[]
+    createMany?: ProductInsightStageResultCreateManyProfileInputEnvelope
+    set?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    disconnect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    delete?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    connect?: ProductInsightStageResultWhereUniqueInput | ProductInsightStageResultWhereUniqueInput[]
+    update?: ProductInsightStageResultUpdateWithWhereUniqueWithoutProfileInput | ProductInsightStageResultUpdateWithWhereUniqueWithoutProfileInput[]
+    updateMany?: ProductInsightStageResultUpdateManyWithWhereWithoutProfileInput | ProductInsightStageResultUpdateManyWithWhereWithoutProfileInput[]
+    deleteMany?: ProductInsightStageResultScalarWhereInput | ProductInsightStageResultScalarWhereInput[]
+  }
+
+  export type ProductInsightProfileCreateNestedOneWithoutStagesInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutStagesInput, ProductInsightProfileUncheckedCreateWithoutStagesInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutStagesInput
+    connect?: ProductInsightProfileWhereUniqueInput
+  }
+
+  export type ProductInsightProfileUpdateOneRequiredWithoutStagesNestedInput = {
+    create?: XOR<ProductInsightProfileCreateWithoutStagesInput, ProductInsightProfileUncheckedCreateWithoutStagesInput>
+    connectOrCreate?: ProductInsightProfileCreateOrConnectWithoutStagesInput
+    upsert?: ProductInsightProfileUpsertWithoutStagesInput
+    connect?: ProductInsightProfileWhereUniqueInput
+    update?: XOR<XOR<ProductInsightProfileUpdateToOneWithWhereWithoutStagesInput, ProductInsightProfileUpdateWithoutStagesInput>, ProductInsightProfileUncheckedUpdateWithoutStagesInput>
   }
 
   export type ProductCreateNestedOneWithoutProductUpvoteInput = {
@@ -38265,6 +41480,46 @@ export namespace Prisma {
     _max?: NestedEnumDeviceCategoryFilter<$PrismaModel>
   }
 
+  export type NestedEnumProductInsightStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductInsightStatus | EnumProductInsightStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductInsightStatusFilter<$PrismaModel> | $Enums.ProductInsightStatus
+  }
+
+  export type NestedEnumProductInsightStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductInsightStatus | EnumProductInsightStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductInsightStatus[] | ListEnumProductInsightStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductInsightStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductInsightStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProductInsightStatusFilter<$PrismaModel>
+    _max?: NestedEnumProductInsightStatusFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
   export type NestedEnumUserStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.UserStatus | EnumUserStatusFieldRefInput<$PrismaModel>
     in?: $Enums.UserStatus[] | ListEnumUserStatusFieldRefInput<$PrismaModel>
@@ -38568,6 +41823,31 @@ export namespace Prisma {
   export type ProductVerificationCreateOrConnectWithoutProductInput = {
     where: ProductVerificationWhereUniqueInput
     create: XOR<ProductVerificationCreateWithoutProductInput, ProductVerificationUncheckedCreateWithoutProductInput>
+  }
+
+  export type ProductInsightProfileCreateWithoutProductInput = {
+    id?: string
+    status?: $Enums.ProductInsightStatus
+    errorMessage?: string | null
+    lastRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    stages?: ProductInsightStageResultCreateNestedManyWithoutProfileInput
+  }
+
+  export type ProductInsightProfileUncheckedCreateWithoutProductInput = {
+    id?: string
+    status?: $Enums.ProductInsightStatus
+    errorMessage?: string | null
+    lastRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    stages?: ProductInsightStageResultUncheckedCreateNestedManyWithoutProfileInput
+  }
+
+  export type ProductInsightProfileCreateOrConnectWithoutProductInput = {
+    where: ProductInsightProfileWhereUniqueInput
+    create: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
   }
 
   export type ProductBadgeCreateWithoutProductInput = {
@@ -39043,6 +42323,37 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ProductInsightProfileUpsertWithoutProductInput = {
+    update: XOR<ProductInsightProfileUpdateWithoutProductInput, ProductInsightProfileUncheckedUpdateWithoutProductInput>
+    create: XOR<ProductInsightProfileCreateWithoutProductInput, ProductInsightProfileUncheckedCreateWithoutProductInput>
+    where?: ProductInsightProfileWhereInput
+  }
+
+  export type ProductInsightProfileUpdateToOneWithWhereWithoutProductInput = {
+    where?: ProductInsightProfileWhereInput
+    data: XOR<ProductInsightProfileUpdateWithoutProductInput, ProductInsightProfileUncheckedUpdateWithoutProductInput>
+  }
+
+  export type ProductInsightProfileUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stages?: ProductInsightStageResultUpdateManyWithoutProfileNestedInput
+  }
+
+  export type ProductInsightProfileUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stages?: ProductInsightStageResultUncheckedUpdateManyWithoutProfileNestedInput
+  }
+
   export type ProductBadgeUpsertWithWhereUniqueWithoutProductInput = {
     where: ProductBadgeWhereUniqueInput
     update: XOR<ProductBadgeUpdateWithoutProductInput, ProductBadgeUncheckedUpdateWithoutProductInput>
@@ -39282,6 +42593,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -39319,6 +42631,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -39372,6 +42685,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -39409,6 +42723,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -39446,6 +42761,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewCreateNestedManyWithoutProductInput
@@ -39483,6 +42799,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewUncheckedCreateNestedManyWithoutProductInput
@@ -39536,6 +42853,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUpdateManyWithoutProductNestedInput
@@ -39573,6 +42891,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUncheckedUpdateManyWithoutProductNestedInput
@@ -39609,6 +42928,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutProductInput
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -39646,6 +42966,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -39699,6 +43020,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutProductNestedInput
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -39736,6 +43058,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -39773,6 +43096,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -39810,6 +43134,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -39863,6 +43188,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -39900,6 +43226,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -39937,6 +43264,7 @@ export namespace Prisma {
     organization?: OrganizationCreateNestedOneWithoutProductInput
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -39974,6 +43302,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -40027,6 +43356,7 @@ export namespace Prisma {
     organization?: OrganizationUpdateOneWithoutProductNestedInput
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -40064,6 +43394,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -40102,6 +43433,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -40139,6 +43471,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -40192,6 +43525,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -40229,6 +43563,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -40266,6 +43601,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -40303,6 +43639,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -40356,6 +43693,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -40393,12 +43731,309 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductCreateWithoutInsightProfileInput = {
+    id?: string
+    name: string
+    slug: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    logo: string
+    planAssignedAt?: Date | string | null
+    type: $Enums.ProductType
+    pricingModel: $Enums.PricingModel
+    status?: $Enums.ProductStatus
+    publishedAt?: Date | string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    keywords?: ProductCreatekeywordsInput | string[]
+    platforms?: ProductCreateplatformsInput | $Enums.Platform[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutProductsInput
+    category: CategoryCreateNestedOneWithoutProductsInput
+    plan?: PlanCreateNestedOneWithoutProductsInput
+    organization?: OrganizationCreateNestedOneWithoutProductInput
+    metadata?: ProductMetadataCreateNestedOneWithoutProductInput
+    analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
+    verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
+    ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
+    ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
+    ProductReview?: ProductReviewCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductUncheckedCreateWithoutInsightProfileInput = {
+    id?: string
+    name: string
+    slug: string
+    tagline: string
+    description: string
+    websiteUrl: string
+    logo: string
+    userId: string
+    categoryId: string
+    planId?: string | null
+    planAssignedAt?: Date | string | null
+    type: $Enums.ProductType
+    pricingModel: $Enums.PricingModel
+    status?: $Enums.ProductStatus
+    publishedAt?: Date | string | null
+    organizationId?: string | null
+    startingPriceCents?: number | null
+    currencyCode?: string | null
+    ctaLabel?: string | null
+    ctaUrl?: string | null
+    bannerImage?: string | null
+    keywords?: ProductCreatekeywordsInput | string[]
+    platforms?: ProductCreateplatformsInput | $Enums.Platform[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
+    analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
+    verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
+    ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
+    ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
+    ProductReview?: ProductReviewUncheckedCreateNestedManyWithoutProductInput
+    clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
+    trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductCreateOrConnectWithoutInsightProfileInput = {
+    where: ProductWhereUniqueInput
+    create: XOR<ProductCreateWithoutInsightProfileInput, ProductUncheckedCreateWithoutInsightProfileInput>
+  }
+
+  export type ProductInsightStageResultCreateWithoutProfileInput = {
+    id?: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightStageResultUncheckedCreateWithoutProfileInput = {
+    id?: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightStageResultCreateOrConnectWithoutProfileInput = {
+    where: ProductInsightStageResultWhereUniqueInput
+    create: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput>
+  }
+
+  export type ProductInsightStageResultCreateManyProfileInputEnvelope = {
+    data: ProductInsightStageResultCreateManyProfileInput | ProductInsightStageResultCreateManyProfileInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProductUpsertWithoutInsightProfileInput = {
+    update: XOR<ProductUpdateWithoutInsightProfileInput, ProductUncheckedUpdateWithoutInsightProfileInput>
+    create: XOR<ProductCreateWithoutInsightProfileInput, ProductUncheckedCreateWithoutInsightProfileInput>
+    where?: ProductWhereInput
+  }
+
+  export type ProductUpdateToOneWithWhereWithoutInsightProfileInput = {
+    where?: ProductWhereInput
+    data: XOR<ProductUpdateWithoutInsightProfileInput, ProductUncheckedUpdateWithoutInsightProfileInput>
+  }
+
+  export type ProductUpdateWithoutInsightProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    tagline?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    websiteUrl?: StringFieldUpdateOperationsInput | string
+    logo?: StringFieldUpdateOperationsInput | string
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+    pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    startingPriceCents?: NullableIntFieldUpdateOperationsInput | number | null
+    currencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
+    keywords?: ProductUpdatekeywordsInput | string[]
+    platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutProductsNestedInput
+    category?: CategoryUpdateOneRequiredWithoutProductsNestedInput
+    plan?: PlanUpdateOneWithoutProductsNestedInput
+    organization?: OrganizationUpdateOneWithoutProductNestedInput
+    metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
+    analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
+    verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
+    ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
+    ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
+    ProductReview?: ProductReviewUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductUncheckedUpdateWithoutInsightProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    tagline?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    websiteUrl?: StringFieldUpdateOperationsInput | string
+    logo?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    categoryId?: StringFieldUpdateOperationsInput | string
+    planId?: NullableStringFieldUpdateOperationsInput | string | null
+    planAssignedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    type?: EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+    pricingModel?: EnumPricingModelFieldUpdateOperationsInput | $Enums.PricingModel
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startingPriceCents?: NullableIntFieldUpdateOperationsInput | number | null
+    currencyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    ctaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
+    keywords?: ProductUpdatekeywordsInput | string[]
+    platforms?: ProductUpdateplatformsInput | $Enums.Platform[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
+    analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
+    verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
+    ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
+    ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
+    ProductReview?: ProductReviewUncheckedUpdateManyWithoutProductNestedInput
+    clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
+    trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
+    MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductInsightStageResultUpsertWithWhereUniqueWithoutProfileInput = {
+    where: ProductInsightStageResultWhereUniqueInput
+    update: XOR<ProductInsightStageResultUpdateWithoutProfileInput, ProductInsightStageResultUncheckedUpdateWithoutProfileInput>
+    create: XOR<ProductInsightStageResultCreateWithoutProfileInput, ProductInsightStageResultUncheckedCreateWithoutProfileInput>
+  }
+
+  export type ProductInsightStageResultUpdateWithWhereUniqueWithoutProfileInput = {
+    where: ProductInsightStageResultWhereUniqueInput
+    data: XOR<ProductInsightStageResultUpdateWithoutProfileInput, ProductInsightStageResultUncheckedUpdateWithoutProfileInput>
+  }
+
+  export type ProductInsightStageResultUpdateManyWithWhereWithoutProfileInput = {
+    where: ProductInsightStageResultScalarWhereInput
+    data: XOR<ProductInsightStageResultUpdateManyMutationInput, ProductInsightStageResultUncheckedUpdateManyWithoutProfileInput>
+  }
+
+  export type ProductInsightStageResultScalarWhereInput = {
+    AND?: ProductInsightStageResultScalarWhereInput | ProductInsightStageResultScalarWhereInput[]
+    OR?: ProductInsightStageResultScalarWhereInput[]
+    NOT?: ProductInsightStageResultScalarWhereInput | ProductInsightStageResultScalarWhereInput[]
+    id?: StringFilter<"ProductInsightStageResult"> | string
+    profileId?: StringFilter<"ProductInsightStageResult"> | string
+    stageId?: StringFilter<"ProductInsightStageResult"> | string
+    providerType?: StringFilter<"ProductInsightStageResult"> | string
+    status?: EnumProductInsightStatusFilter<"ProductInsightStageResult"> | $Enums.ProductInsightStatus
+    data?: JsonNullableFilter<"ProductInsightStageResult">
+    metrics?: JsonNullableFilter<"ProductInsightStageResult">
+    errorMessage?: StringNullableFilter<"ProductInsightStageResult"> | string | null
+    startedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"ProductInsightStageResult"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductInsightStageResult"> | Date | string
+  }
+
+  export type ProductInsightProfileCreateWithoutStagesInput = {
+    id?: string
+    status?: $Enums.ProductInsightStatus
+    errorMessage?: string | null
+    lastRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    product: ProductCreateNestedOneWithoutInsightProfileInput
+  }
+
+  export type ProductInsightProfileUncheckedCreateWithoutStagesInput = {
+    id?: string
+    productId: string
+    status?: $Enums.ProductInsightStatus
+    errorMessage?: string | null
+    lastRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightProfileCreateOrConnectWithoutStagesInput = {
+    where: ProductInsightProfileWhereUniqueInput
+    create: XOR<ProductInsightProfileCreateWithoutStagesInput, ProductInsightProfileUncheckedCreateWithoutStagesInput>
+  }
+
+  export type ProductInsightProfileUpsertWithoutStagesInput = {
+    update: XOR<ProductInsightProfileUpdateWithoutStagesInput, ProductInsightProfileUncheckedUpdateWithoutStagesInput>
+    create: XOR<ProductInsightProfileCreateWithoutStagesInput, ProductInsightProfileUncheckedCreateWithoutStagesInput>
+    where?: ProductInsightProfileWhereInput
+  }
+
+  export type ProductInsightProfileUpdateToOneWithWhereWithoutStagesInput = {
+    where?: ProductInsightProfileWhereInput
+    data: XOR<ProductInsightProfileUpdateWithoutStagesInput, ProductInsightProfileUncheckedUpdateWithoutStagesInput>
+  }
+
+  export type ProductInsightProfileUpdateWithoutStagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutInsightProfileNestedInput
+  }
+
+  export type ProductInsightProfileUncheckedUpdateWithoutStagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductCreateWithoutProductUpvoteInput = {
@@ -40430,6 +44065,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewCreateNestedManyWithoutProductInput
@@ -40467,6 +44103,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewUncheckedCreateNestedManyWithoutProductInput
@@ -40571,6 +44208,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUpdateManyWithoutProductNestedInput
@@ -40608,6 +44246,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUncheckedUpdateManyWithoutProductNestedInput
@@ -40727,6 +44366,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -40764,6 +44404,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -41158,6 +44799,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -41195,6 +44837,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -41558,6 +45201,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -41595,6 +45239,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -41699,6 +45344,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -41736,6 +45382,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -41937,6 +45584,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -41974,6 +45622,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -42079,6 +45728,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
@@ -42116,6 +45766,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductBadge?: ProductBadgeUncheckedCreateNestedManyWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
@@ -42139,6 +45790,7 @@ export namespace Prisma {
     id?: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     feature: PlanFeatureCreateNestedOneWithoutAssignmentsInput
@@ -42149,6 +45801,7 @@ export namespace Prisma {
     featureId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -42230,6 +45883,7 @@ export namespace Prisma {
     featureId?: StringFilter<"PlanFeatureAssignment"> | string
     enabled?: BoolFilter<"PlanFeatureAssignment"> | boolean
     isExperimental?: BoolFilter<"PlanFeatureAssignment"> | boolean
+    config?: JsonNullableFilter<"PlanFeatureAssignment">
     createdAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
     updatedAt?: DateTimeFilter<"PlanFeatureAssignment"> | Date | string
   }
@@ -42254,6 +45908,7 @@ export namespace Prisma {
     id?: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     plan: PlanCreateNestedOneWithoutAssignmentsInput
@@ -42264,6 +45919,7 @@ export namespace Prisma {
     planId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -42683,6 +46339,7 @@ export namespace Prisma {
     metadata?: ProductMetadataCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsCreateNestedOneWithoutProductInput
     verification?: ProductVerificationCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileCreateNestedOneWithoutProductInput
     ProductMedia?: ProductMediaCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewCreateNestedManyWithoutProductInput
@@ -42720,6 +46377,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedCreateNestedOneWithoutProductInput
     analytics?: ProductAnalyticsUncheckedCreateNestedOneWithoutProductInput
     verification?: ProductVerificationUncheckedCreateNestedOneWithoutProductInput
+    insightProfile?: ProductInsightProfileUncheckedCreateNestedOneWithoutProductInput
     ProductMedia?: ProductMediaUncheckedCreateNestedManyWithoutProductInput
     ProductUpvote?: ProductUpvoteUncheckedCreateNestedManyWithoutProductInput
     ProductReview?: ProductReviewUncheckedCreateNestedManyWithoutProductInput
@@ -42773,6 +46431,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUpdateManyWithoutProductNestedInput
@@ -42810,6 +46469,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
     ProductReview?: ProductReviewUncheckedUpdateManyWithoutProductNestedInput
@@ -43240,6 +46900,62 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ProductInsightStageResultCreateManyProfileInput = {
+    id?: string
+    stageId: string
+    providerType: string
+    status?: $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: string | null
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductInsightStageResultUpdateWithoutProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightStageResultUncheckedUpdateWithoutProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductInsightStageResultUncheckedUpdateManyWithoutProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stageId?: StringFieldUpdateOperationsInput | string
+    providerType?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
+    data?: NullableJsonNullValueInput | InputJsonValue
+    metrics?: NullableJsonNullValueInput | InputJsonValue
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrganizationMembershipCreateManyOrganizationInput = {
     id?: string
     userId: string
@@ -43327,6 +47043,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -43364,6 +47081,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -43505,6 +47223,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -43542,6 +47261,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -43791,6 +47511,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -43828,6 +47549,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -43908,6 +47630,7 @@ export namespace Prisma {
     featureId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -43948,6 +47671,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUpdateManyWithoutProductNestedInput
@@ -43985,6 +47709,7 @@ export namespace Prisma {
     metadata?: ProductMetadataUncheckedUpdateOneWithoutProductNestedInput
     analytics?: ProductAnalyticsUncheckedUpdateOneWithoutProductNestedInput
     verification?: ProductVerificationUncheckedUpdateOneWithoutProductNestedInput
+    insightProfile?: ProductInsightProfileUncheckedUpdateOneWithoutProductNestedInput
     ProductBadge?: ProductBadgeUncheckedUpdateManyWithoutProductNestedInput
     ProductMedia?: ProductMediaUncheckedUpdateManyWithoutProductNestedInput
     ProductUpvote?: ProductUpvoteUncheckedUpdateManyWithoutProductNestedInput
@@ -44025,6 +47750,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     feature?: PlanFeatureUpdateOneRequiredWithoutAssignmentsNestedInput
@@ -44035,6 +47761,7 @@ export namespace Prisma {
     featureId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -44044,6 +47771,7 @@ export namespace Prisma {
     featureId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -44077,6 +47805,7 @@ export namespace Prisma {
     planId: string
     enabled: boolean
     isExperimental?: boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -44085,6 +47814,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     plan?: PlanUpdateOneRequiredWithoutAssignmentsNestedInput
@@ -44095,6 +47825,7 @@ export namespace Prisma {
     planId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -44104,6 +47835,7 @@ export namespace Prisma {
     planId?: StringFieldUpdateOperationsInput | string
     enabled?: BoolFieldUpdateOperationsInput | boolean
     isExperimental?: BoolFieldUpdateOperationsInput | boolean
+    config?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

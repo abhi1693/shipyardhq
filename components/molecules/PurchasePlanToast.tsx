@@ -8,7 +8,7 @@ import { toast } from "sonner"
 export default function PurchasePlanToast() {
   const sp = useSearchParams()
   const router = useRouter()
-  const pathname = usePathname()
+  const pathname = usePathname() ?? "/"
 
   useEffect(() => {
     if (!sp) return
