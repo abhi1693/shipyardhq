@@ -348,7 +348,11 @@ function StageCard({
 
   return (
     <Card>
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        className="flex flex-col gap-6"
+      >
         {header(true)}
         <CollapsibleContent asChild>
           <CardContent className="space-y-6">{children}</CardContent>
@@ -364,59 +368,6 @@ type FlowStageSummary = {
   description: string
   status: { label: string; badge: ComponentProps<typeof Badge>["variant"] }
   metrics: Array<{ label: string; value: ReactNode }>
-}
-
-function FlowOverview({ stages }: { stages: FlowStageSummary[] }) {
-  if (!stages.length) return null
-  return (
-    <Card>
-      <CardHeader className="space-y-1">
-        <CardTitle>Insights pipeline</CardTitle>
-        <CardDescription>
-          Track progress across the discovery sequence and jump into the stage
-          that needs attention.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {stages.map((stage) => (
-            <div
-              key={stage.title}
-              className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <StageBadge label={stage.step} />
-                <Badge variant={stage.status.badge} className="text-[11px]">
-                  {stage.status.label}
-                </Badge>
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-foreground">
-                  {stage.title}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {stage.description}
-                </div>
-              </div>
-              <dl className="space-y-2 text-xs text-muted-foreground">
-                {stage.metrics.map((metric) => (
-                  <div
-                    key={`${stage.title}-${metric.label}`}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <dt>{metric.label}</dt>
-                    <dd className="font-medium text-foreground">
-                      {metric.value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  )
 }
 
 export function ProductInsightsView({
@@ -660,8 +611,6 @@ const summarySections: SummarySection[] = useMemo(() => {
         typeof note === "string" && note.trim().length > 0,
     )
   }, [profile])
-
-  const competitorModel = profile?.competitorModel ?? null
 
   const hasCompetitorResults = sortedCompetitors.length > 0
 
@@ -1067,35 +1016,6 @@ const summarySections: SummarySection[] = useMemo(() => {
         : "danger"
     : "neutral"
 
-  const crawlerFactBase = [
-    {
-      factLabel: "Last crawl",
-      metricLabel: "Last crawled",
-      value: lastCrawled,
-      tone: profile
-        ? lastCrawled === "Never"
-          ? "warning"
-          : "neutral"
-        : "warning",
-    },
-    {
-      factLabel: "Pages captured",
-      value: profile ? COUNT_FORMATTER.format(pageCount) : "—",
-      tone: profile ? (pageCount ? "neutral" : "warning") : "neutral",
-    },
-    {
-      factLabel: "Errors found",
-      metricLabel: "Errors",
-      value: profile ? COUNT_FORMATTER.format(erroredPages.length) : "—",
-      tone: profile ? (erroredPages.length ? "danger" : "positive") : "neutral",
-    },
-  ] as const satisfies ReadonlyArray<{
-    factLabel: string
-    metricLabel?: string
-    value: string
-    tone: MetricTone
-  }>
-
   const sitemapEntries = useMemo(() => {
     const seen = new Set<string>()
     const entries: Array<{ url: string; status: SitemapEntryStatus }> = []
@@ -1123,12 +1043,6 @@ const summarySections: SummarySection[] = useMemo(() => {
     (entry) => entry.status === "error",
   ).length
   const hasSitemapEntries = sitemapEntryCount > 0
-
-  const productQuickFacts = crawlerFactBase.map((entry) => ({
-    label: entry.factLabel,
-    value: entry.value,
-    tone: entry.tone,
-  }))
 
   const hasCrawlerNotices = Boolean(
     progressMessage ||
@@ -1164,9 +1078,6 @@ const summarySections: SummarySection[] = useMemo(() => {
   const metricsToWatch = Array.isArray(finalReport?.metricsToWatch)
     ? finalReport!.metricsToWatch
     : []
-  const supportingData = Array.isArray(finalReport?.supportingData)
-    ? finalReport!.supportingData
-    : []
   const reportStatus = profile?.finalReportStatus ?? null
   const reportStatusDisplay = reportStatus
     ? STATUS_STYLES[reportStatus]
@@ -1189,32 +1100,6 @@ const summarySections: SummarySection[] = useMemo(() => {
     value: string
     tone: MetricTone
   }> = [
-    {
-      label: "Last generated",
-      value: lastReportGenerated,
-      tone: hasFinalReport ? "neutral" : "warning",
-    },
-    {
-      label: "Highlights",
-      value: headlineCount
-        ? `${COUNT_FORMATTER.format(headlineCount)} key point${headlineCount === 1 ? "" : "s"}`
-        : "—",
-      tone: headlineCount ? "positive" : "neutral",
-    },
-    {
-      label: "Recommended actions",
-      value: actionCount
-        ? `${COUNT_FORMATTER.format(actionCount)} action${actionCount === 1 ? "" : "s"}`
-        : "—",
-      tone:
-        actionCount >= 3
-          ? "positive"
-          : actionCount
-            ? "neutral"
-            : hasFinalReport
-              ? "warning"
-              : "neutral",
-    },
     {
       label: "Opportunity areas",
       value: opportunityCount
@@ -1462,6 +1347,19 @@ const summarySections: SummarySection[] = useMemo(() => {
 
     return null
   }, [actionPriorityDistribution, sentimentDistribution])
+
+  const sentimentSummaryText = useMemo(() => {
+    if (!sentimentDistribution) return null
+    const counts = { positive: 0, negative: 0, neutral: 0 }
+    sentimentDistribution.data.forEach((entry: any) => {
+      if (entry.key === "positive" || entry.key === "negative" || entry.key === "neutral") {
+        counts[entry.key] = entry.value
+      }
+    })
+    const total = counts.positive + counts.negative + counts.neutral
+    if (!total) return null
+    return `Positive ${COUNT_FORMATTER.format(counts.positive)} • Negative ${COUNT_FORMATTER.format(counts.negative)} • Neutral ${COUNT_FORMATTER.format(counts.neutral)}`
+  }, [sentimentDistribution])
 
   const snapshotChartConfig = useMemo<ChartConfig | null>(() => {
     if (!snapshotChart) return null
@@ -1714,7 +1612,7 @@ const summarySections: SummarySection[] = useMemo(() => {
                 className="flex-1 flex-col items-start gap-1 text-left text-xs text-muted-foreground sm:items-end sm:text-right"
               >
                 <span className="text-sm font-medium text-foreground">
-                  Deep harvest
+                  Deep capture
                 </span>
                 <span className="text-[11px]">
                   Expand discovery searches and pull full comment trees for top
@@ -1726,7 +1624,7 @@ const summarySections: SummarySection[] = useMemo(() => {
                 checked={isDeepMode}
                 onCheckedChange={setIsDeepMode}
                 disabled={isPipelinePending}
-                aria-label="Toggle deep discussion harvest"
+                aria-label="Toggle deep discussion capture"
               />
             </div>
             <Button
@@ -1742,7 +1640,7 @@ const summarySections: SummarySection[] = useMemo(() => {
         </CardHeader>
         <CardContent className="space-y-3 text-xs text-muted-foreground">
           <div>Last report generated: {lastReportGenerated}</div>
-          <div>Discussion harvest: {activeHarvestModeLabel}</div>
+          <div>Discussion capture: {activeHarvestModeLabel}</div>
           {pipelineNotice ? (
             <InfoNotice tone={pipelineNotice.tone} size="xs">
               {pipelineNotice.message}
@@ -1833,7 +1731,7 @@ const summarySections: SummarySection[] = useMemo(() => {
                 ))}
               </div>
             </div>
-            <div className="space-y-3">
+              <div className="space-y-3">
               {snapshotChart && snapshotChartConfig ? (
                 <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                   <div>
@@ -1844,6 +1742,11 @@ const summarySections: SummarySection[] = useMemo(() => {
                       {snapshotChart.description}
                     </div>
                   </div>
+                  {sentimentSummaryText ? (
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
+                      {sentimentSummaryText}
+                    </div>
+                  ) : null}
                   <AnalyticsPieChart
                     className="border-none p-0 shadow-none"
                     data={snapshotChart.data}
@@ -1913,13 +1816,32 @@ const summarySections: SummarySection[] = useMemo(() => {
         </CardContent>
       </Card>
 
-      <FlowOverview stages={flowStageSummaries} />
-
       <StageCard
         step="Step 1"
         title="Product foundation"
         description="The pipeline crawler captures live messaging and structure for this product."
         status={statusDisplay}
+        metrics={[
+          {
+            label: "Pages captured",
+            value: profile
+              ? COUNT_FORMATTER.format(pageCount)
+              : "—",
+            tone: pageCount ? "positive" : "warning",
+          },
+          {
+            label: "Errors",
+            value: profile
+              ? COUNT_FORMATTER.format(erroredPages.length)
+              : "—",
+            tone: erroredPages.length ? "danger" : "positive",
+          },
+          {
+            label: "Last run",
+            value: lastCrawled,
+            tone: lastCrawled === "Never" ? "warning" : "neutral",
+          },
+        ]}
         collapsible
         defaultOpen={shouldOpenCrawlerStage}
       >
@@ -1969,24 +1891,6 @@ const summarySections: SummarySection[] = useMemo(() => {
                         {websiteUrl}
                       </Link>
                     </div>
-                  </div>
-                  <div className="grid flex-none gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {productQuickFacts.map((fact) => (
-                      <div
-                        key={fact.label}
-                        className={cn(
-                          "rounded-lg border p-3 text-left text-sm shadow-sm",
-                          FACT_TONE_STYLES[fact.tone],
-                        )}
-                      >
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                          {fact.label}
-                        </div>
-                        <div className="mt-1 text-sm font-semibold">
-                          {fact.value}
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 </div>
                 {profile ? (
@@ -2153,27 +2057,22 @@ const summarySections: SummarySection[] = useMemo(() => {
                         {summarySections.map((section) => (
                           <div
                             key={section.title}
-                            className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                            className="space-y-3 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
                           >
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="text-sm font-semibold text-foreground">
-                                {section.title}
-                              </div>
-                              <Badge variant="outline" className="text-[11px]">
-                                {COUNT_FORMATTER.format(section.items.length)}
-                              </Badge>
+                            <div className="text-sm font-semibold text-foreground">
+                              {section.title}
                             </div>
-                            <ul className="space-y-2 text-sm text-muted-foreground">
+                            <div className="flex flex-wrap gap-2">
                               {section.items.map((item, index) => (
-                                <li
+                                <span
                                   key={`${section.title}-${index}`}
-                                  className="flex gap-2"
+                                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-700"
                                 >
-                                  <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
+                                  <span className="text-xs">•</span>
                                   <span>{item}</span>
-                                </li>
+                                </span>
                               ))}
-                            </ul>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -2191,20 +2090,43 @@ const summarySections: SummarySection[] = useMemo(() => {
         title="Competitive landscape"
         description="Identify the alternatives buyers evaluate alongside this product before diving into community signals."
         status={competitorStatusDisplay}
+        metrics={[
+          {
+            label: "Competitors",
+            value: hasCompetitorResults
+              ? COUNT_FORMATTER.format(sortedCompetitors.length)
+              : "0",
+            tone: hasCompetitorResults ? "positive" : "warning",
+          },
+          {
+            label: "Gap signals",
+            value: COUNT_FORMATTER.format(
+              sortedCompetitors.filter(
+                (entry) => Array.isArray(entry.weaknesses) && entry.weaknesses.length,
+              ).length,
+            ),
+            tone: "neutral",
+          },
+          {
+            label: "Last refreshed",
+            value: lastCompetitorDiscovery,
+            tone: lastCompetitorDiscovery === "Never" ? "warning" : "neutral",
+          },
+        ]}
         collapsible
         defaultOpen={shouldOpenCompetitorStage}
       >
         <>
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-              <span>Since last run:</span>
-              <span>
-                {hasCompetitorResults
-                  ? `${COUNT_FORMATTER.format(sortedCompetitors.length)} competitors mapped`
-                  : "Landscape ready to refresh"}
-              </span>
+                <span>Since last run:</span>
+                <span>
+                  {hasCompetitorResults
+                    ? `${COUNT_FORMATTER.format(sortedCompetitors.length)} competitors mapped`
+                    : "Landscape ready to refresh"}
+                </span>
             </div>
-            <div className="space-y-6">
+              <div className="space-y-6">
               <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                 <div>
                   <div className="text-sm font-semibold text-foreground">
@@ -2215,11 +2137,6 @@ const summarySections: SummarySection[] = useMemo(() => {
                     synthesis context.
                   </div>
                 </div>
-                {competitorModel ? (
-                  <Badge variant="outline" className="self-start text-[11px]">
-                    {competitorModel}
-                  </Badge>
-                ) : null}
               </div>
 
               {shouldSurfaceCompetitorNotices ? (
@@ -2271,36 +2188,32 @@ const summarySections: SummarySection[] = useMemo(() => {
                         key={`${competitor.name || "competitor"}-${index}`}
                         className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
                       >
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div className="space-y-1">
-                            <div className="text-sm font-semibold text-foreground">
-                              {competitor.name || "Competitor"}
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="space-y-1">
+                              <div className="text-sm font-semibold text-foreground">
+                                {competitor.name || "Competitor"}
+                              </div>
+                              {focusArea ? (
+                                <div className="text-xs text-muted-foreground">
+                                  {focusArea}
+                                </div>
+                              ) : null}
+                              {positioning ? (
+                                <div className="text-xs text-muted-foreground">
+                                  {positioning}
+                                </div>
+                              ) : null}
                             </div>
-                            {focusArea ? (
-                              <div className="text-xs text-muted-foreground">
-                                {focusArea}
-                              </div>
-                            ) : null}
-                            {positioning ? (
-                              <div className="text-xs text-muted-foreground">
-                                {positioning}
-                              </div>
-                            ) : null}
                           </div>
-                          <div className="flex flex-col items-end gap-2">
+                          <div className="flex flex-wrap items-center gap-2 text-[11px]">
                             {similarityPercent !== null ? (
-                              <Badge
-                                variant="secondary"
-                                className="text-[10px]"
-                              >
+                              <Badge variant="secondary" className="text-[10px]">
                                 {similarityPercent}% overlap
                               </Badge>
                             ) : null}
                             {maturityLabel ? (
-                              <Badge
-                                variant="outline"
-                                className="text-[10px] capitalize"
-                              >
+                              <Badge variant="outline" className="text-[10px] capitalize">
                                 {maturityLabel}
                               </Badge>
                             ) : null}
@@ -2309,7 +2222,7 @@ const summarySections: SummarySection[] = useMemo(() => {
                                 href={visitUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-[11px] font-semibold text-primary transition hover:underline"
+                                className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-[10px] font-semibold text-primary transition hover:bg-primary/10"
                               >
                                 Visit site
                               </Link>
@@ -2317,9 +2230,9 @@ const summarySections: SummarySection[] = useMemo(() => {
                           </div>
                         </div>
                         {competitor.description ? (
-                          <p className="text-xs leading-relaxed text-muted-foreground">
+                          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">
                             {competitor.description}
-                          </p>
+                          </div>
                         ) : null}
                         <div className="space-y-3 text-xs text-muted-foreground">
                           {differentiators.length ? (
@@ -2344,16 +2257,16 @@ const summarySections: SummarySection[] = useMemo(() => {
                               <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                                 Strengths
                               </div>
-                              <ul className="mt-1 space-y-1">
+                              <div className="mt-1 flex flex-wrap gap-2">
                                 {strengths.map((item) => (
-                                  <li
+                                  <span
                                     key={`${competitor.name}-strength-${item}`}
-                                    className="leading-relaxed"
+                                    className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
                                   >
                                     {item}
-                                  </li>
+                                  </span>
                                 ))}
-                              </ul>
+                              </div>
                             </div>
                           ) : null}
                           {weaknesses.length ? (
@@ -2361,16 +2274,16 @@ const summarySections: SummarySection[] = useMemo(() => {
                               <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                                 Gaps
                               </div>
-                              <ul className="mt-1 space-y-1">
+                              <div className="mt-1 flex flex-wrap gap-2">
                                 {weaknesses.map((item) => (
-                                  <li
+                                  <span
                                     key={`${competitor.name}-weakness-${item}`}
-                                    className="leading-relaxed"
+                                    className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
                                   >
                                     {item}
-                                  </li>
+                                  </span>
                                 ))}
-                              </ul>
+                              </div>
                             </div>
                           ) : null}
                           {source ? (
@@ -2413,6 +2326,33 @@ const summarySections: SummarySection[] = useMemo(() => {
         title="Audience discovery"
         description="The pipeline generates community search plans and captures the groups that match this product."
         status={subredditStatusDisplay}
+        metrics={[
+          {
+            label: "Communities",
+            value: hasSubredditResults
+              ? COUNT_FORMATTER.format(subreddits.length)
+              : "0",
+            tone: hasSubredditResults ? "positive" : "warning",
+          },
+          {
+            label: "Query coverage",
+            value:
+              coveragePercent !== null
+                ? `${PERCENT_FORMATTER.format(coveragePercent)}%`
+                : "—",
+            tone:
+              coveragePercent !== null
+                ? coveragePercent >= REQUIRED_QUERY_COVERAGE_PERCENT
+                  ? "positive"
+                  : "warning"
+                : "neutral",
+          },
+          {
+            label: "Last refreshed",
+            value: lastSubredditDiscovery,
+            tone: lastSubredditDiscovery === "Never" ? "warning" : "neutral",
+          },
+        ]}
         collapsible
         defaultOpen={shouldOpenSubredditStage}
       >
@@ -2474,9 +2414,14 @@ const summarySections: SummarySection[] = useMemo(() => {
                         })}
                       </div>
                     ) : (
-                      <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
-                        Run discovery to generate targeted community search
-                        queries for this product.
+                      <div className="flex items-start gap-2 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
+                        <span className="text-lg" role="img" aria-hidden>
+                          🔍
+                        </span>
+                        <span>
+                          Run discovery to generate targeted community search
+                          queries for this product.
+                        </span>
                       </div>
                     )}
                   </div>
@@ -2730,6 +2675,27 @@ const summarySections: SummarySection[] = useMemo(() => {
         title="Discussion insights"
         description="Review community conversations to surface wins, friction, and opportunities."
         status={discussionStatusDisplay}
+        metrics={[
+          {
+            label: "Threads",
+            value: hasDiscussionThreads
+              ? COUNT_FORMATTER.format(discussionThreads.length)
+              : "0",
+            tone: hasDiscussionThreads ? "positive" : "warning",
+          },
+          {
+            label: "Focus themes",
+            value: focusAreas.length
+              ? COUNT_FORMATTER.format(focusAreas.length)
+              : "0",
+            tone: focusAreas.length ? "positive" : "neutral",
+          },
+          {
+            label: "Last refreshed",
+            value: lastDiscussionDiscovery,
+            tone: lastDiscussionDiscovery === "Never" ? "warning" : "neutral",
+          },
+        ]}
         collapsible
         defaultOpen={shouldOpenDiscussionStage}
       >
@@ -2741,7 +2707,7 @@ const summarySections: SummarySection[] = useMemo(() => {
                 <span>
                   {hasDiscussionThreads
                     ? `${COUNT_FORMATTER.format(discussionThreads.length)} conversations reviewed`
-                    : "Awaiting conversation harvest"}
+                    : "Awaiting conversation capture"}
                 </span>
               </div>
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
@@ -2778,9 +2744,13 @@ const summarySections: SummarySection[] = useMemo(() => {
                         ))}
                       </div>
                     ) : (
-                      <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
-                        Run the pipeline to craft discussion queries that
-                        capture fresh sentiment from your saved communities.
+                      <div className="flex items-start gap-2 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
+                        <span className="text-lg" role="img" aria-hidden>
+                          💬
+                        </span>
+                        <span>
+                          Run the pipeline to craft discussion queries that capture fresh sentiment from your saved communities.
+                        </span>
                       </div>
                     )}
                   </div>
@@ -3259,6 +3229,25 @@ const summarySections: SummarySection[] = useMemo(() => {
         title="Comprehensive report"
         description="Merge product narrative, community intelligence, and discussion signals into a single plan."
         status={reportStatusDisplay}
+        metrics={[
+          {
+            label: "Actions",
+            value: hasFinalReport
+              ? COUNT_FORMATTER.format(actionCount)
+              : "0",
+            tone: hasFinalReport ? "positive" : "warning",
+          },
+          {
+            label: "Highlights",
+            value: COUNT_FORMATTER.format(headlineCount),
+            tone: headlineCount ? "positive" : "neutral",
+          },
+          {
+            label: "Last refreshed",
+            value: lastReportGenerated,
+            tone: lastReportGenerated === "Never" ? "warning" : "neutral",
+          },
+        ]}
         collapsible
         defaultOpen={shouldOpenReportStage}
       >
@@ -3681,40 +3670,6 @@ const summarySections: SummarySection[] = useMemo(() => {
               </section>
             ) : null}
 
-            {supportingData.length ? (
-              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold text-foreground">
-                    Supporting data
-                  </div>
-                  <Badge variant="outline" className="text-[11px]">
-                    {COUNT_FORMATTER.format(supportingData.length)} dataset
-                    {supportingData.length === 1 ? "" : "s"}
-                  </Badge>
-                </div>
-                <div className="space-y-3">
-                  {supportingData.map((entry, index) => (
-                    <div
-                      key={`support-${index}`}
-                      className="rounded-lg border border-slate-200 bg-white p-3 text-xs text-muted-foreground"
-                    >
-                      <div className="text-sm font-semibold text-foreground">
-                        {entry.label}
-                      </div>
-                      {Array.isArray(entry.entries) && entry.entries.length ? (
-                        <ul className="mt-2 list-disc space-y-1 pl-4">
-                          {entry.entries.map((item, itemIndex) => (
-                            <li key={`support-${index}-${itemIndex}`}>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ) : null}
           </div>
         </>
       </StageCard>
