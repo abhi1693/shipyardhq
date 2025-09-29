@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/atoms/sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import NextTopLoader from "nextjs-toploader"
@@ -25,11 +24,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
-const META_THEME_COLORS = {
-  light: "#ffffff",
-  dark: "#09090b",
-}
-
 const siteSeo = buildSiteSeo()
 
 export const metadata: Metadata = {
@@ -49,10 +43,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: META_THEME_COLORS.light },
-    { media: "(prefers-color-scheme: dark)", color: META_THEME_COLORS.dark },
-  ],
+  themeColor: "#ffffff",
 }
 
 export default function RootLayout({
@@ -72,19 +63,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
         <NextTopLoader showSpinner={false} />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-          enableColorScheme
-        >
-          <ClarityAnalytics />
-          <Providers>
-            <Toaster position="top-right" />
-            {children}
-          </Providers>
-        </ThemeProvider>
+        <ClarityAnalytics />
+        <Providers>
+          <Toaster position="top-right" />
+          {children}
+        </Providers>
       </body>
       {IS_PROD && HAS_APP_URL && process.env.GOOGLE_ANALYTICS_ID && (
         <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID} />

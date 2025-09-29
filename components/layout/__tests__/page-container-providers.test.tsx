@@ -4,10 +4,6 @@ import Providers from "@/components/layout/providers"
 import { vi } from "vitest"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
 
-vi.mock("next-themes", () => ({
-  useTheme: () => ({ theme: "dark" }),
-}))
-
 vi.mock("next/navigation", () => ({
   usePathname: () => MEMBER_BASE_PATH,
 }))

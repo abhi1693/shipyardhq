@@ -3,18 +3,16 @@ import { render } from "@testing-library/react"
 import { vi } from "vitest"
 import { MEMBER_BASE_PATH } from "@/lib/routes"
 
-// Mock ClerkProvider to expose baseTheme presence
+// Mock ClerkProvider to capture received props
 const clerkSpy = vi.fn()
 vi.mock("@clerk/nextjs", () => ({
-  ClerkProvider: ({ appearance, children }: any) => {
-    clerkSpy(appearance?.baseTheme ? "dark" : "light")
+  ClerkProvider: ({ children, ...props }: any) => {
+    clerkSpy(props)
     return <div data-testid="clerk">{children}</div>
   },
   useUser: () => ({ isLoaded: true, isSignedIn: true }),
 }))
 
-let currentTheme = "dark"
-vi.mock("next-themes", () => ({ useTheme: () => ({ theme: currentTheme }) }))
 vi.mock("next/navigation", () => ({ usePathname: () => MEMBER_BASE_PATH }))
 import Providers from "@/components/layout/providers"
 
@@ -23,23 +21,12 @@ describe("Providers appearance", () => {
     clerkSpy.mockClear()
   })
 
-  it("uses dark baseTheme when theme is dark", () => {
-    currentTheme = "dark"
+  it("renders without passing dark appearance overrides", () => {
     render(
       <Providers>
         <div>child</div>
       </Providers>,
     )
-    expect(clerkSpy).toHaveBeenCalledWith("dark")
-  })
-
-  it("uses default appearance when theme is not dark", () => {
-    currentTheme = "light"
-    render(
-      <Providers>
-        <div>child</div>
-      </Providers>,
-    )
-    expect(clerkSpy).toHaveBeenCalledWith("light")
+    expect(clerkSpy).toHaveBeenCalledWith({})
   })
 })
