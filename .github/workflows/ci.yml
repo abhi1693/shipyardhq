@@ -103,9 +103,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         with:
           install: npm ci
-          build: |
-            npm run build
-            npm run prisma:seed
+          build: npm run build && npm run prisma:seed
           start: npm run start
           wait-on: http://127.0.0.1:3000
           wait-on-timeout: 120000
