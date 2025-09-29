@@ -973,6 +973,7 @@ export function ProductInsightsView({
   )
 
   const hasDiscussionThreads = discussionThreads.length > 0
+  const showDiscussionSamples = false
 
   const totalCommentsSampled = discussionThreads.reduce((sum, thread) => {
     const commentCount = thread.topComments?.length ?? 0
@@ -3043,7 +3044,7 @@ export function ProductInsightsView({
               </section>
             ) : null}
 
-            {hasDiscussionThreads ? (
+            {showDiscussionSamples && hasDiscussionThreads ? (
               <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                   <div>
