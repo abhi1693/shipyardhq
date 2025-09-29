@@ -30,7 +30,9 @@ const hi = "there"
     const output = markdownToPlainText(input)
 
     expect(output).toContain("Heading")
-    expect(output).toContain("Hello world! Visit Shipyard (https://shipyardhq.dev).")
+    expect(output).toContain(
+      "Hello world! Visit Shipyard (https://shipyardhq.dev).",
+    )
     expect(output).toContain("Block quote here.")
     expect(output).toContain("Item one")
     expect(output).toContain("Item two")
@@ -38,9 +40,7 @@ const hi = "there"
   })
 
   it("caps preview text to 140 characters", () => {
-    const repeated = Array(20)
-      .fill("Shipyard crew is shipping fast")
-      .join(" ")
+    const repeated = Array(20).fill("Shipyard crew is shipping fast").join(" ")
     const preview = getEmailPreviewText(`## Update\n\n${repeated}`)
 
     expect(preview?.length).toBeLessThanOrEqual(140)
@@ -59,6 +59,8 @@ const hi = "there"
     expect(container.querySelector("p")).toHaveTextContent("Hello crew!")
     expect(container.querySelector("strong")).not.toBeNull()
     expect(container.querySelectorAll("li").length).toBe(2)
-    expect(container.querySelector("pre code")).toHaveTextContent("const value = 42")
+    expect(container.querySelector("pre code")).toHaveTextContent(
+      "const value = 42",
+    )
   })
 })

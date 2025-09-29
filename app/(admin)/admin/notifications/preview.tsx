@@ -24,7 +24,7 @@ export default function AdminEmailPreview({
   subject: string
   message: string
   recipient?: PreviewRecipient
-  }) {
+}) {
   const greetingName = useMemo(() => {
     const explicit = recipient?.firstName?.trim()
     if (explicit) {

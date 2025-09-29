@@ -611,7 +611,7 @@ export async function renderBuilderOutreachEmailPreviewAction(params?: {
 
   const normalizedFirstName = params?.firstName?.trim()
   const fallbackName = params?.email
-    ? deriveFirstNameFromEmail(params.email) ?? null
+    ? (deriveFirstNameFromEmail(params.email) ?? null)
     : null
   const resolvedFirstName = normalizedFirstName || fallbackName || undefined
 

@@ -59,10 +59,10 @@ export function BuilderOutreachEmail({
       footerNote={<BuilderOutreachSignature />}
     >
       <p style={paragraphStyle}>
-        Shipyard gives every launch a crew-reviewed runway. Submit when you&#39;re
-        ready and the team pairs your product with checklists, templates, and a
-        curated community of builders, investors, and operators actively
-        looking for what&#39;s next.
+        Shipyard gives every launch a crew-reviewed runway. Submit when
+        you&#39;re ready and the team pairs your product with checklists,
+        templates, and a curated community of builders, investors, and operators
+        actively looking for what&#39;s next.
       </p>
       <ul style={listStyle}>
         <li>
@@ -83,8 +83,8 @@ export function BuilderOutreachEmail({
           and community sentiment.
         </li>
         <li>
-          Scout what&#39;s trending next with the interactive Trend Radar pointing
-          to categories where momentum and upvotes are surging.
+          Scout what&#39;s trending next with the interactive Trend Radar
+          pointing to categories where momentum and upvotes are surging.
         </li>
       </ul>
       <p style={paragraphStyle}>

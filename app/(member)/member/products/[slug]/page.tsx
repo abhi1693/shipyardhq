@@ -559,7 +559,6 @@ export default async function ViewUserProductPage({
                     </div>
                   )
                 })()}
-
               </CardContent>
             </Card>
           ) : null,
@@ -608,7 +607,9 @@ export default async function ViewUserProductPage({
                 ogImageUrl={product.bannerImage || product.logo}
                 editHref={memberProductEditPath(product.slug)}
                 reviewAverage={
-                  reviewSummary.totalReviews ? reviewSummary.averageRating : null
+                  reviewSummary.totalReviews
+                    ? reviewSummary.averageRating
+                    : null
                 }
                 reviewCount={reviewSummary.totalReviews}
                 recentReviews={reviewSummary.reviews
@@ -671,7 +672,9 @@ export default async function ViewUserProductPage({
                       ) : null}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>{placeholder()}</span>
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -686,7 +689,9 @@ export default async function ViewUserProductPage({
                       ))}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>{placeholder()}</span>
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -701,7 +706,9 @@ export default async function ViewUserProductPage({
                       ))}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>{placeholder()}</span>
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
                   )}
                 </div>
               </CardContent>
@@ -727,7 +734,9 @@ export default async function ViewUserProductPage({
                       </Link>
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>{placeholder()}</span>
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -751,7 +760,9 @@ export default async function ViewUserProductPage({
                     </div>
                   ) : (
                     <div className="space-y-1">
-                      <span className={placeholderTextClass}>{placeholder()}</span>
+                      <span className={placeholderTextClass}>
+                        {placeholder()}
+                      </span>
                       {(ctaLabel && !ctaUrl) || (!ctaLabel && ctaUrl) ? (
                         <p className="text-xs text-destructive">
                           Tip: Provide both CTA label and URL for a complete
@@ -797,7 +808,9 @@ export default async function ViewUserProductPage({
                       })}
                     </div>
                   ) : (
-                    <span className={placeholderTextClass}>{placeholder()}</span>
+                    <span className={placeholderTextClass}>
+                      {placeholder()}
+                    </span>
                   )}
                 </div>
               </CardContent>

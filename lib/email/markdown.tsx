@@ -18,12 +18,22 @@ const headingBaseStyle: CSSProperties = {
 }
 
 const HEADING_STYLES: Record<string, CSSProperties> = {
-  h1: { ...headingBaseStyle, fontSize: "28px", fontWeight: 700, marginTop: "0" },
+  h1: {
+    ...headingBaseStyle,
+    fontSize: "28px",
+    fontWeight: 700,
+    marginTop: "0",
+  },
   h2: { ...headingBaseStyle, fontSize: "24px", fontWeight: 700 },
   h3: { ...headingBaseStyle, fontSize: "20px", fontWeight: 600 },
   h4: { ...headingBaseStyle, fontSize: "18px", fontWeight: 600 },
   h5: { ...headingBaseStyle, fontSize: "16px", fontWeight: 600 },
-  h6: { ...headingBaseStyle, fontSize: "15px", fontWeight: 600, textTransform: "uppercase" },
+  h6: {
+    ...headingBaseStyle,
+    fontSize: "15px",
+    fontWeight: 600,
+    textTransform: "uppercase",
+  },
 }
 
 const LIST_STYLE: CSSProperties = {
@@ -106,7 +116,10 @@ const IMAGE_STYLE: CSSProperties = {
   margin: "0 0 16px",
 }
 
-function mergeStyles(base: CSSProperties, style?: CSSProperties): CSSProperties {
+function mergeStyles(
+  base: CSSProperties,
+  style?: CSSProperties,
+): CSSProperties {
   return style ? { ...base, ...style } : { ...base }
 }
 
@@ -119,7 +132,10 @@ const emailMarkdownComponents: Components = {
   p: ({ children, style, ...props }) => (
     <p
       {...props}
-      style={mergeStyles(EMAIL_PARAGRAPH_STYLE, style as CSSProperties | undefined)}
+      style={mergeStyles(
+        EMAIL_PARAGRAPH_STYLE,
+        style as CSSProperties | undefined,
+      )}
     >
       {children}
     </p>
@@ -170,7 +186,10 @@ const emailMarkdownComponents: Components = {
       return (
         <code
           {...props}
-          style={mergeStyles(INLINE_CODE_STYLE, style as CSSProperties | undefined)}
+          style={mergeStyles(
+            INLINE_CODE_STYLE,
+            style as CSSProperties | undefined,
+          )}
         >
           {children}
         </code>
@@ -180,7 +199,10 @@ const emailMarkdownComponents: Components = {
     return (
       <code
         {...props}
-        style={mergeStyles(CODE_BLOCK_STYLE, style as CSSProperties | undefined)}
+        style={mergeStyles(
+          CODE_BLOCK_STYLE,
+          style as CSSProperties | undefined,
+        )}
       >
         {children}
       </code>
