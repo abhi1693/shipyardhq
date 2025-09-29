@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -41,8 +42,8 @@ export function AlertModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
+          {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
-        <div className="text-sm text-muted-foreground">{description}</div>
         <DialogFooter className="mt-4">
           <Button
             variant="outline"

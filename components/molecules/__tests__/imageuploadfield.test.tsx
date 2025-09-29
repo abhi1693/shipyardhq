@@ -59,7 +59,7 @@ describe("ImageUploadField", () => {
       ok: false,
       text: async () => "bad",
     } as any)
-    render(<Wrapper />)
+    const { unmount } = render(<Wrapper />)
     const input = document.querySelector(
       'input[type="file"]',
     ) as HTMLInputElement
@@ -69,11 +69,12 @@ describe("ImageUploadField", () => {
     await waitFor(() => expect(screen.getByText(/bad/)).toBeInTheDocument())
 
     // Re-render with an initial value and verify delete clears
+    unmount()
     render(<Wrapper initial={"https://cdn.example.com/y.png"} />)
     await waitFor(() =>
       expect(screen.getByRole("link", { name: "Open" })).toBeInTheDocument(),
     )
-    screen.getByRole("button", { name: /remove/i }).click()
+    await user.click(screen.getByRole("button", { name: /remove/i }))
     // After clearing, the label placeholder reappears
     expect(screen.getByText(/Select an image or drag/i)).toBeInTheDocument()
   })
@@ -101,5 +102,11 @@ describe("ImageUploadField", () => {
       ok: true,
       json: async () => ({ url: "https://cdn.example.com/spin.png" }),
     } as any)
+    await waitFor(() =>
+      expect(screen.getByRole("link", { name: "Open" })).toHaveAttribute(
+        "href",
+        "https://cdn.example.com/spin.png",
+      ),
+    )
   })
 })
