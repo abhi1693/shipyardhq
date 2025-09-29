@@ -23,7 +23,6 @@ import ProductMediaManager from "@/components/molecules/ProductMediaManager"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import ProductStatusMenu from "@/components/molecules/ProductStatusMenu"
 import CopyButton from "@/components/molecules/CopyButton"
-import DuplicateProductButton from "@/components/molecules/DuplicateProductButton"
 import Link from "next/link"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
@@ -421,11 +420,6 @@ export default async function ViewUserProductPage({
                 path={publicPath}
                 productName={product.name}
                 tagline={product.tagline}
-                variant="ghost"
-                className="h-8 px-3"
-              />
-              <DuplicateProductButton
-                productId={product.id}
                 variant="ghost"
                 className="h-8 px-3"
               />

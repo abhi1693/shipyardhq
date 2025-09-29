@@ -30,7 +30,6 @@ import { revalidatePath } from "next/cache"
 import ProductStatusMenu from "@/components/molecules/ProductStatusMenu"
 import CopyButton from "@/components/molecules/CopyButton"
 import ShareOnXButton from "@/components/molecules/ShareOnXButton"
-import DuplicateProductButton from "@/components/molecules/DuplicateProductButton"
 import ProductMediaManager from "@/components/molecules/ProductMediaManager"
 import PerformanceCard from "@/components/molecules/PerformanceCard"
 import Link from "next/link"
@@ -104,7 +103,6 @@ export default async function ViewProductPage({
             productName={product.name}
             tagline={product.tagline}
           />
-          <DuplicateProductButton productId={product.id} />
         </div>
       }
       overview={[
