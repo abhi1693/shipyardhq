@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -8,6 +8,7 @@ import { toast } from "sonner"
 
 import {
   SendBuilderOutreachResponse,
+  renderBuilderOutreachEmailPreviewAction,
   sendBuilderOutreachEmailsAction,
 } from "@/actions/admin/notifications/actions"
 import {
@@ -38,6 +39,7 @@ import {
 } from "@/lib/email/templates/outreach/builderOutreach"
 import { parseEmailList } from "@/lib/email/list-parser"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
+import PreviewSkeleton from "./preview-skeleton"
 
 const builderOutreachFormSchema = z.object({
   emails: z
@@ -65,6 +67,14 @@ export default function BuilderOutreachCenter() {
     { email: string; error: string }[]
   >([])
   const [summary, setSummary] = useState<EmailSendSummary | null>(null)
+  const [templatePreviewHtml, setTemplatePreviewHtml] = useState<string | null>(
+    null,
+  )
+  const [isTemplatePreviewLoading, setIsTemplatePreviewLoading] =
+    useState(false)
+  const [templatePreviewError, setTemplatePreviewError] = useState<
+    string | null
+  >(null)
 
   const form = useForm<BuilderOutreachFormValues>({
     resolver: zodResolver(builderOutreachFormSchema),
@@ -80,6 +90,63 @@ export default function BuilderOutreachCenter() {
         firstName: deriveFirstNameFromEmail(firstValidEmail) ?? null,
       }
     : null
+
+  const previewIdentity = previewRecipient
+    ? `${previewRecipient.email ?? ""}:${previewRecipient.firstName ?? ""}`
+    : "anonymous"
+
+  const previewEmail = previewRecipient?.email ?? null
+  const previewFirstName = previewRecipient?.firstName ?? null
+
+  const previewPayload = useMemo(() => {
+    if (!previewEmail && !previewFirstName) {
+      return undefined
+    }
+    return {
+      email: previewEmail ?? undefined,
+      firstName: previewFirstName,
+    }
+  }, [previewEmail, previewFirstName])
+
+  useEffect(() => {
+    let isMounted = true
+    setTemplatePreviewError(null)
+    setIsTemplatePreviewLoading(true)
+
+    renderBuilderOutreachEmailPreviewAction(previewPayload)
+      .then((html) => {
+        if (!isMounted) {
+          return
+        }
+        if (html) {
+          setTemplatePreviewHtml(html)
+        } else {
+          setTemplatePreviewHtml(null)
+          setTemplatePreviewError(
+            "We couldn’t load the formatted preview just yet. Try again in a moment.",
+          )
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to render builder outreach preview", error)
+        if (!isMounted) {
+          return
+        }
+        setTemplatePreviewHtml(null)
+        setTemplatePreviewError(
+          "We couldn’t load the formatted preview just yet. Try again in a moment.",
+        )
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsTemplatePreviewLoading(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [previewPayload])
 
   const combinedInvalidEmails = useMemo(() => {
     if (parsedEmails.invalid.length === 0 && invalidEmails.length === 0) {
@@ -275,11 +342,30 @@ export default function BuilderOutreachCenter() {
                     </span>
                   </div>
                 </div>
-                <div className="h-[28rem] overflow-y-auto bg-white">
-                  <BuilderOutreachEmail
-                    firstName={previewRecipient?.firstName ?? undefined}
-                    renderMode="preview"
-                  />
+                <div className="relative h-[28rem] overflow-hidden bg-white">
+                  {templatePreviewHtml ? (
+                    <iframe
+                      key={previewIdentity}
+                      title="Builder outreach email preview"
+                      srcDoc={templatePreviewHtml}
+                      className="h-full w-full border-0"
+                      loading="lazy"
+                    />
+                  ) : isTemplatePreviewLoading ? (
+                    <PreviewSkeleton />
+                  ) : (
+                    <div className="h-full overflow-y-auto">
+                      <BuilderOutreachEmail
+                        firstName={previewRecipient?.firstName ?? undefined}
+                        renderMode="preview"
+                      />
+                    </div>
+                  )}
+                  {templatePreviewError ? (
+                    <div className="absolute inset-x-0 bottom-0 bg-amber-50 px-4 py-2 text-xs text-amber-700">
+                      {templatePreviewError}
+                    </div>
+                  ) : null}
                 </div>
               </CardContent>
             </Card>
