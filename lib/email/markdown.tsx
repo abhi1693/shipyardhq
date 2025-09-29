@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import type { CSSProperties, ReactNode } from "react"
+import type { ComponentPropsWithoutRef, CSSProperties, ReactNode } from "react"
 import ReactMarkdown from "react-markdown"
-import type { Components } from "react-markdown"
+import type { Components, ExtraProps } from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 export const EMAIL_PARAGRAPH_STYLE: CSSProperties = {
@@ -110,6 +110,11 @@ function mergeStyles(base: CSSProperties, style?: CSSProperties): CSSProperties 
   return style ? { ...base, ...style } : { ...base }
 }
 
+type CodeComponentProps = ComponentPropsWithoutRef<"code"> &
+  ExtraProps & {
+    inline?: boolean
+  }
+
 const emailMarkdownComponents: Components = {
   p: ({ children, style, ...props }) => (
     <p
@@ -160,7 +165,7 @@ const emailMarkdownComponents: Components = {
       {children}
     </blockquote>
   ),
-  code: ({ inline, children, style, ...props }) => {
+  code: ({ inline, children, style, ...props }: CodeComponentProps) => {
     if (inline) {
       return (
         <code
