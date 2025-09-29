@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  useCallback,
   useEffect,
   useId,
   useMemo,
@@ -15,7 +16,12 @@ import { formatDistanceToNowStrict } from "date-fns"
 import { toast } from "sonner"
 import { ChevronDownIcon } from "lucide-react"
 
-import { scheduleProductInsightsPipeline } from "@/actions/member/products/insights"
+import { scheduleAdminProductInsightsPipeline } from "@/actions/admin/products/insights"
+import {
+  scheduleProductInsightsPipeline,
+  type SchedulePipelineOptions,
+  type SchedulePipelineResult,
+} from "@/actions/member/products/insights"
 import type {
   ProductInsightComprehensiveReport,
   ProductInsightPipelineJobState,
@@ -137,6 +143,7 @@ type ProductInsightsViewProps = {
   productName: string
   websiteUrl: string
   initialProfile: SerializedInsightProfile | null
+  accessLevel?: "member" | "admin"
 }
 
 type SummarySection = {
@@ -382,6 +389,7 @@ export function ProductInsightsView({
   productName,
   websiteUrl,
   initialProfile,
+  accessLevel = "member",
 }: ProductInsightsViewProps) {
   const [profile, setProfile] = useState<SerializedInsightProfile | null>(
     initialProfile,
@@ -404,6 +412,18 @@ export function ProductInsightsView({
   const [isRunningPipeline, startPipelineTransition] = useTransition()
   const [isDeepMode, setIsDeepMode] = useState(
     () => initialProfile?.redditMode === "deep",
+  )
+
+  const isAdminView = accessLevel === "admin"
+
+  const requestPipeline = useCallback(
+    (options: SchedulePipelineOptions): Promise<SchedulePipelineResult> => {
+      if (isAdminView) {
+        return scheduleAdminProductInsightsPipeline(slug, options)
+      }
+      return scheduleProductInsightsPipeline(slug, options)
+    },
+    [isAdminView, slug],
   )
 
   const selectedHarvestMode = isDeepMode ? "deep" : "standard"
@@ -457,7 +477,7 @@ export function ProductInsightsView({
 
     startPipelineTransition(async () => {
       try {
-        const result = await scheduleProductInsightsPipeline(slug, {
+        const result = await requestPipeline({
           discussionsMode: selectedHarvestMode,
         })
 

@@ -1,7 +1,9 @@
 "use server"
 
+import { auth } from "@clerk/nextjs/server"
+
 import prisma from "@/lib/prisma"
-import { requireManageableProduct } from "@/lib/server/productAccess"
+import { checkRole } from "@/lib/roles"
 import {
   enqueueProductInsightPipelineJob,
   getPipelineJobState,
@@ -12,16 +14,21 @@ import {
   insightProfileSelect,
   serializeInsightProfile,
 } from "@/lib/server/productInsights/profile"
-import {
-  evaluateInsightsPipelineAccess,
-  type InsightsPipelinePolicy,
-} from "@/lib/server/productInsights/access"
 import type {
-  ProductInsightHarvestMode,
   ProductInsightProfilePayload,
   ProductInsightProfileView,
-  ProductInsightStageSetId,
 } from "@/types/product-insights"
+import type {
+  SchedulePipelineOptions,
+  SchedulePipelineResult,
+} from "@/actions/member/products/insights"
+
+async function requireAdmin() {
+  const isAdmin = await checkRole("admin")
+  if (!isAdmin) {
+    throw new Error("Unauthorized")
+  }
+}
 
 async function loadProfileForProduct(
   productId: string,
@@ -38,16 +45,13 @@ async function loadProfileForProduct(
   return profile
 }
 
-export async function getProductInsightProfile(
-  slug: string,
+export async function getAdminProductInsightProfile(
+  productId: string,
 ): Promise<ProductInsightProfileView> {
-  const { product } = await requireManageableProduct(slug, {
-    unauthorizedRedirect: null,
-    missingRedirect: null,
-  })
+  await requireAdmin()
 
   const record = await prisma.product.findUnique({
-    where: { id: product.id },
+    where: { id: productId },
     select: {
       id: true,
       name: true,
@@ -61,10 +65,7 @@ export async function getProductInsightProfile(
     throw new Error("Product not found")
   }
 
-  const profile = serializeInsightProfile(record.insightProfile)
-  if (profile) {
-    profile.pipelineJobState = await getPipelineJobState(record.id)
-  }
+  const profile = await loadProfileForProduct(record.id)
 
   return {
     id: record.id,
@@ -75,66 +76,40 @@ export async function getProductInsightProfile(
   }
 }
 
-export type SchedulePipelineOptions = {
-  stageSetId?: ProductInsightStageSetId
-  discussionsMode?: ProductInsightHarvestMode
-}
-
-export type SchedulePipelineResult = {
-  profile: ProductInsightProfilePayload | null
-  executedInline: boolean
-  alreadyQueued: boolean
-  throttled?: {
-    reason: "missing_feature" | "limit_reached"
-    nextAllowedAt: string | null
-    policy: InsightsPipelinePolicy | null
-  }
-}
-
-export async function scheduleProductInsightsPipeline(
+export async function scheduleAdminProductInsightsPipeline(
   slug: string,
   options: SchedulePipelineOptions = {},
 ): Promise<SchedulePipelineResult> {
-  const { stageSetId = "default", discussionsMode } = options
-  const { product } = await requireManageableProduct(slug, {
-    unauthorizedRedirect: null,
-    missingRedirect: null,
+  await requireAdmin()
+
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      slug: true,
+      userId: true,
+    },
   })
 
-  const currentProfile = await loadProfileForProduct(product.id)
-
-  const access = await evaluateInsightsPipelineAccess({
-    productId: product.id,
-    userId: product.userId,
-    lastRunAt: currentProfile?.lastRunAt
-      ? new Date(currentProfile.lastRunAt)
-      : null,
-  })
-
-  if (!access.ok) {
-    return {
-      profile: currentProfile,
-      executedInline: false,
-      alreadyQueued: false,
-      throttled: {
-        reason: access.reason,
-        nextAllowedAt: access.nextAllowedAt
-          ? access.nextAllowedAt.toISOString()
-          : null,
-        policy: access.policy ?? null,
-      },
-    }
+  if (!product) {
+    throw new Error("Product not found")
   }
 
-  console.info("[productInsights:action] pipeline requested", {
+  const { stageSetId = "default", discussionsMode } = options
+
+  const { userId: adminUserId } = await auth()
+  const requestedByUserId = adminUserId ?? product.userId ?? undefined
+
+  console.info("[productInsights:admin] pipeline requested", {
     productId: product.id,
     productSlug: product.slug,
     stageSetId,
+    discussionsMode,
   })
 
   const enqueueResult = await enqueueProductInsightPipelineJob({
     productId: product.id,
-    requestedByUserId: product.userId,
+    requestedByUserId,
     stageSetId,
     discussionsMode: discussionsMode ?? null,
   })
@@ -148,12 +123,16 @@ export async function scheduleProductInsightsPipeline(
       }
     }
 
-    console.info("[productInsights:action] pipeline enqueued", {
+    console.info("[productInsights:admin] pipeline enqueued", {
       productId: product.id,
       stageSetId,
     })
 
-    return { profile, executedInline: false, alreadyQueued: false }
+    return {
+      profile,
+      executedInline: false,
+      alreadyQueued: false,
+    }
   }
 
   if (enqueueResult.reason === "duplicate") {
@@ -162,15 +141,19 @@ export async function scheduleProductInsightsPipeline(
       profile.redditMode = discussionsMode
     }
 
-    console.info("[productInsights:action] pipeline already active", {
+    console.info("[productInsights:admin] pipeline already active", {
       productId: product.id,
       stageSetId,
     })
 
-    return { profile, executedInline: false, alreadyQueued: true }
+    return {
+      profile,
+      executedInline: false,
+      alreadyQueued: true,
+    }
   }
 
-  console.warn("[productInsights:action] queue unavailable, executing inline", {
+  console.warn("[productInsights:admin] queue unavailable, executing inline", {
     productId: product.id,
     reason: enqueueResult.reason,
     stageSetId,
@@ -178,7 +161,7 @@ export async function scheduleProductInsightsPipeline(
 
   const result = await runProductInsightPipeline({
     productId: product.id,
-    requestedByUserId: product.userId,
+    requestedByUserId,
     stageSetId,
     discussionsMode,
   })
@@ -189,5 +172,9 @@ export async function scheduleProductInsightsPipeline(
   profile.pipelineJobState = "idle"
   profile.redditMode = discussionsMode ?? profile.redditMode ?? null
 
-  return { profile, executedInline: true, alreadyQueued: false }
+  return {
+    profile,
+    executedInline: true,
+    alreadyQueued: false,
+  }
 }
