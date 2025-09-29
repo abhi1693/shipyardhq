@@ -2,6 +2,7 @@
 
 import { useFormContext } from "react-hook-form"
 import { ReactNode, useState } from "react"
+import { Sparkles } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import {
@@ -239,26 +240,50 @@ export default function Step1({
 
   return (
     <div className="space-y-6">
+      {enableAutofill ? (
+        <div className="rounded-xl border border-dashed border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)/0.05] p-4 sm:p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3 text-left">
+              <span className="rounded-full bg-[color:var(--brand-1)/0.12] p-2 text-[color:var(--brand-1)]">
+                <Sparkles className="h-4 w-4" />
+              </span>
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-slate-900">
+                  Let AI set up your product
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Paste your website below and Shipyard AI will draft your name,
+                  description, links, pricing details, and more. You can tweak
+                  everything after.
+                </p>
+                {autofillNotice ? (
+                  <p className="text-xs text-muted-foreground">
+                    {autofillNotice}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              className="w-full sm:w-auto"
+              onClick={handleAutofill}
+              disabled={autofilling}
+            >
+              <Sparkles className="h-4 w-4" />
+              {autofilling ? "AI autofilling…" : "Run AI Autofill"}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
           name="websiteUrl"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="flex items-center justify-between gap-4">
-                <span>Website URL</span>
-                {enableAutofill ? (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={handleAutofill}
-                    disabled={autofilling}
-                  >
-                    {autofilling ? "AI autofilling…" : "AI Autofill"}
-                  </Button>
-                ) : null}
-              </FormLabel>
+              <FormLabel>Website URL</FormLabel>
               <FormControl>
                 <Input
                   placeholder="https://example.com"
@@ -278,9 +303,6 @@ export default function Step1({
                   }}
                 />
               </FormControl>
-              {enableAutofill && autofillNotice ? (
-                <FormDescription>{autofillNotice}</FormDescription>
-              ) : null}
               <FormMessage />
             </FormItem>
           )}
