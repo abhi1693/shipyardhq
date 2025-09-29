@@ -518,8 +518,8 @@ export default function NotificationCenter({
                           />
                         </FormControl>
                         <p className="text-xs text-muted-foreground">
-                          Plain text supported. Paragraph breaks will be
-                          preserved in the email template.
+                          Markdown supported — use headings, lists, links, and
+                          code snippets for richer broadcasts.
                         </p>
                         <FormMessage />
                       </FormItem>

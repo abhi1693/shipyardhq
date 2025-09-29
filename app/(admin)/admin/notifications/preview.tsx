@@ -1,43 +1,15 @@
 "use client"
 
 import { useMemo } from "react"
-import type { ReactElement } from "react"
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
-
-const paragraphStyle = {
-  fontSize: "15px",
-  lineHeight: "24px",
-  margin: "0 0 16px",
-  color: "#1f2937",
-} as const
+import {
+  EMAIL_PARAGRAPH_STYLE,
+  getEmailPreviewText,
+  renderEmailMarkdown,
+} from "@/lib/email/markdown"
 
 const DEFAULT_GREETING = "shipmate"
-
-function renderParagraphs(message: string): ReactElement[] {
-  const trimmed = message.trim()
-  if (!trimmed) return []
-
-  return trimmed.split(/\n{2,}/).map((block, index) => {
-    const lines = block.trim().split(/\n/)
-
-    return (
-      <p key={index} style={paragraphStyle}>
-        {lines.map((line, lineIndex) => (
-          <span key={`${index}-${lineIndex}`}>
-            {line}
-            {lineIndex < lines.length - 1 ? <br /> : null}
-          </span>
-        ))}
-      </p>
-    )
-  })
-}
-
-function getPreviewText(message: string): string | undefined {
-  const collapsed = message.replace(/\s+/g, " ").trim()
-  return collapsed ? collapsed.slice(0, 140) : undefined
-}
 
 type PreviewRecipient = {
   firstName?: string | null
@@ -52,7 +24,7 @@ export default function AdminEmailPreview({
   subject: string
   message: string
   recipient?: PreviewRecipient
-}) {
+  }) {
   const greetingName = useMemo(() => {
     const explicit = recipient?.firstName?.trim()
     if (explicit) {
@@ -66,8 +38,8 @@ export default function AdminEmailPreview({
     return DEFAULT_GREETING
   }, [recipient])
 
-  const content = useMemo(() => renderParagraphs(message), [message])
-  const previewText = useMemo(() => getPreviewText(message), [message])
+  const content = useMemo(() => renderEmailMarkdown(message), [message])
+  const previewText = useMemo(() => getEmailPreviewText(message), [message])
 
   return (
     <div className="email-preview">
@@ -77,11 +49,11 @@ export default function AdminEmailPreview({
         renderMode="preview"
         footerNote={<PreviewSignature />}
       >
-        <p style={paragraphStyle}>Dear {greetingName},</p>
-        {content.length > 0 ? (
+        <p style={EMAIL_PARAGRAPH_STYLE}>Dear {greetingName},</p>
+        {content ? (
           content
         ) : (
-          <p style={paragraphStyle}>
+          <p style={EMAIL_PARAGRAPH_STYLE}>
             Start typing a message to see the preview.
           </p>
         )}
@@ -93,8 +65,8 @@ export default function AdminEmailPreview({
 function PreviewSignature() {
   return (
     <div style={{ marginTop: "24px" }}>
-      <p style={paragraphStyle}>Wishing you fair winds,</p>
-      <p style={paragraphStyle}>
+      <p style={EMAIL_PARAGRAPH_STYLE}>Wishing you fair winds,</p>
+      <p style={EMAIL_PARAGRAPH_STYLE}>
         Shipyard Crew
         <br />
         <a

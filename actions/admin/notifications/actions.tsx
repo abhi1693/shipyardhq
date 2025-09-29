@@ -1,7 +1,5 @@
 "use server"
 
-import { Fragment } from "react"
-
 import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
@@ -13,6 +11,12 @@ import {
   buildBuilderOutreachTextBody,
 } from "@/lib/email/templates/outreach/builderOutreach"
 import { checkRole } from "@/lib/roles"
+import {
+  EMAIL_PARAGRAPH_STYLE,
+  getEmailPreviewText,
+  markdownToPlainText,
+  renderEmailMarkdown,
+} from "@/lib/email/markdown"
 
 const BUILDER_INTENTS = ["launch-product", "manage-team"] as const
 const EXPLORER_INTENT = "explore" as const
@@ -65,13 +69,6 @@ export type SendBuilderOutreachResponse =
   | SendNotificationError
   | { success: true; summary: SendNotificationSuccess["summary"] }
 
-const emailParagraphStyle = {
-  fontSize: "15px",
-  lineHeight: "24px",
-  margin: "0 0 16px",
-  color: "#1f2937",
-} as const
-
 const DEFAULT_GREETING = "shipmate"
 const RATE_LIMIT_REQUESTS_PER_SECOND = 2
 const RATE_LIMIT_INTERVAL_MS = Math.ceil(1000 / RATE_LIMIT_REQUESTS_PER_SECOND)
@@ -95,10 +92,8 @@ function buildNotificationEmail(
   recipient: ResolvedRecipient,
 ) {
   const trimmed = message.trim()
-  const previewText = getPreviewText(trimmed)
-  const paragraphs = trimmed
-    ? trimmed.split(/\n{2,}/).map((block) => block.trim())
-    : []
+  const previewText = getEmailPreviewText(trimmed)
+  const markdownContent = renderEmailMarkdown(trimmed)
   const greetingName = getGreetingName(recipient)
 
   return (
@@ -107,19 +102,15 @@ function buildNotificationEmail(
       title={subject || "Shipyard HQ"}
       footerNote={<Signature />}
     >
-      <p style={emailParagraphStyle}>Dear {greetingName},</p>
-      {paragraphs.map((paragraph, index) => (
-        <p key={index} style={emailParagraphStyle}>
-          {renderParagraphContent(paragraph, index)}
-        </p>
-      ))}
+      <p style={EMAIL_PARAGRAPH_STYLE}>Dear {greetingName},</p>
+      {markdownContent}
     </BaseEmailTemplate>
   )
 }
 
 function buildTextBody(message: string, recipient: ResolvedRecipient) {
   const greetingName = getGreetingName(recipient)
-  const trimmed = message.trim()
+  const trimmed = markdownToPlainText(message)
   const lines = [`Dear ${greetingName},`]
 
   if (trimmed) {
@@ -134,26 +125,6 @@ function buildTextBody(message: string, recipient: ResolvedRecipient) {
   )
 
   return lines.join("\n")
-}
-
-function renderParagraphContent(paragraph: string, paragraphIndex: number) {
-  const lines = paragraph.split(/\n/)
-
-  return lines.map((line, lineIndex) => {
-    const content = line.trim()
-
-    return (
-      <Fragment key={`${paragraphIndex}-${lineIndex}`}>
-        {content}
-        {lineIndex < lines.length - 1 ? <br /> : null}
-      </Fragment>
-    )
-  })
-}
-
-function getPreviewText(message: string): string | undefined {
-  const collapsed = message.replace(/\s+/g, " ").trim()
-  return collapsed ? collapsed.slice(0, 140) : undefined
 }
 
 async function requireAdmin() {
@@ -670,8 +641,8 @@ export async function getSegmentPreviewRecipient(params: {
 function Signature() {
   return (
     <div style={{ marginTop: "24px" }}>
-      <p style={emailParagraphStyle}>Wishing you fair winds,</p>
-      <p style={emailParagraphStyle}>
+      <p style={EMAIL_PARAGRAPH_STYLE}>Wishing you fair winds,</p>
+      <p style={EMAIL_PARAGRAPH_STYLE}>
         Shipyard Crew
         <br />
         <a
