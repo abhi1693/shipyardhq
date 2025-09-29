@@ -15,6 +15,8 @@ import {
   AccordionTrigger,
 } from "@/components/atoms/accordion"
 import { buildPageMetadata } from "@/lib/metadata"
+import { ANALYTICS_PATH } from "@/lib/routes"
+import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 
 export const metadata = buildPageMetadata({
   title: "Pricing",
@@ -34,8 +36,8 @@ const CORE_PERKS = [
   },
   {
     icon: IconSparkles,
-    title: "Crew on standby",
-    body: "Get async support from our harbor crew plus usage analytics that surface what resonates.",
+    title: "Insights built in",
+    body: "Automated research pipelines surface competitor intel, community chatter, and recommended plays—starting with a weekly run on the free plan and more credits as you upgrade.",
   },
 ]
 
@@ -44,6 +46,11 @@ const PRICING_FAQS = [
     question: "Can I start for free and upgrade later?",
     answer:
       "Absolutely. Every maker can list for free. Upgrade any product for extra reach—featured badges, homepage placement, newsletter spots—whenever you need a boost.",
+  },
+  {
+    question: "Which plans include Shipyard Insights?",
+    answer:
+      "Every plan includes Insights. Free listings get one run per week, while paid placements and crew subscriptions add more credits so you can refresh findings whenever you need.",
   },
   {
     question: "Do plans renew automatically?",
@@ -108,8 +115,9 @@ export default async function PricingPage() {
               Pricing built for every voyage
             </h1>
             <p className="text-lg text-muted-foreground">
-              Pick the placement that fits your launch. Switch plans anytime and
-              keep full control of your product page.
+              Pick the placement that fits your launch. Switch plans anytime,
+              keep full control of your product page, and tap Insights for
+              automated research—starting with weekly runs on the free plan.
             </p>
           </div>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
@@ -148,11 +156,11 @@ export default async function PricingPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-[color:var(--brand-1)]">
-                Launch analytics
+                Analytics & insights
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Track upvotes, traffic sources, and conversions across every
-                tier.
+                Track signal across every tier and trigger Insights runs for
+                competitive, community, and action reports—free includes one run per week and upgrades add more credits.
               </p>
             </div>
           </div>
@@ -178,6 +186,14 @@ export default async function PricingPage() {
         <PricingTable plans={plans} />
       </PublicContainer>
 
+      <InsightsShowcase
+        eyebrow="Insights included"
+        title="Insights credits scale with your plan"
+        description="Every plan includes the Insights pipeline. Start with a weekly run on free listings and add more credits with paid placements to keep competitor intel, community sentiment, and prioritized actions fresh."
+        primaryCta={{ label: "Unlock insights with Shipyard", href: "/register" }}
+        secondaryCta={{ label: "See analytics & insights", href: ANALYTICS_PATH }}
+      />
+
       {subscriptionPlans.length > 0 && (
         <PublicContainer
           as="section"
@@ -191,8 +207,9 @@ export default async function PricingPage() {
               Keep your crew connected
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Subscriptions unlock shared organizations, advanced analytics, and
-              dedicated collaboration resources.
+              Subscriptions unlock shared organizations, advanced analytics,
+              recurring Insights credits, and dedicated collaboration
+              resources.
             </p>
           </div>
           <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">

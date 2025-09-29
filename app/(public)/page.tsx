@@ -15,6 +15,7 @@ import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import JoinCrewCTA from "@/components/organisms/JoinCrewCTA"
 import FeaturedOnSection from "@/components/organisms/FeaturedOnSection"
 import InteractiveTrendRadar from "@/components/organisms/InteractiveTrendRadar"
+import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 import { computeTrendRadarMetrics } from "@/lib/trend-radar"
 import { siteConfig } from "@/lib/siteConfig"
 import { BROWSE_PATH } from "@/lib/routes"
@@ -140,6 +141,11 @@ export default async function HomePage() {
         <InteractiveTrendRadar
           categories={radarData.metrics}
           totals={radarData.totals}
+        />
+        <InsightsShowcase
+          eyebrow="New: Shipyard Insights"
+          title="Insights turns launch signal into strategy"
+          description="Run the pipeline to combine analytics, competitive research, and community sentiment into an action plan—free plans include one run each week when you publish."
         />
         <TopCategories categories={topCategories} />
         <JoinCrewCTA />

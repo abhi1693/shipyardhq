@@ -7,6 +7,7 @@ import { Button } from "@/components/atoms/button"
 import { FaqSection } from "@/components/organisms/FaqSection"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/atoms/dialog"
 import { cn } from "@/lib/utils"
+import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 
 const PLAN_HIGHLIGHTS = [
   {
@@ -18,6 +19,7 @@ const PLAN_HIGHLIGHTS = [
       "Lifetime vote and click totals",
       "Overall page views across your launch window",
       "Views over time chart with 7–90 day ranges",
+      "Weekly Insights run to capture a full competitive and community report",
     ],
   },
   {
@@ -29,6 +31,7 @@ const PLAN_HIGHLIGHTS = [
       "Click-through rates split by referrer, device, and browser",
       "Visitor loyalty and retention cohorts to spot repeat fans",
       "Operating system and traffic channel breakdowns",
+      "Extra Insights credits so you can rerun the pipeline whenever signal shifts",
     ],
   },
   {
@@ -40,6 +43,7 @@ const PLAN_HIGHLIGHTS = [
       "Organization-level rollups across every product",
       "Cross-team comparisons without switching accounts",
       "Shared context for planning the next release",
+      "Team-wide Insights credits that benchmark every product in your fleet",
     ],
   },
 ]
@@ -55,7 +59,7 @@ const MOMENTUM_POINTS = [
   },
   {
     title: "Plan the next iteration",
-    body: "Retention signals highlight whether visitors come back. Use that insight to prioritize onboarding or outreach work.",
+    body: "Pair retention signals with Insights recommendations to prioritize onboarding tweaks, pricing experiments, and outreach work.",
   },
 ]
 
@@ -74,6 +78,11 @@ const HOW_IT_WORKS_STEPS = [
     title: "Share with your crew",
     detail:
       "Invite collaborators on eligible plans so everyone can review performance, plan experiments, and celebrate wins together.",
+  },
+  {
+    title: "Request an Insights run",
+    detail:
+      "Use the Insights action to generate competitive research, community intelligence, and prioritized recommendations in a single report—free plans include one run each week.",
   },
 ]
 
@@ -165,8 +174,9 @@ export default function AnalyticsPage() {
           </h1>
           <p className="text-lg text-muted-foreground">
             Whether you are launching your first product or managing an entire
-            fleet, the new dashboards make it simple to understand traction,
-            channels, and loyalty.
+            fleet, the new dashboards pair with Insights so you can understand
+            traction, surface opportunities, and map conversations around your
+            brand—starting with a weekly run on the free plan.
           </p>
         </div>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -187,6 +197,20 @@ export default function AnalyticsPage() {
           </Button>
         </div>
       </PublicContainer>
+
+      <InsightsShowcase
+        eyebrow="Insights + Analytics"
+        title="Insights extends every Shipyard dashboard"
+        description="Activate the pipeline to pair your analytics with competitive research, community sentiment, and prioritized recommendations—free plans include a weekly run and upgrades add more credits."
+        primaryCta={{
+          label: "Request insights from your dashboard",
+          href: MEMBER_BASE_PATH,
+        }}
+        secondaryCta={{
+          label: "See plan coverage",
+          href: PRICING_PATH,
+        }}
+      />
 
       <PublicContainer
         as="section"
