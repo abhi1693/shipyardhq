@@ -1,5 +1,31 @@
 import { Resend, type CreateEmailOptions } from "resend"
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __shipyardhqEmailDeliveryDisabled: boolean | undefined
+}
+
+function isEnvFlagEnabled(value: string | undefined) {
+  if (!value) return false
+  return ["1", "true", "yes", "on"].includes(value.toLowerCase())
+}
+
+export function isEmailDeliveryDisabled(): boolean {
+  if (globalThis.__shipyardhqEmailDeliveryDisabled) {
+    return true
+  }
+
+  return isEnvFlagEnabled(process.env.CI)
+}
+
+export function disableEmailDelivery() {
+  globalThis.__shipyardhqEmailDeliveryDisabled = true
+}
+
+export function enableEmailDelivery() {
+  globalThis.__shipyardhqEmailDeliveryDisabled = undefined
+}
+
 type SendEmailOptions = Omit<CreateEmailOptions, "from"> & {
   from?: CreateEmailOptions["from"]
 }
@@ -167,6 +193,16 @@ export function resetEmailSender() {
 }
 
 export async function sendEmail(options: SendEmailOptions) {
+  if (!hasBodyContent(options)) {
+    throw new Error("Email body is required")
+  }
+
+  if (isEmailDeliveryDisabled()) {
+    return {
+      id: `email-disabled-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    } as SendEmailResult
+  }
+
   return activeEmailSender.send(options)
 }
 

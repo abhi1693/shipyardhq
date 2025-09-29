@@ -2,6 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
   configureEmailSender,
+  disableEmailDelivery,
+  enableEmailDelivery,
+  isEmailDeliveryDisabled,
   RateLimitedEmailSender,
   resetEmailSender,
   sendEmail,
@@ -65,7 +68,9 @@ describe("RateLimitedEmailSender", () => {
 
 describe("sendEmail", () => {
   afterEach(() => {
+    enableEmailDelivery()
     resetEmailSender()
+    delete process.env.CI
   })
 
   it("delegates to the configured sender", async () => {
@@ -83,5 +88,35 @@ describe("sendEmail", () => {
     await sendEmail(email)
 
     expect(fakeSender.send).toHaveBeenCalledWith(email)
+  })
+
+  it("short-circuits when delivery is disabled via runtime flag", async () => {
+    disableEmailDelivery()
+
+    const email: SendEmailOptions = {
+      to: "team@example.com",
+      subject: "Test",
+      text: "Testing",
+    }
+
+    const result = await sendEmail(email)
+
+    expect(isEmailDeliveryDisabled()).toBe(true)
+    expect(result).toHaveProperty("id")
+  })
+
+  it("short-circuits when delivery is disabled via environment flag", async () => {
+    process.env.CI = "true"
+
+    const email: SendEmailOptions = {
+      to: "team@example.com",
+      subject: "Test",
+      text: "Testing",
+    }
+
+    const result = await sendEmail(email)
+
+    expect(isEmailDeliveryDisabled()).toBe(true)
+    expect(result).toHaveProperty("id")
   })
 })

@@ -133,4 +133,9 @@ Cypress.Commands.add("signInTestUser", (options = {}) => {
   cy.waitForAppIdle()
 })
 
+before(() => {
+  cy.log("Disable email delivery for e2e run")
+  cy.request("POST", "/api/testing/email").its("status").should("eq", 200)
+})
+
 export {}
