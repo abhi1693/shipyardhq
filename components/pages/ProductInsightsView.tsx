@@ -135,6 +135,7 @@ type ProductInsightsViewProps = {
 type SummarySection = {
   title: string
   items: string[]
+  headline?: string
 }
 
 type MetricTone = "neutral" | "positive" | "warning" | "danger"
@@ -461,19 +462,19 @@ export function ProductInsightsView({
     | ProductInsightSummary
     | undefined
 
-  const summarySections: SummarySection[] = useMemo(() => {
-    if (!summary) return []
-    return [
-      { title: "Value propositions", items: summary.valuePropositions || [] },
-      { title: "Target users", items: summary.targetUsers || [] },
-      { title: "Key features", items: summary.keyFeatures || [] },
-      {
-        title: "Pain points addressed",
-        items: summary.painPointsAddressed || [],
-      },
-      { title: "Tone & style", items: summary.toneAndStyle || [] },
-    ].filter((section) => section.items.length)
-  }, [summary])
+const summarySections: SummarySection[] = useMemo(() => {
+  if (!summary) return []
+  return [
+    { title: "Value propositions", items: summary.valuePropositions || [] },
+    { title: "Target users", items: summary.targetUsers || [] },
+    { title: "Key features", items: summary.keyFeatures || [] },
+    {
+      title: "Pain points addressed",
+      items: summary.painPointsAddressed || [],
+    },
+    { title: "Tone & style", items: summary.toneAndStyle || [] },
+  ].filter((section) => section.items.length)
+}, [summary])
 
   const pages = useMemo(() => {
     return Array.isArray(profile?.pages)
@@ -1258,69 +1259,78 @@ export function ProductInsightsView({
       shouldShowReportEmptyState,
   )
 
-  const snapshotMetrics = [
-    {
-      label: "Pages captured",
-      value: profile
-        ? pageCount
-          ? COUNT_FORMATTER.format(pageCount)
-          : "0"
-        : "—",
-      tone: profile ? (pageCount ? "neutral" : "warning") : "neutral",
-    },
-    {
-      label: "Communities mapped",
-      value: profile
-        ? hasSubredditResults
-          ? COUNT_FORMATTER.format(subreddits.length)
-          : "0"
-        : "—",
-      tone: profile
-        ? hasSubredditResults
-          ? "positive"
-          : "warning"
-        : "neutral",
-    },
-    {
-      label: "Live threads",
-      value: profile
-        ? hasDiscussionThreads
-          ? COUNT_FORMATTER.format(discussionThreads.length)
-          : "0"
-        : "—",
-      tone: profile
-        ? hasDiscussionThreads
-          ? "positive"
-          : "warning"
-        : "neutral",
-    },
-    {
-      label: "Action items",
-      value: finalReport
-        ? actionCount
-          ? COUNT_FORMATTER.format(actionCount)
-          : "0"
-        : "—",
-      tone: finalReport
-        ? actionCount >= 3
-          ? "positive"
-          : actionCount
-            ? "neutral"
-            : "warning"
-        : "neutral",
-    },
-  ] as const satisfies ReadonlyArray<{
+  const snapshotMetrics: Array<{
     label: string
     value: string
     tone: MetricTone
-  }>
-
-  const statusSnapshot = [
-    { label: "Crawler", value: lastCrawled },
-    { label: "Communities", value: lastSubredditDiscovery },
-    { label: "Conversations", value: lastDiscussionDiscovery },
-    { label: "Report", value: lastReportGenerated },
-  ] as const
+    icon: ReactNode
+    caption?: string
+  }> = [
+    {
+      label: "Product foundation",
+      value: profile
+        ? statusDisplay.label
+        : isRunningPipeline
+          ? "Processing"
+          : "Not generated",
+      tone: statusDisplay.badge === "success"
+        ? "positive"
+        : statusDisplay.badge === "destructive"
+          ? "danger"
+          : statusDisplay.badge === "secondary"
+            ? "neutral"
+            : "warning",
+      icon: "🧱",
+      caption: lastCrawled !== "Never" ? `Last run ${lastCrawled}` : "Not yet run",
+    },
+    {
+      label: "Community discovery",
+      value: hasSubredditResults
+        ? `${COUNT_FORMATTER.format(subreddits.length)} mapped`
+        : "Pending",
+      tone: hasSubredditResults
+        ? "positive"
+        : subredditStatusDisplay.badge === "destructive"
+          ? "warning"
+          : "neutral",
+      icon: "🧭",
+      caption: coveragePercent !== null
+        ? `${PERCENT_FORMATTER.format(coveragePercent)}% query match`
+        : "Awaiting coverage",
+    },
+    {
+      label: "Discussion insights",
+      value: hasDiscussionThreads
+        ? `${COUNT_FORMATTER.format(discussionThreads.length)} threads`
+        : "Pending",
+      tone: hasDiscussionThreads
+        ? "positive"
+        : discussionStatusDisplay.badge === "destructive"
+          ? "warning"
+          : "neutral",
+      icon: "💬",
+      caption: focusAreas.length
+        ? `${COUNT_FORMATTER.format(focusAreas.length)} focus theme${
+            focusAreas.length === 1 ? "" : "s"
+          }`
+        : "No themes yet",
+    },
+    {
+      label: "Insight report",
+      value: hasFinalReport
+        ? `${COUNT_FORMATTER.format(actionCount)} action${actionCount === 1 ? "" : "s"}`
+        : "Pending",
+      tone: hasFinalReport
+        ? "positive"
+        : reportStatusDisplay.badge === "destructive"
+          ? "warning"
+          : "neutral",
+      icon: "📊",
+      caption: lastReportGenerated !== "Never"
+        ? `Updated ${lastReportGenerated}`
+        : "Awaiting synthesis",
+    },
+  ]
 
   const sentimentDistribution = useMemo(() => {
     if (!discussionInsights?.sections?.length) return null
@@ -1754,31 +1764,71 @@ export function ProductInsightsView({
             current action plan.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {snapshotMetrics.map((metric) => (
+              <div
+                key={metric.label}
+                className={cn(
+                  "flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm",
+                  FACT_TONE_STYLES[metric.tone],
+                )}
+              >
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/70 text-lg">
+                  {metric.icon}
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className="font-semibold text-foreground">
+                    {metric.label}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {metric.value}
+                  </div>
+                  {metric.caption ? (
+                    <div className="text-[11px] text-slate-600">
+                      {metric.caption}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             <div className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                {snapshotMetrics.map((metric) => (
-                  <MetricTile
-                    key={metric.label}
-                    label={metric.label}
-                    value={metric.value}
-                    tone={metric.tone}
-                  />
-                ))}
-              </div>
-              <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-                {statusSnapshot.map((item) => (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {flowStageSummaries.map((stage) => (
                   <div
-                    key={item.label}
-                    className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                    key={stage.title}
+                    className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
                   >
-                    <span className="font-semibold text-foreground">
-                      {item.label}
-                    </span>
-                    <span className="ml-auto text-foreground">
-                      {item.value}
-                    </span>
+                    <div className="flex items-center justify-between gap-3">
+                      <StageBadge label={stage.step} />
+                      <Badge variant={stage.status.badge} className="text-[11px]">
+                        {stage.status.label}
+                      </Badge>
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">
+                        {stage.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {stage.description}
+                      </div>
+                    </div>
+                    <dl className="space-y-2 text-xs text-muted-foreground">
+                      {stage.metrics.map((metric) => (
+                        <div
+                          key={metric.label}
+                          className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2"
+                        >
+                          <dt>{metric.label}</dt>
+                          <dd className="font-medium text-foreground">
+                            {metric.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
                   </div>
                 ))}
               </div>
@@ -1877,6 +1927,14 @@ export function ProductInsightsView({
           <div className="space-y-6">
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
               <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  <span>Since last run:</span>
+                  <span>
+                    {lastCrawled !== "Never"
+                      ? `${pageCount} pages captured`
+                      : "Crawler ready to run"}
+                  </span>
+                </div>
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="space-y-3">
                     <div className="text-xs font-semibold uppercase text-muted-foreground">
@@ -2138,6 +2196,14 @@ export function ProductInsightsView({
       >
         <>
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+              <span>Since last run:</span>
+              <span>
+                {hasCompetitorResults
+                  ? `${COUNT_FORMATTER.format(sortedCompetitors.length)} competitors mapped`
+                  : "Landscape ready to refresh"}
+              </span>
+            </div>
             <div className="space-y-6">
               <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                 <div>
@@ -2353,6 +2419,14 @@ export function ProductInsightsView({
         <>
           <div className="space-y-6">
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                <span>Since last run:</span>
+                <span>
+                  {hasSubredditResults
+                    ? `${COUNT_FORMATTER.format(subreddits.length)} communities cached`
+                    : "Discovery pending"}
+                </span>
+              </div>
               <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.9fr)]">
                 <div className="space-y-6">
                   <div className="space-y-3">
@@ -2662,6 +2736,14 @@ export function ProductInsightsView({
         <>
           <div className="space-y-6">
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                <span>Since last run:</span>
+                <span>
+                  {hasDiscussionThreads
+                    ? `${COUNT_FORMATTER.format(discussionThreads.length)} conversations reviewed`
+                    : "Awaiting conversation harvest"}
+                </span>
+              </div>
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
                 <div className="space-y-6">
                   <div className="space-y-3">
@@ -3183,6 +3265,14 @@ export function ProductInsightsView({
         <>
           <div className="space-y-6">
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                <span>Since last run:</span>
+                <span>
+                  {hasFinalReport
+                    ? `${COUNT_FORMATTER.format(actionCount)} actions prioritized`
+                    : "Report generation pending"}
+                </span>
+              </div>
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
                 <div className="space-y-6">
                   <div className="space-y-3">
