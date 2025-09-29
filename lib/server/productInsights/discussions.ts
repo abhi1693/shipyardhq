@@ -726,7 +726,7 @@ function computeThreadScore(
     return 0
   })()
   const preferredBoost = preferredSubreddits?.has(
-    thread.subreddit.toLowerCase(),
+    normalizeSubredditName(thread.subreddit ?? ""),
   )
     ? 120
     : 0
@@ -1133,7 +1133,9 @@ export async function discoverProductDiscussions(
   })
 
   const preferredSubredditSet = new Set(
-    (subreddits ?? []).map((entry) => entry.name.toLowerCase()),
+    (subreddits ?? [])
+      .map((entry) => normalizeSubredditName(entry.name))
+      .filter((name): name is string => Boolean(name)),
   )
 
   const augmentedQueries: ProductInsightRedditDiscussionQuery[] = [...queries]
@@ -1231,14 +1233,10 @@ export async function discoverProductDiscussions(
 
   if (preferredSubredditSet.size) {
     const preferredThreads = mergedThreads.filter((thread) =>
-      preferredSubredditSet.has(thread.subreddit.toLowerCase()),
-    )
-    const otherThreads = mergedThreads.filter(
-      (thread) => !preferredSubredditSet.has(thread.subreddit.toLowerCase()),
+      preferredSubredditSet.has(normalizeSubredditName(thread.subreddit ?? "")),
     )
     if (preferredThreads.length) {
-      const limit = mergedThreads.length
-      mergedThreads = [...preferredThreads, ...otherThreads].slice(0, limit)
+      mergedThreads = preferredThreads
     }
   }
 
@@ -1291,9 +1289,19 @@ export async function discoverProductDiscussions(
   })
 
   let finalThreads = curatedThreads
+  if (preferredSubredditSet.size && finalThreads.length) {
+    const curatedInPreferred = finalThreads.filter((thread) =>
+      preferredSubredditSet.has(normalizeSubredditName(thread.subreddit ?? "")),
+    )
+    // When we have any threads from discovered communities, constrain the sample
+    // to those so downstream views stay aligned with the community roster.
+    if (curatedInPreferred.length > 0) {
+      finalThreads = curatedInPreferred
+    }
+  }
   if (!finalThreads.length && preferredSubredditSet.size) {
     const preferredFallback = mergedThreads.filter((thread) =>
-      preferredSubredditSet.has(thread.subreddit.toLowerCase()),
+      preferredSubredditSet.has(normalizeSubredditName(thread.subreddit ?? "")),
     )
     if (preferredFallback.length) {
       finalThreads = preferredFallback.slice(
@@ -1304,7 +1312,15 @@ export async function discoverProductDiscussions(
   }
 
   if (!finalThreads.length) {
-    finalThreads = mergedThreads.slice(0, Math.min(8, mergedThreads.length))
+    if (!preferredSubredditSet.size) {
+      finalThreads = mergedThreads.slice(0, Math.min(8, mergedThreads.length))
+    } else {
+      finalThreads = []
+      console.info("[productInsights:reddit] no threads matched selected communities", {
+        productId,
+        preferredSubredditCount: preferredSubredditSet.size,
+      })
+    }
   }
 
   const insightResult = await synthesizeInsights({
