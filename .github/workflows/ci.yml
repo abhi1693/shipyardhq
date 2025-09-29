@@ -85,6 +85,15 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: "npm"
 
+      - name: Pull vercel env vars
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npx --yes vercel env pull --yes --environment=preview .env.local --token "$VERCEL_TOKEN"
+          npm run prisma:init
+
       - name: Run Cypress suite
         uses: cypress-io/github-action@v6
         env:
@@ -93,11 +102,8 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         with:
-          install: npm ci --ignore-scripts
-          build: |
-            npx --yes vercel env pull --yes --environment=preview .env.local --token "$VERCEL_TOKEN"
-            npm run prisma:init
-            npm run build
+          install: npm ci
+          build: npm run build
           start: npm run start
           wait-on: http://127.0.0.1:3000
           wait-on-timeout: 120000
