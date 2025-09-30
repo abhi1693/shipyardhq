@@ -1,3 +1,4 @@
+import { jsonrepair } from "jsonrepair"
 import { z } from "zod"
 
 import type {
@@ -32,6 +33,107 @@ const REDDIT_CACHE_NAMESPACE = resolveCacheNamespace(
   "productInsights:subreddits:v1",
 )
 const REDDIT_USER_AGENT = getRedditUserAgent()
+
+type SubredditSearchMode = "standard" | "deep" | "coverage"
+
+type SubredditSearchOptions = {
+  limit?: number
+  maxPages?: number
+}
+
+const SUBREDDIT_SEARCH_PASSES: Array<{
+  mode: SubredditSearchMode
+  options: SubredditSearchOptions
+}> = [
+  { mode: "standard", options: { limit: 15, maxPages: 1 } },
+  { mode: "deep", options: { limit: 30, maxPages: 3 } },
+]
+
+const MIN_COMMUNITY_TARGET = 3
+const MAX_RANKED_SUBREDDITS = 25
+const DEFAULT_QUERY_COVERAGE = 0
+const FALLBACK_KEEP_RELEVANCE = 0.35
+const COVERAGE_FALLBACK_LIMIT = 8
+
+const COVERAGE_STOPWORDS = new Set(
+  [
+    "and",
+    "for",
+    "with",
+    "from",
+    "that",
+    "this",
+    "your",
+    "into",
+    "need",
+    "best",
+    "what",
+    "when",
+    "where",
+    "will",
+    "help",
+    "find",
+    "tips",
+    "advice",
+    "ideas",
+    "about",
+    "into",
+    "any",
+    "how",
+    "why",
+    "who",
+  ],
+)
+
+const sanitizeOptionalText = (value?: string | null) => {
+  if (typeof value !== "string") return null
+  const trimmed = value.trim()
+  return trimmed.length ? trimmed : null
+}
+
+function safeParseJson<T>(text: string, context: string): T {
+  const attempt = (input: string) => {
+    try {
+      return JSON.parse(input) as T
+    } catch (error) {
+      throw error
+    }
+  }
+
+  try {
+    return attempt(text)
+  } catch (primaryError) {
+    const sanitized = text.replace(/,(?=\s*[}\]])/g, "").replace(/\uFEFF/g, "")
+
+    try {
+      return attempt(sanitized)
+    } catch (secondaryError) {
+      const candidates = [text, sanitized].filter(
+        (candidate, index, self) =>
+          typeof candidate === "string" && self.indexOf(candidate) === index,
+      )
+
+      const errors: string[] = []
+
+      for (const candidate of candidates) {
+        try {
+          const repaired = jsonrepair(candidate)
+          return attempt(repaired)
+        } catch (error) {
+          errors.push(`${error}`)
+        }
+      }
+
+      console.error("[productInsights:subreddit] failed to parse model JSON", {
+        context,
+        error: secondaryError,
+        original: text?.slice(0, 2000),
+        previousErrors: [primaryError, ...errors].map((error) => `${error}`),
+      })
+      throw secondaryError
+    }
+  }
+}
 
 const QueryResponseSchema = z.object({
   queries: z
@@ -90,7 +192,7 @@ const RelevanceResponseSchema = z.object({
     .min(1),
 })
 
-const MIN_RELEVANCE_SCORE = 0.35
+const MIN_RELEVANCE_SCORE = 0.5
 const MIN_QUERY_MATCH_COVERAGE = 0.7
 
 type NormalizedQueryIndex = Map<string, { original: string; indices: number[] }>
@@ -173,6 +275,107 @@ function sortScore(subreddit: ProductInsightSubreddit): number {
   )
 }
 
+function normalizeCoverageTerm(value?: string | null) {
+  if (!value) return null
+  const trimmed = value.trim().toLowerCase()
+  if (!trimmed) return null
+  if (trimmed.length < 3) return null
+  if (COVERAGE_STOPWORDS.has(trimmed)) return null
+  return trimmed
+}
+
+function tokenizeCoverageQuery(query: string) {
+  const normalized = query
+    .replace(/["'`]/g, " ")
+    .replace(/[+#,/\\]/g, " ")
+    .replace(/\s+/g, " ")
+    .toLowerCase()
+
+  const tokens = new Set<string>()
+  for (const fragment of normalized.split(" ")) {
+    const token = normalizeCoverageTerm(fragment)
+    if (token) {
+      tokens.add(token)
+    }
+  }
+  return Array.from(tokens)
+}
+
+function buildCoverageExpansionQueries({
+  product,
+  summary,
+  unmatchedQueries,
+}: {
+  product: ProductInsightProductContext
+  summary?: ProductInsightSummary | null
+  unmatchedQueries: string[]
+}) {
+  const tokens = new Set<string>()
+
+  const collectTokens = (source: string | null | undefined) => {
+    if (!source) return
+    for (const token of tokenizeCoverageQuery(source)) {
+      tokens.add(token)
+    }
+  }
+
+  unmatchedQueries.forEach((item) => collectTokens(item))
+
+  ;(product.keywords ?? []).slice(0, 8).forEach((keyword) =>
+    collectTokens(keyword),
+  )
+
+  if (product.type) {
+    collectTokens(String(product.type))
+  }
+
+  const summaryFragments: Array<string | null | undefined> = []
+  if (summary) {
+    summaryFragments.push(summary.overview)
+    summaryFragments.push(summary.targetUsers?.join(" "))
+    summaryFragments.push(summary.painPointsAddressed?.join(" "))
+  }
+
+  summaryFragments.forEach((fragment) => collectTokens(fragment))
+
+  const productName = sanitizeOptionalText(product.name)
+
+  const expansions = new Set<string>()
+  const createPhrase = (parts: string[]) => {
+    const phrase = parts
+      .map((part) => part.trim())
+      .filter((part) => part.length > 0)
+      .join(" ")
+    if (phrase.length >= 4) {
+      expansions.add(phrase)
+    }
+  }
+
+  for (const token of tokens) {
+    createPhrase([token, "community"])
+    createPhrase([token, "forum"])
+    createPhrase([token, "discussion"])
+    createPhrase([token, "group"])
+    createPhrase([token, "users"])
+    if (productName && token !== productName.toLowerCase()) {
+      createPhrase([productName, token])
+      createPhrase([token, productName])
+    }
+  }
+
+  const tokenList = Array.from(tokens)
+  for (let i = 0; i < tokenList.length; i += 1) {
+    for (let j = i + 1; j < tokenList.length; j += 1) {
+      const a = tokenList[i]
+      const b = tokenList[j]
+      createPhrase([a, b, "community"])
+      createPhrase([a, b, "discussion"])
+    }
+  }
+
+  return Array.from(expansions).slice(0, COVERAGE_FALLBACK_LIMIT)
+}
+
 function boostCoverage({
   queries,
   selected,
@@ -187,10 +390,11 @@ function boostCoverage({
   subreddits: ProductInsightSubreddit[]
   coverage: number
   matchedCount: number
+  unmatchedQueries: string[]
 } {
   if (!queries.length) {
     const deduped = dedupeSubreddits(selected)
-    return { subreddits: deduped, coverage: 1, matchedCount: 0 }
+    return { subreddits: deduped, coverage: 1, matchedCount: 0, unmatchedQueries: [] }
   }
 
   const queriesByKey = indexQueries(queries)
@@ -202,6 +406,9 @@ function boostCoverage({
       subreddits: baseList,
       coverage: baseStats.coverage,
       matchedCount: baseStats.matchedCount,
+      unmatchedQueries: Array.from(queriesByKey.entries())
+        .filter(([key]) => !baseStats.matchedKeys.has(key))
+        .map(([, descriptor]) => descriptor.original),
     }
   }
 
@@ -301,6 +508,9 @@ function boostCoverage({
     subreddits: combined.sort((a, b) => sortScore(b) - sortScore(a)),
     coverage: finalStats.coverage,
     matchedCount: finalStats.matchedCount,
+    unmatchedQueries: Array.from(queriesByKey.entries())
+      .filter(([key]) => !finalStats.matchedKeys.has(key))
+      .map(([, descriptor]) => descriptor.original),
   }
 }
 
@@ -477,47 +687,66 @@ async function generateSearchQueries({
 async function searchRedditSubreddits(
   query: string,
   accessToken: string,
+  options: SubredditSearchOptions = {},
 ): Promise<ProductInsightSubreddit[]> {
-  const url = new URL("https://oauth.reddit.com/subreddits/search")
-  url.searchParams.set("q", query)
-  url.searchParams.set("limit", "15")
-  url.searchParams.set("include_over_18", "false")
-  url.searchParams.set("show", "all")
+  const perPageLimit = Math.min(Math.max(options.limit ?? 15, 1), 100)
+  const maxPages = Math.min(Math.max(options.maxPages ?? 1, 1), 5)
+  const maxResults = perPageLimit * maxPages
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "User-Agent": REDDIT_USER_AGENT,
-    },
-  })
+  const collected: ProductInsightSubreddit[] = []
+  const seen = new Set<string>()
+  let after: string | undefined
 
-  if (response.status === 429) {
-    throw new Error("Reddit API rate limit reached while searching subreddits")
-  }
+  for (let page = 0; page < maxPages; page += 1) {
+    const url = new URL("https://oauth.reddit.com/subreddits/search")
+    url.searchParams.set("q", query)
+    url.searchParams.set("limit", String(perPageLimit))
+    url.searchParams.set("include_over_18", "false")
+    url.searchParams.set("show", "all")
+    if (after) {
+      url.searchParams.set("after", after)
+    }
 
-  if (!response.ok) {
-    const body = await response.text().catch(() => "")
-    throw new Error(
-      `Failed to search subreddits for query "${query}" (status ${response.status}): ${body}`,
-    )
-  }
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "User-Agent": REDDIT_USER_AGENT,
+      },
+    })
 
-  const json = (await response.json()) as any
-  const children: any[] = json?.data?.children ?? []
+    if (response.status === 429) {
+      throw new Error("Reddit API rate limit reached while searching subreddits")
+    }
 
-  return children
-    .map((child) => child?.data)
-    .filter((data): data is Record<string, any> => Boolean(data?.display_name))
-    .map((data) => {
-      const url = data.url?.startsWith("http")
+    if (!response.ok) {
+      const body = await response.text().catch(() => "")
+      throw new Error(
+        `Failed to search subreddits for query "${query}" (status ${response.status}): ${body}`,
+      )
+    }
+
+    const json = (await response.json()) as any
+    const children: any[] = json?.data?.children ?? []
+
+    for (const child of children) {
+      const data = child?.data as Record<string, any> | undefined
+      if (!data?.display_name) continue
+
+      const normalizedName = String(data.display_name).toLowerCase()
+      if (seen.has(normalizedName)) continue
+
+      seen.add(normalizedName)
+
+      const subredditUrl = data.url?.startsWith("http")
         ? data.url
         : `https://www.reddit.com${data.url || ""}`
-      return {
+
+      collected.push({
         id: typeof data.id === "string" ? data.id : undefined,
         name: data.display_name as string,
         title: data.title as string | undefined,
         description: data.public_description as string | undefined,
-        url,
+        url: subredditUrl,
         subscribers:
           typeof data.subscribers === "number" ? data.subscribers : undefined,
         activeUserCount:
@@ -535,8 +764,22 @@ async function searchRedditSubreddits(
             : typeof data.subscribers === "number"
               ? data.subscribers
               : undefined,
+      })
+
+      if (collected.length >= maxResults) {
+        return collected
       }
-    })
+    }
+
+    const nextAfter = json?.data?.after
+    if (typeof nextAfter === "string" && nextAfter.trim()) {
+      after = nextAfter.trim()
+    } else {
+      break
+    }
+  }
+
+  return collected
 }
 
 function rankAndMergeSubreddits(
@@ -596,7 +839,12 @@ function rankAndMergeSubreddits(
       matchedQueries: Array.from(entry.matchedQuerySet),
     }))
     .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-    .slice(0, 15)
+    .slice(0, MAX_RANKED_SUBREDDITS)
+}
+
+type SubredditEvaluation = {
+  verdict: RelevanceVerdict
+  decorated: ProductInsightSubreddit
 }
 
 async function refineSubredditRecommendations({
@@ -609,7 +857,14 @@ async function refineSubredditRecommendations({
   summary?: ProductInsightSummary | null
   queries: ProductInsightSubredditQuery[]
   subreddits: ProductInsightSubreddit[]
-}): Promise<{ subreddits: ProductInsightSubreddit[]; model: string } | null> {
+}): Promise<
+  | {
+      subreddits: ProductInsightSubreddit[]
+      model: string
+      evaluations: SubredditEvaluation[]
+    }
+  | null
+> {
   if (!subreddits.length) return null
 
   const openai = getOpenAIClient()
@@ -700,7 +955,65 @@ async function refineSubredditRecommendations({
 
     const raw = extractAssistantJson(response)
     const jsonText = coerceJsonText(raw)
-    const parsed = RelevanceResponseSchema.parse(JSON.parse(jsonText || "{}"))
+    const parsedJson = safeParseJson<{ subreddits?: any[] }>(
+      jsonText || "{}",
+      "subreddit_relevance",
+    )
+
+    const normalizedEntries: Array<{
+      name: string
+      keep: boolean
+      relevance: number
+      rationale: string
+    }> = []
+    const droppedEntries: string[] = []
+
+    for (const rawEntry of Array.isArray(parsedJson?.subreddits)
+      ? parsedJson.subreddits
+      : []) {
+      const name = sanitizeOptionalText(rawEntry?.name)
+      const keepValue = rawEntry?.keep
+      const relevanceValue =
+        typeof rawEntry?.relevance === "number"
+          ? rawEntry.relevance
+          : Number(rawEntry?.relevance)
+      const rationaleValue = sanitizeOptionalText(rawEntry?.rationale)
+
+      const hasRequiredFields =
+        typeof name === "string" &&
+        typeof keepValue === "boolean" &&
+        Number.isFinite(relevanceValue) &&
+        typeof rationaleValue === "string"
+
+      if (!hasRequiredFields) {
+        droppedEntries.push(name ?? "(unknown)")
+        continue
+      }
+
+      normalizedEntries.push({
+        name,
+        keep: keepValue,
+        relevance: Math.max(0, Math.min(1, relevanceValue)),
+        rationale: rationaleValue,
+      })
+    }
+
+    if (droppedEntries.length) {
+      console.warn("[productInsights:subreddit] dropped invalid relevance rows", {
+        dropped: droppedEntries.length,
+      })
+    }
+
+    if (!normalizedEntries.length) {
+      console.warn(
+        "[productInsights:subreddit] relevance evaluation returned no structured entries",
+      )
+      return null
+    }
+
+    const parsed = RelevanceResponseSchema.parse({
+      subreddits: normalizedEntries,
+    })
 
     const evaluationMap = new Map(
       parsed.subreddits.map((item) => [item.name.toLowerCase(), item]),
@@ -738,7 +1051,7 @@ async function refineSubredditRecommendations({
       return null
     }
 
-    let curated = evaluated
+    const curated = evaluated
       .filter(
         ({ verdict }) =>
           verdict.keep && verdict.relevance >= MIN_RELEVANCE_SCORE,
@@ -751,26 +1064,13 @@ async function refineSubredditRecommendations({
       )
 
     if (!curated.length) {
-      curated = evaluated
-        .filter(({ verdict }) => verdict.keep)
-        .map(({ decorated }) => decorated)
-        .sort(
-          (a, b) =>
-            (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0) ||
-            (b.score ?? 0) - (a.score ?? 0),
-        )
-        .slice(0, Math.min(5, evaluated.length))
-    }
-
-    if (!curated.length) {
-      curated = evaluated
-        .map(({ decorated }) => decorated)
-        .sort(
-          (a, b) =>
-            (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0) ||
-            (b.score ?? 0) - (a.score ?? 0),
-        )
-        .slice(0, Math.min(3, evaluated.length))
+      console.info(
+        "[productInsights:subreddit] relevance evaluation produced no qualified communities",
+        {
+          evaluatedCount: evaluated.length,
+        },
+      )
+      return null
     }
 
     console.info("[productInsights:subreddit] relevance evaluation completed", {
@@ -781,6 +1081,7 @@ async function refineSubredditRecommendations({
     return {
       subreddits: curated,
       model: evaluationModel,
+      evaluations: evaluated,
     }
   } catch (error) {
     console.error("[productInsights:subreddit] relevance evaluation failed", {
@@ -861,34 +1162,66 @@ export async function discoverProductSubreddits(
 
   const accessToken = await getRedditAccessToken()
 
-  const queryResults: Array<{
+  const aggregatedQueryResults: Array<{
     query: string
     subreddits: ProductInsightSubreddit[]
   }> = []
 
-  for (const query of queries) {
-    console.info("[productInsights:subreddit] searching reddit", {
-      productId,
-      query: query.query,
-    })
-    try {
-      const subreddits = await searchRedditSubreddits(query.query, accessToken)
-      queryResults.push({ query: query.query, subreddits })
-    } catch (error) {
-      console.error("[productInsights:subreddit] search failed", {
+  let merged: ProductInsightSubreddit[] = []
+  let finalSubreddits: ProductInsightSubreddit[] = []
+  let relevanceModel: string | null = null
+  let coverageResult = {
+    subreddits: [] as ProductInsightSubreddit[],
+    coverage: queries.length ? DEFAULT_QUERY_COVERAGE : 1,
+    matchedCount: 0,
+    unmatchedQueries: [] as string[],
+  }
+  let targetsMet = false
+  let passUsed: SubredditSearchMode | null = null
+  let coverageFallbackAttempted = false
+
+  for (const pass of SUBREDDIT_SEARCH_PASSES) {
+    const passResults: Array<{
+      query: string
+      subreddits: ProductInsightSubreddit[]
+    }> = []
+
+    for (const query of queries) {
+      console.info("[productInsights:subreddit] searching reddit", {
         productId,
         query: query.query,
-        error,
+        mode: pass.mode,
       })
+      try {
+        const subreddits = await searchRedditSubreddits(
+          query.query,
+          accessToken,
+          pass.options,
+        )
+        if (subreddits.length) {
+          passResults.push({ query: query.query, subreddits })
+        }
+      } catch (error) {
+        console.error("[productInsights:subreddit] search failed", {
+          productId,
+          query: query.query,
+          mode: pass.mode,
+          error,
+        })
+      }
     }
-  }
 
-  const merged = rankAndMergeSubreddits(queryResults)
+    if (!passResults.length) {
+      continue
+    }
 
-  let finalSubreddits = merged
-  let relevanceModel: string | null = null
+    aggregatedQueryResults.push(...passResults)
+    merged = rankAndMergeSubreddits(aggregatedQueryResults)
 
-  if (merged.length) {
+    if (!merged.length) {
+      continue
+    }
+
     const refinement = await refineSubredditRecommendations({
       product,
       summary,
@@ -896,9 +1229,171 @@ export async function discoverProductSubreddits(
       subreddits: merged,
     })
 
-    if (refinement && refinement.subreddits.length) {
-      finalSubreddits = refinement.subreddits
-      relevanceModel = refinement.model
+    if (!refinement?.subreddits.length) {
+      continue
+    }
+
+    relevanceModel = refinement.model
+    const fallbackPool = refinement.evaluations
+      .filter(
+        ({ verdict }) =>
+          verdict.keep && verdict.relevance >= FALLBACK_KEEP_RELEVANCE,
+      )
+      .map(({ decorated }) => decorated)
+
+    coverageResult = boostCoverage({
+      queries,
+      selected: refinement.subreddits,
+      fallbackPool: fallbackPool.length
+        ? fallbackPool
+        : refinement.subreddits,
+      minimumCoverage: MIN_QUERY_MATCH_COVERAGE,
+    })
+    finalSubreddits = coverageResult.subreddits
+    passUsed = pass.mode
+
+    const coverageMet =
+      !queries.length || coverageResult.coverage >= MIN_QUERY_MATCH_COVERAGE
+    const countMet = finalSubreddits.length >= MIN_COMMUNITY_TARGET
+    targetsMet = coverageMet && countMet
+
+    console.info("[productInsights:subreddit] discovery pass completed", {
+      productId,
+      pass: pass.mode,
+      curatedCount: finalSubreddits.length,
+      coverage: coverageResult.coverage,
+      matchedQueries: coverageResult.matchedCount,
+      coverageTarget: MIN_QUERY_MATCH_COVERAGE,
+      communityTarget: MIN_COMMUNITY_TARGET,
+    })
+
+    if (targetsMet) {
+      break
+    }
+  }
+
+  if (
+    !targetsMet &&
+    !coverageFallbackAttempted &&
+    coverageResult.unmatchedQueries.length
+  ) {
+    coverageFallbackAttempted = true
+
+    const baseFallbackQueries = Array.from(
+      new Set(coverageResult.unmatchedQueries.map((value) => value.trim())),
+    ).filter((value) => value.length > 0)
+
+    const expansionQueries = buildCoverageExpansionQueries({
+      product,
+      summary,
+      unmatchedQueries: coverageResult.unmatchedQueries,
+    })
+
+    const fallbackQueries = Array.from(
+      new Set([...baseFallbackQueries, ...expansionQueries]),
+    ).slice(0, COVERAGE_FALLBACK_LIMIT)
+
+    const coveragePassResults: Array<{
+      query: string
+      subreddits: ProductInsightSubreddit[]
+    }> = []
+
+    for (const queryText of fallbackQueries) {
+      console.info("[productInsights:subreddit] searching reddit", {
+        productId,
+        query: queryText,
+        mode: "coverage",
+      })
+      try {
+        const subreddits = await searchRedditSubreddits(queryText, accessToken, {
+          limit: 40,
+          maxPages: 5,
+        })
+        if (subreddits.length) {
+          coveragePassResults.push({ query: queryText, subreddits })
+        }
+      } catch (error) {
+        console.error("[productInsights:subreddit] search failed", {
+          productId,
+          query: queryText,
+          mode: "coverage",
+          error,
+        })
+      }
+    }
+
+    if (coveragePassResults.length) {
+      aggregatedQueryResults.push(...coveragePassResults)
+      merged = rankAndMergeSubreddits(aggregatedQueryResults)
+
+      if (merged.length) {
+        const refinement = await refineSubredditRecommendations({
+          product,
+          summary,
+          queries,
+          subreddits: merged,
+        })
+
+        if (refinement?.subreddits.length) {
+          relevanceModel = refinement.model
+          const fallbackPool = refinement.evaluations
+            .filter(
+              ({ verdict }) =>
+                verdict.keep && verdict.relevance >= FALLBACK_KEEP_RELEVANCE,
+            )
+            .map(({ decorated }) => decorated)
+
+          coverageResult = boostCoverage({
+            queries,
+            selected: refinement.subreddits,
+            fallbackPool: fallbackPool.length
+              ? fallbackPool
+              : refinement.subreddits,
+            minimumCoverage: MIN_QUERY_MATCH_COVERAGE,
+          })
+          finalSubreddits = coverageResult.subreddits
+          passUsed = "coverage"
+
+          const coverageMet =
+            !queries.length || coverageResult.coverage >= MIN_QUERY_MATCH_COVERAGE
+          const countMet = finalSubreddits.length >= MIN_COMMUNITY_TARGET
+          targetsMet = coverageMet && countMet
+
+          console.info(
+            "[productInsights:subreddit] coverage fallback completed",
+            {
+              productId,
+              curatedCount: finalSubreddits.length,
+              coverage: coverageResult.coverage,
+              matchedQueries: coverageResult.matchedCount,
+              coverageTarget: MIN_QUERY_MATCH_COVERAGE,
+              communityTarget: MIN_COMMUNITY_TARGET,
+            },
+          )
+        }
+      }
+    }
+  }
+
+  if (!targetsMet) {
+    if (finalSubreddits.length || merged.length) {
+      console.warn("[productInsights:subreddit] targets not met after search passes", {
+        productId,
+        lastPass: passUsed,
+        coverage: coverageResult.coverage,
+        communityCount: finalSubreddits.length,
+        requiredCoverage: MIN_QUERY_MATCH_COVERAGE,
+        requiredCommunityCount: MIN_COMMUNITY_TARGET,
+      })
+    }
+    if (!finalSubreddits.length) {
+      coverageResult = {
+        subreddits: [],
+        coverage: queries.length ? DEFAULT_QUERY_COVERAGE : 1,
+        matchedCount: 0,
+        unmatchedQueries: queries.map((entry) => entry.query),
+      }
+      relevanceModel = null
     }
   }
 
@@ -907,36 +1402,10 @@ export async function discoverProductSubreddits(
     queryCount: queries.length,
     discoveredCount: merged.length,
     curatedCount: finalSubreddits.length,
+    passUsed,
   })
 
-  const coverageResult = boostCoverage({
-    queries,
-    selected: finalSubreddits,
-    fallbackPool: merged,
-    minimumCoverage: MIN_QUERY_MATCH_COVERAGE,
-  })
-
-  finalSubreddits = coverageResult.subreddits
-
-  if (coverageResult.coverage < MIN_QUERY_MATCH_COVERAGE && queries.length) {
-    console.warn("[productInsights:subreddit] query coverage below target", {
-      productId,
-      coverage: coverageResult.coverage,
-      minimum: MIN_QUERY_MATCH_COVERAGE,
-      queryCount: queries.length,
-    })
-  } else if (
-    coverageResult.coverage >= MIN_QUERY_MATCH_COVERAGE &&
-    queries.length
-  ) {
-    console.info("[productInsights:subreddit] query coverage achieved", {
-      productId,
-      coverage: coverageResult.coverage,
-      queryCount: queries.length,
-    })
-  }
-
-  if (redis && merged.length) {
+  if (redis && finalSubreddits.length) {
     try {
       await redis.set(
         cacheKey,
