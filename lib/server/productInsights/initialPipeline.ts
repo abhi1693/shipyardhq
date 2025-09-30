@@ -36,22 +36,30 @@ on("product.created", async ({ productId }) => {
         productSlug: product.slug,
       })
     } else if (enqueueResult.reason === "duplicate") {
-      console.info("[productInsights:autoRun] initial pipeline already queued", {
-        productId: product.id,
-        productSlug: product.slug,
-      })
+      console.info(
+        "[productInsights:autoRun] initial pipeline already queued",
+        {
+          productId: product.id,
+          productSlug: product.slug,
+        },
+      )
     } else {
-      console.warn("[productInsights:autoRun] failed to queue initial pipeline", {
-        productId: product.id,
-        productSlug: product.slug,
-        reason: enqueueResult.reason,
-      })
+      console.warn(
+        "[productInsights:autoRun] failed to queue initial pipeline",
+        {
+          productId: product.id,
+          productSlug: product.slug,
+          reason: enqueueResult.reason,
+        },
+      )
     }
   } catch (error) {
-    console.error("[productInsights:autoRun] initial pipeline scheduling failed", {
-      productId,
-      error,
-    })
+    console.error(
+      "[productInsights:autoRun] initial pipeline scheduling failed",
+      {
+        productId,
+        error,
+      },
+    )
   }
 })
-

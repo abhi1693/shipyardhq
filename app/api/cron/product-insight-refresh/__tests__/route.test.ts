@@ -62,4 +62,3 @@ describe("cron product insight refresh route", () => {
     errorSpy.mockRestore()
   })
 })
-

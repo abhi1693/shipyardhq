@@ -133,4 +133,3 @@ describe("scheduleStaleProductInsightPipelines", () => {
     expect(enqueueMock).not.toHaveBeenCalled()
   })
 })
-

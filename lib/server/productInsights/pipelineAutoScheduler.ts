@@ -82,10 +82,7 @@ export async function scheduleStaleProductInsightPipelines(
       ],
     },
     select: baseSelect,
-    orderBy: [
-      { insightProfile: { lastRunAt: "asc" } },
-      { createdAt: "asc" },
-    ],
+    orderBy: [{ insightProfile: { lastRunAt: "asc" } }, { createdAt: "asc" }],
     take,
   })
 
