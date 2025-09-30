@@ -20,8 +20,8 @@ describe("twitter message builders", () => {
     })
 
     const segments = tweet.split("\n\n")
-    expect(segments[0]).toBe("New launch on Shipyard HQ: Mariner AI")
-    expect(segments[1]).toBe("@mariner — Collaborative documentation for builders.")
+    expect(segments[0]).toBe("Mariner AI (@mariner) just launched on Shipyard HQ!")
+    expect(segments[1]).toBe("Collaborative documentation for builders.")
     expect(segments[2]).toBe(SAMPLE_URL)
     expect(segments[3]).toBe("#ShipyardHQ #ProductLaunch #IndieSaaS")
     expect(tweet.length).toBeLessThanOrEqual(280)
@@ -40,7 +40,7 @@ describe("twitter message builders", () => {
     expect(tweet).toContain("Voyager")
     expect(tweet.includes("...")).toBe(true)
     const segments = tweet.split("\n\n")
-    expect(segments[1]).toContain("@voyagerCrew")
+    expect(segments[0]).toContain("@voyagerCrew")
     expect(segments.at(-1)).toMatch(/^#ShipyardHQ #ProductLaunch/)
   })
 
@@ -72,9 +72,9 @@ describe("twitter message builders", () => {
     expect(editorsPickTweet).toBeTruthy()
     expect(trendingTweet?.split("\n\n").at(-1)).toContain("#Trending")
     expect(featuredTweet?.split("\n\n").at(-1)).toContain("#Featured")
-    expect(trendingTweet).toContain("@dockSync")
+    expect(trendingTweet).toContain("DockSync (@dockSync) is trending")
     expect(editorsPickTweet?.split("\n\n").at(-1)).toContain("#EditorsPick")
-    expect(editorsPickTweet).toContain("@dockSync")
+    expect(editorsPickTweet).toContain("Editor's pick: DockSync (@dockSync)!")
   })
 
   it("returns null for unsupported badge types", () => {

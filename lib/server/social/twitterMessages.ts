@@ -119,16 +119,14 @@ export function buildProductLaunchTweet(args: {
   url: string
   twitterHandle?: string | null
 }): string {
-  const headline = `New launch on Shipyard HQ: ${args.name}`
-  const mention = args.twitterHandle?.trim()
-  const bodyParts: string[] = []
-  if (mention) {
-    bodyParts.push(mention.startsWith("@") ? mention : `@${mention}`)
-  }
-  if (args.tagline?.trim().length) {
-    bodyParts.push(args.tagline.trim())
-  }
-  const body = bodyParts.length ? bodyParts.join(" — ") : undefined
+  const handle = args.twitterHandle?.startsWith("@")
+    ? args.twitterHandle
+    : args.twitterHandle?.length
+      ? `@${args.twitterHandle}`
+      : null
+  const displayName = handle ? `${args.name} (${handle})` : args.name
+  const headline = `${displayName} just launched on Shipyard HQ!`
+  const body = args.tagline?.trim()?.length ? args.tagline.trim() : undefined
   return composeTweet({
     headline,
     body,
@@ -140,20 +138,21 @@ export function buildProductLaunchTweet(args: {
 const BADGE_COPY: Record<
   "featured" | "trending" | "editor-pick",
   {
-    headline: (name: string) => string
+    headline: (displayName: string) => string
     hashtags: string[]
   }
 > = {
   trending: {
-    headline: (name) => `Trending on Shipyard HQ: ${name}`,
+    headline: (displayName) => `${displayName} is trending on Shipyard HQ!`,
     hashtags: ["Trending", "ProductDiscovery"],
   },
   featured: {
-    headline: (name) => `Featured spotlight: ${name}`,
+    headline: (displayName) =>
+      `${displayName} just earned a Featured spotlight!`,
     hashtags: ["Featured", "IndieMakers"],
   },
   "editor-pick": {
-    headline: (name) => `Editor's pick: ${name}`,
+    headline: (displayName) => `Editor's pick: ${displayName}!`,
     hashtags: ["EditorsPick", "ProductDiscovery"],
   },
 }
@@ -170,17 +169,15 @@ export function buildBadgeTweet(args: {
   }
 
   const copy = BADGE_COPY[args.badge as keyof typeof BADGE_COPY]
-  const mention = args.twitterHandle?.trim()
-  const bodyParts: string[] = []
-  if (mention) {
-    bodyParts.push(mention.startsWith("@") ? mention : `@${mention}`)
-  }
-  if (args.tagline?.trim().length) {
-    bodyParts.push(args.tagline.trim())
-  }
-  const body = bodyParts.length ? bodyParts.join(" — ") : undefined
+  const handle = args.twitterHandle?.startsWith("@")
+    ? args.twitterHandle
+    : args.twitterHandle?.length
+      ? `@${args.twitterHandle}`
+      : null
+  const displayName = handle ? `${args.name} (${handle})` : args.name
+  const body = args.tagline?.trim()?.length ? args.tagline.trim() : undefined
   return composeTweet({
-    headline: copy.headline(args.name),
+    headline: copy.headline(displayName),
     body,
     url: args.url,
     hashtags: copy.hashtags,
