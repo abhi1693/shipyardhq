@@ -46,7 +46,10 @@ export default function UpvoteSquareButton({
   }, [baseState])
 
   useEffect(() => {
-    if (state.upvotes !== prev.current.upvotes || state.upvoted !== prev.current.upvoted) {
+    if (
+      state.upvotes !== prev.current.upvotes ||
+      state.upvoted !== prev.current.upvoted
+    ) {
       setPop(true)
       const t = setTimeout(() => setPop(false), 220)
       prev.current = state
@@ -76,17 +79,23 @@ export default function UpvoteSquareButton({
       const response = await fetch(`/api/products/${productId}/upvote`, {
         method: "POST",
       })
-      const payload = (await response.json().catch(() => ({}))) as Partial<State>
+      const payload = (await response
+        .json()
+        .catch(() => ({}))) as Partial<State>
 
       if (!response.ok) {
         throw new Error(
-          typeof payload.error === "string" ? payload.error : "Failed to upvote",
+          typeof payload.error === "string"
+            ? payload.error
+            : "Failed to upvote",
         )
       }
 
       setState((current) => ({
         upvotes:
-          typeof payload.upvotes === "number" ? payload.upvotes : current.upvotes,
+          typeof payload.upvotes === "number"
+            ? payload.upvotes
+            : current.upvotes,
         upvoted:
           typeof payload.upvoted === "boolean"
             ? payload.upvoted

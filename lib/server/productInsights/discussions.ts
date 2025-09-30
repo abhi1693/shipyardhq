@@ -1326,12 +1326,15 @@ export async function discoverProductDiscussions(
 
   const finalCommentTargets = finalThreads
     .map((thread, index) => ({ thread, index }))
-    .filter(({ thread }) => !thread.topComments || thread.topComments.length === 0)
+    .filter(
+      ({ thread }) => !thread.topComments || thread.topComments.length === 0,
+    )
 
   if (finalCommentTargets.length) {
     await Promise.all(
       finalCommentTargets.map(async ({ thread, index }) => {
-        const useFullTree = mode === "deep" && index < DEEP_FULL_TREE_THREAD_LIMIT
+        const useFullTree =
+          mode === "deep" && index < DEEP_FULL_TREE_THREAD_LIMIT
         try {
           const comments = await fetchThreadComments(thread.id, accessToken, {
             topLevelLimit: useFullTree

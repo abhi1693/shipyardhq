@@ -38,7 +38,6 @@ vi.mock("@/lib/prisma", () => ({
 import { toggleProductUpvote } from "../upvote"
 
 describe("toggleProductUpvote", () => {
-
   beforeEach(() => {
     vi.clearAllMocks()
 

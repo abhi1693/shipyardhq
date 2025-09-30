@@ -55,35 +55,33 @@ const DEFAULT_QUERY_COVERAGE = 0
 const FALLBACK_KEEP_RELEVANCE = 0.35
 const COVERAGE_FALLBACK_LIMIT = 8
 
-const COVERAGE_STOPWORDS = new Set(
-  [
-    "and",
-    "for",
-    "with",
-    "from",
-    "that",
-    "this",
-    "your",
-    "into",
-    "need",
-    "best",
-    "what",
-    "when",
-    "where",
-    "will",
-    "help",
-    "find",
-    "tips",
-    "advice",
-    "ideas",
-    "about",
-    "into",
-    "any",
-    "how",
-    "why",
-    "who",
-  ],
-)
+const COVERAGE_STOPWORDS = new Set([
+  "and",
+  "for",
+  "with",
+  "from",
+  "that",
+  "this",
+  "your",
+  "into",
+  "need",
+  "best",
+  "what",
+  "when",
+  "where",
+  "will",
+  "help",
+  "find",
+  "tips",
+  "advice",
+  "ideas",
+  "about",
+  "into",
+  "any",
+  "how",
+  "why",
+  "who",
+])
 
 const sanitizeOptionalText = (value?: string | null) => {
   if (typeof value !== "string") return null
@@ -320,10 +318,9 @@ function buildCoverageExpansionQueries({
   }
 
   unmatchedQueries.forEach((item) => collectTokens(item))
-
-  ;(product.keywords ?? []).slice(0, 8).forEach((keyword) =>
-    collectTokens(keyword),
-  )
+  ;(product.keywords ?? [])
+    .slice(0, 8)
+    .forEach((keyword) => collectTokens(keyword))
 
   if (product.type) {
     collectTokens(String(product.type))
@@ -394,7 +391,12 @@ function boostCoverage({
 } {
   if (!queries.length) {
     const deduped = dedupeSubreddits(selected)
-    return { subreddits: deduped, coverage: 1, matchedCount: 0, unmatchedQueries: [] }
+    return {
+      subreddits: deduped,
+      coverage: 1,
+      matchedCount: 0,
+      unmatchedQueries: [],
+    }
   }
 
   const queriesByKey = indexQueries(queries)
@@ -715,7 +717,9 @@ async function searchRedditSubreddits(
     })
 
     if (response.status === 429) {
-      throw new Error("Reddit API rate limit reached while searching subreddits")
+      throw new Error(
+        "Reddit API rate limit reached while searching subreddits",
+      )
     }
 
     if (!response.ok) {
@@ -857,14 +861,11 @@ async function refineSubredditRecommendations({
   summary?: ProductInsightSummary | null
   queries: ProductInsightSubredditQuery[]
   subreddits: ProductInsightSubreddit[]
-}): Promise<
-  | {
-      subreddits: ProductInsightSubreddit[]
-      model: string
-      evaluations: SubredditEvaluation[]
-    }
-  | null
-> {
+}): Promise<{
+  subreddits: ProductInsightSubreddit[]
+  model: string
+  evaluations: SubredditEvaluation[]
+} | null> {
   if (!subreddits.length) return null
 
   const openai = getOpenAIClient()
@@ -999,9 +1000,12 @@ async function refineSubredditRecommendations({
     }
 
     if (droppedEntries.length) {
-      console.warn("[productInsights:subreddit] dropped invalid relevance rows", {
-        dropped: droppedEntries.length,
-      })
+      console.warn(
+        "[productInsights:subreddit] dropped invalid relevance rows",
+        {
+          dropped: droppedEntries.length,
+        },
+      )
     }
 
     if (!normalizedEntries.length) {
@@ -1244,9 +1248,7 @@ export async function discoverProductSubreddits(
     coverageResult = boostCoverage({
       queries,
       selected: refinement.subreddits,
-      fallbackPool: fallbackPool.length
-        ? fallbackPool
-        : refinement.subreddits,
+      fallbackPool: fallbackPool.length ? fallbackPool : refinement.subreddits,
       minimumCoverage: MIN_QUERY_MATCH_COVERAGE,
     })
     finalSubreddits = coverageResult.subreddits
@@ -1305,10 +1307,14 @@ export async function discoverProductSubreddits(
         mode: "coverage",
       })
       try {
-        const subreddits = await searchRedditSubreddits(queryText, accessToken, {
-          limit: 40,
-          maxPages: 5,
-        })
+        const subreddits = await searchRedditSubreddits(
+          queryText,
+          accessToken,
+          {
+            limit: 40,
+            maxPages: 5,
+          },
+        )
         if (subreddits.length) {
           coveragePassResults.push({ query: queryText, subreddits })
         }
@@ -1355,7 +1361,8 @@ export async function discoverProductSubreddits(
           passUsed = "coverage"
 
           const coverageMet =
-            !queries.length || coverageResult.coverage >= MIN_QUERY_MATCH_COVERAGE
+            !queries.length ||
+            coverageResult.coverage >= MIN_QUERY_MATCH_COVERAGE
           const countMet = finalSubreddits.length >= MIN_COMMUNITY_TARGET
           targetsMet = coverageMet && countMet
 
@@ -1377,14 +1384,17 @@ export async function discoverProductSubreddits(
 
   if (!targetsMet) {
     if (finalSubreddits.length || merged.length) {
-      console.warn("[productInsights:subreddit] targets not met after search passes", {
-        productId,
-        lastPass: passUsed,
-        coverage: coverageResult.coverage,
-        communityCount: finalSubreddits.length,
-        requiredCoverage: MIN_QUERY_MATCH_COVERAGE,
-        requiredCommunityCount: MIN_COMMUNITY_TARGET,
-      })
+      console.warn(
+        "[productInsights:subreddit] targets not met after search passes",
+        {
+          productId,
+          lastPass: passUsed,
+          coverage: coverageResult.coverage,
+          communityCount: finalSubreddits.length,
+          requiredCoverage: MIN_QUERY_MATCH_COVERAGE,
+          requiredCommunityCount: MIN_COMMUNITY_TARGET,
+        },
+      )
     }
     if (!finalSubreddits.length) {
       coverageResult = {

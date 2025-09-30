@@ -39,8 +39,8 @@ export function ProductInsightInsightsReadyEmail({
       cta={{ label: "See the full insight report", href: insightsUrl }}
     >
       <p style={paragraphStyle}>
-        Inside your dashboard you&apos;ll get an at-a-glance breakdown of what&apos;s
-        changed and where the momentum is building.
+        Inside your dashboard you&apos;ll get an at-a-glance breakdown of
+        what&apos;s changed and where the momentum is building.
       </p>
 
       <ul style={listStyle}>

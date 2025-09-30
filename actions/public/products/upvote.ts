@@ -59,7 +59,11 @@ export interface ToggleProductUpvoteOptions {
 
 export class UpvoteError extends Error {
   status: number
-  constructor(message: string, status: number, public cause?: unknown) {
+  constructor(
+    message: string,
+    status: number,
+    public cause?: unknown,
+  ) {
     super(message)
     this.name = "UpvoteError"
     this.status = status
