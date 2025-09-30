@@ -59,7 +59,19 @@ export async function generateMetadata({
   if (!product) return {}
   const relativeUrl = productPath(product.slug)
   const desc = product.tagline || product.description || undefined
-  const images = [product.bannerImage, product.logo].filter(Boolean) as string[]
+  const imageEntries = (
+    [
+      product.bannerImage
+        ? { url: product.bannerImage, alt: `${product.name} banner` }
+        : null,
+      product.logo ? { url: product.logo, alt: `${product.name} logo` } : null,
+    ] as Array<{ url: string; alt: string } | null>
+  )
+    .filter((entry): entry is { url: string; alt: string } => Boolean(entry))
+    .filter(
+      (entry, index, entries) =>
+        entries.findIndex((candidate) => candidate.url === entry.url) === index,
+    )
   const authorName =
     [product.user?.firstName || "", product.user?.lastName || ""]
       .join(" ")
@@ -67,13 +79,17 @@ export async function generateMetadata({
 
   const openGraphExtras = {
     url: relativeUrl,
-    type: "website" as const,
-    ...(images.length ? { images: images.map((url) => ({ url })) } : {}),
+    type: "product" as const,
+    ...(imageEntries.length ? { images: imageEntries } : {}),
   }
 
   const twitterExtras = {
     card: "summary_large_image" as const,
-    ...(images.length ? { images } : {}),
+    ...(imageEntries.length
+      ? {
+          images: imageEntries.map(({ url, alt }) => ({ url, alt })),
+        }
+      : {}),
   }
 
   const baseMetadata = buildPageMetadata({
