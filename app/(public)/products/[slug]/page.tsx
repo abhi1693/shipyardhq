@@ -79,7 +79,7 @@ export async function generateMetadata({
 
   const openGraphExtras = {
     url: relativeUrl,
-    type: "product" as const,
+    type: "website" as const,
     ...(imageEntries.length ? { images: imageEntries } : {}),
   }
 
