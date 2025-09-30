@@ -28,6 +28,7 @@ import type {
   ProductInsightRedditDiscussionQuery,
   ProductInsightRedditInsightReport,
   ProductInsightRedditThread,
+  ProductInsightReportAction,
   ProductInsightReportActionPriority,
   ProductInsightStatus,
   ProductInsightCompetitor,
@@ -126,6 +127,42 @@ const ACTION_PRIORITY_COLORS: Record<
   medium: "var(--chart-1)",
   low: "var(--chart-2)",
   watch: "var(--chart-4)",
+}
+
+const ACTION_PRIORITY_ICON: Record<ProductInsightReportActionPriority, string> =
+  {
+    high: "🔥",
+    medium: "⚡",
+    low: "📌",
+    watch: "👀",
+  }
+
+const ACTION_PRIORITY_ORDER: Record<
+  ProductInsightReportActionPriority,
+  number
+> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+  watch: 3,
+}
+
+const ACTION_TIMEFRAME_ORDER: Record<
+  NonNullable<ProductInsightReportAction["timeframe"]>,
+  number
+> = {
+  immediate: 0,
+  "near-term": 1,
+  "long-term": 2,
+}
+
+const ACTION_TIMEFRAME_LABEL: Record<
+  NonNullable<ProductInsightReportAction["timeframe"]>,
+  string
+> = {
+  immediate: "Immediate",
+  "near-term": "Next sprint",
+  "long-term": "Long-term",
 }
 
 const COUNT_FORMATTER = new Intl.NumberFormat("en-US", {
@@ -376,14 +413,6 @@ function StageCard({
   )
 }
 
-type FlowStageSummary = {
-  step: string
-  title: string
-  description: string
-  status: { label: string; badge: ComponentProps<typeof Badge>["variant"] }
-  metrics: Array<{ label: string; value: ReactNode }>
-}
-
 export function ProductInsightsView({
   slug,
   productName,
@@ -410,9 +439,14 @@ export function ProductInsightsView({
     message: string
   } | null>(null)
   const [isRunningPipeline, startPipelineTransition] = useTransition()
-  const [isDeepMode, setIsDeepMode] = useState(
-    () => initialProfile?.redditMode === "deep",
-  )
+  const [isDeepMode, setIsDeepMode] = useState(true)
+  const [showCompetitorDeepDive, setShowCompetitorDeepDive] = useState(false)
+  const [showCommunityDeepDive, setShowCommunityDeepDive] = useState(false)
+  const [showCommunityInputs, setShowCommunityInputs] = useState(false)
+  const [showDiscussionInputs, setShowDiscussionInputs] = useState(false)
+  const [showDiscussionDeepDive, setShowDiscussionDeepDive] = useState(false)
+  const [showReportDeepDive, setShowReportDeepDive] = useState(false)
+  const recommendedActionsRef = useRef<HTMLDivElement | null>(null)
 
   const isAdminView = accessLevel === "admin"
 
@@ -673,6 +707,18 @@ export function ProductInsightsView({
       return aName.localeCompare(bName)
     })
   }, [competitors])
+
+  const competitorSpotlights = useMemo(
+    () =>
+      sortedCompetitors.slice(0, 3).map((competitor) => ({
+        name: competitor.name?.trim() || "Competitor",
+        focus:
+          competitor.focusArea?.trim() ||
+          competitor.positioning?.trim() ||
+          null,
+      })),
+    [sortedCompetitors],
+  )
 
   const competitorResearchNotes = useMemo(() => {
     if (!Array.isArray(profile?.competitorResearchNotes)) return []
@@ -1139,15 +1185,52 @@ export function ProductInsightsView({
   const customerSignals = Array.isArray(finalReport?.customerSignals)
     ? finalReport!.customerSignals
     : []
-  const recommendedActions = Array.isArray(finalReport?.recommendedActions)
-    ? finalReport!.recommendedActions
-    : []
+  const recommendedActions = useMemo(() => {
+    return Array.isArray(finalReport?.recommendedActions)
+      ? finalReport!.recommendedActions
+      : []
+  }, [finalReport])
   const communityPlan = Array.isArray(finalReport?.communityPlan)
     ? finalReport!.communityPlan
     : []
   const metricsToWatch = Array.isArray(finalReport?.metricsToWatch)
     ? finalReport!.metricsToWatch
     : []
+
+  const orderedRecommendedActions = useMemo<
+    ProductInsightReportAction[]
+  >(() => {
+    if (!recommendedActions.length) return []
+
+    return recommendedActions
+      .map((action, index) => {
+        const priorityRank =
+          ACTION_PRIORITY_ORDER[action.priority] ?? Number.POSITIVE_INFINITY
+        const timeframe = action.timeframe
+        const timeframeRank = timeframe
+          ? (ACTION_TIMEFRAME_ORDER[
+              timeframe as NonNullable<ProductInsightReportAction["timeframe"]>
+            ] ?? Number.POSITIVE_INFINITY)
+          : Number.POSITIVE_INFINITY
+        return { action, priorityRank, timeframeRank, index }
+      })
+      .sort((a, b) => {
+        if (a.priorityRank !== b.priorityRank) {
+          return a.priorityRank - b.priorityRank
+        }
+        if (a.timeframeRank !== b.timeframeRank) {
+          return a.timeframeRank - b.timeframeRank
+        }
+        return a.index - b.index
+      })
+      .map((entry) => entry.action)
+  }, [recommendedActions])
+
+  const actionShortlist = useMemo(
+    () => orderedRecommendedActions.slice(0, 3),
+    [orderedRecommendedActions],
+  )
+
   const reportStatus = profile?.finalReportStatus ?? null
   const reportStatusDisplay = reportStatus
     ? STATUS_STYLES[reportStatus]
@@ -1161,6 +1244,110 @@ export function ProductInsightsView({
   const actionCount = recommendedActions.length
   const opportunityCount = opportunityAreas.length
   const hasFinalReport = Boolean(finalReport)
+
+  let pipelineStatusLabel: string
+  if (pipelineNotice?.message) {
+    pipelineStatusLabel = pipelineNotice.message
+  } else if (isRunningPipeline) {
+    pipelineStatusLabel =
+      pipelineJobState === "queued" ? "Queued to run" : "Pipeline in progress"
+  } else if (pipelineJobState === "queued") {
+    pipelineStatusLabel = "Queued to run"
+  } else if (pipelineJobState === "active") {
+    pipelineStatusLabel = "Pipeline in progress"
+  } else {
+    pipelineStatusLabel = "Standing by"
+  }
+
+  const heroStatus =
+    pipelineStatusLabel.length > 42
+      ? `${pipelineStatusLabel.slice(0, 39)}…`
+      : pipelineStatusLabel
+
+  const heroStats = [
+    { label: "Last report", value: lastReportGenerated },
+    { label: "Capture depth", value: activeHarvestModeLabel },
+    { label: "Status", value: heroStatus },
+  ]
+
+  const handleJumpToPlaybook = useCallback(() => {
+    const target = recommendedActionsRef.current
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+  }, [])
+
+  const stageAlerts = useMemo(() => {
+    const alerts: string[] = []
+
+    if (erroredPages.length) {
+      alerts.push(
+        `${COUNT_FORMATTER.format(erroredPages.length)} page${
+          erroredPages.length === 1 ? "" : "s"
+        } failed during the crawl. Verify the sitemap and rerun the crawler for a complete baseline.`,
+      )
+    }
+
+    if (crawlerHealthTone === "danger" && pageCount > 0) {
+      alerts.push(
+        `Crawler success is at ${crawlerHealthPercent}%—aim for 85%+ to trust downstream findings.`,
+      )
+    }
+
+    if (
+      coverageNeedsAttention &&
+      hasSubredditResults &&
+      coveragePercent !== null
+    ) {
+      alerts.push(
+        `Community discovery only covered ${PERCENT_FORMATTER.format(coveragePercent)}% of planned queries. Queue another run once new signals are available.`,
+      )
+    }
+
+    if (competitorStatus === "failed") {
+      alerts.push(
+        "The last competitor sweep failed. Retry to refresh differentiation cues.",
+      )
+    }
+
+    if (discussionStatus === "failed") {
+      alerts.push(
+        "Discussion capture failed. Regenerate conversations to validate community sentiment.",
+      )
+    }
+
+    if (reportStatus === "failed") {
+      alerts.push(
+        "Regenerate the comprehensive report to unlock the recommended playbook.",
+      )
+    }
+
+    if (
+      !hasFinalReport &&
+      !isPipelinePending &&
+      (hasDiscussionThreads || hasSubredditResults)
+    ) {
+      alerts.push(
+        "Convert the captured signals into a report run to prioritise next steps.",
+      )
+    }
+
+    return alerts
+  }, [
+    coverageNeedsAttention,
+    coveragePercent,
+    crawlerHealthPercent,
+    crawlerHealthTone,
+    discussionStatus,
+    erroredPages.length,
+    hasDiscussionThreads,
+    hasFinalReport,
+    hasSubredditResults,
+    isPipelinePending,
+    pageCount,
+    competitorStatus,
+    reportStatus,
+  ])
 
   const communityPlanCount = communityPlan.length
   const metricsToWatchCount = metricsToWatch.length
@@ -1453,7 +1640,7 @@ export function ProductInsightsView({
     ) as ChartConfig
   }, [snapshotChart])
 
-  const shouldOpenCrawlerStage = true
+  const shouldOpenCrawlerStage = false
   const shouldOpenSubredditStage =
     hasSubredditResults ||
     !!subredditProgress ||
@@ -1472,86 +1659,6 @@ export function ProductInsightsView({
     !!profile?.finalReportErrorMessage ||
     reportStatus === "pending" ||
     reportStatus === "failed"
-
-  const flowStageSummaries: FlowStageSummary[] = [
-    {
-      step: "Step 1",
-      title: "Product foundation",
-      description: "Crawl the website and summarize the core narrative.",
-      status: statusDisplay,
-      metrics: [
-        { label: "Last crawled", value: lastCrawled },
-        {
-          label: "Pages",
-          value: profile ? (pageCount ? `${pageCount}` : "0") : "—",
-        },
-      ],
-    },
-    {
-      step: "Step 2",
-      title: "Competitive landscape",
-      description: "Map adjacent solutions and differentiation cues.",
-      status: competitorStatusDisplay,
-      metrics: [
-        { label: "Last pass", value: lastCompetitorDiscovery },
-        {
-          label: "Competitors",
-          value: profile
-            ? hasCompetitorResults
-              ? `${competitors.length}`
-              : "0"
-            : "—",
-        },
-      ],
-    },
-    {
-      step: "Step 3",
-      title: "Audience discovery",
-      description: "Find active communities for this product space.",
-      status: subredditStatusDisplay,
-      metrics: [
-        { label: "Last pass", value: lastSubredditDiscovery },
-        {
-          label: "Communities",
-          value: profile
-            ? hasSubredditResults
-              ? `${subreddits.length}`
-              : "0"
-            : "—",
-        },
-      ],
-    },
-    {
-      step: "Step 4",
-      title: "Discussion insights",
-      description: "Pull live conversations to reveal wins and friction.",
-      status: discussionStatusDisplay,
-      metrics: [
-        { label: "Last pass", value: lastDiscussionDiscovery },
-        {
-          label: "Threads",
-          value: profile
-            ? hasDiscussionThreads
-              ? `${discussionThreads.length}`
-              : "0"
-            : "—",
-        },
-      ],
-    },
-    {
-      step: "Step 5",
-      title: "Actionable report",
-      description: "Synthesize everything into a focused execution plan.",
-      status: reportStatusDisplay,
-      metrics: [
-        { label: "Last run", value: lastReportGenerated },
-        {
-          label: "Actions",
-          value: actionCount ? `${actionCount}` : "—",
-        },
-      ],
-    },
-  ]
 
   const renderCrawlerEmptyState = () => {
     if (profile || isRunningPipeline) return null
@@ -1675,61 +1782,93 @@ export function ProductInsightsView({
 
   return (
     <div className="space-y-10">
-      <Card>
-        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <CardTitle>Run full pipeline</CardTitle>
-            <CardDescription>
-              Refresh the crawl, community discovery, discussion insights, and
-              report in one click.
-            </CardDescription>
+      <Card className="overflow-hidden">
+        <div className="border-b border-slate-200 bg-slate-50 px-6 py-5">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <span>Insights pipeline</span>
+                <span
+                  className={cn(
+                    "h-2 w-2 rounded-full",
+                    isPipelinePending
+                      ? "bg-emerald-500 animate-pulse"
+                      : "bg-slate-300",
+                  )}
+                />
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-2xl font-semibold text-foreground lg:text-3xl">
+                  Find insights
+                </h2>
+                <p className="max-w-xl text-sm text-muted-foreground">
+                  Launch a full crawl, community sweep, discussion analysis, and
+                  strategy report in one pass. We&rsquo;ll email you when the
+                  playbook ships.
+                </p>
+              </div>
+            </div>
+            <div className="grid w-full gap-3 sm:grid-cols-3 lg:w-auto">
+              {heroStats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="min-w-[120px] rounded-lg border border-slate-200 bg-white p-3 text-left"
+                >
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {stat.label}
+                  </div>
+                  <div className="mt-1 text-sm font-semibold text-foreground">
+                    {stat.value}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
-            <div className="flex items-start justify-between gap-3 sm:items-center sm:justify-end">
+        </div>
+        <CardContent className="space-y-4 bg-white px-6 py-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-2">
               <Label
                 htmlFor={deepHarvestSwitchId}
-                className="flex-1 flex-col items-start gap-1 text-left text-xs text-muted-foreground sm:items-end sm:text-right"
+                className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
               >
-                <span className="text-sm font-medium text-foreground">
-                  Deep capture
-                </span>
-                <span className="text-[11px]">
-                  Expand discovery searches and pull full comment trees for top
-                  threads.
-                </span>
+                Deep capture
               </Label>
-              <Switch
-                id={deepHarvestSwitchId}
-                checked={isDeepMode}
-                onCheckedChange={setIsDeepMode}
+              <div className="flex items-center gap-3">
+                <Switch
+                  id={deepHarvestSwitchId}
+                  checked={isDeepMode}
+                  onCheckedChange={setIsDeepMode}
+                  disabled={isPipelinePending}
+                  aria-label="Toggle deep discussion capture"
+                />
+                <span className="text-sm text-muted-foreground">
+                  Pull expanded community threads and broader discovery prompts.
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+              <Button
+                onClick={handleRunPipeline}
                 disabled={isPipelinePending}
-                aria-label="Toggle deep discussion capture"
-              />
+                className="w-full sm:w-auto"
+              >
+                {isPipelinePending ? "Finding insights…" : "Find insights"}
+              </Button>
             </div>
-            <Button
-              onClick={handleRunPipeline}
-              disabled={isPipelinePending}
-              className="w-full sm:w-auto"
-            >
-              {isPipelinePending
-                ? "Pipeline in progress…"
-                : "Run full pipeline"}
-            </Button>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-3 text-xs text-muted-foreground">
-          <div>Last report generated: {lastReportGenerated}</div>
-          <div>Discussion capture: {activeHarvestModeLabel}</div>
-          {pipelineNotice ? (
-            <InfoNotice tone={pipelineNotice.tone} size="xs">
-              {pipelineNotice.message}
-            </InfoNotice>
-          ) : (
-            <div>
-              We will email you when the latest insights are ready. Expect a
-              summary with key highlights and recommended actions.
-            </div>
-          )}
+          <div className="space-y-3">
+            {pipelineNotice ? (
+              <InfoNotice tone={pipelineNotice.tone} size="xs">
+                {pipelineNotice.message}
+              </InfoNotice>
+            ) : (
+              <div className="text-xs text-muted-foreground">
+                We&rsquo;ll notify you in-app and via email when the run
+                completes.
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -1773,45 +1912,109 @@ export function ProductInsightsView({
 
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {flowStageSummaries.map((stage) => (
-                  <div
-                    key={stage.title}
-                    className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <StageBadge label={stage.step} />
-                      <Badge
-                        variant={stage.status.badge}
-                        className="text-[11px]"
-                      >
-                        {stage.status.label}
-                      </Badge>
+              <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      Next best actions
                     </div>
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">
-                        {stage.title}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {stage.description}
-                      </div>
+                    <div className="text-xs text-muted-foreground">
+                      {actionShortlist.length
+                        ? "Focus here before digging into the deeper dataset."
+                        : "Run the comprehensive report to surface your next moves."}
                     </div>
-                    <dl className="space-y-2 text-xs text-muted-foreground">
-                      {stage.metrics.map((metric) => (
-                        <div
-                          key={metric.label}
-                          className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2"
-                        >
-                          <dt>{metric.label}</dt>
-                          <dd className="font-medium text-foreground">
-                            {metric.value}
-                          </dd>
-                        </div>
-                      ))}
-                    </dl>
                   </div>
-                ))}
-              </div>
+                  {recommendedActions.length ? (
+                    <button
+                      type="button"
+                      onClick={handleJumpToPlaybook}
+                      className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-[11px] font-semibold text-primary transition hover:border-primary/50 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                    >
+                      Open full playbook
+                    </button>
+                  ) : null}
+                </div>
+                {actionShortlist.length ? (
+                  <ol className="space-y-3 text-sm text-muted-foreground">
+                    {actionShortlist.map((action, index) => {
+                      const priorityBadge =
+                        ACTION_PRIORITY_BADGE[action.priority]
+                      const timeframe = action.timeframe
+                        ? (ACTION_TIMEFRAME_LABEL[
+                            action.timeframe as NonNullable<
+                              ProductInsightReportAction["timeframe"]
+                            >
+                          ] ?? null)
+                        : null
+                      return (
+                        <li
+                          key={`action-shortlist-${index}-${action.title}`}
+                          className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3"
+                        >
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <span className="flex items-center gap-2 font-semibold text-foreground">
+                              <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-muted-foreground">
+                                {index + 1}
+                              </span>
+                              {action.title}
+                            </span>
+                            {priorityBadge ? (
+                              <Badge
+                                variant={priorityBadge.badge}
+                                className="text-[11px]"
+                              >
+                                {priorityBadge.label}
+                              </Badge>
+                            ) : null}
+                          </div>
+                          <div className="text-xs leading-relaxed text-muted-foreground">
+                            {action.description}
+                          </div>
+                          <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                            {timeframe ? (
+                              <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 font-semibold text-primary">
+                                {timeframe}
+                              </span>
+                            ) : null}
+                            {action.successMetric ? (
+                              <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 font-medium text-foreground">
+                                Success: {action.successMetric}
+                              </span>
+                            ) : null}
+                          </div>
+                        </li>
+                      )
+                    })}
+                  </ol>
+                ) : (
+                  <div className="flex items-start gap-2 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-muted-foreground">
+                    <span role="img" aria-hidden className="text-base">
+                      🚀
+                    </span>
+                    <span>
+                      Queue a report run once the crawler, community, and
+                      discussion stages are ready to unlock an actionable
+                      shortlist.
+                    </span>
+                  </div>
+                )}
+              </section>
+
+              {stageAlerts.length ? (
+                <section className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                  <div className="text-sm font-semibold text-amber-900">
+                    Strengthen signal quality
+                  </div>
+                  <ul className="space-y-2 text-xs text-amber-900">
+                    {stageAlerts.map((alert, index) => (
+                      <li key={`alert-${index}`} className="flex gap-2">
+                        <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-500" />
+                        <span>{alert}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
             </div>
             <div className="space-y-3">
               {snapshotChart && snapshotChartConfig ? (
@@ -2099,7 +2302,7 @@ export function ProductInsightsView({
                 {profile && !isRunningPipeline && !summary ? (
                   <InfoNotice tone="info" size="xs">
                     We captured the crawl but did not synthesize a summary yet.
-                    Run the full pipeline again if you recently updated the
+                    Run another insights pass if you recently updated the
                     product site.
                   </InfoNotice>
                 ) : null}
@@ -2227,179 +2430,237 @@ export function ProductInsightsView({
               ) : null}
 
               {hasCompetitorResults ? (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {sortedCompetitors.map((competitor, index) => {
-                    const differentiators = Array.isArray(
-                      competitor.differentiators,
-                    )
-                      ? competitor.differentiators.filter(
-                          (item): item is string =>
-                            typeof item === "string" && item.trim().length > 0,
-                        )
-                      : []
-                    const strengths = Array.isArray(competitor.strengths)
-                      ? competitor.strengths.filter(
-                          (item): item is string =>
-                            typeof item === "string" && item.trim().length > 0,
-                        )
-                      : []
-                    const weaknesses = Array.isArray(competitor.weaknesses)
-                      ? competitor.weaknesses.filter(
-                          (item): item is string =>
-                            typeof item === "string" && item.trim().length > 0,
-                        )
-                      : []
-                    const similarityPercent =
-                      typeof competitor.similarityScore === "number"
-                        ? Math.round(competitor.similarityScore * 100)
-                        : null
-                    const maturityLabel = competitor.maturity
-                      ? competitor.maturity.charAt(0).toUpperCase() +
-                        competitor.maturity.slice(1)
-                      : null
-                    const focusArea = competitor.focusArea?.trim() || null
-                    const positioning = competitor.positioning?.trim() || null
-                    const source = competitor.source?.trim() || null
-                    const visitUrl = competitor.url ?? null
-
-                    return (
-                      <div
-                        key={`${competitor.name || "competitor"}-${index}`}
-                        className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    Top rivals right now
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {competitorSpotlights.map((spotlight) => (
+                      <span
+                        key={`spotlight-${spotlight.name}`}
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-foreground"
                       >
-                        <div className="flex flex-col gap-2">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="space-y-1">
-                              <div className="text-sm font-semibold text-foreground">
-                                {competitor.name || "Competitor"}
-                              </div>
-                              {focusArea ? (
-                                <div className="text-xs text-muted-foreground">
-                                  {focusArea}
-                                </div>
-                              ) : null}
-                              {positioning ? (
-                                <div className="text-xs text-muted-foreground">
-                                  {positioning}
-                                </div>
-                              ) : null}
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2 text-[11px]">
-                            {similarityPercent !== null ? (
-                              <Badge
-                                variant="secondary"
-                                className="text-[10px]"
-                              >
-                                {similarityPercent}% overlap
-                              </Badge>
-                            ) : null}
-                            {maturityLabel ? (
-                              <Badge
-                                variant="outline"
-                                className="text-[10px] capitalize"
-                              >
-                                {maturityLabel}
-                              </Badge>
-                            ) : null}
-                            {visitUrl ? (
-                              <Link
-                                href={visitUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-[10px] font-semibold text-primary transition hover:bg-primary/10"
-                              >
-                                Visit site
-                              </Link>
-                            ) : null}
-                          </div>
-                        </div>
-                        {competitor.description ? (
-                          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">
-                            {competitor.description}
-                          </div>
+                        <span>{spotlight.name}</span>
+                        {spotlight.focus ? (
+                          <span className="text-muted-foreground">
+                            • {spotlight.focus}
+                          </span>
                         ) : null}
-                        <div className="space-y-3 text-xs text-muted-foreground">
-                          {differentiators.length ? (
-                            <div>
-                              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                                Differentiators
-                              </div>
-                              <div className="mt-1 flex flex-wrap gap-2">
-                                {differentiators.map((item) => (
-                                  <span
-                                    key={`${competitor.name}-diff-${item}`}
-                                    className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
-                                  >
-                                    {item}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          ) : null}
-                          {strengths.length ? (
-                            <div>
-                              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                                Strengths
-                              </div>
-                              <div className="mt-1 flex flex-wrap gap-2">
-                                {strengths.map((item) => (
-                                  <span
-                                    key={`${competitor.name}-strength-${item}`}
-                                    className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
-                                  >
-                                    {item}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          ) : null}
-                          {weaknesses.length ? (
-                            <div>
-                              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                                Gaps
-                              </div>
-                              <div className="mt-1 flex flex-wrap gap-2">
-                                {weaknesses.map((item) => (
-                                  <span
-                                    key={`${competitor.name}-weakness-${item}`}
-                                    className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
-                                  >
-                                    {item}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          ) : null}
-                          {source ? (
-                            <div className="text-[11px] text-muted-foreground">
-                              Source: {source}
-                            </div>
-                          ) : null}
-                        </div>
-                      </div>
-                    )
-                  })}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               ) : null}
 
-              {competitorResearchNotes.length ? (
-                <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <div className="text-sm font-semibold text-foreground">
-                    Analyst notes
-                  </div>
-                  <ul className="space-y-2 text-xs leading-relaxed text-muted-foreground">
-                    {competitorResearchNotes.map((note, index) => (
-                      <li
-                        key={`${index}-${note.slice(0, 24)}`}
-                        className="flex gap-2"
-                      >
-                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" />
-                        <span>{note}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              {hasCompetitorResults || competitorResearchNotes.length ? (
+                <Collapsible
+                  open={showCompetitorDeepDive}
+                  onOpenChange={setShowCompetitorDeepDive}
+                  className="space-y-4"
+                >
+                  <CollapsibleTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                    >
+                      <span>
+                        {showCompetitorDeepDive
+                          ? "Hide full landscape"
+                          : "Show full landscape"}
+                      </span>
+                      <ChevronDownIcon
+                        className={cn(
+                          "h-4 w-4 transition-transform duration-200",
+                          showCompetitorDeepDive ? "rotate-180" : "rotate-0",
+                        )}
+                        aria-hidden
+                      />
+                    </button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-4">
+                    {hasCompetitorResults ? (
+                      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        {sortedCompetitors.map((competitor, index) => {
+                          const differentiators = Array.isArray(
+                            competitor.differentiators,
+                          )
+                            ? competitor.differentiators.filter(
+                                (item): item is string =>
+                                  typeof item === "string" &&
+                                  item.trim().length > 0,
+                              )
+                            : []
+                          const strengths = Array.isArray(competitor.strengths)
+                            ? competitor.strengths.filter(
+                                (item): item is string =>
+                                  typeof item === "string" &&
+                                  item.trim().length > 0,
+                              )
+                            : []
+                          const weaknesses = Array.isArray(
+                            competitor.weaknesses,
+                          )
+                            ? competitor.weaknesses.filter(
+                                (item): item is string =>
+                                  typeof item === "string" &&
+                                  item.trim().length > 0,
+                              )
+                            : []
+                          const similarityPercent =
+                            typeof competitor.similarityScore === "number"
+                              ? Math.round(competitor.similarityScore * 100)
+                              : null
+                          const maturityLabel = competitor.maturity
+                            ? competitor.maturity.charAt(0).toUpperCase() +
+                              competitor.maturity.slice(1)
+                            : null
+                          const focusArea = competitor.focusArea?.trim() || null
+                          const positioning =
+                            competitor.positioning?.trim() || null
+                          const source = competitor.source?.trim() || null
+                          const visitUrl = competitor.url ?? null
+
+                          return (
+                            <div
+                              key={`${competitor.name || "competitor"}-${index}`}
+                              className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                            >
+                              <div className="flex flex-col gap-2">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="space-y-1">
+                                    <div className="text-sm font-semibold text-foreground">
+                                      {competitor.name || "Competitor"}
+                                    </div>
+                                    {focusArea ? (
+                                      <div className="text-xs text-muted-foreground">
+                                        {focusArea}
+                                      </div>
+                                    ) : null}
+                                    {positioning ? (
+                                      <div className="text-xs text-muted-foreground">
+                                        {positioning}
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                                  {similarityPercent !== null ? (
+                                    <Badge
+                                      variant="secondary"
+                                      className="text-[10px]"
+                                    >
+                                      {similarityPercent}% overlap
+                                    </Badge>
+                                  ) : null}
+                                  {maturityLabel ? (
+                                    <Badge
+                                      variant="outline"
+                                      className="text-[10px] capitalize"
+                                    >
+                                      {maturityLabel}
+                                    </Badge>
+                                  ) : null}
+                                  {visitUrl ? (
+                                    <Link
+                                      href={visitUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-[10px] font-semibold text-primary transition hover:bg-primary/10"
+                                    >
+                                      Visit site
+                                    </Link>
+                                  ) : null}
+                                </div>
+                              </div>
+                              {competitor.description ? (
+                                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">
+                                  {competitor.description}
+                                </div>
+                              ) : null}
+                              <div className="space-y-3 text-xs text-muted-foreground">
+                                {differentiators.length ? (
+                                  <div>
+                                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                      Differentiators
+                                    </div>
+                                    <div className="mt-1 flex flex-wrap gap-2">
+                                      {differentiators.map((item) => (
+                                        <span
+                                          key={`${competitor.name}-diff-${item}`}
+                                          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
+                                        >
+                                          {item}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : null}
+                                {strengths.length ? (
+                                  <div>
+                                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                      Strengths
+                                    </div>
+                                    <div className="mt-1 flex flex-wrap gap-2">
+                                      {strengths.map((item) => (
+                                        <span
+                                          key={`${competitor.name}-strength-${item}`}
+                                          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
+                                        >
+                                          {item}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : null}
+                                {weaknesses.length ? (
+                                  <div>
+                                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                      Gaps
+                                    </div>
+                                    <div className="mt-1 flex flex-wrap gap-2">
+                                      {weaknesses.map((item) => (
+                                        <span
+                                          key={`${competitor.name}-weakness-${item}`}
+                                          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
+                                        >
+                                          {item}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : null}
+                                {source ? (
+                                  <div className="text-[11px] text-muted-foreground">
+                                    Source: {source}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : null}
+
+                    {competitorResearchNotes.length ? (
+                      <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <div className="text-sm font-semibold text-foreground">
+                          Analyst notes
+                        </div>
+                        <ul className="space-y-2 text-xs leading-relaxed text-muted-foreground">
+                          {competitorResearchNotes.map((note, index) => (
+                            <li
+                              key={`${index}-${note.slice(0, 24)}`}
+                              className="flex gap-2"
+                            >
+                              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" />
+                              <span>{note}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </CollapsibleContent>
+                </Collapsible>
               ) : null}
             </div>
           </section>
@@ -2454,62 +2715,92 @@ export function ProductInsightsView({
               </div>
               <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.9fr)]">
                 <div className="space-y-6">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-sm font-semibold text-foreground">
-                        Search plan
+                  <Collapsible
+                    open={showCommunityInputs}
+                    onOpenChange={setShowCommunityInputs}
+                    className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                  >
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="text-sm font-semibold text-foreground">
+                          Search plan inputs
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Prompts that seeded this community discovery run.
+                        </div>
                       </div>
-                      {subredditQueries.length ? (
-                        <Badge variant="outline" className="text-[11px]">
-                          {COUNT_FORMATTER.format(subredditQueries.length)} quer
-                          {subredditQueries.length === 1 ? "y" : "ies"}
-                        </Badge>
-                      ) : null}
+                      <div className="flex flex-wrap items-center gap-2">
+                        {subredditQueries.length ? (
+                          <Badge variant="outline" className="text-[11px]">
+                            {COUNT_FORMATTER.format(subredditQueries.length)}{" "}
+                            {subredditQueries.length === 1
+                              ? "query"
+                              : "queries"}
+                          </Badge>
+                        ) : null}
+                        <CollapsibleTrigger asChild>
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                          >
+                            {showCommunityInputs
+                              ? "Hide inputs"
+                              : "Show inputs"}
+                            <ChevronDownIcon
+                              className={cn(
+                                "h-3.5 w-3.5 transition-transform duration-200",
+                                showCommunityInputs ? "rotate-180" : "rotate-0",
+                              )}
+                              aria-hidden
+                            />
+                          </button>
+                        </CollapsibleTrigger>
+                      </div>
                     </div>
-                    {subredditQueries.length ? (
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {subredditQueries.map((item) => {
-                          const matchCount =
-                            communityStats.queryMatchCounts.get(item.query) ?? 0
-                          return (
-                            <div
-                              key={item.query}
-                              className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="font-semibold leading-snug text-foreground">
-                                  {item.query}
+                    <CollapsibleContent>
+                      {subredditQueries.length ? (
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {subredditQueries.map((item) => {
+                            const matchCount =
+                              communityStats.queryMatchCounts.get(item.query) ??
+                              0
+                            return (
+                              <div
+                                key={item.query}
+                                className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="font-semibold leading-snug text-foreground">
+                                    {item.query}
+                                  </div>
+                                  <Badge
+                                    variant={
+                                      matchCount ? "secondary" : "outline"
+                                    }
+                                    className="text-[10px]"
+                                  >
+                                    {matchCount
+                                      ? `${matchCount} match${matchCount === 1 ? "" : "es"}`
+                                      : "No matches yet"}
+                                  </Badge>
                                 </div>
-                                <Badge
-                                  variant={matchCount ? "secondary" : "outline"}
-                                  className="text-[10px]"
-                                >
-                                  {matchCount
-                                    ? `${matchCount} match${matchCount === 1 ? "" : "es"}`
-                                    : "No matches yet"}
-                                </Badge>
+                                {item.rationale ? (
+                                  <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                    {item.rationale}
+                                  </div>
+                                ) : null}
                               </div>
-                              {item.rationale ? (
-                                <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                                  {item.rationale}
-                                </div>
-                              ) : null}
-                            </div>
-                          )
-                        })}
-                      </div>
-                    ) : (
-                      <div className="flex items-start gap-2 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
-                        <span className="text-lg" role="img" aria-hidden>
-                          🔍
-                        </span>
-                        <span>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <InfoNotice tone="info" size="xs">
                           Run discovery to generate targeted community search
                           queries for this product.
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                        </InfoNotice>
+                      )}
+                    </CollapsibleContent>
+                  </Collapsible>
                   {topSubreddits.length ? (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between gap-2">
@@ -2648,7 +2939,7 @@ export function ProductInsightsView({
                       {renderSubredditCoverageNotice()}
                       {shouldShowSubredditEmptyState ? (
                         <InfoNotice tone="info" size="xs">
-                          Run the full pipeline to craft community search plans,
+                          Run an insights pass to craft community search plans,
                           resolve the best-fit groups, and cache them for future
                           research or outreach.
                         </InfoNotice>
@@ -2659,7 +2950,11 @@ export function ProductInsightsView({
               </div>
             </section>
             {hasSubredditResults ? (
-              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <Collapsible
+                open={showCommunityDeepDive}
+                onOpenChange={setShowCommunityDeepDive}
+                className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
                 <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="text-sm font-semibold text-foreground">
@@ -2670,87 +2965,110 @@ export function ProductInsightsView({
                       that drove discovery.
                     </div>
                   </div>
-                  <Badge variant="outline" className="self-start text-[11px]">
-                    {`${COUNT_FORMATTER.format(subreddits.length)} ${
-                      subreddits.length === 1 ? "community" : "communities"
-                    }`}
-                  </Badge>
-                </div>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="min-w-[160px]">
-                          Community
-                        </TableHead>
-                        <TableHead className="min-w-[280px]">
-                          What they discuss
-                        </TableHead>
-                        <TableHead>Relevance</TableHead>
-                        <TableHead>Subscribers</TableHead>
-                        <TableHead>Matched queries</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {subreddits.map((subreddit) => (
-                        <TableRow key={subreddit.name}>
-                          <TableCell className="whitespace-nowrap">
-                            <Link
-                              href={
-                                subreddit.url ??
-                                `https://reddit.com/r/${subreddit.name}`
-                              }
-                              target="_blank"
-                              rel="noreferrer"
-                              className="font-semibold text-primary hover:underline"
-                            >
-                              {subreddit.name}
-                            </Link>
-                            {subreddit.over18 && (
-                              <Badge
-                                variant="outline"
-                                className="ml-2 align-middle text-[10px]"
-                              >
-                                18+
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
-                            <div>
-                              {subreddit.description || subreddit.title || "—"}
-                            </div>
-                            {subreddit.relevanceReason && (
-                              <div className="mt-2 text-xs text-primary">
-                                {subreddit.relevanceReason}
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap text-sm text-foreground">
-                            {typeof subreddit.relevanceScore === "number"
-                              ? `${Math.round(subreddit.relevanceScore * 100)}%`
-                              : "—"}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap text-sm text-foreground">
-                            {typeof subreddit.subscribers === "number"
-                              ? subreddit.subscribers.toLocaleString()
-                              : "—"}
-                          </TableCell>
-                          <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
-                            {subreddit.matchedQueries?.length
-                              ? subreddit.matchedQueries.join(" • ")
-                              : "—"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                    <TableCaption>
-                      {`${subreddits.length} ${
+                  <div className="flex items-center gap-3">
+                    <Badge variant="outline" className="self-start text-[11px]">
+                      {`${COUNT_FORMATTER.format(subreddits.length)} ${
                         subreddits.length === 1 ? "community" : "communities"
-                      } saved for this product`}
-                    </TableCaption>
-                  </Table>
+                      }`}
+                    </Badge>
+                    <CollapsibleTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                      >
+                        {showCommunityDeepDive
+                          ? "Hide table"
+                          : "Show full table"}
+                        <ChevronDownIcon
+                          className={cn(
+                            "h-4 w-4 transition-transform duration-200",
+                            showCommunityDeepDive ? "rotate-180" : "rotate-0",
+                          )}
+                          aria-hidden
+                        />
+                      </button>
+                    </CollapsibleTrigger>
+                  </div>
                 </div>
-              </section>
+                <CollapsibleContent asChild>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="min-w-[160px]">
+                            Community
+                          </TableHead>
+                          <TableHead className="min-w-[280px]">
+                            What they discuss
+                          </TableHead>
+                          <TableHead>Relevance</TableHead>
+                          <TableHead>Subscribers</TableHead>
+                          <TableHead>Matched queries</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {subreddits.map((subreddit) => (
+                          <TableRow key={subreddit.name}>
+                            <TableCell className="whitespace-nowrap">
+                              <Link
+                                href={
+                                  subreddit.url ??
+                                  `https://reddit.com/r/${subreddit.name}`
+                                }
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-semibold text-primary hover:underline"
+                              >
+                                {subreddit.name}
+                              </Link>
+                              {subreddit.over18 && (
+                                <Badge
+                                  variant="outline"
+                                  className="ml-2 align-middle text-[10px]"
+                                >
+                                  18+
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
+                              <div>
+                                {subreddit.description ||
+                                  subreddit.title ||
+                                  "—"}
+                              </div>
+                              {subreddit.relevanceReason && (
+                                <div className="mt-2 text-xs text-primary">
+                                  {subreddit.relevanceReason}
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-sm text-foreground">
+                              {typeof subreddit.relevanceScore === "number"
+                                ? `${Math.round(subreddit.relevanceScore * 100)}%`
+                                : "—"}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-sm text-foreground">
+                              {typeof subreddit.subscribers === "number"
+                                ? subreddit.subscribers.toLocaleString()
+                                : "—"}
+                            </TableCell>
+                            <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                              {subreddit.matchedQueries?.length
+                                ? subreddit.matchedQueries.join(" • ")
+                                : "—"}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                      <TableCaption>
+                        {`${subreddits.length} ${
+                          subreddits.length === 1 ? "community" : "communities"
+                        } saved for this product`}
+                      </TableCaption>
+                    </Table>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             ) : null}
           </div>
         </>
@@ -2797,83 +3115,104 @@ export function ProductInsightsView({
               </div>
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
                 <div className="space-y-6">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-sm font-semibold text-foreground">
-                        Discussion queries
-                      </div>
-                      {discussionQueries.length ? (
-                        <Badge variant="outline" className="text-[11px]">
-                          {COUNT_FORMATTER.format(discussionQueries.length)}{" "}
-                          quer
-                          {discussionQueries.length === 1 ? "y" : "ies"}
-                        </Badge>
-                      ) : null}
-                    </div>
-                    {discussionQueries.length ? (
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {discussionQueries.map((query) => (
-                          <div
-                            key={query.query}
-                            className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
-                          >
-                            <div className="font-semibold leading-snug text-foreground">
-                              {query.query}
-                            </div>
-                            {query.rationale ? (
-                              <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                                {query.rationale}
-                              </div>
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex items-start gap-2 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-muted-foreground">
-                        <span className="text-lg" role="img" aria-hidden>
-                          💬
-                        </span>
-                        <span>
-                          Run the pipeline to craft discussion queries that
-                          capture fresh sentiment from your saved communities.
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {discussionInsights ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between gap-2">
+                  <Collapsible
+                    open={showDiscussionInputs}
+                    onOpenChange={setShowDiscussionInputs}
+                    className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                  >
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
                         <div className="text-sm font-semibold text-foreground">
-                          Focus themes
+                          Capture inputs & themes
                         </div>
+                        <div className="text-xs text-muted-foreground">
+                          Discovery prompts powering this discussion pass.
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {discussionQueries.length ? (
+                          <Badge variant="outline" className="text-[11px]">
+                            {COUNT_FORMATTER.format(discussionQueries.length)}{" "}
+                            {discussionQueries.length === 1
+                              ? "query"
+                              : "queries"}
+                          </Badge>
+                        ) : null}
                         {focusAreas.length ? (
                           <Badge variant="secondary" className="text-[11px]">
                             {COUNT_FORMATTER.format(focusAreas.length)} theme
                             {focusAreas.length === 1 ? "" : "s"}
                           </Badge>
                         ) : null}
+                        <CollapsibleTrigger asChild>
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                          >
+                            {showDiscussionInputs
+                              ? "Hide inputs"
+                              : "Show inputs"}
+                            <ChevronDownIcon
+                              className={cn(
+                                "h-3.5 w-3.5 transition-transform duration-200",
+                                showDiscussionInputs
+                                  ? "rotate-180"
+                                  : "rotate-0",
+                              )}
+                              aria-hidden
+                            />
+                          </button>
+                        </CollapsibleTrigger>
                       </div>
-                      {focusAreas.length ? (
-                        <div className="flex flex-wrap gap-2">
-                          {focusAreas.map((item, index) => (
-                            <Badge
-                              key={`focus-${index}`}
-                              variant="outline"
-                              className="text-[11px]"
+                    </div>
+                    <CollapsibleContent className="space-y-4">
+                      {discussionQueries.length ? (
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {discussionQueries.map((query) => (
+                            <div
+                              key={query.query}
+                              className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
                             >
-                              {item}
-                            </Badge>
+                              <div className="font-semibold leading-snug text-foreground">
+                                {query.query}
+                              </div>
+                              {query.rationale ? (
+                                <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                  {query.rationale}
+                                </div>
+                              ) : null}
+                            </div>
                           ))}
                         </div>
                       ) : (
                         <InfoNotice tone="info" size="xs">
-                          No focus areas yet—rerun the analysis after the next
-                          pipeline cycle to capture more community signals.
+                          Run an insights pass to craft fresh discussion prompts
+                          from your saved communities.
                         </InfoNotice>
                       )}
-                    </div>
-                  ) : null}
+
+                      {discussionInsights ? (
+                        focusAreas.length ? (
+                          <div className="flex flex-wrap gap-2">
+                            {focusAreas.map((item, index) => (
+                              <Badge
+                                key={`focus-${index}`}
+                                variant="outline"
+                                className="text-[11px]"
+                              >
+                                {item}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <InfoNotice tone="info" size="xs">
+                            No focus areas yet—rerun the analysis after the next
+                            insights pass to capture more community signals.
+                          </InfoNotice>
+                        )
+                      ) : null}
+                    </CollapsibleContent>
+                  </Collapsible>
 
                   {discussionInsights ? (
                     <div className="space-y-3">
@@ -2925,22 +3264,8 @@ export function ProductInsightsView({
                                     Audience: {signal.audience}
                                   </div>
                                 ) : null}
-                                {signal.primaryEvidence ? (
-                                  <blockquote className="rounded-lg border border-slate-200 bg-white p-3 text-xs leading-relaxed text-muted-foreground">
-                                    “{signal.primaryEvidence}”
-                                  </blockquote>
-                                ) : null}
-                                <div className="mt-auto flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                                  <span>
-                                    {signal.evidenceCount} evidence
-                                    {signal.evidenceCount === 1 ? "" : "s"}
-                                  </span>
-                                  {signal.references ? (
-                                    <span>
-                                      References:{" "}
-                                      {signal.references.join(" • ")}
-                                    </span>
-                                  ) : null}
+                                <div className="mt-auto text-[11px] text-muted-foreground">
+                                  Backed by curated quotes and discussions.
                                 </div>
                               </div>
                             )
@@ -3067,7 +3392,11 @@ export function ProductInsightsView({
             </section>
 
             {discussionSections.length ? (
-              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <Collapsible
+                open={showDiscussionDeepDive}
+                onOpenChange={setShowDiscussionDeepDive}
+                className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
                 <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="text-sm font-semibold text-foreground">
@@ -3078,108 +3407,116 @@ export function ProductInsightsView({
                       community is talking about right now.
                     </div>
                   </div>
-                  <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(discussionSections.length)} cluster
-                    {discussionSections.length === 1 ? "" : "s"}
-                  </Badge>
-                </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {discussionSections.map((section, sectionIndex) => {
-                    const sectionItems = Array.isArray(section?.items)
-                      ? section.items
-                      : []
-                    return (
-                      <div
-                        key={`cluster-${sectionIndex}-${section?.title ?? "untitled"}`}
-                        className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                  <div className="flex items-center gap-3">
+                    <Badge variant="outline" className="self-start text-[11px]">
+                      {COUNT_FORMATTER.format(discussionSections.length)}{" "}
+                      cluster
+                      {discussionSections.length === 1 ? "" : "s"}
+                    </Badge>
+                    <CollapsibleTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="text-sm font-semibold text-foreground">
-                            {section?.title ?? `Cluster ${sectionIndex + 1}`}
+                        {showDiscussionDeepDive
+                          ? "Hide deep dive"
+                          : "Show full deep dive"}
+                        <ChevronDownIcon
+                          className={cn(
+                            "h-4 w-4 transition-transform duration-200",
+                            showDiscussionDeepDive ? "rotate-180" : "rotate-0",
+                          )}
+                          aria-hidden
+                        />
+                      </button>
+                    </CollapsibleTrigger>
+                  </div>
+                </div>
+                <CollapsibleContent className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {discussionSections.map((section, sectionIndex) => {
+                      const sectionItems = Array.isArray(section?.items)
+                        ? section.items
+                        : []
+                      return (
+                        <div
+                          key={`cluster-${sectionIndex}-${section?.title ?? "untitled"}`}
+                          className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="text-sm font-semibold text-foreground">
+                              {section?.title ?? `Cluster ${sectionIndex + 1}`}
+                            </div>
+                            {sectionItems.length ? (
+                              <Badge variant="outline" className="text-[11px]">
+                                {COUNT_FORMATTER.format(sectionItems.length)}
+                              </Badge>
+                            ) : null}
                           </div>
-                          {sectionItems.length ? (
-                            <Badge variant="outline" className="text-[11px]">
-                              {COUNT_FORMATTER.format(sectionItems.length)}
-                            </Badge>
-                          ) : null}
-                        </div>
-                        <div className="space-y-3">
-                          {sectionItems.length ? (
-                            sectionItems.map((item, itemIndex) => {
-                              const hasSentiment =
-                                item?.sentiment === "positive" ||
-                                item?.sentiment === "negative" ||
-                                item?.sentiment === "neutral"
-                              const sentimentKey = hasSentiment
-                                ? (item.sentiment as
-                                    | "positive"
-                                    | "negative"
-                                    | "neutral")
-                                : null
-                              const sentimentVariant = sentimentKey
-                                ? SENTIMENT_BADGE_VARIANT[sentimentKey]
-                                : null
-                              const sentimentLabel = sentimentKey
-                                ? SENTIMENT_BADGE_LABEL[sentimentKey]
-                                : null
-                              return (
-                                <div
-                                  key={`cluster-${sectionIndex}-${itemIndex}`}
-                                  className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
-                                >
-                                  <div className="flex items-start justify-between gap-2">
-                                    <div className="text-sm font-medium text-foreground">
-                                      {item?.insight ?? "Insight"}
+                          <div className="space-y-3">
+                            {sectionItems.length ? (
+                              sectionItems.map((item, itemIndex) => {
+                                const hasSentiment =
+                                  item?.sentiment === "positive" ||
+                                  item?.sentiment === "negative" ||
+                                  item?.sentiment === "neutral"
+                                const sentimentKey = hasSentiment
+                                  ? (item.sentiment as
+                                      | "positive"
+                                      | "negative"
+                                      | "neutral")
+                                  : null
+                                const sentimentVariant = sentimentKey
+                                  ? SENTIMENT_BADGE_VARIANT[sentimentKey]
+                                  : null
+                                const sentimentLabel = sentimentKey
+                                  ? SENTIMENT_BADGE_LABEL[sentimentKey]
+                                  : null
+                                return (
+                                  <div
+                                    key={`cluster-${sectionIndex}-${itemIndex}`}
+                                    className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
+                                  >
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="text-sm font-medium text-foreground">
+                                        {item?.insight ?? "Insight"}
+                                      </div>
+                                      {sentimentVariant && sentimentLabel ? (
+                                        <Badge
+                                          variant={sentimentVariant}
+                                          className="text-[11px]"
+                                        >
+                                          {sentimentLabel}
+                                        </Badge>
+                                      ) : null}
                                     </div>
-                                    {sentimentVariant && sentimentLabel ? (
-                                      <Badge
-                                        variant={sentimentVariant}
-                                        className="text-[11px]"
-                                      >
-                                        {sentimentLabel}
-                                      </Badge>
+                                    {item?.audience ? (
+                                      <div className="text-xs text-primary">
+                                        Audience: {item.audience}
+                                      </div>
+                                    ) : null}
+                                    {Array.isArray(item?.references) &&
+                                    item.references.length ? (
+                                      <div className="text-[11px] text-muted-foreground">
+                                        References: {item.references.join(", ")}
+                                      </div>
                                     ) : null}
                                   </div>
-                                  {item?.audience ? (
-                                    <div className="text-xs text-primary">
-                                      Audience: {item.audience}
-                                    </div>
-                                  ) : null}
-                                  {Array.isArray(item?.evidence) &&
-                                  item.evidence.length ? (
-                                    <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                                      {item.evidence.map(
-                                        (evidence, evidenceIndex) => (
-                                          <li
-                                            key={`cluster-${sectionIndex}-${itemIndex}-evidence-${evidenceIndex}`}
-                                          >
-                                            {evidence}
-                                          </li>
-                                        ),
-                                      )}
-                                    </ul>
-                                  ) : null}
-                                  {Array.isArray(item?.references) &&
-                                  item.references.length ? (
-                                    <div className="text-[11px] text-muted-foreground">
-                                      References: {item.references.join(", ")}
-                                    </div>
-                                  ) : null}
-                                </div>
-                              )
-                            })
-                          ) : (
-                            <InfoNotice tone="info" size="xs">
-                              No individual signals captured for this cluster
-                              yet.
-                            </InfoNotice>
-                          )}
+                                )
+                              })
+                            ) : (
+                              <InfoNotice tone="info" size="xs">
+                                No individual signals captured for this cluster
+                                yet.
+                              </InfoNotice>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </section>
+                      )
+                    })}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             ) : null}
 
             {showDiscussionSamples && hasDiscussionThreads ? (
@@ -3503,100 +3840,11 @@ export function ProductInsightsView({
               </div>
             </section>
 
-            {opportunityAreas.length ? (
-              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">
-                      Opportunity areas
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      The biggest positioning gaps and growth angles from the
-                      synthesized report.
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(opportunityAreas.length)} area
-                    {opportunityAreas.length === 1 ? "" : "s"}
-                  </Badge>
-                </div>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {opportunityAreas.map((area, index) => (
-                    <div
-                      key={`opportunity-${index}`}
-                      className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
-                    >
-                      <div className="text-sm font-semibold text-foreground">
-                        {area.title}
-                      </div>
-                      {area.summary ? (
-                        <div className="text-sm text-muted-foreground">
-                          {area.summary}
-                        </div>
-                      ) : null}
-                      {Array.isArray(area.highlights) &&
-                      area.highlights.length ? (
-                        <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                          {area.highlights.map((item, itemIndex) => (
-                            <li key={`opportunity-${index}-${itemIndex}`}>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ) : null}
-
-            {customerSignals.length ? (
-              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">
-                      Customer signals
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Synthesized evidence from discussions, testimonials, and
-                      product reviews.
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(customerSignals.length)} section
-                    {customerSignals.length === 1 ? "" : "s"}
-                  </Badge>
-                </div>
-                <div className="space-y-3">
-                  {customerSignals.map((section, index) => (
-                    <div
-                      key={`signal-${index}`}
-                      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-                    >
-                      <div className="text-sm font-semibold text-foreground">
-                        {section.title}
-                      </div>
-                      {section.summary ? (
-                        <div className="mt-1 text-sm text-muted-foreground">
-                          {section.summary}
-                        </div>
-                      ) : null}
-                      {Array.isArray(section.highlights) &&
-                      section.highlights.length ? (
-                        <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                          {section.highlights.map((item, itemIndex) => (
-                            <li key={`signal-${index}-${itemIndex}`}>{item}</li>
-                          ))}
-                        </ul>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ) : null}
-
-            {recommendedActions.length ? (
-              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            {orderedRecommendedActions.length ? (
+              <section
+                ref={recommendedActionsRef}
+                className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
                 <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="text-sm font-semibold text-foreground">
@@ -3608,150 +3856,355 @@ export function ProductInsightsView({
                     </div>
                   </div>
                   <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(recommendedActions.length)} action
-                    {recommendedActions.length === 1 ? "" : "s"}
+                    {COUNT_FORMATTER.format(orderedRecommendedActions.length)}{" "}
+                    action
+                    {orderedRecommendedActions.length === 1 ? "" : "s"}
                   </Badge>
                 </div>
                 <div className="space-y-3">
-                  {recommendedActions.map((action, index) => {
+                  {orderedRecommendedActions.map((action, index) => {
                     const priority = ACTION_PRIORITY_BADGE[action.priority]
+                    const priorityIcon = ACTION_PRIORITY_ICON[action.priority]
                     const timeframeLabel = formatActionTimeframe(
                       action.timeframe,
                     )
+                    const description =
+                      typeof action.description === "string"
+                        ? action.description.trim()
+                        : ""
+                    const descriptionPreview = description
+                      ? description.length > 120
+                        ? `${description.slice(0, 120)}…`
+                        : description
+                      : "Open to view the full play."
+                    const successMetric = action.successMetric?.trim() || null
+                    const rationale = action.rationale?.trim() || null
+                    const supportingSignals = Array.isArray(
+                      action.supportingSignals,
+                    )
+                      ? action.supportingSignals.filter(
+                          (signal): signal is string =>
+                            typeof signal === "string" &&
+                            signal.trim().length > 0,
+                        )
+                      : []
+
                     return (
-                      <div
+                      <Collapsible
                         key={`action-${index}`}
-                        className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                        defaultOpen={index === 0}
+                        className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
                       >
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div className="space-y-1">
-                            <div className="text-sm font-semibold text-foreground">
-                              {action.title}
-                            </div>
-                            {timeframeLabel ? (
-                              <div className="text-xs text-primary">
-                                {timeframeLabel}
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-lg">
+                              {priorityIcon}
+                            </span>
+                            <div className="space-y-1">
+                              <div className="text-sm font-semibold text-foreground">
+                                {action.title}
                               </div>
+                              <div className="text-xs text-muted-foreground">
+                                {descriptionPreview}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            {priority ? (
+                              <Badge
+                                variant={priority.badge}
+                                className="text-[11px]"
+                              >
+                                {priority.label}
+                              </Badge>
                             ) : null}
+                            {timeframeLabel ? (
+                              <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                                {timeframeLabel}
+                              </span>
+                            ) : null}
+                            <CollapsibleTrigger asChild>
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                              >
+                                View play
+                                <ChevronDownIcon
+                                  className="h-3.5 w-3.5"
+                                  aria-hidden
+                                />
+                              </button>
+                            </CollapsibleTrigger>
                           </div>
-                          {priority ? (
-                            <Badge
-                              variant={priority.badge}
-                              className="text-[11px]"
-                            >
-                              {priority.label}
-                            </Badge>
+                        </div>
+                        <CollapsibleContent className="mt-4 space-y-3 border-t border-slate-200 pt-4">
+                          <div className="text-sm text-muted-foreground">
+                            {description ||
+                              "No detailed guidance provided yet."}
+                          </div>
+                          {successMetric ? (
+                            <div className="text-xs text-primary">
+                              Success metric: {successMetric}
+                            </div>
                           ) : null}
-                        </div>
-                        <div className="mt-2 text-sm text-muted-foreground">
-                          {action.description}
-                        </div>
-                        {action.rationale ? (
-                          <div className="mt-2 rounded-md border border-slate-100 bg-slate-50 p-3 text-xs text-muted-foreground">
-                            <div className="font-medium text-foreground">
-                              Why this matters
+                          {rationale ? (
+                            <div className="rounded-md border border-slate-100 bg-slate-50 p-3 text-xs text-muted-foreground">
+                              <div className="font-medium text-foreground">
+                                Why this matters
+                              </div>
+                              <div className="mt-1 leading-relaxed">
+                                {rationale}
+                              </div>
                             </div>
-                            <div className="mt-1 leading-relaxed">
-                              {action.rationale}
+                          ) : null}
+                          {supportingSignals.length ? (
+                            <div className="space-y-1 text-xs text-muted-foreground">
+                              <div className="font-semibold uppercase tracking-wide text-muted-foreground">
+                                Backed by customer signals
+                              </div>
+                              <ul className="list-disc space-y-1 pl-4">
+                                {supportingSignals.map(
+                                  (signal, signalIndex) => (
+                                    <li
+                                      key={`action-${index}-signal-${signalIndex}`}
+                                    >
+                                      {signal}
+                                    </li>
+                                  ),
+                                )}
+                              </ul>
                             </div>
-                          </div>
-                        ) : null}
-                        {action.successMetric ? (
-                          <div className="mt-2 text-[11px] text-primary">
-                            Success metric: {action.successMetric}
-                          </div>
-                        ) : null}
-                        {Array.isArray(action.supportingSignals) &&
-                        action.supportingSignals.length ? (
-                          <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                            {action.supportingSignals.map(
-                              (signal, signalIndex) => (
-                                <li key={`action-${index}-${signalIndex}`}>
-                                  {signal}
-                                </li>
-                              ),
-                            )}
-                          </ul>
-                        ) : null}
-                      </div>
+                          ) : null}
+                        </CollapsibleContent>
+                      </Collapsible>
                     )
                   })}
                 </div>
               </section>
             ) : null}
 
-            {communityPlan.length ? (
-              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+            {opportunityAreas.length ||
+            customerSignals.length ||
+            communityPlan.length ||
+            metricsToWatch.length ? (
+              <Collapsible
+                open={showReportDeepDive}
+                onOpenChange={setShowReportDeepDive}
+                className="space-y-4"
+              >
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                   <div>
                     <div className="text-sm font-semibold text-foreground">
-                      Community plan
+                      Supporting insight detail
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Outreach objectives tailored to the communities uncovered
-                      earlier in the pipeline.
+                      Expand for the evidence that backs the recommended
+                      actions.
                     </div>
                   </div>
-                  <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(communityPlan.length)} objective
-                    {communityPlan.length === 1 ? "" : "s"}
-                  </Badge>
-                </div>
-                <div className="space-y-3">
-                  {communityPlan.map((plan, index) => (
-                    <div
-                      key={`community-${index}`}
-                      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                  <CollapsibleTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="text-sm font-semibold text-foreground">
-                          {plan.objective}
+                      {showReportDeepDive
+                        ? "Hide supporting detail"
+                        : "Show supporting detail"}
+                      <ChevronDownIcon
+                        className={cn(
+                          "h-4 w-4 transition-transform duration-200",
+                          showReportDeepDive ? "rotate-180" : "rotate-0",
+                        )}
+                        aria-hidden
+                      />
+                    </button>
+                  </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent className="space-y-4">
+                  {opportunityAreas.length ? (
+                    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <div className="text-sm font-semibold text-foreground">
+                            Opportunity areas
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            The biggest positioning gaps and growth angles from
+                            the synthesized report.
+                          </div>
                         </div>
-                        {plan.successSignal ? (
-                          <Badge variant="secondary" className="text-[11px]">
-                            Success signal: {plan.successSignal}
-                          </Badge>
-                        ) : null}
+                        <Badge
+                          variant="outline"
+                          className="self-start text-[11px]"
+                        >
+                          {COUNT_FORMATTER.format(opportunityAreas.length)} area
+                          {opportunityAreas.length === 1 ? "" : "s"}
+                        </Badge>
                       </div>
-                      {Array.isArray(plan.targetSubreddits) &&
-                      plan.targetSubreddits.length ? (
-                        <div className="mt-1 text-xs text-muted-foreground">
-                          Target communities:{" "}
-                          {plan.targetSubreddits.join(" • ")}
-                        </div>
-                      ) : null}
-                      {Array.isArray(plan.tactics) && plan.tactics.length ? (
-                        <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                          {plan.tactics.map((tactic, tacticIndex) => (
-                            <li key={`community-${index}-${tacticIndex}`}>
-                              {tactic}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ) : null}
+                      <div className="grid gap-3 md:grid-cols-2">
+                        {opportunityAreas.map((area, index) => (
+                          <div
+                            key={`opportunity-${index}`}
+                            className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                          >
+                            <div className="text-sm font-semibold text-foreground">
+                              {area.title}
+                            </div>
+                            {area.summary ? (
+                              <div className="text-sm text-muted-foreground">
+                                {area.summary}
+                              </div>
+                            ) : null}
+                            {Array.isArray(area.highlights) &&
+                            area.highlights.length ? (
+                              <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                                {area.highlights.map((item, itemIndex) => (
+                                  <li key={`opportunity-${index}-${itemIndex}`}>
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  ) : null}
 
-            {metricsToWatch.length ? (
-              <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold text-foreground">
-                    Metrics to watch
-                  </div>
-                  <Badge variant="outline" className="text-[11px]">
-                    {COUNT_FORMATTER.format(metricsToWatch.length)} metric
-                    {metricsToWatch.length === 1 ? "" : "s"}
-                  </Badge>
-                </div>
-                <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
-                  {metricsToWatch.map((metric, index) => (
-                    <li key={`metric-${index}`}>{metric}</li>
-                  ))}
-                </ul>
-              </section>
+                  {customerSignals.length ? (
+                    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <div className="text-sm font-semibold text-foreground">
+                            Customer signals
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Synthesized evidence from discussions, testimonials,
+                            and product reviews.
+                          </div>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className="self-start text-[11px]"
+                        >
+                          {COUNT_FORMATTER.format(customerSignals.length)}{" "}
+                          section
+                          {customerSignals.length === 1 ? "" : "s"}
+                        </Badge>
+                      </div>
+                      <div className="space-y-3">
+                        {customerSignals.map((section, index) => (
+                          <div
+                            key={`signal-${index}`}
+                            className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                          >
+                            <div className="text-sm font-semibold text-foreground">
+                              {section.title}
+                            </div>
+                            {section.summary ? (
+                              <div className="mt-1 text-sm text-muted-foreground">
+                                {section.summary}
+                              </div>
+                            ) : null}
+                            {Array.isArray(section.highlights) &&
+                            section.highlights.length ? (
+                              <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                                {section.highlights.map((item, itemIndex) => (
+                                  <li key={`signal-${index}-${itemIndex}`}>
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  ) : null}
+
+                  {communityPlan.length ? (
+                    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <div className="text-sm font-semibold text-foreground">
+                            Community plan
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Outreach objectives tailored to the communities
+                            uncovered earlier in the pipeline.
+                          </div>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className="self-start text-[11px]"
+                        >
+                          {COUNT_FORMATTER.format(communityPlan.length)}{" "}
+                          objective
+                          {communityPlan.length === 1 ? "" : "s"}
+                        </Badge>
+                      </div>
+                      <div className="space-y-3">
+                        {communityPlan.map((plan, index) => (
+                          <div
+                            key={`community-${index}`}
+                            className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              <div className="text-sm font-semibold text-foreground">
+                                {plan.objective}
+                              </div>
+                              {plan.successSignal ? (
+                                <Badge
+                                  variant="secondary"
+                                  className="text-[11px]"
+                                >
+                                  Success signal: {plan.successSignal}
+                                </Badge>
+                              ) : null}
+                            </div>
+                            {Array.isArray(plan.targetSubreddits) &&
+                            plan.targetSubreddits.length ? (
+                              <div className="mt-1 text-xs text-muted-foreground">
+                                Target communities:{" "}
+                                {plan.targetSubreddits.join(" • ")}
+                              </div>
+                            ) : null}
+                            {Array.isArray(plan.tactics) &&
+                            plan.tactics.length ? (
+                              <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                                {plan.tactics.map((tactic, tacticIndex) => (
+                                  <li key={`community-${index}-${tacticIndex}`}>
+                                    {tactic}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  ) : null}
+
+                  {metricsToWatch.length ? (
+                    <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-semibold text-foreground">
+                          Metrics to watch
+                        </div>
+                        <Badge variant="outline" className="text-[11px]">
+                          {COUNT_FORMATTER.format(metricsToWatch.length)} metric
+                          {metricsToWatch.length === 1 ? "" : "s"}
+                        </Badge>
+                      </div>
+                      <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                        {metricsToWatch.map((metric, index) => (
+                          <li key={`metric-${index}`}>{metric}</li>
+                        ))}
+                      </ul>
+                    </section>
+                  ) : null}
+                </CollapsibleContent>
+              </Collapsible>
             ) : null}
           </div>
         </>
