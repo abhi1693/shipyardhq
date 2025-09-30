@@ -1324,6 +1324,39 @@ export async function discoverProductDiscussions(
     }
   }
 
+  const finalCommentTargets = finalThreads
+    .map((thread, index) => ({ thread, index }))
+    .filter(({ thread }) => !thread.topComments || thread.topComments.length === 0)
+
+  if (finalCommentTargets.length) {
+    await Promise.all(
+      finalCommentTargets.map(async ({ thread, index }) => {
+        const useFullTree = mode === "deep" && index < DEEP_FULL_TREE_THREAD_LIMIT
+        try {
+          const comments = await fetchThreadComments(thread.id, accessToken, {
+            topLevelLimit: useFullTree
+              ? DEEP_TOP_LEVEL_COMMENT_LIMIT
+              : STANDARD_MAX_COMMENTS_PER_THREAD,
+            depth: useFullTree ? "all" : 1,
+            maxComments: useFullTree
+              ? DEEP_MAX_COMMENTS_PER_THREAD
+              : STANDARD_MAX_COMMENTS_PER_THREAD,
+          })
+          thread.topComments = comments.length ? comments : null
+        } catch (error) {
+          console.warn(
+            "[productInsights:reddit] failed to hydrate final thread comments",
+            {
+              productId,
+              threadId: thread.id,
+              error,
+            },
+          )
+        }
+      }),
+    )
+  }
+
   const insightResult = await synthesizeInsights({
     product,
     summary,
