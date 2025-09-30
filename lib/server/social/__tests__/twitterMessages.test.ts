@@ -19,11 +19,11 @@ describe("twitter message builders", () => {
       twitterHandle: "@mariner",
     })
 
-    const lines = tweet.split("\n")
-    expect(lines[0]).toContain("Mariner AI")
-    expect(lines[1]).toContain("@mariner — Collaborative documentation for builders.")
-    expect(lines[2]).toBe(SAMPLE_URL)
-    expect(lines[3]).toContain("#ShipyardHQ")
+    const segments = tweet.split("\n\n")
+    expect(segments[0]).toBe("New launch on Shipyard HQ: Mariner AI")
+    expect(segments[1]).toBe("@mariner — Collaborative documentation for builders.")
+    expect(segments[2]).toBe(SAMPLE_URL)
+    expect(segments[3]).toBe("#ShipyardHQ #ProductLaunch #IndieSaaS")
     expect(tweet.length).toBeLessThanOrEqual(280)
   })
 
@@ -39,9 +39,9 @@ describe("twitter message builders", () => {
     expect(tweet.length).toBeLessThanOrEqual(280)
     expect(tweet).toContain("Voyager")
     expect(tweet.includes("...")).toBe(true)
-    const lines = tweet.split("\n")
-    expect(lines[1]).toContain("@voyagerCrew")
-    expect(lines.at(-1)).toBe("#ShipyardHQ #ProductLaunch #IndieSaaS")
+    const segments = tweet.split("\n\n")
+    expect(segments[1]).toContain("@voyagerCrew")
+    expect(segments.at(-1)).toMatch(/^#ShipyardHQ #ProductLaunch/)
   })
 
   it("builds badge tweets for trending and featured badges", () => {
@@ -70,10 +70,10 @@ describe("twitter message builders", () => {
     expect(trendingTweet).toBeTruthy()
     expect(featuredTweet).toBeTruthy()
     expect(editorsPickTweet).toBeTruthy()
-    expect(trendingTweet?.split("\n").at(-1)).toContain("#Trending")
-    expect(featuredTweet?.split("\n").at(-1)).toContain("#Featured")
+    expect(trendingTweet?.split("\n\n").at(-1)).toContain("#Trending")
+    expect(featuredTweet?.split("\n\n").at(-1)).toContain("#Featured")
     expect(trendingTweet).toContain("@dockSync")
-    expect(editorsPickTweet?.split("\n").at(-1)).toContain("#EditorsPick")
+    expect(editorsPickTweet?.split("\n\n").at(-1)).toContain("#EditorsPick")
     expect(editorsPickTweet).toContain("@dockSync")
   })
 
@@ -99,14 +99,15 @@ describe("twitter message builders", () => {
       ],
     })
 
-    const lines = tweet.split("\n")
-    expect(lines[0]).toContain("Atlas (@atlas) leads the May 2024 leaderboard")
-    expect(lines[1]).toBe("Top builders:")
-    expect(lines[2]).toBe("1. Atlas (@atlas)")
-    expect(lines[3]).toBe("2. Compass (@compass)")
-    expect(lines[4]).toBe("3. Beacon")
-    expect(lines[5]).toBe("https://shipyard.example/leaderboard")
-    expect(lines[6]).toContain("#Leaderboard")
+    const segments = tweet.split("\n\n")
+    expect(segments[0]).toContain("Atlas (@atlas) leads the May 2024 leaderboard")
+    const bodyLines = segments[1].split("\n")
+    expect(bodyLines[0]).toBe("Top builders:")
+    expect(bodyLines[1]).toBe("1. Atlas (@atlas)")
+    expect(bodyLines[2]).toBe("2. Compass (@compass)")
+    expect(bodyLines[3]).toBe("3. Beacon")
+    expect(segments[2]).toBe("https://shipyard.example/leaderboard")
+    expect(segments[3]).toContain("#Leaderboard")
     expect(tweet.length).toBeLessThanOrEqual(280)
   })
 

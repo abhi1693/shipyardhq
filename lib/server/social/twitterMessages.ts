@@ -25,7 +25,7 @@ function appendSegment(current: string, segment: string): string {
     return current
   }
 
-  const separator = current.length ? "\n" : ""
+  const separator = current.length ? "\n\n" : ""
   const available = MAX_TWEET_LENGTH - current.length - separator.length
   if (available <= 0) {
     return current
