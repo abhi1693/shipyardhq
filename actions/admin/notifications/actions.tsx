@@ -80,6 +80,26 @@ type ResolvedRecipient = {
   firstName?: string | null
 }
 
+async function getSubscribedNewsletterEmails(): Promise<string[]> {
+  const subscriptions = await prisma.newsletterSubscription.findMany({
+    select: { email: true },
+  })
+
+  if (!subscriptions.length) {
+    return []
+  }
+
+  const normalized = new Set<string>()
+  for (const entry of subscriptions) {
+    const email = entry.email?.trim().toLowerCase()
+    if (email) {
+      normalized.add(email)
+    }
+  }
+
+  return Array.from(normalized)
+}
+
 function getGreetingName(recipient: ResolvedRecipient): string {
   const explicit = recipient.firstName?.trim()
   if (explicit) {
@@ -139,9 +159,29 @@ async function requireAdmin() {
 export async function getNotificationSegmentCounts(): Promise<SegmentCounts> {
   await requireAdmin()
 
+  const subscribedEmails = await getSubscribedNewsletterEmails()
+
+  if (subscribedEmails.length === 0) {
+    return {
+      registered: 0,
+      builders: 0,
+      explorers: 0,
+      withProducts: 0,
+      withoutProducts: 0,
+      buildersWithProducts: 0,
+      buildersWithoutProducts: 0,
+      explorersWithoutProducts: 0,
+    }
+  }
+
+  const emailFilter = {
+    email: { in: subscribedEmails, mode: "insensitive" as const },
+  }
+
   const activeMemberWhere = {
     status: "active" as const,
     role: { not: "admin" },
+    ...emailFilter,
   }
 
   const builderIntentWhere = {
@@ -248,10 +288,39 @@ async function resolveSegmentRecipients(
   limit?: number,
 ): Promise<ResolvedRecipient[]> {
   const take = typeof limit === "number" ? limit : undefined
+
+  if (segment === "selected") {
+    if (selectedUserIds.length === 0) {
+      return []
+    }
+    const users = await prisma.user.findMany({
+      where: {
+        id: { in: selectedUserIds },
+        status: "active",
+      },
+      select: { email: true, firstName: true },
+      take,
+    })
+    return users.map((user) => ({
+      email: user.email,
+      firstName: user.firstName,
+    }))
+  }
+
+  const subscribedEmails = await getSubscribedNewsletterEmails()
+
+  if (subscribedEmails.length === 0) {
+    return []
+  }
+
+  const emailFilter = {
+    email: { in: subscribedEmails, mode: "insensitive" as const },
+  }
+
   switch (segment) {
     case "registered": {
       const users = await prisma.user.findMany({
-        where: { status: "active", role: { not: "admin" } },
+        where: { status: "active", role: { not: "admin" }, ...emailFilter },
         select: { email: true, firstName: true },
         orderBy: { createdAt: "asc" },
         take,
@@ -267,6 +336,7 @@ async function resolveSegmentRecipients(
           status: "active",
           role: { not: "admin" },
           roleIntent: { in: [...BUILDER_INTENTS] },
+          ...emailFilter,
         },
         select: { email: true, firstName: true },
         orderBy: { createdAt: "asc" },
@@ -284,6 +354,7 @@ async function resolveSegmentRecipients(
           role: { not: "admin" },
           roleIntent: { in: [...BUILDER_INTENTS] },
           products: { some: {} },
+          ...emailFilter,
         },
         select: { email: true, firstName: true },
         orderBy: { createdAt: "asc" },
@@ -301,6 +372,7 @@ async function resolveSegmentRecipients(
           role: { not: "admin" },
           roleIntent: { in: [...BUILDER_INTENTS] },
           products: { none: {} },
+          ...emailFilter,
         },
         select: { email: true, firstName: true },
         orderBy: { createdAt: "asc" },
@@ -317,6 +389,7 @@ async function resolveSegmentRecipients(
           status: "active",
           role: { not: "admin" },
           roleIntent: EXPLORER_INTENT,
+          ...emailFilter,
         },
         select: { email: true, firstName: true },
         orderBy: { createdAt: "asc" },
@@ -334,6 +407,7 @@ async function resolveSegmentRecipients(
           role: { not: "admin" },
           roleIntent: EXPLORER_INTENT,
           products: { none: {} },
+          ...emailFilter,
         },
         select: { email: true, firstName: true },
         orderBy: { createdAt: "asc" },
@@ -350,6 +424,7 @@ async function resolveSegmentRecipients(
           status: "active",
           role: { not: "admin" },
           products: { some: {} },
+          ...emailFilter,
         },
         select: { email: true, firstName: true },
         orderBy: { createdAt: "asc" },
@@ -366,26 +441,11 @@ async function resolveSegmentRecipients(
           status: "active",
           role: { not: "admin" },
           products: { none: {} },
+          ...emailFilter,
         },
         select: { email: true, firstName: true },
         orderBy: { createdAt: "asc" },
         take,
-      })
-      return users.map((user) => ({
-        email: user.email,
-        firstName: user.firstName,
-      }))
-    }
-    case "selected": {
-      if (selectedUserIds.length === 0) {
-        return []
-      }
-      const users = await prisma.user.findMany({
-        where: {
-          id: { in: selectedUserIds },
-          status: "active",
-        },
-        select: { email: true, firstName: true },
       })
       return users.map((user) => ({
         email: user.email,
