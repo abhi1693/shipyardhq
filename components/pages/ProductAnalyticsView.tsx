@@ -20,6 +20,7 @@ import type { ProductTrafficSummary } from "@/types/analytics"
 import type { ProductAnalytics } from "@/lib/vendor/prisma/client"
 import { ArrowLeft, ExternalLink, Info } from "lucide-react"
 import { PRICING_PATH } from "@/lib/routes"
+import AnalyticsFeedbackPrompt from "@/components/molecules/AnalyticsFeedbackPrompt"
 
 const actionGroupClass =
   "flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70"
@@ -555,6 +556,16 @@ export function ProductAnalyticsView({
               </Button>
             ) : null}
           </div>
+          <AnalyticsFeedbackPrompt
+            className="justify-start"
+            storageKey="shipyardhq:feedback-nudge:product-analytics"
+            buttonLabel="Share analytics feedback"
+            title="Need deeper analytics?"
+            description="Tell us which charts or metrics would help you act faster."
+            body="Call out missing funnels, filters, or signals you rely on when reporting to your crew."
+            primaryLabel="Open feedback form"
+            secondaryLabel="Not now"
+          />
         </div>
       }
       relationships={

@@ -69,6 +69,7 @@ import { Switch } from "@/components/atoms/switch"
 import { Label } from "@/components/atoms/label"
 import { cn } from "@/lib/utils"
 import { formatInsightsUsage } from "@/lib/productInsights/insightsUsage"
+import AnalyticsFeedbackPrompt from "@/components/molecules/AnalyticsFeedbackPrompt"
 
 const STATUS_STYLES: Record<
   ProductInsightStatus,
@@ -1781,8 +1782,19 @@ export function ProductInsightsView({
   }
 
   return (
-    <div className="space-y-10">
-      <Card className="overflow-hidden">
+    <>
+      <AnalyticsFeedbackPrompt
+        className="mb-6 justify-end"
+        storageKey="shipyardhq:feedback-nudge:insights"
+        buttonLabel="Share insights feedback"
+        title="Need richer product insights?"
+        description="Tell us what the crawl, community sweep, or discussion analysis should surface next."
+        body="Flag missing competitor intel, channels you monitor, or decisions you can't make yet. Every note helps us tune the pipeline."
+        primaryLabel="Open feedback form"
+        secondaryLabel="Not now"
+      />
+      <div className="space-y-10">
+        <Card className="overflow-hidden">
         <div className="border-b border-slate-200 bg-slate-50 px-6 py-5">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-3">
@@ -4210,5 +4222,6 @@ export function ProductInsightsView({
         </>
       </StageCard>
     </div>
+  </>
   )
 }
