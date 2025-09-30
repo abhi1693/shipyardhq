@@ -6,31 +6,17 @@ import {
   DEFAULT_SWR,
   TAGS,
 } from "@/lib/cache"
-
-const MONTH_PARAM = /^(\d{4})-(\d{2})$/
+import {
+  normalizeMonth,
+  parseMonthKey,
+  toMonthKey,
+} from "@/lib/server/monthlyLeaderboard"
 
 const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
   year: "numeric",
   timeZone: "UTC",
 })
-
-const toMonthKey = (date: Date) =>
-  `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`
-
-const normalizeMonth = (date: Date) =>
-  new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1))
-
-const parseMonthKey = (value?: string) => {
-  if (!value) return null
-  const match = value.match(MONTH_PARAM)
-  if (!match) return null
-  const year = Number(match[1])
-  const monthIndex = Number(match[2]) - 1
-  if (!Number.isFinite(year) || !Number.isFinite(monthIndex)) return null
-  if (monthIndex < 0 || monthIndex > 11) return null
-  return new Date(Date.UTC(year, monthIndex, 1))
-}
 
 const monthlyCacheTags = (monthKey?: string) =>
   accelerateTags([

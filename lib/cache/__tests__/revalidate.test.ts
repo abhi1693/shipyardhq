@@ -52,11 +52,11 @@ describe("revalidate helpers", () => {
   })
 
   it("revalidates monthly leaderboard tags with month key", () => {
-    revalidateMonthlyLeaderboard("2024-04")
+    revalidateMonthlyLeaderboard("30-04-2024")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "leaderboard:monthly")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(
       2,
-      "leaderboard:monthly:2024-04",
+      "leaderboard:monthly:30-04-2024",
     )
   })
 

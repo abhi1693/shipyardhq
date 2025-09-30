@@ -36,8 +36,8 @@ describe("monthly leaderboard actions", () => {
     const result = await getMonthlyLeaderboardMonths()
 
     expect(result).toEqual([
-      { month: "2024-04", label: "April 2024" },
-      { month: "2024-03", label: "March 2024" },
+      { month: "30-04-2024", label: "April 2024" },
+      { month: "31-03-2024", label: "March 2024" },
     ])
 
     expect(findManyMock).toHaveBeenCalledWith(
@@ -72,9 +72,9 @@ describe("monthly leaderboard actions", () => {
       },
     ])
 
-    const result = await getMonthlyTopRankedProducts({ month: "2024-04" })
+    const result = await getMonthlyTopRankedProducts({ month: "30-04-2024" })
 
-    expect(result.month).toBe("2024-04")
+    expect(result.month).toBe("30-04-2024")
     expect(result.label).toBe("April 2024")
     expect(result.rankings).toHaveLength(1)
     expect(result.rankings[0]).toMatchObject({
@@ -97,9 +97,9 @@ describe("monthly leaderboard actions", () => {
       .mockResolvedValueOnce({ month: march })
     findManyMock.mockResolvedValueOnce([])
 
-    const result = await getMonthlyTopRankedProducts({ month: "2024-04" })
+    const result = await getMonthlyTopRankedProducts({ month: "30-04-2024" })
 
-    expect(result.month).toBe("2024-03")
+    expect(result.month).toBe("31-03-2024")
     expect(findFirstMock).toHaveBeenCalledTimes(2)
     expect(findManyMock).toHaveBeenCalledWith(
       expect.objectContaining({ where: { month: march } }),

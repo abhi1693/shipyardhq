@@ -11,18 +11,26 @@ function xml(parts: TemplateStringsArray, ...subs: any[]) {
 }
 
 const toMonthDate = (monthKey: string, fallback: Date) => {
-  const [yearStr, monthStr] = monthKey.split("-")
-  const year = Number(yearStr)
-  const monthIndex = Number(monthStr) - 1
+  const match = monthKey.match(/^(\d{2})-(\d{2})-(\d{4})$/)
+  if (!match) {
+    return fallback
+  }
+  const day = Number(match[1])
+  const monthIndex = Number(match[2]) - 1
+  const year = Number(match[3])
   if (
-    !Number.isFinite(year) ||
+    !Number.isFinite(day) ||
     !Number.isFinite(monthIndex) ||
-    monthIndex < 0 ||
-    monthIndex > 11
+    !Number.isFinite(year)
   ) {
     return fallback
   }
-  return new Date(Date.UTC(year, monthIndex, 1))
+  if (monthIndex < 0 || monthIndex > 11) return fallback
+  const date = new Date(Date.UTC(year, monthIndex, day))
+  if (date.getUTCFullYear() !== year) return fallback
+  if (date.getUTCMonth() !== monthIndex) return fallback
+  if (date.getUTCDate() !== day) return fallback
+  return date
 }
 
 export async function GET() {

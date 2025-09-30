@@ -34,7 +34,7 @@ describe("cron monthly leaderboard route", () => {
 
   it("generates leaderboard when authorized", async () => {
     generateMock.mockResolvedValue({
-      monthKey: "2024-04",
+      monthKey: "30-04-2024",
       month: new Date("2024-04-01T00:00:00.000Z"),
       start: new Date("2024-04-01T00:00:00.000Z"),
       end: new Date("2024-05-01T00:00:00.000Z"),
@@ -56,7 +56,7 @@ describe("cron monthly leaderboard route", () => {
 
     expect(res.status).toBe(200)
     expect(generateMock).toHaveBeenCalled()
-    expect(revalidateMock).toHaveBeenCalledWith("2024-04")
+    expect(revalidateMock).toHaveBeenCalledWith("30-04-2024")
     expect(notifyMock).toHaveBeenCalled()
     const payload = await res.json()
     expect(payload.notification).toEqual({
@@ -70,7 +70,7 @@ describe("cron monthly leaderboard route", () => {
     const monthDate = new Date("2024-03-01T00:00:00.000Z")
     parseMonthKeyMock.mockReturnValue(monthDate)
     generateMock.mockResolvedValue({
-      monthKey: "2024-03",
+      monthKey: "31-03-2024",
       month: monthDate,
       start: monthDate,
       end: new Date("2024-04-01T00:00:00.000Z"),
@@ -85,7 +85,7 @@ describe("cron monthly leaderboard route", () => {
     })
 
     const res = await GET(
-      new Request("https://example.com?month=2024-03&limit=25", {
+      new Request("https://example.com?month=31-03-2024&limit=25", {
         headers: { authorization: "Bearer secret" },
       }),
     )

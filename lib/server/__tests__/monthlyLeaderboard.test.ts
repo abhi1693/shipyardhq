@@ -96,7 +96,7 @@ describe("generateMonthlyLeaderboard", () => {
 
     const result = await generateMonthlyLeaderboard({ now, limit: 10 })
 
-    expect(result.monthKey).toBe("2024-05")
+    expect(result.monthKey).toBe("31-05-2024")
     expect(result.count).toBe(2)
     expect(result.rankings[0]).toEqual({
       productId: "prod-1",
@@ -180,7 +180,7 @@ describe("notifyMonthlyWinners", () => {
     const month = new Date("2024-04-01T00:00:00.000Z")
     const result = {
       month,
-      monthKey: "2024-04",
+      monthKey: "30-04-2024",
       start: month,
       end: new Date("2024-05-01T00:00:00.000Z"),
       limit: 10,
@@ -262,7 +262,7 @@ describe("notifyMonthlyWinners", () => {
 
     const result = {
       month: new Date("2024-04-01T00:00:00.000Z"),
-      monthKey: "2024-04",
+      monthKey: "30-04-2024",
       start: new Date("2024-04-01T00:00:00.000Z"),
       end: new Date("2024-05-01T00:00:00.000Z"),
       limit: 10,
@@ -300,7 +300,7 @@ describe("notifyMonthlyWinners", () => {
 
     const result = {
       month: new Date("2024-04-01T00:00:00.000Z"),
-      monthKey: "2024-04",
+      monthKey: "30-04-2024",
       start: new Date("2024-04-01T00:00:00.000Z"),
       end: new Date("2024-05-01T00:00:00.000Z"),
       limit: 10,
@@ -319,17 +319,20 @@ describe("notifyMonthlyWinners", () => {
 
 describe("month helpers", () => {
   it("parses valid month keys", () => {
-    expect(parseMonthKey("2024-04")?.toISOString()).toBe(
+    expect(parseMonthKey("30-04-2024")?.toISOString()).toBe(
       "2024-04-01T00:00:00.000Z",
     )
   })
 
   it("returns null for invalid month keys", () => {
     expect(parseMonthKey("not-a-month")).toBeNull()
-    expect(parseMonthKey("2024-15")).toBeNull()
+    expect(parseMonthKey("31-13-2024")).toBeNull()
+    expect(parseMonthKey("29-02-2023")).toBeNull()
   })
 
   it("formats month keys", () => {
-    expect(toMonthKey(new Date("2023-09-15T00:00:00.000Z"))).toBe("2023-09")
+    expect(toMonthKey(new Date("2023-09-15T00:00:00.000Z"))).toBe(
+      "30-09-2023",
+    )
   })
 })

@@ -44,10 +44,32 @@ export const LEADERBOARD_PATH = "/leaderboard" as const
 export const LEADERBOARD_MONTHLY_PATH = `${LEADERBOARD_PATH}/monthly` as const
 export const LEADERBOARD_GUIDE_PATH = `${LEADERBOARD_PATH}/about` as const
 
-const MONTH_KEY_PATTERN = /^(?:\d{4}-(?:0[1-9]|1[0-2]))$/
+const MONTH_KEY_PATTERN = /^(\d{2})-(\d{2})-(\d{4})$/
+
+const isValidMonthKey = (value: string): boolean => {
+  const match = value.match(MONTH_KEY_PATTERN)
+  if (!match) return false
+  const day = Number(match[1])
+  const monthIndex = Number(match[2]) - 1
+  const year = Number(match[3])
+  if (
+    !Number.isFinite(day) ||
+    !Number.isFinite(monthIndex) ||
+    !Number.isFinite(year)
+  ) {
+    return false
+  }
+  if (monthIndex < 0 || monthIndex > 11) return false
+  const candidate = new Date(Date.UTC(year, monthIndex, day))
+  if (candidate.getUTCFullYear() !== year) return false
+  if (candidate.getUTCMonth() !== monthIndex) return false
+  if (candidate.getUTCDate() !== day) return false
+  const monthEnd = new Date(Date.UTC(year, monthIndex + 1, 0))
+  return candidate.getTime() === monthEnd.getTime()
+}
 
 export const isMonthKey = (value?: string | null): value is string =>
-  typeof value === "string" && MONTH_KEY_PATTERN.test(value)
+  typeof value === "string" && isValidMonthKey(value)
 
 export const monthlyLeaderboardArchivePath = (monthKey: string) => {
   if (!isMonthKey(monthKey)) {

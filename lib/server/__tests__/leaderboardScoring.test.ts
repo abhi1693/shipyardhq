@@ -191,11 +191,11 @@ describe("getLeaderboardScoringAnalytics", () => {
         ttlSeconds: 300,
       }),
     )
-    expect(result.month.key).toBe("2024-03")
+    expect(result.month.key).toBe("31-03-2024")
     expect(result.availableMonths.map((m) => m.key)).toEqual([
-      "2024-03",
-      "2024-02",
-      "2024-01",
+      "31-03-2024",
+      "29-02-2024",
+      "31-01-2024",
     ])
     expect(result.rankings).toHaveLength(3)
 
@@ -234,12 +234,12 @@ describe("getLeaderboardScoringAnalytics", () => {
 
     expect(result.history).toHaveLength(3)
     expect(result.history[0]).toMatchObject({
-      month: "2024-01",
+      month: "31-01-2024",
       totalMonthlyUpvotes: 4,
       championProduct: { id: "prod-d", name: "Delta" },
     })
     expect(result.history[2]).toMatchObject({
-      month: "2024-03",
+      month: "31-03-2024",
       totalMonthlyUpvotes: 28,
       championProduct: { id: "prod-a", name: "Alpha" },
     })
@@ -263,12 +263,12 @@ describe("getLeaderboardScoringAnalytics", () => {
   it("returns cached analytics when cache hit succeeds", async () => {
     const analyticsFromCache = {
       month: {
-        key: "2024-05",
+        key: "31-05-2024",
         label: "May 2024",
         start: new Date("2024-05-01T00:00:00.000Z"),
         end: new Date("2024-06-01T00:00:00.000Z"),
       },
-      availableMonths: [{ key: "2024-05", label: "May 2024" }],
+      availableMonths: [{ key: "31-05-2024", label: "May 2024" }],
       rankings: [],
       summary: {
         rankedCount: 0,
