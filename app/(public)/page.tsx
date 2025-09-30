@@ -131,6 +131,7 @@ export default async function HomePage() {
             totalProducts: stats.totalProducts,
             totalCreators: stats.totalCreators,
             totalUpvotes: stats.totalUpvotes,
+            totalInsights: stats.totalInsights,
           }}
         />
         <FeaturedHighlights products={featuredProducts} />

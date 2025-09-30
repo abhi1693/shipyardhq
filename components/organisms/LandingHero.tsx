@@ -14,16 +14,19 @@ type Stats = {
   totalProducts?: number
   totalCreators?: number
   totalUpvotes?: number
+  totalInsights?: number
 }
 
 export default function Hero({ stats }: { stats?: Stats }) {
   const totalProducts = stats?.totalProducts ?? 0
   const totalCreators = stats?.totalCreators ?? 0
   const totalUpvotes = stats?.totalUpvotes ?? 0
+  const totalInsights = stats?.totalInsights ?? 0
 
   const formattedProducts = totalProducts.toLocaleString()
   const formattedCreators = totalCreators.toLocaleString()
   const formattedUpvotes = totalUpvotes.toLocaleString()
+  const formattedInsights = totalInsights.toLocaleString()
 
   return (
     <section className="relative isolate w-full overflow-hidden border-b bg-background/90 py-20 md:py-32">
@@ -90,8 +93,8 @@ export default function Hero({ stats }: { stats?: Stats }) {
         </div>
 
         {stats && (
-          <div className="mx-auto mt-12 max-w-3xl">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="mx-auto mt-12 max-w-4xl">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-5 text-center shadow-[0px_25px_50px_-28px_rgba(7,58,104,0.85)] backdrop-blur">
                 <div className="text-3xl font-semibold tracking-tight text-[color:var(--brand-1)] sm:text-4xl">
                   {formattedProducts}
@@ -114,6 +117,14 @@ export default function Hero({ stats }: { stats?: Stats }) {
                 </div>
                 <div className="mt-2 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
                   Community Upvotes
+                </div>
+              </div>
+              <div className="rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-5 text-center shadow-[0px_25px_50px_-28px_rgba(7,58,104,0.85)] backdrop-blur">
+                <div className="text-3xl font-semibold tracking-tight text-[color:var(--brand-1)] sm:text-4xl">
+                  {formattedInsights}
+                </div>
+                <div className="mt-2 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                  Insights Generated
                 </div>
               </div>
             </div>

@@ -41,7 +41,7 @@ const monthlyCacheTags = (monthKey?: string) =>
 
 export const getLeaderboardStats = cached(
   async () => {
-    const [totalProducts, totalCreators, upvoteAgg, topProduct] =
+    const [totalProducts, totalCreators, upvoteAgg, topProduct, totalInsights] =
       await Promise.all([
         prisma.product.count({
           cacheStrategy: {
@@ -74,6 +74,17 @@ export const getLeaderboardStats = cached(
             tags: accelerateTags([TAGS.analytics, TAGS.leaderboard]),
           },
         }),
+        prisma.productInsightStageResult.count({
+          where: {
+            stageId: "report.comprehensive",
+            status: "ready",
+          },
+          cacheStrategy: {
+            ttl: DEFAULT_TTL.fast,
+            swr: DEFAULT_SWR.fast,
+            tags: accelerateTags([TAGS.leaderboard, TAGS.analytics]),
+          },
+        }),
       ])
 
     return {
@@ -81,6 +92,7 @@ export const getLeaderboardStats = cached(
       totalCreators,
       totalUpvotes: upvoteAgg._sum.upvotes ?? 0,
       topScore: topProduct?.upvotes ?? 0,
+      totalInsights,
     }
   },
   "leaderboard:stats",
