@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/monthly-leaderboard",
-      "schedule": "0 5 1 * *"
+      "schedule": "0 8 1 * *"
     },
     {
       "path": "/api/cron/product-review-digest",
