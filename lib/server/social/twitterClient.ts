@@ -1,4 +1,4 @@
-import { TwitterApi } from "twitter-api-v2"
+import { ApiResponseError, TwitterApi } from "twitter-api-v2"
 
 const REQUIRED_ENV_VARS = [
   "TWITTER_APP_KEY",
@@ -110,9 +110,62 @@ export function isTwitterBotDryRun(): boolean {
   return readConfig().dryRun
 }
 
-export async function postTweet(
-  message: string,
-): Promise<{ posted: boolean; reason?: string }> {
+type TwitterPostResult = {
+  posted: boolean
+  reason?: string
+  status?: number
+  detail?: string
+}
+
+function parseTwitterError(error: unknown): TwitterPostResult {
+  if (error instanceof ApiResponseError) {
+    const status = error.code
+    const errorEntries = Array.isArray(error.data?.errors)
+      ? (error.data?.errors as Array<Record<string, any>>)
+      : []
+    const detail = errorEntries
+      .map((entry) => entry.detail || entry.title || entry.message)
+      .filter(Boolean)
+      .join(" | ")
+
+    let reason: TwitterPostResult["reason"] = "api-error"
+    if (status === 401) {
+      reason = "unauthorized"
+    } else if (status === 403) {
+      reason = "forbidden"
+    } else if (status === 429) {
+      reason = "rate-limit"
+    } else if (status && status >= 500) {
+      reason = "server-error"
+    }
+
+    const first = errorEntries[0]
+    if (first?.code === 187) {
+      reason = "duplicate"
+    }
+    if (
+      typeof first?.detail === "string" &&
+      first.detail.toLowerCase().includes("duplicate")
+    ) {
+      reason = "duplicate"
+    }
+
+    return {
+      posted: false,
+      reason,
+      status,
+      detail: detail || undefined,
+    }
+  }
+
+  if (error instanceof Error) {
+    return { posted: false, reason: "api-error", detail: error.message }
+  }
+
+  return { posted: false, reason: "api-error" }
+}
+
+export async function postTweet(message: string): Promise<TwitterPostResult> {
   const text = message.trim()
   if (!text.length) {
     return { posted: false, reason: "empty-message" }
@@ -140,8 +193,14 @@ export async function postTweet(
     await client.v2.tweet(text)
     return { posted: true }
   } catch (error) {
-    console.error("[twitter] failed to post tweet", error)
-    return { posted: false, reason: "api-error" }
+    const info = parseTwitterError(error)
+    const logMethod = info.status === 403 ? console.warn : console.error
+    logMethod("[twitter] failed to post tweet", {
+      status: info.status,
+      reason: info.reason,
+      detail: info.detail,
+    })
+    return info
   }
 }
 

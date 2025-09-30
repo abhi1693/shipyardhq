@@ -37,6 +37,10 @@ function canPost(key: string, now = Date.now()): boolean {
   return true
 }
 
+function releaseThrottle(key: string) {
+  recentPosts.delete(key)
+}
+
 function getProductUrl(slug: string): string {
   const base = getAppBaseUrl()
   return `${base}${productPath(slug)}`
@@ -76,9 +80,13 @@ async function handleProductPublished(productId: string) {
       twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
     })
 
-    await postTweet(tweet)
+    const result = await postTweet(tweet)
+    if (!result.posted) {
+      releaseThrottle(key)
+    }
   } catch (error) {
     console.error("[twitter] failed to handle product.published event", error)
+    releaseThrottle(`launch:${productId}`)
   }
 }
 
@@ -122,12 +130,17 @@ async function handleBadgeAssigned(productId: string, badge: string) {
     })
 
     if (!tweet) {
+      releaseThrottle(key)
       return
     }
 
-    await postTweet(tweet)
+    const result = await postTweet(tweet)
+    if (!result.posted) {
+      releaseThrottle(key)
+    }
   } catch (error) {
     console.error("[twitter] failed to handle badge.assigned event", error)
+    releaseThrottle(`${badge}:${productId}`)
   }
 }
 
@@ -153,12 +166,16 @@ async function handleLeaderboardWinners(
       winners,
     })
 
-    await postTweet(tweet)
+    const result = await postTweet(tweet)
+    if (!result.posted) {
+      releaseThrottle(key)
+    }
   } catch (error) {
     console.error(
       "[twitter] failed to handle leaderboard.monthly.winners event",
       error,
     )
+    releaseThrottle(`leaderboard:${monthKey}`)
   }
 }
 
