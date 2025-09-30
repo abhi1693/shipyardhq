@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { Check, ListChecks, Radar, Sparkles, Target, Users } from "lucide-react"
 import PublicContainer from "@/components/layout/PublicContainer"
@@ -122,6 +123,20 @@ export function InsightsShowcase({
           ) : null}
         </div>
       </div>
+
+      <figure className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-[32px] border border-[color:var(--brand-1)/0.24] bg-[color:var(--brand-3)/0.05] shadow-[0px_45px_120px_-70px_rgba(7,58,104,0.85)]">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(140%_120%_at_15%_15%,rgba(11,53,94,0.12),transparent_70%)]"
+        />
+        <Image
+          src="/insights-demo.png"
+          alt="Shipyard Insights pipeline report preview"
+          width={1572}
+          height={704}
+          className="relative z-10 h-auto w-full object-cover"
+        />
+      </figure>
 
       <div className="relative grid gap-6 lg:grid-cols-4">
         {INSIGHT_STAGES.map(
