@@ -23,6 +23,10 @@
     {
       "path": "/api/cron/product-insight-pipeline",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/product-insight-refresh",
+      "schedule": "0 8 * * *"
     }
   ]
 }
