@@ -104,6 +104,12 @@ export async function toggleProductUpvote({
 
     const upvotes = await getLiveUpvoteCount(productId, updateResult.client)
 
+    const stateChanged = updateResult.state !== resolution.currentState
+    if (stateChanged) {
+      revalidateProduct(productId)
+      revalidateLeaderboard()
+    }
+
     return { upvotes, upvoted: updateResult.state === "upvoted" }
   } catch (err: any) {
     if (err?.code === "P2003") {
