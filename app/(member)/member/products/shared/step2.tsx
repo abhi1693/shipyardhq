@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import {
   FormField,
@@ -26,6 +27,30 @@ export default function Step2() {
   const disablePrice = pricingModel === "free" || pricingModel === "custom"
   const requirePrice =
     pricingModel === "subscription" || pricingModel === "one_time"
+
+  useEffect(() => {
+    // Clear stale pricing values when the pricing model does not allow them
+    if (!disablePrice) {
+      return
+    }
+
+    const price = form.getValues("startingPriceCents" as any)
+    const currency = form.getValues("currencyCode" as any)
+
+    if (price != null && price !== undefined) {
+      form.setValue("startingPriceCents" as any, undefined, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (currency) {
+      form.setValue("currencyCode" as any, undefined, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+  }, [disablePrice, form])
 
   return (
     <div className="space-y-6">
