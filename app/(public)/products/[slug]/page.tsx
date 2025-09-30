@@ -2,7 +2,6 @@ import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import { JSX } from "react"
 
-import { upvoteProductAction } from "@/actions/public/products/upvote"
 import { hasUserUpvoted } from "@/actions/public/products/actions"
 import { auth } from "@clerk/nextjs/server"
 import { BADGE_OPTIONS } from "@/lib/constants"
@@ -354,7 +353,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       initialCount={upvoteCount}
       initialUpvoted={userUpvoted}
       isSignedIn={Boolean(userId)}
-      action={upvoteProductAction}
     />
   )
 

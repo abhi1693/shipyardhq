@@ -15,7 +15,6 @@ describe("SupportHeroCard", () => {
     productName: "Launch Compass",
     initialCount: 42,
     initialUpvoted: false,
-    action: vi.fn(),
   }
 
   beforeEach(() => {

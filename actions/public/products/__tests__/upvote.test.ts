@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 
 const mocks = vi.hoisted(() => ({
-  auth: vi.fn(),
   getActiveUser: vi.fn(),
   revalidateProduct: vi.fn(),
   revalidateLeaderboard: vi.fn(),
@@ -22,10 +21,6 @@ const prismaMock = vi.hoisted(() => ({
   $queryRaw: mocks.queryRaw,
 }))
 
-vi.mock("@clerk/nextjs/server", () => ({
-  auth: mocks.auth,
-}))
-
 vi.mock("@/lib/cache/revalidate", () => ({
   revalidateProduct: mocks.revalidateProduct,
   revalidateLeaderboard: mocks.revalidateLeaderboard,
@@ -40,16 +35,13 @@ vi.mock("@/lib/prisma", () => ({
   default: prismaMock,
 }))
 
-import type { UpvoteState } from "../upvote"
-import { upvoteProductAction } from "../upvote"
+import { toggleProductUpvote } from "../upvote"
 
-describe("upvoteProductAction", () => {
-  const baseState: UpvoteState = { upvotes: 0, upvoted: false }
+describe("toggleProductUpvote", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
 
-    mocks.auth.mockResolvedValue({ userId: "clerk_123" })
     mocks.getActiveUser.mockResolvedValue({ id: "user_123" })
 
     Object.values(prismaMock.productUpvote).forEach((fn) => fn.mockReset())
@@ -83,14 +75,14 @@ describe("upvoteProductAction", () => {
   })
 
   it("creates a new upvote when none exists", async () => {
-    const formData = new FormData()
-    formData.set("productId", "prod_123")
-
     mocks.queryRaw.mockResolvedValueOnce([
       { upvotes: 5, upvoted: true, delta: 1 },
     ])
 
-    const result = await upvoteProductAction(baseState, formData)
+    const result = await toggleProductUpvote({
+      productId: "prod_123",
+      clerkUserId: "clerk_123",
+    })
 
     expect(result).toEqual({ upvotes: 5, upvoted: true })
     expect(mocks.queryRaw).toHaveBeenCalledTimes(1)
@@ -99,19 +91,16 @@ describe("upvoteProductAction", () => {
   })
 
   it("removes an existing upvote and clamps analytics count", async () => {
-    const formData = new FormData()
-    formData.set("productId", "prod_123")
-
     prismaMock.productUpvote.findUnique.mockResolvedValue({ id: "existing" })
 
     mocks.queryRaw.mockResolvedValueOnce([
       { upvotes: 4, upvoted: false, delta: -1 },
     ])
 
-    const result = await upvoteProductAction(
-      { upvotes: 5, upvoted: true },
-      formData,
-    )
+    const result = await toggleProductUpvote({
+      productId: "prod_123",
+      clerkUserId: "clerk_123",
+    })
 
     expect(result).toEqual({ upvotes: 4, upvoted: false })
     expect(mocks.queryRaw).toHaveBeenCalledTimes(1)

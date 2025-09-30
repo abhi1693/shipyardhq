@@ -3,13 +3,19 @@ import React from "react"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 
 describe("UpvoteSquareButton", () => {
-  const action = vi.fn(async (prev: { upvotes: number; upvoted: boolean }) => ({
-    upvotes: prev.upvotes + (prev.upvoted ? -1 : 1),
-    upvoted: !prev.upvoted,
-  }))
+  const fetchMock = vi.fn()
+
+  beforeEach(() => {
+    vi.resetModules()
+    fetchMock.mockReset()
+    vi.stubGlobal("fetch", fetchMock)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
 
   it("wraps with tooltip and disables when signed out", async () => {
-    vi.resetModules()
     vi.doMock("@clerk/nextjs", () => ({
       useUser: () => ({ isSignedIn: false }),
     }))
@@ -22,7 +28,6 @@ describe("UpvoteSquareButton", () => {
         initialCount={5}
         initialUpvoted={false}
         title="Vote"
-        action={action}
       />,
     )
     // Wrapped with tooltip trigger wrapper
@@ -32,10 +37,13 @@ describe("UpvoteSquareButton", () => {
   })
 
   it("submits form action and updates count when signed in", async () => {
-    vi.resetModules()
     vi.doMock("@clerk/nextjs", () => ({
       useUser: () => ({ isSignedIn: true }),
     }))
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ upvotes: 2, upvoted: true }),
+    } as Response)
     const { default: UpvoteSquareButton } = await import(
       "@/components/molecules/UpvoteSquareButton"
     )
@@ -44,12 +52,14 @@ describe("UpvoteSquareButton", () => {
         productId="p1"
         initialCount={1}
         initialUpvoted={false}
-        action={action}
       />,
     )
     // Initial count
     expect(screen.getByText("1")).toBeInTheDocument()
     fireEvent.click(screen.getByRole("button"))
     await waitFor(() => expect(screen.getByText("2")).toBeInTheDocument())
+    expect(fetchMock).toHaveBeenCalledWith("/api/products/p1/upvote", {
+      method: "POST",
+    })
   })
 })

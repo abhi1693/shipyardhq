@@ -1,7 +1,6 @@
 "use client"
 
-import { useActionState, useEffect, useMemo, useRef, useState } from "react"
-import { useFormStatus } from "react-dom"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useUser } from "@clerk/nextjs"
 import {
   Tooltip,
@@ -16,10 +15,6 @@ interface Props {
   initialUpvoted?: boolean
   title?: string
   className?: string
-  action: (
-    prevState: { upvotes: number; upvoted: boolean; error?: string },
-    formData: FormData,
-  ) => Promise<{ upvotes: number; upvoted: boolean; error?: string }>
 }
 
 type State = { upvotes: number; upvoted: boolean; error?: string }
@@ -30,7 +25,6 @@ export default function UpvoteSquareButton({
   initialUpvoted = false,
   title,
   className,
-  action,
 }: Props) {
   const { isSignedIn } = useUser()
   const baseState = useMemo<State>(
@@ -41,37 +35,31 @@ export default function UpvoteSquareButton({
     }),
     [initialCount, initialUpvoted],
   )
-  const [serverState, formAction] = useActionState(action, baseState)
-  const [optimisticState, setOptimisticState] = useState<State>(baseState)
+  const [state, setState] = useState<State>(baseState)
   const [pop, setPop] = useState(false)
+  const [pending, setPending] = useState(false)
   const prev = useRef<State>(baseState)
 
   useEffect(() => {
-    setOptimisticState(baseState)
+    setState(baseState)
     prev.current = baseState
   }, [baseState])
 
   useEffect(() => {
-    const next = serverState ?? baseState
-    setOptimisticState(next)
-  }, [serverState, baseState])
-
-  useEffect(() => {
-    if (
-      optimisticState.upvotes !== prev.current.upvotes ||
-      optimisticState.upvoted !== prev.current.upvoted
-    ) {
+    if (state.upvotes !== prev.current.upvotes || state.upvoted !== prev.current.upvoted) {
       setPop(true)
       const t = setTimeout(() => setPop(false), 220)
-      prev.current = optimisticState
+      prev.current = state
       return () => clearTimeout(t)
     }
-  }, [optimisticState])
+  }, [state])
 
-  function handleSubmit(formData: FormData) {
+  async function handleClick() {
+    if (pending || !isSignedIn) return
+
     const rollbackState = prev.current
 
-    setOptimisticState((current) => {
+    setState((current) => {
       const nextUpvoted = !current.upvoted
       const delta = nextUpvoted ? 1 : -1
       const nextUpvotes = Math.max(current.upvotes + delta, 0)
@@ -83,52 +71,63 @@ export default function UpvoteSquareButton({
       }
     })
 
-    const maybePromise = formAction(formData) as unknown
-    if (
-      maybePromise &&
-      typeof (maybePromise as Promise<unknown>).catch === "function"
-    ) {
-      ;(maybePromise as Promise<unknown>).catch(() => {
-        setOptimisticState(rollbackState)
+    setPending(true)
+    try {
+      const response = await fetch(`/api/products/${productId}/upvote`, {
+        method: "POST",
       })
+      const payload = (await response.json().catch(() => ({}))) as Partial<State>
+
+      if (!response.ok) {
+        throw new Error(
+          typeof payload.error === "string" ? payload.error : "Failed to upvote",
+        )
+      }
+
+      setState((current) => ({
+        upvotes:
+          typeof payload.upvotes === "number" ? payload.upvotes : current.upvotes,
+        upvoted:
+          typeof payload.upvoted === "boolean"
+            ? payload.upvoted
+            : current.upvoted,
+        error: undefined,
+      }))
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update upvote"
+      setState({ ...rollbackState, error: message })
+    } finally {
+      setPending(false)
     }
   }
 
-  const ButtonInner = () => {
-    const { pending } = useFormStatus()
-    return (
-      <button
-        type="submit"
-        disabled={pending || !isSignedIn}
-        className="cursor-pointer disabled:opacity-70 disabled:cursor-pointer"
-      >
-        <UpvoteSquare
-          count={optimisticState.upvotes}
-          title={title}
-          className={className}
-          active={optimisticState.upvoted}
-          pending={pending}
-          pop={pop}
-        />
-      </button>
-    )
-  }
-
-  const form = (
-    <form action={handleSubmit}>
-      <input type="hidden" name="productId" value={productId} />
-      <ButtonInner />
-    </form>
+  const button = (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={pending || !isSignedIn}
+      className="cursor-pointer disabled:opacity-70 disabled:cursor-pointer"
+    >
+      <UpvoteSquare
+        count={state.upvotes}
+        title={title}
+        className={className}
+        active={state.upvoted}
+        pending={pending}
+        pop={pop}
+      />
+    </button>
   )
 
   if (!isSignedIn) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{form}</TooltipTrigger>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
         <TooltipContent sideOffset={6}>Sign in to upvote</TooltipContent>
       </Tooltip>
     )
   }
 
-  return form
+  return button
 }

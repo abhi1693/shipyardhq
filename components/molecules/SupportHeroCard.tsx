@@ -9,10 +9,6 @@ interface SupportHeroCardProps {
   initialCount: number
   initialUpvoted: boolean
   isSignedIn: boolean
-  action: (
-    prevState: { upvotes: number; upvoted: boolean; error?: string },
-    formData: FormData,
-  ) => Promise<{ upvotes: number; upvoted: boolean; error?: string }>
 }
 
 export function SupportHeroCard({
@@ -21,7 +17,6 @@ export function SupportHeroCard({
   initialCount,
   initialUpvoted,
   isSignedIn,
-  action,
 }: SupportHeroCardProps) {
   const supporterCopy = isSignedIn
     ? "Cheer this crew on to keep their launch on the radar."
@@ -56,7 +51,6 @@ export function SupportHeroCard({
             initialUpvoted={initialUpvoted}
             title="Community upvotes"
             className="bg-white px-3.5 py-2 text-base font-semibold text-[color:var(--brand-1)] shadow-none ring-1 ring-inset ring-slate-200/60 transition hover:bg-[color:var(--brand-1)/0.05] dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700/60"
-            action={action}
           />
           <span className="text-xs font-medium text-slate-600 dark:text-slate-200/80">
             Upvotes surface this launch to more members.
