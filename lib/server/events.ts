@@ -18,6 +18,7 @@ export type ProductClickMetadata = {
 export type ProductCreatedEvent = { productId: string }
 export type ProductUpdatedEvent = { productId: string }
 export type ProductDeletedEvent = { productId: string }
+export type ProductPublishedEvent = { productId: string }
 export type ProductClickedEvent = {
   productId: string
   metadata?: ProductClickMetadata
@@ -33,9 +34,23 @@ export type ProductUpvotedEvent = { productId: string; userId: string }
 export type ProductDownvotedEvent = { productId: string; userId: string }
 export type ProductTrafficRecordedEvent = ProductTrafficPayload
 
+export type LeaderboardMonthlyWinnersEvent = {
+  monthKey: string
+  monthLabel: string
+  leaderboardUrl: string
+  winners: Array<{
+    productId: string
+    rank: number
+    name: string
+    slug: string
+    twitterHandle?: string | null
+  }>
+}
+
 type AppEvents = {
   "product.created": ProductCreatedEvent
   "product.updated": ProductUpdatedEvent
+  "product.published": ProductPublishedEvent
   "product.deleted": ProductDeletedEvent
   "product.clicked": ProductClickedEvent
   "product.upvoted": ProductUpvotedEvent
@@ -43,6 +58,7 @@ type AppEvents = {
   "badge.assigned": BadgeAssignedEvent
   "badge.removed": BadgeRemovedEvent
   "analytics.product-traffic": ProductTrafficRecordedEvent
+  "leaderboard.monthly.winners": LeaderboardMonthlyWinnersEvent
 }
 
 type Handler<K extends keyof AppEvents> = (

@@ -59,6 +59,13 @@ Launch faster. Get discovered sooner. ShipYardHQ is a curated hub for micro‑Sa
 
 Questions or feedback? Email `support@shipyardhq.dev` or say hi on X: https://x.com/shipyardhq
 
+## Twitter Bot
+
+- Automation: Shipyard can announce major milestones on X (Twitter) when a product launches, earns featured/trending badges, or wins the monthly leaderboard. Set `TWITTER_BOT_ENABLED=true` to activate the bot once credentials are in place.
+- Credentials: Provide `TWITTER_APP_KEY`, `TWITTER_APP_SECRET`, `TWITTER_ACCESS_TOKEN`, and `TWITTER_ACCESS_SECRET` in `.env.local` (long-lived access tokens with write scope).
+- Safety: Add `TWITTER_BOT_DRY_RUN=true` to log outbound tweets without publishing—handy for staging checks.
+- The bot respects a per-event cooldown, so the same product will not be tweeted repeatedly within a short window even if badges are reassigned.
+
 ## Feature Gating
 
 - Organizations: Access to member Organizations is gated by the plan feature key `organization`. Entitlement is determined server-side: a user is entitled if they (a) own any product whose attached plan has the `organization` feature enabled, or (b) have purchased any plan that includes the `organization` feature. See `lib/memberFeatures.ts`.

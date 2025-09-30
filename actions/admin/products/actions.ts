@@ -10,6 +10,7 @@ import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
 import "@/lib/server/email/productVerificationReminder"
 import "@/lib/server/productInsights/initialPipeline"
+import "@/lib/server/social/twitterBot"
 import { sendProductPublishedEmail } from "@/lib/server/email/productPublished"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
@@ -255,6 +256,9 @@ export async function createProductAction(formData: FormData) {
     ]
 
     if (created.status === "published") {
+      sideEffects.push(
+        publish("product.published", { productId: created.id }),
+      )
       sideEffects.push(sendProductPublishedEmail(created.id))
     }
 
@@ -518,7 +522,10 @@ export async function updateProductAction(
     revalidateLeaderboard()
 
     if (updated.status === "published" && current.status !== "published") {
-      await sendProductPublishedEmail(updated.id)
+      await Promise.all([
+        sendProductPublishedEmail(updated.id),
+        publish("product.published", { productId: updated.id }),
+      ])
     }
 
     return updated
@@ -750,7 +757,10 @@ export async function setProductStatusAction(
     })
 
     if (status === "published" && previous.status !== "published") {
-      await sendProductPublishedEmail(id)
+      await Promise.all([
+        sendProductPublishedEmail(id),
+        publish("product.published", { productId: id }),
+      ])
     }
 
     return result

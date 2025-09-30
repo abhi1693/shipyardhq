@@ -1,6 +1,9 @@
 import { Prisma } from "@/lib/vendor/prisma/client"
 import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
+import { publish } from "@/lib/server/events"
+import "@/lib/server/social/twitterBot"
+import { extractTwitterHandle } from "@/lib/server/social/twitterMessages"
 import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
 import { getAppBaseUrl } from "@/lib/email/utils"
 import { monthlyLeaderboardArchivePath, productPath } from "@/lib/routes"
@@ -107,6 +110,7 @@ type WinnerProduct = {
     isDefault: boolean
   } | null
   user: { email: string | null } | null
+  metadata?: { twitterUrl: string | null } | null
 }
 
 export async function generateMonthlyLeaderboard(
@@ -350,6 +354,11 @@ export async function notifyMonthlyWinners(
           email: true,
         },
       },
+      metadata: {
+        select: {
+          twitterUrl: true,
+        },
+      },
     },
   })
 
@@ -387,6 +396,29 @@ export async function notifyMonthlyWinners(
     if (product) {
       await grantWinnerPerks(product, now)
     }
+  }
+
+  const winnersForEvent = topThree
+    .map((ranking) => {
+      const product = productMap.get(ranking.productId)
+      if (!product) return null
+      return {
+        productId: product.id,
+        rank: ranking.rank,
+        name: product.name,
+        slug: product.slug,
+        twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
+      }
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+
+  if (winnersForEvent.length) {
+    await publish("leaderboard.monthly.winners", {
+      monthKey: result.monthKey,
+      monthLabel,
+      leaderboardUrl,
+      winners: winnersForEvent,
+    })
   }
 
   await createNotificationRecord(result.month)

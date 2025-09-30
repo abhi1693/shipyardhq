@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma"
 import { publish } from "@/lib/server/events"
 import "@/lib/server/badges" // ensure listeners are registered
+import "@/lib/server/social/twitterBot"
 import {
   revalidateBadges,
   revalidateProduct,
