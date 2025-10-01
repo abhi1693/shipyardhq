@@ -57,6 +57,24 @@ function toDigestProduct(row: {
   }
 }
 
+function collectUniqueProducts<T>(
+  rows: T[],
+  mapProduct: (row: T) => ReturnType<typeof toDigestProduct> | null,
+  seen: Set<string>,
+) {
+  const results: ReturnType<typeof toDigestProduct>[] = []
+
+  for (const row of rows) {
+    const product = mapProduct(row)
+    if (!product) continue
+    if (seen.has(product.url)) continue
+    seen.add(product.url)
+    results.push(product)
+  }
+
+  return results
+}
+
 export async function sendDiscoverDigestEmails(now: Date = new Date()) {
   const weekEnd = now
   const weekStart = subtractDays(now, LOOKBACK_DAYS - 1)
@@ -123,31 +141,23 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
 
   const seenUrls = new Set<string>()
 
-  const featured = featuredRows
-    .map((row) => row.product)
-    .filter((product): product is NonNullable<FeaturedBadgeRow["product"]> => Boolean(product))
-    .map((product) => toDigestProduct(product))
-    .filter((product) => {
-      if (seenUrls.has(product.url)) return false
-      seenUrls.add(product.url)
-      return true
-    })
+  const featured = collectUniqueProducts(
+    featuredRows,
+    (row) => (row.product ? toDigestProduct(row.product) : null),
+    seenUrls,
+  )
 
-  const trending = trendingRows
-    .map((row) => toDigestProduct(row))
-    .filter((product) => {
-      if (seenUrls.has(product.url)) return false
-      seenUrls.add(product.url)
-      return true
-    })
+  const trending = collectUniqueProducts(
+    trendingRows,
+    (row) => toDigestProduct(row),
+    seenUrls,
+  )
 
-  const freshLaunches = freshRows
-    .map((row) => toDigestProduct(row))
-    .filter((product) => {
-      if (seenUrls.has(product.url)) return false
-      seenUrls.add(product.url)
-      return true
-    })
+  const freshLaunches = collectUniqueProducts(
+    freshRows,
+    (row) => toDigestProduct(row),
+    seenUrls,
+  )
 
   if (!subscribers.length) {
     return { sent: 0, skipped: 0 }
