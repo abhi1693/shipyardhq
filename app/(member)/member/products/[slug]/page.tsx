@@ -175,10 +175,10 @@ export default async function ViewUserProductPage({
     ? upgradeCandidates[upgradeCandidates.length - 1]
     : undefined
   const deltaTop = nextPlan
-    ? benefitSummaryById.get(nextPlan.id)?.topHighlights ?? []
+    ? (benefitSummaryById.get(nextPlan.id)?.topHighlights ?? [])
     : []
   const deltaCount = nextPlan
-    ? benefitSummaryById.get(nextPlan.id)?.highlightCount ?? 0
+    ? (benefitSummaryById.get(nextPlan.id)?.highlightCount ?? 0)
     : 0
   const alternatePlanSummaries = nextPlan
     ? planBenefitSummaries.filter((entry) => entry.plan.id !== nextPlan.id)
@@ -202,9 +202,7 @@ export default async function ViewUserProductPage({
     return {
       pct,
       original:
-        pct > 0 && pct < 100
-          ? usdFormatter.format(originalCents / 100)
-          : null,
+        pct > 0 && pct < 100 ? usdFormatter.format(originalCents / 100) : null,
       priceText: usdFormatter.format(discountedCents / 100),
     }
   }
@@ -594,12 +592,18 @@ export default async function ViewUserProductPage({
                                     action={choosePlan}
                                     className="flex flex-col gap-2 rounded-md border border-slate-200 bg-white/90 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
                                   >
-                                    <input type="hidden" name="planId" value={plan.id} />
+                                    <input
+                                      type="hidden"
+                                      name="planId"
+                                      value={plan.id}
+                                    />
                                     <div className="space-y-1">
                                       <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
                                         {plan.name}
                                         {isTopTier ? (
-                                          <Badge variant="secondary">Top tier</Badge>
+                                          <Badge variant="secondary">
+                                            Top tier
+                                          </Badge>
                                         ) : null}
                                       </div>
                                       <div className="flex flex-wrap items-baseline gap-2 text-xs text-muted-foreground">
@@ -613,18 +617,28 @@ export default async function ViewUserProductPage({
                                         </span>
                                         {planPricing.pct > 0 ? (
                                           <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-                                            Save {percentFormatter.format(planPricing.pct)}%
+                                            Save{" "}
+                                            {percentFormatter.format(
+                                              planPricing.pct,
+                                            )}
+                                            %
                                           </span>
                                         ) : null}
                                       </div>
                                       {topHighlights.length ? (
                                         <ul className="space-y-1 text-xs text-muted-foreground">
                                           {topHighlights.map((feature) => (
-                                            <li key={feature.id}>+ {feature.name}</li>
+                                            <li key={feature.id}>
+                                              + {feature.name}
+                                            </li>
                                           ))}
-                                          {highlightCount > topHighlights.length ? (
+                                          {highlightCount >
+                                          topHighlights.length ? (
                                             <li key="more">
-                                              …and {highlightCount - topHighlights.length} more benefits
+                                              …and{" "}
+                                              {highlightCount -
+                                                topHighlights.length}{" "}
+                                              more benefits
                                             </li>
                                           ) : null}
                                         </ul>
