@@ -37,6 +37,12 @@ type RateLimitConfig = {
   intervalMs: number
 }
 
+type RateLimitedEmailSenderOptions = {
+  maxAttempts?: number
+  baseDelayMs?: number
+  maxDelayMs?: number
+}
+
 interface EmailSender {
   send(options: SendEmailOptions): Promise<SendEmailResult>
 }
@@ -45,6 +51,9 @@ const DEFAULT_RATE_LIMIT_CONFIG: RateLimitConfig = {
   maxRequests: 2,
   intervalMs: 1000,
 }
+
+const DEFAULT_MAX_RATE_LIMIT_ATTEMPTS = 5
+const DEFAULT_MAX_RETRY_DELAY_MS = 10_000
 
 function parsePositiveInt(value: string | undefined, fallback: number): number {
   if (!value) {
@@ -134,17 +143,28 @@ function wait(ms: number) {
 export class RateLimitedEmailSender implements EmailSender {
   private queue: Promise<void> = Promise.resolve()
   private timestamps: number[] = []
+  private readonly maxAttempts: number
+  private readonly baseDelayMs: number
+  private readonly maxDelayMs: number
 
   constructor(
     private readonly sender: EmailSender,
     private readonly config: RateLimitConfig,
-  ) {}
+    options: RateLimitedEmailSenderOptions = {},
+  ) {
+    this.maxAttempts = Math.max(
+      1,
+      options.maxAttempts ?? DEFAULT_MAX_RATE_LIMIT_ATTEMPTS,
+    )
+    this.baseDelayMs = Math.max(1, options.baseDelayMs ?? this.config.intervalMs)
+    this.maxDelayMs = Math.max(
+      this.baseDelayMs,
+      options.maxDelayMs ?? DEFAULT_MAX_RETRY_DELAY_MS,
+    )
+  }
 
   async send(options: SendEmailOptions): Promise<SendEmailResult> {
-    const execute = async () => {
-      await this.reserveSlot()
-      return this.sender.send(options)
-    }
+    const execute = async () => this.sendWithRetry(options)
 
     const task = this.queue.then(execute)
     this.queue = task.then(
@@ -170,6 +190,62 @@ export class RateLimitedEmailSender implements EmailSender {
       const waitTime = Math.max(0, this.config.intervalMs - (now - earliest))
 
       await wait(waitTime)
+    }
+  }
+
+  private isRateLimitError(error: unknown): boolean {
+    if (!error || typeof error !== "object") {
+      return false
+    }
+
+    const candidate = error as {
+      statusCode?: number
+      status?: number
+      name?: string
+      message?: string
+    }
+
+    if (candidate.statusCode === 429 || candidate.status === 429) {
+      return true
+    }
+
+    if (candidate.name && candidate.name.toLowerCase().includes("rate_limit")) {
+      return true
+    }
+
+    if (candidate.message && candidate.message.toLowerCase().includes("rate limit")) {
+      return true
+    }
+
+    return false
+  }
+
+  private computeRetryDelay(attempt: number): number {
+    const multiplier = Math.pow(2, Math.max(0, attempt - 1))
+    const delay = this.baseDelayMs * multiplier
+    return Math.min(delay, this.maxDelayMs)
+  }
+
+  private async sendWithRetry(
+    options: SendEmailOptions,
+  ): Promise<SendEmailResult> {
+    let attempt = 0
+
+    while (true) {
+      await this.reserveSlot()
+
+      try {
+        return await this.sender.send(options)
+      } catch (error) {
+        attempt += 1
+
+        if (!this.isRateLimitError(error) || attempt >= this.maxAttempts) {
+          throw error
+        }
+
+        const delay = this.computeRetryDelay(attempt)
+        await wait(delay)
+      }
     }
   }
 }
