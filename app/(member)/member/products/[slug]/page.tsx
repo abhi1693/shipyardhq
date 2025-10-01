@@ -579,11 +579,11 @@ export default async function ViewUserProductPage({
                         </div>
                       ) : null}
                       {alternatePlanSummaries.length ? (
-                        <div className="mt-4 space-y-2 border-t border-slate-200 pt-3">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                        <details className="mt-4 rounded-md border border-dashed border-slate-200 bg-white/70 text-sm">
+                          <summary className="cursor-pointer list-none px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
                             Prefer a different upgrade?
-                          </div>
-                          <div className="space-y-2">
+                          </summary>
+                          <div className="max-h-72 space-y-2 overflow-auto px-3 pb-3 pt-1">
                             {alternatePlanSummaries.map(
                               ({ plan, topHighlights, highlightCount }) => {
                                 const planPricing = getPlanPricing(plan)
@@ -592,7 +592,7 @@ export default async function ViewUserProductPage({
                                   <form
                                     key={plan.id}
                                     action={choosePlan}
-                                    className="flex flex-col gap-2 rounded-md border border-slate-200 bg-white/80 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+                                    className="flex flex-col gap-2 rounded-md border border-slate-200 bg-white/90 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
                                   >
                                     <input type="hidden" name="planId" value={plan.id} />
                                     <div className="space-y-1">
@@ -642,7 +642,7 @@ export default async function ViewUserProductPage({
                               },
                             )}
                           </div>
-                        </div>
+                        </details>
                       ) : null}
                     </div>
                   )
