@@ -142,33 +142,72 @@ export default async function ViewUserProductPage({
     type: PlanType.one_time_price,
   }).catch(() => [])
   const currentPlanPublic = allPlans.find((p) => p.id === product.plan?.id)
-  const nextPlan = (() => {
-    const baseline = currentPlanPublic ? currentPlanPublic.price : -1
-    const higher = allPlans
-      .filter((p) => p.price > baseline)
-      .sort((a, b) => a.price - b.price)
-    if (higher.length) return higher[0]
-    if (!currentPlanPublic) {
-      const paid = allPlans
-        .filter((p) => p.price > 0)
-        .sort((a, b) => a.price - b.price)
-      return paid[0]
+  const sortedPlans = [...allPlans].sort(
+    (a, b) => (a.price ?? 0) - (b.price ?? 0),
+  )
+  const upgradeCandidates = (() => {
+    if (currentPlanPublic) {
+      return sortedPlans.filter(
+        (plan) => (plan.price ?? 0) > (currentPlanPublic.price ?? 0),
+      )
     }
-    return undefined
+    const paidPlans = sortedPlans.filter((plan) => (plan.price ?? 0) > 0)
+    return paidPlans.length ? paidPlans : sortedPlans
   })()
-
-  const { deltaTop, deltaCount } = (() => {
-    if (!nextPlan)
-      return { deltaTop: [] as { id: string; name: string }[], deltaCount: 0 }
-    const nextEnabled = nextPlan.features.filter((f) => f.enabled)
-    const delta = nextEnabled.filter(
-      (f) => !hasPlanFeature(product.plan ?? null, f.key),
+  const planBenefitSummaries = upgradeCandidates.map((plan) => {
+    const enabled = plan.features.filter((feature) => feature.enabled)
+    const newBenefits = enabled.filter(
+      (feature) => !hasPlanFeature(product.plan ?? null, feature.key),
     )
     return {
-      deltaTop: delta.slice(0, 3).map((f) => ({ id: f.id, name: f.name })),
-      deltaCount: delta.length,
+      plan,
+      topHighlights: newBenefits
+        .slice(0, 3)
+        .map((feature) => ({ id: feature.id, name: feature.name })),
+      highlightCount: newBenefits.length,
     }
-  })()
+  })
+  const benefitSummaryById = new Map(
+    planBenefitSummaries.map((entry) => [entry.plan.id, entry]),
+  )
+  const nextPlan = upgradeCandidates[0]
+  const topPlanCandidate = upgradeCandidates.length
+    ? upgradeCandidates[upgradeCandidates.length - 1]
+    : undefined
+  const deltaTop = nextPlan
+    ? benefitSummaryById.get(nextPlan.id)?.topHighlights ?? []
+    : []
+  const deltaCount = nextPlan
+    ? benefitSummaryById.get(nextPlan.id)?.highlightCount ?? 0
+    : 0
+  const alternatePlanSummaries = nextPlan
+    ? planBenefitSummaries.filter((entry) => entry.plan.id !== nextPlan.id)
+    : planBenefitSummaries
+  const topPlanId = topPlanCandidate?.id ?? null
+  const usdFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  })
+  const percentFormatter = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+  })
+  const getPlanPricing = (plan: (typeof allPlans)[number]) => {
+    const pctRaw = plan.discount ?? 0
+    const pct = Math.min(Math.max(pctRaw, 0), 100)
+    const originalCents = plan.price ?? 0
+    const discountedCents =
+      pct > 0 && pct < 100
+        ? Math.round(originalCents * (1 - pct / 100))
+        : originalCents
+    return {
+      pct,
+      original:
+        pct > 0 && pct < 100
+          ? usdFormatter.format(originalCents / 100)
+          : null,
+      priceText: usdFormatter.format(discountedCents / 100),
+    }
+  }
 
   const exclusiveCurrentTop: { id: string; name: string }[] = (() => {
     if (!currentPlanPublic) return []
@@ -482,20 +521,7 @@ export default async function ViewUserProductPage({
                 {(() => {
                   const np = nextPlan
                   if (!np) return null
-                  const nf = new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  })
-                  const pctRaw = np.discount ?? 0
-                  const pct = Math.min(Math.max(pctRaw, 0), 100)
-                  const originalCents = np.price
-                  const discountedCents =
-                    pct > 0 && pct < 100
-                      ? Math.round(originalCents * (1 - pct / 100))
-                      : originalCents
-                  const original =
-                    pct > 0 && pct < 100 ? nf.format(originalCents / 100) : null
-                  const priceText = nf.format(discountedCents / 100)
+                  const pricing = getPlanPricing(np)
                   return (
                     <div className={calloutPanelClass}>
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -504,27 +530,23 @@ export default async function ViewUserProductPage({
                             Unlock more with {np.name}
                           </div>
                           <div className="mt-1 flex flex-wrap items-baseline gap-2">
-                            {original ? (
+                            {pricing.original ? (
                               <span className="text-xs text-muted-foreground line-through">
-                                {original}
+                                {pricing.original}
                               </span>
                             ) : null}
                             <span className="text-2xl font-semibold text-foreground">
-                              {priceText}
+                              {pricing.priceText}
                             </span>
-                            {pct > 0 ? (
+                            {pricing.pct > 0 ? (
                               <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                                Save{" "}
-                                {new Intl.NumberFormat("en-US", {
-                                  maximumFractionDigits: 2,
-                                }).format(pct)}
-                                %
+                                Save {percentFormatter.format(pricing.pct)}%
                               </span>
                             ) : null}
                           </div>
                           <p className="mt-1 text-xs text-muted-foreground">
                             Activation is instant. Boost lasts{" "}
-                            {(np as any).boostForDays ?? 1} day(s).
+                            {np.boostForDays ?? 1} day(s).
                           </p>
                           {np.description ? (
                             <p className="mt-2 text-xs text-muted-foreground">
@@ -554,6 +576,72 @@ export default async function ViewUserProductPage({
                               …and {deltaCount - deltaTop.length} more benefits
                             </div>
                           ) : null}
+                        </div>
+                      ) : null}
+                      {alternatePlanSummaries.length ? (
+                        <div className="mt-4 space-y-2 border-t border-slate-200 pt-3">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                            Prefer a different upgrade?
+                          </div>
+                          <div className="space-y-2">
+                            {alternatePlanSummaries.map(
+                              ({ plan, topHighlights, highlightCount }) => {
+                                const planPricing = getPlanPricing(plan)
+                                const isTopTier = plan.id === topPlanId
+                                return (
+                                  <form
+                                    key={plan.id}
+                                    action={choosePlan}
+                                    className="flex flex-col gap-2 rounded-md border border-slate-200 bg-white/80 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+                                  >
+                                    <input type="hidden" name="planId" value={plan.id} />
+                                    <div className="space-y-1">
+                                      <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
+                                        {plan.name}
+                                        {isTopTier ? (
+                                          <Badge variant="secondary">Top tier</Badge>
+                                        ) : null}
+                                      </div>
+                                      <div className="flex flex-wrap items-baseline gap-2 text-xs text-muted-foreground">
+                                        {planPricing.original ? (
+                                          <span className="line-through">
+                                            {planPricing.original}
+                                          </span>
+                                        ) : null}
+                                        <span className="text-sm font-semibold text-foreground">
+                                          {planPricing.priceText}
+                                        </span>
+                                        {planPricing.pct > 0 ? (
+                                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                                            Save {percentFormatter.format(planPricing.pct)}%
+                                          </span>
+                                        ) : null}
+                                      </div>
+                                      {topHighlights.length ? (
+                                        <ul className="space-y-1 text-xs text-muted-foreground">
+                                          {topHighlights.map((feature) => (
+                                            <li key={feature.id}>+ {feature.name}</li>
+                                          ))}
+                                          {highlightCount > topHighlights.length ? (
+                                            <li key="more">
+                                              …and {highlightCount - topHighlights.length} more benefits
+                                            </li>
+                                          ) : null}
+                                        </ul>
+                                      ) : null}
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="self-start sm:self-center"
+                                    >
+                                      Choose plan
+                                    </Button>
+                                  </form>
+                                )
+                              },
+                            )}
+                          </div>
                         </div>
                       ) : null}
                     </div>
