@@ -25,7 +25,7 @@ export const getProducts = cached(
         tags: accelerateTags([TAGS.products, TAGS.badges, `badge:${badge}`]),
       },
       select: featuredProductSelect,
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: "asc" },
     })
 
     return entries as unknown as FeaturedProduct[]
