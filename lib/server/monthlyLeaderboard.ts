@@ -228,8 +228,26 @@ async function createNotificationRecord(month: Date) {
   }
 }
 
+async function resolveWinnerBadgeExpiry(now: Date): Promise<Date | null> {
+  const defaultPlan = await prisma.plan.findFirst({
+    where: { isDefault: true },
+    orderBy: { createdAt: "desc" },
+    select: { boostForDays: true },
+  })
+
+  const boostDays = defaultPlan?.boostForDays
+  if (boostDays == null) {
+    return new Date(now.getTime() + WINNER_BOOST_DAYS * DAY_MS)
+  }
+  if (boostDays <= 0) {
+    return null
+  }
+
+  return new Date(now.getTime() + boostDays * DAY_MS)
+}
+
 async function upsertEditorPickBadge(productId: string, now: Date) {
-  const newExpiresAt = new Date(now.getTime() + WINNER_BOOST_DAYS * DAY_MS)
+  const desiredExpiresAt = await resolveWinnerBadgeExpiry(now)
   const existing = await prisma.productBadge.findFirst({
     where: { productId, badge: WINNER_BADGE },
     select: { id: true, expiresAt: true },
@@ -237,15 +255,18 @@ async function upsertEditorPickBadge(productId: string, now: Date) {
 
   if (existing) {
     const currentExpiresAt = existing.expiresAt
-    const nextExpiresAt =
-      currentExpiresAt && currentExpiresAt > newExpiresAt
-        ? currentExpiresAt
-        : newExpiresAt
+    let nextExpiresAt = desiredExpiresAt
 
-    if (
-      !currentExpiresAt ||
-      currentExpiresAt.getTime() !== nextExpiresAt.getTime()
-    ) {
+    if (desiredExpiresAt && currentExpiresAt && currentExpiresAt > desiredExpiresAt) {
+      nextExpiresAt = currentExpiresAt
+    }
+
+    const hasChanged =
+      (nextExpiresAt == null && currentExpiresAt != null) ||
+      (nextExpiresAt != null &&
+        (!currentExpiresAt || currentExpiresAt.getTime() !== nextExpiresAt.getTime()))
+
+    if (hasChanged) {
       await prisma.productBadge.update({
         where: { id: existing.id },
         data: { expiresAt: nextExpiresAt },
@@ -253,7 +274,11 @@ async function upsertEditorPickBadge(productId: string, now: Date) {
     }
   } else {
     await prisma.productBadge.create({
-      data: { productId, badge: WINNER_BADGE, expiresAt: newExpiresAt },
+      data: {
+        productId,
+        badge: WINNER_BADGE,
+        expiresAt: desiredExpiresAt,
+      },
     })
   }
 }

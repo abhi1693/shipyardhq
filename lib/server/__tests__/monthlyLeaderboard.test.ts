@@ -14,6 +14,7 @@ const badgeFindFirstMock = vi.hoisted(() => vi.fn())
 const badgeCreateMock = vi.hoisted(() => vi.fn())
 const badgeUpdateMock = vi.hoisted(() => vi.fn())
 const planFindUniqueMock = vi.hoisted(() => vi.fn())
+const planFindFirstMock = vi.hoisted(() => vi.fn())
 const sendEmailMock = vi.hoisted(() => vi.fn())
 
 vi.mock("@/lib/prisma", () => {
@@ -31,7 +32,7 @@ vi.mock("@/lib/prisma", () => {
         create: badgeCreateMock,
         update: badgeUpdateMock,
       },
-      plan: { findUnique: planFindUniqueMock },
+      plan: { findUnique: planFindUniqueMock, findFirst: planFindFirstMock },
       product: { findMany: productFindManyMock, update: productUpdateMock },
       $transaction: transactionMock,
     },
@@ -69,6 +70,7 @@ describe("generateMonthlyLeaderboard", () => {
     badgeCreateMock.mockReset()
     badgeUpdateMock.mockReset()
     planFindUniqueMock.mockReset()
+    planFindFirstMock.mockReset()
     sendEmailMock.mockReset()
     sendEmailMock.mockResolvedValue({})
 
@@ -172,11 +174,17 @@ describe("notifyMonthlyWinners", () => {
     badgeCreateMock.mockReset()
     badgeUpdateMock.mockReset()
     planFindUniqueMock.mockReset()
+    planFindFirstMock.mockReset()
     sendEmailMock.mockReset()
     sendEmailMock.mockResolvedValue({})
+    planFindFirstMock.mockResolvedValue({ boostForDays: 1 })
   })
 
   it("sends emails to top three and records notification", async () => {
+    vi.useFakeTimers()
+    const now = new Date("2024-06-05T12:00:00.000Z")
+    vi.setSystemTime(now)
+
     const month = new Date("2024-04-01T00:00:00.000Z")
     const result = {
       month,
@@ -233,28 +241,40 @@ describe("notifyMonthlyWinners", () => {
     productUpdateMock.mockResolvedValue({})
     sendEmailMock.mockResolvedValue({})
 
-    const outcome = await notifyMonthlyWinners(result as any)
+    try {
+      const outcome = await notifyMonthlyWinners(result as any)
 
-    expect(outcome.notified).toBe(3)
-    expect(outcome.alreadyNotified).toBe(false)
-    expect(sendEmailMock).toHaveBeenCalledTimes(3)
-    expect(notificationCreateMock).toHaveBeenCalledWith({ data: { month } })
-    expect(badgeCreateMock).toHaveBeenCalledTimes(1)
-    const badgeCall = badgeCreateMock.mock.calls[0][0]
-    expect(badgeCall.data.productId).toBe("prod-1")
-    expect(badgeCall.data.badge).toBe("editor-pick")
-    expect(badgeCall.data.expiresAt).toBeInstanceOf(Date)
-    expect(planFindUniqueMock).toHaveBeenCalledWith({
-      where: { slug: "featured" },
-      select: { id: true, boostForDays: true },
-    })
-    expect(productUpdateMock).toHaveBeenCalledWith({
-      where: { id: "prod-1" },
-      data: expect.objectContaining({
-        planId: "plan-featured",
-        planAssignedAt: expect.any(Date),
-      }),
-    })
+      expect(outcome.notified).toBe(3)
+      expect(outcome.alreadyNotified).toBe(false)
+      expect(sendEmailMock).toHaveBeenCalledTimes(3)
+      expect(notificationCreateMock).toHaveBeenCalledWith({ data: { month } })
+      expect(badgeCreateMock).toHaveBeenCalledTimes(1)
+      const badgeCall = badgeCreateMock.mock.calls[0][0]
+      expect(badgeCall.data.productId).toBe("prod-1")
+      expect(badgeCall.data.badge).toBe("editor-pick")
+      const expectedExpiry = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+      expect(badgeCall.data.expiresAt?.toISOString()).toBe(
+        expectedExpiry.toISOString(),
+      )
+      expect(planFindUniqueMock).toHaveBeenCalledWith({
+        where: { slug: "featured" },
+        select: { id: true, boostForDays: true },
+      })
+      expect(productUpdateMock).toHaveBeenCalledWith({
+        where: { id: "prod-1" },
+        data: expect.objectContaining({
+          planId: "plan-featured",
+          planAssignedAt: expect.any(Date),
+        }),
+      })
+      expect(planFindFirstMock).toHaveBeenCalledWith({
+        where: { isDefault: true },
+        orderBy: { createdAt: "desc" },
+        select: { boostForDays: true },
+      })
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it("skips when winners already notified", async () => {
