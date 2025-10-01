@@ -76,7 +76,7 @@ export const getTrendingProducts = cached(
       select: featuredProductSelect,
     })
 
-    return trending satisfies Prisma.ProductBadgeGetPayload<{
+    return trending as unknown as Prisma.ProductBadgeGetPayload<{
       select: typeof featuredProductSelect
     }>[]
   },
