@@ -24,6 +24,9 @@ import {
 } from "@/actions/member/products/insights"
 import type {
   ProductInsightComprehensiveReport,
+  ProductInsightHackerNewsQuery,
+  ProductInsightHackerNewsStory,
+  ProductInsightHackerNewsSummary,
   ProductInsightPipelineJobState,
   ProductInsightRedditDiscussionQuery,
   ProductInsightRedditInsightReport,
@@ -434,6 +437,9 @@ export function ProductInsightsView({
   const [discussionProgress, setDiscussionProgress] = useState<string | null>(
     null,
   )
+  const [hackerNewsProgress, setHackerNewsProgress] = useState<string | null>(
+    null,
+  )
   const [reportProgress, setReportProgress] = useState<string | null>(null)
   const [pipelineNotice, setPipelineNotice] = useState<{
     tone: "info" | "error"
@@ -444,6 +450,8 @@ export function ProductInsightsView({
   const [showCompetitorDeepDive, setShowCompetitorDeepDive] = useState(false)
   const [showCommunityDeepDive, setShowCommunityDeepDive] = useState(false)
   const [showCommunityInputs, setShowCommunityInputs] = useState(false)
+  const [showHackerNewsInputs, setShowHackerNewsInputs] = useState(false)
+  const [showHackerNewsDeepDive, setShowHackerNewsDeepDive] = useState(false)
   const [showDiscussionInputs, setShowDiscussionInputs] = useState(false)
   const [showDiscussionDeepDive, setShowDiscussionDeepDive] = useState(false)
   const [showReportDeepDive, setShowReportDeepDive] = useState(false)
@@ -508,6 +516,7 @@ export function ProductInsightsView({
     setCompetitorProgress(null)
     setSubredditProgress(null)
     setDiscussionProgress(null)
+    setHackerNewsProgress(null)
     setReportProgress(null)
 
     startPipelineTransition(async () => {
@@ -554,6 +563,7 @@ export function ProductInsightsView({
         setCompetitorProgress("Mapping competitive landscape…")
         setSubredditProgress("Preparing community discovery…")
         setDiscussionProgress("Queued for discussion analysis…")
+        setHackerNewsProgress("Queued for Hacker News monitoring…")
         setReportProgress("Queued for comprehensive report…")
 
         setProfile((prev) => {
@@ -567,6 +577,10 @@ export function ProductInsightsView({
             },
             { statusKey: "subredditStatus", errorKey: "subredditErrorMessage" },
             { statusKey: "redditStatus", errorKey: "redditErrorMessage" },
+            {
+              statusKey: "hackerNewsStatus",
+              errorKey: "hackerNewsErrorMessage",
+            },
             {
               statusKey: "finalReportStatus",
               errorKey: "finalReportErrorMessage",
@@ -617,6 +631,7 @@ export function ProductInsightsView({
           setCompetitorProgress("Competitive intel refreshed.")
           setSubredditProgress("Community recommendations refreshed.")
           setDiscussionProgress("Discussion insights updated.")
+          setHackerNewsProgress("Hacker News mentions refreshed.")
           setReportProgress(
             "Comprehensive report ready—check your inbox for the overview.",
           )
@@ -637,6 +652,9 @@ export function ProductInsightsView({
             "Community discovery will run once the queue processes.",
           )
           setDiscussionProgress("Discussion analysis will start automatically.")
+          setHackerNewsProgress(
+            "Hacker News monitoring will kick off after discussions finish.",
+          )
           setReportProgress(
             "Report synthesis will begin after upstream steps finish.",
           )
@@ -662,6 +680,7 @@ export function ProductInsightsView({
         setCompetitorProgress(null)
         setSubredditProgress(null)
         setDiscussionProgress(null)
+        setHackerNewsProgress(null)
         setReportProgress(null)
         setProfile((prev) =>
           prev ? { ...prev, pipelineJobState: "idle" } : prev,
@@ -771,6 +790,87 @@ export function ProductInsightsView({
 
   const hasSubredditResults = subreddits.length > 0
 
+  const hackerNewsQueries = useMemo(() => {
+    return Array.isArray(profile?.hackerNewsQueries)
+      ? (profile!.hackerNewsQueries as ProductInsightHackerNewsQuery[])
+      : []
+  }, [profile])
+
+  const hackerNewsStories = useMemo(() => {
+    if (!Array.isArray(profile?.hackerNewsStories)) return []
+    return [
+      ...(profile!.hackerNewsStories as ProductInsightHackerNewsStory[]),
+    ].sort((a, b) => {
+      const aScore = typeof a.points === "number" ? a.points : -1
+      const bScore = typeof b.points === "number" ? b.points : -1
+      if (bScore !== aScore) return bScore - aScore
+      const aComments =
+        typeof a.numComments === "number" ? a.numComments : -1
+      const bComments =
+        typeof b.numComments === "number" ? b.numComments : -1
+      return bComments - aComments
+    })
+  }, [profile])
+
+  const hackerNewsSummary = useMemo(() => {
+    return (profile?.hackerNewsSummary ?? null) as
+      | ProductInsightHackerNewsSummary
+      | null
+  }, [profile])
+
+  const hasHackerNewsQueries = hackerNewsQueries.length > 0
+  const hasHackerNewsResults = hackerNewsStories.length > 0
+
+  const hackerNewsStats = useMemo(() => {
+    let totalPoints = 0
+    let totalComments = 0
+    const matchedQueries = new Set<string>()
+    const queryCounts = new Map<string, number>()
+
+    for (const story of hackerNewsStories) {
+      if (typeof story.points === "number" && Number.isFinite(story.points)) {
+        totalPoints += story.points
+      }
+      if (
+        typeof story.numComments === "number" &&
+        Number.isFinite(story.numComments)
+      ) {
+        totalComments += story.numComments
+      }
+      for (const query of story.matchedQueries ?? []) {
+        if (!query) continue
+        matchedQueries.add(query)
+        queryCounts.set(query, (queryCounts.get(query) ?? 0) + 1)
+      }
+    }
+
+    return {
+      totalPoints,
+      totalComments,
+      matchedQueries,
+      queryCounts,
+    }
+  }, [hackerNewsStories])
+
+  const hackerNewsQueriesCovered = hackerNewsQueries.filter((entry) =>
+    hackerNewsStats.matchedQueries.has(entry.query),
+  ).length
+
+  const hackerNewsCoveragePercent = hackerNewsQueries.length
+    ? (hackerNewsQueriesCovered / hackerNewsQueries.length) * 100
+    : null
+
+  const topHackerNewsStories = useMemo(
+    () => hackerNewsStories.slice(0, 3),
+    [hackerNewsStories],
+  )
+
+  const remainingHackerNewsStories = useMemo(
+    () =>
+      hackerNewsStories.length > 3 ? hackerNewsStories.slice(3) : [],
+    [hackerNewsStories],
+  )
+
   const topSubreddits = useMemo(() => {
     if (!subreddits.length) return []
     return [...subreddits]
@@ -847,6 +947,44 @@ export function ProductInsightsView({
   const coverageNeedsAttention =
     coveragePercent !== null &&
     coveragePercent < REQUIRED_QUERY_COVERAGE_PERCENT
+
+  const hackerNewsStatus = profile?.hackerNewsStatus ?? null
+  const hackerNewsStatusDisplay = hackerNewsStatus
+    ? STATUS_STYLES[hackerNewsStatus]
+    : { label: "Not started", badge: "outline" as const }
+
+  const lastHackerNewsDiscovery = profile?.lastHackerNewsDiscoveryAt
+    ? formatDistanceToNowStrict(new Date(profile.lastHackerNewsDiscoveryAt), {
+        addSuffix: true,
+      })
+    : "Never"
+
+  const hackerNewsCoverageTone: MetricTone =
+    hackerNewsCoveragePercent !== null
+      ? hackerNewsCoveragePercent >= 75
+        ? "positive"
+        : hackerNewsCoveragePercent >= 40
+          ? "neutral"
+          : "warning"
+      : hackerNewsQueries.length
+        ? "danger"
+        : "neutral"
+
+  const shouldShowHackerNewsEmptyState =
+    !hasHackerNewsResults && !isRunningPipeline
+
+  const shouldSurfaceHackerNewsNotices = Boolean(
+    hackerNewsProgress ||
+      profile?.hackerNewsErrorMessage ||
+      shouldShowHackerNewsEmptyState,
+  )
+
+  const shouldOpenHackerNewsStage =
+    hasHackerNewsResults ||
+    !!hackerNewsProgress ||
+    !!profile?.hackerNewsErrorMessage ||
+    hackerNewsStatus === "pending" ||
+    hackerNewsStatus === "failed"
 
   const discoveryQuickFacts: Array<{
     label: string
@@ -1445,6 +1583,24 @@ export function ProductInsightsView({
           : "Awaiting coverage",
     },
     {
+      label: "Hacker News",
+      value: hasHackerNewsResults
+        ? `${COUNT_FORMATTER.format(hackerNewsStories.length)} stories`
+        : "Pending",
+      tone: hasHackerNewsResults
+        ? "positive"
+        : hackerNewsStatusDisplay.badge === "destructive"
+          ? "warning"
+          : "neutral",
+      icon: "🚀",
+      caption:
+        hackerNewsCoveragePercent !== null
+          ? `${PERCENT_FORMATTER.format(hackerNewsCoveragePercent)}% query coverage`
+          : hasHackerNewsQueries
+            ? "Awaiting matches"
+            : "No queries configured",
+    },
+    {
       label: "Discussion insights",
       value: hasDiscussionThreads
         ? `${COUNT_FORMATTER.format(discussionThreads.length)} threads`
@@ -1733,6 +1889,32 @@ export function ProductInsightsView({
         Discovery matched {PERCENT_FORMATTER.format(coveragePercent)}% of the
         planned queries. Queue another pipeline run once fresh crawl data is
         available so we can push toward the 70% target.
+      </InfoNotice>
+    )
+  }
+
+  const renderHackerNewsProgress = () => {
+    if (!hackerNewsProgress) return null
+    return (
+      <InfoNotice tone="info" size="xs">
+        {hackerNewsProgress}
+      </InfoNotice>
+    )
+  }
+
+  const renderHackerNewsError = () => {
+    if (!profile?.hackerNewsErrorMessage) return null
+    return (
+      <InfoNotice tone="error">{profile.hackerNewsErrorMessage}</InfoNotice>
+    )
+  }
+
+  const renderHackerNewsEmptyState = () => {
+    if (!shouldShowHackerNewsEmptyState) return null
+    return (
+      <InfoNotice tone="info" size="xs">
+        Run the pipeline to capture recent Hacker News threads referencing this
+        product.
       </InfoNotice>
     )
   }
@@ -3087,6 +3269,342 @@ export function ProductInsightsView({
       </StageCard>
       <StageCard
         step="Step 4"
+        title="Hacker News mentions"
+        description="Monitor launch chatter and comparisons from Hacker News to enrich community insights."
+        status={hackerNewsStatusDisplay}
+        metrics={[
+          {
+            label: "Stories",
+            value: hasHackerNewsResults
+              ? COUNT_FORMATTER.format(hackerNewsStories.length)
+              : "0",
+            tone: hasHackerNewsResults ? "positive" : "warning",
+          },
+          {
+            label: "Total upvotes",
+            value: hackerNewsStats.totalPoints
+              ? COUNT_FORMATTER.format(hackerNewsStats.totalPoints)
+              : "0",
+            tone: hackerNewsStats.totalPoints ? "positive" : "neutral",
+          },
+          {
+            label: "Query coverage",
+            value:
+              hackerNewsCoveragePercent !== null
+                ? `${PERCENT_FORMATTER.format(hackerNewsCoveragePercent)}%`
+                : hasHackerNewsQueries
+                  ? "0%"
+                  : "—",
+            tone: hackerNewsCoverageTone,
+          },
+          {
+            label: "Last refreshed",
+            value: lastHackerNewsDiscovery,
+            tone: lastHackerNewsDiscovery === "Never" ? "warning" : "neutral",
+          },
+        ]}
+        collapsible
+        defaultOpen={shouldOpenHackerNewsStage}
+      >
+        <>
+          <div className="space-y-6">
+            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                <span>Since last run:</span>
+                <span>
+                  {hasHackerNewsResults
+                    ? `${COUNT_FORMATTER.format(hackerNewsStories.length)} stories captured`
+                    : "Monitoring pending"}
+                </span>
+              </div>
+              <div className="space-y-6">
+                {shouldSurfaceHackerNewsNotices ? (
+                  <div className="space-y-2">
+                    {renderHackerNewsProgress()}
+                    {renderHackerNewsError()}
+                    {renderHackerNewsEmptyState()}
+                  </div>
+                ) : null}
+
+                {hackerNewsSummary ? (
+                  <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex flex-col gap-1">
+                      <div className="text-sm font-semibold text-foreground">
+                        Key takeaways
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Synthesized from the latest Hacker News threads pulled in this run.
+                      </div>
+                    </div>
+                    <p className="text-sm leading-relaxed text-foreground">
+                      {hackerNewsSummary.summary}
+                    </p>
+                    {hackerNewsSummary.highlights?.length ? (
+                      <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+                        {hackerNewsSummary.highlights.map((highlight) => (
+                          <li key={highlight}>{highlight}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {Array.isArray(hackerNewsSummary.topStories) &&
+                    hackerNewsSummary.topStories.length ? (
+                      <div className="space-y-1">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          Referenced threads
+                        </div>
+                        <div className="space-y-2">
+                          {hackerNewsSummary.topStories.map((story) => (
+                            <div
+                              key={story.discussionUrl}
+                              className="rounded-lg border border-slate-200 bg-white p-3 text-xs shadow-sm"
+                            >
+                              <Link
+                                href={story.discussionUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-semibold text-primary hover:underline"
+                              >
+                                {story.title}
+                              </Link>
+                              {story.keyTakeaway ? (
+                                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                  {story.keyTakeaway}
+                                </p>
+                              ) : null}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {hasHackerNewsQueries ? (
+                  <Collapsible
+                    open={showHackerNewsInputs}
+                    onOpenChange={setShowHackerNewsInputs}
+                    className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                  >
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="text-sm font-semibold text-foreground">
+                          Search plan inputs
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Queries that seeded the Hacker News pass.
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="outline" className="text-[11px]">
+                          {COUNT_FORMATTER.format(hackerNewsQueries.length)}{' '}
+                          {hackerNewsQueries.length === 1 ? "query" : "queries"}
+                        </Badge>
+                        <CollapsibleTrigger asChild>
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                          >
+                            {showHackerNewsInputs ? "Hide inputs" : "Show inputs"}
+                            <ChevronDownIcon
+                              className={cn(
+                                "h-3.5 w-3.5 transition-transform duration-200",
+                                showHackerNewsInputs ? "rotate-180" : "rotate-0",
+                              )}
+                              aria-hidden
+                            />
+                          </button>
+                        </CollapsibleTrigger>
+                      </div>
+                    </div>
+                    <CollapsibleContent>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {hackerNewsQueries.map((query) => {
+                          const matchCount =
+                            hackerNewsStats.queryCounts.get(query.query) ?? 0
+                          const covered =
+                            hackerNewsStats.matchedQueries.has(query.query)
+                          return (
+                            <div
+                              key={query.query}
+                              className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="font-semibold leading-snug text-foreground">
+                                  {query.query}
+                                </div>
+                                <Badge
+                                  variant={covered ? "secondary" : "outline"}
+                                  className="text-[10px]"
+                                >
+                                  {covered
+                                    ? `${COUNT_FORMATTER.format(matchCount)} match${
+                                        matchCount === 1 ? "" : "es"
+                                      }`
+                                    : "No matches yet"}
+                                </Badge>
+                              </div>
+                              {query.rationale ? (
+                                <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                  {query.rationale}
+                                </div>
+                              ) : null}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                ) : null}
+
+                {!hasHackerNewsQueries && !hackerNewsProgress ? (
+                  <InfoNotice tone="info" size="xs">
+                    Add product keywords or competitors, then re-run the
+                    pipeline to generate targeted Hacker News queries.
+                  </InfoNotice>
+                ) : null}
+
+                {hasHackerNewsResults ? (
+                  <div className="space-y-5">
+                    <div className="grid gap-3 xl:grid-cols-3">
+                      {topHackerNewsStories.map((story) => (
+                        <Link
+                          key={story.id}
+                          href={story.discussionUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="group flex h-full flex-col justify-between rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                        >
+                          <div className="space-y-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+                                {story.title}
+                              </div>
+                              {typeof story.points === "number" ? (
+                                <Badge variant="secondary" className="text-[11px]">
+                                  {COUNT_FORMATTER.format(story.points)} points
+                                </Badge>
+                              ) : null}
+                            </div>
+                            {story.snippet ? (
+                              <div className="text-xs leading-relaxed text-muted-foreground">
+                                {story.snippet}
+                              </div>
+                            ) : null}
+                          </div>
+                          <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                            {typeof story.numComments === "number" ? (
+                              <span>
+                                {COUNT_FORMATTER.format(story.numComments)} comment
+                                {story.numComments === 1 ? "" : "s"}
+                              </span>
+                            ) : null}
+                            {story.matchedQueries?.length ? (
+                              <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5">
+                                🔍 {COUNT_FORMATTER.format(story.matchedQueries.length)} query
+                                {story.matchedQueries.length === 1 ? "" : "ies"}
+                              </span>
+                            ) : null}
+                            <span className="inline-flex items-center gap-1 text-primary">
+                              View thread ↗
+                            </span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+
+                    {remainingHackerNewsStories.length ? (
+                      <Collapsible
+                        open={showHackerNewsDeepDive}
+                        onOpenChange={setShowHackerNewsDeepDive}
+                        className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                      >
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <div className="text-sm font-semibold text-foreground">
+                              Additional mentions
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Expand to review the remaining captured threads.
+                            </div>
+                          </div>
+                          <CollapsibleTrigger asChild>
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                            >
+                              {showHackerNewsDeepDive
+                                ? "Hide mentions"
+                                : "Show mentions"}
+                              <ChevronDownIcon
+                                className={cn(
+                                  "h-3.5 w-3.5 transition-transform duration-200",
+                                  showHackerNewsDeepDive ? "rotate-180" : "rotate-0",
+                                )}
+                                aria-hidden
+                              />
+                            </button>
+                          </CollapsibleTrigger>
+                        </div>
+                        <CollapsibleContent>
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="min-w-[220px]">
+                                  Thread
+                                </TableHead>
+                                <TableHead className="min-w-[120px]">
+                                  Points
+                                </TableHead>
+                                <TableHead className="min-w-[120px]">
+                                  Comments
+                                </TableHead>
+                                <TableHead>Matched queries</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {hackerNewsStories.map((story) => (
+                                <TableRow key={`hn-${story.id}`}>
+                                  <TableCell className="whitespace-normal break-words text-sm text-primary">
+                                    <a
+                                      href={story.discussionUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="hover:underline"
+                                    >
+                                      {story.title}
+                                    </a>
+                                  </TableCell>
+                                  <TableCell className="text-sm text-foreground">
+                                    {typeof story.points === "number"
+                                      ? COUNT_FORMATTER.format(story.points)
+                                      : "—"}
+                                  </TableCell>
+                                  <TableCell className="text-sm text-foreground">
+                                    {typeof story.numComments === "number"
+                                      ? COUNT_FORMATTER.format(story.numComments)
+                                      : "—"}
+                                  </TableCell>
+                                  <TableCell className="text-xs text-muted-foreground">
+                                    {story.matchedQueries?.length
+                                      ? story.matchedQueries.join(" • ")
+                                      : "—"}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            </section>
+          </div>
+        </>
+      </StageCard>
+      <StageCard
+        step="Step 6"
         title="Discussion insights"
         description="Review community conversations to surface wins, friction, and opportunities."
         status={discussionStatusDisplay}

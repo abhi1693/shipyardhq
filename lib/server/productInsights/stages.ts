@@ -45,6 +45,13 @@ const STAGE_RENDER_METADATA: Array<{
     renderer: "discussion-list",
   },
   {
+    id: "hackernews.discussions",
+    order: 45,
+    label: "Hacker News Mentions",
+    description: "Recent launches, threads, and sentiment from Hacker News",
+    renderer: "hackernews-list",
+  },
+  {
     id: "report.comprehensive",
     order: 50,
     label: "Comprehensive Insight Report",
@@ -90,12 +97,13 @@ export const PRODUCT_INSIGHT_STAGE_SETS: ProductInsightStageSetDefinition[] = [
   },
   {
     id: "reddit-refresh",
-    label: "Reddit Intelligence Refresh",
+    label: "Community Intelligence Refresh",
     description:
-      "Rebuild Reddit communities, discussions, and roll up the report",
+      "Rebuild Reddit communities, discussions, Hacker News mentions, and regenerate the report",
     stages: [
       "reddit.communities",
       "reddit.discussions",
+      "hackernews.discussions",
       "report.comprehensive",
     ],
   },

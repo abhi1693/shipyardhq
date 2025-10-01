@@ -11,7 +11,11 @@ export const reportComprehensiveStage: PipelineStage<
 > = {
   id: "report.comprehensive",
   providerType: "shipyard:model",
-  dependencies: ["product.snapshot", "reddit.discussions"],
+  dependencies: [
+    "product.snapshot",
+    "reddit.discussions",
+    "hackernews.discussions",
+  ],
   retryPolicy: {
     maxAttempts: 2,
   },
@@ -24,6 +28,7 @@ export const reportComprehensiveStage: PipelineStage<
       subreddits: context.shared.communities?.subreddits ?? undefined,
       insights: context.shared.discussions?.insights ?? undefined,
       threads: context.shared.discussions?.threads ?? undefined,
+      hackerNewsStories: context.shared.hackerNews?.stories ?? undefined,
     })
   },
   serialize(result) {

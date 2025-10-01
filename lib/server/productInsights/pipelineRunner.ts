@@ -94,6 +94,11 @@ function buildInitialSharedState(
     shared.discussions = discussions
   }
 
+  const hackerNews = extractStageData(profile, "hackernews.discussions")
+  if (hackerNews) {
+    shared.hackerNews = hackerNews
+  }
+
   const report = extractStageData(profile, "report.comprehensive")
   if (report) {
     shared.report = report

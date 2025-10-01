@@ -36,6 +36,11 @@ export type ProductInsightRedditDiscussionQuery = {
   targetSubreddit?: string | null
 }
 
+export type ProductInsightHackerNewsQuery = {
+  query: string
+  rationale?: string | null
+}
+
 export type ProductInsightRedditComment = {
   id: string
   author?: string | null
@@ -59,6 +64,29 @@ export type ProductInsightRedditThread = {
   flairText?: string | null
   matchedQueries?: string[] | null
   topComments?: ProductInsightRedditComment[] | null
+}
+
+export type ProductInsightHackerNewsStory = {
+  id: string
+  title: string
+  url?: string | null
+  discussionUrl: string
+  author?: string | null
+  points?: number | null
+  numComments?: number | null
+  createdAt?: string | null
+  snippet?: string | null
+  matchedQueries?: string[] | null
+}
+
+export type ProductInsightHackerNewsSummary = {
+  summary: string
+  highlights: string[]
+  topStories?: Array<{
+    title: string
+    discussionUrl: string
+    keyTakeaway?: string | null
+  }> | null
 }
 
 export type ProductInsightHarvestMode = "standard" | "deep"
@@ -175,6 +203,14 @@ export type ProductInsightDiscussionStageData = {
   mode?: ProductInsightHarvestMode | null
 }
 
+export type ProductInsightHackerNewsStageData = {
+  queries: ProductInsightHackerNewsQuery[]
+  stories: ProductInsightHackerNewsStory[]
+  summary?: ProductInsightHackerNewsSummary | null
+  model?: string | null
+  discoveredAt?: string | null
+}
+
 export type ProductInsightReportStageData = {
   report: ProductInsightComprehensiveReport
   model?: string | null
@@ -193,6 +229,7 @@ export type ProductInsightStageId =
   | "product.competitors"
   | "reddit.communities"
   | "reddit.discussions"
+  | "hackernews.discussions"
   | "report.comprehensive"
 
 export type ProductInsightStageRendererHint =
@@ -200,6 +237,7 @@ export type ProductInsightStageRendererHint =
   | "competitor-list"
   | "community-list"
   | "discussion-list"
+  | "hackernews-list"
   | "comprehensive-report"
 
 export type ProductInsightStageSetId =
@@ -230,6 +268,7 @@ export type ProductInsightStageDataById = {
   "product.competitors": ProductInsightCompetitorStageData
   "reddit.communities": ProductInsightCommunityStageData
   "reddit.discussions": ProductInsightDiscussionStageData
+  "hackernews.discussions": ProductInsightHackerNewsStageData
   "report.comprehensive": ProductInsightReportStageData
 }
 
@@ -288,6 +327,12 @@ export type ProductInsightProfilePayload = {
   redditErrorMessage?: string | null
   redditModel?: string | null
   redditMode?: ProductInsightHarvestMode | null
+  hackerNewsQueries?: ProductInsightHackerNewsQuery[] | null
+  hackerNewsStories?: ProductInsightHackerNewsStory[] | null
+  hackerNewsSummary?: ProductInsightHackerNewsSummary | null
+  hackerNewsStatus?: ProductInsightStatus | null
+  hackerNewsErrorMessage?: string | null
+  hackerNewsModel?: string | null
   finalReport?: ProductInsightComprehensiveReport | null
   finalReportStatus?: ProductInsightStatus | null
   finalReportErrorMessage?: string | null
@@ -296,6 +341,7 @@ export type ProductInsightProfilePayload = {
   lastCompetitorDiscoveryAt?: string | null
   lastSubredditDiscoveryAt: string | null
   lastRedditDiscoveryAt: string | null
+  lastHackerNewsDiscoveryAt: string | null
   lastFinalReportAt: string | null
   competitorResearchNotes?: string[] | null
   createdAt?: string | null

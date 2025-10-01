@@ -2,6 +2,7 @@ import type {
   ProductInsightCommunityStageData,
   ProductInsightCompetitorStageData,
   ProductInsightDiscussionStageData,
+  ProductInsightHackerNewsStageData,
   ProductInsightHarvestMode,
   ProductInsightProfilePayload,
   ProductInsightReportStageData,
@@ -24,6 +25,7 @@ export type PipelineStageSharedState = {
   communities?: ProductInsightCommunityStageData | null
   discussions?: ProductInsightDiscussionStageData | null
   report?: ProductInsightReportStageData | null
+  hackerNews?: ProductInsightHackerNewsStageData | null
 }
 
 export type PipelineStageContext = {

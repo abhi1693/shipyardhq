@@ -4,6 +4,7 @@ import type {
   ProductInsightCommunityStageData,
   ProductInsightCompetitorStageData,
   ProductInsightDiscussionStageData,
+  ProductInsightHackerNewsStageData,
   ProductInsightProfilePayload,
   ProductInsightStageDataById,
   ProductInsightStageId,
@@ -178,6 +179,32 @@ function parseDiscussionData(
   }
 }
 
+function parseHackerNewsData(
+  value: Prisma.JsonValue | null,
+): ProductInsightHackerNewsStageData | null {
+  const record = asRecord(value)
+  if (!record) return null
+
+  const queries = Array.isArray(record.queries)
+    ? (record.queries as unknown[] as ProductInsightHackerNewsStageData["queries"])
+    : []
+  const stories = Array.isArray(record.stories)
+    ? (record.stories as unknown[] as ProductInsightHackerNewsStageData["stories"])
+    : []
+  const summary = record.summary
+    ? (record.summary as ProductInsightHackerNewsStageData["summary"])
+    : null
+
+  return {
+    queries,
+    stories,
+    summary,
+    model: typeof record.model === "string" ? record.model : undefined,
+    discoveredAt:
+      typeof record.discoveredAt === "string" ? record.discoveredAt : undefined,
+  }
+}
+
 function parseReportData(
   value: Prisma.JsonValue | null,
 ): ProductInsightReportStageData | null {
@@ -209,6 +236,8 @@ function parseStageData(
       return parseCommunityData(value)
     case "reddit.discussions":
       return parseDiscussionData(value)
+    case "hackernews.discussions":
+      return parseHackerNewsData(value)
     case "report.comprehensive":
       return parseReportData(value)
     default:
@@ -277,6 +306,7 @@ export function serializeInsightProfile(
   const competitorStage = stages["product.competitors"]
   const communityStage = stages["reddit.communities"]
   const discussionStage = stages["reddit.discussions"]
+  const hackerNewsStage = stages["hackernews.discussions"]
   const reportStage = stages["report.comprehensive"]
 
   const snapshotData =
@@ -287,6 +317,8 @@ export function serializeInsightProfile(
     communityStage?.data as ProductInsightCommunityStageData | null
   const discussionData =
     discussionStage?.data as ProductInsightDiscussionStageData | null
+  const hackerNewsData =
+    hackerNewsStage?.data as ProductInsightHackerNewsStageData | null
   const reportData = reportStage?.data as ProductInsightReportStageData | null
 
   return {
@@ -320,6 +352,12 @@ export function serializeInsightProfile(
     redditErrorMessage: discussionStage?.errorMessage ?? null,
     redditModel: discussionData?.model ?? null,
     redditMode: discussionData?.mode ?? null,
+    hackerNewsQueries: hackerNewsData?.queries ?? null,
+    hackerNewsStories: hackerNewsData?.stories ?? null,
+    hackerNewsSummary: hackerNewsData?.summary ?? null,
+    hackerNewsStatus: hackerNewsStage?.status ?? null,
+    hackerNewsErrorMessage: hackerNewsStage?.errorMessage ?? null,
+    hackerNewsModel: hackerNewsData?.model ?? null,
     finalReport: reportData?.report ?? null,
     finalReportStatus: reportStage?.status ?? null,
     finalReportErrorMessage: reportStage?.errorMessage ?? null,
@@ -328,6 +366,7 @@ export function serializeInsightProfile(
     lastCompetitorDiscoveryAt: competitorStage?.completedAt ?? null,
     lastSubredditDiscoveryAt: communityStage?.completedAt ?? null,
     lastRedditDiscoveryAt: discussionStage?.completedAt ?? null,
+    lastHackerNewsDiscoveryAt: hackerNewsStage?.completedAt ?? null,
     lastFinalReportAt: reportStage?.completedAt ?? null,
     createdAt: record.createdAt?.toISOString() ?? null,
     updatedAt: record.updatedAt?.toISOString() ?? null,

@@ -8,6 +8,7 @@ import {
 } from "@/lib/server/openaiResponse"
 import type {
   ProductInsightComprehensiveReport,
+  ProductInsightHackerNewsStory,
   ProductInsightRedditInsightReport,
   ProductInsightRedditThread,
   ProductInsightReportAction,
@@ -254,6 +255,44 @@ function sanitizeThreads(threads?: ProductInsightRedditThread[] | null) {
   }))
 }
 
+function sanitizeHackerNewsStories(
+  stories?: ProductInsightHackerNewsStory[] | null,
+) {
+  if (!Array.isArray(stories)) return []
+  return stories.slice(0, MAX_THREADS).map((story) => ({
+    title: truncate(story.title, 260),
+    discussionUrl: story.discussionUrl,
+    url: story.url ?? null,
+    author: story.author ?? null,
+    points: story.points ?? null,
+    numComments: story.numComments ?? null,
+    matchedQueries: story.matchedQueries?.slice(0, 4) ?? null,
+    snippet: truncate(story.snippet, 360),
+  }))
+}
+
+function sanitizeHackerNewsSummary(
+  summary?: ProductInsightHackerNewsSummary | null,
+) {
+  if (!summary) return null
+  return {
+    summary: truncate(summary.summary, 640),
+    highlights: Array.isArray(summary.highlights)
+      ? summary.highlights
+          .slice(0, 5)
+          .map((item) => truncate(item, 280))
+          .filter((item): item is string => Boolean(item))
+      : [],
+    topStories: Array.isArray(summary.topStories)
+      ? summary.topStories.slice(0, 4).map((story) => ({
+          title: truncate(story.title, 260),
+          discussionUrl: story.discussionUrl,
+          keyTakeaway: truncate(story.keyTakeaway, 320),
+        }))
+      : null,
+  }
+}
+
 type ReportPayload = {
   product: ProductInsightProductContext
   summary?: ProductInsightSummary | null
@@ -261,6 +300,8 @@ type ReportPayload = {
   subreddits: ReturnType<typeof sanitizeSubreddits>
   redditInsights: ReturnType<typeof sanitizeInsights>
   redditThreads: ReturnType<typeof sanitizeThreads>
+  hackerNewsSummary: ReturnType<typeof sanitizeHackerNewsSummary>
+  hackerNewsStories: ReturnType<typeof sanitizeHackerNewsStories>
   existingCapabilities?: string[]
 }
 
@@ -272,6 +313,8 @@ type CreateReportInput = {
   subreddits?: ProductInsightSubreddit[] | null
   insights?: ProductInsightRedditInsightReport | null
   threads?: ProductInsightRedditThread[] | null
+  hackerNewsSummary?: ProductInsightHackerNewsSummary | null
+  hackerNewsStories?: ProductInsightHackerNewsStory[] | null
 }
 
 type CreateReportResult = {
@@ -290,6 +333,8 @@ export async function createProductInsightComprehensiveReport(
     subreddits,
     insights,
     threads,
+    hackerNewsSummary,
+    hackerNewsStories,
   } = input
 
   const openai = getOpenAIClient()
@@ -301,6 +346,8 @@ export async function createProductInsightComprehensiveReport(
     subreddits: sanitizeSubreddits(subreddits),
     redditInsights: sanitizeInsights(insights),
     redditThreads: sanitizeThreads(threads),
+    hackerNewsSummary: sanitizeHackerNewsSummary(hackerNewsSummary),
+    hackerNewsStories: sanitizeHackerNewsStories(hackerNewsStories),
   }
 
   if (summary?.keyFeatures?.length) {
@@ -312,6 +359,8 @@ export async function createProductInsightComprehensiveReport(
     subredditCount: payload.subreddits.length,
     insightSections: payload.redditInsights?.sections?.length ?? 0,
     threadCount: payload.redditThreads.length,
+    hackerNewsStoryCount: payload.hackerNewsStories.length,
+    hackerNewsHighlights: payload.hackerNewsSummary?.highlights?.length ?? 0,
   })
 
   const response = await openai.responses.create({
@@ -462,7 +511,7 @@ export async function createProductInsightComprehensiveReport(
         role: "user",
         content: JSON.stringify({
           objective:
-            "Build a comprehensive product improvement report that highlights strategic focus areas informed by Reddit audiences.",
+            "Build a comprehensive product improvement report that highlights strategic focus areas informed by Reddit and Hacker News communities.",
           guidance: [
             "Reference specific subreddits and discussion signals when recommending actions.",
             "Highlight what is working, what is not, and where to double down.",
@@ -470,7 +519,8 @@ export async function createProductInsightComprehensiveReport(
             "Favor actionable, near-term recommendations over generic advice.",
             "Only use information provided; do not invent metrics or communities.",
             "Avoid repeating existing capabilities verbatim—frame recommendations as enhancements, fixes, or new bets that address uncovered gaps.",
-            "Call out pain points and friction surfaced in Reddit data and translate them into prioritized opportunity areas.",
+            "Call out pain points and friction surfaced in community data and translate them into prioritized opportunity areas.",
+            "Leverage Hacker News chatter to capture launch reactions, comparisons, and sentiment alongside Reddit findings.",
           ],
           dataset: payload,
         }),
