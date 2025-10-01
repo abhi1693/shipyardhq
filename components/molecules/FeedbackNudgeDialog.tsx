@@ -42,18 +42,16 @@ export default function FeedbackNudgeDialog({
     onOpenChange(false)
   }, [onOpenChange])
 
-  const heading =
-    title ?? "Have a few more thoughts?"
+  const heading = title ?? "Have a few more thoughts?"
   const supporting =
     description ??
     "We read every note. Extra context helps the crew chart improvements faster."
-  const bodyContent =
-    body ?? (
-      <p className="text-sm leading-relaxed text-slate-700">
-        Tell us what&apos;s working, what&apos;s confusing, or what still feels missing.
-        Another quick entry keeps Shipyard evolving with your crew.
-      </p>
-    )
+  const bodyContent = body ?? (
+    <p className="text-sm leading-relaxed text-slate-700">
+      Tell us what&apos;s working, what&apos;s confusing, or what still feels
+      missing. Another quick entry keeps Shipyard evolving with your crew.
+    </p>
+  )
   const primaryText = primaryLabel ?? "Share another idea"
   const secondaryText = secondaryLabel ?? "Maybe later"
 
@@ -66,7 +64,9 @@ export default function FeedbackNudgeDialog({
         </DialogHeader>
 
         {typeof bodyContent === "string" ? (
-          <p className="text-sm leading-relaxed text-slate-700">{bodyContent}</p>
+          <p className="text-sm leading-relaxed text-slate-700">
+            {bodyContent}
+          </p>
         ) : (
           bodyContent
         )}

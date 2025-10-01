@@ -222,7 +222,6 @@ export default function Step1({
         shouldValidate: true,
       })
     }
-
   }
 
   return (

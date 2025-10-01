@@ -20,7 +20,9 @@ describe("twitter message builders", () => {
     })
 
     const segments = tweet.split("\n\n")
-    expect(segments[0]).toBe("Mariner AI (@mariner) just launched on Shipyard HQ!")
+    expect(segments[0]).toBe(
+      "Mariner AI (@mariner) just launched on Shipyard HQ!",
+    )
     expect(segments[1]).toBe("Collaborative documentation for builders.")
     expect(segments[2]).toBe(SAMPLE_URL)
     expect(segments[3]).toBe("#ShipyardHQ #ProductLaunch #IndieSaaS")
@@ -100,7 +102,9 @@ describe("twitter message builders", () => {
     })
 
     const segments = tweet.split("\n\n")
-    expect(segments[0]).toContain("Atlas (@atlas) leads the May 2024 leaderboard")
+    expect(segments[0]).toContain(
+      "Atlas (@atlas) leads the May 2024 leaderboard",
+    )
     const bodyLines = segments[1].split("\n")
     expect(bodyLines[0]).toBe("Top builders:")
     expect(bodyLines[1]).toBe("1. Atlas (@atlas)")
@@ -128,13 +132,11 @@ describe("twitter message builders", () => {
   it("extracts twitter handles from various inputs", () => {
     expect(extractTwitterHandle("@makers")).toBe("@makers")
     expect(extractTwitterHandle("makers")).toBe("@makers")
-    expect(extractTwitterHandle("https://twitter.com/makers"))
-      .toBe("@makers")
-    expect(extractTwitterHandle("https://x.com/makers/status/123"))
-      .toBe("@makers")
-    expect(extractTwitterHandle(""))
-      .toBeNull()
-    expect(extractTwitterHandle("invalid handle"))
-      .toBeNull()
+    expect(extractTwitterHandle("https://twitter.com/makers")).toBe("@makers")
+    expect(extractTwitterHandle("https://x.com/makers/status/123")).toBe(
+      "@makers",
+    )
+    expect(extractTwitterHandle("")).toBeNull()
+    expect(extractTwitterHandle("invalid handle")).toBeNull()
   })
 })

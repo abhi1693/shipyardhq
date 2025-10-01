@@ -234,9 +234,7 @@ export function _testHelpers() {
 
 const HANDLE_REGEX = /^[A-Za-z0-9_]{1,15}$/
 
-export function extractTwitterHandle(
-  value?: string | null,
-): string | null {
+export function extractTwitterHandle(value?: string | null): string | null {
   if (!value) return null
   const trimmed = value.trim()
   if (!trimmed.length) return null

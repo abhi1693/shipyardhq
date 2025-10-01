@@ -256,9 +256,7 @@ export async function createProductAction(formData: FormData) {
     ]
 
     if (created.status === "published") {
-      sideEffects.push(
-        publish("product.published", { productId: created.id }),
-      )
+      sideEffects.push(publish("product.published", { productId: created.id }))
       sideEffects.push(sendProductPublishedEmail(created.id))
     }
 

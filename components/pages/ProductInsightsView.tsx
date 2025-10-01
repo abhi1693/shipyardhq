@@ -804,18 +804,15 @@ export function ProductInsightsView({
       const aScore = typeof a.points === "number" ? a.points : -1
       const bScore = typeof b.points === "number" ? b.points : -1
       if (bScore !== aScore) return bScore - aScore
-      const aComments =
-        typeof a.numComments === "number" ? a.numComments : -1
-      const bComments =
-        typeof b.numComments === "number" ? b.numComments : -1
+      const aComments = typeof a.numComments === "number" ? a.numComments : -1
+      const bComments = typeof b.numComments === "number" ? b.numComments : -1
       return bComments - aComments
     })
   }, [profile])
 
   const hackerNewsSummary = useMemo(() => {
-    return (profile?.hackerNewsSummary ?? null) as
-      | ProductInsightHackerNewsSummary
-      | null
+    return (profile?.hackerNewsSummary ??
+      null) as ProductInsightHackerNewsSummary | null
   }, [profile])
 
   const hasHackerNewsQueries = hackerNewsQueries.length > 0
@@ -866,8 +863,7 @@ export function ProductInsightsView({
   )
 
   const remainingHackerNewsStories = useMemo(
-    () =>
-      hackerNewsStories.length > 3 ? hackerNewsStories.slice(3) : [],
+    () => (hackerNewsStories.length > 3 ? hackerNewsStories.slice(3) : []),
     [hackerNewsStories],
   )
 
@@ -1977,2769 +1973,2830 @@ export function ProductInsightsView({
       />
       <div className="space-y-10">
         <Card className="overflow-hidden">
-        <div className="border-b border-slate-200 bg-slate-50 px-6 py-5">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                <span>Insights pipeline</span>
-                <span
-                  className={cn(
-                    "h-2 w-2 rounded-full",
-                    isPipelinePending
-                      ? "bg-emerald-500 animate-pulse"
-                      : "bg-slate-300",
-                  )}
-                />
+          <div className="border-b border-slate-200 bg-slate-50 px-6 py-5">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span>Insights pipeline</span>
+                  <span
+                    className={cn(
+                      "h-2 w-2 rounded-full",
+                      isPipelinePending
+                        ? "bg-emerald-500 animate-pulse"
+                        : "bg-slate-300",
+                    )}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-semibold text-foreground lg:text-3xl">
+                    Find insights
+                  </h2>
+                  <p className="max-w-xl text-sm text-muted-foreground">
+                    Launch a full crawl, community sweep, discussion analysis,
+                    and strategy report in one pass. We&rsquo;ll email you when
+                    the playbook ships.
+                  </p>
+                </div>
               </div>
-              <div className="space-y-1">
-                <h2 className="text-2xl font-semibold text-foreground lg:text-3xl">
-                  Find insights
-                </h2>
-                <p className="max-w-xl text-sm text-muted-foreground">
-                  Launch a full crawl, community sweep, discussion analysis, and
-                  strategy report in one pass. We&rsquo;ll email you when the
-                  playbook ships.
-                </p>
+              <div className="grid w-full gap-3 sm:grid-cols-3 lg:w-auto">
+                {heroStats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="min-w-[120px] rounded-lg border border-slate-200 bg-white p-3 text-left"
+                  >
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {stat.label}
+                    </div>
+                    <div className="mt-1 text-sm font-semibold text-foreground">
+                      {stat.value}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="grid w-full gap-3 sm:grid-cols-3 lg:w-auto">
-              {heroStats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="min-w-[120px] rounded-lg border border-slate-200 bg-white p-3 text-left"
+          </div>
+          <CardContent className="space-y-4 bg-white px-6 py-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-col gap-2">
+                <Label
+                  htmlFor={deepHarvestSwitchId}
+                  className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
                 >
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    {stat.label}
+                  Deep capture
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Switch
+                    id={deepHarvestSwitchId}
+                    checked={isDeepMode}
+                    onCheckedChange={setIsDeepMode}
+                    disabled={isPipelinePending}
+                    aria-label="Toggle deep discussion capture"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    Pull expanded community threads and broader discovery
+                    prompts.
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <Button
+                  onClick={handleRunPipeline}
+                  disabled={isPipelinePending}
+                  className="w-full sm:w-auto"
+                >
+                  {isPipelinePending ? "Finding insights…" : "Find insights"}
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {pipelineNotice ? (
+                <InfoNotice tone={pipelineNotice.tone} size="xs">
+                  {pipelineNotice.message}
+                </InfoNotice>
+              ) : (
+                <div className="text-xs text-muted-foreground">
+                  We&rsquo;ll notify you in-app and via email when the run
+                  completes.
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="space-y-1">
+            <CardTitle>Insights snapshot</CardTitle>
+            <CardDescription>
+              Quick pulse across crawl coverage, audience discovery, and the
+              current action plan.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {snapshotMetrics.map((metric) => (
+                <div
+                  key={metric.label}
+                  className={cn(
+                    "flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm",
+                    FACT_TONE_STYLES[metric.tone],
+                  )}
+                >
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/70 text-lg">
+                    {metric.icon}
                   </div>
-                  <div className="mt-1 text-sm font-semibold text-foreground">
-                    {stat.value}
+                  <div className="space-y-1 text-sm">
+                    <div className="font-semibold text-foreground">
+                      {metric.label}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {metric.value}
+                    </div>
+                    {metric.caption ? (
+                      <div className="text-[11px] text-slate-600">
+                        {metric.caption}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-        <CardContent className="space-y-4 bg-white px-6 py-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-col gap-2">
-              <Label
-                htmlFor={deepHarvestSwitchId}
-                className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
-              >
-                Deep capture
-              </Label>
-              <div className="flex items-center gap-3">
-                <Switch
-                  id={deepHarvestSwitchId}
-                  checked={isDeepMode}
-                  onCheckedChange={setIsDeepMode}
-                  disabled={isPipelinePending}
-                  aria-label="Toggle deep discussion capture"
-                />
-                <span className="text-sm text-muted-foreground">
-                  Pull expanded community threads and broader discovery prompts.
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-              <Button
-                onClick={handleRunPipeline}
-                disabled={isPipelinePending}
-                className="w-full sm:w-auto"
-              >
-                {isPipelinePending ? "Finding insights…" : "Find insights"}
-              </Button>
-            </div>
-          </div>
-          <div className="space-y-3">
-            {pipelineNotice ? (
-              <InfoNotice tone={pipelineNotice.tone} size="xs">
-                {pipelineNotice.message}
-              </InfoNotice>
-            ) : (
-              <div className="text-xs text-muted-foreground">
-                We&rsquo;ll notify you in-app and via email when the run
-                completes.
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader className="space-y-1">
-          <CardTitle>Insights snapshot</CardTitle>
-          <CardDescription>
-            Quick pulse across crawl coverage, audience discovery, and the
-            current action plan.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {snapshotMetrics.map((metric) => (
-              <div
-                key={metric.label}
-                className={cn(
-                  "flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm",
-                  FACT_TONE_STYLES[metric.tone],
-                )}
-              >
-                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/70 text-lg">
-                  {metric.icon}
-                </div>
-                <div className="space-y-1 text-sm">
-                  <div className="font-semibold text-foreground">
-                    {metric.label}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {metric.value}
-                  </div>
-                  {metric.caption ? (
-                    <div className="text-[11px] text-slate-600">
-                      {metric.caption}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-            <div className="space-y-4">
-              <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">
-                      Next best actions
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {actionShortlist.length
-                        ? "Focus here before digging into the deeper dataset."
-                        : "Run the comprehensive report to surface your next moves."}
-                    </div>
-                  </div>
-                  {recommendedActions.length ? (
-                    <button
-                      type="button"
-                      onClick={handleJumpToPlaybook}
-                      className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-[11px] font-semibold text-primary transition hover:border-primary/50 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                    >
-                      Open full playbook
-                    </button>
-                  ) : null}
-                </div>
-                {actionShortlist.length ? (
-                  <ol className="space-y-3 text-sm text-muted-foreground">
-                    {actionShortlist.map((action, index) => {
-                      const priorityBadge =
-                        ACTION_PRIORITY_BADGE[action.priority]
-                      const timeframe = action.timeframe
-                        ? (ACTION_TIMEFRAME_LABEL[
-                            action.timeframe as NonNullable<
-                              ProductInsightReportAction["timeframe"]
-                            >
-                          ] ?? null)
-                        : null
-                      return (
-                        <li
-                          key={`action-shortlist-${index}-${action.title}`}
-                          className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3"
-                        >
-                          <div className="flex flex-wrap items-start justify-between gap-3">
-                            <span className="flex items-center gap-2 font-semibold text-foreground">
-                              <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-muted-foreground">
-                                {index + 1}
-                              </span>
-                              {action.title}
-                            </span>
-                            {priorityBadge ? (
-                              <Badge
-                                variant={priorityBadge.badge}
-                                className="text-[11px]"
-                              >
-                                {priorityBadge.label}
-                              </Badge>
-                            ) : null}
-                          </div>
-                          <div className="text-xs leading-relaxed text-muted-foreground">
-                            {action.description}
-                          </div>
-                          <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-                            {timeframe ? (
-                              <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 font-semibold text-primary">
-                                {timeframe}
-                              </span>
-                            ) : null}
-                            {action.successMetric ? (
-                              <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 font-medium text-foreground">
-                                Success: {action.successMetric}
-                              </span>
-                            ) : null}
-                          </div>
-                        </li>
-                      )
-                    })}
-                  </ol>
-                ) : (
-                  <div className="flex items-start gap-2 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-muted-foreground">
-                    <span role="img" aria-hidden className="text-base">
-                      🚀
-                    </span>
-                    <span>
-                      Queue a report run once the crawler, community, and
-                      discussion stages are ready to unlock an actionable
-                      shortlist.
-                    </span>
-                  </div>
-                )}
-              </section>
-
-              {stageAlerts.length ? (
-                <section className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
-                  <div className="text-sm font-semibold text-amber-900">
-                    Strengthen signal quality
-                  </div>
-                  <ul className="space-y-2 text-xs text-amber-900">
-                    {stageAlerts.map((alert, index) => (
-                      <li key={`alert-${index}`} className="flex gap-2">
-                        <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-500" />
-                        <span>{alert}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ) : null}
-            </div>
-            <div className="space-y-3">
-              {snapshotChart && snapshotChartConfig ? (
-                <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">
-                      {snapshotChart.title}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {snapshotChart.description}
-                    </div>
-                  </div>
-                  {sentimentSummaryText ? (
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
-                      {sentimentSummaryText}
-                    </div>
-                  ) : null}
-                  <AnalyticsPieChart
-                    className="border-none p-0 shadow-none"
-                    data={snapshotChart.data}
-                    config={snapshotChartConfig}
-                    dataKey="value"
-                    nameKey="label"
-                    height={220}
-                    innerRadius={60}
-                    pieProps={{ paddingAngle: 2 }}
-                    tooltip={{
-                      labelFormatter: (label) =>
-                        typeof label === "string" || typeof label === "number"
-                          ? String(label)
-                          : "",
-                      valueFormatter: (value) => {
-                        const percent = snapshotChart.total
-                          ? (value / snapshotChart.total) * 100
-                          : 0
-                        return `${COUNT_FORMATTER.format(value)} (${PERCENT_FORMATTER.format(percent)}%)`
-                      },
-                    }}
-                    getCellProps={(entry) => ({
-                      fill:
-                        snapshotChart.colors[entry.key as string] ??
-                        "var(--chart-2)",
-                      stroke: "var(--card)",
-                    })}
-                  />
-                  <div className="space-y-2 text-xs text-muted-foreground">
-                    {snapshotChart.data.map((entry) => {
-                      const percent = snapshotChart.total
-                        ? (entry.value / snapshotChart.total) * 100
-                        : 0
-                      return (
-                        <div
-                          key={entry.key}
-                          className="flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2"
-                        >
-                          <span
-                            className="h-2.5 w-2.5 rounded-full"
-                            style={{
-                              backgroundColor:
-                                snapshotChart.colors[entry.key] ??
-                                "var(--chart-2)",
-                            }}
-                          />
-                          <span className="flex-1 font-medium text-foreground">
-                            {entry.label}
-                          </span>
-                          <span className="font-semibold text-foreground">
-                            {COUNT_FORMATTER.format(entry.value)}
-                          </span>
-                          <span>({PERCENT_FORMATTER.format(percent)}%)</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex h-full min-h-[220px] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-xs text-muted-foreground">
-                  Run the insights pipeline to visualise sentiment and action
-                  mix at a glance.
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <StageCard
-        step="Step 1"
-        title="Product foundation"
-        description="The pipeline crawler captures live messaging and structure for this product."
-        status={statusDisplay}
-        metrics={[
-          {
-            label: "Pages captured",
-            value: profile ? COUNT_FORMATTER.format(pageCount) : "—",
-            tone: pageCount ? "positive" : "warning",
-          },
-          {
-            label: "Errors",
-            value: profile ? COUNT_FORMATTER.format(erroredPages.length) : "—",
-            tone: erroredPages.length ? "danger" : "positive",
-          },
-          {
-            label: "Last run",
-            value: lastCrawled,
-            tone: lastCrawled === "Never" ? "warning" : "neutral",
-          },
-        ]}
-        collapsible
-        defaultOpen={shouldOpenCrawlerStage}
-      >
-        <>
-          <div className="space-y-6">
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                  <span>Since last run:</span>
-                  <span>
-                    {lastCrawled !== "Never"
-                      ? `${pageCount} pages captured`
-                      : "Crawler ready to run"}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="space-y-3">
-                    <div className="text-xs font-semibold uppercase text-muted-foreground">
-                      Product
-                    </div>
-                    <div className="space-y-2">
-                      <div className="text-2xl font-semibold text-foreground">
-                        {productName}
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+              <div className="space-y-4">
+                <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">
+                        Next best actions
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge
-                          variant={statusDisplay.badge}
-                          className="text-[11px]"
-                        >
-                          {statusDisplay.label}
-                        </Badge>
+                      <div className="text-xs text-muted-foreground">
+                        {actionShortlist.length
+                          ? "Focus here before digging into the deeper dataset."
+                          : "Run the comprehensive report to surface your next moves."}
+                      </div>
+                    </div>
+                    {recommendedActions.length ? (
+                      <button
+                        type="button"
+                        onClick={handleJumpToPlaybook}
+                        className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-[11px] font-semibold text-primary transition hover:border-primary/50 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                      >
+                        Open full playbook
+                      </button>
+                    ) : null}
+                  </div>
+                  {actionShortlist.length ? (
+                    <ol className="space-y-3 text-sm text-muted-foreground">
+                      {actionShortlist.map((action, index) => {
+                        const priorityBadge =
+                          ACTION_PRIORITY_BADGE[action.priority]
+                        const timeframe = action.timeframe
+                          ? (ACTION_TIMEFRAME_LABEL[
+                              action.timeframe as NonNullable<
+                                ProductInsightReportAction["timeframe"]
+                              >
+                            ] ?? null)
+                          : null
+                        return (
+                          <li
+                            key={`action-shortlist-${index}-${action.title}`}
+                            className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3"
+                          >
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                              <span className="flex items-center gap-2 font-semibold text-foreground">
+                                <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-muted-foreground">
+                                  {index + 1}
+                                </span>
+                                {action.title}
+                              </span>
+                              {priorityBadge ? (
+                                <Badge
+                                  variant={priorityBadge.badge}
+                                  className="text-[11px]"
+                                >
+                                  {priorityBadge.label}
+                                </Badge>
+                              ) : null}
+                            </div>
+                            <div className="text-xs leading-relaxed text-muted-foreground">
+                              {action.description}
+                            </div>
+                            <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                              {timeframe ? (
+                                <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 font-semibold text-primary">
+                                  {timeframe}
+                                </span>
+                              ) : null}
+                              {action.successMetric ? (
+                                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 font-medium text-foreground">
+                                  Success: {action.successMetric}
+                                </span>
+                              ) : null}
+                            </div>
+                          </li>
+                        )
+                      })}
+                    </ol>
+                  ) : (
+                    <div className="flex items-start gap-2 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-muted-foreground">
+                      <span role="img" aria-hidden className="text-base">
+                        🚀
+                      </span>
+                      <span>
+                        Queue a report run once the crawler, community, and
+                        discussion stages are ready to unlock an actionable
+                        shortlist.
+                      </span>
+                    </div>
+                  )}
+                </section>
+
+                {stageAlerts.length ? (
+                  <section className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                    <div className="text-sm font-semibold text-amber-900">
+                      Strengthen signal quality
+                    </div>
+                    <ul className="space-y-2 text-xs text-amber-900">
+                      {stageAlerts.map((alert, index) => (
+                        <li key={`alert-${index}`} className="flex gap-2">
+                          <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-500" />
+                          <span>{alert}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+              </div>
+              <div className="space-y-3">
+                {snapshotChart && snapshotChartConfig ? (
+                  <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">
+                        {snapshotChart.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {snapshotChart.description}
+                      </div>
+                    </div>
+                    {sentimentSummaryText ? (
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
+                        {sentimentSummaryText}
+                      </div>
+                    ) : null}
+                    <AnalyticsPieChart
+                      className="border-none p-0 shadow-none"
+                      data={snapshotChart.data}
+                      config={snapshotChartConfig}
+                      dataKey="value"
+                      nameKey="label"
+                      height={220}
+                      innerRadius={60}
+                      pieProps={{ paddingAngle: 2 }}
+                      tooltip={{
+                        labelFormatter: (label) =>
+                          typeof label === "string" || typeof label === "number"
+                            ? String(label)
+                            : "",
+                        valueFormatter: (value) => {
+                          const percent = snapshotChart.total
+                            ? (value / snapshotChart.total) * 100
+                            : 0
+                          return `${COUNT_FORMATTER.format(value)} (${PERCENT_FORMATTER.format(percent)}%)`
+                        },
+                      }}
+                      getCellProps={(entry) => ({
+                        fill:
+                          snapshotChart.colors[entry.key as string] ??
+                          "var(--chart-2)",
+                        stroke: "var(--card)",
+                      })}
+                    />
+                    <div className="space-y-2 text-xs text-muted-foreground">
+                      {snapshotChart.data.map((entry) => {
+                        const percent = snapshotChart.total
+                          ? (entry.value / snapshotChart.total) * 100
+                          : 0
+                        return (
+                          <div
+                            key={entry.key}
+                            className="flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2"
+                          >
+                            <span
+                              className="h-2.5 w-2.5 rounded-full"
+                              style={{
+                                backgroundColor:
+                                  snapshotChart.colors[entry.key] ??
+                                  "var(--chart-2)",
+                              }}
+                            />
+                            <span className="flex-1 font-medium text-foreground">
+                              {entry.label}
+                            </span>
+                            <span className="font-semibold text-foreground">
+                              {COUNT_FORMATTER.format(entry.value)}
+                            </span>
+                            <span>({PERCENT_FORMATTER.format(percent)}%)</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex h-full min-h-[220px] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-xs text-muted-foreground">
+                    Run the insights pipeline to visualise sentiment and action
+                    mix at a glance.
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <StageCard
+          step="Step 1"
+          title="Product foundation"
+          description="The pipeline crawler captures live messaging and structure for this product."
+          status={statusDisplay}
+          metrics={[
+            {
+              label: "Pages captured",
+              value: profile ? COUNT_FORMATTER.format(pageCount) : "—",
+              tone: pageCount ? "positive" : "warning",
+            },
+            {
+              label: "Errors",
+              value: profile
+                ? COUNT_FORMATTER.format(erroredPages.length)
+                : "—",
+              tone: erroredPages.length ? "danger" : "positive",
+            },
+            {
+              label: "Last run",
+              value: lastCrawled,
+              tone: lastCrawled === "Never" ? "warning" : "neutral",
+            },
+          ]}
+          collapsible
+          defaultOpen={shouldOpenCrawlerStage}
+        >
+          <>
+            <div className="space-y-6">
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+                <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    <span>Since last run:</span>
+                    <span>
+                      {lastCrawled !== "Never"
+                        ? `${pageCount} pages captured`
+                        : "Crawler ready to run"}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="space-y-3">
+                      <div className="text-xs font-semibold uppercase text-muted-foreground">
+                        Product
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-2xl font-semibold text-foreground">
+                          {productName}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge
+                            variant={statusDisplay.badge}
+                            className="text-[11px]"
+                          >
+                            {statusDisplay.label}
+                          </Badge>
+                          <Link
+                            href={websiteUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 rounded-full border border-transparent bg-primary/5 px-3 py-1 text-xs font-semibold text-primary transition hover:border-primary/40 hover:bg-primary/10"
+                          >
+                            Visit live site
+                          </Link>
+                        </div>
                         <Link
                           href={websiteUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-2 rounded-full border border-transparent bg-primary/5 px-3 py-1 text-xs font-semibold text-primary transition hover:border-primary/40 hover:bg-primary/10"
+                          className="break-all text-xs text-muted-foreground hover:text-primary"
                         >
-                          Visit live site
+                          {websiteUrl}
                         </Link>
                       </div>
-                      <Link
-                        href={websiteUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="break-all text-xs text-muted-foreground hover:text-primary"
-                      >
-                        {websiteUrl}
-                      </Link>
                     </div>
                   </div>
-                </div>
-                {profile ? (
-                  pageCount ? (
-                    <div className="mt-5 space-y-2">
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Crawler health</span>
-                        <span
-                          className={cn(
-                            "font-semibold",
-                            METRIC_TONE_STYLES[crawlerHealthTone],
-                          )}
-                        >
-                          {crawlerHealthPercent}% success
-                        </span>
-                      </div>
-                      <div className="h-2 rounded-full bg-slate-200">
-                        <div
-                          className={cn(
-                            "h-2 rounded-full transition-all",
-                            METRIC_TONE_BAR[crawlerHealthTone],
-                          )}
-                          style={{ width: `${crawlerHealthPercent}%` }}
-                        />
-                      </div>
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>
-                          {COUNT_FORMATTER.format(successfulPages)} ok
-                        </span>
-                        <span
-                          className={cn(
-                            "font-medium",
-                            erroredPages.length
-                              ? "text-destructive"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {COUNT_FORMATTER.format(erroredPages.length)} errors
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="mt-5 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-xs text-muted-foreground">
-                      We captured the profile metadata but no crawlable pages.
-                      Check that the sitemap is reachable and rerun the crawler.
-                    </div>
-                  )
-                ) : null}
-                {hasCrawlerNotices ? (
-                  <div className="mt-5 space-y-2">
-                    {renderCrawlerProgress()}
-                    {renderCrawlerError()}
-                    {renderCrawlerEmptyState()}
-                  </div>
-                ) : null}
-
-                <div className="mt-6 space-y-3 border-t border-slate-200 pt-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">
-                        Sitemap sources
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Live URLs captured during the last crawl.
-                      </div>
-                    </div>
-                    <Badge
-                      variant={
-                        hasSitemapEntries
-                          ? sitemapErrorCount
-                            ? "destructive"
-                            : "secondary"
-                          : "outline"
-                      }
-                      className="text-[11px]"
-                    >
-                      {hasSitemapEntries
-                        ? sitemapErrorCount
-                          ? `${COUNT_FORMATTER.format(sitemapEntryCount)} URL${sitemapEntryCount === 1 ? "" : "s"} • ${COUNT_FORMATTER.format(sitemapErrorCount)} error${sitemapErrorCount === 1 ? "" : "s"}`
-                          : `${COUNT_FORMATTER.format(sitemapEntryCount)} URL${sitemapEntryCount === 1 ? "" : "s"}`
-                        : "None yet"}
-                    </Badge>
-                  </div>
-
-                  {hasSitemapEntries ? (
-                    <>
-                      {sitemapErrorCount ? (
-                        <InfoNotice tone="error" size="xs">
-                          {sitemapErrorCount === 1
-                            ? "1 URL returned an error during the last crawl."
-                            : `${COUNT_FORMATTER.format(sitemapErrorCount)} URLs returned errors during the last crawl.`}
-                        </InfoNotice>
-                      ) : null}
-
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        {sitemapEntries.map((entry) => (
-                          <Link
-                            key={entry.url}
-                            href={entry.url}
-                            target="_blank"
-                            rel="noreferrer"
+                  {profile ? (
+                    pageCount ? (
+                      <div className="mt-5 space-y-2">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>Crawler health</span>
+                          <span
                             className={cn(
-                              "group flex items-start gap-2 rounded-md border px-3 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-                              SITEMAP_ITEM_STYLES[entry.status],
+                              "font-semibold",
+                              METRIC_TONE_STYLES[crawlerHealthTone],
                             )}
                           >
-                            <span
-                              className={cn(
-                                "mt-1 h-2 w-2 flex-shrink-0 rounded-full",
-                                SITEMAP_INDICATOR_STYLES[entry.status],
-                              )}
-                            />
-                            <span className="break-all leading-relaxed">
-                              {entry.url}
-                            </span>
-                          </Link>
-                        ))}
+                            {crawlerHealthPercent}% success
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-slate-200">
+                          <div
+                            className={cn(
+                              "h-2 rounded-full transition-all",
+                              METRIC_TONE_BAR[crawlerHealthTone],
+                            )}
+                            style={{ width: `${crawlerHealthPercent}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>
+                            {COUNT_FORMATTER.format(successfulPages)} ok
+                          </span>
+                          <span
+                            className={cn(
+                              "font-medium",
+                              erroredPages.length
+                                ? "text-destructive"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            {COUNT_FORMATTER.format(erroredPages.length)} errors
+                          </span>
+                        </div>
                       </div>
-                    </>
-                  ) : (
-                    <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-xs text-muted-foreground">
-                      Run the crawler to capture sitemap URLs for this product.
+                    ) : (
+                      <div className="mt-5 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-xs text-muted-foreground">
+                        We captured the profile metadata but no crawlable pages.
+                        Check that the sitemap is reachable and rerun the
+                        crawler.
+                      </div>
+                    )
+                  ) : null}
+                  {hasCrawlerNotices ? (
+                    <div className="mt-5 space-y-2">
+                      {renderCrawlerProgress()}
+                      {renderCrawlerError()}
+                      {renderCrawlerEmptyState()}
                     </div>
-                  )}
-                </div>
-              </section>
-              <div className="space-y-6">
-                {profile && !isRunningPipeline && !summary ? (
-                  <InfoNotice tone="info" size="xs">
-                    We captured the crawl but did not synthesize a summary yet.
-                    Run another insights pass if you recently updated the
-                    product site.
-                  </InfoNotice>
-                ) : null}
+                  ) : null}
 
-                {summary ? (
-                  <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div className="mt-6 space-y-3 border-t border-slate-200 pt-5">
+                    <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="text-sm font-semibold text-foreground">
-                          Product narrative
+                          Sitemap sources
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          Condensed from live website content and structured
-                          metadata.
+                          Live URLs captured during the last crawl.
                         </div>
                       </div>
                       <Badge
-                        variant="secondary"
-                        className="self-start text-[11px]"
+                        variant={
+                          hasSitemapEntries
+                            ? sitemapErrorCount
+                              ? "destructive"
+                              : "secondary"
+                            : "outline"
+                        }
+                        className="text-[11px]"
                       >
-                        {summarySections.length
-                          ? `${summarySections.length} theme${summarySections.length === 1 ? "" : "s"}`
-                          : "Overview"}
+                        {hasSitemapEntries
+                          ? sitemapErrorCount
+                            ? `${COUNT_FORMATTER.format(sitemapEntryCount)} URL${sitemapEntryCount === 1 ? "" : "s"} • ${COUNT_FORMATTER.format(sitemapErrorCount)} error${sitemapErrorCount === 1 ? "" : "s"}`
+                            : `${COUNT_FORMATTER.format(sitemapEntryCount)} URL${sitemapEntryCount === 1 ? "" : "s"}`
+                          : "None yet"}
                       </Badge>
                     </div>
-                    {summary.overview ? (
-                      <blockquote className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
-                        {summary.overview}
-                      </blockquote>
-                    ) : null}
-                    {!!summarySections.length && (
-                      <div className="grid gap-4 md:grid-cols-2">
-                        {summarySections.map((section) => (
-                          <div
-                            key={section.title}
-                            className="space-y-3 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
-                          >
-                            <div className="text-sm font-semibold text-foreground">
-                              {section.title}
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {section.items.map((item, index) => (
-                                <span
-                                  key={`${section.title}-${index}`}
-                                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-700"
-                                >
-                                  <span className="text-xs">•</span>
-                                  <span>{item}</span>
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
+
+                    {hasSitemapEntries ? (
+                      <>
+                        {sitemapErrorCount ? (
+                          <InfoNotice tone="error" size="xs">
+                            {sitemapErrorCount === 1
+                              ? "1 URL returned an error during the last crawl."
+                              : `${COUNT_FORMATTER.format(sitemapErrorCount)} URLs returned errors during the last crawl.`}
+                          </InfoNotice>
+                        ) : null}
+
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          {sitemapEntries.map((entry) => (
+                            <Link
+                              key={entry.url}
+                              href={entry.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={cn(
+                                "group flex items-start gap-2 rounded-md border px-3 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                                SITEMAP_ITEM_STYLES[entry.status],
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  "mt-1 h-2 w-2 flex-shrink-0 rounded-full",
+                                  SITEMAP_INDICATOR_STYLES[entry.status],
+                                )}
+                              />
+                              <span className="break-all leading-relaxed">
+                                {entry.url}
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-xs text-muted-foreground">
+                        Run the crawler to capture sitemap URLs for this
+                        product.
                       </div>
                     )}
-                  </section>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </>
-      </StageCard>
-
-      <StageCard
-        step="Step 2"
-        title="Competitive landscape"
-        description="Identify the alternatives buyers evaluate alongside this product before diving into community signals."
-        status={competitorStatusDisplay}
-        metrics={[
-          {
-            label: "Competitors",
-            value: hasCompetitorResults
-              ? COUNT_FORMATTER.format(sortedCompetitors.length)
-              : "0",
-            tone: hasCompetitorResults ? "positive" : "warning",
-          },
-          {
-            label: "Gap signals",
-            value: COUNT_FORMATTER.format(
-              sortedCompetitors.filter(
-                (entry) =>
-                  Array.isArray(entry.weaknesses) && entry.weaknesses.length,
-              ).length,
-            ),
-            tone: "neutral",
-          },
-          {
-            label: "Last refreshed",
-            value: lastCompetitorDiscovery,
-            tone: lastCompetitorDiscovery === "Never" ? "warning" : "neutral",
-          },
-        ]}
-        collapsible
-        defaultOpen={shouldOpenCompetitorStage}
-      >
-        <>
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-              <span>Since last run:</span>
-              <span>
-                {hasCompetitorResults
-                  ? `${COUNT_FORMATTER.format(sortedCompetitors.length)} competitors mapped`
-                  : "Landscape ready to refresh"}
-              </span>
-            </div>
-            <div className="space-y-6">
-              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <div className="text-sm font-semibold text-foreground">
-                    Competitive snapshot
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    Direct and adjacent products highlighted from the crawl and
-                    synthesis context.
-                  </div>
-                </div>
-              </div>
+                </section>
+                <div className="space-y-6">
+                  {profile && !isRunningPipeline && !summary ? (
+                    <InfoNotice tone="info" size="xs">
+                      We captured the crawl but did not synthesize a summary
+                      yet. Run another insights pass if you recently updated the
+                      product site.
+                    </InfoNotice>
+                  ) : null}
 
-              {shouldSurfaceCompetitorNotices ? (
-                <div className="space-y-2">
-                  {renderCompetitorProgress()}
-                  {renderCompetitorError()}
-                  {renderCompetitorEmptyState()}
-                </div>
-              ) : null}
-
-              {hasCompetitorResults ? (
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    Top rivals right now
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {competitorSpotlights.map((spotlight) => (
-                      <span
-                        key={`spotlight-${spotlight.name}`}
-                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-foreground"
-                      >
-                        <span>{spotlight.name}</span>
-                        {spotlight.focus ? (
-                          <span className="text-muted-foreground">
-                            • {spotlight.focus}
-                          </span>
-                        ) : null}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {hasCompetitorResults || competitorResearchNotes.length ? (
-                <Collapsible
-                  open={showCompetitorDeepDive}
-                  onOpenChange={setShowCompetitorDeepDive}
-                  className="space-y-4"
-                >
-                  <CollapsibleTrigger asChild>
-                    <button
-                      type="button"
-                      className="flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                    >
-                      <span>
-                        {showCompetitorDeepDive
-                          ? "Hide full landscape"
-                          : "Show full landscape"}
-                      </span>
-                      <ChevronDownIcon
-                        className={cn(
-                          "h-4 w-4 transition-transform duration-200",
-                          showCompetitorDeepDive ? "rotate-180" : "rotate-0",
-                        )}
-                        aria-hidden
-                      />
-                    </button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-4">
-                    {hasCompetitorResults ? (
-                      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                        {sortedCompetitors.map((competitor, index) => {
-                          const differentiators = Array.isArray(
-                            competitor.differentiators,
-                          )
-                            ? competitor.differentiators.filter(
-                                (item): item is string =>
-                                  typeof item === "string" &&
-                                  item.trim().length > 0,
-                              )
-                            : []
-                          const strengths = Array.isArray(competitor.strengths)
-                            ? competitor.strengths.filter(
-                                (item): item is string =>
-                                  typeof item === "string" &&
-                                  item.trim().length > 0,
-                              )
-                            : []
-                          const weaknesses = Array.isArray(
-                            competitor.weaknesses,
-                          )
-                            ? competitor.weaknesses.filter(
-                                (item): item is string =>
-                                  typeof item === "string" &&
-                                  item.trim().length > 0,
-                              )
-                            : []
-                          const similarityPercent =
-                            typeof competitor.similarityScore === "number"
-                              ? Math.round(competitor.similarityScore * 100)
-                              : null
-                          const maturityLabel = competitor.maturity
-                            ? competitor.maturity.charAt(0).toUpperCase() +
-                              competitor.maturity.slice(1)
-                            : null
-                          const focusArea = competitor.focusArea?.trim() || null
-                          const positioning =
-                            competitor.positioning?.trim() || null
-                          const source = competitor.source?.trim() || null
-                          const visitUrl = competitor.url ?? null
-
-                          return (
+                  {summary ? (
+                    <section className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <div className="text-sm font-semibold text-foreground">
+                            Product narrative
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Condensed from live website content and structured
+                            metadata.
+                          </div>
+                        </div>
+                        <Badge
+                          variant="secondary"
+                          className="self-start text-[11px]"
+                        >
+                          {summarySections.length
+                            ? `${summarySections.length} theme${summarySections.length === 1 ? "" : "s"}`
+                            : "Overview"}
+                        </Badge>
+                      </div>
+                      {summary.overview ? (
+                        <blockquote className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
+                          {summary.overview}
+                        </blockquote>
+                      ) : null}
+                      {!!summarySections.length && (
+                        <div className="grid gap-4 md:grid-cols-2">
+                          {summarySections.map((section) => (
                             <div
-                              key={`${competitor.name || "competitor"}-${index}`}
-                              className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                              key={section.title}
+                              className="space-y-3 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
                             >
-                              <div className="flex flex-col gap-2">
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="space-y-1">
-                                    <div className="text-sm font-semibold text-foreground">
-                                      {competitor.name || "Competitor"}
-                                    </div>
-                                    {focusArea ? (
-                                      <div className="text-xs text-muted-foreground">
-                                        {focusArea}
-                                      </div>
-                                    ) : null}
-                                    {positioning ? (
-                                      <div className="text-xs text-muted-foreground">
-                                        {positioning}
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-2 text-[11px]">
-                                  {similarityPercent !== null ? (
-                                    <Badge
-                                      variant="secondary"
-                                      className="text-[10px]"
-                                    >
-                                      {similarityPercent}% overlap
-                                    </Badge>
-                                  ) : null}
-                                  {maturityLabel ? (
-                                    <Badge
-                                      variant="outline"
-                                      className="text-[10px] capitalize"
-                                    >
-                                      {maturityLabel}
-                                    </Badge>
-                                  ) : null}
-                                  {visitUrl ? (
-                                    <Link
-                                      href={visitUrl}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-[10px] font-semibold text-primary transition hover:bg-primary/10"
-                                    >
-                                      Visit site
-                                    </Link>
-                                  ) : null}
-                                </div>
+                              <div className="text-sm font-semibold text-foreground">
+                                {section.title}
                               </div>
-                              {competitor.description ? (
-                                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">
-                                  {competitor.description}
-                                </div>
-                              ) : null}
-                              <div className="space-y-3 text-xs text-muted-foreground">
-                                {differentiators.length ? (
-                                  <div>
-                                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                                      Differentiators
-                                    </div>
-                                    <div className="mt-1 flex flex-wrap gap-2">
-                                      {differentiators.map((item) => (
-                                        <span
-                                          key={`${competitor.name}-diff-${item}`}
-                                          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
-                                        >
-                                          {item}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ) : null}
-                                {strengths.length ? (
-                                  <div>
-                                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                                      Strengths
-                                    </div>
-                                    <div className="mt-1 flex flex-wrap gap-2">
-                                      {strengths.map((item) => (
-                                        <span
-                                          key={`${competitor.name}-strength-${item}`}
-                                          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
-                                        >
-                                          {item}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ) : null}
-                                {weaknesses.length ? (
-                                  <div>
-                                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                                      Gaps
-                                    </div>
-                                    <div className="mt-1 flex flex-wrap gap-2">
-                                      {weaknesses.map((item) => (
-                                        <span
-                                          key={`${competitor.name}-weakness-${item}`}
-                                          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
-                                        >
-                                          {item}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ) : null}
-                                {source ? (
-                                  <div className="text-[11px] text-muted-foreground">
-                                    Source: {source}
-                                  </div>
-                                ) : null}
+                              <div className="flex flex-wrap gap-2">
+                                {section.items.map((item, index) => (
+                                  <span
+                                    key={`${section.title}-${index}`}
+                                    className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-700"
+                                  >
+                                    <span className="text-xs">•</span>
+                                    <span>{item}</span>
+                                  </span>
+                                ))}
                               </div>
                             </div>
-                          )
-                        })}
-                      </div>
-                    ) : null}
-
-                    {competitorResearchNotes.length ? (
-                      <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                        <div className="text-sm font-semibold text-foreground">
-                          Analyst notes
-                        </div>
-                        <ul className="space-y-2 text-xs leading-relaxed text-muted-foreground">
-                          {competitorResearchNotes.map((note, index) => (
-                            <li
-                              key={`${index}-${note.slice(0, 24)}`}
-                              className="flex gap-2"
-                            >
-                              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" />
-                              <span>{note}</span>
-                            </li>
                           ))}
-                        </ul>
-                      </div>
-                    ) : null}
-                  </CollapsibleContent>
-                </Collapsible>
-              ) : null}
+                        </div>
+                      )}
+                    </section>
+                  ) : null}
+                </div>
+              </div>
             </div>
-          </section>
-        </>
-      </StageCard>
+          </>
+        </StageCard>
 
-      <StageCard
-        step="Step 3"
-        title="Audience discovery"
-        description="The pipeline generates community search plans and captures the groups that match this product."
-        status={subredditStatusDisplay}
-        metrics={[
-          {
-            label: "Communities",
-            value: hasSubredditResults
-              ? COUNT_FORMATTER.format(subreddits.length)
-              : "0",
-            tone: hasSubredditResults ? "positive" : "warning",
-          },
-          {
-            label: "Query coverage",
-            value:
-              coveragePercent !== null
-                ? `${PERCENT_FORMATTER.format(coveragePercent)}%`
-                : "—",
-            tone:
-              coveragePercent !== null
-                ? coveragePercent >= REQUIRED_QUERY_COVERAGE_PERCENT
-                  ? "positive"
-                  : "warning"
-                : "neutral",
-          },
-          {
-            label: "Last refreshed",
-            value: lastSubredditDiscovery,
-            tone: lastSubredditDiscovery === "Never" ? "warning" : "neutral",
-          },
-        ]}
-        collapsible
-        defaultOpen={shouldOpenSubredditStage}
-      >
-        <>
-          <div className="space-y-6">
+        <StageCard
+          step="Step 2"
+          title="Competitive landscape"
+          description="Identify the alternatives buyers evaluate alongside this product before diving into community signals."
+          status={competitorStatusDisplay}
+          metrics={[
+            {
+              label: "Competitors",
+              value: hasCompetitorResults
+                ? COUNT_FORMATTER.format(sortedCompetitors.length)
+                : "0",
+              tone: hasCompetitorResults ? "positive" : "warning",
+            },
+            {
+              label: "Gap signals",
+              value: COUNT_FORMATTER.format(
+                sortedCompetitors.filter(
+                  (entry) =>
+                    Array.isArray(entry.weaknesses) && entry.weaknesses.length,
+                ).length,
+              ),
+              tone: "neutral",
+            },
+            {
+              label: "Last refreshed",
+              value: lastCompetitorDiscovery,
+              tone: lastCompetitorDiscovery === "Never" ? "warning" : "neutral",
+            },
+          ]}
+          collapsible
+          defaultOpen={shouldOpenCompetitorStage}
+        >
+          <>
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                 <span>Since last run:</span>
                 <span>
-                  {hasSubredditResults
-                    ? `${COUNT_FORMATTER.format(subreddits.length)} communities cached`
-                    : "Discovery pending"}
+                  {hasCompetitorResults
+                    ? `${COUNT_FORMATTER.format(sortedCompetitors.length)} competitors mapped`
+                    : "Landscape ready to refresh"}
                 </span>
               </div>
-              <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.9fr)]">
-                <div className="space-y-6">
-                  <Collapsible
-                    open={showCommunityInputs}
-                    onOpenChange={setShowCommunityInputs}
-                    className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
-                  >
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <div className="text-sm font-semibold text-foreground">
-                          Search plan inputs
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Prompts that seeded this community discovery run.
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {subredditQueries.length ? (
-                          <Badge variant="outline" className="text-[11px]">
-                            {COUNT_FORMATTER.format(subredditQueries.length)}{" "}
-                            {subredditQueries.length === 1
-                              ? "query"
-                              : "queries"}
-                          </Badge>
-                        ) : null}
-                        <CollapsibleTrigger asChild>
-                          <button
-                            type="button"
-                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                          >
-                            {showCommunityInputs
-                              ? "Hide inputs"
-                              : "Show inputs"}
-                            <ChevronDownIcon
-                              className={cn(
-                                "h-3.5 w-3.5 transition-transform duration-200",
-                                showCommunityInputs ? "rotate-180" : "rotate-0",
-                              )}
-                              aria-hidden
-                            />
-                          </button>
-                        </CollapsibleTrigger>
-                      </div>
-                    </div>
-                    <CollapsibleContent>
-                      {subredditQueries.length ? (
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          {subredditQueries.map((item) => {
-                            const matchCount =
-                              communityStats.queryMatchCounts.get(item.query) ??
-                              0
-                            return (
-                              <div
-                                key={item.query}
-                                className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
-                              >
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="font-semibold leading-snug text-foreground">
-                                    {item.query}
-                                  </div>
-                                  <Badge
-                                    variant={
-                                      matchCount ? "secondary" : "outline"
-                                    }
-                                    className="text-[10px]"
-                                  >
-                                    {matchCount
-                                      ? `${matchCount} match${matchCount === 1 ? "" : "es"}`
-                                      : "No matches yet"}
-                                  </Badge>
-                                </div>
-                                {item.rationale ? (
-                                  <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                                    {item.rationale}
-                                  </div>
-                                ) : null}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      ) : (
-                        <InfoNotice tone="info" size="xs">
-                          Run discovery to generate targeted community search
-                          queries for this product.
-                        </InfoNotice>
-                      )}
-                    </CollapsibleContent>
-                  </Collapsible>
-                  {topSubreddits.length ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="text-sm font-semibold text-foreground">
-                          Priority communities
-                        </div>
-                        <Badge variant="secondary" className="text-[11px]">
-                          Top {topSubreddits.length}
-                        </Badge>
-                      </div>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {topSubreddits.map((subreddit) => {
-                          const relevancePercent =
-                            typeof subreddit.relevanceScore === "number"
-                              ? Math.round(subreddit.relevanceScore * 100)
-                              : null
-                          const memberCount =
-                            typeof subreddit.subscribers === "number"
-                              ? COUNT_FORMATTER.format(subreddit.subscribers)
-                              : null
-                          const description =
-                            subreddit.relevanceReason ||
-                            subreddit.description ||
-                            subreddit.title ||
-                            null
-                          const trimmedDescription =
-                            description && description.length > 140
-                              ? `${description.slice(0, 140)}…`
-                              : description
-                          const queryBadgeLabel = subreddit.matchedQueries
-                            ?.length
-                            ? `${subreddit.matchedQueries.length} query${
-                                subreddit.matchedQueries.length === 1
-                                  ? ""
-                                  : "es"
-                              }`
-                            : null
-                          return (
-                            <Link
-                              key={subreddit.name}
-                              href={
-                                subreddit.url ??
-                                `https://reddit.com/r/${subreddit.name}`
-                              }
-                              target="_blank"
-                              rel="noreferrer"
-                              className="group rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm transition hover:border-primary/40 hover:shadow-md"
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="text-sm font-semibold text-foreground">
-                                  {subreddit.name}
-                                </div>
-                                {relevancePercent !== null ? (
-                                  <Badge
-                                    variant={
-                                      relevancePercent >= 70
-                                        ? "secondary"
-                                        : relevancePercent >= 40
-                                          ? "outline"
-                                          : "destructive"
-                                    }
-                                    className="text-[10px]"
-                                  >
-                                    {relevancePercent}% match
-                                  </Badge>
-                                ) : null}
-                              </div>
-                              {trimmedDescription ? (
-                                <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                                  {trimmedDescription}
-                                </div>
-                              ) : null}
-                              <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                                {memberCount ? (
-                                  <span className="font-medium text-foreground">
-                                    {memberCount} members
-                                  </span>
-                                ) : null}
-                                {queryBadgeLabel ? (
-                                  <Badge
-                                    variant="outline"
-                                    className="text-[10px]"
-                                  >
-                                    {queryBadgeLabel}
-                                  </Badge>
-                                ) : null}
-                                {subreddit.over18 ? (
-                                  <Badge
-                                    variant="destructive"
-                                    className="text-[10px] uppercase"
-                                  >
-                                    18+
-                                  </Badge>
-                                ) : null}
-                              </div>
-                            </Link>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs font-semibold uppercase text-muted-foreground">
-                      Discovery health
-                    </div>
-                    {hasSubredditResults ? (
-                      <Badge variant="secondary" className="text-[11px]">
-                        {COUNT_FORMATTER.format(subreddits.length)} saved
-                      </Badge>
-                    ) : null}
-                  </div>
-                  <div className="grid gap-3">
-                    {discoveryQuickFacts.map((fact) => (
-                      <div
-                        key={fact.label}
-                        className={cn(
-                          "rounded-lg border p-3 text-left text-sm shadow-sm",
-                          FACT_TONE_STYLES[fact.tone],
-                        )}
-                      >
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                          {fact.label}
-                        </div>
-                        <div className="mt-1 text-sm font-semibold">
-                          {fact.value}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {shouldSurfaceSubredditNotices ? (
-                    <div className="space-y-2">
-                      {renderSubredditProgress()}
-                      {renderSubredditError()}
-                      {renderSubredditCoverageNotice()}
-                      {shouldShowSubredditEmptyState ? (
-                        <InfoNotice tone="info" size="xs">
-                          Run an insights pass to craft community search plans,
-                          resolve the best-fit groups, and cache them for future
-                          research or outreach.
-                        </InfoNotice>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </section>
-            {hasSubredditResults ? (
-              <Collapsible
-                open={showCommunityDeepDive}
-                onOpenChange={setShowCommunityDeepDive}
-                className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-              >
+              <div className="space-y-6">
                 <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="text-sm font-semibold text-foreground">
-                      Saved communities roster
+                      Competitive snapshot
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Full detail on reach, match rationale, and the queries
-                      that drove discovery.
+                      Direct and adjacent products highlighted from the crawl
+                      and synthesis context.
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="self-start text-[11px]">
-                      {`${COUNT_FORMATTER.format(subreddits.length)} ${
-                        subreddits.length === 1 ? "community" : "communities"
-                      }`}
-                    </Badge>
+                </div>
+
+                {shouldSurfaceCompetitorNotices ? (
+                  <div className="space-y-2">
+                    {renderCompetitorProgress()}
+                    {renderCompetitorError()}
+                    {renderCompetitorEmptyState()}
+                  </div>
+                ) : null}
+
+                {hasCompetitorResults ? (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Top rivals right now
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {competitorSpotlights.map((spotlight) => (
+                        <span
+                          key={`spotlight-${spotlight.name}`}
+                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-foreground"
+                        >
+                          <span>{spotlight.name}</span>
+                          {spotlight.focus ? (
+                            <span className="text-muted-foreground">
+                              • {spotlight.focus}
+                            </span>
+                          ) : null}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                {hasCompetitorResults || competitorResearchNotes.length ? (
+                  <Collapsible
+                    open={showCompetitorDeepDive}
+                    onOpenChange={setShowCompetitorDeepDive}
+                    className="space-y-4"
+                  >
                     <CollapsibleTrigger asChild>
                       <button
                         type="button"
-                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                        className="flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                       >
-                        {showCommunityDeepDive
-                          ? "Hide table"
-                          : "Show full table"}
+                        <span>
+                          {showCompetitorDeepDive
+                            ? "Hide full landscape"
+                            : "Show full landscape"}
+                        </span>
                         <ChevronDownIcon
                           className={cn(
                             "h-4 w-4 transition-transform duration-200",
-                            showCommunityDeepDive ? "rotate-180" : "rotate-0",
+                            showCompetitorDeepDive ? "rotate-180" : "rotate-0",
                           )}
                           aria-hidden
                         />
                       </button>
                     </CollapsibleTrigger>
-                  </div>
-                </div>
-                <CollapsibleContent asChild>
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="min-w-[160px]">
-                            Community
-                          </TableHead>
-                          <TableHead className="min-w-[280px]">
-                            What they discuss
-                          </TableHead>
-                          <TableHead>Relevance</TableHead>
-                          <TableHead>Subscribers</TableHead>
-                          <TableHead>Matched queries</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {subreddits.map((subreddit) => (
-                          <TableRow key={subreddit.name}>
-                            <TableCell className="whitespace-nowrap">
-                              <Link
-                                href={
-                                  subreddit.url ??
-                                  `https://reddit.com/r/${subreddit.name}`
-                                }
-                                target="_blank"
-                                rel="noreferrer"
-                                className="font-semibold text-primary hover:underline"
-                              >
-                                {subreddit.name}
-                              </Link>
-                              {subreddit.over18 && (
-                                <Badge
-                                  variant="outline"
-                                  className="ml-2 align-middle text-[10px]"
-                                >
-                                  18+
-                                </Badge>
-                              )}
-                            </TableCell>
-                            <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
-                              <div>
-                                {subreddit.description ||
-                                  subreddit.title ||
-                                  "—"}
-                              </div>
-                              {subreddit.relevanceReason && (
-                                <div className="mt-2 text-xs text-primary">
-                                  {subreddit.relevanceReason}
-                                </div>
-                              )}
-                            </TableCell>
-                            <TableCell className="whitespace-nowrap text-sm text-foreground">
-                              {typeof subreddit.relevanceScore === "number"
-                                ? `${Math.round(subreddit.relevanceScore * 100)}%`
-                                : "—"}
-                            </TableCell>
-                            <TableCell className="whitespace-nowrap text-sm text-foreground">
-                              {typeof subreddit.subscribers === "number"
-                                ? subreddit.subscribers.toLocaleString()
-                                : "—"}
-                            </TableCell>
-                            <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
-                              {subreddit.matchedQueries?.length
-                                ? subreddit.matchedQueries.join(" • ")
-                                : "—"}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                      <TableCaption>
-                        {`${subreddits.length} ${
-                          subreddits.length === 1 ? "community" : "communities"
-                        } saved for this product`}
-                      </TableCaption>
-                    </Table>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            ) : null}
-          </div>
-        </>
-      </StageCard>
-      <StageCard
-        step="Step 4"
-        title="Hacker News mentions"
-        description="Monitor launch chatter and comparisons from Hacker News to enrich community insights."
-        status={hackerNewsStatusDisplay}
-        metrics={[
-          {
-            label: "Stories",
-            value: hasHackerNewsResults
-              ? COUNT_FORMATTER.format(hackerNewsStories.length)
-              : "0",
-            tone: hasHackerNewsResults ? "positive" : "warning",
-          },
-          {
-            label: "Total upvotes",
-            value: hackerNewsStats.totalPoints
-              ? COUNT_FORMATTER.format(hackerNewsStats.totalPoints)
-              : "0",
-            tone: hackerNewsStats.totalPoints ? "positive" : "neutral",
-          },
-          {
-            label: "Query coverage",
-            value:
-              hackerNewsCoveragePercent !== null
-                ? `${PERCENT_FORMATTER.format(hackerNewsCoveragePercent)}%`
-                : hasHackerNewsQueries
-                  ? "0%"
-                  : "—",
-            tone: hackerNewsCoverageTone,
-          },
-          {
-            label: "Last refreshed",
-            value: lastHackerNewsDiscovery,
-            tone: lastHackerNewsDiscovery === "Never" ? "warning" : "neutral",
-          },
-        ]}
-        collapsible
-        defaultOpen={shouldOpenHackerNewsStage}
-      >
-        <>
-          <div className="space-y-6">
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                <span>Since last run:</span>
-                <span>
-                  {hasHackerNewsResults
-                    ? `${COUNT_FORMATTER.format(hackerNewsStories.length)} stories captured`
-                    : "Monitoring pending"}
-                </span>
-              </div>
-              <div className="space-y-6">
-                {shouldSurfaceHackerNewsNotices ? (
-                  <div className="space-y-2">
-                    {renderHackerNewsProgress()}
-                    {renderHackerNewsError()}
-                    {renderHackerNewsEmptyState()}
-                  </div>
-                ) : null}
+                    <CollapsibleContent className="space-y-4">
+                      {hasCompetitorResults ? (
+                        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                          {sortedCompetitors.map((competitor, index) => {
+                            const differentiators = Array.isArray(
+                              competitor.differentiators,
+                            )
+                              ? competitor.differentiators.filter(
+                                  (item): item is string =>
+                                    typeof item === "string" &&
+                                    item.trim().length > 0,
+                                )
+                              : []
+                            const strengths = Array.isArray(
+                              competitor.strengths,
+                            )
+                              ? competitor.strengths.filter(
+                                  (item): item is string =>
+                                    typeof item === "string" &&
+                                    item.trim().length > 0,
+                                )
+                              : []
+                            const weaknesses = Array.isArray(
+                              competitor.weaknesses,
+                            )
+                              ? competitor.weaknesses.filter(
+                                  (item): item is string =>
+                                    typeof item === "string" &&
+                                    item.trim().length > 0,
+                                )
+                              : []
+                            const similarityPercent =
+                              typeof competitor.similarityScore === "number"
+                                ? Math.round(competitor.similarityScore * 100)
+                                : null
+                            const maturityLabel = competitor.maturity
+                              ? competitor.maturity.charAt(0).toUpperCase() +
+                                competitor.maturity.slice(1)
+                              : null
+                            const focusArea =
+                              competitor.focusArea?.trim() || null
+                            const positioning =
+                              competitor.positioning?.trim() || null
+                            const source = competitor.source?.trim() || null
+                            const visitUrl = competitor.url ?? null
 
-                {hackerNewsSummary ? (
-                  <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="flex flex-col gap-1">
-                      <div className="text-sm font-semibold text-foreground">
-                        Key takeaways
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Synthesized from the latest Hacker News threads pulled in this run.
-                      </div>
-                    </div>
-                    <p className="text-sm leading-relaxed text-foreground">
-                      {hackerNewsSummary.summary}
-                    </p>
-                    {hackerNewsSummary.highlights?.length ? (
-                      <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
-                        {hackerNewsSummary.highlights.map((highlight) => (
-                          <li key={highlight}>{highlight}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                    {Array.isArray(hackerNewsSummary.topStories) &&
-                    hackerNewsSummary.topStories.length ? (
-                      <div className="space-y-1">
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                          Referenced threads
-                        </div>
-                        <div className="space-y-2">
-                          {hackerNewsSummary.topStories.map((story) => (
-                            <div
-                              key={story.discussionUrl}
-                              className="rounded-lg border border-slate-200 bg-white p-3 text-xs shadow-sm"
-                            >
-                              <Link
-                                href={story.discussionUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="font-semibold text-primary hover:underline"
+                            return (
+                              <div
+                                key={`${competitor.name || "competitor"}-${index}`}
+                                className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
                               >
-                                {story.title}
-                              </Link>
-                              {story.keyTakeaway ? (
-                                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                                  {story.keyTakeaway}
-                                </p>
-                              ) : null}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                {hasHackerNewsQueries ? (
-                  <Collapsible
-                    open={showHackerNewsInputs}
-                    onOpenChange={setShowHackerNewsInputs}
-                    className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
-                  >
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <div className="text-sm font-semibold text-foreground">
-                          Search plan inputs
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Queries that seeded the Hacker News pass.
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="outline" className="text-[11px]">
-                          {COUNT_FORMATTER.format(hackerNewsQueries.length)}{' '}
-                          {hackerNewsQueries.length === 1 ? "query" : "queries"}
-                        </Badge>
-                        <CollapsibleTrigger asChild>
-                          <button
-                            type="button"
-                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                          >
-                            {showHackerNewsInputs ? "Hide inputs" : "Show inputs"}
-                            <ChevronDownIcon
-                              className={cn(
-                                "h-3.5 w-3.5 transition-transform duration-200",
-                                showHackerNewsInputs ? "rotate-180" : "rotate-0",
-                              )}
-                              aria-hidden
-                            />
-                          </button>
-                        </CollapsibleTrigger>
-                      </div>
-                    </div>
-                    <CollapsibleContent>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {hackerNewsQueries.map((query) => {
-                          const matchCount =
-                            hackerNewsStats.queryCounts.get(query.query) ?? 0
-                          const covered =
-                            hackerNewsStats.matchedQueries.has(query.query)
-                          return (
-                            <div
-                              key={query.query}
-                              className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="font-semibold leading-snug text-foreground">
-                                  {query.query}
+                                <div className="flex flex-col gap-2">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="space-y-1">
+                                      <div className="text-sm font-semibold text-foreground">
+                                        {competitor.name || "Competitor"}
+                                      </div>
+                                      {focusArea ? (
+                                        <div className="text-xs text-muted-foreground">
+                                          {focusArea}
+                                        </div>
+                                      ) : null}
+                                      {positioning ? (
+                                        <div className="text-xs text-muted-foreground">
+                                          {positioning}
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                                    {similarityPercent !== null ? (
+                                      <Badge
+                                        variant="secondary"
+                                        className="text-[10px]"
+                                      >
+                                        {similarityPercent}% overlap
+                                      </Badge>
+                                    ) : null}
+                                    {maturityLabel ? (
+                                      <Badge
+                                        variant="outline"
+                                        className="text-[10px] capitalize"
+                                      >
+                                        {maturityLabel}
+                                      </Badge>
+                                    ) : null}
+                                    {visitUrl ? (
+                                      <Link
+                                        href={visitUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-[10px] font-semibold text-primary transition hover:bg-primary/10"
+                                      >
+                                        Visit site
+                                      </Link>
+                                    ) : null}
+                                  </div>
                                 </div>
-                                <Badge
-                                  variant={covered ? "secondary" : "outline"}
-                                  className="text-[10px]"
-                                >
-                                  {covered
-                                    ? `${COUNT_FORMATTER.format(matchCount)} match${
-                                        matchCount === 1 ? "" : "es"
-                                      }`
-                                    : "No matches yet"}
-                                </Badge>
+                                {competitor.description ? (
+                                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">
+                                    {competitor.description}
+                                  </div>
+                                ) : null}
+                                <div className="space-y-3 text-xs text-muted-foreground">
+                                  {differentiators.length ? (
+                                    <div>
+                                      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                        Differentiators
+                                      </div>
+                                      <div className="mt-1 flex flex-wrap gap-2">
+                                        {differentiators.map((item) => (
+                                          <span
+                                            key={`${competitor.name}-diff-${item}`}
+                                            className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
+                                          >
+                                            {item}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ) : null}
+                                  {strengths.length ? (
+                                    <div>
+                                      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                        Strengths
+                                      </div>
+                                      <div className="mt-1 flex flex-wrap gap-2">
+                                        {strengths.map((item) => (
+                                          <span
+                                            key={`${competitor.name}-strength-${item}`}
+                                            className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
+                                          >
+                                            {item}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ) : null}
+                                  {weaknesses.length ? (
+                                    <div>
+                                      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                        Gaps
+                                      </div>
+                                      <div className="mt-1 flex flex-wrap gap-2">
+                                        {weaknesses.map((item) => (
+                                          <span
+                                            key={`${competitor.name}-weakness-${item}`}
+                                            className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-foreground"
+                                          >
+                                            {item}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ) : null}
+                                  {source ? (
+                                    <div className="text-[11px] text-muted-foreground">
+                                      Source: {source}
+                                    </div>
+                                  ) : null}
+                                </div>
                               </div>
-                              {query.rationale ? (
-                                <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                                  {query.rationale}
-                                </div>
-                              ) : null}
-                            </div>
-                          )
-                        })}
-                      </div>
+                            )
+                          })}
+                        </div>
+                      ) : null}
+
+                      {competitorResearchNotes.length ? (
+                        <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                          <div className="text-sm font-semibold text-foreground">
+                            Analyst notes
+                          </div>
+                          <ul className="space-y-2 text-xs leading-relaxed text-muted-foreground">
+                            {competitorResearchNotes.map((note, index) => (
+                              <li
+                                key={`${index}-${note.slice(0, 24)}`}
+                                className="flex gap-2"
+                              >
+                                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" />
+                                <span>{note}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
                     </CollapsibleContent>
                   </Collapsible>
                 ) : null}
+              </div>
+            </section>
+          </>
+        </StageCard>
 
-                {!hasHackerNewsQueries && !hackerNewsProgress ? (
-                  <InfoNotice tone="info" size="xs">
-                    Add product keywords or competitors, then re-run the
-                    pipeline to generate targeted Hacker News queries.
-                  </InfoNotice>
-                ) : null}
-
-                {hasHackerNewsResults ? (
-                  <div className="space-y-5">
-                    <div className="grid gap-3 xl:grid-cols-3">
-                      {topHackerNewsStories.map((story) => (
-                        <Link
-                          key={story.id}
-                          href={story.discussionUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="group flex h-full flex-col justify-between rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm transition hover:border-primary/40 hover:shadow-md"
-                        >
-                          <div className="space-y-3">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
-                                {story.title}
-                              </div>
-                              {typeof story.points === "number" ? (
-                                <Badge variant="secondary" className="text-[11px]">
-                                  {COUNT_FORMATTER.format(story.points)} points
-                                </Badge>
-                              ) : null}
-                            </div>
-                            {story.snippet ? (
-                              <div className="text-xs leading-relaxed text-muted-foreground">
-                                {story.snippet}
-                              </div>
-                            ) : null}
+        <StageCard
+          step="Step 3"
+          title="Audience discovery"
+          description="The pipeline generates community search plans and captures the groups that match this product."
+          status={subredditStatusDisplay}
+          metrics={[
+            {
+              label: "Communities",
+              value: hasSubredditResults
+                ? COUNT_FORMATTER.format(subreddits.length)
+                : "0",
+              tone: hasSubredditResults ? "positive" : "warning",
+            },
+            {
+              label: "Query coverage",
+              value:
+                coveragePercent !== null
+                  ? `${PERCENT_FORMATTER.format(coveragePercent)}%`
+                  : "—",
+              tone:
+                coveragePercent !== null
+                  ? coveragePercent >= REQUIRED_QUERY_COVERAGE_PERCENT
+                    ? "positive"
+                    : "warning"
+                  : "neutral",
+            },
+            {
+              label: "Last refreshed",
+              value: lastSubredditDiscovery,
+              tone: lastSubredditDiscovery === "Never" ? "warning" : "neutral",
+            },
+          ]}
+          collapsible
+          defaultOpen={shouldOpenSubredditStage}
+        >
+          <>
+            <div className="space-y-6">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  <span>Since last run:</span>
+                  <span>
+                    {hasSubredditResults
+                      ? `${COUNT_FORMATTER.format(subreddits.length)} communities cached`
+                      : "Discovery pending"}
+                  </span>
+                </div>
+                <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.9fr)]">
+                  <div className="space-y-6">
+                    <Collapsible
+                      open={showCommunityInputs}
+                      onOpenChange={setShowCommunityInputs}
+                      className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                    >
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <div className="text-sm font-semibold text-foreground">
+                            Search plan inputs
                           </div>
-                          <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                            {typeof story.numComments === "number" ? (
-                              <span>
-                                {COUNT_FORMATTER.format(story.numComments)} comment
-                                {story.numComments === 1 ? "" : "s"}
-                              </span>
-                            ) : null}
-                            {story.matchedQueries?.length ? (
-                              <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5">
-                                🔍 {COUNT_FORMATTER.format(story.matchedQueries.length)} query
-                                {story.matchedQueries.length === 1 ? "" : "ies"}
-                              </span>
-                            ) : null}
-                            <span className="inline-flex items-center gap-1 text-primary">
-                              View thread ↗
-                            </span>
+                          <div className="text-xs text-muted-foreground">
+                            Prompts that seeded this community discovery run.
                           </div>
-                        </Link>
-                      ))}
-                    </div>
-
-                    {remainingHackerNewsStories.length ? (
-                      <Collapsible
-                        open={showHackerNewsDeepDive}
-                        onOpenChange={setShowHackerNewsDeepDive}
-                        className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
-                      >
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            <div className="text-sm font-semibold text-foreground">
-                              Additional mentions
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              Expand to review the remaining captured threads.
-                            </div>
-                          </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {subredditQueries.length ? (
+                            <Badge variant="outline" className="text-[11px]">
+                              {COUNT_FORMATTER.format(subredditQueries.length)}{" "}
+                              {subredditQueries.length === 1
+                                ? "query"
+                                : "queries"}
+                            </Badge>
+                          ) : null}
                           <CollapsibleTrigger asChild>
                             <button
                               type="button"
                               className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                             >
-                              {showHackerNewsDeepDive
-                                ? "Hide mentions"
-                                : "Show mentions"}
+                              {showCommunityInputs
+                                ? "Hide inputs"
+                                : "Show inputs"}
                               <ChevronDownIcon
                                 className={cn(
                                   "h-3.5 w-3.5 transition-transform duration-200",
-                                  showHackerNewsDeepDive ? "rotate-180" : "rotate-0",
+                                  showCommunityInputs
+                                    ? "rotate-180"
+                                    : "rotate-0",
                                 )}
                                 aria-hidden
                               />
                             </button>
                           </CollapsibleTrigger>
                         </div>
-                        <CollapsibleContent>
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead className="min-w-[220px]">
-                                  Thread
-                                </TableHead>
-                                <TableHead className="min-w-[120px]">
-                                  Points
-                                </TableHead>
-                                <TableHead className="min-w-[120px]">
-                                  Comments
-                                </TableHead>
-                                <TableHead>Matched queries</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {hackerNewsStories.map((story) => (
-                                <TableRow key={`hn-${story.id}`}>
-                                  <TableCell className="whitespace-normal break-words text-sm text-primary">
-                                    <a
-                                      href={story.discussionUrl}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="hover:underline"
+                      </div>
+                      <CollapsibleContent>
+                        {subredditQueries.length ? (
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            {subredditQueries.map((item) => {
+                              const matchCount =
+                                communityStats.queryMatchCounts.get(
+                                  item.query,
+                                ) ?? 0
+                              return (
+                                <div
+                                  key={item.query}
+                                  className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="font-semibold leading-snug text-foreground">
+                                      {item.query}
+                                    </div>
+                                    <Badge
+                                      variant={
+                                        matchCount ? "secondary" : "outline"
+                                      }
+                                      className="text-[10px]"
                                     >
-                                      {story.title}
-                                    </a>
-                                  </TableCell>
-                                  <TableCell className="text-sm text-foreground">
-                                    {typeof story.points === "number"
-                                      ? COUNT_FORMATTER.format(story.points)
-                                      : "—"}
-                                  </TableCell>
-                                  <TableCell className="text-sm text-foreground">
-                                    {typeof story.numComments === "number"
-                                      ? COUNT_FORMATTER.format(story.numComments)
-                                      : "—"}
-                                  </TableCell>
-                                  <TableCell className="text-xs text-muted-foreground">
-                                    {story.matchedQueries?.length
-                                      ? story.matchedQueries.join(" • ")
-                                      : "—"}
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </CollapsibleContent>
-                      </Collapsible>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
-            </section>
-          </div>
-        </>
-      </StageCard>
-      <StageCard
-        step="Step 6"
-        title="Discussion insights"
-        description="Review community conversations to surface wins, friction, and opportunities."
-        status={discussionStatusDisplay}
-        metrics={[
-          {
-            label: "Threads",
-            value: hasDiscussionThreads
-              ? COUNT_FORMATTER.format(discussionThreads.length)
-              : "0",
-            tone: hasDiscussionThreads ? "positive" : "warning",
-          },
-          {
-            label: "Focus themes",
-            value: focusAreas.length
-              ? COUNT_FORMATTER.format(focusAreas.length)
-              : "0",
-            tone: focusAreas.length ? "positive" : "neutral",
-          },
-          {
-            label: "Last refreshed",
-            value: lastDiscussionDiscovery,
-            tone: lastDiscussionDiscovery === "Never" ? "warning" : "neutral",
-          },
-        ]}
-        collapsible
-        defaultOpen={shouldOpenDiscussionStage}
-      >
-        <>
-          <div className="space-y-6">
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                <span>Since last run:</span>
-                <span>
-                  {hasDiscussionThreads
-                    ? `${COUNT_FORMATTER.format(discussionThreads.length)} conversations reviewed`
-                    : "Awaiting conversation capture"}
-                </span>
-              </div>
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
-                <div className="space-y-6">
-                  <Collapsible
-                    open={showDiscussionInputs}
-                    onOpenChange={setShowDiscussionInputs}
-                    className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
-                  >
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <div className="text-sm font-semibold text-foreground">
-                          Capture inputs & themes
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Discovery prompts powering this discussion pass.
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {discussionQueries.length ? (
-                          <Badge variant="outline" className="text-[11px]">
-                            {COUNT_FORMATTER.format(discussionQueries.length)}{" "}
-                            {discussionQueries.length === 1
-                              ? "query"
-                              : "queries"}
-                          </Badge>
-                        ) : null}
-                        {focusAreas.length ? (
-                          <Badge variant="secondary" className="text-[11px]">
-                            {COUNT_FORMATTER.format(focusAreas.length)} theme
-                            {focusAreas.length === 1 ? "" : "s"}
-                          </Badge>
-                        ) : null}
-                        <CollapsibleTrigger asChild>
-                          <button
-                            type="button"
-                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                          >
-                            {showDiscussionInputs
-                              ? "Hide inputs"
-                              : "Show inputs"}
-                            <ChevronDownIcon
-                              className={cn(
-                                "h-3.5 w-3.5 transition-transform duration-200",
-                                showDiscussionInputs
-                                  ? "rotate-180"
-                                  : "rotate-0",
-                              )}
-                              aria-hidden
-                            />
-                          </button>
-                        </CollapsibleTrigger>
-                      </div>
-                    </div>
-                    <CollapsibleContent className="space-y-4">
-                      {discussionQueries.length ? (
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          {discussionQueries.map((query) => (
-                            <div
-                              key={query.query}
-                              className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
-                            >
-                              <div className="font-semibold leading-snug text-foreground">
-                                {query.query}
-                              </div>
-                              {query.rationale ? (
-                                <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                                  {query.rationale}
+                                      {matchCount
+                                        ? `${matchCount} match${matchCount === 1 ? "" : "es"}`
+                                        : "No matches yet"}
+                                    </Badge>
+                                  </div>
+                                  {item.rationale ? (
+                                    <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                      {item.rationale}
+                                    </div>
+                                  ) : null}
                                 </div>
-                              ) : null}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <InfoNotice tone="info" size="xs">
-                          Run an insights pass to craft fresh discussion prompts
-                          from your saved communities.
-                        </InfoNotice>
-                      )}
-
-                      {discussionInsights ? (
-                        focusAreas.length ? (
-                          <div className="flex flex-wrap gap-2">
-                            {focusAreas.map((item, index) => (
-                              <Badge
-                                key={`focus-${index}`}
-                                variant="outline"
-                                className="text-[11px]"
-                              >
-                                {item}
-                              </Badge>
-                            ))}
+                              )
+                            })}
                           </div>
                         ) : (
                           <InfoNotice tone="info" size="xs">
-                            No focus areas yet—rerun the analysis after the next
-                            insights pass to capture more community signals.
+                            Run discovery to generate targeted community search
+                            queries for this product.
                           </InfoNotice>
-                        )
-                      ) : null}
-                    </CollapsibleContent>
-                  </Collapsible>
-
-                  {discussionInsights ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="text-sm font-semibold text-foreground">
-                          Signal highlights
-                        </div>
-                        {totalSignals ? (
-                          <Badge variant="outline" className="text-[11px]">
-                            {COUNT_FORMATTER.format(totalSignals)} signal
-                            {totalSignals === 1 ? "" : "s"}
+                        )}
+                      </CollapsibleContent>
+                    </Collapsible>
+                    {topSubreddits.length ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="text-sm font-semibold text-foreground">
+                            Priority communities
+                          </div>
+                          <Badge variant="secondary" className="text-[11px]">
+                            Top {topSubreddits.length}
                           </Badge>
-                        ) : null}
-                      </div>
-                      {topDiscussionSignals.length ? (
-                        <div className="grid gap-3 md:grid-cols-2">
-                          {topDiscussionSignals.map((signal) => {
-                            const sentimentLabel = signal.sentiment
-                              ? SENTIMENT_BADGE_LABEL[signal.sentiment]
-                              : null
-                            const sentimentVariant = signal.sentiment
-                              ? SENTIMENT_BADGE_VARIANT[signal.sentiment]
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {topSubreddits.map((subreddit) => {
+                            const relevancePercent =
+                              typeof subreddit.relevanceScore === "number"
+                                ? Math.round(subreddit.relevanceScore * 100)
+                                : null
+                            const memberCount =
+                              typeof subreddit.subscribers === "number"
+                                ? COUNT_FORMATTER.format(subreddit.subscribers)
+                                : null
+                            const description =
+                              subreddit.relevanceReason ||
+                              subreddit.description ||
+                              subreddit.title ||
+                              null
+                            const trimmedDescription =
+                              description && description.length > 140
+                                ? `${description.slice(0, 140)}…`
+                                : description
+                            const queryBadgeLabel = subreddit.matchedQueries
+                              ?.length
+                              ? `${subreddit.matchedQueries.length} query${
+                                  subreddit.matchedQueries.length === 1
+                                    ? ""
+                                    : "es"
+                                }`
                               : null
                             return (
-                              <div
-                                key={signal.id}
-                                className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                              <Link
+                                key={subreddit.name}
+                                href={
+                                  subreddit.url ??
+                                  `https://reddit.com/r/${subreddit.name}`
+                                }
+                                target="_blank"
+                                rel="noreferrer"
+                                className="group rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm transition hover:border-primary/40 hover:shadow-md"
                               >
                                 <div className="flex items-start justify-between gap-2">
-                                  <div className="text-sm font-semibold leading-snug text-foreground">
-                                    {signal.insight}
+                                  <div className="text-sm font-semibold text-foreground">
+                                    {subreddit.name}
                                   </div>
-                                  {sentimentVariant && sentimentLabel ? (
+                                  {relevancePercent !== null ? (
                                     <Badge
-                                      variant={sentimentVariant}
-                                      className="text-[11px]"
+                                      variant={
+                                        relevancePercent >= 70
+                                          ? "secondary"
+                                          : relevancePercent >= 40
+                                            ? "outline"
+                                            : "destructive"
+                                      }
+                                      className="text-[10px]"
                                     >
-                                      {sentimentLabel}
+                                      {relevancePercent}% match
                                     </Badge>
                                   ) : null}
                                 </div>
-                                {signal.sectionTitle ? (
-                                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                                    From {signal.sectionTitle}
+                                {trimmedDescription ? (
+                                  <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                    {trimmedDescription}
                                   </div>
                                 ) : null}
-                                {signal.audience ? (
-                                  <div className="text-xs text-primary">
-                                    Audience: {signal.audience}
-                                  </div>
-                                ) : null}
-                                <div className="mt-auto text-[11px] text-muted-foreground">
-                                  Backed by curated quotes and discussions.
+                                <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                  {memberCount ? (
+                                    <span className="font-medium text-foreground">
+                                      {memberCount} members
+                                    </span>
+                                  ) : null}
+                                  {queryBadgeLabel ? (
+                                    <Badge
+                                      variant="outline"
+                                      className="text-[10px]"
+                                    >
+                                      {queryBadgeLabel}
+                                    </Badge>
+                                  ) : null}
+                                  {subreddit.over18 ? (
+                                    <Badge
+                                      variant="destructive"
+                                      className="text-[10px] uppercase"
+                                    >
+                                      18+
+                                    </Badge>
+                                  ) : null}
                                 </div>
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-semibold uppercase text-muted-foreground">
+                        Discovery health
+                      </div>
+                      {hasSubredditResults ? (
+                        <Badge variant="secondary" className="text-[11px]">
+                          {COUNT_FORMATTER.format(subreddits.length)} saved
+                        </Badge>
+                      ) : null}
+                    </div>
+                    <div className="grid gap-3">
+                      {discoveryQuickFacts.map((fact) => (
+                        <div
+                          key={fact.label}
+                          className={cn(
+                            "rounded-lg border p-3 text-left text-sm shadow-sm",
+                            FACT_TONE_STYLES[fact.tone],
+                          )}
+                        >
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            {fact.label}
+                          </div>
+                          <div className="mt-1 text-sm font-semibold">
+                            {fact.value}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {shouldSurfaceSubredditNotices ? (
+                      <div className="space-y-2">
+                        {renderSubredditProgress()}
+                        {renderSubredditError()}
+                        {renderSubredditCoverageNotice()}
+                        {shouldShowSubredditEmptyState ? (
+                          <InfoNotice tone="info" size="xs">
+                            Run an insights pass to craft community search
+                            plans, resolve the best-fit groups, and cache them
+                            for future research or outreach.
+                          </InfoNotice>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </section>
+              {hasSubredditResults ? (
+                <Collapsible
+                  open={showCommunityDeepDive}
+                  onOpenChange={setShowCommunityDeepDive}
+                  className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">
+                        Saved communities roster
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Full detail on reach, match rationale, and the queries
+                        that drove discovery.
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge
+                        variant="outline"
+                        className="self-start text-[11px]"
+                      >
+                        {`${COUNT_FORMATTER.format(subreddits.length)} ${
+                          subreddits.length === 1 ? "community" : "communities"
+                        }`}
+                      </Badge>
+                      <CollapsibleTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                        >
+                          {showCommunityDeepDive
+                            ? "Hide table"
+                            : "Show full table"}
+                          <ChevronDownIcon
+                            className={cn(
+                              "h-4 w-4 transition-transform duration-200",
+                              showCommunityDeepDive ? "rotate-180" : "rotate-0",
+                            )}
+                            aria-hidden
+                          />
+                        </button>
+                      </CollapsibleTrigger>
+                    </div>
+                  </div>
+                  <CollapsibleContent asChild>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="min-w-[160px]">
+                              Community
+                            </TableHead>
+                            <TableHead className="min-w-[280px]">
+                              What they discuss
+                            </TableHead>
+                            <TableHead>Relevance</TableHead>
+                            <TableHead>Subscribers</TableHead>
+                            <TableHead>Matched queries</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {subreddits.map((subreddit) => (
+                            <TableRow key={subreddit.name}>
+                              <TableCell className="whitespace-nowrap">
+                                <Link
+                                  href={
+                                    subreddit.url ??
+                                    `https://reddit.com/r/${subreddit.name}`
+                                  }
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="font-semibold text-primary hover:underline"
+                                >
+                                  {subreddit.name}
+                                </Link>
+                                {subreddit.over18 && (
+                                  <Badge
+                                    variant="outline"
+                                    className="ml-2 align-middle text-[10px]"
+                                  >
+                                    18+
+                                  </Badge>
+                                )}
+                              </TableCell>
+                              <TableCell className="whitespace-normal break-words text-sm text-muted-foreground">
+                                <div>
+                                  {subreddit.description ||
+                                    subreddit.title ||
+                                    "—"}
+                                </div>
+                                {subreddit.relevanceReason && (
+                                  <div className="mt-2 text-xs text-primary">
+                                    {subreddit.relevanceReason}
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell className="whitespace-nowrap text-sm text-foreground">
+                                {typeof subreddit.relevanceScore === "number"
+                                  ? `${Math.round(subreddit.relevanceScore * 100)}%`
+                                  : "—"}
+                              </TableCell>
+                              <TableCell className="whitespace-nowrap text-sm text-foreground">
+                                {typeof subreddit.subscribers === "number"
+                                  ? subreddit.subscribers.toLocaleString()
+                                  : "—"}
+                              </TableCell>
+                              <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                                {subreddit.matchedQueries?.length
+                                  ? subreddit.matchedQueries.join(" • ")
+                                  : "—"}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                        <TableCaption>
+                          {`${subreddits.length} ${
+                            subreddits.length === 1
+                              ? "community"
+                              : "communities"
+                          } saved for this product`}
+                        </TableCaption>
+                      </Table>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ) : null}
+            </div>
+          </>
+        </StageCard>
+        <StageCard
+          step="Step 4"
+          title="Hacker News mentions"
+          description="Monitor launch chatter and comparisons from Hacker News to enrich community insights."
+          status={hackerNewsStatusDisplay}
+          metrics={[
+            {
+              label: "Stories",
+              value: hasHackerNewsResults
+                ? COUNT_FORMATTER.format(hackerNewsStories.length)
+                : "0",
+              tone: hasHackerNewsResults ? "positive" : "warning",
+            },
+            {
+              label: "Total upvotes",
+              value: hackerNewsStats.totalPoints
+                ? COUNT_FORMATTER.format(hackerNewsStats.totalPoints)
+                : "0",
+              tone: hackerNewsStats.totalPoints ? "positive" : "neutral",
+            },
+            {
+              label: "Query coverage",
+              value:
+                hackerNewsCoveragePercent !== null
+                  ? `${PERCENT_FORMATTER.format(hackerNewsCoveragePercent)}%`
+                  : hasHackerNewsQueries
+                    ? "0%"
+                    : "—",
+              tone: hackerNewsCoverageTone,
+            },
+            {
+              label: "Last refreshed",
+              value: lastHackerNewsDiscovery,
+              tone: lastHackerNewsDiscovery === "Never" ? "warning" : "neutral",
+            },
+          ]}
+          collapsible
+          defaultOpen={shouldOpenHackerNewsStage}
+        >
+          <>
+            <div className="space-y-6">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  <span>Since last run:</span>
+                  <span>
+                    {hasHackerNewsResults
+                      ? `${COUNT_FORMATTER.format(hackerNewsStories.length)} stories captured`
+                      : "Monitoring pending"}
+                  </span>
+                </div>
+                <div className="space-y-6">
+                  {shouldSurfaceHackerNewsNotices ? (
+                    <div className="space-y-2">
+                      {renderHackerNewsProgress()}
+                      {renderHackerNewsError()}
+                      {renderHackerNewsEmptyState()}
+                    </div>
+                  ) : null}
+
+                  {hackerNewsSummary ? (
+                    <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex flex-col gap-1">
+                        <div className="text-sm font-semibold text-foreground">
+                          Key takeaways
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Synthesized from the latest Hacker News threads pulled
+                          in this run.
+                        </div>
+                      </div>
+                      <p className="text-sm leading-relaxed text-foreground">
+                        {hackerNewsSummary.summary}
+                      </p>
+                      {hackerNewsSummary.highlights?.length ? (
+                        <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+                          {hackerNewsSummary.highlights.map((highlight) => (
+                            <li key={highlight}>{highlight}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {Array.isArray(hackerNewsSummary.topStories) &&
+                      hackerNewsSummary.topStories.length ? (
+                        <div className="space-y-1">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            Referenced threads
+                          </div>
+                          <div className="space-y-2">
+                            {hackerNewsSummary.topStories.map((story) => (
+                              <div
+                                key={story.discussionUrl}
+                                className="rounded-lg border border-slate-200 bg-white p-3 text-xs shadow-sm"
+                              >
+                                <Link
+                                  href={story.discussionUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="font-semibold text-primary hover:underline"
+                                >
+                                  {story.title}
+                                </Link>
+                                {story.keyTakeaway ? (
+                                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                    {story.keyTakeaway}
+                                  </p>
+                                ) : null}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  {hasHackerNewsQueries ? (
+                    <Collapsible
+                      open={showHackerNewsInputs}
+                      onOpenChange={setShowHackerNewsInputs}
+                      className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                    >
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <div className="text-sm font-semibold text-foreground">
+                            Search plan inputs
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Queries that seeded the Hacker News pass.
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant="outline" className="text-[11px]">
+                            {COUNT_FORMATTER.format(hackerNewsQueries.length)}{" "}
+                            {hackerNewsQueries.length === 1
+                              ? "query"
+                              : "queries"}
+                          </Badge>
+                          <CollapsibleTrigger asChild>
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                            >
+                              {showHackerNewsInputs
+                                ? "Hide inputs"
+                                : "Show inputs"}
+                              <ChevronDownIcon
+                                className={cn(
+                                  "h-3.5 w-3.5 transition-transform duration-200",
+                                  showHackerNewsInputs
+                                    ? "rotate-180"
+                                    : "rotate-0",
+                                )}
+                                aria-hidden
+                              />
+                            </button>
+                          </CollapsibleTrigger>
+                        </div>
+                      </div>
+                      <CollapsibleContent>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {hackerNewsQueries.map((query) => {
+                            const matchCount =
+                              hackerNewsStats.queryCounts.get(query.query) ?? 0
+                            const covered = hackerNewsStats.matchedQueries.has(
+                              query.query,
+                            )
+                            return (
+                              <div
+                                key={query.query}
+                                className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="font-semibold leading-snug text-foreground">
+                                    {query.query}
+                                  </div>
+                                  <Badge
+                                    variant={covered ? "secondary" : "outline"}
+                                    className="text-[10px]"
+                                  >
+                                    {covered
+                                      ? `${COUNT_FORMATTER.format(matchCount)} match${
+                                          matchCount === 1 ? "" : "es"
+                                        }`
+                                      : "No matches yet"}
+                                  </Badge>
+                                </div>
+                                {query.rationale ? (
+                                  <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                    {query.rationale}
+                                  </div>
+                                ) : null}
                               </div>
                             )
                           })}
                         </div>
-                      ) : (
-                        <InfoNotice tone="info" size="xs">
-                          We did not identify specific insight sections from the
-                          sampled threads yet. Rerun the analysis once the
-                          crawler has fresh data to expand coverage.
-                        </InfoNotice>
-                      )}
-                    </div>
+                      </CollapsibleContent>
+                    </Collapsible>
                   ) : null}
-                </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs font-semibold uppercase text-muted-foreground">
-                      Insight health
-                    </div>
-                    {hasDiscussionThreads ? (
-                      <Badge variant="secondary" className="text-[11px]">
-                        {COUNT_FORMATTER.format(discussionThreads.length)}{" "}
-                        thread
-                        {discussionThreads.length === 1 ? "" : "s"}
-                      </Badge>
-                    ) : null}
-                  </div>
-                  <div className="grid gap-3">
-                    {discussionQuickFacts.map((fact) => (
-                      <div
-                        key={fact.label}
-                        className={cn(
-                          "rounded-lg border p-3 text-left text-sm shadow-sm",
-                          FACT_TONE_STYLES[fact.tone],
-                        )}
-                      >
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                          {fact.label}
-                        </div>
-                        <div className="mt-1 text-sm font-semibold">
-                          {fact.value}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {sentimentTotal ? (
-                    <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="flex items-center justify-between text-xs font-semibold uppercase text-muted-foreground">
-                        <span>Sentiment mix</span>
-                        <span className="text-muted-foreground">
-                          {COUNT_FORMATTER.format(totalSignals)} signal
-                          {totalSignals === 1 ? "" : "s"}
-                        </span>
-                      </div>
-                      <div className="flex h-2 w-full overflow-hidden rounded-full bg-white">
-                        {(["positive", "neutral", "negative"] as const).map(
-                          (key) => {
-                            const value = sentimentCounts[key]
-                            if (!value) return null
-                            const percent = (value / sentimentTotal) * 100
-                            return (
-                              <div
-                                key={key}
-                                className="h-full"
-                                style={{
-                                  width: `${percent}%`,
-                                  backgroundColor: SENTIMENT_COLORS[key],
-                                }}
-                              />
-                            )
-                          },
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <span
-                            className="h-2 w-2 rounded-full"
-                            style={{
-                              backgroundColor: SENTIMENT_COLORS.positive,
-                            }}
-                          />
-                          {COUNT_FORMATTER.format(sentimentCounts.positive)}{" "}
-                          positive
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <span
-                            className="h-2 w-2 rounded-full"
-                            style={{
-                              backgroundColor: SENTIMENT_COLORS.neutral,
-                            }}
-                          />
-                          {COUNT_FORMATTER.format(sentimentCounts.neutral)}{" "}
-                          neutral
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <span
-                            className="h-2 w-2 rounded-full"
-                            style={{
-                              backgroundColor: SENTIMENT_COLORS.negative,
-                            }}
-                          />
-                          {COUNT_FORMATTER.format(sentimentCounts.negative)}{" "}
-                          negative
-                        </span>
-                      </div>
-                    </div>
+                  {!hasHackerNewsQueries && !hackerNewsProgress ? (
+                    <InfoNotice tone="info" size="xs">
+                      Add product keywords or competitors, then re-run the
+                      pipeline to generate targeted Hacker News queries.
+                    </InfoNotice>
                   ) : null}
-                  {shouldSurfaceDiscussionNotices ? (
-                    <div className="space-y-2">
-                      {renderDiscussionProgress()}
-                      {renderDiscussionError()}
-                      {shouldShowDiscussionEmptyState ? (
-                        <InfoNotice tone="info" size="xs">
-                          Run the pipeline to sample the latest conversations
-                          from your saved communities.
-                        </InfoNotice>
+
+                  {hasHackerNewsResults ? (
+                    <div className="space-y-5">
+                      <div className="grid gap-3 xl:grid-cols-3">
+                        {topHackerNewsStories.map((story) => (
+                          <Link
+                            key={story.id}
+                            href={story.discussionUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group flex h-full flex-col justify-between rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                          >
+                            <div className="space-y-3">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+                                  {story.title}
+                                </div>
+                                {typeof story.points === "number" ? (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-[11px]"
+                                  >
+                                    {COUNT_FORMATTER.format(story.points)}{" "}
+                                    points
+                                  </Badge>
+                                ) : null}
+                              </div>
+                              {story.snippet ? (
+                                <div className="text-xs leading-relaxed text-muted-foreground">
+                                  {story.snippet}
+                                </div>
+                              ) : null}
+                            </div>
+                            <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                              {typeof story.numComments === "number" ? (
+                                <span>
+                                  {COUNT_FORMATTER.format(story.numComments)}{" "}
+                                  comment
+                                  {story.numComments === 1 ? "" : "s"}
+                                </span>
+                              ) : null}
+                              {story.matchedQueries?.length ? (
+                                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5">
+                                  🔍{" "}
+                                  {COUNT_FORMATTER.format(
+                                    story.matchedQueries.length,
+                                  )}{" "}
+                                  query
+                                  {story.matchedQueries.length === 1
+                                    ? ""
+                                    : "ies"}
+                                </span>
+                              ) : null}
+                              <span className="inline-flex items-center gap-1 text-primary">
+                                View thread ↗
+                              </span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+
+                      {remainingHackerNewsStories.length ? (
+                        <Collapsible
+                          open={showHackerNewsDeepDive}
+                          onOpenChange={setShowHackerNewsDeepDive}
+                          className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                        >
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                              <div className="text-sm font-semibold text-foreground">
+                                Additional mentions
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Expand to review the remaining captured threads.
+                              </div>
+                            </div>
+                            <CollapsibleTrigger asChild>
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                              >
+                                {showHackerNewsDeepDive
+                                  ? "Hide mentions"
+                                  : "Show mentions"}
+                                <ChevronDownIcon
+                                  className={cn(
+                                    "h-3.5 w-3.5 transition-transform duration-200",
+                                    showHackerNewsDeepDive
+                                      ? "rotate-180"
+                                      : "rotate-0",
+                                  )}
+                                  aria-hidden
+                                />
+                              </button>
+                            </CollapsibleTrigger>
+                          </div>
+                          <CollapsibleContent>
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="min-w-[220px]">
+                                    Thread
+                                  </TableHead>
+                                  <TableHead className="min-w-[120px]">
+                                    Points
+                                  </TableHead>
+                                  <TableHead className="min-w-[120px]">
+                                    Comments
+                                  </TableHead>
+                                  <TableHead>Matched queries</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {hackerNewsStories.map((story) => (
+                                  <TableRow key={`hn-${story.id}`}>
+                                    <TableCell className="whitespace-normal break-words text-sm text-primary">
+                                      <a
+                                        href={story.discussionUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="hover:underline"
+                                      >
+                                        {story.title}
+                                      </a>
+                                    </TableCell>
+                                    <TableCell className="text-sm text-foreground">
+                                      {typeof story.points === "number"
+                                        ? COUNT_FORMATTER.format(story.points)
+                                        : "—"}
+                                    </TableCell>
+                                    <TableCell className="text-sm text-foreground">
+                                      {typeof story.numComments === "number"
+                                        ? COUNT_FORMATTER.format(
+                                            story.numComments,
+                                          )
+                                        : "—"}
+                                    </TableCell>
+                                    <TableCell className="text-xs text-muted-foreground">
+                                      {story.matchedQueries?.length
+                                        ? story.matchedQueries.join(" • ")
+                                        : "—"}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </CollapsibleContent>
+                        </Collapsible>
                       ) : null}
                     </div>
                   ) : null}
                 </div>
-              </div>
-            </section>
+              </section>
+            </div>
+          </>
+        </StageCard>
+        <StageCard
+          step="Step 6"
+          title="Discussion insights"
+          description="Review community conversations to surface wins, friction, and opportunities."
+          status={discussionStatusDisplay}
+          metrics={[
+            {
+              label: "Threads",
+              value: hasDiscussionThreads
+                ? COUNT_FORMATTER.format(discussionThreads.length)
+                : "0",
+              tone: hasDiscussionThreads ? "positive" : "warning",
+            },
+            {
+              label: "Focus themes",
+              value: focusAreas.length
+                ? COUNT_FORMATTER.format(focusAreas.length)
+                : "0",
+              tone: focusAreas.length ? "positive" : "neutral",
+            },
+            {
+              label: "Last refreshed",
+              value: lastDiscussionDiscovery,
+              tone: lastDiscussionDiscovery === "Never" ? "warning" : "neutral",
+            },
+          ]}
+          collapsible
+          defaultOpen={shouldOpenDiscussionStage}
+        >
+          <>
+            <div className="space-y-6">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  <span>Since last run:</span>
+                  <span>
+                    {hasDiscussionThreads
+                      ? `${COUNT_FORMATTER.format(discussionThreads.length)} conversations reviewed`
+                      : "Awaiting conversation capture"}
+                  </span>
+                </div>
+                <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
+                  <div className="space-y-6">
+                    <Collapsible
+                      open={showDiscussionInputs}
+                      onOpenChange={setShowDiscussionInputs}
+                      className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                    >
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <div className="text-sm font-semibold text-foreground">
+                            Capture inputs & themes
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Discovery prompts powering this discussion pass.
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {discussionQueries.length ? (
+                            <Badge variant="outline" className="text-[11px]">
+                              {COUNT_FORMATTER.format(discussionQueries.length)}{" "}
+                              {discussionQueries.length === 1
+                                ? "query"
+                                : "queries"}
+                            </Badge>
+                          ) : null}
+                          {focusAreas.length ? (
+                            <Badge variant="secondary" className="text-[11px]">
+                              {COUNT_FORMATTER.format(focusAreas.length)} theme
+                              {focusAreas.length === 1 ? "" : "s"}
+                            </Badge>
+                          ) : null}
+                          <CollapsibleTrigger asChild>
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                            >
+                              {showDiscussionInputs
+                                ? "Hide inputs"
+                                : "Show inputs"}
+                              <ChevronDownIcon
+                                className={cn(
+                                  "h-3.5 w-3.5 transition-transform duration-200",
+                                  showDiscussionInputs
+                                    ? "rotate-180"
+                                    : "rotate-0",
+                                )}
+                                aria-hidden
+                              />
+                            </button>
+                          </CollapsibleTrigger>
+                        </div>
+                      </div>
+                      <CollapsibleContent className="space-y-4">
+                        {discussionQueries.length ? (
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            {discussionQueries.map((query) => (
+                              <div
+                                key={query.query}
+                                className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm transition hover:border-primary/40 hover:shadow-md"
+                              >
+                                <div className="font-semibold leading-snug text-foreground">
+                                  {query.query}
+                                </div>
+                                {query.rationale ? (
+                                  <div className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                    {query.rationale}
+                                  </div>
+                                ) : null}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <InfoNotice tone="info" size="xs">
+                            Run an insights pass to craft fresh discussion
+                            prompts from your saved communities.
+                          </InfoNotice>
+                        )}
 
-            {discussionSections.length ? (
-              <Collapsible
-                open={showDiscussionDeepDive}
-                onOpenChange={setShowDiscussionDeepDive}
-                className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-              >
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">
-                      Insight clusters
+                        {discussionInsights ? (
+                          focusAreas.length ? (
+                            <div className="flex flex-wrap gap-2">
+                              {focusAreas.map((item, index) => (
+                                <Badge
+                                  key={`focus-${index}`}
+                                  variant="outline"
+                                  className="text-[11px]"
+                                >
+                                  {item}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <InfoNotice tone="info" size="xs">
+                              No focus areas yet—rerun the analysis after the
+                              next insights pass to capture more community
+                              signals.
+                            </InfoNotice>
+                          )
+                        ) : null}
+                      </CollapsibleContent>
+                    </Collapsible>
+
+                    {discussionInsights ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="text-sm font-semibold text-foreground">
+                            Signal highlights
+                          </div>
+                          {totalSignals ? (
+                            <Badge variant="outline" className="text-[11px]">
+                              {COUNT_FORMATTER.format(totalSignals)} signal
+                              {totalSignals === 1 ? "" : "s"}
+                            </Badge>
+                          ) : null}
+                        </div>
+                        {topDiscussionSignals.length ? (
+                          <div className="grid gap-3 md:grid-cols-2">
+                            {topDiscussionSignals.map((signal) => {
+                              const sentimentLabel = signal.sentiment
+                                ? SENTIMENT_BADGE_LABEL[signal.sentiment]
+                                : null
+                              const sentimentVariant = signal.sentiment
+                                ? SENTIMENT_BADGE_VARIANT[signal.sentiment]
+                                : null
+                              return (
+                                <div
+                                  key={signal.id}
+                                  className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="text-sm font-semibold leading-snug text-foreground">
+                                      {signal.insight}
+                                    </div>
+                                    {sentimentVariant && sentimentLabel ? (
+                                      <Badge
+                                        variant={sentimentVariant}
+                                        className="text-[11px]"
+                                      >
+                                        {sentimentLabel}
+                                      </Badge>
+                                    ) : null}
+                                  </div>
+                                  {signal.sectionTitle ? (
+                                    <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                      From {signal.sectionTitle}
+                                    </div>
+                                  ) : null}
+                                  {signal.audience ? (
+                                    <div className="text-xs text-primary">
+                                      Audience: {signal.audience}
+                                    </div>
+                                  ) : null}
+                                  <div className="mt-auto text-[11px] text-muted-foreground">
+                                    Backed by curated quotes and discussions.
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          <InfoNotice tone="info" size="xs">
+                            We did not identify specific insight sections from
+                            the sampled threads yet. Rerun the analysis once the
+                            crawler has fresh data to expand coverage.
+                          </InfoNotice>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-semibold uppercase text-muted-foreground">
+                        Insight health
+                      </div>
+                      {hasDiscussionThreads ? (
+                        <Badge variant="secondary" className="text-[11px]">
+                          {COUNT_FORMATTER.format(discussionThreads.length)}{" "}
+                          thread
+                          {discussionThreads.length === 1 ? "" : "s"}
+                        </Badge>
+                      ) : null}
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Automatically grouped clusters summarizing what the
-                      community is talking about right now.
+                    <div className="grid gap-3">
+                      {discussionQuickFacts.map((fact) => (
+                        <div
+                          key={fact.label}
+                          className={cn(
+                            "rounded-lg border p-3 text-left text-sm shadow-sm",
+                            FACT_TONE_STYLES[fact.tone],
+                          )}
+                        >
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            {fact.label}
+                          </div>
+                          <div className="mt-1 text-sm font-semibold">
+                            {fact.value}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {sentimentTotal ? (
+                      <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <div className="flex items-center justify-between text-xs font-semibold uppercase text-muted-foreground">
+                          <span>Sentiment mix</span>
+                          <span className="text-muted-foreground">
+                            {COUNT_FORMATTER.format(totalSignals)} signal
+                            {totalSignals === 1 ? "" : "s"}
+                          </span>
+                        </div>
+                        <div className="flex h-2 w-full overflow-hidden rounded-full bg-white">
+                          {(["positive", "neutral", "negative"] as const).map(
+                            (key) => {
+                              const value = sentimentCounts[key]
+                              if (!value) return null
+                              const percent = (value / sentimentTotal) * 100
+                              return (
+                                <div
+                                  key={key}
+                                  className="h-full"
+                                  style={{
+                                    width: `${percent}%`,
+                                    backgroundColor: SENTIMENT_COLORS[key],
+                                  }}
+                                />
+                              )
+                            },
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <span
+                              className="h-2 w-2 rounded-full"
+                              style={{
+                                backgroundColor: SENTIMENT_COLORS.positive,
+                              }}
+                            />
+                            {COUNT_FORMATTER.format(sentimentCounts.positive)}{" "}
+                            positive
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span
+                              className="h-2 w-2 rounded-full"
+                              style={{
+                                backgroundColor: SENTIMENT_COLORS.neutral,
+                              }}
+                            />
+                            {COUNT_FORMATTER.format(sentimentCounts.neutral)}{" "}
+                            neutral
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span
+                              className="h-2 w-2 rounded-full"
+                              style={{
+                                backgroundColor: SENTIMENT_COLORS.negative,
+                              }}
+                            />
+                            {COUNT_FORMATTER.format(sentimentCounts.negative)}{" "}
+                            negative
+                          </span>
+                        </div>
+                      </div>
+                    ) : null}
+                    {shouldSurfaceDiscussionNotices ? (
+                      <div className="space-y-2">
+                        {renderDiscussionProgress()}
+                        {renderDiscussionError()}
+                        {shouldShowDiscussionEmptyState ? (
+                          <InfoNotice tone="info" size="xs">
+                            Run the pipeline to sample the latest conversations
+                            from your saved communities.
+                          </InfoNotice>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </section>
+
+              {discussionSections.length ? (
+                <Collapsible
+                  open={showDiscussionDeepDive}
+                  onOpenChange={setShowDiscussionDeepDive}
+                  className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">
+                        Insight clusters
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Automatically grouped clusters summarizing what the
+                        community is talking about right now.
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge
+                        variant="outline"
+                        className="self-start text-[11px]"
+                      >
+                        {COUNT_FORMATTER.format(discussionSections.length)}{" "}
+                        cluster
+                        {discussionSections.length === 1 ? "" : "s"}
+                      </Badge>
+                      <CollapsibleTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                        >
+                          {showDiscussionDeepDive
+                            ? "Hide deep dive"
+                            : "Show full deep dive"}
+                          <ChevronDownIcon
+                            className={cn(
+                              "h-4 w-4 transition-transform duration-200",
+                              showDiscussionDeepDive
+                                ? "rotate-180"
+                                : "rotate-0",
+                            )}
+                            aria-hidden
+                          />
+                        </button>
+                      </CollapsibleTrigger>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <CollapsibleContent className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {discussionSections.map((section, sectionIndex) => {
+                        const sectionItems = Array.isArray(section?.items)
+                          ? section.items
+                          : []
+                        return (
+                          <div
+                            key={`cluster-${sectionIndex}-${section?.title ?? "untitled"}`}
+                            className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="text-sm font-semibold text-foreground">
+                                {section?.title ??
+                                  `Cluster ${sectionIndex + 1}`}
+                              </div>
+                              {sectionItems.length ? (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[11px]"
+                                >
+                                  {COUNT_FORMATTER.format(sectionItems.length)}
+                                </Badge>
+                              ) : null}
+                            </div>
+                            <div className="space-y-3">
+                              {sectionItems.length ? (
+                                sectionItems.map((item, itemIndex) => {
+                                  const hasSentiment =
+                                    item?.sentiment === "positive" ||
+                                    item?.sentiment === "negative" ||
+                                    item?.sentiment === "neutral"
+                                  const sentimentKey = hasSentiment
+                                    ? (item.sentiment as
+                                        | "positive"
+                                        | "negative"
+                                        | "neutral")
+                                    : null
+                                  const sentimentVariant = sentimentKey
+                                    ? SENTIMENT_BADGE_VARIANT[sentimentKey]
+                                    : null
+                                  const sentimentLabel = sentimentKey
+                                    ? SENTIMENT_BADGE_LABEL[sentimentKey]
+                                    : null
+                                  return (
+                                    <div
+                                      key={`cluster-${sectionIndex}-${itemIndex}`}
+                                      className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
+                                    >
+                                      <div className="flex items-start justify-between gap-2">
+                                        <div className="text-sm font-medium text-foreground">
+                                          {item?.insight ?? "Insight"}
+                                        </div>
+                                        {sentimentVariant && sentimentLabel ? (
+                                          <Badge
+                                            variant={sentimentVariant}
+                                            className="text-[11px]"
+                                          >
+                                            {sentimentLabel}
+                                          </Badge>
+                                        ) : null}
+                                      </div>
+                                      {item?.audience ? (
+                                        <div className="text-xs text-primary">
+                                          Audience: {item.audience}
+                                        </div>
+                                      ) : null}
+                                      {Array.isArray(item?.references) &&
+                                      item.references.length ? (
+                                        <div className="text-[11px] text-muted-foreground">
+                                          References:{" "}
+                                          {item.references.join(", ")}
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  )
+                                })
+                              ) : (
+                                <InfoNotice tone="info" size="xs">
+                                  No individual signals captured for this
+                                  cluster yet.
+                                </InfoNotice>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ) : null}
+
+              {showDiscussionSamples && hasDiscussionThreads ? (
+                <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">
+                        Sampled discussions
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Latest discussion threads captured for this run with top
+                        comment highlights.
+                      </div>
+                    </div>
                     <Badge variant="outline" className="self-start text-[11px]">
-                      {COUNT_FORMATTER.format(discussionSections.length)}{" "}
-                      cluster
-                      {discussionSections.length === 1 ? "" : "s"}
+                      {COUNT_FORMATTER.format(discussionThreads.length)} thread
+                      {discussionThreads.length === 1 ? "" : "s"}
                     </Badge>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="min-w-[240px]">
+                            Discussion
+                          </TableHead>
+                          <TableHead>Community</TableHead>
+                          <TableHead className="min-w-[140px]">
+                            Signals
+                          </TableHead>
+                          <TableHead className="min-w-[180px]">
+                            Matched queries
+                          </TableHead>
+                          <TableHead className="min-w-[260px]">
+                            Top insight
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {discussionThreads.map((thread) => {
+                          const topComment = thread.topComments?.[0] ?? null
+                          const additionalComments = Math.max(
+                            (thread.topComments?.length ?? 0) - 1,
+                            0,
+                          )
+                          const preview = topComment?.body
+                            ? topComment.body.length > 200
+                              ? `${topComment.body.slice(0, 200)}…`
+                              : topComment.body
+                            : null
+                          const relativeCreated = thread.createdAt
+                            ? formatDistanceToNowStrict(
+                                new Date(thread.createdAt),
+                                {
+                                  addSuffix: true,
+                                },
+                              )
+                            : null
+                          return (
+                            <TableRow key={thread.id}>
+                              <TableCell className="whitespace-normal break-words text-sm text-foreground">
+                                <Link
+                                  href={thread.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="font-medium text-primary hover:underline"
+                                >
+                                  {thread.title}
+                                </Link>
+                                {thread.flairText ? (
+                                  <div className="mt-1 text-[11px] text-muted-foreground">
+                                    {thread.flairText}
+                                  </div>
+                                ) : null}
+                                {relativeCreated ? (
+                                  <div className="mt-1 text-[11px] text-muted-foreground">
+                                    {relativeCreated}
+                                  </div>
+                                ) : null}
+                              </TableCell>
+                              <TableCell className="whitespace-nowrap text-sm text-primary">
+                                r/{thread.subreddit}
+                              </TableCell>
+                              <TableCell className="whitespace-nowrap text-sm text-foreground">
+                                <div>
+                                  {typeof thread.score === "number"
+                                    ? `${thread.score.toLocaleString()} upvotes`
+                                    : "—"}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {typeof thread.numComments === "number"
+                                    ? `${thread.numComments} comments`
+                                    : ""}
+                                </div>
+                              </TableCell>
+                              <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                                {thread.matchedQueries?.length
+                                  ? thread.matchedQueries.join(" • ")
+                                  : "—"}
+                              </TableCell>
+                              <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
+                                {preview ? (
+                                  <div className="space-y-1">
+                                    <div>“{preview}”</div>
+                                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                      {topComment?.author ? (
+                                        <span>by {topComment.author}</span>
+                                      ) : null}
+                                      {typeof topComment?.score === "number" ? (
+                                        <span>{topComment.score} upvotes</span>
+                                      ) : null}
+                                      {additionalComments > 0 ? (
+                                        <span>+{additionalComments} more</span>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  "—"
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </section>
+              ) : null}
+            </div>
+          </>
+        </StageCard>
+
+        <StageCard
+          step="Step 5"
+          title="Comprehensive report"
+          description="Merge product narrative, community intelligence, and discussion signals into a single plan."
+          status={reportStatusDisplay}
+          metrics={[
+            {
+              label: "Actions",
+              value: hasFinalReport ? COUNT_FORMATTER.format(actionCount) : "0",
+              tone: hasFinalReport ? "positive" : "warning",
+            },
+            {
+              label: "Highlights",
+              value: COUNT_FORMATTER.format(headlineCount),
+              tone: headlineCount ? "positive" : "neutral",
+            },
+            {
+              label: "Last refreshed",
+              value: lastReportGenerated,
+              tone: lastReportGenerated === "Never" ? "warning" : "neutral",
+            },
+          ]}
+          collapsible
+          defaultOpen={shouldOpenReportStage}
+        >
+          <>
+            <div className="space-y-6">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  <span>Since last run:</span>
+                  <span>
+                    {hasFinalReport
+                      ? `${COUNT_FORMATTER.format(actionCount)} actions prioritized`
+                      : "Report generation pending"}
+                  </span>
+                </div>
+                <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
+                  <div className="space-y-6">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-semibold text-foreground">
+                          Executive summary
+                        </div>
+                        {headlineCount ? (
+                          <Badge variant="secondary" className="text-[11px]">
+                            {COUNT_FORMATTER.format(headlineCount)} highlight
+                            {headlineCount === 1 ? "" : "s"}
+                          </Badge>
+                        ) : null}
+                      </div>
+                      {finalReport?.executiveSummary ? (
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
+                          {finalReport.executiveSummary}
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs text-muted-foreground">
+                          Generate the comprehensive report to summarize product
+                          positioning and surfaced opportunities.
+                        </div>
+                      )}
+                    </div>
+
+                    {headlineHighlights.length ? (
+                      <div className="space-y-2">
+                        <div className="text-xs font-semibold uppercase text-muted-foreground">
+                          Headline highlights
+                        </div>
+                        <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                          {headlineHighlights.map((highlight, index) => (
+                            <li key={`headline-${index}`}>{highlight}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+
+                    {recommendedActions.length ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="text-sm font-semibold text-foreground">
+                            Priority snapshot
+                          </div>
+                          <Badge variant="outline" className="text-[11px]">
+                            {COUNT_FORMATTER.format(actionCount)} action
+                            {actionCount === 1 ? "" : "s"}
+                          </Badge>
+                        </div>
+                        <div className="grid gap-3 md:grid-cols-2">
+                          {recommendedActions
+                            .slice(0, 2)
+                            .map((action, index) => {
+                              const priority =
+                                ACTION_PRIORITY_BADGE[action.priority]
+                              const timeframeLabel = formatActionTimeframe(
+                                action.timeframe,
+                              )
+                              const trimmedDescription =
+                                action.description &&
+                                action.description.length > 200
+                                  ? `${action.description.slice(0, 200)}…`
+                                  : action.description || null
+                              return (
+                                <div
+                                  key={`action-highlight-${index}`}
+                                  className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="space-y-1">
+                                      <div className="text-sm font-semibold text-foreground">
+                                        {action.title}
+                                      </div>
+                                      {timeframeLabel ? (
+                                        <div className="text-xs text-primary">
+                                          {timeframeLabel}
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                    {priority ? (
+                                      <Badge
+                                        variant={priority.badge}
+                                        className="text-[11px]"
+                                      >
+                                        {priority.label}
+                                      </Badge>
+                                    ) : null}
+                                  </div>
+                                  {trimmedDescription ? (
+                                    <div className="text-sm leading-relaxed text-muted-foreground">
+                                      {trimmedDescription}
+                                    </div>
+                                  ) : null}
+                                  {action.successMetric ? (
+                                    <div className="mt-auto text-[11px] text-muted-foreground">
+                                      Success metric: {action.successMetric}
+                                    </div>
+                                  ) : null}
+                                </div>
+                              )
+                            })}
+                        </div>
+                        {actionCount > 2 ? (
+                          <div className="text-[11px] text-muted-foreground">
+                            {COUNT_FORMATTER.format(actionCount - 2)} more
+                            action
+                            {actionCount - 2 === 1 ? "" : "s"} listed below
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-semibold uppercase text-muted-foreground">
+                        Report health
+                      </div>
+                      <Badge
+                        variant={reportStatusDisplay.badge}
+                        className="text-[11px]"
+                      >
+                        {reportStatusDisplay.label}
+                      </Badge>
+                    </div>
+                    <div className="grid gap-3">
+                      {reportQuickFacts.map((fact) => (
+                        <div
+                          key={fact.label}
+                          className={cn(
+                            "rounded-lg border p-3 text-left text-sm shadow-sm",
+                            FACT_TONE_STYLES[fact.tone],
+                          )}
+                        >
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            {fact.label}
+                          </div>
+                          <div className="mt-1 text-sm font-semibold">
+                            {fact.value}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {shouldSurfaceReportNotices ? (
+                      <div className="space-y-2">
+                        {renderReportProgress()}
+                        {renderReportError()}
+                        {shouldShowReportEmptyState ? (
+                          <InfoNotice tone="info" size="xs">
+                            Run the pipeline after the crawler, audience, and
+                            discussion stages finish to generate the
+                            comprehensive plan.
+                          </InfoNotice>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </section>
+
+              {orderedRecommendedActions.length ? (
+                <section
+                  ref={recommendedActionsRef}
+                  className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">
+                        Recommended actions
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Prioritized experiments and follow-ups grounded in the
+                        captured signals.
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="self-start text-[11px]">
+                      {COUNT_FORMATTER.format(orderedRecommendedActions.length)}{" "}
+                      action
+                      {orderedRecommendedActions.length === 1 ? "" : "s"}
+                    </Badge>
+                  </div>
+                  <div className="space-y-3">
+                    {orderedRecommendedActions.map((action, index) => {
+                      const priority = ACTION_PRIORITY_BADGE[action.priority]
+                      const priorityIcon = ACTION_PRIORITY_ICON[action.priority]
+                      const timeframeLabel = formatActionTimeframe(
+                        action.timeframe,
+                      )
+                      const description =
+                        typeof action.description === "string"
+                          ? action.description.trim()
+                          : ""
+                      const descriptionPreview = description
+                        ? description.length > 120
+                          ? `${description.slice(0, 120)}…`
+                          : description
+                        : "Open to view the full play."
+                      const successMetric = action.successMetric?.trim() || null
+                      const rationale = action.rationale?.trim() || null
+                      const supportingSignals = Array.isArray(
+                        action.supportingSignals,
+                      )
+                        ? action.supportingSignals.filter(
+                            (signal): signal is string =>
+                              typeof signal === "string" &&
+                              signal.trim().length > 0,
+                          )
+                        : []
+
+                      return (
+                        <Collapsible
+                          key={`action-${index}`}
+                          defaultOpen={index === 0}
+                          className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                        >
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex items-start gap-3">
+                              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-lg">
+                                {priorityIcon}
+                              </span>
+                              <div className="space-y-1">
+                                <div className="text-sm font-semibold text-foreground">
+                                  {action.title}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {descriptionPreview}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              {priority ? (
+                                <Badge
+                                  variant={priority.badge}
+                                  className="text-[11px]"
+                                >
+                                  {priority.label}
+                                </Badge>
+                              ) : null}
+                              {timeframeLabel ? (
+                                <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                                  {timeframeLabel}
+                                </span>
+                              ) : null}
+                              <CollapsibleTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                                >
+                                  View play
+                                  <ChevronDownIcon
+                                    className="h-3.5 w-3.5"
+                                    aria-hidden
+                                  />
+                                </button>
+                              </CollapsibleTrigger>
+                            </div>
+                          </div>
+                          <CollapsibleContent className="mt-4 space-y-3 border-t border-slate-200 pt-4">
+                            <div className="text-sm text-muted-foreground">
+                              {description ||
+                                "No detailed guidance provided yet."}
+                            </div>
+                            {successMetric ? (
+                              <div className="text-xs text-primary">
+                                Success metric: {successMetric}
+                              </div>
+                            ) : null}
+                            {rationale ? (
+                              <div className="rounded-md border border-slate-100 bg-slate-50 p-3 text-xs text-muted-foreground">
+                                <div className="font-medium text-foreground">
+                                  Why this matters
+                                </div>
+                                <div className="mt-1 leading-relaxed">
+                                  {rationale}
+                                </div>
+                              </div>
+                            ) : null}
+                            {supportingSignals.length ? (
+                              <div className="space-y-1 text-xs text-muted-foreground">
+                                <div className="font-semibold uppercase tracking-wide text-muted-foreground">
+                                  Backed by customer signals
+                                </div>
+                                <ul className="list-disc space-y-1 pl-4">
+                                  {supportingSignals.map(
+                                    (signal, signalIndex) => (
+                                      <li
+                                        key={`action-${index}-signal-${signalIndex}`}
+                                      >
+                                        {signal}
+                                      </li>
+                                    ),
+                                  )}
+                                </ul>
+                              </div>
+                            ) : null}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      )
+                    })}
+                  </div>
+                </section>
+              ) : null}
+
+              {opportunityAreas.length ||
+              customerSignals.length ||
+              communityPlan.length ||
+              metricsToWatch.length ? (
+                <Collapsible
+                  open={showReportDeepDive}
+                  onOpenChange={setShowReportDeepDive}
+                  className="space-y-4"
+                >
+                  <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">
+                        Supporting insight detail
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Expand for the evidence that backs the recommended
+                        actions.
+                      </div>
+                    </div>
                     <CollapsibleTrigger asChild>
                       <button
                         type="button"
                         className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                       >
-                        {showDiscussionDeepDive
-                          ? "Hide deep dive"
-                          : "Show full deep dive"}
+                        {showReportDeepDive
+                          ? "Hide supporting detail"
+                          : "Show supporting detail"}
                         <ChevronDownIcon
                           className={cn(
                             "h-4 w-4 transition-transform duration-200",
-                            showDiscussionDeepDive ? "rotate-180" : "rotate-0",
+                            showReportDeepDive ? "rotate-180" : "rotate-0",
                           )}
                           aria-hidden
                         />
                       </button>
                     </CollapsibleTrigger>
                   </div>
-                </div>
-                <CollapsibleContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {discussionSections.map((section, sectionIndex) => {
-                      const sectionItems = Array.isArray(section?.items)
-                        ? section.items
-                        : []
-                      return (
-                        <div
-                          key={`cluster-${sectionIndex}-${section?.title ?? "untitled"}`}
-                          className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
-                        >
-                          <div className="flex items-start justify-between gap-2">
+                  <CollapsibleContent className="space-y-4">
+                    {opportunityAreas.length ? (
+                      <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                          <div>
                             <div className="text-sm font-semibold text-foreground">
-                              {section?.title ?? `Cluster ${sectionIndex + 1}`}
+                              Opportunity areas
                             </div>
-                            {sectionItems.length ? (
-                              <Badge variant="outline" className="text-[11px]">
-                                {COUNT_FORMATTER.format(sectionItems.length)}
-                              </Badge>
-                            ) : null}
+                            <div className="text-xs text-muted-foreground">
+                              The biggest positioning gaps and growth angles
+                              from the synthesized report.
+                            </div>
                           </div>
-                          <div className="space-y-3">
-                            {sectionItems.length ? (
-                              sectionItems.map((item, itemIndex) => {
-                                const hasSentiment =
-                                  item?.sentiment === "positive" ||
-                                  item?.sentiment === "negative" ||
-                                  item?.sentiment === "neutral"
-                                const sentimentKey = hasSentiment
-                                  ? (item.sentiment as
-                                      | "positive"
-                                      | "negative"
-                                      | "neutral")
-                                  : null
-                                const sentimentVariant = sentimentKey
-                                  ? SENTIMENT_BADGE_VARIANT[sentimentKey]
-                                  : null
-                                const sentimentLabel = sentimentKey
-                                  ? SENTIMENT_BADGE_LABEL[sentimentKey]
-                                  : null
-                                return (
-                                  <div
-                                    key={`cluster-${sectionIndex}-${itemIndex}`}
-                                    className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
-                                  >
-                                    <div className="flex items-start justify-between gap-2">
-                                      <div className="text-sm font-medium text-foreground">
-                                        {item?.insight ?? "Insight"}
-                                      </div>
-                                      {sentimentVariant && sentimentLabel ? (
-                                        <Badge
-                                          variant={sentimentVariant}
-                                          className="text-[11px]"
-                                        >
-                                          {sentimentLabel}
-                                        </Badge>
-                                      ) : null}
-                                    </div>
-                                    {item?.audience ? (
-                                      <div className="text-xs text-primary">
-                                        Audience: {item.audience}
-                                      </div>
-                                    ) : null}
-                                    {Array.isArray(item?.references) &&
-                                    item.references.length ? (
-                                      <div className="text-[11px] text-muted-foreground">
-                                        References: {item.references.join(", ")}
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                )
-                              })
-                            ) : (
-                              <InfoNotice tone="info" size="xs">
-                                No individual signals captured for this cluster
-                                yet.
-                              </InfoNotice>
-                            )}
-                          </div>
+                          <Badge
+                            variant="outline"
+                            className="self-start text-[11px]"
+                          >
+                            {COUNT_FORMATTER.format(opportunityAreas.length)}{" "}
+                            area
+                            {opportunityAreas.length === 1 ? "" : "s"}
+                          </Badge>
                         </div>
-                      )
-                    })}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            ) : null}
-
-            {showDiscussionSamples && hasDiscussionThreads ? (
-              <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">
-                      Sampled discussions
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Latest discussion threads captured for this run with top
-                      comment highlights.
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(discussionThreads.length)} thread
-                    {discussionThreads.length === 1 ? "" : "s"}
-                  </Badge>
-                </div>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="min-w-[240px]">
-                          Discussion
-                        </TableHead>
-                        <TableHead>Community</TableHead>
-                        <TableHead className="min-w-[140px]">Signals</TableHead>
-                        <TableHead className="min-w-[180px]">
-                          Matched queries
-                        </TableHead>
-                        <TableHead className="min-w-[260px]">
-                          Top insight
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {discussionThreads.map((thread) => {
-                        const topComment = thread.topComments?.[0] ?? null
-                        const additionalComments = Math.max(
-                          (thread.topComments?.length ?? 0) - 1,
-                          0,
-                        )
-                        const preview = topComment?.body
-                          ? topComment.body.length > 200
-                            ? `${topComment.body.slice(0, 200)}…`
-                            : topComment.body
-                          : null
-                        const relativeCreated = thread.createdAt
-                          ? formatDistanceToNowStrict(
-                              new Date(thread.createdAt),
-                              {
-                                addSuffix: true,
-                              },
-                            )
-                          : null
-                        return (
-                          <TableRow key={thread.id}>
-                            <TableCell className="whitespace-normal break-words text-sm text-foreground">
-                              <Link
-                                href={thread.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="font-medium text-primary hover:underline"
-                              >
-                                {thread.title}
-                              </Link>
-                              {thread.flairText ? (
-                                <div className="mt-1 text-[11px] text-muted-foreground">
-                                  {thread.flairText}
-                                </div>
-                              ) : null}
-                              {relativeCreated ? (
-                                <div className="mt-1 text-[11px] text-muted-foreground">
-                                  {relativeCreated}
-                                </div>
-                              ) : null}
-                            </TableCell>
-                            <TableCell className="whitespace-nowrap text-sm text-primary">
-                              r/{thread.subreddit}
-                            </TableCell>
-                            <TableCell className="whitespace-nowrap text-sm text-foreground">
-                              <div>
-                                {typeof thread.score === "number"
-                                  ? `${thread.score.toLocaleString()} upvotes`
-                                  : "—"}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {typeof thread.numComments === "number"
-                                  ? `${thread.numComments} comments`
-                                  : ""}
-                              </div>
-                            </TableCell>
-                            <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
-                              {thread.matchedQueries?.length
-                                ? thread.matchedQueries.join(" • ")
-                                : "—"}
-                            </TableCell>
-                            <TableCell className="whitespace-normal break-words text-xs text-muted-foreground">
-                              {preview ? (
-                                <div className="space-y-1">
-                                  <div>“{preview}”</div>
-                                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                                    {topComment?.author ? (
-                                      <span>by {topComment.author}</span>
-                                    ) : null}
-                                    {typeof topComment?.score === "number" ? (
-                                      <span>{topComment.score} upvotes</span>
-                                    ) : null}
-                                    {additionalComments > 0 ? (
-                                      <span>+{additionalComments} more</span>
-                                    ) : null}
-                                  </div>
-                                </div>
-                              ) : (
-                                "—"
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        )
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              </section>
-            ) : null}
-          </div>
-        </>
-      </StageCard>
-
-      <StageCard
-        step="Step 5"
-        title="Comprehensive report"
-        description="Merge product narrative, community intelligence, and discussion signals into a single plan."
-        status={reportStatusDisplay}
-        metrics={[
-          {
-            label: "Actions",
-            value: hasFinalReport ? COUNT_FORMATTER.format(actionCount) : "0",
-            tone: hasFinalReport ? "positive" : "warning",
-          },
-          {
-            label: "Highlights",
-            value: COUNT_FORMATTER.format(headlineCount),
-            tone: headlineCount ? "positive" : "neutral",
-          },
-          {
-            label: "Last refreshed",
-            value: lastReportGenerated,
-            tone: lastReportGenerated === "Never" ? "warning" : "neutral",
-          },
-        ]}
-        collapsible
-        defaultOpen={shouldOpenReportStage}
-      >
-        <>
-          <div className="space-y-6">
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                <span>Since last run:</span>
-                <span>
-                  {hasFinalReport
-                    ? `${COUNT_FORMATTER.format(actionCount)} actions prioritized`
-                    : "Report generation pending"}
-                </span>
-              </div>
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-sm font-semibold text-foreground">
-                        Executive summary
-                      </div>
-                      {headlineCount ? (
-                        <Badge variant="secondary" className="text-[11px]">
-                          {COUNT_FORMATTER.format(headlineCount)} highlight
-                          {headlineCount === 1 ? "" : "s"}
-                        </Badge>
-                      ) : null}
-                    </div>
-                    {finalReport?.executiveSummary ? (
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
-                        {finalReport.executiveSummary}
-                      </div>
-                    ) : (
-                      <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-xs text-muted-foreground">
-                        Generate the comprehensive report to summarize product
-                        positioning and surfaced opportunities.
-                      </div>
-                    )}
-                  </div>
-
-                  {headlineHighlights.length ? (
-                    <div className="space-y-2">
-                      <div className="text-xs font-semibold uppercase text-muted-foreground">
-                        Headline highlights
-                      </div>
-                      <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
-                        {headlineHighlights.map((highlight, index) => (
-                          <li key={`headline-${index}`}>{highlight}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-
-                  {recommendedActions.length ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="text-sm font-semibold text-foreground">
-                          Priority snapshot
-                        </div>
-                        <Badge variant="outline" className="text-[11px]">
-                          {COUNT_FORMATTER.format(actionCount)} action
-                          {actionCount === 1 ? "" : "s"}
-                        </Badge>
-                      </div>
-                      <div className="grid gap-3 md:grid-cols-2">
-                        {recommendedActions.slice(0, 2).map((action, index) => {
-                          const priority =
-                            ACTION_PRIORITY_BADGE[action.priority]
-                          const timeframeLabel = formatActionTimeframe(
-                            action.timeframe,
-                          )
-                          const trimmedDescription =
-                            action.description &&
-                            action.description.length > 200
-                              ? `${action.description.slice(0, 200)}…`
-                              : action.description || null
-                          return (
+                        <div className="grid gap-3 md:grid-cols-2">
+                          {opportunityAreas.map((area, index) => (
                             <div
-                              key={`action-highlight-${index}`}
-                              className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
+                              key={`opportunity-${index}`}
+                              className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
                             >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="space-y-1">
-                                  <div className="text-sm font-semibold text-foreground">
-                                    {action.title}
-                                  </div>
-                                  {timeframeLabel ? (
-                                    <div className="text-xs text-primary">
-                                      {timeframeLabel}
-                                    </div>
-                                  ) : null}
+                              <div className="text-sm font-semibold text-foreground">
+                                {area.title}
+                              </div>
+                              {area.summary ? (
+                                <div className="text-sm text-muted-foreground">
+                                  {area.summary}
                                 </div>
-                                {priority ? (
+                              ) : null}
+                              {Array.isArray(area.highlights) &&
+                              area.highlights.length ? (
+                                <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                                  {area.highlights.map((item, itemIndex) => (
+                                    <li
+                                      key={`opportunity-${index}-${itemIndex}`}
+                                    >
+                                      {item}
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : null}
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    ) : null}
+
+                    {customerSignals.length ? (
+                      <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="text-sm font-semibold text-foreground">
+                              Customer signals
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Synthesized evidence from discussions,
+                              testimonials, and product reviews.
+                            </div>
+                          </div>
+                          <Badge
+                            variant="outline"
+                            className="self-start text-[11px]"
+                          >
+                            {COUNT_FORMATTER.format(customerSignals.length)}{" "}
+                            section
+                            {customerSignals.length === 1 ? "" : "s"}
+                          </Badge>
+                        </div>
+                        <div className="space-y-3">
+                          {customerSignals.map((section, index) => (
+                            <div
+                              key={`signal-${index}`}
+                              className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                            >
+                              <div className="text-sm font-semibold text-foreground">
+                                {section.title}
+                              </div>
+                              {section.summary ? (
+                                <div className="mt-1 text-sm text-muted-foreground">
+                                  {section.summary}
+                                </div>
+                              ) : null}
+                              {Array.isArray(section.highlights) &&
+                              section.highlights.length ? (
+                                <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                                  {section.highlights.map((item, itemIndex) => (
+                                    <li key={`signal-${index}-${itemIndex}`}>
+                                      {item}
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : null}
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    ) : null}
+
+                    {communityPlan.length ? (
+                      <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="text-sm font-semibold text-foreground">
+                              Community plan
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Outreach objectives tailored to the communities
+                              uncovered earlier in the pipeline.
+                            </div>
+                          </div>
+                          <Badge
+                            variant="outline"
+                            className="self-start text-[11px]"
+                          >
+                            {COUNT_FORMATTER.format(communityPlan.length)}{" "}
+                            objective
+                            {communityPlan.length === 1 ? "" : "s"}
+                          </Badge>
+                        </div>
+                        <div className="space-y-3">
+                          {communityPlan.map((plan, index) => (
+                            <div
+                              key={`community-${index}`}
+                              className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div className="text-sm font-semibold text-foreground">
+                                  {plan.objective}
+                                </div>
+                                {plan.successSignal ? (
                                   <Badge
-                                    variant={priority.badge}
+                                    variant="secondary"
                                     className="text-[11px]"
                                   >
-                                    {priority.label}
+                                    Success signal: {plan.successSignal}
                                   </Badge>
                                 ) : null}
                               </div>
-                              {trimmedDescription ? (
-                                <div className="text-sm leading-relaxed text-muted-foreground">
-                                  {trimmedDescription}
+                              {Array.isArray(plan.targetSubreddits) &&
+                              plan.targetSubreddits.length ? (
+                                <div className="mt-1 text-xs text-muted-foreground">
+                                  Target communities:{" "}
+                                  {plan.targetSubreddits.join(" • ")}
                                 </div>
                               ) : null}
-                              {action.successMetric ? (
-                                <div className="mt-auto text-[11px] text-muted-foreground">
-                                  Success metric: {action.successMetric}
-                                </div>
-                              ) : null}
-                            </div>
-                          )
-                        })}
-                      </div>
-                      {actionCount > 2 ? (
-                        <div className="text-[11px] text-muted-foreground">
-                          {COUNT_FORMATTER.format(actionCount - 2)} more action
-                          {actionCount - 2 === 1 ? "" : "s"} listed below
-                        </div>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs font-semibold uppercase text-muted-foreground">
-                      Report health
-                    </div>
-                    <Badge
-                      variant={reportStatusDisplay.badge}
-                      className="text-[11px]"
-                    >
-                      {reportStatusDisplay.label}
-                    </Badge>
-                  </div>
-                  <div className="grid gap-3">
-                    {reportQuickFacts.map((fact) => (
-                      <div
-                        key={fact.label}
-                        className={cn(
-                          "rounded-lg border p-3 text-left text-sm shadow-sm",
-                          FACT_TONE_STYLES[fact.tone],
-                        )}
-                      >
-                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                          {fact.label}
-                        </div>
-                        <div className="mt-1 text-sm font-semibold">
-                          {fact.value}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {shouldSurfaceReportNotices ? (
-                    <div className="space-y-2">
-                      {renderReportProgress()}
-                      {renderReportError()}
-                      {shouldShowReportEmptyState ? (
-                        <InfoNotice tone="info" size="xs">
-                          Run the pipeline after the crawler, audience, and
-                          discussion stages finish to generate the comprehensive
-                          plan.
-                        </InfoNotice>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </section>
-
-            {orderedRecommendedActions.length ? (
-              <section
-                ref={recommendedActionsRef}
-                className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-              >
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">
-                      Recommended actions
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Prioritized experiments and follow-ups grounded in the
-                      captured signals.
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="self-start text-[11px]">
-                    {COUNT_FORMATTER.format(orderedRecommendedActions.length)}{" "}
-                    action
-                    {orderedRecommendedActions.length === 1 ? "" : "s"}
-                  </Badge>
-                </div>
-                <div className="space-y-3">
-                  {orderedRecommendedActions.map((action, index) => {
-                    const priority = ACTION_PRIORITY_BADGE[action.priority]
-                    const priorityIcon = ACTION_PRIORITY_ICON[action.priority]
-                    const timeframeLabel = formatActionTimeframe(
-                      action.timeframe,
-                    )
-                    const description =
-                      typeof action.description === "string"
-                        ? action.description.trim()
-                        : ""
-                    const descriptionPreview = description
-                      ? description.length > 120
-                        ? `${description.slice(0, 120)}…`
-                        : description
-                      : "Open to view the full play."
-                    const successMetric = action.successMetric?.trim() || null
-                    const rationale = action.rationale?.trim() || null
-                    const supportingSignals = Array.isArray(
-                      action.supportingSignals,
-                    )
-                      ? action.supportingSignals.filter(
-                          (signal): signal is string =>
-                            typeof signal === "string" &&
-                            signal.trim().length > 0,
-                        )
-                      : []
-
-                    return (
-                      <Collapsible
-                        key={`action-${index}`}
-                        defaultOpen={index === 0}
-                        className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-                      >
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                          <div className="flex items-start gap-3">
-                            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-lg">
-                              {priorityIcon}
-                            </span>
-                            <div className="space-y-1">
-                              <div className="text-sm font-semibold text-foreground">
-                                {action.title}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {descriptionPreview}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            {priority ? (
-                              <Badge
-                                variant={priority.badge}
-                                className="text-[11px]"
-                              >
-                                {priority.label}
-                              </Badge>
-                            ) : null}
-                            {timeframeLabel ? (
-                              <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] font-semibold text-primary">
-                                {timeframeLabel}
-                              </span>
-                            ) : null}
-                            <CollapsibleTrigger asChild>
-                              <button
-                                type="button"
-                                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                              >
-                                View play
-                                <ChevronDownIcon
-                                  className="h-3.5 w-3.5"
-                                  aria-hidden
-                                />
-                              </button>
-                            </CollapsibleTrigger>
-                          </div>
-                        </div>
-                        <CollapsibleContent className="mt-4 space-y-3 border-t border-slate-200 pt-4">
-                          <div className="text-sm text-muted-foreground">
-                            {description ||
-                              "No detailed guidance provided yet."}
-                          </div>
-                          {successMetric ? (
-                            <div className="text-xs text-primary">
-                              Success metric: {successMetric}
-                            </div>
-                          ) : null}
-                          {rationale ? (
-                            <div className="rounded-md border border-slate-100 bg-slate-50 p-3 text-xs text-muted-foreground">
-                              <div className="font-medium text-foreground">
-                                Why this matters
-                              </div>
-                              <div className="mt-1 leading-relaxed">
-                                {rationale}
-                              </div>
-                            </div>
-                          ) : null}
-                          {supportingSignals.length ? (
-                            <div className="space-y-1 text-xs text-muted-foreground">
-                              <div className="font-semibold uppercase tracking-wide text-muted-foreground">
-                                Backed by customer signals
-                              </div>
-                              <ul className="list-disc space-y-1 pl-4">
-                                {supportingSignals.map(
-                                  (signal, signalIndex) => (
+                              {Array.isArray(plan.tactics) &&
+                              plan.tactics.length ? (
+                                <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                                  {plan.tactics.map((tactic, tacticIndex) => (
                                     <li
-                                      key={`action-${index}-signal-${signalIndex}`}
+                                      key={`community-${index}-${tacticIndex}`}
                                     >
-                                      {signal}
+                                      {tactic}
                                     </li>
-                                  ),
-                                )}
-                              </ul>
-                            </div>
-                          ) : null}
-                        </CollapsibleContent>
-                      </Collapsible>
-                    )
-                  })}
-                </div>
-              </section>
-            ) : null}
-
-            {opportunityAreas.length ||
-            customerSignals.length ||
-            communityPlan.length ||
-            metricsToWatch.length ? (
-              <Collapsible
-                open={showReportDeepDive}
-                onOpenChange={setShowReportDeepDive}
-                className="space-y-4"
-              >
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">
-                      Supporting insight detail
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Expand for the evidence that backs the recommended
-                      actions.
-                    </div>
-                  </div>
-                  <CollapsibleTrigger asChild>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                    >
-                      {showReportDeepDive
-                        ? "Hide supporting detail"
-                        : "Show supporting detail"}
-                      <ChevronDownIcon
-                        className={cn(
-                          "h-4 w-4 transition-transform duration-200",
-                          showReportDeepDive ? "rotate-180" : "rotate-0",
-                        )}
-                        aria-hidden
-                      />
-                    </button>
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent className="space-y-4">
-                  {opportunityAreas.length ? (
-                    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <div className="text-sm font-semibold text-foreground">
-                            Opportunity areas
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            The biggest positioning gaps and growth angles from
-                            the synthesized report.
-                          </div>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className="self-start text-[11px]"
-                        >
-                          {COUNT_FORMATTER.format(opportunityAreas.length)} area
-                          {opportunityAreas.length === 1 ? "" : "s"}
-                        </Badge>
-                      </div>
-                      <div className="grid gap-3 md:grid-cols-2">
-                        {opportunityAreas.map((area, index) => (
-                          <div
-                            key={`opportunity-${index}`}
-                            className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-gradient-to-b from-slate-50 via-white to-white p-4 shadow-sm"
-                          >
-                            <div className="text-sm font-semibold text-foreground">
-                              {area.title}
-                            </div>
-                            {area.summary ? (
-                              <div className="text-sm text-muted-foreground">
-                                {area.summary}
-                              </div>
-                            ) : null}
-                            {Array.isArray(area.highlights) &&
-                            area.highlights.length ? (
-                              <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                                {area.highlights.map((item, itemIndex) => (
-                                  <li key={`opportunity-${index}-${itemIndex}`}>
-                                    {item}
-                                  </li>
-                                ))}
-                              </ul>
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  ) : null}
-
-                  {customerSignals.length ? (
-                    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <div className="text-sm font-semibold text-foreground">
-                            Customer signals
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Synthesized evidence from discussions, testimonials,
-                            and product reviews.
-                          </div>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className="self-start text-[11px]"
-                        >
-                          {COUNT_FORMATTER.format(customerSignals.length)}{" "}
-                          section
-                          {customerSignals.length === 1 ? "" : "s"}
-                        </Badge>
-                      </div>
-                      <div className="space-y-3">
-                        {customerSignals.map((section, index) => (
-                          <div
-                            key={`signal-${index}`}
-                            className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-                          >
-                            <div className="text-sm font-semibold text-foreground">
-                              {section.title}
-                            </div>
-                            {section.summary ? (
-                              <div className="mt-1 text-sm text-muted-foreground">
-                                {section.summary}
-                              </div>
-                            ) : null}
-                            {Array.isArray(section.highlights) &&
-                            section.highlights.length ? (
-                              <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                                {section.highlights.map((item, itemIndex) => (
-                                  <li key={`signal-${index}-${itemIndex}`}>
-                                    {item}
-                                  </li>
-                                ))}
-                              </ul>
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  ) : null}
-
-                  {communityPlan.length ? (
-                    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <div className="text-sm font-semibold text-foreground">
-                            Community plan
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Outreach objectives tailored to the communities
-                            uncovered earlier in the pipeline.
-                          </div>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className="self-start text-[11px]"
-                        >
-                          {COUNT_FORMATTER.format(communityPlan.length)}{" "}
-                          objective
-                          {communityPlan.length === 1 ? "" : "s"}
-                        </Badge>
-                      </div>
-                      <div className="space-y-3">
-                        {communityPlan.map((plan, index) => (
-                          <div
-                            key={`community-${index}`}
-                            className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-                          >
-                            <div className="flex flex-wrap items-center justify-between gap-3">
-                              <div className="text-sm font-semibold text-foreground">
-                                {plan.objective}
-                              </div>
-                              {plan.successSignal ? (
-                                <Badge
-                                  variant="secondary"
-                                  className="text-[11px]"
-                                >
-                                  Success signal: {plan.successSignal}
-                                </Badge>
+                                  ))}
+                                </ul>
                               ) : null}
                             </div>
-                            {Array.isArray(plan.targetSubreddits) &&
-                            plan.targetSubreddits.length ? (
-                              <div className="mt-1 text-xs text-muted-foreground">
-                                Target communities:{" "}
-                                {plan.targetSubreddits.join(" • ")}
-                              </div>
-                            ) : null}
-                            {Array.isArray(plan.tactics) &&
-                            plan.tactics.length ? (
-                              <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                                {plan.tactics.map((tactic, tacticIndex) => (
-                                  <li key={`community-${index}-${tacticIndex}`}>
-                                    {tactic}
-                                  </li>
-                                ))}
-                              </ul>
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  ) : null}
-
-                  {metricsToWatch.length ? (
-                    <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm font-semibold text-foreground">
-                          Metrics to watch
+                          ))}
                         </div>
-                        <Badge variant="outline" className="text-[11px]">
-                          {COUNT_FORMATTER.format(metricsToWatch.length)} metric
-                          {metricsToWatch.length === 1 ? "" : "s"}
-                        </Badge>
-                      </div>
-                      <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
-                        {metricsToWatch.map((metric, index) => (
-                          <li key={`metric-${index}`}>{metric}</li>
-                        ))}
-                      </ul>
-                    </section>
-                  ) : null}
-                </CollapsibleContent>
-              </Collapsible>
-            ) : null}
-          </div>
-        </>
-      </StageCard>
-    </div>
-  </>
+                      </section>
+                    ) : null}
+
+                    {metricsToWatch.length ? (
+                      <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm font-semibold text-foreground">
+                            Metrics to watch
+                          </div>
+                          <Badge variant="outline" className="text-[11px]">
+                            {COUNT_FORMATTER.format(metricsToWatch.length)}{" "}
+                            metric
+                            {metricsToWatch.length === 1 ? "" : "s"}
+                          </Badge>
+                        </div>
+                        <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                          {metricsToWatch.map((metric, index) => (
+                            <li key={`metric-${index}`}>{metric}</li>
+                          ))}
+                        </ul>
+                      </section>
+                    ) : null}
+                  </CollapsibleContent>
+                </Collapsible>
+              ) : null}
+            </div>
+          </>
+        </StageCard>
+      </div>
+    </>
   )
 }

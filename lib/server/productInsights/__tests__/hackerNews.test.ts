@@ -61,7 +61,8 @@ describe("discoverProductHackerNewsMentions", () => {
             {
               type: "output_text",
               text: JSON.stringify({
-                summary: "Users praise the automation and want faster onboarding.",
+                summary:
+                  "Users praise the automation and want faster onboarding.",
                 highlights: [
                   "Automation workflows land well with operations teams",
                   "Pricing questions surface around annual plans",
@@ -70,7 +71,8 @@ describe("discoverProductHackerNewsMentions", () => {
                   {
                     title: sampleHits[0]!.title,
                     discussionUrl: `https://news.ycombinator.com/item?id=${sampleHits[0]!.objectID}`,
-                    keyTakeaway: "Thread focuses on launch impressions and comparisons with BetterAI",
+                    keyTakeaway:
+                      "Thread focuses on launch impressions and comparisons with BetterAI",
                   },
                 ],
               }),
@@ -113,10 +115,12 @@ describe("discoverProductHackerNewsMentions", () => {
 
     expect(result.queries.length).toBeGreaterThan(0)
     expect(
-      result.queries.some((entry) => entry.query.includes('BetterAI')),
+      result.queries.some((entry) => entry.query.includes("BetterAI")),
     ).toBe(true)
     expect(
-      result.queries.some((entry) => entry.query.toLowerCase().includes('automation')),
+      result.queries.some((entry) =>
+        entry.query.toLowerCase().includes("automation"),
+      ),
     ).toBe(true)
     expect(fetchMock).toHaveBeenCalledTimes(result.queries.length)
     expect(result.stories).toHaveLength(1)

@@ -351,8 +351,6 @@ describe("month helpers", () => {
   })
 
   it("formats month keys", () => {
-    expect(toMonthKey(new Date("2023-09-15T00:00:00.000Z"))).toBe(
-      "30-09-2023",
-    )
+    expect(toMonthKey(new Date("2023-09-15T00:00:00.000Z"))).toBe("30-09-2023")
   })
 })

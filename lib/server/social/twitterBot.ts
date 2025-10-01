@@ -192,22 +192,19 @@ function registerTwitterBotListeners() {
   on("badge.assigned", ({ productId, badge }) =>
     handleBadgeAssigned(productId, badge),
   )
-  on("leaderboard.monthly.winners", ({
-    monthKey,
-    monthLabel,
-    leaderboardUrl,
-    winners,
-  }) =>
-    handleLeaderboardWinners(
-      monthKey,
-      monthLabel,
-      leaderboardUrl,
-      winners.map((winner) => ({
-        rank: winner.rank,
-        name: winner.name,
-        twitterHandle: winner.twitterHandle,
-      })),
-    ),
+  on(
+    "leaderboard.monthly.winners",
+    ({ monthKey, monthLabel, leaderboardUrl, winners }) =>
+      handleLeaderboardWinners(
+        monthKey,
+        monthLabel,
+        leaderboardUrl,
+        winners.map((winner) => ({
+          rank: winner.rank,
+          name: winner.name,
+          twitterHandle: winner.twitterHandle,
+        })),
+      ),
   )
 }
 

@@ -131,7 +131,9 @@ function resolveCacheNamespace(base: string) {
   return prefix ? `${prefix}:${base}` : base
 }
 
-const HN_CACHE_NAMESPACE = resolveCacheNamespace("productInsights:hackerNews:v1")
+const HN_CACHE_NAMESPACE = resolveCacheNamespace(
+  "productInsights:hackerNews:v1",
+)
 
 function buildCacheKey(productId: string, queryHash: string) {
   return `${HN_CACHE_NAMESPACE}:${productId}:${queryHash}`
@@ -342,7 +344,8 @@ async function searchHackerNews(query: string): Promise<HackerNewsHit[]> {
   params.set("attributesToSnippet", "story_text:40")
   params.set("analytics", "false")
 
-  const sinceSeconds = Math.floor(Date.now() / 1000) - SEARCH_WINDOW_DAYS * 86400
+  const sinceSeconds =
+    Math.floor(Date.now() / 1000) - SEARCH_WINDOW_DAYS * 86400
   params.set("numericFilters", `created_at_i>${sinceSeconds}`)
 
   const controller = new AbortController()
@@ -372,11 +375,10 @@ async function searchHackerNews(query: string): Promise<HackerNewsHit[]> {
   }
 }
 
-async function readFromCache(
-  cacheKey: string,
-): Promise<CachePayload | null> {
+async function readFromCache(cacheKey: string): Promise<CachePayload | null> {
   try {
     const redis = await getRedisClient()
+    if (!redis) return null
     const cached = await redis.get(cacheKey)
     if (!cached) return null
     return CacheSchema.parse(JSON.parse(cached))
@@ -392,6 +394,7 @@ async function readFromCache(
 async function writeToCache(cacheKey: string, payload: CachePayload) {
   try {
     const redis = await getRedisClient()
+    if (!redis) return
     await redis.set(cacheKey, JSON.stringify(payload), {
       EX: CACHE_TTL_SECONDS,
     })
@@ -414,6 +417,7 @@ export async function discoverProductHackerNewsMentions(
     return {
       queries: [],
       stories: [],
+      summary: null,
       model: HACKER_NEWS_PROVIDER_MODEL,
       apiCalls: 0,
     }
@@ -461,14 +465,11 @@ export async function discoverProductHackerNewsMentions(
     const query = queries[index]?.query ?? ""
 
     if (outcome.status === "rejected") {
-      console.error(
-        "[productInsights:hackerNews] query failed",
-        {
-          productId,
-          query,
-          error: outcome.reason,
-        },
-      )
+      console.error("[productInsights:hackerNews] query failed", {
+        productId,
+        query,
+        error: outcome.reason,
+      })
       continue
     }
 
@@ -575,13 +576,11 @@ function buildFallbackSummary(
     })),
   }
 }
-async function summarizeHackerNewsStories(
-  input: {
-    product: ProductInsightProductContext
-    summary?: ProductInsightSummary | null
-    stories: ProductInsightHackerNewsStory[]
-  },
-): Promise<ProductInsightHackerNewsSummary | null> {
+async function summarizeHackerNewsStories(input: {
+  product: ProductInsightProductContext
+  summary?: ProductInsightSummary | null
+  stories: ProductInsightHackerNewsStory[]
+}): Promise<ProductInsightHackerNewsSummary | null> {
   const { stories } = input
   if (!stories.length) return null
 
@@ -656,8 +655,7 @@ async function summarizeHackerNewsStories(
               tagline: input.product.tagline,
               keywords: input.product.keywords,
             },
-            summary:
-              input.summary?.overview ?? null,
+            summary: input.summary?.overview ?? null,
             stories: topStories.map((story) => ({
               title: story.title,
               discussionUrl: story.discussionUrl,
@@ -685,13 +683,14 @@ async function summarizeHackerNewsStories(
     return {
       summary: parsed.data.summary.trim(),
       highlights: parsed.data.highlights.map((item) => item.trim()),
-      topStories: parsed.data.topStories
-        ?.map((entry) => ({
-          title: entry.title.trim(),
-          discussionUrl: entry.discussionUrl.trim(),
-          keyTakeaway: entry.keyTakeaway?.trim() || null,
-        }))
-        .filter((entry) => Boolean(entry.title)) ?? null,
+      topStories:
+        parsed.data.topStories
+          ?.map((entry) => ({
+            title: entry.title.trim(),
+            discussionUrl: entry.discussionUrl.trim(),
+            keyTakeaway: entry.keyTakeaway?.trim() || null,
+          }))
+          .filter((entry) => Boolean(entry.title)) ?? null,
     }
   } catch (error) {
     console.warn("[productInsights:hackerNews] summary generation failed", {

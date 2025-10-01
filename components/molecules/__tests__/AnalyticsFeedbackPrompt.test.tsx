@@ -63,13 +63,9 @@ describe("AnalyticsFeedbackPrompt", () => {
       screen.getByRole("button", { name: "Open analytics feedback" }),
     )
 
-    expect(
-      screen.getByText("Share analytics feedback"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("Share analytics feedback")).toBeInTheDocument()
 
-    await user.click(
-      screen.getByRole("button", { name: "Go share feedback" }),
-    )
+    await user.click(screen.getByRole("button", { name: "Go share feedback" }))
 
     expect(pushMock).toHaveBeenCalledWith(MEMBER_FEEDBACK_PATH)
     await waitFor(() =>

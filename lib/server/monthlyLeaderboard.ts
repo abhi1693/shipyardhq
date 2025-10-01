@@ -257,14 +257,19 @@ async function upsertEditorPickBadge(productId: string, now: Date) {
     const currentExpiresAt = existing.expiresAt
     let nextExpiresAt = desiredExpiresAt
 
-    if (desiredExpiresAt && currentExpiresAt && currentExpiresAt > desiredExpiresAt) {
+    if (
+      desiredExpiresAt &&
+      currentExpiresAt &&
+      currentExpiresAt > desiredExpiresAt
+    ) {
       nextExpiresAt = currentExpiresAt
     }
 
     const hasChanged =
       (nextExpiresAt == null && currentExpiresAt != null) ||
       (nextExpiresAt != null &&
-        (!currentExpiresAt || currentExpiresAt.getTime() !== nextExpiresAt.getTime()))
+        (!currentExpiresAt ||
+          currentExpiresAt.getTime() !== nextExpiresAt.getTime()))
 
     if (hasChanged) {
       await prisma.productBadge.update({

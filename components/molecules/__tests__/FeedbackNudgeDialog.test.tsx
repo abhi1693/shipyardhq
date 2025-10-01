@@ -7,11 +7,7 @@ import FeedbackNudgeDialog from "../FeedbackNudgeDialog"
 describe("FeedbackNudgeDialog", () => {
   it("renders the nudge copy when open", () => {
     render(
-      <FeedbackNudgeDialog
-        open
-        onOpenChange={() => {}}
-        onAddMore={() => {}}
-      />,
+      <FeedbackNudgeDialog open onOpenChange={() => {}} onAddMore={() => {}} />,
     )
 
     expect(screen.getByText(/have a few more thoughts/i)).toBeInTheDocument()
@@ -31,7 +27,9 @@ describe("FeedbackNudgeDialog", () => {
       />,
     )
 
-    await user.click(screen.getByRole("button", { name: /share another idea/i }))
+    await user.click(
+      screen.getByRole("button", { name: /share another idea/i }),
+    )
 
     expect(onAddMore).toHaveBeenCalledTimes(1)
     expect(onOpenChange).toHaveBeenCalledWith(false)

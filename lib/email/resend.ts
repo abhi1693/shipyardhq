@@ -156,7 +156,10 @@ export class RateLimitedEmailSender implements EmailSender {
       1,
       options.maxAttempts ?? DEFAULT_MAX_RATE_LIMIT_ATTEMPTS,
     )
-    this.baseDelayMs = Math.max(1, options.baseDelayMs ?? this.config.intervalMs)
+    this.baseDelayMs = Math.max(
+      1,
+      options.baseDelayMs ?? this.config.intervalMs,
+    )
     this.maxDelayMs = Math.max(
       this.baseDelayMs,
       options.maxDelayMs ?? DEFAULT_MAX_RETRY_DELAY_MS,
@@ -213,7 +216,10 @@ export class RateLimitedEmailSender implements EmailSender {
       return true
     }
 
-    if (candidate.message && candidate.message.toLowerCase().includes("rate limit")) {
+    if (
+      candidate.message &&
+      candidate.message.toLowerCase().includes("rate limit")
+    ) {
       return true
     }
 

@@ -9,6 +9,7 @@ import {
 import type {
   ProductInsightComprehensiveReport,
   ProductInsightHackerNewsStory,
+  ProductInsightHackerNewsSummary,
   ProductInsightRedditInsightReport,
   ProductInsightRedditThread,
   ProductInsightReportAction,
