@@ -223,19 +223,6 @@ export default function Step1({
       })
     }
 
-    if (suggestion.ctaLabel) {
-      form.setValue("ctaLabel", suggestion.ctaLabel, {
-        shouldDirty: true,
-        shouldValidate: true,
-      })
-    }
-
-    if (suggestion.ctaUrl) {
-      form.setValue("ctaUrl", suggestion.ctaUrl, {
-        shouldDirty: true,
-        shouldValidate: true,
-      })
-    }
   }
 
   return (

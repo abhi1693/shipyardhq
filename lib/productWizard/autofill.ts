@@ -37,8 +37,6 @@ export type ProductAutofillSuggestion = {
   twitterUrl?: string
   demoUrl?: string
   contactEmail?: string
-  ctaLabel?: string
-  ctaUrl?: string
 }
 
 export type ProductAutofillNormalizationResult = {
@@ -291,16 +289,6 @@ export function normalizeProductAutofill(
   } else if (raw.demoUrl) {
     warnings.push("demoUrl rejected: invalid URL")
   }
-
-  const ctaUrl = sanitizeUrl(raw.ctaUrl)
-  if (ctaUrl) {
-    suggestion.ctaUrl = ctaUrl
-  } else if (raw.ctaUrl) {
-    warnings.push("ctaUrl rejected: invalid URL")
-  }
-
-  const ctaLabel = normalizeString(raw.ctaLabel)
-  if (ctaLabel) suggestion.ctaLabel = ctaLabel
 
   const contactEmail = normalizeEmail(raw.contactEmail)
   if (contactEmail) {

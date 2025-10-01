@@ -39,11 +39,12 @@ describe("normalizeProductAutofill", () => {
       githubUrl: "https://github.com/shipyardhq/app",
       twitterUrl: "https://x.com/shipyard",
       contactEmail: "hello@shipyard.dev",
-      ctaLabel: "Start trial",
-      ctaUrl: "https://shipyard.dev/start",
     })
 
     expect(warnings).toEqual(["demoUrl rejected: invalid URL"])
+
+    expect(suggestion).not.toHaveProperty("ctaLabel")
+    expect(suggestion).not.toHaveProperty("ctaUrl")
   })
 
   it("drops unusable fields but keeps partial suggestions", () => {
