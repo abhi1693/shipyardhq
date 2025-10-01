@@ -5,22 +5,23 @@ import { getAppBaseUrl } from "@/lib/email/utils"
 import { Prisma } from "@/lib/vendor/prisma/client"
 
 const LOOKBACK_DAYS = 7
+const FEATURED_LIMIT = 6
 const FRESH_LIMIT = 6
 const TRENDING_LIMIT = 6
 
-type DigestProductRow = Prisma.ProductGetPayload<{
+type FeaturedBadgeRow = Prisma.ProductBadgeGetPayload<{
   select: {
-    name: true
-    slug: true
-    tagline: true
-    publishedAt: true
-    category: { select: { name: true } }
-    analytics: { select: { upvotes: true; clicks: true } }
+    product: {
+      select: {
+        name: true
+        slug: true
+        tagline: true
+        publishedAt: true
+        category: { select: { name: true } }
+        analytics: { select: { upvotes: true; clicks: true } }
+      }
+    }
   }
-}>
-
-type SubscriberEmail = Prisma.NewsletterSubscriptionGetPayload<{
-  select: { email: true }
 }>
 
 function subtractDays(date: Date, days: number) {
@@ -37,19 +38,39 @@ function buildBrowseUrl() {
   return `${base}/browse`
 }
 
+function toDigestProduct(row: {
+  name: string
+  slug: string
+  tagline: string
+  publishedAt: Date | null | undefined
+  category?: { name: string | null } | null
+  analytics?: { upvotes: number | null; clicks: number | null } | null
+}) {
+  return {
+    name: row.name,
+    tagline: row.tagline,
+    url: buildProductUrl(row.slug),
+    category: row.category?.name ?? null,
+    upvotes: row.analytics?.upvotes ?? null,
+    clicks: row.analytics?.clicks ?? null,
+    publishedAt: row.publishedAt ?? null,
+  }
+}
+
 export async function sendDiscoverDigestEmails(now: Date = new Date()) {
   const weekEnd = now
   const weekStart = subtractDays(now, LOOKBACK_DAYS - 1)
 
-  const [freshLaunches, trending, subscribers] = await Promise.all([
-    prisma.product
-      .findMany({
-        where: {
-          status: "published",
-          publishedAt: { gte: subtractDays(now, LOOKBACK_DAYS) },
-        },
-        orderBy: { publishedAt: "desc" },
-        take: FRESH_LIMIT,
+  const featuredRows = (await prisma.productBadge.findMany({
+    where: {
+      badge: "featured",
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      product: { status: "published" },
+    },
+    orderBy: { createdAt: "desc" },
+    take: FEATURED_LIMIT,
+    select: {
+      product: {
         select: {
           name: true,
           slug: true,
@@ -58,50 +79,75 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
           category: { select: { name: true } },
           analytics: { select: { upvotes: true, clicks: true } },
         },
-      })
-      .then((rows: DigestProductRow[]) =>
-        rows.map((row: DigestProductRow) => ({
-          name: row.name,
-          tagline: row.tagline,
-          url: buildProductUrl(row.slug),
-          category: row.category?.name ?? null,
-          upvotes: row.analytics?.upvotes ?? null,
-          clicks: row.analytics?.clicks ?? null,
-          publishedAt: row.publishedAt,
-        })),
-      ),
-    prisma.product
-      .findMany({
-        where: {
-          status: "published",
-          publishedAt: { gte: subtractDays(now, 30) },
-        },
-        orderBy: { analytics: { upvotes: "desc" } },
-        take: TRENDING_LIMIT,
-        select: {
-          name: true,
-          slug: true,
-          tagline: true,
-          publishedAt: true,
-          category: { select: { name: true } },
-          analytics: { select: { upvotes: true, clicks: true } },
-        },
-      })
-      .then((rows: DigestProductRow[]) =>
-        rows.map((row: DigestProductRow) => ({
-          name: row.name,
-          tagline: row.tagline,
-          url: buildProductUrl(row.slug),
-          category: row.category?.name ?? null,
-          upvotes: row.analytics?.upvotes ?? null,
-          clicks: row.analytics?.clicks ?? null,
-          publishedAt: row.publishedAt,
-        })),
-      ),
-    prisma.newsletterSubscription.findMany({
-      select: { email: true },
-    }) as Promise<SubscriberEmail[]>,
-  ])
+      },
+    },
+  })) as unknown as FeaturedBadgeRow[]
+
+  const trendingRows = await prisma.product.findMany({
+    where: {
+      status: "published",
+      publishedAt: { gte: subtractDays(now, 30) },
+    },
+    orderBy: { analytics: { upvotes: "desc" } },
+    take: TRENDING_LIMIT,
+    select: {
+      name: true,
+      slug: true,
+      tagline: true,
+      publishedAt: true,
+      category: { select: { name: true } },
+      analytics: { select: { upvotes: true, clicks: true } },
+    },
+  })
+
+  const freshRows = await prisma.product.findMany({
+    where: {
+      status: "published",
+      publishedAt: { gte: subtractDays(now, LOOKBACK_DAYS) },
+    },
+    orderBy: { publishedAt: "desc" },
+    take: FRESH_LIMIT,
+    select: {
+      name: true,
+      slug: true,
+      tagline: true,
+      publishedAt: true,
+      category: { select: { name: true } },
+      analytics: { select: { upvotes: true, clicks: true } },
+    },
+  })
+
+  const subscribers = await prisma.newsletterSubscription.findMany({
+    select: { email: true },
+  })
+
+  const seenUrls = new Set<string>()
+
+  const featured = featuredRows
+    .map((row) => row.product)
+    .filter((product): product is NonNullable<FeaturedBadgeRow["product"]> => Boolean(product))
+    .map((product) => toDigestProduct(product))
+    .filter((product) => {
+      if (seenUrls.has(product.url)) return false
+      seenUrls.add(product.url)
+      return true
+    })
+
+  const trending = trendingRows
+    .map((row) => toDigestProduct(row))
+    .filter((product) => {
+      if (seenUrls.has(product.url)) return false
+      seenUrls.add(product.url)
+      return true
+    })
+
+  const freshLaunches = freshRows
+    .map((row) => toDigestProduct(row))
+    .filter((product) => {
+      if (seenUrls.has(product.url)) return false
+      seenUrls.add(product.url)
+      return true
+    })
 
   if (!subscribers.length) {
     return { sent: 0, skipped: 0 }
@@ -119,6 +165,7 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
           <DiscoverDigestEmail
             weekStart={weekStart}
             weekEnd={weekEnd}
+            featured={featured}
             freshLaunches={freshLaunches}
             trending={trending}
             ctaUrl={buildBrowseUrl()}

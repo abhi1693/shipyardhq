@@ -14,6 +14,7 @@ export type DigestProduct = {
 export type DiscoverDigestEmailProps = {
   weekStart: Date
   weekEnd: Date
+  featured: DigestProduct[]
   freshLaunches: DigestProduct[]
   trending: DigestProduct[]
   ctaUrl: string
@@ -126,6 +127,7 @@ function renderProductList(items: DigestProduct[], emptyText: string) {
 export function DiscoverDigestEmail({
   weekStart,
   weekEnd,
+  featured,
   freshLaunches,
   trending,
   ctaUrl,
@@ -135,21 +137,27 @@ export function DiscoverDigestEmail({
   return (
     <BaseEmailTemplate
       title={`Discover what's new (${range})`}
-      previewText={`This week on ${EMAIL_BRAND.name}: fresh launches and trending picks.`}
+      previewText={`This week on ${EMAIL_BRAND.name}: featured upgrades, trending picks, and new launches.`}
       heading={`This week on ${EMAIL_BRAND.name}`}
-      intro={`Here are the standout launches and trending tools between ${range}.`}
+      intro={`Featured upgrades, trending standouts, and fresh launches between ${range}.`}
       cta={{ label: "Browse all products", href: ctaUrl }}
     >
-      <h2 style={sectionHeadingStyle}>Fresh launches</h2>
+      <h2 style={sectionHeadingStyle}>Featured upgrades</h2>
       {renderProductList(
-        freshLaunches,
-        "No new launches this week—stay tuned for next Thursday's digest!",
+        featured,
+        "No featured upgrades this week—upgrade your listing to sail into the digest.",
       )}
 
       <h2 style={sectionHeadingStyle}>Trending now</h2>
       {renderProductList(
         trending,
         "No major movers yet. Bookmark Shipyard HQ to catch next week's highlights.",
+      )}
+
+      <h2 style={sectionHeadingStyle}>New launches</h2>
+      {renderProductList(
+        freshLaunches,
+        "No new launches this week—stay tuned for next week's digest!",
       )}
 
       <p style={paragraphStyle}>
