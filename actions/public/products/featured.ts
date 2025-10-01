@@ -43,6 +43,7 @@ export const getTrendingProducts = cached(
     yesterday.setDate(yesterday.getDate() - 1)
 
     const trending = await prisma.productBadge.findMany({
+      distinct: ["productId"],
       take: limit,
       orderBy: {
         product: {
