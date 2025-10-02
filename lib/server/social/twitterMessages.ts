@@ -1,5 +1,38 @@
+import { getOpenAIClient } from "@/lib/server/openai"
+import { coerceJsonText, extractAssistantJson } from "@/lib/server/openaiResponse"
+
 const MAX_TWEET_LENGTH = 280
 const DEFAULT_HASHTAGS = ["ShipyardHQ"]
+const AI_MODEL = "gpt-4.1-mini"
+const TWEET_COPY_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    headline: { type: "string", minLength: 6, maxLength: 220 },
+    body: { type: ["string", "null"], maxLength: 220 },
+  },
+  required: ["headline"],
+} as const
+
+type TweetRewriteKind = "launch" | "badge" | "leaderboard"
+
+type TweetRewriteContext = {
+  kind: TweetRewriteKind
+  name: string
+  handle?: string | null
+  tagline?: string | null
+  description?: string | null
+  badge?: string
+  monthLabel?: string
+  winners?: Array<{ rank: number; name: string; handle?: string | null }>
+  fallbackHeadline: string
+  fallbackBody?: string
+}
+
+type TweetSections = {
+  headline: string
+  body?: string
+}
 
 type TweetParts = {
   headline: string
@@ -52,6 +85,161 @@ function sanitizeHashtags(tags: string[]): string[] {
   }
 
   return result
+}
+
+function ensureHandlePresence(
+  sections: TweetSections,
+  { name, handle }: { name: string; handle?: string | null },
+): TweetSections {
+  const normalizedHandle = handle?.trim()
+  if (!normalizedHandle) {
+    return sections
+  }
+
+  const handleValue = normalizedHandle.startsWith("@")
+    ? normalizedHandle
+    : `@${normalizedHandle}`
+
+  const headlineHasHandle = sections.headline.includes(handleValue)
+  const bodyHasHandle = sections.body?.includes(handleValue) ?? false
+  if (headlineHasHandle || bodyHasHandle) {
+    return sections
+  }
+
+  const replacement = `${name} (${handleValue})`
+  let headline = sections.headline
+  let body = sections.body
+
+  if (headline.includes(name)) {
+    const updated = headline.replace(name, replacement)
+    if (updated !== headline) {
+      headline = updated
+    } else {
+      headline = `${replacement} — ${headline}`.trim()
+    }
+  } else {
+    headline = `${replacement} — ${headline}`.trim()
+  }
+
+  if (!headline.includes(handleValue) && body) {
+    body = `${handleValue} ${body}`.trim()
+  }
+
+  if (!headline.includes(handleValue) && !(body?.includes(handleValue) ?? false)) {
+    headline = `${handleValue} — ${headline}`.trim()
+  }
+
+  return {
+    headline,
+    body,
+  }
+}
+
+async function rewriteTweetCopyWithAI(
+  context: TweetRewriteContext,
+): Promise<TweetSections | null> {
+  if (!process.env.OPENAI_API_KEY?.trim()) {
+    return null
+  }
+
+  const product = {
+    name: context.name,
+    handle: context.handle ?? null,
+    tagline: context.tagline ?? null,
+    description: context.description
+      ? truncateSegment(context.description, 420)
+      : null,
+  }
+
+  if (context.kind === "badge") {
+    ;(product as any).badge = context.badge ?? null
+  }
+
+  if (context.kind === "leaderboard") {
+    ;(product as any).monthLabel = context.monthLabel ?? null
+    ;(product as any).winners = (context.winners ?? []).map((winner) => ({
+      rank: winner.rank,
+      name: winner.name,
+      handle: winner.handle ?? null,
+    }))
+  }
+
+  const summaryByKind: Record<TweetRewriteKind, string> = {
+    launch: `${context.name} just launched on Shipyard HQ.`,
+    badge: `${context.name} earned the ${context.badge ?? "new"} badge on Shipyard HQ.`,
+    leaderboard: `Highlight monthly leaderboard winners for ${context.monthLabel ?? "Shipyard HQ"}.`,
+  }
+
+  const payload = {
+    summary: summaryByKind[context.kind],
+    product,
+    fallbackCopy: {
+      headline: context.fallbackHeadline,
+      body: context.fallbackBody ?? null,
+    },
+    writingGuidelines: [
+      "Write in a warm, human tone that celebrates indie builders.",
+      "Return exactly two fields: headline and optional body.",
+      "Do not include URLs, hashtags, or emoji; we add them separately.",
+      "Keep the headline under 140 characters and the body under 120 characters.",
+      context.description
+        ? "Reference the description for extra context, but avoid repeating long phrases verbatim."
+        : null,
+      context.handle
+        ? `Mention the handle exactly as ${context.handle.startsWith("@") ? context.handle : `@${context.handle}`} once. You may also mention the product name.`
+        : "No handle is available; focus on the product's name instead.",
+    ].filter(Boolean),
+  }
+
+  try {
+    const openai = getOpenAIClient()
+    const response = await openai.responses.create({
+      model: AI_MODEL,
+      temperature: 0.6,
+      max_output_tokens: 200,
+      text: {
+        format: {
+          type: "json_schema",
+          name: "shipyard_tweet_copy",
+          schema: TWEET_COPY_SCHEMA,
+        },
+      },
+      input: [
+        {
+          role: "system",
+          content:
+            "You are Shipyard HQ's social media copywriter. Respond with valid JSON matching the provided schema only.",
+        },
+        {
+          role: "user",
+          content: JSON.stringify(payload),
+        },
+      ],
+    } as any)
+
+    const raw = extractAssistantJson(response)
+    const jsonText = coerceJsonText(raw)
+    if (!jsonText) {
+      return null
+    }
+
+    const parsed = JSON.parse(jsonText)
+    const headline = typeof parsed.headline === "string" ? parsed.headline.trim() : ""
+    if (!headline.length) {
+      return null
+    }
+
+    const bodyValue =
+      typeof parsed.body === "string" ? parsed.body.trim() : undefined
+
+    return {
+      headline,
+      body: bodyValue?.length ? bodyValue : undefined,
+    }
+  } catch (error) {
+    console.error(`[twitter] AI tweet rewrite failed (kind=${context.kind})`, error)
+    return null
+  }
 }
 
 export function composeTweet(parts: TweetParts): string {
@@ -113,23 +301,41 @@ export function composeTweet(parts: TweetParts): string {
   return tweet
 }
 
-export function buildProductLaunchTweet(args: {
+export async function buildProductLaunchTweet(args: {
   name: string
   tagline?: string | null
+  description?: string | null
   url: string
   twitterHandle?: string | null
-}): string {
+}): Promise<string> {
   const handle = args.twitterHandle?.startsWith("@")
     ? args.twitterHandle
     : args.twitterHandle?.length
       ? `@${args.twitterHandle}`
       : null
   const displayName = handle ? `${args.name} (${handle})` : args.name
-  const headline = `${displayName} just launched on Shipyard HQ!`
-  const body = args.tagline?.trim()?.length ? args.tagline.trim() : undefined
+  const fallbackHeadline = `${displayName} just launched on Shipyard HQ!`
+  const fallbackBody =
+    args.tagline?.trim()?.length ? args.tagline.trim() : undefined
+
+  const aiSections = await rewriteTweetCopyWithAI({
+    kind: "launch",
+    name: args.name,
+    handle,
+    tagline: args.tagline ?? null,
+    description: args.description ?? null,
+    fallbackHeadline,
+    fallbackBody,
+  })
+
+  const sections = ensureHandlePresence(
+    aiSections ?? { headline: fallbackHeadline, body: fallbackBody },
+    { name: args.name, handle },
+  )
+
   return composeTweet({
-    headline,
-    body,
+    headline: sections.headline,
+    body: sections.body,
     url: args.url,
     hashtags: ["ProductLaunch", "IndieSaaS"],
   })
@@ -157,13 +363,14 @@ const BADGE_COPY: Record<
   },
 }
 
-export function buildBadgeTweet(args: {
+export async function buildBadgeTweet(args: {
   badge: string
   name: string
   tagline?: string | null
+  description?: string | null
   url: string
   twitterHandle?: string | null
-}): string | null {
+}): Promise<string | null> {
   if (!Object.prototype.hasOwnProperty.call(BADGE_COPY, args.badge)) {
     return null
   }
@@ -176,19 +383,37 @@ export function buildBadgeTweet(args: {
       : null
   const displayName = handle ? `${args.name} (${handle})` : args.name
   const body = args.tagline?.trim()?.length ? args.tagline.trim() : undefined
+  const fallbackHeadline = copy.headline(displayName)
+
+  const aiSections = await rewriteTweetCopyWithAI({
+    kind: "badge",
+    name: args.name,
+    handle,
+    badge: args.badge,
+    tagline: args.tagline ?? null,
+    description: args.description ?? null,
+    fallbackHeadline,
+    fallbackBody: body,
+  })
+
+  const sections = ensureHandlePresence(
+    aiSections ?? { headline: fallbackHeadline, body },
+    { name: args.name, handle },
+  )
+
   return composeTweet({
-    headline: copy.headline(displayName),
-    body,
+    headline: sections.headline,
+    body: sections.body,
     url: args.url,
     hashtags: copy.hashtags,
   })
 }
 
-export function buildLeaderboardTweet(args: {
+export async function buildLeaderboardTweet(args: {
   monthLabel: string
   leaderboardUrl: string
   winners: Array<{ rank: number; name: string; twitterHandle?: string | null }>
-}): string {
+}): Promise<string> {
   const sorted = [...args.winners].sort((a, b) => a.rank - b.rank)
   const leader = sorted[0]
   const leaderName = leader?.name ?? "Shipyard builders"
@@ -216,9 +441,32 @@ export function buildLeaderboardTweet(args: {
     ? ["Top builders:", ...topEntries].join("\n")
     : undefined
 
+  const aiSections = await rewriteTweetCopyWithAI({
+    kind: "leaderboard",
+    name: leaderName,
+    handle: leaderHandle,
+    monthLabel: args.monthLabel,
+    winners: sorted.map((entry) => ({
+      rank: entry.rank,
+      name: entry.name,
+      handle: entry.twitterHandle
+        ? entry.twitterHandle.startsWith("@")
+          ? entry.twitterHandle
+          : `@${entry.twitterHandle}`
+        : null,
+    })),
+    fallbackHeadline: headline,
+    fallbackBody: body,
+  })
+
+  const sections = ensureHandlePresence(
+    aiSections ?? { headline, body },
+    { name: leaderName, handle: leaderHandle },
+  )
+
   return composeTweet({
-    headline,
-    body,
+    headline: sections.headline,
+    body: sections.body,
     url: args.leaderboardUrl,
     hashtags: ["Leaderboard", "Community"],
   })

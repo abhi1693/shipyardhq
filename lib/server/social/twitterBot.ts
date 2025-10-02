@@ -55,6 +55,7 @@ async function handleProductPublished(productId: string) {
         name: true,
         slug: true,
         tagline: true,
+        description: true,
         status: true,
         metadata: {
           select: {
@@ -73,9 +74,10 @@ async function handleProductPublished(productId: string) {
       return
     }
 
-    const tweet = buildProductLaunchTweet({
+    const tweet = await buildProductLaunchTweet({
       name: product.name,
       tagline: product.tagline,
+      description: product.description,
       url: getProductUrl(product.slug),
       twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
     })
@@ -103,6 +105,7 @@ async function handleBadgeAssigned(productId: string, badge: string) {
         name: true,
         slug: true,
         tagline: true,
+        description: true,
         status: true,
         metadata: {
           select: {
@@ -121,10 +124,11 @@ async function handleBadgeAssigned(productId: string, badge: string) {
       return
     }
 
-    const tweet = buildBadgeTweet({
+    const tweet = await buildBadgeTweet({
       badge,
       name: product.name,
       tagline: product.tagline,
+      description: product.description,
       url: getProductUrl(product.slug),
       twitterHandle: extractTwitterHandle(product.metadata?.twitterUrl),
     })
@@ -160,7 +164,7 @@ async function handleLeaderboardWinners(
       return
     }
 
-    const tweet = buildLeaderboardTweet({
+    const tweet = await buildLeaderboardTweet({
       monthLabel,
       leaderboardUrl,
       winners,
