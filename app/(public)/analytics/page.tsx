@@ -1,7 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
+import { Sparkles } from "lucide-react"
 import { buildPageMetadata } from "@/lib/metadata"
-import { MEMBER_BASE_PATH, PRICING_PATH } from "@/lib/routes"
+import { MEMBER_BASE_PATH, MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { Button } from "@/components/atoms/button"
 import { FaqSection } from "@/components/organisms/FaqSection"
@@ -72,7 +73,7 @@ const HOW_IT_WORKS_STEPS = [
   {
     title: "Pick a product",
     detail:
-      "Choose the row you want, then select Analytics to launch the detailed view for that tool.",
+      "Choose the row you want, then select Analytics to open the detailed view—an AI summary now highlights the biggest shifts for you.",
   },
   {
     title: "Share with your crew",
@@ -196,6 +197,13 @@ export default function AnalyticsPage() {
             <Link href={PRICING_PATH}>Compare plans</Link>
           </Button>
         </div>
+        <p className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Sparkles className="size-4 text-[color:var(--brand-2)]" aria-hidden />
+          Every product analytics page now opens with an AI-crafted recap.
+          <Button asChild size="sm" variant="link" className="px-0 text-[color:var(--brand-1)]">
+            <Link href={MEMBER_PRODUCTS_PATH}>See your AI summary</Link>
+          </Button>
+        </p>
       </PublicContainer>
 
       <InsightsShowcase
