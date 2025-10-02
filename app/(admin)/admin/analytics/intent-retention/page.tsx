@@ -10,6 +10,7 @@ import {
   getIntentOutcomeAnalytics,
   intentOutcomeStages,
 } from "@/lib/server/analytics/intentOutcome"
+import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 import type {
   IntentOutcomeRetentionMetrics,
   IntentOutcomeStageMetrics,
@@ -25,6 +26,8 @@ const RANGE_OPTIONS = [
   { label: "90d", value: "90d" },
   { label: "180d", value: "180d" },
 ]
+
+const CACHE_TTL_SECONDS = resolveCacheTtl("slowest")
 
 function rangeToDays(range?: string): number {
   switch (range) {
@@ -457,7 +460,7 @@ export default async function IntentOutcomeAnalyticsPage({
                 {new Date(analytics.generatedAt).toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
-                Cached for {revalidate} seconds.
+                Cached for {CACHE_TTL_SECONDS} seconds.
               </p>
             </CardContent>
           </Card>
