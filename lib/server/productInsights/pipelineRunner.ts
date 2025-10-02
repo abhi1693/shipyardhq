@@ -94,6 +94,11 @@ function buildInitialSharedState(
     shared.discussions = discussions
   }
 
+  const productHunt = extractStageData(profile, "producthunt.launches")
+  if (productHunt) {
+    shared.productHunt = productHunt
+  }
+
   const hackerNews = extractStageData(profile, "hackernews.discussions")
   if (hackerNews) {
     shared.hackerNews = hackerNews

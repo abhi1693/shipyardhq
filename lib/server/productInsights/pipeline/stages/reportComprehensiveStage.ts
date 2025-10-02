@@ -14,6 +14,7 @@ export const reportComprehensiveStage: PipelineStage<
   dependencies: [
     "product.snapshot",
     "reddit.discussions",
+    "producthunt.launches",
     "hackernews.discussions",
   ],
   retryPolicy: {
@@ -29,6 +30,7 @@ export const reportComprehensiveStage: PipelineStage<
       insights: context.shared.discussions?.insights ?? undefined,
       threads: context.shared.discussions?.threads ?? undefined,
       hackerNewsStories: context.shared.hackerNews?.stories ?? undefined,
+      productHunt: context.shared.productHunt ?? undefined,
     })
   },
   serialize(result) {

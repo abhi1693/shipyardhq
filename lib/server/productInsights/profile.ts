@@ -6,6 +6,7 @@ import type {
   ProductInsightDiscussionStageData,
   ProductInsightHackerNewsStageData,
   ProductInsightProfilePayload,
+  ProductInsightProductHuntStageData,
   ProductInsightStageDataById,
   ProductInsightStageId,
   ProductInsightStageMetrics,
@@ -50,6 +51,13 @@ export type InsightProfileRecord = Prisma.ProductInsightProfileGetPayload<{
 }>
 
 type StageRecord = InsightProfileRecord["stages"][number]
+
+type ProductHuntTopTopic = {
+  name: string
+  slug: string | null
+  followersCount: number | null
+  count: number
+}
 
 function asRecord(
   value: Prisma.JsonValue | null,
@@ -179,6 +187,109 @@ function parseDiscussionData(
   }
 }
 
+function parseProductHuntData(
+  value: Prisma.JsonValue | null,
+): ProductInsightProductHuntStageData | null {
+  const record = asRecord(value)
+  if (!record) return null
+
+  const queries = parseStringArray(record.queries) ?? []
+  const launches = Array.isArray(record.launches)
+    ? (record.launches as unknown[] as ProductInsightProductHuntStageData["launches"])
+    : []
+  const similarLaunches = Array.isArray(record.similarLaunches)
+    ? (record.similarLaunches as unknown[] as ProductInsightProductHuntStageData["similarLaunches"])
+    : null
+
+  const summaryRecord = asRecord(record.summary ?? null)
+  const summary = summaryRecord
+    ? {
+        totalVotes:
+          typeof summaryRecord.totalVotes === "number"
+            ? summaryRecord.totalVotes
+            : null,
+        totalComments:
+          typeof summaryRecord.totalComments === "number"
+            ? summaryRecord.totalComments
+            : null,
+        featuredLaunchCount:
+          typeof summaryRecord.featuredLaunchCount === "number"
+            ? summaryRecord.featuredLaunchCount
+            : null,
+        averageVotesPerDay:
+          typeof summaryRecord.averageVotesPerDay === "number"
+            ? summaryRecord.averageVotesPerDay
+            : null,
+        topVotesPerDay: (() => {
+          const recordValue = asRecord(summaryRecord.topVotesPerDay ?? null)
+          if (!recordValue) return null
+          if (
+            typeof recordValue.launchId === "string" &&
+            typeof recordValue.value === "number"
+          ) {
+            return {
+              launchId: recordValue.launchId,
+              value: recordValue.value,
+            }
+          }
+          return null
+        })(),
+        recentLaunchCount:
+          typeof summaryRecord.recentLaunchCount === "number"
+            ? summaryRecord.recentLaunchCount
+            : null,
+        topTopics: Array.isArray(summaryRecord.topTopics)
+          ? summaryRecord.topTopics
+              .map((entry) => {
+                const topicRecord = asRecord(entry as Prisma.JsonValue)
+                if (!topicRecord || typeof topicRecord.name !== "string") {
+                  return null
+                }
+                const countValue =
+                  typeof topicRecord.count === "number"
+                    ? topicRecord.count
+                    : null
+                if (countValue === null) return null
+                return {
+                  name: topicRecord.name,
+                  slug:
+                    typeof topicRecord.slug === "string"
+                      ? topicRecord.slug
+                      : null,
+                  followersCount:
+                    typeof topicRecord.followersCount === "number"
+                      ? topicRecord.followersCount
+                      : null,
+                  count: countValue,
+                } satisfies ProductHuntTopTopic
+              })
+              .filter(
+                (entry): entry is ProductHuntTopTopic => entry !== null,
+              ) || null
+          : null,
+        trendingKeywords:
+          parseStringArray(summaryRecord.trendingKeywords) ?? null,
+        insights: parseStringArray(summaryRecord.insights) ?? null,
+      }
+    : null
+
+  return {
+    queries,
+    launches,
+    similarLaunches,
+    matchedLaunchId:
+      typeof record.matchedLaunchId === "string"
+        ? record.matchedLaunchId
+        : null,
+    summary,
+    model: typeof record.model === "string" ? record.model : undefined,
+    fetchedAt:
+      typeof record.fetchedAt === "string" ? record.fetchedAt : undefined,
+    fromCache:
+      typeof record.fromCache === "boolean" ? record.fromCache : undefined,
+  }
+}
+
 function parseHackerNewsData(
   value: Prisma.JsonValue | null,
 ): ProductInsightHackerNewsStageData | null {
@@ -236,6 +347,8 @@ function parseStageData(
       return parseCommunityData(value)
     case "reddit.discussions":
       return parseDiscussionData(value)
+    case "producthunt.launches":
+      return parseProductHuntData(value)
     case "hackernews.discussions":
       return parseHackerNewsData(value)
     case "report.comprehensive":
@@ -306,6 +419,7 @@ export function serializeInsightProfile(
   const competitorStage = stages["product.competitors"]
   const communityStage = stages["reddit.communities"]
   const discussionStage = stages["reddit.discussions"]
+  const productHuntStage = stages["producthunt.launches"]
   const hackerNewsStage = stages["hackernews.discussions"]
   const reportStage = stages["report.comprehensive"]
 
@@ -317,6 +431,8 @@ export function serializeInsightProfile(
     communityStage?.data as ProductInsightCommunityStageData | null
   const discussionData =
     discussionStage?.data as ProductInsightDiscussionStageData | null
+  const productHuntData =
+    productHuntStage?.data as ProductInsightProductHuntStageData | null
   const hackerNewsData =
     hackerNewsStage?.data as ProductInsightHackerNewsStageData | null
   const reportData = reportStage?.data as ProductInsightReportStageData | null
@@ -352,6 +468,15 @@ export function serializeInsightProfile(
     redditErrorMessage: discussionStage?.errorMessage ?? null,
     redditModel: discussionData?.model ?? null,
     redditMode: discussionData?.mode ?? null,
+    productHuntQueries: productHuntData?.queries ?? null,
+    productHuntLaunches: productHuntData?.launches ?? null,
+    productHuntSimilarLaunches: productHuntData?.similarLaunches ?? null,
+    productHuntSummary: productHuntData?.summary ?? null,
+    productHuntMatchedLaunchId: productHuntData?.matchedLaunchId ?? null,
+    productHuntStatus: productHuntStage?.status ?? null,
+    productHuntErrorMessage: productHuntStage?.errorMessage ?? null,
+    productHuntModel: productHuntData?.model ?? null,
+    productHuntInsights: productHuntData?.summary?.insights ?? null,
     hackerNewsQueries: hackerNewsData?.queries ?? null,
     hackerNewsStories: hackerNewsData?.stories ?? null,
     hackerNewsSummary: hackerNewsData?.summary ?? null,
@@ -366,6 +491,7 @@ export function serializeInsightProfile(
     lastCompetitorDiscoveryAt: competitorStage?.completedAt ?? null,
     lastSubredditDiscoveryAt: communityStage?.completedAt ?? null,
     lastRedditDiscoveryAt: discussionStage?.completedAt ?? null,
+    lastProductHuntDiscoveryAt: productHuntStage?.completedAt ?? null,
     lastHackerNewsDiscoveryAt: hackerNewsStage?.completedAt ?? null,
     lastFinalReportAt: reportStage?.completedAt ?? null,
     createdAt: record.createdAt?.toISOString() ?? null,

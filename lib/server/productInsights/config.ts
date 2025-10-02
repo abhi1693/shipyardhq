@@ -3,6 +3,10 @@ const DEFAULT_SUBREDDIT_RELEVANCE_MODEL = "gpt-4.1-mini"
 const DEFAULT_DISCUSSION_QUERY_MODEL = "gpt-4.1"
 const DEFAULT_DISCUSSION_INSIGHT_MODEL = "gpt-4.1-mini"
 const DEFAULT_COMPETITOR_MODEL = "gpt-4.1-mini"
+const DEFAULT_PRODUCT_HUNT_INDEX = "Post_production"
+
+const PRODUCT_HUNT_APP_ID_FALLBACK = "0H4SMABBSG"
+const PRODUCT_HUNT_SEARCH_KEY_FALLBACK = "9670d2d619b9d07859448d7628eea5f3"
 
 export function getProductInsightSubredditModel(): string {
   const envName =
@@ -37,6 +41,28 @@ export function getProductInsightCompetitorModel(): string {
     process.env.PRODUCT_INSIGHT_COMPETITOR_MODEL?.trim() ||
     process.env.PRODUCT_IDEA_COMPETITOR_MODEL?.trim()
   return envName || DEFAULT_COMPETITOR_MODEL
+}
+
+export function getProductHuntAppId(): string | null {
+  const value = process.env.PRODUCT_HUNT_APP_ID?.trim()
+  if (value) return value
+  return process.env.NODE_ENV === "development"
+    ? PRODUCT_HUNT_APP_ID_FALLBACK
+    : null
+}
+
+export function getProductHuntSearchKey(): string | null {
+  const value = process.env.PRODUCT_HUNT_SEARCH_KEY?.trim()
+  if (value) return value
+  return process.env.NODE_ENV === "development"
+    ? PRODUCT_HUNT_SEARCH_KEY_FALLBACK
+    : null
+}
+
+export function getProductHuntIndexName(): string {
+  return (
+    process.env.PRODUCT_HUNT_INDEX_NAME?.trim() || DEFAULT_PRODUCT_HUNT_INDEX
+  )
 }
 
 export function getProductInsightDiscussionModelLabel(): string {

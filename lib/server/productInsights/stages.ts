@@ -45,6 +45,14 @@ const STAGE_RENDER_METADATA: Array<{
     renderer: "discussion-list",
   },
   {
+    id: "producthunt.launches",
+    order: 42,
+    label: "Product Hunt Launches",
+    description:
+      "Capture launch performance and community reactions from Product Hunt",
+    renderer: "producthunt-launches",
+  },
+  {
     id: "hackernews.discussions",
     order: 45,
     label: "Hacker News Mentions",
@@ -103,6 +111,7 @@ export const PRODUCT_INSIGHT_STAGE_SETS: ProductInsightStageSetDefinition[] = [
     stages: [
       "reddit.communities",
       "reddit.discussions",
+      "producthunt.launches",
       "hackernews.discussions",
       "report.comprehensive",
     ],

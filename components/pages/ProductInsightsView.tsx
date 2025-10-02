@@ -33,6 +33,7 @@ import type {
   ProductInsightRedditThread,
   ProductInsightReportAction,
   ProductInsightReportActionPriority,
+  ProductInsightProductHuntLaunch,
   ProductInsightStatus,
   ProductInsightCompetitor,
   ProductInsightSubreddit,
@@ -450,6 +451,7 @@ export function ProductInsightsView({
   const [showCompetitorDeepDive, setShowCompetitorDeepDive] = useState(false)
   const [showCommunityDeepDive, setShowCommunityDeepDive] = useState(false)
   const [showCommunityInputs, setShowCommunityInputs] = useState(false)
+  const [showProductHuntInputs, setShowProductHuntInputs] = useState(false)
   const [showHackerNewsInputs, setShowHackerNewsInputs] = useState(false)
   const [showHackerNewsDeepDive, setShowHackerNewsDeepDive] = useState(false)
   const [showDiscussionInputs, setShowDiscussionInputs] = useState(false)
@@ -943,6 +945,191 @@ export function ProductInsightsView({
   const coverageNeedsAttention =
     coveragePercent !== null &&
     coveragePercent < REQUIRED_QUERY_COVERAGE_PERCENT
+
+  const productHuntLaunches = useMemo(() => {
+    if (!Array.isArray(profile?.productHuntLaunches)) return []
+    return profile!.productHuntLaunches as ProductInsightProductHuntLaunch[]
+  }, [profile])
+
+  const productHuntSimilarLaunches = useMemo(() => {
+    if (!Array.isArray(profile?.productHuntSimilarLaunches)) return []
+    return profile!
+      .productHuntSimilarLaunches as ProductInsightProductHuntLaunch[]
+  }, [profile])
+
+  const productHuntQueries = useMemo(() => {
+    return Array.isArray(profile?.productHuntQueries)
+      ? (profile!.productHuntQueries as string[])
+      : []
+  }, [profile])
+
+  const matchedProductHuntLaunchId = profile?.productHuntMatchedLaunchId ?? null
+
+  const sortedProductHuntLaunches = useMemo(() => {
+    return [...productHuntLaunches].sort((a, b) => {
+      const rankA =
+        typeof a.rank === "number" ? a.rank : Number.POSITIVE_INFINITY
+      const rankB =
+        typeof b.rank === "number" ? b.rank : Number.POSITIVE_INFINITY
+      return rankA - rankB
+    })
+  }, [productHuntLaunches])
+
+  const highlightedProductHuntLaunch = useMemo(() => {
+    if (!sortedProductHuntLaunches.length) return null
+    if (matchedProductHuntLaunchId) {
+      const matched = sortedProductHuntLaunches.find(
+        (launch) => launch.id === matchedProductHuntLaunchId,
+      )
+      if (matched) return matched
+    }
+    return sortedProductHuntLaunches[0] ?? null
+  }, [matchedProductHuntLaunchId, sortedProductHuntLaunches])
+
+  const productHuntSummary = profile?.productHuntSummary ?? null
+
+  const productHuntInsights = useMemo(() => {
+    if (Array.isArray(profile?.productHuntInsights)) {
+      return (profile!.productHuntInsights as string[]).filter(
+        (entry): entry is string =>
+          typeof entry === "string" && entry.length > 0,
+      )
+    }
+    if (Array.isArray(productHuntSummary?.insights)) {
+      return productHuntSummary.insights.filter(
+        (entry): entry is string =>
+          typeof entry === "string" && entry.length > 0,
+      )
+    }
+    return []
+  }, [productHuntSummary, profile])
+
+  const productHuntAverageVotesPerDay =
+    typeof productHuntSummary?.averageVotesPerDay === "number"
+      ? productHuntSummary.averageVotesPerDay
+      : null
+
+  const productHuntTrendingKeywords = Array.isArray(
+    productHuntSummary?.trendingKeywords,
+  )
+    ? productHuntSummary!.trendingKeywords!.filter(
+        (entry): entry is string =>
+          typeof entry === "string" && entry.length > 0,
+      )
+    : []
+
+  const productHuntTopTopics = Array.isArray(productHuntSummary?.topTopics)
+    ? productHuntSummary!.topTopics!
+    : []
+
+  const sortedProductHuntSimilarLaunches = useMemo(() => {
+    return [...productHuntSimilarLaunches].sort((a, b) => {
+      const votesPerDayA =
+        typeof a.votesPerDay === "number" ? a.votesPerDay : -1
+      const votesPerDayB =
+        typeof b.votesPerDay === "number" ? b.votesPerDay : -1
+      if (votesPerDayB !== votesPerDayA) return votesPerDayB - votesPerDayA
+      const votesA = typeof a.voteCount === "number" ? a.voteCount : -1
+      const votesB = typeof b.voteCount === "number" ? b.voteCount : -1
+      return votesB - votesA
+    })
+  }, [productHuntSimilarLaunches])
+
+  const productHuntSimilarPreview = useMemo(() => {
+    return sortedProductHuntSimilarLaunches.slice(0, 4)
+  }, [sortedProductHuntSimilarLaunches])
+
+  const highlightedProductHuntStats = useMemo(() => {
+    if (!highlightedProductHuntLaunch) return []
+    const stats: Array<{ label: string; value: string }> = []
+
+    if (typeof highlightedProductHuntLaunch.voteCount === "number") {
+      stats.push({
+        label: "Votes",
+        value: COUNT_FORMATTER.format(highlightedProductHuntLaunch.voteCount),
+      })
+    }
+
+    if (typeof highlightedProductHuntLaunch.votesPerDay === "number") {
+      stats.push({
+        label: "Votes/day",
+        value: highlightedProductHuntLaunch.votesPerDay.toFixed(2),
+      })
+    }
+
+    if (typeof highlightedProductHuntLaunch.commentToVoteRatio === "number") {
+      stats.push({
+        label: "Comments per vote",
+        value: highlightedProductHuntLaunch.commentToVoteRatio.toFixed(2),
+      })
+    }
+
+    if (typeof highlightedProductHuntLaunch.topicFollowerReach === "number") {
+      stats.push({
+        label: "Topic reach",
+        value: COUNT_FORMATTER.format(
+          highlightedProductHuntLaunch.topicFollowerReach,
+        ),
+      })
+    }
+
+    if (typeof highlightedProductHuntLaunch.daysSinceLaunch === "number") {
+      stats.push({
+        label: "Days live",
+        value: highlightedProductHuntLaunch.daysSinceLaunch.toFixed(1),
+      })
+    }
+
+    if (typeof highlightedProductHuntLaunch.daysToFeature === "number") {
+      stats.push({
+        label: "Days to feature",
+        value: highlightedProductHuntLaunch.daysToFeature.toFixed(1),
+      })
+    }
+
+    return stats
+  }, [highlightedProductHuntLaunch])
+
+  const hasProductHuntResults = productHuntLaunches.length > 0
+
+  const productHuntSnapshotValue = hasProductHuntResults
+    ? typeof productHuntAverageVotesPerDay === "number" &&
+      productHuntAverageVotesPerDay > 0
+      ? `${productHuntAverageVotesPerDay.toFixed(2)} votes/day avg`
+      : `${COUNT_FORMATTER.format(productHuntSummary?.totalVotes ?? 0)} votes`
+    : "Pending"
+
+  const productHuntSnapshotCaption = hasProductHuntResults
+    ? productHuntTrendingKeywords.length
+      ? `Peers emphasize ${productHuntTrendingKeywords.slice(0, 3).join(", ")}`
+      : productHuntSimilarLaunches.length
+        ? `${COUNT_FORMATTER.format(productHuntSimilarLaunches.length)} similar launches`
+        : (productHuntInsights[0] ?? "Launch snapshot ready")
+    : "Awaiting launch data"
+
+  const productHuntStatus = profile?.productHuntStatus ?? null
+  const productHuntStatusDisplay = productHuntStatus
+    ? STATUS_STYLES[productHuntStatus]
+    : { label: "Not started", badge: "outline" as const }
+
+  const lastProductHuntDiscovery = profile?.lastProductHuntDiscoveryAt
+    ? formatDistanceToNowStrict(new Date(profile.lastProductHuntDiscoveryAt), {
+        addSuffix: true,
+      })
+    : "Never"
+
+  const shouldShowProductHuntEmptyState =
+    !hasProductHuntResults && !isRunningPipeline
+
+  const shouldSurfaceProductHuntNotices = Boolean(
+    profile?.productHuntErrorMessage || shouldShowProductHuntEmptyState,
+  )
+
+  const shouldOpenProductHuntStage =
+    hasProductHuntResults ||
+    !!profile?.productHuntErrorMessage ||
+    productHuntStatus === "pending" ||
+    productHuntStatus === "failed"
 
   const hackerNewsStatus = profile?.hackerNewsStatus ?? null
   const hackerNewsStatusDisplay = hackerNewsStatus
@@ -1579,6 +1766,17 @@ export function ProductInsightsView({
           : "Awaiting coverage",
     },
     {
+      label: "Product Hunt traction",
+      value: productHuntSnapshotValue,
+      tone: hasProductHuntResults
+        ? "positive"
+        : productHuntStatusDisplay.badge === "destructive"
+          ? "warning"
+          : "neutral",
+      icon: "📊",
+      caption: productHuntSnapshotCaption,
+    },
+    {
       label: "Hacker News",
       value: hasHackerNewsResults
         ? `${COUNT_FORMATTER.format(hackerNewsStories.length)} stories`
@@ -1860,6 +2058,23 @@ export function ProductInsightsView({
       <InfoNotice tone="info" size="xs">
         Run the pipeline to benchmark competitive alternatives and cache them
         for future research.
+      </InfoNotice>
+    )
+  }
+
+  const renderProductHuntError = () => {
+    if (!profile?.productHuntErrorMessage) return null
+    return (
+      <InfoNotice tone="error">{profile.productHuntErrorMessage}</InfoNotice>
+    )
+  }
+
+  const renderProductHuntEmptyState = () => {
+    if (!shouldShowProductHuntEmptyState) return null
+    return (
+      <InfoNotice tone="info" size="xs">
+        Run the pipeline to capture recent launch performance and discussion
+        signals from Product Hunt.
       </InfoNotice>
     )
   }
@@ -3279,8 +3494,396 @@ export function ProductInsightsView({
             </div>
           </>
         </StageCard>
+
         <StageCard
           step="Step 4"
+          title="Product Hunt launches"
+          description="Gauge launch traction and discover how adjacent launches position themselves before the report synthesizes recommendations."
+          status={productHuntStatusDisplay}
+          metrics={[
+            {
+              label: "Launches",
+              value: hasProductHuntResults
+                ? COUNT_FORMATTER.format(productHuntLaunches.length)
+                : "0",
+              tone: hasProductHuntResults ? "positive" : "warning",
+            },
+            {
+              label: "Similar launches",
+              value: productHuntSimilarLaunches.length
+                ? COUNT_FORMATTER.format(productHuntSimilarLaunches.length)
+                : "0",
+              tone: productHuntSimilarLaunches.length ? "neutral" : "neutral",
+            },
+            {
+              label: "Avg votes/day",
+              value:
+                typeof productHuntAverageVotesPerDay === "number"
+                  ? productHuntAverageVotesPerDay.toFixed(2)
+                  : "—",
+              tone: productHuntAverageVotesPerDay ? "positive" : "neutral",
+            },
+            {
+              label: "Last refreshed",
+              value: lastProductHuntDiscovery,
+              tone:
+                lastProductHuntDiscovery === "Never" ? "warning" : "neutral",
+            },
+          ]}
+          collapsible
+          defaultOpen={shouldOpenProductHuntStage}
+        >
+          <>
+            <div className="space-y-6">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  <span>Since last run:</span>
+                  <span>
+                    {hasProductHuntResults
+                      ? `${COUNT_FORMATTER.format(productHuntLaunches.length)} launches captured`
+                      : "Launch monitoring ready"}
+                  </span>
+                </div>
+                <div className="space-y-6">
+                  {shouldSurfaceProductHuntNotices ? (
+                    <div className="space-y-2">
+                      {renderProductHuntError()}
+                      {renderProductHuntEmptyState()}
+                    </div>
+                  ) : null}
+
+                  {hasProductHuntResults ? (
+                    <div className="space-y-6">
+                      {highlightedProductHuntLaunch ? (
+                        <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                            <div className="space-y-2">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Badge
+                                  variant="secondary"
+                                  className="text-[10px]"
+                                >
+                                  Primary launch
+                                </Badge>
+                                {highlightedProductHuntLaunch.isFeatured ? (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px]"
+                                  >
+                                    Featured
+                                  </Badge>
+                                ) : null}
+                              </div>
+                              <div className="text-lg font-semibold text-foreground">
+                                {highlightedProductHuntLaunch.name}
+                              </div>
+                              {highlightedProductHuntLaunch.tagline ? (
+                                <p className="text-sm leading-relaxed text-muted-foreground">
+                                  {highlightedProductHuntLaunch.tagline}
+                                </p>
+                              ) : null}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-700">
+                              {typeof highlightedProductHuntLaunch.votesPerDay ===
+                              "number" ? (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs">
+                                  ⚡{" "}
+                                  {highlightedProductHuntLaunch.votesPerDay.toFixed(
+                                    2,
+                                  )}{" "}
+                                  votes/day
+                                </span>
+                              ) : null}
+                              <Link
+                                href={highlightedProductHuntLaunch.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary transition hover:bg-primary/10"
+                              >
+                                View on Product Hunt
+                              </Link>
+                              {highlightedProductHuntLaunch.externalUrl ? (
+                                <Link
+                                  href={
+                                    highlightedProductHuntLaunch.externalUrl
+                                  }
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary"
+                                >
+                                  Visit live site
+                                </Link>
+                              ) : null}
+                            </div>
+                          </div>
+
+                          {highlightedProductHuntStats.length ? (
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                              {highlightedProductHuntStats.map((stat) => (
+                                <div
+                                  key={`highlight-stat-${stat.label}`}
+                                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-left shadow-sm"
+                                >
+                                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                    {stat.label}
+                                  </div>
+                                  <div className="text-sm font-semibold text-foreground">
+                                    {stat.value}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+
+                          {Array.isArray(highlightedProductHuntLaunch.topics) &&
+                          highlightedProductHuntLaunch.topics.length ? (
+                            <div className="flex flex-wrap gap-2">
+                              {highlightedProductHuntLaunch.topics
+                                .slice(0, 6)
+                                .map((topic) => (
+                                  <Badge
+                                    key={`highlight-topic-${topic.slug ?? topic.name}`}
+                                    variant="outline"
+                                    className="text-[10px]"
+                                  >
+                                    {topic.name}
+                                  </Badge>
+                                ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+
+                      {(productHuntInsights.length ||
+                        productHuntTrendingKeywords.length ||
+                        productHuntTopTopics.length) && (
+                        <div className="grid gap-4 lg:grid-cols-2">
+                          {productHuntInsights.length ? (
+                            <div className="space-y-2 rounded-xl border border-slate-200 bg-white p-4">
+                              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                Opportunity signals
+                              </div>
+                              <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                                {productHuntInsights.map((insight) => (
+                                  <li key={insight}>{insight}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : null}
+
+                          <div className="space-y-4">
+                            {productHuntTrendingKeywords.length ? (
+                              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                  Trending keywords
+                                </div>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {productHuntTrendingKeywords.map(
+                                    (keyword) => (
+                                      <Badge
+                                        key={`keyword-${keyword}`}
+                                        variant="outline"
+                                        className="text-[10px]"
+                                      >
+                                        {keyword}
+                                      </Badge>
+                                    ),
+                                  )}
+                                </div>
+                              </div>
+                            ) : null}
+
+                            {productHuntTopTopics.length ? (
+                              <div className="rounded-xl border border-slate-200 bg-white p-4">
+                                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                  Popular peer topics
+                                </div>
+                                <div className="mt-2 space-y-2 text-sm text-muted-foreground">
+                                  {productHuntTopTopics
+                                    .slice(0, 5)
+                                    .map((topic) => (
+                                      <div
+                                        key={`topic-${topic.slug ?? topic.name}`}
+                                        className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                                      >
+                                        <div className="font-semibold text-foreground">
+                                          {topic.name}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                          {topic.count} mentions
+                                          {typeof topic.followersCount ===
+                                          "number"
+                                            ? ` • ${COUNT_FORMATTER.format(topic.followersCount)} followers`
+                                            : ""}
+                                        </div>
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      )}
+
+                      {productHuntSimilarPreview.length ? (
+                        <div className="space-y-3">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                              <div className="text-sm font-semibold text-foreground">
+                                Similar launches to study
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Pulled via competitor names, product messaging,
+                                and shared topics.
+                              </div>
+                            </div>
+                            <Badge
+                              variant="outline"
+                              className="self-start text-[11px]"
+                            >
+                              {COUNT_FORMATTER.format(
+                                productHuntSimilarLaunches.length,
+                              )}{" "}
+                              {productHuntSimilarLaunches.length === 1
+                                ? "match"
+                                : "matches"}
+                            </Badge>
+                          </div>
+                          <div className="grid gap-3 lg:grid-cols-2">
+                            {productHuntSimilarPreview.map((launch) => (
+                              <div
+                                key={`product-hunt-similar-${launch.id}`}
+                                className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm"
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="space-y-1">
+                                    <Link
+                                      href={launch.url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="font-semibold text-foreground hover:underline"
+                                    >
+                                      {launch.name}
+                                    </Link>
+                                    {launch.tagline ? (
+                                      <p className="text-xs text-muted-foreground">
+                                        {launch.tagline}
+                                      </p>
+                                    ) : null}
+                                  </div>
+                                  {typeof launch.votesPerDay === "number" ? (
+                                    <Badge
+                                      variant="outline"
+                                      className="text-[10px]"
+                                    >
+                                      {launch.votesPerDay.toFixed(2)} votes/day
+                                    </Badge>
+                                  ) : null}
+                                </div>
+                                <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-0.5">
+                                    🔼{" "}
+                                    {COUNT_FORMATTER.format(
+                                      launch.voteCount ?? 0,
+                                    )}
+                                  </span>
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-0.5">
+                                    💬{" "}
+                                    {COUNT_FORMATTER.format(
+                                      launch.commentsCount ?? 0,
+                                    )}
+                                  </span>
+                                  {typeof launch.commentToVoteRatio ===
+                                  "number" ? (
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-0.5">
+                                      🗣️ {launch.commentToVoteRatio.toFixed(2)}{" "}
+                                      comments/vote
+                                    </span>
+                                  ) : null}
+                                </div>
+                                {Array.isArray(launch.topics) &&
+                                launch.topics.length ? (
+                                  <div className="flex flex-wrap gap-1 text-[10px]">
+                                    {launch.topics.slice(0, 4).map((topic) => (
+                                      <Badge
+                                        key={`similar-topic-${launch.id}-${topic.slug ?? topic.name}`}
+                                        variant="outline"
+                                      >
+                                        {topic.name}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                ) : null}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              </section>
+
+              {productHuntQueries.length ? (
+                <Collapsible
+                  open={showProductHuntInputs}
+                  onOpenChange={setShowProductHuntInputs}
+                  className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">
+                        Search plan inputs
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Queries and matchers used against the Product Hunt
+                        index.
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-[11px]">
+                        {COUNT_FORMATTER.format(productHuntQueries.length)}{" "}
+                        {productHuntQueries.length === 1 ? "query" : "queries"}
+                      </Badge>
+                      <CollapsibleTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                        >
+                          {showProductHuntInputs
+                            ? "Hide queries"
+                            : "Show queries"}
+                          <ChevronDownIcon
+                            className={cn(
+                              "h-3.5 w-3.5 transition-transform duration-200",
+                              showProductHuntInputs ? "rotate-180" : "rotate-0",
+                            )}
+                            aria-hidden
+                          />
+                        </button>
+                      </CollapsibleTrigger>
+                    </div>
+                  </div>
+                  <CollapsibleContent>
+                    <div className="flex flex-wrap gap-2">
+                      {productHuntQueries.map((query) => (
+                        <span
+                          key={query}
+                          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-foreground"
+                        >
+                          {query}
+                        </span>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ) : null}
+            </div>
+          </>
+        </StageCard>
+
+        <StageCard
+          step="Step 5"
           title="Hacker News mentions"
           description="Monitor launch chatter and comparisons from Hacker News to enrich community insights."
           status={hackerNewsStatusDisplay}
@@ -4226,7 +4829,7 @@ export function ProductInsightsView({
         </StageCard>
 
         <StageCard
-          step="Step 5"
+          step="Step 7"
           title="Comprehensive report"
           description="Merge product narrative, community intelligence, and discussion signals into a single plan."
           status={reportStatusDisplay}

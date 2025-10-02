@@ -10,6 +10,7 @@ import type {
   ProductInsightComprehensiveReport,
   ProductInsightHackerNewsStory,
   ProductInsightHackerNewsSummary,
+  ProductInsightProductHuntStageData,
   ProductInsightRedditInsightReport,
   ProductInsightRedditThread,
   ProductInsightReportAction,
@@ -29,6 +30,10 @@ const MAX_THREADS = 9
 const MAX_EVIDENCE_PER_ITEM = 3
 const MAX_SECTION_ITEMS = 4
 const MAX_STRING_LENGTH = 360
+const MAX_PRODUCT_HUNT_LAUNCHES = 6
+const MAX_PRODUCT_HUNT_TOPICS = 5
+const MAX_PRODUCT_HUNT_LINKS = 3
+const MAX_PRODUCT_HUNT_QUERIES = 6
 
 const RECOMMENDED_ACTION_PROPERTIES = {
   title: { type: "string", minLength: 4 },
@@ -294,6 +299,73 @@ function sanitizeHackerNewsSummary(
   }
 }
 
+function sanitizeProductHunt(
+  stage?: ProductInsightProductHuntStageData | null,
+) {
+  if (!stage) return null
+  const launches = Array.isArray(stage.launches)
+    ? stage.launches.slice(0, MAX_PRODUCT_HUNT_LAUNCHES)
+    : []
+
+  if (!launches.length) return null
+
+  const mapLaunch = (
+    launch: ProductInsightProductHuntStageData["launches"][number],
+  ) => ({
+    id: launch.id,
+    name: launch.name,
+    slug: launch.slug,
+    tagline: truncate(launch.tagline, 220),
+    url: launch.url,
+    externalUrl: launch.externalUrl ?? null,
+    voteCount: launch.voteCount ?? null,
+    commentsCount: launch.commentsCount ?? null,
+    featuredAt: launch.featuredAt ?? null,
+    createdAt: launch.createdAt ?? null,
+    rank: launch.rank ?? null,
+    votesPerDay: launch.votesPerDay ?? null,
+    daysSinceLaunch: launch.daysSinceLaunch ?? null,
+    daysToFeature: launch.daysToFeature ?? null,
+    topicFollowerReach: launch.topicFollowerReach ?? null,
+    commentToVoteRatio: launch.commentToVoteRatio ?? null,
+    topics: Array.isArray(launch.topics)
+      ? launch.topics.slice(0, MAX_PRODUCT_HUNT_TOPICS).map((topic) => ({
+          name: topic.name,
+          slug: topic.slug ?? null,
+          followersCount: topic.followersCount ?? null,
+        }))
+      : null,
+    links: Array.isArray(launch.links)
+      ? launch.links.slice(0, MAX_PRODUCT_HUNT_LINKS).map((link) => ({
+          label: truncate(link.label, 80) ?? link.label,
+          url: link.url,
+        }))
+      : null,
+  })
+
+  return {
+    queries: stage.queries.slice(0, MAX_PRODUCT_HUNT_QUERIES),
+    matchedLaunchId: stage.matchedLaunchId ?? null,
+    summary: stage.summary
+      ? {
+          totalVotes: stage.summary.totalVotes ?? null,
+          totalComments: stage.summary.totalComments ?? null,
+          featuredLaunchCount: stage.summary.featuredLaunchCount ?? null,
+          averageVotesPerDay: stage.summary.averageVotesPerDay ?? null,
+          topVotesPerDay: stage.summary.topVotesPerDay ?? null,
+          recentLaunchCount: stage.summary.recentLaunchCount ?? null,
+          topTopics: stage.summary.topTopics ?? null,
+          trendingKeywords: stage.summary.trendingKeywords ?? null,
+          insights: stage.summary.insights ?? null,
+        }
+      : null,
+    launches: launches.map(mapLaunch),
+    similarLaunches: Array.isArray(stage.similarLaunches)
+      ? stage.similarLaunches.slice(0, MAX_PRODUCT_HUNT_LAUNCHES).map(mapLaunch)
+      : null,
+  }
+}
+
 type ReportPayload = {
   product: ProductInsightProductContext
   summary?: ProductInsightSummary | null
@@ -303,6 +375,7 @@ type ReportPayload = {
   redditThreads: ReturnType<typeof sanitizeThreads>
   hackerNewsSummary: ReturnType<typeof sanitizeHackerNewsSummary>
   hackerNewsStories: ReturnType<typeof sanitizeHackerNewsStories>
+  productHunt: ReturnType<typeof sanitizeProductHunt>
   existingCapabilities?: string[]
 }
 
@@ -316,6 +389,7 @@ type CreateReportInput = {
   threads?: ProductInsightRedditThread[] | null
   hackerNewsSummary?: ProductInsightHackerNewsSummary | null
   hackerNewsStories?: ProductInsightHackerNewsStory[] | null
+  productHunt?: ProductInsightProductHuntStageData | null
 }
 
 type CreateReportResult = {
@@ -336,6 +410,7 @@ export async function createProductInsightComprehensiveReport(
     threads,
     hackerNewsSummary,
     hackerNewsStories,
+    productHunt,
   } = input
 
   const openai = getOpenAIClient()
@@ -349,6 +424,7 @@ export async function createProductInsightComprehensiveReport(
     redditThreads: sanitizeThreads(threads),
     hackerNewsSummary: sanitizeHackerNewsSummary(hackerNewsSummary),
     hackerNewsStories: sanitizeHackerNewsStories(hackerNewsStories),
+    productHunt: sanitizeProductHunt(productHunt),
   }
 
   if (summary?.keyFeatures?.length) {
@@ -362,6 +438,9 @@ export async function createProductInsightComprehensiveReport(
     threadCount: payload.redditThreads.length,
     hackerNewsStoryCount: payload.hackerNewsStories.length,
     hackerNewsHighlights: payload.hackerNewsSummary?.highlights?.length ?? 0,
+    productHuntLaunchCount: payload.productHunt?.launches?.length ?? 0,
+    productHuntTotalVotes: payload.productHunt?.summary?.totalVotes ?? 0,
+    productHuntSimilarCount: payload.productHunt?.similarLaunches?.length ?? 0,
   })
 
   const response = await openai.responses.create({
@@ -522,6 +601,8 @@ export async function createProductInsightComprehensiveReport(
             "Avoid repeating existing capabilities verbatim—frame recommendations as enhancements, fixes, or new bets that address uncovered gaps.",
             "Call out pain points and friction surfaced in community data and translate them into prioritized opportunity areas.",
             "Leverage Hacker News chatter to capture launch reactions, comparisons, and sentiment alongside Reddit findings.",
+            "Incorporate Product Hunt launch performance, vote trends, and maker or commenter takeaways when they reinforce an action.",
+            "Contrast your recommendations with strengths emphasized by similar Product Hunt launches and highlight differentiation opportunities.",
           ],
           dataset: payload,
         }),

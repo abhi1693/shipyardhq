@@ -91,6 +91,78 @@ export type ProductInsightHackerNewsSummary = {
 
 export type ProductInsightHarvestMode = "standard" | "deep"
 
+export type ProductInsightProductHuntTopic = {
+  id?: number | string | null
+  name: string
+  slug?: string | null
+  followersCount?: number | null
+}
+
+export type ProductInsightProductHuntMaker = {
+  id?: number | string | null
+  name?: string | null
+  username?: string | null
+  headline?: string | null
+  avatarUrl?: string | null
+}
+
+export type ProductInsightProductHuntLaunchLink = {
+  label: string
+  url: string
+}
+
+export type ProductInsightProductHuntLaunch = {
+  id: string
+  slug: string
+  name: string
+  tagline?: string | null
+  url: string
+  externalUrl?: string | null
+  voteCount?: number | null
+  commentsCount?: number | null
+  featuredAt?: string | null
+  createdAt?: string | null
+  rank?: number | null
+  topics?: ProductInsightProductHuntTopic[] | null
+  makers?: ProductInsightProductHuntMaker[] | null
+  links?: ProductInsightProductHuntLaunchLink[] | null
+  votesPerDay?: number | null
+  daysSinceLaunch?: number | null
+  daysToFeature?: number | null
+  topicFollowerReach?: number | null
+  commentToVoteRatio?: number | null
+  isFeatured?: boolean | null
+}
+
+export type ProductInsightProductHuntStageData = {
+  queries: string[]
+  launches: ProductInsightProductHuntLaunch[]
+  similarLaunches?: ProductInsightProductHuntLaunch[] | null
+  matchedLaunchId?: string | null
+  summary?: {
+    totalVotes?: number | null
+    totalComments?: number | null
+    featuredLaunchCount?: number | null
+    averageVotesPerDay?: number | null
+    topVotesPerDay?: {
+      launchId: string
+      value: number
+    } | null
+    recentLaunchCount?: number | null
+    topTopics?: Array<{
+      name: string
+      slug?: string | null
+      followersCount?: number | null
+      count: number
+    }> | null
+    trendingKeywords?: string[] | null
+    insights?: string[] | null
+  } | null
+  model?: string | null
+  fetchedAt?: string | null
+  fromCache?: boolean | null
+}
+
 export type ProductInsightRedditInsightItem = {
   insight: string
   sentiment?: "positive" | "negative" | "neutral" | null
@@ -229,6 +301,7 @@ export type ProductInsightStageId =
   | "product.competitors"
   | "reddit.communities"
   | "reddit.discussions"
+  | "producthunt.launches"
   | "hackernews.discussions"
   | "report.comprehensive"
 
@@ -237,6 +310,7 @@ export type ProductInsightStageRendererHint =
   | "competitor-list"
   | "community-list"
   | "discussion-list"
+  | "producthunt-launches"
   | "hackernews-list"
   | "comprehensive-report"
 
@@ -268,6 +342,7 @@ export type ProductInsightStageDataById = {
   "product.competitors": ProductInsightCompetitorStageData
   "reddit.communities": ProductInsightCommunityStageData
   "reddit.discussions": ProductInsightDiscussionStageData
+  "producthunt.launches": ProductInsightProductHuntStageData
   "hackernews.discussions": ProductInsightHackerNewsStageData
   "report.comprehensive": ProductInsightReportStageData
 }
@@ -333,6 +408,15 @@ export type ProductInsightProfilePayload = {
   hackerNewsStatus?: ProductInsightStatus | null
   hackerNewsErrorMessage?: string | null
   hackerNewsModel?: string | null
+  productHuntQueries?: string[] | null
+  productHuntLaunches?: ProductInsightProductHuntLaunch[] | null
+  productHuntSimilarLaunches?: ProductInsightProductHuntLaunch[] | null
+  productHuntSummary?: ProductInsightProductHuntStageData["summary"] | null
+  productHuntMatchedLaunchId?: string | null
+  productHuntStatus?: ProductInsightStatus | null
+  productHuntErrorMessage?: string | null
+  productHuntModel?: string | null
+  productHuntInsights?: string[] | null
   finalReport?: ProductInsightComprehensiveReport | null
   finalReportStatus?: ProductInsightStatus | null
   finalReportErrorMessage?: string | null
@@ -342,6 +426,7 @@ export type ProductInsightProfilePayload = {
   lastSubredditDiscoveryAt: string | null
   lastRedditDiscoveryAt: string | null
   lastHackerNewsDiscoveryAt: string | null
+  lastProductHuntDiscoveryAt: string | null
   lastFinalReportAt: string | null
   competitorResearchNotes?: string[] | null
   createdAt?: string | null

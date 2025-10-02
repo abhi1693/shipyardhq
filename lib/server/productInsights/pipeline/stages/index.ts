@@ -4,6 +4,7 @@ import { productSnapshotStage } from "./productSnapshotStage"
 import { productCompetitorsStage } from "./productCompetitorsStage"
 import { redditCommunitiesStage } from "./redditCommunitiesStage"
 import { redditDiscussionsStage } from "./redditDiscussionsStage"
+import { productHuntStage } from "./productHuntStage"
 import { hackerNewsDiscussionsStage } from "./hackerNewsDiscussionsStage"
 import { reportComprehensiveStage } from "./reportComprehensiveStage"
 
@@ -12,6 +13,7 @@ export const PIPELINE_STAGES_IN_ORDER: PipelineStage[] = [
   productCompetitorsStage,
   redditCommunitiesStage,
   redditDiscussionsStage,
+  productHuntStage,
   hackerNewsDiscussionsStage,
   reportComprehensiveStage,
 ]
