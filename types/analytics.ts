@@ -216,6 +216,17 @@ export interface ProductTrafficSummary {
   advanced: ProductTrafficAdvancedInsights
 }
 
+export type ProductAnalyticsNarrativeConfidence = "low" | "medium" | "high"
+
+export interface ProductAnalyticsNarrative {
+  source: "ai" | "fallback"
+  headline: string
+  highlights: string[]
+  watchouts?: string[]
+  confidence: ProductAnalyticsNarrativeConfidence
+  generatedAt: string
+}
+
 export interface OnboardingAnswerBreakdownItem {
   value: string
   label: string

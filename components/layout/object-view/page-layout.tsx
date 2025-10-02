@@ -68,26 +68,22 @@ export function ObjectPageLayout({
             </OverviewCard>
           )}
           {extrasList.length === 1 && (
-            <div className="grid grid-cols-12 gap-6">
-              <div className="col-span-12 lg:col-span-8">
-                {hasOverview && (
-                  <OverviewCard
-                    title="Overview"
-                    className={overviewCardClassName}
-                  >
-                    {overview.map((field) => (
-                      <OverviewRow
-                        key={field.label}
-                        label={field.label}
-                        value={field.value}
-                      />
-                    ))}
-                  </OverviewCard>
-                )}
-              </div>
-              <aside className="col-span-12 lg:col-span-4">
-                <div className="space-y-4">{extrasList[0]}</div>
-              </aside>
+            <div className="space-y-6">
+              {hasOverview && (
+                <OverviewCard
+                  title="Overview"
+                  className={overviewCardClassName}
+                >
+                  {overview.map((field) => (
+                    <OverviewRow
+                      key={field.label}
+                      label={field.label}
+                      value={field.value}
+                    />
+                  ))}
+                </OverviewCard>
+              )}
+              <div className="space-y-4">{extrasList[0]}</div>
             </div>
           )}
           {extrasList.length >= 2 && (

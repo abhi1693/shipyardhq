@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 
 import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
+import { getProductAnalyticsNarrative } from "@/lib/server/analytics/productAnalyticsNarrative"
 import {
   getProductAnalyticsRecord,
   toProductAnalyticsViewProduct,
@@ -35,6 +36,11 @@ export default async function AdminProductAnalyticsPage({
     cacheTier: "slowest",
   })
   const publicPath = productPath(product.slug)
+  const narrative = await getProductAnalyticsNarrative(
+    product.id,
+    product.name,
+    summary,
+  )
 
   const viewProduct = toProductAnalyticsViewProduct(product)
 
@@ -42,6 +48,7 @@ export default async function AdminProductAnalyticsPage({
     <ProductAnalyticsView
       product={viewProduct}
       summary={summary}
+      narrative={narrative}
       basePath="admin/products"
       backHref={adminPath("products", product.id)}
       publicHref={publicPath}

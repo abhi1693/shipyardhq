@@ -16,11 +16,15 @@ import { ObjectPageLayout } from "@/components/layout/object-view/page-layout"
 import RangeSelector from "@/components/molecules/RangeSelector"
 import { ProductAnalyticsCharts } from "@/components/pages/ProductAnalyticsCharts"
 import { cn } from "@/lib/utils"
-import type { ProductTrafficSummary } from "@/types/analytics"
+import type {
+  ProductAnalyticsNarrative,
+  ProductTrafficSummary,
+} from "@/types/analytics"
 import type { ProductAnalytics } from "@/lib/vendor/prisma/client"
 import { ArrowLeft, ExternalLink, Info } from "lucide-react"
 import { PRICING_PATH } from "@/lib/routes"
 import AnalyticsFeedbackPrompt from "@/components/molecules/AnalyticsFeedbackPrompt"
+import { AnalyticsNarrativeCard } from "@/components/molecules/AnalyticsNarrativeCard"
 
 const actionGroupClass =
   "flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70"
@@ -441,6 +445,7 @@ export interface ProductAnalyticsViewProps {
     analytics?: Pick<ProductAnalytics, "upvotes" | "clicks"> | null
   }
   summary: ProductTrafficSummary
+  narrative?: ProductAnalyticsNarrative | null
   basePath: string
   backHref: string
   publicHref?: string
@@ -454,6 +459,7 @@ export interface ProductAnalyticsViewProps {
 export function ProductAnalyticsView({
   product,
   summary,
+  narrative,
   basePath,
   backHref,
   publicHref,
@@ -524,6 +530,30 @@ export function ProductAnalyticsView({
     deviceConversionItems.length > 0 ||
     browserConversionItems.length > 0
 
+  const narrativeExtras = narrative
+    ? [
+        <section key="ai-brief" className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="space-y-1">
+              <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                Action playbook
+              </span>
+              <p className="text-sm text-muted-foreground">
+                AI-curated next steps across traffic, engagement, and anomalies.
+              </p>
+            </div>
+            <RangeSelector className="shrink-0" />
+          </div>
+          <AnalyticsNarrativeCard
+            narrative={narrative}
+            summary={summary}
+            rangeLabel={rangeLabel}
+            variant="embedded"
+          />
+        </section>,
+      ]
+    : undefined
+
   return (
     <ObjectPageLayout
       heading={{
@@ -535,6 +565,7 @@ export function ProductAnalyticsView({
       }}
       overview={[]}
       basePath={basePath}
+      topRowExtras={narrativeExtras}
       headingActionsLeft={
         <div className="flex flex-wrap items-center gap-3">
           <div className={actionGroupClass}>
@@ -580,7 +611,6 @@ export function ProductAnalyticsView({
                   Engagement signals across your most recent reporting window.
                 </p>
               </div>
-              <RangeSelector className="shrink-0" />
             </div>
             <SummaryCards
               summary={summary}

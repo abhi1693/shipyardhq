@@ -1,5 +1,8 @@
 import { getOpenAIClient } from "@/lib/server/openai"
-import { coerceJsonText, extractAssistantJson } from "@/lib/server/openaiResponse"
+import {
+  coerceJsonText,
+  extractAssistantJson,
+} from "@/lib/server/openaiResponse"
 
 const MAX_TWEET_LENGTH = 280
 const DEFAULT_HASHTAGS = ["ShipyardHQ"]
@@ -125,7 +128,10 @@ function ensureHandlePresence(
     body = `${handleValue} ${body}`.trim()
   }
 
-  if (!headline.includes(handleValue) && !(body?.includes(handleValue) ?? false)) {
+  if (
+    !headline.includes(handleValue) &&
+    !(body?.includes(handleValue) ?? false)
+  ) {
     headline = `${handleValue} — ${headline}`.trim()
   }
 
@@ -224,7 +230,8 @@ async function rewriteTweetCopyWithAI(
     }
 
     const parsed = JSON.parse(jsonText)
-    const headline = typeof parsed.headline === "string" ? parsed.headline.trim() : ""
+    const headline =
+      typeof parsed.headline === "string" ? parsed.headline.trim() : ""
     if (!headline.length) {
       return null
     }
@@ -237,7 +244,10 @@ async function rewriteTweetCopyWithAI(
       body: bodyValue?.length ? bodyValue : undefined,
     }
   } catch (error) {
-    console.error(`[twitter] AI tweet rewrite failed (kind=${context.kind})`, error)
+    console.error(
+      `[twitter] AI tweet rewrite failed (kind=${context.kind})`,
+      error,
+    )
     return null
   }
 }
@@ -315,8 +325,9 @@ export async function buildProductLaunchTweet(args: {
       : null
   const displayName = handle ? `${args.name} (${handle})` : args.name
   const fallbackHeadline = `${displayName} just launched on Shipyard HQ!`
-  const fallbackBody =
-    args.tagline?.trim()?.length ? args.tagline.trim() : undefined
+  const fallbackBody = args.tagline?.trim()?.length
+    ? args.tagline.trim()
+    : undefined
 
   const aiSections = await rewriteTweetCopyWithAI({
     kind: "launch",
@@ -459,10 +470,10 @@ export async function buildLeaderboardTweet(args: {
     fallbackBody: body,
   })
 
-  const sections = ensureHandlePresence(
-    aiSections ?? { headline, body },
-    { name: leaderName, handle: leaderHandle },
-  )
+  const sections = ensureHandlePresence(aiSections ?? { headline, body }, {
+    name: leaderName,
+    handle: leaderHandle,
+  })
 
   return composeTweet({
     headline: sections.headline,

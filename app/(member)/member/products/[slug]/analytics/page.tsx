@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import { requireManageableProduct } from "@/lib/server/productAccess"
 import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
+import { getProductAnalyticsNarrative } from "@/lib/server/analytics/productAnalyticsNarrative"
 import { hasPlanFeature } from "@/lib/features"
 import {
   MEMBER_PRODUCTS_PATH,
@@ -55,6 +56,11 @@ export default async function ProductAnalyticsPage({
     includeAdvanced: hasAdvancedAnalytics,
   })
   const publicPath = productPath(product.slug)
+  const narrative = await getProductAnalyticsNarrative(
+    product.id,
+    product.name,
+    summary,
+  )
 
   const viewProduct = toProductAnalyticsViewProduct(product)
 
@@ -62,6 +68,7 @@ export default async function ProductAnalyticsPage({
     <ProductAnalyticsView
       product={viewProduct}
       summary={summary}
+      narrative={narrative}
       basePath={MEMBER_PRODUCTS_PATH.slice(1)}
       backHref={memberProductPath(product.slug)}
       publicHref={publicPath}

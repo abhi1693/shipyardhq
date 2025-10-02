@@ -164,8 +164,7 @@ describe("twitter message builders", () => {
           content: [
             {
               type: "output_text",
-              text:
-                '{"headline":"Thrilled to see Mariner AI launch on Shipyard HQ today","body":"Collaborative docs for builders are rolling out now."}',
+              text: '{"headline":"Thrilled to see Mariner AI launch on Shipyard HQ today","body":"Collaborative docs for builders are rolling out now."}',
             },
           ],
         },
@@ -192,7 +191,9 @@ describe("twitter message builders", () => {
     const segments = tweet.split("\n\n")
     expect(segments[0]).toContain("@mariner")
     expect(segments[0]).toContain("Mariner AI")
-    expect(segments[1]).toBe("Collaborative docs for builders are rolling out now.")
+    expect(segments[1]).toBe(
+      "Collaborative docs for builders are rolling out now.",
+    )
     expect(segments.at(-1)).toBe("#ShipyardHQ #ProductLaunch #IndieSaaS")
     expect(tweet.length).toBeLessThanOrEqual(280)
   })
