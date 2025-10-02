@@ -42,10 +42,68 @@ interface AnomalyItem {
   description: string
 }
 
+interface NarrativeCardEntry {
+  key: string
+  title: string
+  description?: string
+  tone: ActionTone
+  badge?: string
+  icon?: ComponentType<{ className?: string }>
+  titleClassName?: string
+}
+
+function normalizeCardTitle(raw: string, fallback: string): string {
+  const trimmed = raw.trim()
+  if (!trimmed) return fallback
+  return trimmed.replace(/[.:;,-]+$/u, "")
+}
+
+function extractPrimaryContent(
+  raw: string,
+  fallbackTitle: string,
+): { title: string; description?: string } {
+  const trimmed = raw.trim()
+  if (!trimmed) return { title: fallbackTitle }
+
+  const delimiters: Array<[RegExp, (match: RegExpExecArray) => { title: string; description?: string }]> = [
+    [/(.+?)\s*[—–]\s*(.+)/u, (match) => ({ title: match[1], description: match[2] })],
+    [/(.+?);\s*(.+)/u, (match) => ({ title: match[1], description: match[2] })],
+    [/(.+?):\s*(.+)/u, (match) => ({ title: match[1], description: match[2] })],
+    [/(.+?)\.\s+(.+)/u, (match) => ({ title: match[1], description: match[2] })],
+  ]
+
+  for (const [pattern, projector] of delimiters) {
+    const exec = pattern.exec(trimmed)
+    if (exec) {
+      const { title, description } = projector(exec)
+      return {
+        title: normalizeCardTitle(title, fallbackTitle),
+        description: description?.trim() || undefined,
+      }
+    }
+  }
+
+  return {
+    title: normalizeCardTitle(trimmed, fallbackTitle),
+  }
+}
+
 const toneIconMap: Record<ActionTone, ComponentType<{ className?: string }>> = {
   warning: AlertTriangle,
   positive: TrendingUp,
   info: Lightbulb,
+}
+
+const toneBorderClass: Record<ActionTone, string> = {
+  warning: "border-l-4 border-l-rose-500",
+  positive: "border-l-4 border-l-emerald-500",
+  info: "border-l-4 border-l-slate-400",
+}
+
+const toneIconClass: Record<ActionTone, string> = {
+  warning: "text-rose-600",
+  positive: "text-emerald-600",
+  info: "text-slate-600",
 }
 
 function sanitizeRefLabel(raw?: string | null): string | null {
@@ -187,6 +245,35 @@ export function AnalyticsNarrativeCard({
 
   const actions = buildActionItems(summary, narrative)
   const anomalies = buildAnomalyItems(summary)
+  const cards: NarrativeCardEntry[] = [
+    ...watchouts.map((item, index) => {
+      const fallbackTitle = watchouts.length > 1 ? `Watchout ${index + 1}` : "Watchout"
+      const { title, description } = extractPrimaryContent(item, fallbackTitle)
+      return {
+        key: `watchout-${index}`,
+        title,
+        description,
+        tone: "warning" as const,
+        badge: "Watchout",
+        icon: AlertTriangle,
+      }
+    }),
+    ...actions.map((action) => ({
+      key: `action-${action.title}`,
+      title: action.title,
+      description: action.description,
+      tone: action.tone,
+    })),
+    ...anomalies.map((anomaly, index) => ({
+      key: `anomaly-${index}`,
+      title: anomaly.title,
+      description: anomaly.description,
+      tone: "info" as const,
+      badge: "Anomaly",
+      icon: AlertTriangle,
+      titleClassName: "capitalize",
+    })),
+  ]
   const containerClass = cn(
     "space-y-4",
     variant === "default"
@@ -212,80 +299,46 @@ export function AnalyticsNarrativeCard({
         </div>
       ) : null}
 
-      {watchouts.length ? (
+      {cards.length ? (
         <section className="space-y-2">
-          <div className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-            Watchouts
-          </div>
-          <ul className="space-y-2 text-sm text-slate-700">
-            {watchouts.map((item) => (
-              <li
-                key={item}
-                className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
-              >
-                <span className="mt-0.5 rounded-md bg-slate-200 p-1 text-rose-600">
-                  <AlertTriangle className="h-4 w-4" aria-hidden />
-                </span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {actions.length ? (
-        <section className="space-y-2">
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {actions.map((action) => {
-              const Icon = toneIconMap[action.tone]
+          <div className="grid grid-flow-col auto-cols-[minmax(18rem,_1fr)] gap-3 overflow-x-auto pb-1 sm:pb-0">
+            {cards.map((card) => {
+              const Icon = card.icon ?? toneIconMap[card.tone]
               return (
                 <div
-                  key={action.title}
-                  className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm"
+                  key={card.key}
+                  className={cn(
+                    "flex h-full min-w-[18rem] flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm border-l-4",
+                    toneBorderClass[card.tone],
+                  )}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="rounded-md bg-slate-200/60 p-2 text-slate-600">
-                      <Icon className="h-4 w-4" aria-hidden />
+                    <span className="rounded-md bg-slate-200/60 p-2">
+                      <Icon
+                        className={cn("h-4 w-4", toneIconClass[card.tone])}
+                        aria-hidden
+                      />
                     </span>
                     <div className="space-y-1">
-                      <div className="text-sm font-semibold text-slate-900">
-                        {action.title}
+                      {card.badge ? (
+                        <span className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                          {card.badge}
+                        </span>
+                      ) : null}
+                      <div className={cn("text-sm font-semibold", card.titleClassName)}>
+                        {card.title}
                       </div>
-                      <p className="text-sm leading-relaxed text-slate-800">
-                        {action.description}
-                      </p>
+                      {card.description ? (
+                        <p className="text-sm leading-relaxed text-current">
+                          {card.description}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
                 </div>
               )
             })}
           </div>
-        </section>
-      ) : null}
-
-      {anomalies.length ? (
-        <section className="space-y-2">
-          <div className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-            Detected anomalies
-          </div>
-          <ul className="space-y-1.5 text-sm text-slate-700">
-            {anomalies.map((anomaly) => (
-              <li
-                key={anomaly.title}
-                className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
-              >
-                <span className="mt-0.5 rounded-md bg-slate-200 p-1 text-slate-600">
-                  <AlertTriangle className="h-4 w-4" aria-hidden />
-                </span>
-                <span>
-                  <span className="font-semibold capitalize text-slate-900">
-                    {anomaly.title}:
-                  </span>{" "}
-                  {anomaly.description}
-                </span>
-              </li>
-            ))}
-          </ul>
         </section>
       ) : null}
     </div>
