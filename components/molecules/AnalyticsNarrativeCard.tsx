@@ -305,45 +305,62 @@ export function AnalyticsNarrativeCard({
       ) : null}
 
       {cards.length ? (
-        <section className="space-y-2">
-          <div className="grid grid-flow-col auto-cols-[minmax(18rem,_1fr)] gap-3 overflow-x-auto pb-1 sm:pb-0">
-            {cards.map((card) => {
-              const Icon = card.icon ?? toneIconMap[card.tone]
-              return (
-                <div
-                  key={card.key}
-                  className={cn(
-                    "flex h-full min-w-[18rem] flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm border-l-4",
-                    toneBorderClass[card.tone],
-                  )}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="rounded-md bg-slate-200/60 p-2">
-                      <Icon
-                        className={cn("h-4 w-4", toneIconClass[card.tone])}
-                        aria-hidden
-                      />
-                    </span>
-                    <div className="space-y-1">
-                      {card.badge ? (
-                        <span className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-                          {card.badge}
+        <section className="space-y-3">
+          {Array.from({ length: Math.ceil(cards.length / 4) }, (_, rowIndex) => {
+            const rowCards = cards.slice(rowIndex * 4, rowIndex * 4 + 4)
+            const columnsClass =
+              rowCards.length >= 4
+                ? "sm:grid-cols-2 xl:grid-cols-4"
+                : rowCards.length === 3
+                  ? "sm:grid-cols-2 xl:grid-cols-3"
+                  : rowCards.length === 2
+                    ? "sm:grid-cols-2 xl:grid-cols-2"
+                    : "sm:grid-cols-1 xl:grid-cols-1"
+
+            return (
+              <div
+                key={`narrative-row-${rowIndex}`}
+                className={cn("grid gap-3", columnsClass)}
+              >
+                {rowCards.map((card) => {
+                  const Icon = card.icon ?? toneIconMap[card.tone]
+                  return (
+                    <div
+                      key={card.key}
+                      className={cn(
+                        "flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm border-l-4",
+                        toneBorderClass[card.tone],
+                      )}
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="rounded-md bg-slate-200/60 p-2">
+                          <Icon
+                            className={cn("h-4 w-4", toneIconClass[card.tone])}
+                            aria-hidden
+                          />
                         </span>
-                      ) : null}
-                      <div className={cn("text-sm font-semibold", card.titleClassName)}>
-                        {card.title}
+                        <div className="space-y-1">
+                          {card.badge ? (
+                            <span className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                              {card.badge}
+                            </span>
+                          ) : null}
+                          <div className={cn("text-sm font-semibold", card.titleClassName)}>
+                            {card.title}
+                          </div>
+                          {card.description ? (
+                            <p className="text-sm leading-relaxed text-current">
+                              {card.description}
+                            </p>
+                          ) : null}
+                        </div>
                       </div>
-                      {card.description ? (
-                        <p className="text-sm leading-relaxed text-current">
-                          {card.description}
-                        </p>
-                      ) : null}
                     </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                  )
+                })}
+              </div>
+            )
+          })}
         </section>
       ) : null}
     </div>
