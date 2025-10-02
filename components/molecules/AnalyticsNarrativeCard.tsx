@@ -6,6 +6,7 @@ import type {
 } from "@/types/analytics"
 import { cn } from "@/lib/utils"
 import { AlertTriangle, Lightbulb, Sparkles, TrendingUp } from "lucide-react"
+import { formatCountryName } from "@/lib/geo"
 
 interface AnalyticsNarrativeCardProps {
   narrative: ProductAnalyticsNarrative
@@ -136,9 +137,13 @@ function buildActionItems(
       ? sanitizeRefLabel(topReferrerData.referrer)
       : null
   const countryRaw = summary.topCountry?.country?.trim()
+  const topCountryName =
+    countryRaw && countryRaw.toLowerCase() !== "unknown"
+      ? formatCountryName(countryRaw)
+      : null
   const hasCountry =
-    countryRaw &&
-    countryRaw.toLowerCase() !== "unknown" &&
+    topCountryName &&
+    topCountryName !== "Unknown" &&
     (summary.topCountry?.views ?? 0) > 0
 
   if (typeof totalViewsChange === "number" && totalViewsChange <= -5) {
@@ -189,10 +194,10 @@ function buildActionItems(
     })
   }
 
-  if (hasCountry) {
+  if (hasCountry && topCountryName) {
     items.push({
       title: "Localize for biggest audience",
-      description: `${countryRaw} leads traffic. Tailor landing copy or pricing to match that market's expectations.`,
+      description: `${topCountryName} leads traffic. Tailor landing copy or pricing to match that market's expectations.`,
       tone: "info",
     })
   }

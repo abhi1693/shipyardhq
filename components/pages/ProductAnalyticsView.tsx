@@ -25,6 +25,7 @@ import { ArrowLeft, ExternalLink, Info } from "lucide-react"
 import { PRICING_PATH } from "@/lib/routes"
 import AnalyticsFeedbackPrompt from "@/components/molecules/AnalyticsFeedbackPrompt"
 import { AnalyticsNarrativeCard } from "@/components/molecules/AnalyticsNarrativeCard"
+import { formatCountryName } from "@/lib/geo"
 
 const actionGroupClass =
   "flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70"
@@ -38,31 +39,6 @@ const deltaBaseClass =
   "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold"
 const deltaPositiveClass = "border-emerald-200 bg-emerald-50 text-emerald-700"
 const deltaNegativeClass = "border-rose-200 bg-rose-50 text-rose-700"
-
-type RegionDisplayNames = {
-  of(code: string): string | undefined
-}
-
-const countryDisplayNames: RegionDisplayNames | null =
-  typeof Intl !== "undefined" &&
-  typeof (Intl as any).DisplayNames === "function"
-    ? (new (Intl as any).DisplayNames(["en"], {
-        type: "region",
-      }) as RegionDisplayNames)
-    : null
-
-function formatCountryName(country?: string | null) {
-  if (!country) return "Unknown"
-  if (countryDisplayNames) {
-    try {
-      const resolved = countryDisplayNames.of(country)
-      if (resolved) return resolved
-    } catch {
-      // fall back to raw code when lookup fails
-    }
-  }
-  return country
-}
 
 function DeltaBadge({ value }: { value: number }) {
   if (!Number.isFinite(value)) {
