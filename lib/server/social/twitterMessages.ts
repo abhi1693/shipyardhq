@@ -14,7 +14,7 @@ const TWEET_COPY_SCHEMA = {
     headline: { type: "string", minLength: 6, maxLength: 220 },
     body: { type: ["string", "null"], maxLength: 220 },
   },
-  required: ["headline"],
+  required: ["headline", "body"],
 } as const
 
 type TweetRewriteKind = "launch" | "badge" | "leaderboard"
@@ -185,7 +185,7 @@ async function rewriteTweetCopyWithAI(
     },
     writingGuidelines: [
       "Write in a warm, human tone that celebrates indie builders.",
-      "Return exactly two fields: headline and optional body.",
+      "Return exactly two fields: headline and body (set body to null if no copy is needed).",
       "Do not include URLs, hashtags, or emoji; we add them separately.",
       "Keep the headline under 140 characters and the body under 120 characters.",
       context.description
