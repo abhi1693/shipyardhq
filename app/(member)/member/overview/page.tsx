@@ -37,7 +37,7 @@ import { BADGE_OPTIONS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { currentUser } from "@clerk/nextjs/server"
 
-export const revalidate = 60
+export const dynamic = "force-dynamic"
 
 type SearchParams = { range?: string }
 

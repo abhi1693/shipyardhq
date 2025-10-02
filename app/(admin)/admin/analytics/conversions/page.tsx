@@ -84,7 +84,7 @@ function LeaderboardCard({
   )
 }
 
-export const revalidate = 3600
+export const dynamic = "force-dynamic"
 
 type SearchParams = { range?: string }
 
