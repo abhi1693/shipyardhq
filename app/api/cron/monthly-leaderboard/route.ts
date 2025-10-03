@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { revalidateMonthlyLeaderboard } from "@/lib/cache/revalidate"
+import { ensureCronAuthorized } from "@/lib/server/cronAuth"
 import {
   generateMonthlyLeaderboard,
   notifyMonthlyWinners,
@@ -11,13 +12,8 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET
-  if (secret) {
-    const authHeader = request.headers.get("authorization") || ""
-    if (authHeader !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-  }
+  const authResponse = ensureCronAuthorized(request)
+  if (authResponse) return authResponse
 
   const url = new URL(request.url)
   const monthParam = url.searchParams.get("month") || undefined
