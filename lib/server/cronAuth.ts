@@ -7,7 +7,7 @@ const BEARER_PREFIX = "Bearer "
 function isAuthorizedValue(received: string, secret: string) {
   if (!received) return false
   if (received === secret) return true
-  return received === `${BEARER_PREFIX}${secret}`;
+  return received === `${BEARER_PREFIX}${secret}`
 }
 
 export function ensureCronAuthorized(request: Request) {
