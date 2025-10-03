@@ -182,8 +182,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       content,
     })
 
-  const hasBacklinkFeature = hasPlanFeature(product.plan, "backlink")
-  const hasCustomCtaFeature = hasPlanFeature(product.plan, "customCTA")
+  const entitlementFeatures = new Set(
+    product.activeFeatureEntitlements ?? [],
+  )
+
+  const hasBacklinkFeature =
+    hasPlanFeature(product.plan, "backlink") ||
+    entitlementFeatures.has("backlink")
+  const hasCustomCtaFeature =
+    hasPlanFeature(product.plan, "customCTA") ||
+    entitlementFeatures.has("customCTA")
 
   const ctaLabel = product.ctaLabel?.trim() || ""
   const ctaUrl = product.ctaUrl?.trim() || ""

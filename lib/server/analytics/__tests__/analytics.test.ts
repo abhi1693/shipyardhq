@@ -23,6 +23,13 @@ import "@/lib/server/analytics/productClicks"
 import "@/lib/server/analytics/productVotes"
 import "@/lib/server/analytics/productTraffic"
 
+const makeVoteEvent = (productId: string, userId: string) => ({
+  productId,
+  userId,
+  upvoteId: `${productId}:${userId}`,
+  occurredAt: new Date(),
+})
+
 describe("analytics listeners", () => {
   beforeEach(() => {
     ;(prisma.$transaction as any).mockClear()
@@ -63,7 +70,7 @@ describe("analytics listeners", () => {
   })
 
   it("increments and decrements upvotes on (down)vote", async () => {
-    await publish("product.upvoted", { productId: "p2", userId: "u" })
+    await publish("product.upvoted", makeVoteEvent("p2", "u"))
     expect(prisma.productAnalytics.upsert).toHaveBeenCalledWith({
       where: { productId: "p2" },
       update: { upvotes: { increment: 1 } },
@@ -71,7 +78,7 @@ describe("analytics listeners", () => {
       select: { productId: true },
     })
     ;(prisma.productAnalytics.upsert as any).mockClear()
-    await publish("product.downvoted", { productId: "p2", userId: "u" })
+    await publish("product.downvoted", makeVoteEvent("p2", "u"))
     expect(prisma.productAnalytics.upsert).toHaveBeenCalledWith({
       where: { productId: "p2" },
       update: { upvotes: { decrement: 1 } },
@@ -96,11 +103,11 @@ describe("analytics listeners", () => {
     ;(prisma.productAnalytics.upsert as any).mockRejectedValueOnce(
       new Error("x"),
     )
-    await publish("product.upvoted", { productId: "p4", userId: "u" })
+    await publish("product.upvoted", makeVoteEvent("p4", "u"))
     ;(prisma.productAnalytics.upsert as any).mockRejectedValueOnce(
       new Error("y"),
     )
-    await publish("product.downvoted", { productId: "p4", userId: "u" })
+    await publish("product.downvoted", makeVoteEvent("p4", "u"))
     expect(spy).toHaveBeenCalled()
     spy.mockRestore()
     ;(prisma.productAnalytics.upsert as any).mockResolvedValue({})

@@ -2,15 +2,31 @@ import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
 import DiscoverDigestEmail from "@/lib/email/templates/discover/digest"
 import { getAppBaseUrl } from "@/lib/email/utils"
-import { Prisma } from "@/lib/vendor/prisma/client"
+import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 
 const LOOKBACK_DAYS = 7
 const FEATURED_LIMIT = 6
 const FRESH_LIMIT = 6
 const TRENDING_LIMIT = 6
+const NEWSLETTER_LIMIT = 6
 
 type FeaturedBadgeRow = Prisma.ProductBadgeGetPayload<{
   select: {
+    product: {
+      select: {
+        name: true
+        slug: true
+        tagline: true
+        publishedAt: true
+        category: { select: { name: true } }
+        analytics: { select: { upvotes: true; clicks: true } }
+      }
+    }
+  }
+}>
+
+type NewsletterPlacementRow = Prisma.PlacementScheduleGetPayload<{
+  include: {
     product: {
       select: {
         name: true
@@ -79,6 +95,29 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
   const weekEnd = now
   const weekStart = subtractDays(now, LOOKBACK_DAYS - 1)
 
+  const newsletterPlacements = (await prisma.placementSchedule.findMany({
+    where: {
+      featureKey: "newsletterPromotion",
+      status: { in: [PlacementStatus.active, PlacementStatus.pending, PlacementStatus.scheduled] },
+      startsAt: { lte: now },
+      endsAt: { gte: now },
+    },
+    orderBy: [{ startsAt: "asc" }],
+    take: NEWSLETTER_LIMIT,
+    include: {
+      product: {
+        select: {
+          name: true,
+          slug: true,
+          tagline: true,
+          publishedAt: true,
+          category: { select: { name: true } },
+          analytics: { select: { upvotes: true, clicks: true } },
+        },
+      },
+    },
+  })) as unknown as NewsletterPlacementRow[]
+
   const featuredRows = (await prisma.productBadge.findMany({
     where: {
       badge: "featured",
@@ -141,11 +180,20 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
 
   const seenUrls = new Set<string>()
 
-  const featured = collectUniqueProducts(
-    featuredRows,
+  const newsletterFeatures = collectUniqueProducts(
+    newsletterPlacements,
     (row) => (row.product ? toDigestProduct(row.product) : null),
     seenUrls,
   )
+
+  const featured = [
+    ...newsletterFeatures,
+    ...collectUniqueProducts(
+      featuredRows,
+      (row) => (row.product ? toDigestProduct(row.product) : null),
+      seenUrls,
+    ),
+  ]
 
   const trending = collectUniqueProducts(
     trendingRows,

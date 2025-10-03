@@ -55,6 +55,12 @@ type PublicProduct = Prisma.ProductGetPayload<{
         }
       }
     }
+    featureEntitlements: {
+      where: {
+        status: { in: ["active", "pending"] },
+      }
+      select: { featureKey: true }
+    }
   }
 }>
 
@@ -104,6 +110,12 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
           },
         },
       },
+      featureEntitlements: {
+        where: {
+          status: { in: ["active", "pending"] },
+        },
+        select: { featureKey: true },
+      },
     },
     cacheStrategy: {
       ttl: DEFAULT_TTL.medium,
@@ -119,7 +131,17 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
       !badge.expiresAt || badge.expiresAt > new Date(),
   ).map((badge) => badge.badge)
 
-  return { ...product, badges: activeBadges }
+  const activeFeatureEntitlements = (product.featureEntitlements ?? []).map(
+    (ent) => ent.featureKey,
+  )
+
+  const { featureEntitlements, ...rest } = product
+
+  return {
+    ...rest,
+    badges: activeBadges,
+    activeFeatureEntitlements,
+  }
 }
 
 export const getPublicProduct = cached(

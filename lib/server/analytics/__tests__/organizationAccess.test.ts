@@ -7,6 +7,9 @@ const prismaMock = vi.hoisted(() => ({
   organization: {
     findUnique: vi.fn(),
   },
+  featureEntitlement: {
+    findFirst: vi.fn(),
+  },
   userPlanPurchase: {
     findFirst: vi.fn(),
   },
@@ -37,6 +40,7 @@ describe("organizationHasAdvancedAnalytics", () => {
   beforeEach(() => {
     prismaMock.product.findFirst.mockReset()
     prismaMock.organization.findUnique.mockReset()
+    prismaMock.featureEntitlement.findFirst.mockReset()
     prismaMock.userPlanPurchase.findFirst.mockReset()
     cacheHitMock.mockReset()
     cacheMissMock.mockReset()
@@ -55,6 +59,7 @@ describe("organizationHasAdvancedAnalytics", () => {
     prismaMock.organization.findUnique.mockResolvedValue({
       ownerUserId: "owner",
     })
+    prismaMock.featureEntitlement.findFirst.mockResolvedValue(null)
 
     const result = await organizationHasAdvancedAnalytics("org-1")
 
@@ -75,6 +80,7 @@ describe("organizationHasAdvancedAnalytics", () => {
     prismaMock.organization.findUnique.mockResolvedValue({
       ownerUserId: "owner",
     })
+    prismaMock.featureEntitlement.findFirst.mockResolvedValue(null)
     prismaMock.userPlanPurchase.findFirst.mockResolvedValue({
       id: "purchase-1",
     })
@@ -88,6 +94,7 @@ describe("organizationHasAdvancedAnalytics", () => {
   it("returns false when no owner or qualifying purchase exists", async () => {
     prismaMock.product.findFirst.mockResolvedValue(null)
     prismaMock.organization.findUnique.mockResolvedValue({ ownerUserId: null })
+    prismaMock.featureEntitlement.findFirst.mockResolvedValue(null)
 
     const result = await organizationHasAdvancedAnalytics("org-3")
 
@@ -117,6 +124,18 @@ describe("organizationHasAdvancedAnalytics", () => {
 
     expect(result).toBe(true)
     expect(prismaMock.product.findFirst).not.toHaveBeenCalled()
+    expect(prismaMock.featureEntitlement.findFirst).not.toHaveBeenCalled()
     expect(cacheMissMock).not.toHaveBeenCalled()
+  })
+
+  it("grants access when an active entitlement exists", async () => {
+    prismaMock.product.findFirst.mockResolvedValue(null)
+    prismaMock.organization.findUnique.mockResolvedValue({ ownerUserId: "owner" })
+    prismaMock.featureEntitlement.findFirst.mockResolvedValue({ id: "ent-1" })
+
+    const result = await organizationHasAdvancedAnalytics("org-6")
+
+    expect(result).toBe(true)
+    expect(prismaMock.userPlanPurchase.findFirst).not.toHaveBeenCalled()
   })
 })

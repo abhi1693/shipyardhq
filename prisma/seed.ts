@@ -16,13 +16,6 @@ import { seedUseCases } from "./seed.use-cases"
 
 const prisma = new PrismaClient()
 
-if (process.env.CI !== "true") {
-  console.error(
-    "prisma:seed requires CI=true. Rerun with `CI=true npm run prisma:seed`.",
-  )
-  process.exit(1)
-}
-
 type ProductSeed = {
   slug: string
   name: string

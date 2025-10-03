@@ -63,11 +63,6 @@ const FEATURES = [
     description: "Promoted in email campaigns",
   },
   {
-    key: "backlink",
-    name: "Do-follow Backlink",
-    description: "Enables do-follow link to your site",
-  },
-  {
     key: "organization",
     name: "Organizations",
     description: "Invite your team and manage members together",

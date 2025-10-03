@@ -36,22 +36,23 @@ export async function organizationHasAdvancedAnalytics(
   }
 
   try {
-    const [productWithAdvanced, organization] = await Promise.all([
-      prisma.product.findFirst({
-        where: {
-          organizationId,
-          plan: {
-            assignments: {
-              some: {
-                enabled: true,
-                feature: { key: "analytics.advanced" },
+    const [productWithAdvanced, organization, entitlementWithAdvanced] =
+      await Promise.all([
+        prisma.product.findFirst({
+          where: {
+            organizationId,
+            plan: {
+              assignments: {
+                some: {
+                  enabled: true,
+                  feature: { key: "analytics.advanced" },
+                },
               },
             },
           },
-        },
-        select: {
-          id: true,
-          plan: {
+          select: {
+            id: true,
+            plan: {
             select: {
               assignments: {
                 select: {
@@ -59,15 +60,23 @@ export async function organizationHasAdvancedAnalytics(
                   feature: { select: { key: true } },
                 },
               },
+              },
             },
           },
-        },
-      }),
-      prisma.organization.findUnique({
-        where: { id: organizationId },
-        select: { ownerUserId: true },
-      }),
-    ])
+        }),
+        prisma.organization.findUnique({
+          where: { id: organizationId },
+          select: { ownerUserId: true },
+        }),
+        prisma.featureEntitlement.findFirst({
+          where: {
+            featureKey: "analytics.advanced",
+            status: "active",
+            product: { organizationId },
+          },
+          select: { id: true },
+        }),
+      ])
 
     let hasAccess = false
 
@@ -75,6 +84,8 @@ export async function organizationHasAdvancedAnalytics(
       productWithAdvanced?.plan &&
       hasPlanFeature(productWithAdvanced.plan, "analytics.advanced")
     ) {
+      hasAccess = true
+    } else if (entitlementWithAdvanced) {
       hasAccess = true
     } else {
       const ownerId = organization?.ownerUserId

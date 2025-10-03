@@ -11,6 +11,9 @@ const prismaMock = vi.hoisted(() => ({
   organizationMembership: {
     findFirst: vi.fn(),
   },
+  featureEntitlement: {
+    findFirst: vi.fn(),
+  },
 }))
 const getActiveUserMock = vi.hoisted(() => vi.fn())
 
@@ -42,6 +45,7 @@ beforeEach(() => {
   prismaMock.product.findFirst.mockReset()
   prismaMock.userPlanPurchase.findFirst.mockReset()
   prismaMock.organizationMembership.findFirst.mockReset()
+  prismaMock.featureEntitlement.findFirst.mockReset()
   getActiveUserMock.mockReset()
 })
 
@@ -58,6 +62,7 @@ describe("memberHasFeature", () => {
     authMock.mockResolvedValue({ userId: "clerk-user" })
     getActiveUserMock.mockResolvedValue(activeUser)
     prismaMock.product.findFirst.mockResolvedValue({ id: "product-1" })
+    prismaMock.featureEntitlement.findFirst.mockResolvedValue(null)
 
     const result = await memberHasFeature("featured")
     expect(result).toBe(true)
@@ -70,6 +75,7 @@ describe("memberHasFeature", () => {
     prismaMock.userPlanPurchase.findFirst.mockResolvedValue({
       id: "purchase-1",
     })
+    prismaMock.featureEntitlement.findFirst.mockResolvedValue(null)
 
     const result = await memberHasFeature("featured")
     expect(result).toBe(true)
@@ -80,6 +86,7 @@ describe("memberHasFeature", () => {
     getActiveUserMock.mockResolvedValue(activeUser)
     prismaMock.product.findFirst.mockResolvedValue(null)
     prismaMock.userPlanPurchase.findFirst.mockResolvedValue(null)
+    prismaMock.featureEntitlement.findFirst.mockResolvedValue(null)
     prismaMock.organizationMembership.findFirst.mockResolvedValue({
       id: "membership-1",
     })
@@ -111,6 +118,7 @@ describe("requireMemberFeature", () => {
     getActiveUserMock.mockResolvedValue(activeUser)
     prismaMock.product.findFirst.mockResolvedValue(null)
     prismaMock.userPlanPurchase.findFirst.mockResolvedValue(null)
+    prismaMock.featureEntitlement.findFirst.mockResolvedValue(null)
     prismaMock.organizationMembership.findFirst.mockResolvedValue(null)
 
     const result = await requireMemberFeature("featured")
