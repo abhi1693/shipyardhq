@@ -25,7 +25,7 @@ const RANGE_TTL_SECONDS: Record<number, number> = {
 const OUTPUT_JSON_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["headline", "highlights", "confidence"],
+  required: ["headline", "highlights", "watchouts", "confidence"],
   properties: {
     headline: { type: "string", maxLength: 160 },
     highlights: {
@@ -36,7 +36,7 @@ const OUTPUT_JSON_SCHEMA = {
     },
     watchouts: {
       type: "array",
-      minItems: 1,
+      minItems: 0,
       maxItems: 3,
       items: { type: "string", maxLength: 260 },
     },
@@ -50,7 +50,7 @@ const OUTPUT_JSON_SCHEMA = {
 const OutputSchema = z.object({
   headline: z.string().min(1),
   highlights: z.array(z.string().min(1)).min(2).max(4),
-  watchouts: z.array(z.string().min(1)).min(1).max(3).optional(),
+  watchouts: z.array(z.string().min(1)).max(3),
   confidence: z.enum(["low", "medium", "high"]),
 })
 
@@ -124,6 +124,7 @@ export async function getProductAnalyticsNarrative(
                 "Highlight concrete movements, quoting percentages and counts when helpful.",
                 "Keep the tone pragmatic and avoid hype.",
                 "Use watchouts only for meaningful risks or regressions.",
+                "Always include a watchouts array; return an empty array when there are no material risks.",
                 "If data volume is low, lower your confidence and mention sensitivity.",
               ],
             }),
