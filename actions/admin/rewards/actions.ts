@@ -23,6 +23,10 @@ import type {
   AdjustRewardsFormState,
   RefundRewardsFormState,
 } from "./form-state"
+import {
+  isRewardFeatureKey,
+  type RewardFeatureKey,
+} from "@/lib/rewards/constants"
 
 const DEFAULT_LIMIT = 20
 
@@ -48,7 +52,7 @@ type RuleInput = {
 }
 
 type CatalogInput = {
-  featureKey: string
+  featureKey: RewardFeatureKey
   planFeatureKey?: string | null
   name: string
   description?: string | null
@@ -150,6 +154,9 @@ function parseCatalogForm(formData: FormData): CatalogInput {
 
   if (!name) throw new Error("Catalog item name is required")
   if (!featureKey) throw new Error("Feature key is required")
+  if (!isRewardFeatureKey(featureKey)) {
+    throw new Error("Invalid feature key")
+  }
   if (!categoryRaw || !(categoryRaw in RewardFeatureCategory)) {
     throw new Error("Invalid catalog category")
   }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useTransition } from "react"
+import { useMemo, useTransition } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -43,6 +43,10 @@ import {
   RewardCatalogItem,
   RewardFeatureCategory,
 } from "@/lib/vendor/prisma/client"
+import {
+  REWARD_FEATURE_KEY_OPTIONS,
+  isRewardFeatureKey,
+} from "@/lib/rewards/constants"
 
 type PlanFeatureOption = {
   key: string
@@ -85,9 +89,11 @@ const jsonString = z
     }
   }, "Must be valid JSON")
 
-const catalogFormSchema = z.object({
+const featureKeySchema = z.string().min(1, "Feature key is required")
+
+const baseCatalogFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  featureKey: z.string().min(1, "Feature key is required"),
+  featureKey: featureKeySchema,
   planFeatureKey: z.string().optional(),
   description: z.string().optional(),
   category: z.nativeEnum(RewardFeatureCategory, {
@@ -102,7 +108,7 @@ const catalogFormSchema = z.object({
   metadata: jsonString,
 })
 
-type CatalogFormValues = z.input<typeof catalogFormSchema>
+type CatalogFormValues = z.input<typeof baseCatalogFormSchema>
 
 type CatalogFormProps = {
   mode: "create" | "edit"
@@ -120,6 +126,26 @@ export default function CatalogForm({
 }: CatalogFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+
+  const featureKeyOptions = useMemo(() => {
+    if (item && !isRewardFeatureKey(item.featureKey)) {
+      return [
+        ...REWARD_FEATURE_KEY_OPTIONS,
+        { value: item.featureKey, label: item.featureKey },
+      ]
+    }
+    return [...REWARD_FEATURE_KEY_OPTIONS]
+  }, [item])
+
+  const catalogFormSchema = useMemo(
+    () =>
+      baseCatalogFormSchema.extend({
+        featureKey: featureKeySchema.refine((value) => {
+          return featureKeyOptions.some((option) => option.value === value)
+        }, "Select a valid feature key"),
+      }),
+    [featureKeyOptions],
+  )
 
   const form = useForm<CatalogFormValues>({
     resolver: zodResolver(catalogFormSchema),
@@ -232,16 +258,24 @@ export default function CatalogForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Feature key</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="priorityPlacement"
-                          {...field}
-                          disabled={mode === "edit"}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Immutable identifier consumed by the rewards engine.
-                      </FormDescription>
+                      <Select
+                        value={field.value || undefined}
+                        onValueChange={field.onChange}
+                        disabled={mode === "edit" || isPending}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select feature key" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {featureKeyOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
