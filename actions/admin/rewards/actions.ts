@@ -11,14 +11,17 @@ import {
 } from "@/lib/vendor/prisma/client"
 import { adminPath } from "@/lib/routes"
 import { parseInteger } from "./utils"
-import { adjustRewards } from "@/lib/rewards/engine"
+import { adjustRewards, refundRedemption } from "@/lib/rewards/engine"
 import {
   RewardsError,
   RewardsInsufficientBalanceError,
 } from "@/lib/rewards/errors"
 import { auth } from "@clerk/nextjs/server"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
-import type { AdjustRewardsFormState } from "./form-state"
+import type {
+  AdjustRewardsFormState,
+  RefundRewardsFormState,
+} from "./form-state"
 
 const DEFAULT_LIMIT = 20
 
@@ -357,6 +360,58 @@ export async function adjustUserRewardsAction(
     console.error("Failed to adjust user rewards", error)
     const message =
       error instanceof Error ? error.message : "Failed to adjust rewards."
+    return {
+      status: "error",
+      message,
+    }
+  }
+}
+
+export async function refundRedemptionAction(
+  _prevState: RefundRewardsFormState,
+  formData: FormData,
+): Promise<RefundRewardsFormState> {
+  try {
+    const adminUser = await resolveAdminUser()
+
+    const redemptionIdRaw = formData.get("redemptionId")
+    if (typeof redemptionIdRaw !== "string" || !redemptionIdRaw.trim()) {
+      throw new Error("Select a redemption to refund")
+    }
+    const redemptionId = redemptionIdRaw.trim()
+
+    const reason = formData.get("reason")?.toString().trim()
+    if (!reason) {
+      throw new Error("Add a short reason for the refund")
+    }
+
+    const referenceRaw = formData.get("reference")?.toString().trim()
+    const reference = referenceRaw && referenceRaw.length ? referenceRaw : null
+
+    const revertPerkRaw = formData.get("revertPerk")?.toString().trim()
+    const revertPerk = revertPerkRaw === "true"
+
+    const result = await refundRedemption(redemptionId, {
+      actorUserId: adminUser.id,
+      reason,
+      reference,
+      revertPerk,
+    })
+
+    revalidatePath(adminPath("rewards", "transactions"))
+    revalidatePath(adminPath("rewards", "refunds"))
+
+    return {
+      status: "success",
+      message: `Refunded ${result.refundedAmount} rewards (${result.fullyRefunded ? "full" : "partial"}).`,
+    }
+  } catch (error) {
+    console.error("Failed to refund redemption", error)
+    if (error instanceof RewardsError) {
+      return { status: "error", message: error.message }
+    }
+    const message =
+      error instanceof Error ? error.message : "Failed to refund redemption."
     return {
       status: "error",
       message,

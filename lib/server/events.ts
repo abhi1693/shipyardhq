@@ -109,6 +109,19 @@ export type RewardsAdjustedEvent = {
   notes?: string | null
 }
 
+export type RewardsRefundedEvent = {
+  transactionId: string
+  redemptionId: string
+  userId: string
+  featureKey: string | null
+  amount: number
+  balanceAfter: number
+  createdAt: Date
+  fullyRefunded: boolean
+  productId?: string | null
+  actorUserId?: string | null
+}
+
 type AppEvents = {
   "product.created": ProductCreatedEvent
   "product.updated": ProductUpdatedEvent
@@ -125,6 +138,7 @@ type AppEvents = {
   "rewards.awarded": RewardsAwardedEvent
   "rewards.redeemed": RewardsRedeemedEvent
   "rewards.adjusted": RewardsAdjustedEvent
+  "rewards.refunded": RewardsRefundedEvent
 }
 
 type Handler<K extends keyof AppEvents> = (

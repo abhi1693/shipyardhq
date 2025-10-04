@@ -22,6 +22,8 @@ import {
   RewardsInsufficientBalanceError,
   RedemptionLimitError,
   RedemptionValidationError,
+  RedemptionNotFoundError,
+  RedemptionRefundError,
   RewardRuleInactiveError,
   RewardRuleNotFoundError,
   RewardUnavailableError,
@@ -33,6 +35,8 @@ import type {
   RedeemOptions,
   RedeemResult,
   StreakPayload,
+  RefundRedemptionOptions,
+  RefundRedemptionResult,
 } from "./types"
 
 const ACTIVE_ENTITLEMENT_STATUSES = [
@@ -462,6 +466,169 @@ export async function redeem(
       placementScheduleId: result.placementSchedule?.id ?? null,
     })
   }
+
+  return result
+}
+
+export async function refundRedemption(
+  redemptionId: string,
+  options: RefundRedemptionOptions,
+): Promise<RefundRedemptionResult> {
+  const now = new Date()
+
+  const result = await prisma.$transaction(async (tx) => {
+    const redemption = await tx.redemption.findUnique({
+      where: { id: redemptionId },
+      include: {
+        catalogItem: true,
+        placementSchedules: {
+          select: { id: true, status: true },
+        },
+        entitlements: {
+          select: { id: true, status: true },
+        },
+      },
+    })
+
+    if (!redemption) {
+      throw new RedemptionNotFoundError(redemptionId)
+    }
+
+    if (redemption.status === RedemptionStatus.refunded) {
+      throw new RedemptionRefundError(
+        "Redemption has already been fully refunded",
+        redemptionId,
+      )
+    }
+
+    const refundableAmount = redemption.cost - redemption.refundedRewards
+    if (refundableAmount <= 0) {
+      throw new RedemptionRefundError(
+        "No refundable rewards remain for this redemption",
+        redemptionId,
+      )
+    }
+
+    const refundAmount = refundableAmount
+    const willBeFullyRefunded =
+      redemption.refundedRewards + refundAmount >= redemption.cost
+    const shouldRevert = options.revertPerk ?? willBeFullyRefunded
+
+    const eventHash = buildEventHash(
+      redemption.userId,
+      redemption.id,
+      options.idempotencyKey,
+      "refund",
+    )
+
+    if (eventHash) {
+      const existing = await tx.rewardTransaction.findUnique({
+        where: { eventHash },
+        include: { redemption: true },
+      })
+      if (existing) {
+        const balance = await requireBalance(tx, redemption.userId)
+        return {
+          transaction: existing,
+          redemption: existing.redemption ?? redemption,
+          balance,
+          refundedAmount: existing.rewardAmount,
+          fullyRefunded:
+            (existing.redemption?.status ?? redemption.status) ===
+              RedemptionStatus.refunded ||
+            redemption.refundedRewards + existing.rewardAmount >=
+              redemption.cost,
+        }
+      }
+    }
+
+    await lockRewardBalance(tx, redemption.userId)
+
+    if (shouldRevert) {
+      if (redemption.entitlements.length > 0) {
+        await tx.featureEntitlement.updateMany({
+          where: { redemptionId },
+          data: {
+            status: FeatureEntitlementStatus.canceled,
+            deactivatedAt: now,
+            expiresAt: now,
+          },
+        })
+      }
+
+      if (redemption.placementSchedules.length > 0) {
+        await tx.placementSchedule.updateMany({
+          where: { redemptionId },
+          data: {
+            status: PlacementStatus.canceled,
+            endsAt: now,
+          },
+        })
+      }
+    }
+
+    const updatedBalance = await tx.rewardBalance.update({
+      where: { userId: redemption.userId },
+      data: {
+        balance: { increment: refundAmount },
+        lifetimeRefunded: { increment: refundAmount },
+      },
+    })
+
+    const updatedRedemption = await tx.redemption.update({
+      where: { id: redemptionId },
+      data: {
+        refundedRewards: { increment: refundAmount },
+        status: willBeFullyRefunded
+          ? RedemptionStatus.refunded
+          : redemption.status,
+        canceledAt: shouldRevert ? now : redemption.canceledAt,
+      },
+    })
+
+    const transactionMetadata = mergeMetadata(options.metadata, {
+      reference: options.reference,
+      reason: options.reason,
+    })
+
+    const transaction = await tx.rewardTransaction.create({
+      data: {
+        userId: redemption.userId,
+        type: RewardTransactionType.refund,
+        rewardAmount: refundAmount,
+        balanceAfter: updatedBalance.balance,
+        rewardKey: redemption.featureKey,
+        redemptionId: redemption.id,
+        productId: redemption.productId,
+        eventId: options.idempotencyKey ?? null,
+        eventHash,
+        notes: options.notes ?? options.reason,
+        metadata: transactionMetadata,
+        actedByUserId: options.actorUserId,
+      },
+    })
+
+    return {
+      transaction,
+      redemption: updatedRedemption,
+      balance: updatedBalance,
+      refundedAmount: refundAmount,
+      fullyRefunded: willBeFullyRefunded,
+    }
+  })
+
+  await publish("rewards.refunded", {
+    transactionId: result.transaction.id,
+    redemptionId,
+    userId: result.transaction.userId,
+    featureKey: result.transaction.rewardKey ?? null,
+    amount: result.transaction.rewardAmount,
+    balanceAfter: result.transaction.balanceAfter,
+    createdAt: result.transaction.createdAt,
+    fullyRefunded: result.fullyRefunded,
+    productId: result.transaction.productId ?? null,
+    actorUserId: result.transaction.actedByUserId ?? null,
+  })
 
   return result
 }

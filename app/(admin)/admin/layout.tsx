@@ -173,6 +173,11 @@ const baseNavItems: NavItem[] = [
         icon: "analytics",
       },
       {
+        title: "Refund redemptions",
+        url: adminPath("rewards", "refunds"),
+        icon: "rewards",
+      },
+      {
         title: "Adjust rewards",
         url: adminPath("rewards", "adjust"),
         icon: "rewards",

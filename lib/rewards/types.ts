@@ -74,3 +74,21 @@ export type AdjustRewardsOptions = {
   metadata?: JsonValue
   eventId?: string
 }
+
+export type RefundRedemptionOptions = {
+  actorUserId: string
+  reason: string
+  reference?: string | null
+  notes?: string
+  metadata?: JsonValue
+  idempotencyKey?: string
+  revertPerk?: boolean
+}
+
+export type RefundRedemptionResult = {
+  transaction: RewardTransaction
+  redemption: Redemption
+  balance: RewardBalance
+  refundedAmount: number
+  fullyRefunded: boolean
+}
