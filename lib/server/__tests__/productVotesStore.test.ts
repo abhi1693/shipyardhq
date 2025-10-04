@@ -252,12 +252,10 @@ describe("productVotesStore", () => {
     const txMocks = {
       productUpvote: {
         findUnique: vi.fn().mockResolvedValue(null),
-        create: vi
-          .fn()
-          .mockResolvedValue({
-            id: "new",
-            createdAt: new Date("2023-01-01T00:00:00Z"),
-          }),
+        create: vi.fn().mockResolvedValue({
+          id: "new",
+          createdAt: new Date("2023-01-01T00:00:00Z"),
+        }),
         delete: vi.fn(),
       },
       productAnalytics: {

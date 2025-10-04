@@ -67,8 +67,8 @@ export function WelcomeEmail({
     >
       <p style={paragraphStyle}>
         Your member hub is live with launch checklists, analytics, and product
-        updates. Each time you sign in you’ll land here for mission status, to‑do
-        items, and notifications:
+        updates. Each time you sign in you’ll land here for mission status,
+        to‑do items, and notifications:
         <br />
         <a href={dashboardUrl} style={linkStyle}>
           {dashboardUrl}
@@ -88,7 +88,9 @@ export function WelcomeEmail({
 
       <ul style={listStyle}>
         <li>Earn launch fuel by sharing honest signal with the community.</li>
-        <li>Redeem it for homepage placements, analytics boosts, and perk unlocks.</li>
+        <li>
+          Redeem it for homepage placements, analytics boosts, and perk unlocks.
+        </li>
       </ul>
 
       {isBuilder ? (
