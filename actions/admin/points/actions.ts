@@ -308,6 +308,9 @@ export async function adjustUserPointsAction(
         id: targetUser.id,
         email: targetUser.email,
       },
+      adjustment: {
+        amount,
+      },
     }
 
     await adjustPoints(targetUser.id, amount, {

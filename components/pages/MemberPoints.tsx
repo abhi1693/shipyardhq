@@ -247,6 +247,20 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
 
   const hasCatalog = catalog.length > 0
 
+  const formatAdjustmentDetail = (transaction: MemberPointsSnapshot["transactions"][number]) => {
+    if (transaction.notes && transaction.notes.length) {
+      return transaction.notes
+    }
+    const amount = transaction.adjustmentAmount
+    if (typeof amount === "number" && Number.isFinite(amount)) {
+      const tone = amount >= 0 ? "Admin credit" : "Admin deduction"
+      const formattedAmount = formatNumber(Math.abs(amount))
+      const sign = amount >= 0 ? "+" : "-"
+      return `${tone} (${sign}${formattedAmount} rewards)`
+    }
+    return "Admin adjustment"
+  }
+
   return (
     <div className="space-y-8">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -571,17 +585,35 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
                     <TableCell className="text-sm text-slate-600">
                       {transaction.type === PointTransactionType.earn
                         ? transaction.ruleName ?? transaction.ruleKey ?? "Earned"
-                        : transaction.rewardName ?? transaction.rewardKey ?? "Redeemed"}
+                        : transaction.type === PointTransactionType.adjustment
+                          ? formatAdjustmentDetail(transaction)
+                          : transaction.type === PointTransactionType.refund
+                            ? transaction.rewardName ?? transaction.rewardKey ?? "Refunded"
+                            : transaction.rewardName ?? transaction.rewardKey ?? "Redeemed"}
                     </TableCell>
                     <TableCell
                       className={cn(
                         "text-right text-sm font-semibold",
-                        transaction.type === PointTransactionType.earn
-                          ? "text-emerald-600"
-                          : "text-rose-600",
+                        (() => {
+                          if (transaction.type === PointTransactionType.earn) return "text-emerald-600"
+                          if (transaction.type === PointTransactionType.refund) return "text-emerald-600"
+                          if (transaction.type === PointTransactionType.adjustment) {
+                            const delta = transaction.adjustmentAmount ?? transaction.points
+                            return delta >= 0 ? "text-emerald-600" : "text-rose-600"
+                          }
+                          return "text-rose-600"
+                        })(),
                       )}
                     >
-                      {transaction.type === PointTransactionType.earn ? "+" : "-"}
+                      {(() => {
+                        if (transaction.type === PointTransactionType.earn) return "+"
+                        if (transaction.type === PointTransactionType.refund) return "+"
+                        if (transaction.type === PointTransactionType.adjustment) {
+                          const delta = transaction.adjustmentAmount ?? transaction.points
+                          return delta >= 0 ? "+" : "-"
+                        }
+                        return "-"
+                      })()}
                       {formatNumber(transaction.points)}
                     </TableCell>
                     <TableCell className="text-right text-sm">

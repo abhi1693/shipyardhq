@@ -43,6 +43,8 @@ export type MemberPointsSnapshot = {
     productId: string | null
     productName: string | null
     metadata: Prisma.JsonValue | null
+    notes: string | null
+    adjustmentAmount: number | null
   }>
   catalog: Array<RewardCatalogItem & {
     canAfford: boolean

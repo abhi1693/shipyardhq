@@ -15,6 +15,7 @@ import {
 import {
   FeatureEntitlementStatus,
   RedemptionStatus,
+    PointTransactionType
 } from "@/lib/vendor/prisma/client"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import {
@@ -188,7 +189,7 @@ export async function getMemberPointsSnapshot(): Promise<MemberPointsSnapshot> {
     const pendingCount = pendingCountMap.get(item.featureKey) ?? 0
 
     if (balance.balance < item.baseCost) {
-      reasons.push("Insufficient points")
+      reasons.push("Insufficient rewards")
     }
 
     if (item.maxActivePerUser != null && activeCount >= item.maxActivePerUser) {
@@ -218,20 +219,61 @@ export async function getMemberPointsSnapshot(): Promise<MemberPointsSnapshot> {
     }
   })
 
-  const transactionsUi = transactions.map((transaction) => ({
-    id: transaction.id,
-    type: transaction.type,
-    points: transaction.points,
-    balanceAfter: transaction.balanceAfter,
-    createdAt: transaction.createdAt,
-    ruleKey: transaction.rule?.key ?? transaction.ruleKey,
-    ruleName: transaction.rule?.name ?? null,
-    rewardKey: transaction.catalogItem?.featureKey ?? transaction.rewardKey ?? null,
-    rewardName: transaction.catalogItem?.name ?? null,
-    productId: transaction.product?.id ?? null,
-    productName: transaction.product?.name ?? null,
-    metadata: transaction.metadata,
-  }))
+  function extractAdjustmentAmount(metadata: Prisma.JsonValue | null): number | null {
+    if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+      return null
+    }
+
+    const record = metadata as Record<string, unknown>
+
+    const candidate = record.adjustment ?? record.adjustmentAmount ?? record.amount
+
+    if (typeof candidate === "number" && Number.isFinite(candidate)) {
+      return candidate
+    }
+
+    if (typeof candidate === "string") {
+      const parsed = Number(candidate)
+      return Number.isFinite(parsed) ? parsed : null
+    }
+
+    if (candidate && typeof candidate === "object" && !Array.isArray(candidate)) {
+      const amount = (candidate as Record<string, unknown>).amount
+      if (typeof amount === "number" && Number.isFinite(amount)) {
+        return amount
+      }
+      if (typeof amount === "string") {
+        const parsed = Number(amount)
+        return Number.isFinite(parsed) ? parsed : null
+      }
+    }
+
+    return null
+  }
+
+  const transactionsUi = transactions.map((transaction) => {
+    const adjustmentAmount =
+      transaction.type === PointTransactionType.adjustment
+        ? extractAdjustmentAmount(transaction.metadata)
+        : null
+
+    return {
+      id: transaction.id,
+      type: transaction.type,
+      points: transaction.points,
+      balanceAfter: transaction.balanceAfter,
+      createdAt: transaction.createdAt,
+      ruleKey: transaction.rule?.key ?? transaction.ruleKey,
+      ruleName: transaction.rule?.name ?? null,
+      rewardKey: transaction.catalogItem?.featureKey ?? transaction.rewardKey ?? null,
+      rewardName: transaction.catalogItem?.name ?? null,
+      productId: transaction.product?.id ?? null,
+      productName: transaction.product?.name ?? null,
+      metadata: transaction.metadata,
+      notes: transaction.notes ?? null,
+      adjustmentAmount,
+    }
+  })
 
   const activeEntitlementsUi = entitlements.map((entitlement) => ({
     id: entitlement.id,
