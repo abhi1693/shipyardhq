@@ -132,7 +132,6 @@ describe("getRewardAnalytics", () => {
           },
         },
       ])
-
     ;(prisma.rewardTransaction.groupBy as any)
       .mockResolvedValueOnce([
         {
@@ -167,7 +166,6 @@ describe("getRewardAnalytics", () => {
           _count: { _all: 1 },
         },
       ])
-
     ;(prisma.rewardRule.findMany as any).mockResolvedValue([
       { key: "rewards.login.daily", name: "Daily login" },
       { key: "rewards.review.publish", name: "Review published" },

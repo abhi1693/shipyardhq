@@ -20,13 +20,14 @@ const chartConfig: ChartConfig = {
   net: { label: "Net issuance", color: "#1f2937" },
 }
 
-const lineDefinition: AnalyticsLineDefinition<RewardAnalyticsTimelinePoint>[] = [
-  { dataKey: "earn" },
-  { dataKey: "spend" },
-  { dataKey: "adjustment" },
-  { dataKey: "refund" },
-  { dataKey: "net", strokeWidth: 2.5 },
-]
+const lineDefinition: AnalyticsLineDefinition<RewardAnalyticsTimelinePoint>[] =
+  [
+    { dataKey: "earn" },
+    { dataKey: "spend" },
+    { dataKey: "adjustment" },
+    { dataKey: "refund" },
+    { dataKey: "net", strokeWidth: 2.5 },
+  ]
 
 interface RewardsFlowChartProps {
   timeline: RewardAnalyticsTimelinePoint[]

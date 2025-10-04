@@ -627,9 +627,11 @@ export default async function OverviewPage({
 
               <Card className="border-slate-200/70 bg-white/95 shadow-sm">
                 <CardHeader>
-                  <CardTitle className="text-base">Verification progress</CardTitle>
+                  <CardTitle className="text-base">
+                    Verification progress
+                  </CardTitle>
                   <CardDescription>
-                    {formatNumber(stats.verifiedDomains)} verified of {" "}
+                    {formatNumber(stats.verifiedDomains)} verified of{" "}
                     {formatNumber(stats.totalProducts)} products.
                   </CardDescription>
                 </CardHeader>
@@ -713,7 +715,8 @@ export default async function OverviewPage({
                             {product.name}
                           </Link>
                           <span className="text-xs text-muted-foreground">
-                            {formatNumber(product.analytics?.clicks ?? 0)} clicks
+                            {formatNumber(product.analytics?.clicks ?? 0)}{" "}
+                            clicks
                           </span>
                         </li>
                       ))}
@@ -748,7 +751,8 @@ export default async function OverviewPage({
                             {product.name}
                           </Link>
                           <span className="text-xs text-muted-foreground">
-                            {formatNumber(product.analytics?.upvotes ?? 0)} upvotes
+                            {formatNumber(product.analytics?.upvotes ?? 0)}{" "}
+                            upvotes
                           </span>
                         </li>
                       ))}
@@ -813,7 +817,7 @@ export default async function OverviewPage({
                 <CardHeader>
                   <CardTitle className="text-base">Product health</CardTitle>
                   <CardDescription>
-                    Average completeness across your portfolio: {" "}
+                    Average completeness across your portfolio:{" "}
                     {health.averageScore}%
                   </CardDescription>
                 </CardHeader>
@@ -837,7 +841,9 @@ export default async function OverviewPage({
                           key={suggestion.label}
                           className="flex items-center justify-between gap-3"
                         >
-                          <span className="text-slate-900">{suggestion.label}</span>
+                          <span className="text-slate-900">
+                            {suggestion.label}
+                          </span>
                           <Link
                             href={suggestion.href ?? MEMBER_PRODUCTS_PATH}
                             className="text-xs text-sky-600 hover:underline"
@@ -897,9 +903,7 @@ export default async function OverviewPage({
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span>
-                  Earned {formatNumber(rewardsLifetimeEarned)}
-                </span>
+                <span>Earned {formatNumber(rewardsLifetimeEarned)}</span>
                 <span aria-hidden>•</span>
                 <span>Spent {formatNumber(rewardsLifetimeSpent)}</span>
               </div>
@@ -913,9 +917,7 @@ export default async function OverviewPage({
                   className="mt-1 w-fit gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium"
                 >
                   {rewardsStreakTier ? <span>{rewardsStreakTier}</span> : null}
-                  <span>
-                    Streak ×{formatNumber(rewardsStreakCount)}
-                  </span>
+                  <span>Streak ×{formatNumber(rewardsStreakCount)}</span>
                 </Badge>
               ) : null}
             </CardContent>
@@ -1030,7 +1032,8 @@ export default async function OverviewPage({
                           {formatNumber(product.analytics?.clicks ?? 0)} clicks
                         </span>
                         <span>
-                          {formatNumber(product.analytics?.upvotes ?? 0)} upvotes
+                          {formatNumber(product.analytics?.upvotes ?? 0)}{" "}
+                          upvotes
                         </span>
                       </div>
                     </li>

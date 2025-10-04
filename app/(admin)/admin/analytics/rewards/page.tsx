@@ -122,8 +122,12 @@ function MetricCard({
       </CardHeader>
       <CardContent className="space-y-1.5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
-          <span className="text-xl font-semibold text-slate-900">{current}</span>
-          <span className={`text-xs font-medium tabular-nums ${tone}`}>{label}</span>
+          <span className="text-xl font-semibold text-slate-900">
+            {current}
+          </span>
+          <span className={`text-xs font-medium tabular-nums ${tone}`}>
+            {label}
+          </span>
         </div>
         <div className="text-xs text-muted-foreground">vs {previous}</div>
         {countInfo ? (
@@ -145,7 +149,9 @@ interface LeaderboardCardProps {
   description: string
   entries: Array<RewardAnalyticsLeaderboardEntry | RewardAnalyticsUserEntry>
   emptyLabel: string
-  renderHelper?: (entry: RewardAnalyticsLeaderboardEntry | RewardAnalyticsUserEntry) => ReactNode
+  renderHelper?: (
+    entry: RewardAnalyticsLeaderboardEntry | RewardAnalyticsUserEntry,
+  ) => ReactNode
 }
 
 function LeaderboardCard({
@@ -167,7 +173,10 @@ function LeaderboardCard({
         ) : (
           <ol className="space-y-4 text-sm">
             {entries.map((entry, index) => (
-              <li key={entry.id} className="flex items-start justify-between gap-3">
+              <li
+                key={entry.id}
+                className="flex items-start justify-between gap-3"
+              >
                 <div className="min-w-0 space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-muted-foreground">
@@ -233,7 +242,9 @@ function buildAdjustmentHelper(summary: RewardAnalyticsSummary): string {
   return [addedLabel, removedLabel].filter(Boolean).join(" · ")
 }
 
-function renderUserHelper(entry: RewardAnalyticsLeaderboardEntry | RewardAnalyticsUserEntry) {
+function renderUserHelper(
+  entry: RewardAnalyticsLeaderboardEntry | RewardAnalyticsUserEntry,
+) {
   if ("email" in entry && entry.email) {
     return entry.email
   }
@@ -291,7 +302,8 @@ export default async function RewardAnalyticsPage({
             Net {formatSignedRewards(analytics.totals.adjustments.net)}
           </div>
           <div className="text-xs text-muted-foreground">
-            Previous net {formatSignedRewards(analytics.totals.adjustments.previousNet)}
+            Previous net{" "}
+            {formatSignedRewards(analytics.totals.adjustments.previousNet)}
           </div>
         </MetricCard>
         <MetricCard

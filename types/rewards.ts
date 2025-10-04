@@ -41,7 +41,8 @@ export interface RewardAnalyticsLeaderboardEntry {
   count: number
 }
 
-export interface RewardAnalyticsUserEntry extends RewardAnalyticsLeaderboardEntry {
+export interface RewardAnalyticsUserEntry
+  extends RewardAnalyticsLeaderboardEntry {
   email?: string | null
 }
 

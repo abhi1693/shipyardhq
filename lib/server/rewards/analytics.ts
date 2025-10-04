@@ -1,10 +1,7 @@
 import { addDays, format, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
-import {
-  RewardTransactionType,
-  type Prisma,
-} from "@/lib/vendor/prisma/client"
+import { RewardTransactionType, type Prisma } from "@/lib/vendor/prisma/client"
 import type {
   RewardAnalyticsLeaderboardEntry,
   RewardAnalyticsSummary,
@@ -235,7 +232,8 @@ export async function getRewardAnalytics(
     users.map((user) => [
       user.id,
       {
-        name: [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+        name:
+          [user.firstName, user.lastName].filter(Boolean).join(" ") ||
           user.email ||
           user.id,
         email: user.email,
@@ -441,7 +439,9 @@ export async function getRewardAnalytics(
           count: row._count._all ?? 0,
         }
       })
-      .filter((value): value is RewardAnalyticsLeaderboardEntry => Boolean(value))
+      .filter((value): value is RewardAnalyticsLeaderboardEntry =>
+        Boolean(value),
+      )
 
   const topRules: RewardAnalyticsLeaderboardEntry[] = buildLeaderboardEntry(
     topRuleRows,
