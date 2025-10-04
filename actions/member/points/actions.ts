@@ -30,7 +30,7 @@ import {
 import type { RedeemOptions } from "@/lib/points/types"
 
 import type {
-  MemberPointsSnapshot,
+  MemberRewardsSnapshot,
   RedeemFormState,
 } from "./types"
 
@@ -90,7 +90,7 @@ async function getProductOptions(userId: string) {
   }))
 }
 
-export async function getMemberPointsSnapshot(): Promise<MemberPointsSnapshot> {
+export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot> {
   const user = await requireCurrentUser()
 
   type FeatureKeyCount = { featureKey: string; _count: { featureKey: number } }

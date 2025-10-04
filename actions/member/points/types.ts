@@ -17,7 +17,7 @@ export type RedeemFormState = {
 
 export const initialRedeemState: RedeemFormState = { status: "idle" }
 
-export type MemberPointsSnapshot = {
+export type MemberRewardsSnapshot = {
   balance: {
     balance: number
     lifetimeEarned: number

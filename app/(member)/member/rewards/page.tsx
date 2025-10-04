@@ -1,5 +1,5 @@
-import MemberPoints from "@/components/pages/MemberPoints"
-import { getMemberPointsSnapshot } from "@/actions/member/points/actions"
+import MemberRewards from "@/components/pages/MemberRewards"
+import { getMemberRewardsSnapshot } from "@/actions/member/points/actions"
 import { buildPageMetadata } from "@/lib/metadata"
 
 export const dynamic = "force-dynamic"
@@ -10,6 +10,6 @@ export const metadata = buildPageMetadata({
 })
 
 export default async function MemberRewardsPage() {
-  const snapshot = await getMemberPointsSnapshot()
-  return <MemberPoints snapshot={snapshot} />
+  const snapshot = await getMemberRewardsSnapshot()
+  return <MemberRewards snapshot={snapshot} />
 }

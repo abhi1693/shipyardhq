@@ -44,7 +44,7 @@ import { cn } from "@/lib/utils"
 import { redeemCatalogItemAction } from "@/actions/member/points/actions"
 import {
   initialRedeemState,
-  type MemberPointsSnapshot,
+  type MemberRewardsSnapshot,
   type RedeemFormState,
 } from "@/actions/member/points/types"
 import {
@@ -59,12 +59,12 @@ import {
   memberProductPath,
 } from "@/lib/routes"
 
-type MemberPointsProps = {
-  snapshot: MemberPointsSnapshot
+type MemberRewardsProps = {
+  snapshot: MemberRewardsSnapshot
 }
 
-type CatalogItem = MemberPointsSnapshot["catalog"][number]
-type ProductOption = MemberPointsSnapshot["productOptions"][number]
+type CatalogItem = MemberRewardsSnapshot["catalog"][number]
+type ProductOption = MemberRewardsSnapshot["productOptions"][number]
 
 const categoryLabels: Record<RewardFeatureCategory, string> = {
   [RewardFeatureCategory.placement]: "Placement",
@@ -234,7 +234,7 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
   )
 }
 
-export default function MemberPoints({ snapshot }: MemberPointsProps) {
+export default function MemberRewards({ snapshot }: MemberRewardsProps) {
   const { balance, catalog, activeEntitlements, recentRedemptions, transactions, productOptions } =
     snapshot
 
@@ -247,7 +247,7 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
 
   const hasCatalog = catalog.length > 0
 
-  const formatAdjustmentDetail = (transaction: MemberPointsSnapshot["transactions"][number]) => {
+  const formatAdjustmentDetail = (transaction: MemberRewardsSnapshot["transactions"][number]) => {
     if (transaction.notes && transaction.notes.length) {
       return transaction.notes
     }
