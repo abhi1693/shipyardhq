@@ -87,7 +87,10 @@ export class RedemptionNotFoundError extends RewardsError {
 }
 
 export class RedemptionRefundError extends RewardsError {
-  constructor(message: string, public readonly redemptionId: string) {
+  constructor(
+    message: string,
+    public readonly redemptionId: string,
+  ) {
     super(message, "REDEMPTION_REFUND_INVALID")
   }
 }

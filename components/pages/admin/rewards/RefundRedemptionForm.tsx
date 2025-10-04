@@ -84,7 +84,9 @@ function useSelectedRedemption(
 ) {
   return useMemo(() => {
     if (!selectedId) return null
-    return redemptions.find((redemption) => redemption.id === selectedId) ?? null
+    return (
+      redemptions.find((redemption) => redemption.id === selectedId) ?? null
+    )
   }, [redemptions, selectedId])
 }
 
@@ -156,7 +158,9 @@ export default function RefundRedemptionForm({
               >
                 <SelectTrigger
                   id="redemptionId"
-                  aria-invalid={!selectedRedemptionId && state.status === "error"}
+                  aria-invalid={
+                    !selectedRedemptionId && state.status === "error"
+                  }
                   className="w-full"
                 >
                   <SelectValue
@@ -178,14 +182,19 @@ export default function RefundRedemptionForm({
                           {formatUser(redemption.user)}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {statusLabels[redemption.status]} • {redemption.cost} rewards
+                          {statusLabels[redemption.status]} • {redemption.cost}{" "}
+                          rewards
                         </span>
                       </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <input type="hidden" name="redemptionId" value={selectedRedemptionId} />
+              <input
+                type="hidden"
+                name="redemptionId"
+                value={selectedRedemptionId}
+              />
               <p className="text-sm text-muted-foreground">
                 {emptyState
                   ? "No redemptions are eligible for a refund right now."
@@ -216,7 +225,8 @@ export default function RefundRedemptionForm({
                         {(selected.createdAt &&
                           formatDistanceToNow(new Date(selected.createdAt), {
                             addSuffix: true,
-                          })) || ""}
+                          })) ||
+                          ""}
                       </span>
                     </dd>
                   </div>
@@ -270,7 +280,8 @@ export default function RefundRedemptionForm({
                     Remove entitlements and schedules
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    Turn off to keep the perk active even after issuing the refund.
+                    Turn off to keep the perk active even after issuing the
+                    refund.
                   </span>
                 </div>
                 <Switch
