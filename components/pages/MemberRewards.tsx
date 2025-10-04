@@ -380,7 +380,7 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
 
         <Card className="bg-white/95">
           <CardHeader>
-            <CardTitle>Recent redemption</CardTitle>
+            <CardTitle>Latest redemption</CardTitle>
             <CardDescription>Latest spend from your ledger.</CardDescription>
           </CardHeader>
           <CardContent>
