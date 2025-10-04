@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import {
   OverviewCard,
   OverviewRow,
@@ -39,11 +40,13 @@ export function ObjectPageLayout({
   overviewCardClassName,
 }: ObjectPageLayoutProps) {
   const hasOverview = Array.isArray(overview) && overview.length > 0
-  const extrasList = Array.isArray(topRowExtras)
-    ? topRowExtras
-    : sidebar
-      ? [sidebar]
-      : []
+  const extrasList = (
+    Array.isArray(topRowExtras)
+      ? topRowExtras
+      : sidebar
+        ? [sidebar]
+        : []
+  ).filter((node): node is ReactNode => node !== null && node !== undefined)
   return (
     <>
       <ClientObjectHeading
@@ -68,23 +71,29 @@ export function ObjectPageLayout({
             </OverviewCard>
           )}
           {extrasList.length === 1 && (
-            <div className="space-y-6">
-              {hasOverview && (
-                <OverviewCard
-                  title="Overview"
-                  className={overviewCardClassName}
-                >
-                  {overview.map((field) => (
-                    <OverviewRow
-                      key={field.label}
-                      label={field.label}
-                      value={field.value}
-                    />
-                  ))}
-                </OverviewCard>
-              )}
+            hasOverview ? (
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                <div className="lg:col-span-8">
+                  <OverviewCard
+                    title="Overview"
+                    className={overviewCardClassName}
+                  >
+                    {overview.map((field) => (
+                      <OverviewRow
+                        key={field.label}
+                        label={field.label}
+                        value={field.value}
+                      />
+                    ))}
+                  </OverviewCard>
+                </div>
+                <aside className="lg:col-span-4">
+                  <div className="space-y-4">{extrasList[0]}</div>
+                </aside>
+              </div>
+            ) : (
               <div className="space-y-4">{extrasList[0]}</div>
-            </div>
+            )
           )}
           {extrasList.length >= 2 && (
             <>
