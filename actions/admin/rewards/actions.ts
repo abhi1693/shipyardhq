@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import crypto from "node:crypto"
 
 import prisma from "@/lib/prisma"
+import { getRewardAnalytics } from "@/lib/server/rewards/analytics"
 import {
   RewardTransactionType,
   RewardRuleCategory,
@@ -429,6 +430,16 @@ export async function getRewardTransactionsCount(
   } catch (error) {
     console.error("Failed to count reward transactions", error)
     throw new Error("Unable to count reward transactions")
+  }
+}
+
+export async function getRewardAnalyticsSummary(rangeDays?: number) {
+  await resolveAdminUser()
+  try {
+    return await getRewardAnalytics(rangeDays ?? 30)
+  } catch (error) {
+    console.error("Failed to load reward analytics", error)
+    throw new Error("Unable to load reward analytics")
   }
 }
 
