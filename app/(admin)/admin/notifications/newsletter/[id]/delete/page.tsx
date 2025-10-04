@@ -58,7 +58,7 @@ export default async function DeleteNewsletterSubscriberPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            You are about to remove {" "}
+            You are about to remove{" "}
             <span className="font-medium text-foreground">
               {subscriberEmail}
             </span>{" "}

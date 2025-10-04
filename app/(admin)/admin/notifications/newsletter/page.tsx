@@ -47,11 +47,17 @@ export default async function NewsletterSubscribersPage({
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined
 
-  const page = coerceNumber(resolvedSearchParams?.page, DEFAULT_PAGE, { min: 1 })
-  const pageSize = coerceNumber(resolvedSearchParams?.limit, DEFAULT_PAGE_SIZE, {
+  const page = coerceNumber(resolvedSearchParams?.page, DEFAULT_PAGE, {
     min: 1,
-    max: MAX_PAGE_SIZE,
   })
+  const pageSize = coerceNumber(
+    resolvedSearchParams?.limit,
+    DEFAULT_PAGE_SIZE,
+    {
+      min: 1,
+      max: MAX_PAGE_SIZE,
+    },
+  )
 
   const skip = (page - 1) * pageSize
 

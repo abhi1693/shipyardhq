@@ -7,6 +7,11 @@ import prisma from "@/lib/prisma"
 import { checkRole } from "@/lib/roles"
 import { adminPath } from "@/lib/routes"
 import { Prisma } from "@/lib/vendor/prisma/client"
+import {
+  newsletterSubscriberSelect,
+  newsletterSubscriberUserSelect,
+  NewsletterSubscriberWithUser,
+} from "@/types/admin/newsletter"
 
 const subscriberSchema = z.object({
   email: z
@@ -34,13 +39,47 @@ const isNotFoundError = (error: unknown): boolean => {
 }
 
 export async function getNewsletterSubscribers(
-  args: Prisma.NewsletterSubscriptionFindManyArgs = {},
-) {
+  args: Pick<
+    Prisma.NewsletterSubscriptionFindManyArgs,
+    "skip" | "take" | "cursor" | "where"
+  > = {},
+): Promise<NewsletterSubscriberWithUser[]> {
   try {
-    return await prisma.newsletterSubscription.findMany({
-      orderBy: { createdAt: "desc" },
+    const subscriptions = await prisma.newsletterSubscription.findMany({
       ...args,
+      select: newsletterSubscriberSelect,
+      orderBy: { createdAt: "desc" },
     })
+
+    if (!subscriptions.length) {
+      return []
+    }
+
+    const normalizedEmails = subscriptions
+      .map((entry) => entry.email?.trim().toLowerCase())
+      .filter((value): value is string => Boolean(value))
+
+    const uniqueEmails = Array.from(new Set(normalizedEmails))
+
+    const emailClauses = uniqueEmails.map((email) => ({
+      email: { equals: email, mode: "insensitive" as const },
+    }))
+
+    const users = emailClauses.length
+      ? await prisma.user.findMany({
+          where: { OR: emailClauses },
+          select: newsletterSubscriberUserSelect,
+        })
+      : []
+
+    const userMap = new Map(
+      users.map((user) => [user.email.trim().toLowerCase(), user]),
+    )
+
+    return subscriptions.map((subscription) => ({
+      ...subscription,
+      user: userMap.get(subscription.email.trim().toLowerCase()) ?? null,
+    }))
   } catch (error) {
     console.error("getNewsletterSubscribers failed", error)
     throw new Error("Unable to load newsletter subscribers.")

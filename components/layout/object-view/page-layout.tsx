@@ -41,11 +41,7 @@ export function ObjectPageLayout({
 }: ObjectPageLayoutProps) {
   const hasOverview = Array.isArray(overview) && overview.length > 0
   const extrasList = (
-    Array.isArray(topRowExtras)
-      ? topRowExtras
-      : sidebar
-        ? [sidebar]
-        : []
+    Array.isArray(topRowExtras) ? topRowExtras : sidebar ? [sidebar] : []
   ).filter((node): node is ReactNode => node !== null && node !== undefined)
   return (
     <>
@@ -70,8 +66,8 @@ export function ObjectPageLayout({
               ))}
             </OverviewCard>
           )}
-          {extrasList.length === 1 && (
-            hasOverview ? (
+          {extrasList.length === 1 &&
+            (hasOverview ? (
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                 <div className="lg:col-span-8">
                   <OverviewCard
@@ -93,8 +89,7 @@ export function ObjectPageLayout({
               </div>
             ) : (
               <div className="space-y-4">{extrasList[0]}</div>
-            )
-          )}
+            ))}
           {extrasList.length >= 2 && (
             <>
               {/* When 2 extras, keep simple 4-4-4 layout */}

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const findManyMock = vi.hoisted(() => vi.fn())
 const findUniqueMock = vi.hoisted(() => vi.fn())
+const userFindManyMock = vi.hoisted(() => vi.fn())
 const countMock = vi.hoisted(() => vi.fn())
 const upsertMock = vi.hoisted(() => vi.fn())
 const deleteMock = vi.hoisted(() => vi.fn())
@@ -16,6 +17,9 @@ vi.mock("@/lib/prisma", () => ({
       count: countMock,
       upsert: upsertMock,
       delete: deleteMock,
+    },
+    user: {
+      findMany: userFindManyMock,
     },
   },
 }))
@@ -35,6 +39,10 @@ import {
   getNewsletterSubscribers,
 } from "@/actions/admin/newsletter/actions"
 import { adminPath } from "@/lib/routes"
+import {
+  newsletterSubscriberSelect,
+  newsletterSubscriberUserSelect,
+} from "@/types/admin/newsletter"
 
 const ADMIN_NEWSLETTER_PATH = adminPath("notifications", "newsletter")
 
@@ -43,6 +51,7 @@ describe("admin newsletter actions", () => {
     vi.clearAllMocks()
     findManyMock.mockResolvedValue([])
     findUniqueMock.mockResolvedValue(null)
+    userFindManyMock.mockResolvedValue([])
     countMock.mockResolvedValue(0)
     upsertMock.mockResolvedValue({})
     deleteMock.mockResolvedValue({})
@@ -50,15 +59,45 @@ describe("admin newsletter actions", () => {
   })
 
   it("gets newsletter subscribers with defaults", async () => {
-    const expected = [{ id: "sub_1" }]
-    findManyMock.mockResolvedValue(expected)
+    const now = new Date("2024-01-01T00:00:00.000Z")
+    const subscription = {
+      id: "sub_1",
+      email: "crew@example.com",
+      createdAt: now,
+      updatedAt: now,
+    }
+    const linkedUser = {
+      id: "user_1",
+      email: "crew@example.com",
+      firstName: "Ada",
+      lastName: "Lovelace",
+    }
+
+    findManyMock.mockResolvedValue([subscription])
+    userFindManyMock.mockResolvedValue([linkedUser])
 
     const result = await getNewsletterSubscribers({ take: 5 })
 
-    expect(result).toEqual(expected)
+    expect(result).toEqual([
+      {
+        ...subscription,
+        user: linkedUser,
+      },
+    ])
     expect(findManyMock).toHaveBeenCalledWith({
+      select: newsletterSubscriberSelect,
       orderBy: { createdAt: "desc" },
       take: 5,
+    })
+    expect(userFindManyMock).toHaveBeenCalledWith({
+      where: {
+        OR: [
+          {
+            email: { equals: "crew@example.com", mode: "insensitive" },
+          },
+        ],
+      },
+      select: newsletterSubscriberUserSelect,
     })
   })
 
@@ -85,6 +124,7 @@ describe("admin newsletter actions", () => {
 
     expect(result).toEqual({ error: "Unauthorized" })
     expect(upsertMock).not.toHaveBeenCalled()
+    expect(findUniqueMock).not.toHaveBeenCalled()
   })
 
   it("creates or updates a subscriber and revalidates the admin list", async () => {
@@ -94,6 +134,10 @@ describe("admin newsletter actions", () => {
     const result = await createNewsletterSubscriberAction(formData)
 
     expect(result).toEqual({ success: true })
+    expect(findUniqueMock).toHaveBeenCalledWith({
+      where: { email: "crew@shipyardhq.com" },
+      select: { id: true },
+    })
     expect(upsertMock).toHaveBeenCalledWith({
       where: { email: "crew@shipyardhq.com" },
       update: { email: "crew@shipyardhq.com" },
@@ -110,6 +154,10 @@ describe("admin newsletter actions", () => {
     const result = await createNewsletterSubscriberAction(formData)
 
     expect(result).toEqual({ error: "This email is already subscribed." })
+    expect(findUniqueMock).toHaveBeenCalledWith({
+      where: { email: "crew@example.com" },
+      select: { id: true },
+    })
     expect(upsertMock).not.toHaveBeenCalled()
     expect(revalidatePathMock).not.toHaveBeenCalled()
   })
