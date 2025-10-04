@@ -54,9 +54,13 @@ model Product {
   ProductMedia          ProductMedia[]
   ProductUpvote         ProductUpvote[]
   ProductReview         ProductReview[]
+  placementSchedules    PlacementSchedule[]
   clickEvents           ProductClickEvent[]
   trafficEvents         ProductTrafficEvent[]
   MonthlyProductRanking MonthlyProductRanking[]
+  rewardTransactions     RewardTransaction[]
+  redemptions           Redemption[]
+  featureEntitlements   FeatureEntitlement[]
 
   @@index([categoryId, createdAt])
   @@index([status, publishedAt])
@@ -348,13 +352,18 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  products       Product[]
-  memberships    OrganizationMembership[]
-  ProductUpvote  ProductUpvote[]
-  productReviews ProductReview[]
-  Organization   Organization[]
-  feedback       MemberFeedback[]
-  purchases      UserPlanPurchase[]
+  products               Product[]
+  memberships            OrganizationMembership[]
+  ProductUpvote          ProductUpvote[]
+  productReviews         ProductReview[]
+  Organization           Organization[]
+  feedback               MemberFeedback[]
+  purchases              UserPlanPurchase[]
+  rewardBalance           RewardBalance?
+  rewardTransactions      RewardTransaction[]       @relation("RewardUserTransactions")
+  rewardTransactionsActed RewardTransaction[]       @relation("RewardTransactionActor")
+  redemptions            Redemption[]
+  featureEntitlements    FeatureEntitlement[]
 
   @@index([status])
   @@index([roleIntent])
@@ -393,6 +402,64 @@ enum FeedbackStatus {
   received
   in_review
   closed
+}
+
+enum RewardTransactionType {
+  earn
+  spend
+  adjustment
+  refund
+}
+
+enum RedemptionStatus {
+  pending
+  active
+  expired
+  canceled
+  failed
+  refunded
+}
+
+enum PlacementStatus {
+  pending
+  scheduled
+  active
+  completed
+  canceled
+  failed
+}
+
+enum RewardRuleCategory {
+  engagement
+  streak
+  admin
+  system
+  bonus
+}
+
+enum RewardFeatureCategory {
+  placement
+  analytics
+  insights
+  access
+  exposure
+  utility
+}
+
+enum FeatureSubjectType {
+  user
+  product
+  organization
+  global
+}
+
+enum FeatureEntitlementStatus {
+  pending
+  active
+  paused
+  expired
+  canceled
+  failed
 }
 
 model MemberFeedback {
@@ -474,7 +541,8 @@ model PlanFeature {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  assignments PlanFeatureAssignment[]
+  assignments       PlanFeatureAssignment[]
+  RewardCatalogItem RewardCatalogItem[]
 
   @@index([createdAt])
   @@index([updatedAt])
@@ -564,4 +632,209 @@ model UseCaseCategory {
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@id([useCaseId, categoryId])
+}
+
+model RewardBalance {
+  userId              String    @id
+  balance             Int       @default(0)
+  lifetimeEarned      Int       @default(0)
+  lifetimeSpent       Int       @default(0)
+  lifetimeAdjusted    Int       @default(0)
+  lifetimeRefunded    Int       @default(0)
+  currentStreakCount  Int       @default(0)
+  longestStreakCount  Int       @default(0)
+  currentStreakTier   String?
+  streakActiveThrough DateTime?
+  lastEarnedAt        DateTime?
+  lastRedeemedAt      DateTime?
+  lastAdjustmentAt    DateTime?
+  lastEvaluatedAt     DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([balance])
+  @@index([updatedAt])
+}
+
+model RewardRule {
+  id                       String             @id @default(cuid())
+  key                      String             @unique
+  name                     String
+  description              String?
+  category                 RewardRuleCategory
+  baseRewardAmount               Int
+  isActive                 Boolean            @default(true)
+  dailyCap                 Int?
+  lifetimeCap              Int?
+  globalCooldownSeconds    Int?
+  perTargetCooldownSeconds Int?
+  metadata                 Json?
+  tierConfig               Json?
+  adminNotes               String?
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+
+  transactions RewardTransaction[]
+
+  @@index([category])
+  @@index([isActive])
+  @@index([updatedAt])
+}
+
+model RewardCatalogItem {
+  id                String                @id @default(cuid())
+  featureKey        String                @unique
+  planFeatureKey    String?
+  name              String
+  description       String?
+  category          RewardFeatureCategory
+  baseCost          Int
+  durationSeconds   Int?
+  isActive          Boolean               @default(true)
+  maxActivePerUser  Int?
+  maxPendingPerUser Int?
+  requiresProduct   Boolean               @default(false)
+  metadata          Json?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  planFeature        PlanFeature?         @relation(fields: [planFeatureKey], references: [key], onDelete: SetNull)
+  redemptions        Redemption[]
+  entitlements       FeatureEntitlement[]
+  transactions       RewardTransaction[]
+  placementSchedules PlacementSchedule[]
+
+  @@index([category])
+  @@index([isActive])
+  @@index([updatedAt])
+}
+
+model RewardTransaction {
+  id            String               @id @default(cuid())
+  userId        String
+  type          RewardTransactionType
+  rewardAmount   Int
+  balanceAfter  Int
+  ruleId        String?
+  ruleKey       String?
+  rewardKey     String?
+  redemptionId  String?
+  productId     String?
+  eventId       String?
+  eventHash     String?
+  sourceType    String?
+  sourceId      String?
+  targetType    String?
+  targetId      String?
+  notes         String?
+  metadata      Json?
+  actedByUserId String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  user        User               @relation("RewardUserTransactions", fields: [userId], references: [id], onDelete: Cascade)
+  rule        RewardRule?        @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  catalogItem RewardCatalogItem? @relation(fields: [rewardKey], references: [featureKey], onDelete: SetNull)
+  redemption  Redemption?        @relation(fields: [redemptionId], references: [id], onDelete: SetNull)
+  actedBy     User?              @relation("RewardTransactionActor", fields: [actedByUserId], references: [id], onDelete: SetNull)
+  product     Product?           @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@unique([eventHash])
+  @@index([userId, createdAt])
+  @@index([type])
+  @@index([ruleKey])
+  @@index([rewardKey])
+  @@index([productId])
+  @@index([eventId])
+}
+
+model Redemption {
+  id             String           @id @default(cuid())
+  userId         String
+  featureKey     String
+  productId      String?
+  status         RedemptionStatus @default(pending)
+  cost           Int
+  originalCost   Int
+  refundedRewards Int              @default(0)
+  startsAt       DateTime?
+  activatedAt    DateTime?
+  expiresAt      DateTime?
+  completedAt    DateTime?
+  canceledAt     DateTime?
+  failureReason  String?
+  metadata       Json?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  catalogItem        RewardCatalogItem    @relation(fields: [featureKey], references: [featureKey], onDelete: Restrict)
+  product            Product?             @relation(fields: [productId], references: [id], onDelete: SetNull)
+  transactions       RewardTransaction[]
+  entitlements       FeatureEntitlement[]
+  placementSchedules PlacementSchedule[]
+
+  @@index([userId, status])
+  @@index([featureKey])
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model FeatureEntitlement {
+  id            String                   @id @default(cuid())
+  userId        String
+  featureKey    String
+  redemptionId  String?
+  productId     String?
+  subjectType   FeatureSubjectType       @default(user)
+  subjectId     String?
+  status        FeatureEntitlementStatus @default(pending)
+  startsAt      DateTime?
+  activatedAt   DateTime?
+  expiresAt     DateTime?
+  deactivatedAt DateTime?
+  metadata      Json?
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  catalogItem        RewardCatalogItem   @relation(fields: [featureKey], references: [featureKey], onDelete: Restrict)
+  redemption         Redemption?         @relation(fields: [redemptionId], references: [id], onDelete: SetNull)
+  product            Product?            @relation(fields: [productId], references: [id], onDelete: SetNull)
+  placementSchedules PlacementSchedule[]
+
+  @@index([userId, featureKey, status])
+  @@index([featureKey, status])
+  @@index([productId, status])
+  @@index([subjectType, subjectId])
+}
+
+model PlacementSchedule {
+  id                String          @id @default(cuid())
+  entitlementId     String
+  redemptionId      String?
+  featureKey        String
+  productId         String
+  slotKey           String
+  status            PlacementStatus @default(pending)
+  startsAt          DateTime
+  endsAt            DateTime
+  activationJobId   String?
+  deactivationJobId String?
+  inventoryToken    String?
+  metadata          Json?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  entitlement FeatureEntitlement @relation(fields: [entitlementId], references: [id], onDelete: Cascade)
+  redemption  Redemption?        @relation(fields: [redemptionId], references: [id], onDelete: SetNull)
+  catalogItem RewardCatalogItem  @relation(fields: [featureKey], references: [featureKey], onDelete: Restrict)
+  product     Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([slotKey, startsAt])
+  @@index([status])
+  @@index([productId, startsAt])
+  @@index([featureKey, status])
 }

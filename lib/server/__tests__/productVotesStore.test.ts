@@ -252,7 +252,10 @@ describe("productVotesStore", () => {
     const txMocks = {
       productUpvote: {
         findUnique: vi.fn().mockResolvedValue(null),
-        create: vi.fn().mockResolvedValue({ id: "new" }),
+        create: vi.fn().mockResolvedValue({
+          id: "new",
+          createdAt: new Date("2023-01-01T00:00:00Z"),
+        }),
         delete: vi.fn(),
       },
       productAnalytics: {
@@ -277,7 +280,7 @@ describe("productVotesStore", () => {
     expect(prismaMock.$transaction).toHaveBeenCalled()
     expect(txMocks.productUpvote.create).toHaveBeenCalledWith({
       data: { productId: "prod-1", userId: "user-1" },
-      select: { id: true },
+      select: { id: true, createdAt: true },
     })
   })
 

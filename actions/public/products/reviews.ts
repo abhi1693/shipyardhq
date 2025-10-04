@@ -14,6 +14,8 @@ import {
 import { upsertProductReview } from "@/lib/server/productReviews"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { publish } from "@/lib/server/events"
+import "@/lib/server/rewards/listeners"
 
 export type SubmitReviewState = {
   status: "idle" | "success" | "error"
@@ -86,7 +88,7 @@ export async function submitProductReviewAction(
   // Ensure the product exists and is published before accepting reviews
   const product = await prisma.product.findUnique({
     where: { id: productId },
-    select: { id: true, slug: true, status: true },
+    select: { id: true, slug: true, status: true, userId: true },
   })
 
   if (!product) {
@@ -104,11 +106,22 @@ export async function submitProductReviewAction(
   }
 
   try {
-    await upsertProductReview({
+    const review = await upsertProductReview({
       productId: product.id,
       userId: user.id,
       rating,
       message,
+    })
+
+    await publish("product.reviewed", {
+      reviewId: review.id,
+      productId: product.id,
+      productOwnerId: product.userId,
+      userId: user.id,
+      rating: review.rating,
+      messageLength: review.message.length,
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
     })
   } catch (error: any) {
     return {

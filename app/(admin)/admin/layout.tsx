@@ -158,6 +158,33 @@ const baseNavItems: NavItem[] = [
     ],
   },
   {
+    title: "Rewards",
+    url: "#",
+    icon: "rewards",
+    items: [
+      {
+        title: "Reward rules",
+        url: adminPath("rewards", "rules"),
+        icon: "settings",
+      },
+      {
+        title: "Transactions",
+        url: adminPath("rewards", "transactions"),
+        icon: "analytics",
+      },
+      {
+        title: "Refund redemptions",
+        url: adminPath("rewards", "refunds"),
+        icon: "rewards",
+      },
+      {
+        title: "Adjust rewards",
+        url: adminPath("rewards", "adjust"),
+        icon: "rewards",
+      },
+    ],
+  },
+  {
     title: "Member Area",
     url: MEMBER_OVERVIEW_PATH,
     icon: "member",

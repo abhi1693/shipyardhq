@@ -12,16 +12,10 @@ import { PRICING_PATH } from "@/lib/routes"
 import { seedCategories } from "./seed.categories"
 import { seedPlanFeatures } from "./seed.plan-features"
 import { seedPlans } from "./seed.plans"
+import { seedRewards } from "./seed.rewards"
 import { seedUseCases } from "./seed.use-cases"
 
 const prisma = new PrismaClient()
-
-if (process.env.CI !== "true") {
-  console.error(
-    "prisma:seed requires CI=true. Rerun with `CI=true npm run prisma:seed`.",
-  )
-  process.exit(1)
-}
 
 type ProductSeed = {
   slug: string
@@ -250,6 +244,7 @@ async function main() {
   await seedUseCases(prisma)
   await seedPlanFeatures(prisma)
   await seedPlans(prisma)
+  await seedRewards(prisma)
 
   const userSeeds = [
     {

@@ -115,6 +115,9 @@ describe("completeOnboarding", () => {
     expect(emailArgs.text).toContain("Scoring guide")
     expect(emailArgs.text).toContain("/leaderboard")
     expect(emailArgs.text).toContain("/member/feedback")
+    expect(emailArgs.text).toContain("/rewards")
+    expect(emailArgs.text).toContain("Shipyard Rewards powers placements")
+    expect(emailArgs.text).toContain("Fleet Pulse tracks live balances")
   })
 
   it("sends an explorer welcome email without builder extras", async () => {
@@ -132,6 +135,9 @@ describe("completeOnboarding", () => {
     const emailArgs = sendEmailMock.mock.calls[0][0]
     expect(emailArgs.text).not.toContain("Scoring guide")
     expect(emailArgs.text).toContain("/member/feedback")
+    expect(emailArgs.text).toContain("/rewards")
+    expect(emailArgs.text).toContain("Shipyard Rewards powers placements")
+    expect(emailArgs.text).toContain("Fleet Pulse tracks live balances")
   })
 
   it("subscribes users by default when the opt-in flag is omitted", async () => {

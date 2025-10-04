@@ -12,6 +12,7 @@ import {
   HOME_PATH,
   LEADERBOARD_PATH,
   LEADERBOARD_GUIDE_PATH,
+  REWARDS_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   USERS_PATH,
@@ -117,6 +118,14 @@ export default function PublicFooter({
                 className={textLinkCls + " md:font-medium"}
               >
                 Leaderboard
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={REWARDS_PATH}
+                className={textLinkCls + " md:font-medium"}
+              >
+                Rewards
               </Link>
             </li>
             <li>

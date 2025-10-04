@@ -4,14 +4,21 @@ declare global {
   var __shipyardhqEmailDeliveryDisabled: boolean | undefined
 }
 
+let bypassEmailDeliveryGuard = false
+
 function isEnvFlagEnabled(value: string | undefined) {
   if (!value) return false
   return ["1", "true", "yes", "on"].includes(value.toLowerCase())
 }
 
 export function isEmailDeliveryDisabled(): boolean {
-  if (globalThis.__shipyardhqEmailDeliveryDisabled) {
-    return true
+  const override = globalThis.__shipyardhqEmailDeliveryDisabled
+  if (override !== undefined) {
+    return override
+  }
+
+  if (shouldBypassEmailDeliveryChecks()) {
+    return false
   }
 
   return isEnvFlagEnabled(process.env.CI)
@@ -88,6 +95,24 @@ function loadRateLimitConfig(): RateLimitConfig {
 
 function hasBodyContent(opts: SendEmailOptions): boolean {
   return Boolean(opts.text || opts.html || opts.react)
+}
+
+function shouldBypassEmailDeliveryChecks(): boolean {
+  if (!bypassEmailDeliveryGuard) {
+    return false
+  }
+
+  return process.env.NODE_ENV === "test" || Boolean(process.env.VITEST)
+}
+
+function isRuntimeEmailDeliveryDisabled(): boolean {
+  return globalThis.__shipyardhqEmailDeliveryDisabled === true
+}
+
+function createDisabledEmailResult(): SendEmailResult {
+  return {
+    id: `email-disabled-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+  } as SendEmailResult
 }
 
 class ResendEmailSender implements EmailSender {
@@ -267,10 +292,15 @@ let activeEmailSender: EmailSender = createDefaultEmailSender()
 
 export function configureEmailSender(sender: EmailSender) {
   activeEmailSender = sender
+
+  if (process.env.NODE_ENV === "test" || process.env.VITEST) {
+    bypassEmailDeliveryGuard = true
+  }
 }
 
 export function resetEmailSender() {
   activeEmailSender = createDefaultEmailSender()
+  bypassEmailDeliveryGuard = false
 }
 
 export async function sendEmail(options: SendEmailOptions) {
@@ -278,10 +308,12 @@ export async function sendEmail(options: SendEmailOptions) {
     throw new Error("Email body is required")
   }
 
-  if (isEmailDeliveryDisabled()) {
-    return {
-      id: `email-disabled-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
-    } as SendEmailResult
+  if (isRuntimeEmailDeliveryDisabled()) {
+    return createDisabledEmailResult()
+  }
+
+  if (!shouldBypassEmailDeliveryChecks() && isEnvFlagEnabled(process.env.CI)) {
+    return createDisabledEmailResult()
   }
 
   return activeEmailSender.send(options)

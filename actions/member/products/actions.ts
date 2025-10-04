@@ -4,7 +4,11 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
-import { Prisma, ProductStatus } from "@/lib/vendor/prisma/client"
+import {
+  FeatureEntitlementStatus,
+  Prisma,
+  ProductStatus,
+} from "@/lib/vendor/prisma/client"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -39,6 +43,9 @@ type ProductListItem = Prisma.ProductGetPayload<{
     }
     verification: { select: { isVerified: true } }
     analytics: { select: { clicks: true; upvotes: true } }
+    featureEntitlements: {
+      select: { featureKey: true; status: true }
+    }
   }
 }>
 
@@ -152,21 +159,40 @@ export async function getUserProducts(params?: ListParams) {
         },
         verification: { select: { isVerified: true } },
         analytics: { select: { clicks: true, upvotes: true } },
+        featureEntitlements: {
+          where: {
+            status: {
+              in: [
+                FeatureEntitlementStatus.active,
+                FeatureEntitlementStatus.pending,
+              ],
+            },
+          },
+          select: {
+            featureKey: true,
+            status: true,
+          },
+        },
       },
     }),
     prisma.product.count({ where }),
   ])) as [ProductListItem[], number]
 
   const productsWithPermissions = products.map((product: ProductListItem) => {
-    const hasAdvancedAnalytics = hasPlanFeature(
-      product.plan ?? null,
-      "analytics.advanced",
+    const entitlementFeatures = new Set(
+      (product.featureEntitlements ?? []).map((ent) => ent.featureKey),
     )
+
+    const hasAdvancedAnalytics =
+      hasPlanFeature(product.plan ?? null, "analytics.advanced") ||
+      entitlementFeatures.has("analytics.advanced")
     const canViewAnalytics =
       hasAdvancedAnalytics ||
-      hasPlanFeature(product.plan ?? null, "analytics.basic")
+      hasPlanFeature(product.plan ?? null, "analytics.basic") ||
+      entitlementFeatures.has("analytics.basic")
 
-    const { plan, ...rest } = product
+    const { plan, featureEntitlements: _featureEntitlements, ...rest } = product
+    void _featureEntitlements
     const planSummary = plan
       ? {
           id: plan.id,

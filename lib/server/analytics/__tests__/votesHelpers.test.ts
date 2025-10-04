@@ -15,14 +15,21 @@ import {
   trackProductDownvoted,
 } from "@/lib/server/analytics/productVotes"
 
+const voteEvent = {
+  productId: "p1",
+  userId: "u1",
+  upvoteId: "p1:u1",
+  occurredAt: new Date(),
+}
+
 describe("productVotes helpers", () => {
   it("publish upvote/downvote events via helpers", async () => {
     // Ensure no throw and handlers invoked
-    await trackProductUpvoted("p1", "u1")
-    await trackProductDownvoted("p1", "u1")
+    await trackProductUpvoted(voteEvent)
+    await trackProductDownvoted(voteEvent)
     // Also publish directly to ensure no-op
-    await publish("product.upvoted", { productId: "p1", userId: "u1" })
-    await publish("product.downvoted", { productId: "p1", userId: "u1" })
+    await publish("product.upvoted", voteEvent)
+    await publish("product.downvoted", voteEvent)
     expect(true).toBe(true)
   })
 })

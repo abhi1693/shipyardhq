@@ -74,7 +74,7 @@ export default async function HomePage() {
     getProducts("new"),
     getTrendingProducts(6),
     getTopCategories(),
-    getHomepageFeatureProducts(6),
+    getHomepageFeatureProducts(12),
     getLeaderboardStats(),
   ])
 

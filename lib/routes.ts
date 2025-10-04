@@ -6,6 +6,7 @@ export const MEMBER_FEEDBACK_PATH = `${MEMBER_BASE_PATH}/feedback` as const
 export const MEMBER_ONBOARDING_PATH = `${MEMBER_BASE_PATH}/onboarding` as const
 export const MEMBER_ACCOUNT_PROFILE_PATH =
   `${MEMBER_BASE_PATH}/account/profile` as const
+export const MEMBER_REWARDS_PATH = `${MEMBER_BASE_PATH}/rewards` as const
 
 export const MEMBER_PRODUCTS_PATH = `${MEMBER_BASE_PATH}/products` as const
 export const MEMBER_PRODUCTS_ADD_PATH = `${MEMBER_PRODUCTS_PATH}/add` as const
@@ -84,6 +85,7 @@ export const ANALYTICS_PATH = "/analytics" as const
 export const USE_CASES_PATH = "/use-cases" as const
 export const CATEGORIES_PATH = "/categories" as const
 export const USERS_PATH = "/users" as const
+export const REWARDS_PATH = "/rewards" as const
 
 export const SHIPYARD_TWITTER_URL = "https://x.com/shipyardhq" as const
 

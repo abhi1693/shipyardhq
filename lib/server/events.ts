@@ -2,6 +2,7 @@
 // Scales to more events and listeners as needed
 
 import type { DeviceCategory, ProductTrafficPayload } from "@/types/analytics"
+import type { RedemptionStatus } from "@/lib/vendor/prisma/client"
 
 export type ProductClickMetadata = {
   referrer?: string | null
@@ -30,8 +31,28 @@ export type BadgeAssignedEvent = {
   expiresAt?: Date | null
 }
 export type BadgeRemovedEvent = { id: string; productId: string; badge: string }
-export type ProductUpvotedEvent = { productId: string; userId: string }
-export type ProductDownvotedEvent = { productId: string; userId: string }
+export type ProductUpvotedEvent = {
+  productId: string
+  userId: string
+  upvoteId: string
+  occurredAt: Date
+}
+export type ProductDownvotedEvent = {
+  productId: string
+  userId: string
+  upvoteId: string
+  occurredAt: Date
+}
+export type ProductReviewCreatedEvent = {
+  reviewId: string
+  productId: string
+  productOwnerId?: string | null
+  userId: string
+  rating: number
+  messageLength: number
+  createdAt: Date
+  updatedAt: Date
+}
 export type ProductTrafficRecordedEvent = ProductTrafficPayload
 
 export type LeaderboardMonthlyWinnersEvent = {
@@ -47,6 +68,60 @@ export type LeaderboardMonthlyWinnersEvent = {
   }>
 }
 
+export type RewardsAwardedEvent = {
+  transactionId: string
+  userId: string
+  rewardAmount: number
+  ruleKey: string
+  ruleName: string
+  balanceAfter: number
+  createdAt: Date
+  metadata?: unknown
+  sourceType?: string | null
+  sourceId?: string | null
+  targetType?: string | null
+  targetId?: string | null
+  productId?: string | null
+}
+
+export type RewardsRedeemedEvent = {
+  transactionId: string
+  userId: string
+  featureKey: string
+  redemptionId: string
+  cost: number
+  balanceAfter: number
+  status: RedemptionStatus
+  createdAt: Date
+  productId?: string | null
+  autoActivated: boolean
+  placementScheduleId?: string | null
+}
+
+export type RewardsAdjustedEvent = {
+  transactionId: string
+  userId: string
+  amount: number
+  balanceAfter: number
+  createdAt: Date
+  actorUserId?: string | null
+  metadata?: unknown
+  notes?: string | null
+}
+
+export type RewardsRefundedEvent = {
+  transactionId: string
+  redemptionId: string
+  userId: string
+  featureKey: string | null
+  amount: number
+  balanceAfter: number
+  createdAt: Date
+  fullyRefunded: boolean
+  productId?: string | null
+  actorUserId?: string | null
+}
+
 type AppEvents = {
   "product.created": ProductCreatedEvent
   "product.updated": ProductUpdatedEvent
@@ -55,10 +130,15 @@ type AppEvents = {
   "product.clicked": ProductClickedEvent
   "product.upvoted": ProductUpvotedEvent
   "product.downvoted": ProductDownvotedEvent
+  "product.reviewed": ProductReviewCreatedEvent
   "badge.assigned": BadgeAssignedEvent
   "badge.removed": BadgeRemovedEvent
   "analytics.product-traffic": ProductTrafficRecordedEvent
   "leaderboard.monthly.winners": LeaderboardMonthlyWinnersEvent
+  "rewards.awarded": RewardsAwardedEvent
+  "rewards.redeemed": RewardsRedeemedEvent
+  "rewards.adjusted": RewardsAdjustedEvent
+  "rewards.refunded": RewardsRefundedEvent
 }
 
 type Handler<K extends keyof AppEvents> = (

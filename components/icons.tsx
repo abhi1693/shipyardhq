@@ -17,6 +17,7 @@ import {
   IconMessage,
   IconChartFunnel,
   IconTrophy,
+  IconSparkles,
 } from "@tabler/icons-react"
 
 export type Icon = React.ComponentType<IconProps>
@@ -39,4 +40,5 @@ export const Icons = {
   conversions: IconChartFunnel,
   feedback: IconMessage,
   leaderboard: IconTrophy,
+  rewards: IconSparkles,
 }

@@ -17,6 +17,11 @@ const FEATURES = [
       "We submit your listing to Google and Bing for faster indexing.",
   },
   {
+    key: "backlink",
+    name: "Backlink",
+    description: "Adds a backlink from Shipyard to your product site.",
+  },
+  {
     key: "insights.pipeline",
     name: "Product Insights Pipeline",
     description:
@@ -61,11 +66,6 @@ const FEATURES = [
     key: "newsletterPromotion",
     name: "Newsletter Promotion",
     description: "Promoted in email campaigns",
-  },
-  {
-    key: "backlink",
-    name: "Do-follow Backlink",
-    description: "Enables do-follow link to your site",
   },
   {
     key: "organization",

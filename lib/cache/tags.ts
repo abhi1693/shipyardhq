@@ -24,6 +24,10 @@ export const TAGS = {
   productReview: (idOrSlug: string) => `product-review:${idOrSlug}`,
   feedback: "feedback",
   subscriptions: "subscriptions",
+  placement: (key: string) => `placement:${key}`,
+  rewards: "rewards",
+  rewardRule: (key: string) => `rewards:rule:${key}`,
+  rewardCatalogItem: (key: string) => `rewards:catalog:${key}`,
 } as const
 
 export type Tag = (typeof TAGS)[keyof typeof TAGS] | string

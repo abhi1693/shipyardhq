@@ -1,6 +1,12 @@
 import prisma from "@/lib/prisma"
 import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
+import {
+  publish,
+  type ProductDownvotedEvent,
+  type ProductUpvotedEvent,
+} from "@/lib/server/events"
 import { getRedisClient, type RedisClient } from "@/lib/server/redis"
+import "@/lib/server/rewards/listeners"
 
 export type VoteState = "upvoted" | "not_upvoted"
 
@@ -280,22 +286,32 @@ async function applyVoteDirectlyToDatabase({
   desiredState,
 }: DirectApplyOptions): Promise<VoteState> {
   const shouldUpvote = desiredState === "upvoted"
+  const now = new Date()
+  let createdEvent: ProductUpvotedEvent | null = null
+  let removedEvent: ProductDownvotedEvent | null = null
 
-  if (shouldUpvote) {
-    await prisma.$transaction(async (tx) => {
+  const finalState = await prisma.$transaction(async (tx) => {
+    if (shouldUpvote) {
       const existing = await tx.productUpvote.findUnique({
         where: { productId_userId: { productId, userId } },
         select: { id: true },
       })
 
       if (existing) {
-        return
+        return "upvoted" as VoteState
       }
 
-      await tx.productUpvote.create({
+      const created = await tx.productUpvote.create({
         data: { productId, userId },
-        select: { id: true },
+        select: { id: true, createdAt: true },
       })
+
+      createdEvent = {
+        productId,
+        userId,
+        upvoteId: created.id,
+        occurredAt: created.createdAt,
+      }
 
       await tx.productAnalytics.upsert({
         where: { productId },
@@ -303,19 +319,17 @@ async function applyVoteDirectlyToDatabase({
         create: { productId, upvotes: 1, clicks: 0 },
         select: { productId: true },
       })
-    })
 
-    return "upvoted"
-  }
+      return "upvoted" as VoteState
+    }
 
-  const shouldRemove = await prisma.$transaction(async (tx) => {
     const existing = await tx.productUpvote.findUnique({
       where: { productId_userId: { productId, userId } },
       select: { id: true },
     })
 
     if (!existing) {
-      return false
+      return "not_upvoted" as VoteState
     }
 
     await tx.productUpvote.delete({
@@ -328,14 +342,24 @@ async function applyVoteDirectlyToDatabase({
       select: { productId: true },
     })
 
-    return true
+    removedEvent = {
+      productId,
+      userId,
+      upvoteId: existing.id,
+      occurredAt: now,
+    }
+
+    return "not_upvoted" as VoteState
   })
 
-  if (shouldRemove) {
-    return "not_upvoted"
+  const publishes: Promise<void>[] = []
+  if (createdEvent) publishes.push(publish("product.upvoted", createdEvent))
+  if (removedEvent) publishes.push(publish("product.downvoted", removedEvent))
+  if (publishes.length) {
+    await Promise.all(publishes)
   }
 
-  return desiredState
+  return finalState
 }
 
 export async function listProductsWithPendingVotes(
@@ -413,33 +437,75 @@ export async function flushPendingVotesToDatabase(): Promise<FlushVotesResult> {
       else if (delta < 0) removals.push(userId)
     }
 
+    const createdEvents: ProductUpvotedEvent[] = []
+    const removedEvents: ProductDownvotedEvent[] = []
+
     await prisma.$transaction(async (tx) => {
       if (additions.length) {
-        await tx.productUpvote.createMany({
+        const created = await tx.productUpvote.createManyAndReturn({
           data: additions.map((userId) => ({ productId, userId })),
           skipDuplicates: true,
+          select: { id: true, userId: true, createdAt: true },
         })
-        await tx.productAnalytics.upsert({
-          where: { productId },
-          update: { upvotes: { increment: additions.length } },
-          create: { productId, upvotes: additions.length, clicks: 0 },
+
+        created.forEach((row) => {
+          createdEvents.push({
+            productId,
+            userId: row.userId,
+            upvoteId: row.id,
+            occurredAt: row.createdAt,
+          })
         })
+
+        if (created.length) {
+          await tx.productAnalytics.upsert({
+            where: { productId },
+            update: { upvotes: { increment: created.length } },
+            create: { productId, upvotes: created.length, clicks: 0 },
+          })
+        }
       }
 
       if (removals.length) {
-        await tx.productUpvote.deleteMany({
+        const existing = await tx.productUpvote.findMany({
           where: { productId, userId: { in: removals } },
+          select: { id: true, userId: true },
         })
-        await tx.$executeRaw`UPDATE "ProductAnalytics"
-          SET "upvotes" = GREATEST("upvotes" - ${removals.length}, 0)
-          WHERE "productId" = ${productId}`
+
+        if (existing.length) {
+          const removalTimestamp = new Date()
+          removedEvents.push(
+            ...existing.map((row) => ({
+              productId,
+              userId: row.userId,
+              upvoteId: row.id,
+              occurredAt: removalTimestamp,
+            })),
+          )
+
+          await tx.productUpvote.deleteMany({
+            where: { productId, userId: { in: removals } },
+          })
+
+          await tx.$executeRaw`UPDATE "ProductAnalytics"
+            SET "upvotes" = GREATEST("upvotes" - ${existing.length}, 0)
+            WHERE "productId" = ${productId}`
+        }
       }
     })
 
-    if (additions.length || removals.length) {
+    if (createdEvents.length || removedEvents.length) {
       processedProductIds.push(productId)
-      totalAdditions += additions.length
-      totalRemovals += removals.length
+    }
+    totalAdditions += createdEvents.length
+    totalRemovals += removedEvents.length
+
+    const publishCalls = [
+      ...createdEvents.map((event) => publish("product.upvoted", event)),
+      ...removedEvents.map((event) => publish("product.downvoted", event)),
+    ]
+    if (publishCalls.length) {
+      await Promise.all(publishCalls)
     }
 
     await clearPendingVotes(productId, client)

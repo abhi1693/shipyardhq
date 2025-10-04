@@ -47,3 +47,8 @@ export function revalidatePlanFeature(key: string) {
   revalidateTag(TAGS.plans)
   revalidateProducts()
 }
+
+export function revalidatePlacement(featureKey: string) {
+  revalidateTag(TAGS.placement(featureKey))
+  revalidateProducts()
+}

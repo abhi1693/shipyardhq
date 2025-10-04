@@ -24,6 +24,17 @@ export const productAnalyticsSelect = {
       },
     },
   },
+  featureEntitlements: {
+    where: {
+      status: {
+        in: ["active", "pending"],
+      },
+    },
+    select: {
+      featureKey: true,
+      status: true,
+    },
+  },
 } satisfies Prisma.ProductSelect
 
 export type ProductAnalyticsRecord = Prisma.ProductGetPayload<{

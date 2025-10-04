@@ -1,5 +1,10 @@
 import prisma from "@/lib/prisma"
-import { on, publish } from "@/lib/server/events"
+import {
+  on,
+  publish,
+  type ProductDownvotedEvent,
+  type ProductUpvotedEvent,
+} from "@/lib/server/events"
 import {
   revalidateLeaderboard,
   revalidateProduct,
@@ -37,10 +42,10 @@ on("product.downvoted", async ({ productId }) => {
 })
 
 // Optional helpers to publish events
-export async function trackProductUpvoted(productId: string, userId: string) {
-  await publish("product.upvoted", { productId, userId })
+export async function trackProductUpvoted(event: ProductUpvotedEvent) {
+  await publish("product.upvoted", event)
 }
 
-export async function trackProductDownvoted(productId: string, userId: string) {
-  await publish("product.downvoted", { productId, userId })
+export async function trackProductDownvoted(event: ProductDownvotedEvent) {
+  await publish("product.downvoted", event)
 }

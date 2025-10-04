@@ -38,13 +38,20 @@ export default async function ProductAnalyticsPage({
     return notFound()
   }
 
-  const hasAdvancedAnalytics = hasPlanFeature(
-    product.plan ?? null,
-    "analytics.advanced",
+  const entitlementFeatures = new Set(
+    (product.featureEntitlements ?? [])
+      .filter((ent) => ent.status === "active" || ent.status === "pending")
+      .map((ent) => ent.featureKey),
   )
+
+  const hasAdvancedAnalytics =
+    hasPlanFeature(product.plan ?? null, "analytics.advanced") ||
+    entitlementFeatures.has("analytics.advanced")
+
   const hasBasicAnalytics =
     hasAdvancedAnalytics ||
-    hasPlanFeature(product.plan ?? null, "analytics.basic")
+    hasPlanFeature(product.plan ?? null, "analytics.basic") ||
+    entitlementFeatures.has("analytics.basic")
   const accessLevel = hasAdvancedAnalytics ? "advanced" : "basic"
 
   if (!hasBasicAnalytics) {

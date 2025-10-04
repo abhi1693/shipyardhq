@@ -109,7 +109,7 @@ export function OnboardingForm({
   const redirectTargetPathname = sanitizedRedirectTarget
     ? sanitizedRedirectTarget.replace(/[?#].*$/, "")
     : ""
-  const redirectPointsToMember =
+  const redirectRewardsToMember =
     redirectTargetPathname.startsWith(MEMBER_BASE_PATH)
   const fromNavbar = redirectSource === "navbar"
 
@@ -125,7 +125,7 @@ export function OnboardingForm({
       toast.success("Welcome aboard!")
       const shouldUseRedirectTarget =
         Boolean(sanitizedRedirectTarget) &&
-        (redirectPointsToMember ||
+        (redirectRewardsToMember ||
           (fromNavbar && values.roleIntent === "explore"))
       const destination = shouldUseRedirectTarget
         ? (sanitizedRedirectTarget ?? MEMBER_OVERVIEW_PATH)

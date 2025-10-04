@@ -30,7 +30,11 @@ type PublicProduct = Prisma.ProductGetPayload<{
     metadata: true
     analytics: true
     verification: true
-    ProductMedia: true
+    ProductMedia: {
+      orderBy: {
+        createdAt: "asc"
+      }
+    }
     ProductBadge: true
     plan: {
       include: {
@@ -55,6 +59,12 @@ type PublicProduct = Prisma.ProductGetPayload<{
         }
       }
     }
+    featureEntitlements: {
+      where: {
+        status: { in: ["active", "pending"] }
+      }
+      select: { featureKey: true }
+    }
   }
 }>
 
@@ -63,7 +73,7 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   if (where.id) tagSet.add(TAGS.product(String(where.id)))
   if (where.slug) tagSet.add(TAGS.product(String(where.slug)))
 
-  const product: PublicProduct | null = await prisma.product.findUnique({
+  const product = await prisma.product.findUnique({
     where,
     include: {
       category: {
@@ -104,6 +114,12 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
           },
         },
       },
+      featureEntitlements: {
+        where: {
+          status: { in: ["active", "pending"] },
+        },
+        select: { featureKey: true },
+      },
     },
     cacheStrategy: {
       ttl: DEFAULT_TTL.medium,
@@ -114,12 +130,25 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
 
   if (!product) return null
 
-  const activeBadges = product.ProductBadge.filter(
+  const fullProduct = product as PublicProduct
+
+  const activeBadges = fullProduct.ProductBadge.filter(
     (badge: PublicProduct["ProductBadge"][number]) =>
       !badge.expiresAt || badge.expiresAt > new Date(),
   ).map((badge) => badge.badge)
 
-  return { ...product, badges: activeBadges }
+  const activeFeatureEntitlements = (fullProduct.featureEntitlements ?? []).map(
+    (ent) => ent.featureKey,
+  )
+
+  const { featureEntitlements: _featureEntitlements, ...rest } = fullProduct
+  void _featureEntitlements
+
+  return {
+    ...rest,
+    badges: activeBadges,
+    activeFeatureEntitlements,
+  }
 }
 
 export const getPublicProduct = cached(

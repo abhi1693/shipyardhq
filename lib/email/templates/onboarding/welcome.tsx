@@ -32,6 +32,7 @@ export type WelcomeEmailProps = {
   monthlyUrl: string
   guideUrl: string
   feedbackUrl: string
+  rewardsUrl: string
 }
 
 function getGreeting(firstName?: string | null) {
@@ -50,6 +51,7 @@ export function WelcomeEmail({
   monthlyUrl,
   guideUrl,
   feedbackUrl,
+  rewardsUrl,
 }: WelcomeEmailProps) {
   const greeting = getGreeting(firstName)
   const previewText =
@@ -64,13 +66,32 @@ export function WelcomeEmail({
       cta={{ label: "Open your dashboard", href: dashboardUrl }}
     >
       <p style={paragraphStyle}>
-        Your member hub is live and ready for launch checklists, analytics, and
-        product updates. Each time you sign in you’ll land here:
+        Your member hub is live with launch checklists, analytics, and product
+        updates. Each time you sign in you’ll land here for mission status,
+        to‑do items, and notifications:
         <br />
         <a href={dashboardUrl} style={linkStyle}>
           {dashboardUrl}
         </a>
       </p>
+
+      <p style={paragraphStyle}>
+        Shipyard Rewards powers placements across the platform. Earn it from
+        verified reviews, traction updates, and streak activity, then spend it
+        on perks that spotlight your product. Fleet Pulse keeps the loop tight
+        with a live ledger, rolling trends, and ready-to-redeem perks:
+        <br />
+        <a href={rewardsUrl} style={linkStyle}>
+          {rewardsUrl}
+        </a>
+      </p>
+
+      <ul style={listStyle}>
+        <li>Earn launch fuel by sharing honest signal with the community.</li>
+        <li>
+          Redeem it for homepage placements, analytics boosts, and perk unlocks.
+        </li>
+      </ul>
 
       {isBuilder ? (
         <>
@@ -144,6 +165,7 @@ export function buildWelcomeTextBody({
   monthlyUrl,
   guideUrl,
   feedbackUrl,
+  rewardsUrl,
 }: WelcomeEmailProps) {
   const greeting = getGreeting(firstName)
   const lines = [
@@ -151,6 +173,13 @@ export function buildWelcomeTextBody({
     "",
     "Your ShipYardHQ workspace is ready. Open your dashboard:",
     dashboardUrl,
+    "",
+    "Shipyard Rewards powers placements. Learn how it works:",
+    rewardsUrl,
+    "",
+    "• Earn launch fuel by sharing honest signal with the community.",
+    "• Redeem it for homepage placements, analytics boosts, and perk unlocks.",
+    "• Fleet Pulse tracks live balances, rolling trends, and ready-to-redeem perks.",
     "",
   ]
 
