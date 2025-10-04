@@ -4,6 +4,8 @@ import { ColumnDef } from "@tanstack/react-table"
 import { formatDistanceToNow } from "date-fns"
 
 import { Badge } from "@/components/atoms/badge"
+import { adminPath } from "@/lib/routes"
+import { linkify } from "@/lib/ui/formatters"
 import {
   RewardTransactionType,
   RedemptionStatus,
@@ -58,14 +60,16 @@ export const columns: ColumnDef<TransactionRow>[] = [
     header: "User",
     cell: ({ row }) => {
       const user = row.original.user
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium text-foreground">
-            {user.firstName} {user.lastName}
-          </span>
-          <span className="text-xs text-muted-foreground">{user.email}</span>
-        </div>
-      )
+      const fullName = [user.firstName, user.lastName]
+        .filter(Boolean)
+        .join(" ")
+        .trim()
+
+      return linkify({
+        label: fullName || user.email,
+        subtext: fullName ? user.email : undefined,
+        href: adminPath("users", user.id),
+      })
     },
   },
   {
