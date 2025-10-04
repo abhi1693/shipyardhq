@@ -23,7 +23,7 @@ import {
 } from "@/lib/server/userStatus"
 import {
   MEMBER_OVERVIEW_PATH,
-  MEMBER_POINTS_PATH,
+  MEMBER_REWARDS_PATH,
   MEMBER_PRODUCTS_PATH,
 } from "@/lib/routes"
 import type { RedeemOptions } from "@/lib/points/types"
@@ -368,7 +368,7 @@ export async function redeemCatalogItemAction(
 
     const result = await redeem(user.id, featureKey, options)
 
-    revalidatePath(MEMBER_POINTS_PATH)
+    revalidatePath(MEMBER_REWARDS_PATH)
     revalidatePath(MEMBER_PRODUCTS_PATH)
     revalidatePath(MEMBER_OVERVIEW_PATH)
 

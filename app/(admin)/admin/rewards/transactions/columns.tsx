@@ -76,7 +76,7 @@ export const columns: ColumnDef<TransactionRow>[] = [
   },
   {
     accessorKey: "points",
-    header: "Points",
+    header: "Rewards",
     cell: ({ row }) => {
       const sign = row.original.type === "spend" ? "-" : "+"
       const value = row.original.points

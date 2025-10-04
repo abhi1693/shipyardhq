@@ -67,7 +67,7 @@ export const columns: ColumnDef<RewardRule>[] = [
   },
   {
     accessorKey: "basePoints",
-    header: "Base Points",
+    header: "Base Rewards",
   },
   {
     accessorKey: "dailyCap",
@@ -107,7 +107,7 @@ export const columns: ColumnDef<RewardRule>[] = [
     header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <Link href={adminPath("points", "rules", row.original.id, "edit")}>
+        <Link href={adminPath("rewards", "rules", row.original.id, "edit")}>
           <Button size="sm" variant="outline">
             Edit
           </Button>

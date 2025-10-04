@@ -158,23 +158,23 @@ const baseNavItems: NavItem[] = [
     ],
   },
   {
-    title: "Points",
+    title: "Rewards",
     url: "#",
     icon: "leaderboard",
     items: [
       {
         title: "Reward rules",
-        url: adminPath("points", "rules"),
+        url: adminPath("rewards", "rules"),
         icon: "settings",
       },
       {
         title: "Transactions",
-        url: adminPath("points", "transactions"),
+        url: adminPath("rewards", "transactions"),
         icon: "analytics",
       },
       {
-        title: "Adjust points",
-        url: adminPath("points", "adjust"),
+        title: "Adjust rewards",
+        url: adminPath("rewards", "adjust"),
         icon: "points",
       },
     ],

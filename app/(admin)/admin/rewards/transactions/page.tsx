@@ -26,9 +26,9 @@ const filterOptions: { label: string; value: PointTransactionType | "all" }[] = 
 ]
 
 export const metadata = buildPageMetadata({
-  title: "Point transactions",
+  title: "Reward transactions",
   section: "Admin",
-  description: "Audit user point balance changes.",
+  description: "Audit user reward balance changes.",
 })
 
 function isValidType(value: unknown): value is PointTransactionType | "all" {
@@ -36,7 +36,7 @@ function isValidType(value: unknown): value is PointTransactionType | "all" {
   return typeof value === "string" && Object.values(PointTransactionType).includes(value as PointTransactionType)
 }
 
-export default async function PointTransactionsPage({
+export default async function RewardTransactionsPage({
   searchParams,
 }: {
   searchParams?: Promise<PaginationSearchParams>
@@ -53,12 +53,12 @@ export default async function PointTransactionsPage({
 
   const pageCount = Math.max(Math.ceil(total / pageSize), 1)
 
-  const basePath = adminPath("points", "transactions")
+  const basePath = adminPath("rewards", "transactions")
 
   return (
     <ListPageWrapper
-      title="Point transactions"
-      description="Review every point mutation across the system."
+      title="Reward transactions"
+      description="Review every reward mutation across the system."
     >
       <div className="flex flex-wrap gap-2 pb-4">
         {filterOptions.map((option) => {

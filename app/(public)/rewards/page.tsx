@@ -8,7 +8,7 @@ import PublicContainer from "@/components/layout/PublicContainer"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
   LEADERBOARD_PATH,
-  MEMBER_POINTS_PATH,
+  MEMBER_REWARDS_PATH,
   MEMBER_PRODUCTS_PATH,
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
@@ -54,10 +54,10 @@ const redemptionStatusTone: Record<RedemptionStatus, string> = {
 }
 
 export const metadata = buildPageMetadata({
-  title: "Shipyard Points",
+  title: "Shipyard Rewards",
   section: "Public",
   description:
-    "Earn Shipyard points by contributing to the community and redeem them for high-visibility placements, analytics, and launch fuel.",
+    "Earn Shipyard rewards by contributing to the community and redeem them for high-visibility placements, analytics, and launch fuel.",
 })
 
 const numberFormatter = new Intl.NumberFormat("en-US")
@@ -70,8 +70,8 @@ function formatNumber(value: number) {
   return numberFormatter.format(value)
 }
 
-function formatPoints(value: number) {
-  return `${formatNumber(value)} pts`
+function formatRewards(value: number) {
+  return `${formatNumber(value)} rewards`
 }
 
 function formatRelative(date: Date) {
@@ -93,14 +93,14 @@ function formatCap(label: string, value: number | null) {
   return `${label}: ${formatNumber(value)}`
 }
 
-export default async function PointsExplainerPage() {
+export default async function RewardsExplainerPage() {
   const data = await getPublicPointsData()
 
   const stats = [
     {
       label: "Members earning",
       value: formatNumber(data.stats.membersWithPoints),
-      helper: "Received points",
+      helper: "Received rewards",
     },
     {
       label: "Active balances",
@@ -108,14 +108,14 @@ export default async function PointsExplainerPage() {
       helper: "Ready to spend",
     },
     {
-      label: "Points awarded (30d)",
-      value: formatPoints(data.stats.earnedLast30d.points),
+      label: "Rewards awarded (30d)",
+      value: formatRewards(data.stats.earnedLast30d.points),
       helper: `${formatNumber(data.stats.earnedLast30d.transactions)} payouts logged`,
     },
     {
       label: "Rewards redeemed (30d)",
       value: formatNumber(data.stats.spentLast30d.redemptions),
-      helper: `${formatPoints(data.stats.spentLast30d.points)} spent on launches`,
+      helper: `${formatRewards(data.stats.spentLast30d.points)} spent on launches`,
     },
   ]
 
@@ -178,19 +178,19 @@ export default async function PointsExplainerPage() {
 
         <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-10 px-4 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.35] bg-background/80 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)] shadow-sm backdrop-blur">
-            Shipyard Points
+            Shipyard Rewards
           </span>
           <div className="space-y-6 text-balance">
             <h1 className="text-4xl font-bold leading-tight tracking-tight text-transparent sm:text-5xl lg:text-6xl bg-clip-text bg-[linear-gradient(95deg,var(--brand-1),var(--brand-2),var(--brand-3))]">
               Turn authentic engagement into launch-grade visibility
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-muted-foreground">
-              Contribute reviews, verify traction, and keep streaks alive to bank points. When you&apos;re ready, swap that momentum for homepage features, analytics, and marquee placements.
+              Contribute reviews, verify traction, and keep streaks alive to bank rewards. When you&apos;re ready, swap that momentum for homepage features, analytics, and marquee placements.
             </p>
           </div>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
             <Button asChild size="lg" className="shadow-[0px_24px_60px_-40px_rgba(7,58,104,0.65)]">
-              <Link href={MEMBER_POINTS_PATH}>Check your balance</Link>
+              <Link href={MEMBER_REWARDS_PATH}>Check your balance</Link>
             </Button>
             <Button
               asChild
@@ -279,18 +279,18 @@ export default async function PointsExplainerPage() {
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-end justify-between gap-3 text-left">
                     <div>
-                      <p className="text-sm font-semibold text-muted-foreground">Points earned</p>
+                      <p className="text-sm font-semibold text-muted-foreground">Rewards earned</p>
                       <p className="text-2xl font-semibold text-foreground">
-                        {formatPoints(earnedPoints)}
+                        {formatRewards(earnedPoints)}
                       </p>
                       <p className="text-[11px] text-muted-foreground/80">
                         {formatNumber(earnedTransactions)} payouts logged
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-muted-foreground">Points spent</p>
+                      <p className="text-sm font-semibold text-muted-foreground">Rewards spent</p>
                       <p className="text-2xl font-semibold text-foreground">
-                        {formatPoints(spentPoints)}
+                        {formatRewards(spentPoints)}
                       </p>
                       <p className="text-[11px] text-muted-foreground/80">
                         {formatNumber(spentRedemptions)} redemptions
@@ -306,7 +306,7 @@ export default async function PointsExplainerPage() {
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-muted-foreground/80">
                     <span>0%</span>
-                    <span>{conversionRate.toFixed(0)}% of earned points already reinvested</span>
+                    <span>{conversionRate.toFixed(0)}% of earned rewards already reinvested</span>
                     <span>100%</span>
                   </div>
                 </div>
@@ -317,7 +317,7 @@ export default async function PointsExplainerPage() {
                       Avg payout
                     </p>
                     <p className="text-lg font-semibold text-foreground">
-                      {formatPoints(Math.round(averagePayout))}
+                      {formatRewards(Math.round(averagePayout))}
                     </p>
                     <p className="text-[11px] text-muted-foreground/80">
                       Per earn transaction
@@ -328,7 +328,7 @@ export default async function PointsExplainerPage() {
                       Avg redemption
                     </p>
                     <p className="text-lg font-semibold text-foreground">
-                      {formatPoints(Math.round(averageRedemption))}
+                      {formatRewards(Math.round(averageRedemption))}
                     </p>
                     <p className="text-[11px] text-muted-foreground/80">
                       Per reward spend
@@ -395,7 +395,7 @@ export default async function PointsExplainerPage() {
                           )}
                         </div>
                         <span className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 text-xs font-semibold text-[color:var(--brand-1)]">
-                          {formatPoints(entry.cost)}
+                          {formatRewards(entry.cost)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground/80">
@@ -438,7 +438,7 @@ export default async function PointsExplainerPage() {
             Earning opportunities
           </span>
           <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Actions that unlock the biggest point streaks
+            Actions that unlock the biggest reward streaks
           </h2>
           <p className="text-sm text-muted-foreground">
             The ledger spotlights the rules that keep Shipyard signal-rich. Hit these consistently to make every redemption within reach.
@@ -478,13 +478,13 @@ export default async function PointsExplainerPage() {
                         Earn reward
                       </span>
                       <span className="text-lg font-semibold text-foreground">
-                        {formatPoints(baseAward)}
+                        {formatRewards(baseAward)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground/80">
-                      <span>Points awarded (90d)</span>
+                      <span>Rewards awarded (90d)</span>
                       <span className="font-semibold text-foreground">
-                        {formatPoints(totalAwardedPoints)}
+                        {formatRewards(totalAwardedPoints)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground/80">
@@ -578,7 +578,7 @@ export default async function PointsExplainerPage() {
                   </div>
                   <div className="mt-6 space-y-3 text-sm text-muted-foreground">
                     <div className="flex items-center justify-between text-foreground">
-                      <span className="text-base font-semibold text-foreground">{formatPoints(reward.baseCost)}</span>
+                      <span className="text-base font-semibold text-foreground">{formatRewards(reward.baseCost)}</span>
                       <span className="text-xs text-muted-foreground/80">
                         {formatNumber(reward.redemptionCount)} redeems (90d)
                       </span>
@@ -631,7 +631,7 @@ export default async function PointsExplainerPage() {
                 Ready to turn participation into prime placement?
               </h3>
               <p className="text-sm text-muted-foreground">
-                Shipyard points give every builder a path to front-page visibility. Keep the streak alive, monitor the ledger, and swap points for exposure when your next launch is ready.
+                Shipyard rewards give every builder a path to front-page visibility. Keep the streak alive, monitor the ledger, and swap rewards for exposure when your next launch is ready.
               </p>
             </div>
             <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-end">
@@ -644,7 +644,7 @@ export default async function PointsExplainerPage() {
                 variant="outline"
                 className="border-[color:var(--brand-1)/0.25] bg-white/70 text-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)/0.06]"
               >
-                <Link href={MEMBER_POINTS_PATH}>Review your ledger</Link>
+                <Link href={MEMBER_REWARDS_PATH}>Review your ledger</Link>
               </Button>
             </div>
           </div>

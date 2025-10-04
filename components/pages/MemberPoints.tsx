@@ -55,7 +55,7 @@ import {
 } from "@/lib/vendor/prisma/client"
 import {
   MEMBER_PRODUCTS_PATH,
-  POINTS_PATH,
+  REWARDS_PATH,
   memberProductPath,
 } from "@/lib/routes"
 
@@ -169,7 +169,7 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
         <DialogHeader>
           <DialogTitle>Redeem {item.name}</DialogTitle>
           <DialogDescription>
-            Spend {formatNumber(item.baseCost)} points to unlock this perk.
+            Spend {formatNumber(item.baseCost)} rewards to unlock this perk.
           </DialogDescription>
         </DialogHeader>
         <form action={formAction} className="space-y-5">
@@ -185,7 +185,7 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
                 <Badge variant="outline" className="bg-white">
                   {categoryLabels[item.category]}
                 </Badge>
-                <span>{formatNumber(item.baseCost)} pts</span>
+                <span>{formatNumber(item.baseCost)} rewards</span>
                 {item.durationSeconds ? (
                   <span>{Math.round(item.durationSeconds / 3600)}h duration</span>
                 ) : null}
@@ -253,7 +253,7 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
         <Card className="bg-white/95">
           <CardHeader>
             <CardTitle>Current balance</CardTitle>
-            <CardDescription>Your available Shipyard points.</CardDescription>
+            <CardDescription>Your available Shipyard rewards.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-semibold tracking-tight text-slate-900">
@@ -262,12 +262,12 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
             <p className="mt-2 text-sm text-muted-foreground">
               {balance.lastEarnedAt
                 ? `Last earned ${formatRelative(balance.lastEarnedAt)}`
-                : "Earn points by engaging with the community."}
+                : "Earn rewards by engaging with the community."}
             </p>
           </CardContent>
           <CardFooter>
             <Button asChild variant="outline" size="sm" className="w-full">
-              <Link href={POINTS_PATH}>Earn more points</Link>
+              <Link href={REWARDS_PATH}>Earn more rewards</Link>
             </Button>
           </CardFooter>
         </Card>
@@ -354,12 +354,12 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
                   {recentRedemptions[0].name}
                 </p>
                 <p className="text-muted-foreground">
-                  {formatRelative(recentRedemptions[0].createdAt)} · {formatNumber(recentRedemptions[0].cost)} pts
+                  {formatRelative(recentRedemptions[0].createdAt)} · {formatNumber(recentRedemptions[0].cost)} rewards
                 </p>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Redeem points to activate placements or analytics boosts.
+                Redeem rewards to activate placements or analytics boosts.
               </p>
             )}
           </CardContent>
@@ -435,7 +435,7 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
                         {redemption.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {formatRelative(redemption.createdAt)} · {formatNumber(redemption.cost)} pts
+                        {formatRelative(redemption.createdAt)} · {formatNumber(redemption.cost)} rewards
                       </p>
                     </div>
                     <span
@@ -463,7 +463,7 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
               ))
             ) : (
               <p className="text-sm text-muted-foreground">
-                When you redeem points, the ledger shows the status and assigned product here.
+                When you redeem rewards, the ledger shows the status and assigned product here.
               </p>
             )}
           </CardContent>
@@ -479,7 +479,7 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
         <CardHeader>
           <CardTitle>Available rewards</CardTitle>
           <CardDescription>
-            Redeem points for placements, analytics upgrades, and unlocks.
+            Redeem rewards for placements, analytics upgrades, and unlocks.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -501,7 +501,7 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
                         </p>
                       </div>
                       <Badge variant="outline" className="bg-slate-50">
-                        {formatNumber(item.baseCost)} pts
+                        {formatNumber(item.baseCost)} rewards
                       </Badge>
                     </div>
                     <p className="text-sm text-slate-600">
@@ -544,8 +544,8 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
 
       <Card className="bg-white/95">
         <CardHeader>
-          <CardTitle>Points activity</CardTitle>
-          <CardDescription>Recent transactions from your ledger.</CardDescription>
+          <CardTitle>Rewards activity</CardTitle>
+          <CardDescription>Recent reward transactions from your ledger.</CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {transactions.length ? (
@@ -555,7 +555,7 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
                   <TableHead>When</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Detail</TableHead>
-                  <TableHead className="text-right">Points</TableHead>
+                  <TableHead className="text-right">Rewards</TableHead>
                   <TableHead className="text-right">Balance</TableHead>
                 </TableRow>
               </TableHeader>
@@ -593,7 +593,7 @@ export default function MemberPoints({ snapshot }: MemberPointsProps) {
             </Table>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Transactions will appear here as you earn and spend points.
+              Transactions will appear here as you earn and spend rewards.
             </p>
           )}
         </CardContent>

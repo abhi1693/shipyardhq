@@ -140,7 +140,7 @@ export async function createRewardRuleAction(formData: FormData) {
     }
 
     await prisma.rewardRule.create({ data: input })
-    revalidatePath(adminPath("points", "rules"))
+    revalidatePath(adminPath("rewards", "rules"))
     return { success: true }
   } catch (error) {
     console.error("Failed to create reward rule", error)
@@ -152,7 +152,7 @@ export async function updateRewardRuleAction(id: string, formData: FormData) {
   const input = parseRuleForm(formData)
   try {
     await prisma.rewardRule.update({ where: { id }, data: input })
-    revalidatePath(adminPath("points", "rules"))
+    revalidatePath(adminPath("rewards", "rules"))
     return { success: true }
   } catch (error) {
     console.error("Failed to update reward rule", error)
@@ -163,7 +163,7 @@ export async function updateRewardRuleAction(id: string, formData: FormData) {
 export async function toggleRewardRuleAction(id: string, isActive: boolean) {
   try {
     await prisma.rewardRule.update({ where: { id }, data: { isActive } })
-    revalidatePath(adminPath("points", "rules"))
+    revalidatePath(adminPath("rewards", "rules"))
     return { success: true }
   } catch (error) {
     console.error("Failed to toggle reward rule", error)
@@ -317,25 +317,25 @@ export async function adjustUserPointsAction(
       eventId,
     })
 
-    revalidatePath(adminPath("points", "transactions"))
-    revalidatePath(adminPath("points", "adjust"))
+    revalidatePath(adminPath("rewards", "transactions"))
+    revalidatePath(adminPath("rewards", "adjust"))
 
     return {
       status: "success",
-      message: `Adjustment queued. ${amount > 0 ? "Granted" : "Removed"} ${Math.abs(amount)} points from ${targetUser.email ?? targetUser.id}.`,
+      message: `Adjustment queued. ${amount > 0 ? "Granted" : "Removed"} ${Math.abs(amount)} rewards from ${targetUser.email ?? targetUser.id}.`,
     }
   } catch (error) {
     if (error instanceof PointsInsufficientBalanceError) {
       return {
         status: "error",
-        message: "User does not have enough points for that deduction.",
+        message: "User does not have enough rewards for that deduction.",
       }
     }
     if (error instanceof PointsError) {
       return { status: "error", message: error.message }
     }
-    console.error("Failed to adjust user points", error)
-    const message = error instanceof Error ? error.message : "Failed to adjust points."
+    console.error("Failed to adjust user rewards", error)
+    const message = error instanceof Error ? error.message : "Failed to adjust rewards."
     return {
       status: "error",
       message,

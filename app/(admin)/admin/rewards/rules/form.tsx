@@ -56,7 +56,7 @@ const optionalNumber = z
 const requiredPositiveNumber = z
   .string()
   .trim()
-  .min(1, "Enter base points")
+  .min(1, "Enter base rewards")
   .refine((value) => /^\d+$/.test(value) && Number(value) > 0, {
     message: "Enter a value greater than zero",
   })
@@ -175,7 +175,7 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
         toast.success(
           mode === "create" ? "Reward rule created" : "Reward rule updated",
         )
-        router.push(adminPath("points", "rules"))
+        router.push(adminPath("rewards", "rules"))
       } catch (error) {
         console.error(error)
         toast.error("We hit an error saving the rule")
@@ -216,13 +216,13 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
                       <FormLabel>Key</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="points.login"
+                          placeholder="rewards.login"
                           {...field}
                           disabled={mode === "edit"}
                         />
                       </FormControl>
                       <FormDescription>
-                        Immutable identifier used by the points engine.
+                        Immutable identifier used by the rewards engine.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -260,7 +260,7 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
                   name="basePoints"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Base points</FormLabel>
+                      <FormLabel>Base rewards</FormLabel>
                       <FormControl>
                         <Input type="number" min={1} step={1} {...field} />
                       </FormControl>
@@ -417,7 +417,7 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
                     <div className="space-y-1">
                       <FormLabel>Rule active</FormLabel>
                       <FormDescription>
-                        Disabled rules are ignored by the points engine.
+                        Disabled rules are ignored by the rewards engine.
                       </FormDescription>
                     </div>
                     <FormControl>

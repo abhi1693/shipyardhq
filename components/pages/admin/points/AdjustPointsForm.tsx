@@ -63,7 +63,7 @@ export default function AdjustPointsForm({ users }: AdjustPointsFormProps) {
       if (state.message) {
         toast.success(state.message)
       } else {
-        toast.success("Points adjusted")
+        toast.success("Rewards adjusted")
       }
       formRef.current?.reset()
       setSelectedUserId("")
@@ -78,10 +78,10 @@ export default function AdjustPointsForm({ users }: AdjustPointsFormProps) {
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <Card>
         <CardHeader>
-          <CardTitle>Adjust user points</CardTitle>
+          <CardTitle>Adjust user rewards</CardTitle>
           <CardDescription>
-            Grant or deduct points from a member manually. Positive amounts add
-            points, negative amounts remove them. All adjustments are logged
+            Grant or deduct rewards from a member manually. Positive amounts add
+            rewards, negative amounts remove them. All adjustments are logged
             with your admin account for auditing.
           </CardDescription>
         </CardHeader>
@@ -135,7 +135,7 @@ export default function AdjustPointsForm({ users }: AdjustPointsFormProps) {
                 placeholder="e.g. 50 or -25"
               />
               <p className="text-sm text-muted-foreground">
-                Use whole numbers only. Positive values grant points, negative
+                Use whole numbers only. Positive values grant rewards, negative
                 values deduct them.
               </p>
             </fieldset>
@@ -188,7 +188,7 @@ export default function AdjustPointsForm({ users }: AdjustPointsFormProps) {
           </form>
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground">
-          Adjustments are applied immediately and recorded as a dedicated point
+          Adjustments are applied immediately and recorded as a dedicated reward
           transaction.
         </CardFooter>
       </Card>

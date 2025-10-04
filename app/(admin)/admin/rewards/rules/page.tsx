@@ -37,8 +37,8 @@ export default async function RewardRulesPage({
   return (
     <ListPageWrapper
       title="Reward rules"
-      description="Configure how members earn Shipyard points."
-      addLink={adminPath("points", "rules", "add")}
+      description="Configure how members earn Shipyard rewards."
+      addLink={adminPath("rewards", "rules", "add")}
     >
       <EntityList columns={columns} data={rules} pageCount={pageCount} />
     </ListPageWrapper>

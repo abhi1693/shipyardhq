@@ -21,7 +21,7 @@ import {
   MEMBER_ORGANIZATIONS_PATH,
   MEMBER_OVERVIEW_PATH,
   MEMBER_PRODUCTS_PATH,
-  MEMBER_POINTS_PATH,
+  MEMBER_REWARDS_PATH,
 } from "@/lib/routes"
 import { redirect } from "next/navigation"
 
@@ -35,8 +35,8 @@ const navItems: NavItem[] = [
     isActive: false,
   },
   {
-    title: "Points",
-    url: MEMBER_POINTS_PATH,
+    title: "Rewards",
+    url: MEMBER_REWARDS_PATH,
     icon: "points",
   },
   {

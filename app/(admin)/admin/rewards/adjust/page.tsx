@@ -3,12 +3,12 @@ import { buildPageMetadata } from "@/lib/metadata"
 import prisma from "@/lib/prisma"
 
 export const metadata = buildPageMetadata({
-  title: "Adjust points",
+  title: "Adjust rewards",
   section: "Admin",
-  description: "Grant or deduct points from a member manually.",
+  description: "Grant or deduct rewards from a member manually.",
 })
 
-export default async function AdjustPointsPage() {
+export default async function AdjustRewardsPage() {
   const users = await prisma.user.findMany({
     select: {
       id: true,
