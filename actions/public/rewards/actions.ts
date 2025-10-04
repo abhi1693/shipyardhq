@@ -101,7 +101,7 @@ export type PublicRewardsStats = {
 
 export type PublicRewardsData = {
   stats: PublicRewardsStats
-  topRules: PublicRewardsRule[]
+  rules: PublicRewardsRule[]
   rewards: PublicRewardsReward[]
   recentRedemptions: PublicRewardsRedemption[]
 }
@@ -289,31 +289,42 @@ export async function getPublicRewardsData(): Promise<PublicRewardsData> {
     _count: { _all: 0 },
   }
 
-  const ruleUsage = (ruleUsageRaw as RuleUsageGroup[]).filter(
-    (entry) => entry.ruleId && (entry._sum.rewardAmount ?? 0) > 0,
+  const ruleUsageEntries = (ruleUsageRaw as RuleUsageGroup[]).filter(
+    (entry) => entry.ruleId,
   )
-  const ruleRecords = new Map(
-    (ruleRecordsRaw as RuleRecord[]).map((rule) => [rule.id, rule]),
+  const usageByRuleId = new Map<string, RuleUsageGroup>(
+    ruleUsageEntries.map((entry) => [entry.ruleId as string, entry]),
   )
 
-  const topRules: PublicRewardsRule[] = ruleUsage
-    .map((entry) => {
-      const id = entry.ruleId as string
-      const record = ruleRecords.get(id)
-      if (!record) return null
+  const rules: PublicRewardsRule[] = (ruleRecordsRaw as RuleRecord[]).map(
+    (rule) => {
+      const usage = usageByRuleId.get(rule.id)
       return {
-        id,
-        name: record.name,
-        description: record.description,
-        category: record.category,
-        baseRewardAmount: record.baseRewardAmount,
-        dailyCap: record.dailyCap,
-        lifetimeCap: record.lifetimeCap,
-        totalAwarded: entry._sum.rewardAmount ?? 0,
-        awardCount: entry._count._all,
+        id: rule.id,
+        name: rule.name,
+        description: rule.description,
+        category: rule.category,
+        baseRewardAmount: rule.baseRewardAmount,
+        dailyCap: rule.dailyCap,
+        lifetimeCap: rule.lifetimeCap,
+        totalAwarded: usage?._sum.rewardAmount ?? 0,
+        awardCount: usage?._count._all ?? 0,
       }
-    })
-    .filter((rule): rule is PublicRewardsRule => Boolean(rule))
+    },
+  )
+
+  rules.sort((a, b) => {
+    if (a.baseRewardAmount === b.baseRewardAmount) {
+      if (a.totalAwarded === b.totalAwarded) {
+        if (a.awardCount === b.awardCount) {
+          return a.name.localeCompare(b.name)
+        }
+        return b.awardCount - a.awardCount
+      }
+      return b.totalAwarded - a.totalAwarded
+    }
+    return b.baseRewardAmount - a.baseRewardAmount
+  })
 
   const redemptionCounts = new Map<string, number>(
     (
@@ -362,7 +373,7 @@ export async function getPublicRewardsData(): Promise<PublicRewardsData> {
         redemptions: redeemedCountLast30d,
       },
     },
-    topRules,
+    rules,
     rewards,
     recentRedemptions,
   }

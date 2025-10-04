@@ -88,11 +88,6 @@ function formatDuration(seconds: number | null) {
   return `${days} day${days === 1 ? "" : "s"}`
 }
 
-function formatCap(label: string, value: number | null) {
-  if (!value || value <= 0) return null
-  return `${label}: ${formatNumber(value)}`
-}
-
 export default async function RewardsExplainerPage() {
   const data = await getPublicRewardsData()
 
@@ -120,7 +115,7 @@ export default async function RewardsExplainerPage() {
   ]
 
   const heroRedemptions = data.recentRedemptions.slice(0, 4)
-  const topRulesPreview = data.topRules.slice(0, 3)
+  const rewardRules = data.rules
   const rewardsCatalog = data.rewards
 
   const earnedRewardAmount = data.stats.earnedLast30d.rewardAmount
@@ -142,9 +137,9 @@ export default async function RewardsExplainerPage() {
 
   const earningGridClass = cn(
     "mx-auto mt-12 grid grid-cols-1 justify-items-center gap-6",
-    topRulesPreview.length === 1
+    rewardRules.length === 1
       ? "max-w-sm"
-      : topRulesPreview.length === 2
+      : rewardRules.length === 2
         ? "max-w-3xl sm:grid-cols-2 lg:grid-cols-2"
         : "max-w-5xl sm:grid-cols-2 lg:grid-cols-3",
   )
@@ -482,11 +477,12 @@ export default async function RewardsExplainerPage() {
           </p>
         </div>
         <div className={earningGridClass}>
-          {topRulesPreview.length > 0 ? (
-            topRulesPreview.map((rule) => {
-              const limitChips = [
-                formatCap("Lifetime cap", rule.lifetimeCap),
-              ].filter(Boolean)
+          {rewardRules.length > 0 ? (
+            rewardRules.map((rule) => {
+              const hasDailyCap =
+                typeof rule.dailyCap === "number" && rule.dailyCap > 0
+              const hasLifetimeCap =
+                typeof rule.lifetimeCap === "number" && rule.lifetimeCap > 0
               const baseAward =
                 typeof rule.baseRewardAmount === "number"
                   ? rule.baseRewardAmount
@@ -547,16 +543,20 @@ export default async function RewardsExplainerPage() {
                         {formatNumber(payoutCount)}
                       </span>
                     </div>
-                    {limitChips.length ? (
-                      <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground/80">
-                        {limitChips.map((chip) => (
-                          <span
-                            key={chip}
-                            className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 font-medium text-[color:var(--brand-1)]"
-                          >
-                            {chip}
-                          </span>
-                        ))}
+                    {hasDailyCap ? (
+                      <div className="flex items-center justify-between text-xs text-muted-foreground/80">
+                        <span>Daily cap</span>
+                        <span className="font-semibold text-foreground">
+                          {formatNumber(rule.dailyCap ?? 0)}
+                        </span>
+                      </div>
+                    ) : null}
+                    {hasLifetimeCap ? (
+                      <div className="flex items-center justify-between text-xs text-muted-foreground/80">
+                        <span>Lifetime cap</span>
+                        <span className="font-semibold text-foreground">
+                          {formatNumber(rule.lifetimeCap ?? 0)}
+                        </span>
                       </div>
                     ) : null}
                   </div>
