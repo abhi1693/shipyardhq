@@ -1,4 +1,4 @@
-import AdjustPointsForm from "@/components/pages/admin/points/AdjustPointsForm"
+import AdjustRewardsForm from "@/components/pages/admin/rewards/AdjustRewardsForm"
 import { buildPageMetadata } from "@/lib/metadata"
 import prisma from "@/lib/prisma"
 
@@ -20,5 +20,5 @@ export default async function AdjustRewardsPage() {
     take: 200,
   })
 
-  return <AdjustPointsForm users={users} />
+  return <AdjustRewardsForm users={users} />
 }

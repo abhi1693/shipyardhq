@@ -5,17 +5,17 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@clerk/nextjs/server"
 
 import prisma from "@/lib/prisma"
-import { redeem, requiresPlacementSchedule } from "@/lib/points/engine"
+import { redeem, requiresPlacementSchedule } from "@/lib/rewards/engine"
 import {
-  PointsError,
-  PointsInsufficientBalanceError,
+  RewardsError,
+  RewardsInsufficientBalanceError,
   RedemptionLimitError,
   RedemptionValidationError,
-} from "@/lib/points/errors"
+} from "@/lib/rewards/errors"
 import {
   FeatureEntitlementStatus,
   RedemptionStatus,
-    PointTransactionType
+  RewardTransactionType,
 } from "@/lib/vendor/prisma/client"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import {
@@ -27,12 +27,9 @@ import {
   MEMBER_REWARDS_PATH,
   MEMBER_PRODUCTS_PATH,
 } from "@/lib/routes"
-import type { RedeemOptions } from "@/lib/points/types"
+import type { RedeemOptions } from "@/lib/rewards/types"
 
-import type {
-  MemberRewardsSnapshot,
-  RedeemFormState,
-} from "./types"
+import type { MemberRewardsSnapshot, RedeemFormState } from "./types"
 
 const ACTIVE_ENTITLEMENT_STATUSES: FeatureEntitlementStatus[] = [
   FeatureEntitlementStatus.active,
@@ -95,67 +92,75 @@ export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot>
 
   type FeatureKeyCount = { featureKey: string; _count: { featureKey: number } }
 
-  const [balanceRecord, transactions, catalogItems, entitlements, redemptions, productOptions, activeCountsRaw, pendingCountsRaw] =
-    await Promise.all([
-      prisma.pointBalance.findUnique({ where: { userId: user.id } }),
-      prisma.pointTransaction.findMany({
-        where: { userId: user.id },
-        orderBy: { createdAt: "desc" },
-        take: 20,
-        include: {
-          rule: { select: { name: true, key: true } },
-          catalogItem: { select: { name: true, featureKey: true } },
-          product: { select: { id: true, name: true } },
+  const [
+    balanceRecord,
+    transactions,
+    catalogItems,
+    entitlements,
+    redemptions,
+    productOptions,
+    activeCountsRaw,
+    pendingCountsRaw,
+  ] = await Promise.all([
+    prisma.rewardBalance.findUnique({ where: { userId: user.id } }),
+    prisma.rewardTransaction.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      include: {
+        rule: { select: { name: true, key: true } },
+        catalogItem: { select: { name: true, featureKey: true } },
+        product: { select: { id: true, name: true } },
+      },
+    }),
+    prisma.rewardCatalogItem.findMany({
+      where: { isActive: true },
+      orderBy: [{ category: "asc" }, { baseCost: "asc" }, { name: "asc" }],
+    }),
+    prisma.featureEntitlement.findMany({
+      where: {
+        userId: user.id,
+        status: { in: ACTIVE_ENTITLEMENT_STATUSES },
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        catalogItem: { select: { name: true, featureKey: true } },
+        product: { select: { id: true, name: true, slug: true } },
+      },
+      take: 20,
+    }),
+    prisma.redemption.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        catalogItem: { select: { name: true, featureKey: true } },
+        placementSchedules: {
+          select: { status: true },
+          orderBy: { createdAt: "desc" },
+          take: 1,
         },
-      }),
-      prisma.rewardCatalogItem.findMany({
-        where: { isActive: true },
-        orderBy: [{ category: "asc" }, { baseCost: "asc" }, { name: "asc" }],
-      }),
-      prisma.featureEntitlement.findMany({
-        where: {
-          userId: user.id,
-          status: { in: ACTIVE_ENTITLEMENT_STATUSES },
-        },
-        orderBy: { createdAt: "desc" },
-        include: {
-          catalogItem: { select: { name: true, featureKey: true } },
-          product: { select: { id: true, name: true, slug: true } },
-        },
-        take: 20,
-      }),
-      prisma.redemption.findMany({
-        where: { userId: user.id },
-        orderBy: { createdAt: "desc" },
-        include: {
-          catalogItem: { select: { name: true, featureKey: true } },
-          placementSchedules: {
-            select: { status: true },
-            orderBy: { createdAt: "desc" },
-            take: 1,
-          },
-          product: { select: { id: true, name: true, slug: true } },
-        },
-        take: 20,
-      }),
-      getProductOptions(user.id),
-      prisma.featureEntitlement.groupBy({
-        by: ["featureKey"],
-        where: {
-          userId: user.id,
-          status: { in: ACTIVE_ENTITLEMENT_STATUSES },
-        },
-        _count: { featureKey: true },
-      }),
-      prisma.redemption.groupBy({
-        by: ["featureKey"],
-        where: {
-          userId: user.id,
-          status: RedemptionStatus.pending,
-        },
-        _count: { featureKey: true },
-      }),
-    ])
+        product: { select: { id: true, name: true, slug: true } },
+      },
+      take: 20,
+    }),
+    getProductOptions(user.id),
+    prisma.featureEntitlement.groupBy({
+      by: ["featureKey"],
+      where: {
+        userId: user.id,
+        status: { in: ACTIVE_ENTITLEMENT_STATUSES },
+      },
+      _count: { featureKey: true },
+    }),
+    prisma.redemption.groupBy({
+      by: ["featureKey"],
+      where: {
+        userId: user.id,
+        status: RedemptionStatus.pending,
+      },
+      _count: { featureKey: true },
+    }),
+  ])
 
   const activeCounts = activeCountsRaw as FeatureKeyCount[]
   const pendingCounts = pendingCountsRaw as FeatureKeyCount[]
@@ -196,7 +201,10 @@ export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot>
       reasons.push("Active limit reached")
     }
 
-    if (item.maxPendingPerUser != null && pendingCount >= item.maxPendingPerUser) {
+    if (
+      item.maxPendingPerUser != null &&
+      pendingCount >= item.maxPendingPerUser
+    ) {
       reasons.push("Pending limit reached")
     }
 
@@ -219,14 +227,17 @@ export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot>
     }
   })
 
-  function extractAdjustmentAmount(metadata: Prisma.JsonValue | null): number | null {
+  function extractAdjustmentAmount(
+    metadata: Prisma.JsonValue | null,
+  ): number | null {
     if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
       return null
     }
 
     const record = metadata as Record<string, unknown>
 
-    const candidate = record.adjustment ?? record.adjustmentAmount ?? record.amount
+    const candidate =
+      record.adjustment ?? record.adjustmentAmount ?? record.amount
 
     if (typeof candidate === "number" && Number.isFinite(candidate)) {
       return candidate
@@ -237,7 +248,11 @@ export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot>
       return Number.isFinite(parsed) ? parsed : null
     }
 
-    if (candidate && typeof candidate === "object" && !Array.isArray(candidate)) {
+    if (
+      candidate &&
+      typeof candidate === "object" &&
+      !Array.isArray(candidate)
+    ) {
       const amount = (candidate as Record<string, unknown>).amount
       if (typeof amount === "number" && Number.isFinite(amount)) {
         return amount
@@ -253,19 +268,20 @@ export async function getMemberRewardsSnapshot(): Promise<MemberRewardsSnapshot>
 
   const transactionsUi = transactions.map((transaction) => {
     const adjustmentAmount =
-      transaction.type === PointTransactionType.adjustment
+      transaction.type === RewardTransactionType.adjustment
         ? extractAdjustmentAmount(transaction.metadata)
         : null
 
     return {
       id: transaction.id,
       type: transaction.type,
-      points: transaction.points,
+      rewardAmount: transaction.rewardAmount,
       balanceAfter: transaction.balanceAfter,
       createdAt: transaction.createdAt,
       ruleKey: transaction.rule?.key ?? transaction.ruleKey,
       ruleName: transaction.rule?.name ?? null,
-      rewardKey: transaction.catalogItem?.featureKey ?? transaction.rewardKey ?? null,
+      rewardKey:
+        transaction.catalogItem?.featureKey ?? transaction.rewardKey ?? null,
       rewardName: transaction.catalogItem?.name ?? null,
       productId: transaction.product?.id ?? null,
       productName: transaction.product?.name ?? null,
@@ -354,7 +370,10 @@ export async function redeemCatalogItemAction(
         where: organizationIds.length
           ? {
               id: productIdRaw,
-              OR: [{ userId: user.id }, { organizationId: { in: organizationIds } }],
+              OR: [
+                { userId: user.id },
+                { organizationId: { in: organizationIds } },
+              ],
             }
           : { id: productIdRaw, userId: user.id },
         select: { id: true },
@@ -404,7 +423,10 @@ export async function redeemCatalogItemAction(
       options.reservation = {
         startsAt,
         durationSeconds: catalogItem.durationSeconds,
-        slotKey: slotKeyRaw && slotKeyRaw.length ? slotKeyRaw : `${featureKey}:default`,
+        slotKey:
+          slotKeyRaw && slotKeyRaw.length
+            ? slotKeyRaw
+            : `${featureKey}:default`,
       }
     }
 
@@ -423,8 +445,8 @@ export async function redeemCatalogItemAction(
   } catch (error) {
     console.error("Failed to redeem catalog item", error)
 
-    if (error instanceof PointsInsufficientBalanceError) {
-      return { status: "error", message: "You do not have enough points" }
+    if (error instanceof RewardsInsufficientBalanceError) {
+      return { status: "error", message: "You do not have enough rewards" }
     }
     if (error instanceof RedemptionLimitError) {
       return {
@@ -435,7 +457,7 @@ export async function redeemCatalogItemAction(
     if (error instanceof RedemptionValidationError) {
       return { status: "error", message: error.message }
     }
-    if (error instanceof PointsError) {
+    if (error instanceof RewardsError) {
       return { status: "error", message: error.message }
     }
     return {

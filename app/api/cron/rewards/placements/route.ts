@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { runPlacementScheduler } from "@/lib/server/points/placementScheduler"
+import { runPlacementScheduler } from "@/lib/server/rewards/placementScheduler"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"

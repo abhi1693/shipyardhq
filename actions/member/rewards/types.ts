@@ -2,7 +2,7 @@ import type { Prisma } from "@/lib/vendor/prisma/client"
 import type {
   FeatureEntitlementStatus,
   PlacementStatus,
-  PointTransactionType,
+  RewardTransactionType,
   RedemptionStatus,
   ProductStatus,
   RewardCatalogItem,
@@ -32,8 +32,8 @@ export type MemberRewardsSnapshot = {
   }
   transactions: Array<{
     id: string
-    type: PointTransactionType
-    points: number
+    type: RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     createdAt: Date
     ruleKey: string | null
@@ -46,14 +46,16 @@ export type MemberRewardsSnapshot = {
     notes: string | null
     adjustmentAmount: number | null
   }>
-  catalog: Array<RewardCatalogItem & {
-    canAfford: boolean
-    canRedeem: boolean
-    reasons: string[]
-    activeCount: number
-    pendingCount: number
-    requiresSchedule: boolean
-  }>
+  catalog: Array<
+    RewardCatalogItem & {
+      canAfford: boolean
+      canRedeem: boolean
+      reasons: string[]
+      activeCount: number
+      pendingCount: number
+      requiresSchedule: boolean
+    }
+  >
   activeEntitlements: Array<{
     id: string
     featureKey: string

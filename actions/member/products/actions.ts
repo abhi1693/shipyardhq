@@ -86,7 +86,7 @@ export async function getUserProducts(params?: ListParams) {
   )
   const skip = (page - 1) * limit
 
-const accessFilter = organizationIds.length
+  const accessFilter = organizationIds.length
     ? {
         OR: [{ userId: user.id }, { organizationId: { in: organizationIds } }],
       }
@@ -191,7 +191,8 @@ const accessFilter = organizationIds.length
       hasPlanFeature(product.plan ?? null, "analytics.basic") ||
       entitlementFeatures.has("analytics.basic")
 
-    const { plan, featureEntitlements, ...rest } = product
+    const { plan, featureEntitlements: _featureEntitlements, ...rest } = product
+    void _featureEntitlements
     const planSummary = plan
       ? {
           id: plan.id,

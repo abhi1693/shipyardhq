@@ -6,7 +6,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { formatDistanceToNow } from "date-fns"
 import { toast } from "sonner"
 
-import { toggleRewardRuleAction } from "@/actions/admin/points/actions"
+import { toggleRewardRuleAction } from "@/actions/admin/rewards/actions"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { Switch } from "@/components/atoms/switch"
@@ -52,7 +52,9 @@ export const columns: ColumnDef<RewardRule>[] = [
     cell: ({ row }) => (
       <div className="flex flex-col">
         <span className="font-medium text-foreground">{row.original.name}</span>
-        <span className="text-xs text-muted-foreground">{row.original.key}</span>
+        <span className="text-xs text-muted-foreground">
+          {row.original.key}
+        </span>
       </div>
     ),
   },
@@ -66,7 +68,7 @@ export const columns: ColumnDef<RewardRule>[] = [
     ),
   },
   {
-    accessorKey: "basePoints",
+    accessorKey: "baseRewardAmount",
     header: "Base Rewards",
   },
   {

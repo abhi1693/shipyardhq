@@ -37,12 +37,9 @@ import PageContainer from "@/components/layout/page-container"
 import {
   createRewardRuleAction,
   updateRewardRuleAction,
-} from "@/actions/admin/points/actions"
+} from "@/actions/admin/rewards/actions"
 import { adminPath } from "@/lib/routes"
-import {
-  RewardRule,
-  RewardRuleCategory,
-} from "@/lib/vendor/prisma/client"
+import { RewardRule, RewardRuleCategory } from "@/lib/vendor/prisma/client"
 
 const optionalNumber = z
   .string()
@@ -56,7 +53,7 @@ const optionalNumber = z
 const requiredPositiveNumber = z
   .string()
   .trim()
-  .min(1, "Enter base rewards")
+  .min(1, "Enter base reward amount")
   .refine((value) => /^\d+$/.test(value) && Number(value) > 0, {
     message: "Enter a value greater than zero",
   })
@@ -81,7 +78,7 @@ const ruleFormSchema = z.object({
   category: z.nativeEnum(RewardRuleCategory, {
     message: "Select a category",
   }),
-  basePoints: requiredPositiveNumber,
+  baseRewardAmount: requiredPositiveNumber,
   dailyCap: optionalNumber,
   lifetimeCap: optionalNumber,
   globalCooldownSeconds: optionalNumber,
@@ -112,7 +109,7 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
       key: rule?.key ?? "",
       description: rule?.description ?? "",
       category: rule?.category ?? RewardRuleCategory.engagement,
-      basePoints: rule ? String(rule.basePoints) : "10",
+      baseRewardAmount: rule ? String(rule.baseRewardAmount) : "10",
       dailyCap: rule?.dailyCap != null ? String(rule.dailyCap) : undefined,
       lifetimeCap:
         rule?.lifetimeCap != null ? String(rule.lifetimeCap) : undefined,
@@ -140,7 +137,7 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
         formData.set("name", values.name)
         formData.set("key", values.key)
         formData.set("category", values.category)
-        formData.set("basePoints", String(values.basePoints))
+        formData.set("baseRewardAmount", String(values.baseRewardAmount))
         formData.set("isActive", values.isActive ? "true" : "false")
         if (values.description) formData.set("description", values.description)
         if (values.dailyCap != null) {
@@ -150,7 +147,10 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
           formData.set("lifetimeCap", String(values.lifetimeCap))
         }
         if (values.globalCooldownSeconds != null) {
-          formData.set("globalCooldownSeconds", String(values.globalCooldownSeconds))
+          formData.set(
+            "globalCooldownSeconds",
+            String(values.globalCooldownSeconds),
+          )
         }
         if (values.perTargetCooldownSeconds != null) {
           formData.set(
@@ -237,7 +237,10 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select category" />
@@ -257,10 +260,10 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="basePoints"
+                  name="baseRewardAmount"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Base rewards</FormLabel>
+                      <FormLabel>Base reward amount</FormLabel>
                       <FormControl>
                         <Input type="number" min={1} step={1} {...field} />
                       </FormControl>
@@ -298,7 +301,9 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
                       <FormControl>
                         <Input type="number" min={0} step={1} {...field} />
                       </FormControl>
-                      <FormDescription>Leave blank for unlimited.</FormDescription>
+                      <FormDescription>
+                        Leave blank for unlimited.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -312,7 +317,9 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
                       <FormControl>
                         <Input type="number" min={0} step={1} {...field} />
                       </FormControl>
-                      <FormDescription>Leave blank for unlimited.</FormDescription>
+                      <FormDescription>
+                        Leave blank for unlimited.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -330,7 +337,8 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
                         <Input type="number" min={0} step={1} {...field} />
                       </FormControl>
                       <FormDescription>
-                        Minimum wait before the same user can trigger this rule again.
+                        Minimum wait before the same user can trigger this rule
+                        again.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -346,7 +354,8 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
                         <Input type="number" min={0} step={1} {...field} />
                       </FormControl>
                       <FormDescription>
-                        Applies when the event is tied to a specific product or source.
+                        Applies when the event is tied to a specific product or
+                        source.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -402,7 +411,11 @@ export default function RuleForm({ mode, rule }: RuleFormProps) {
                   <FormItem>
                     <FormLabel>Admin notes</FormLabel>
                     <FormControl>
-                      <Textarea rows={3} placeholder="Internal notes" {...field} />
+                      <Textarea
+                        rows={3}
+                        placeholder="Internal notes"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -4,13 +4,16 @@ import { ColumnDef } from "@tanstack/react-table"
 import { formatDistanceToNow } from "date-fns"
 
 import { Badge } from "@/components/atoms/badge"
-import { PointTransactionType, RedemptionStatus } from "@/lib/vendor/prisma/client"
+import {
+  RewardTransactionType,
+  RedemptionStatus,
+} from "@/lib/vendor/prisma/client"
 
 export type TransactionRow = {
   id: string
   userId: string
-  type: PointTransactionType
-  points: number
+  type: RewardTransactionType
+  rewardAmount: number
   balanceAfter: number
   ruleKey: string | null
   rewardKey: string | null
@@ -40,7 +43,7 @@ export type TransactionRow = {
   } | null
 }
 
-const typeLabels: Record<PointTransactionType, string> = {
+const typeLabels: Record<RewardTransactionType, string> = {
   earn: "Earn",
   spend: "Spend",
   adjustment: "Adjustment",
@@ -75,11 +78,11 @@ export const columns: ColumnDef<TransactionRow>[] = [
     ),
   },
   {
-    accessorKey: "points",
+    accessorKey: "rewardAmount",
     header: "Rewards",
     cell: ({ row }) => {
       const sign = row.original.type === "spend" ? "-" : "+"
-      const value = row.original.points
+      const value = row.original.rewardAmount
       return (
         <span className="font-mono text-sm text-foreground">
           {sign}

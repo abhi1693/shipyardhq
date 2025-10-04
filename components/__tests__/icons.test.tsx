@@ -21,7 +21,7 @@ describe("Icons mapping", () => {
         "logo",
         "media",
         "member",
-        "points",
+        "rewards",
         "product",
         "settings",
         "user",

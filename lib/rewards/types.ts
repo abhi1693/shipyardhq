@@ -1,8 +1,8 @@
 import type {
   FeatureEntitlement,
   PlacementSchedule,
-  PointBalance,
-  PointTransaction,
+  RewardBalance,
+  RewardTransaction,
   Redemption,
   RewardCatalogItem,
   RewardRule,
@@ -19,9 +19,9 @@ export type StreakPayload = {
   evaluatedAt?: Date | null
 }
 
-export type AwardPointsPayload = {
+export type AwardRewardsPayload = {
   eventId?: string
-  points?: number
+  amount?: number
   multiplier?: number
   metadata?: JsonValue
   sourceType?: string
@@ -34,9 +34,9 @@ export type AwardPointsPayload = {
   streak?: StreakPayload
 }
 
-export type AwardPointsResult = {
-  transaction: PointTransaction
-  balance: PointBalance
+export type AwardRewardsResult = {
+  transaction: RewardTransaction
+  balance: RewardBalance
   rule: RewardRule
   created: boolean
 }
@@ -59,8 +59,8 @@ export type RedeemOptions = {
 }
 
 export type RedeemResult = {
-  transaction: PointTransaction
-  balance: PointBalance
+  transaction: RewardTransaction
+  balance: RewardBalance
   redemption: Redemption
   entitlement: FeatureEntitlement
   placementSchedule?: PlacementSchedule | null
@@ -68,7 +68,7 @@ export type RedeemResult = {
   created: boolean
 }
 
-export type AdjustPointsOptions = {
+export type AdjustRewardsOptions = {
   actorUserId: string
   notes?: string
   metadata?: JsonValue

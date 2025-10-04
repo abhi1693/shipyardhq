@@ -58,7 +58,7 @@ model Product {
   clickEvents           ProductClickEvent[]
   trafficEvents         ProductTrafficEvent[]
   MonthlyProductRanking MonthlyProductRanking[]
-  pointTransactions     PointTransaction[]
+  rewardTransactions     RewardTransaction[]
   redemptions           Redemption[]
   featureEntitlements   FeatureEntitlement[]
 
@@ -359,9 +359,9 @@ model User {
   Organization           Organization[]
   feedback               MemberFeedback[]
   purchases              UserPlanPurchase[]
-  pointBalance           PointBalance?
-  pointTransactions      PointTransaction[]       @relation("PointUserTransactions")
-  pointTransactionsActed PointTransaction[]       @relation("PointTransactionActor")
+  rewardBalance           RewardBalance?
+  rewardTransactions      RewardTransaction[]       @relation("RewardUserTransactions")
+  rewardTransactionsActed RewardTransaction[]       @relation("RewardTransactionActor")
   redemptions            Redemption[]
   featureEntitlements    FeatureEntitlement[]
 
@@ -404,7 +404,7 @@ enum FeedbackStatus {
   closed
 }
 
-enum PointTransactionType {
+enum RewardTransactionType {
   earn
   spend
   adjustment
@@ -634,7 +634,7 @@ model UseCaseCategory {
   @@id([useCaseId, categoryId])
 }
 
-model PointBalance {
+model RewardBalance {
   userId              String    @id
   balance             Int       @default(0)
   lifetimeEarned      Int       @default(0)
@@ -664,7 +664,7 @@ model RewardRule {
   name                     String
   description              String?
   category                 RewardRuleCategory
-  basePoints               Int
+  baseRewardAmount               Int
   isActive                 Boolean            @default(true)
   dailyCap                 Int?
   lifetimeCap              Int?
@@ -676,7 +676,7 @@ model RewardRule {
   createdAt                DateTime           @default(now())
   updatedAt                DateTime           @updatedAt
 
-  transactions PointTransaction[]
+  transactions RewardTransaction[]
 
   @@index([category])
   @@index([isActive])
@@ -703,7 +703,7 @@ model RewardCatalogItem {
   planFeature        PlanFeature?         @relation(fields: [planFeatureKey], references: [key], onDelete: SetNull)
   redemptions        Redemption[]
   entitlements       FeatureEntitlement[]
-  transactions       PointTransaction[]
+  transactions       RewardTransaction[]
   placementSchedules PlacementSchedule[]
 
   @@index([category])
@@ -711,11 +711,11 @@ model RewardCatalogItem {
   @@index([updatedAt])
 }
 
-model PointTransaction {
+model RewardTransaction {
   id            String               @id @default(cuid())
   userId        String
-  type          PointTransactionType
-  points        Int
+  type          RewardTransactionType
+  rewardAmount   Int
   balanceAfter  Int
   ruleId        String?
   ruleKey       String?
@@ -734,11 +734,11 @@ model PointTransaction {
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
 
-  user        User               @relation("PointUserTransactions", fields: [userId], references: [id], onDelete: Cascade)
+  user        User               @relation("RewardUserTransactions", fields: [userId], references: [id], onDelete: Cascade)
   rule        RewardRule?        @relation(fields: [ruleId], references: [id], onDelete: SetNull)
   catalogItem RewardCatalogItem? @relation(fields: [rewardKey], references: [featureKey], onDelete: SetNull)
   redemption  Redemption?        @relation(fields: [redemptionId], references: [id], onDelete: SetNull)
-  actedBy     User?              @relation("PointTransactionActor", fields: [actedByUserId], references: [id], onDelete: SetNull)
+  actedBy     User?              @relation("RewardTransactionActor", fields: [actedByUserId], references: [id], onDelete: SetNull)
   product     Product?           @relation(fields: [productId], references: [id], onDelete: SetNull)
 
   @@unique([eventHash])
@@ -758,7 +758,7 @@ model Redemption {
   status         RedemptionStatus @default(pending)
   cost           Int
   originalCost   Int
-  refundedPoints Int              @default(0)
+  refundedRewards Int              @default(0)
   startsAt       DateTime?
   activatedAt    DateTime?
   expiresAt      DateTime?
@@ -772,7 +772,7 @@ model Redemption {
   user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   catalogItem        RewardCatalogItem    @relation(fields: [featureKey], references: [featureKey], onDelete: Restrict)
   product            Product?             @relation(fields: [productId], references: [id], onDelete: SetNull)
-  transactions       PointTransaction[]
+  transactions       RewardTransaction[]
   entitlements       FeatureEntitlement[]
   placementSchedules PlacementSchedule[]
 

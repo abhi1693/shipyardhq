@@ -6,7 +6,7 @@ import {
   type ProductUpvotedEvent,
 } from "@/lib/server/events"
 import { getRedisClient, type RedisClient } from "@/lib/server/redis"
-import "@/lib/server/points/listeners"
+import "@/lib/server/rewards/listeners"
 
 export type VoteState = "upvoted" | "not_upvoted"
 

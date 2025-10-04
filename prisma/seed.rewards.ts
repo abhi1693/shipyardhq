@@ -17,7 +17,7 @@ type RuleSeed = {
   name: string
   description: string
   category: RewardRuleCategory
-  basePoints: number
+  baseRewardAmount: number
   isActive?: boolean
   dailyCap?: number | null
   lifetimeCap?: number | null
@@ -45,60 +45,60 @@ type CatalogSeed = {
 
 const RULES: RuleSeed[] = [
   {
-    key: "points.login.daily",
+    key: "rewards.login.daily",
     name: "Daily login",
     description: "Awarded once per day when the member signs in.",
     category: RewardRuleCategory.engagement,
-    basePoints: 5,
+    baseRewardAmount: 5,
     dailyCap: 5,
     globalCooldownSeconds: DAY,
     metadata: { event: "login" },
   },
   {
-    key: "points.upvote.give",
+    key: "rewards.upvote.give",
     name: "Product upvote",
     description: "Earned for upvoting a different member's product.",
     category: RewardRuleCategory.engagement,
-    basePoints: 2,
+    baseRewardAmount: 2,
     dailyCap: 10,
     perTargetCooldownSeconds: DAY,
     metadata: { event: "productUpvote", perProduct: 1 },
   },
   {
-    key: "points.review.publish",
+    key: "rewards.review.publish",
     name: "Publish review",
     description: "Granted when leaving a verified product review.",
     category: RewardRuleCategory.engagement,
-    basePoints: 10,
+    baseRewardAmount: 10,
     dailyCap: 30,
     perTargetCooldownSeconds: DAY,
     metadata: { event: "productReview", minimumLength: 40 },
   },
   {
-    key: "points.review.depth",
+    key: "rewards.review.depth",
     name: "Detailed review bonus",
     description: "Bonus for reviews over 200 characters.",
     category: RewardRuleCategory.bonus,
-    basePoints: 5,
+    baseRewardAmount: 5,
     dailyCap: 20,
     perTargetCooldownSeconds: DAY,
     metadata: { event: "productReview", minimumLength: 200 },
   },
   {
-    key: "points.backlink.verify",
+    key: "rewards.backlink.verify",
     name: "Backlink verification",
     description: "One-time award when a backlink is verified.",
     category: RewardRuleCategory.engagement,
-    basePoints: 30,
+    baseRewardAmount: 30,
     lifetimeCap: 30,
     metadata: { event: "backlinkVerification" },
   },
   {
-    key: "points.streak.maintain",
+    key: "rewards.streak.maintain",
     name: "Streak maintenance",
     description: "Issued by the nightly job when a streak tier is maintained.",
     category: RewardRuleCategory.streak,
-    basePoints: 8,
+    baseRewardAmount: 8,
     dailyCap: 16,
     metadata: { event: "streak", tiers: ["bronze", "silver", "gold"] },
   },
@@ -146,7 +146,8 @@ const CATALOG: CatalogSeed[] = [
     featureKey: "stickyBanner",
     planFeatureKey: "stickyBanner",
     name: "Sticky banner",
-    description: "Reserve a persistent ribbon across browse and product pages for two days.",
+    description:
+      "Reserve a persistent ribbon across browse and product pages for two days.",
     category: RewardFeatureCategory.placement,
     baseCost: 200,
     durationSeconds: 2 * DAY,
@@ -210,12 +211,16 @@ function ensurePlanFeatureKey(
 ): string | null {
   if (!key) return null
   if (existing.has(key)) return key
-  console.warn(`⚠️  Plan feature '${key}' not found. Seeding catalog item without linkage.`)
+  console.warn(
+    `⚠️  Plan feature '${key}' not found. Seeding catalog item without linkage.`,
+  )
   return null
 }
 
-export async function seedPoints(prismaClient: PrismaClient) {
-  const planFeatures = await prismaClient.planFeature.findMany({ select: { key: true } })
+export async function seedRewards(prismaClient: PrismaClient) {
+  const planFeatures = await prismaClient.planFeature.findMany({
+    select: { key: true },
+  })
   const planFeatureKeys = new Set(planFeatures.map((item) => item.key))
 
   const ruleResults: { key: string; action: "created" | "updated" }[] = []
@@ -233,7 +238,9 @@ export async function seedPoints(prismaClient: PrismaClient) {
       adminNotes: rest.adminNotes ?? null,
     }
 
-    const existing = await prismaClient.rewardRule.findUnique({ where: { key } })
+    const existing = await prismaClient.rewardRule.findUnique({
+      where: { key },
+    })
     const action = existing ? "updated" : "created"
 
     await prismaClient.rewardRule.upsert({
@@ -245,7 +252,10 @@ export async function seedPoints(prismaClient: PrismaClient) {
     ruleResults.push({ key, action })
   }
 
-  const catalogResults: { featureKey: string; action: "created" | "updated" }[] = []
+  const catalogResults: {
+    featureKey: string
+    action: "created" | "updated"
+  }[] = []
   for (const item of CATALOG) {
     const { featureKey } = item
     const data = {
@@ -259,7 +269,10 @@ export async function seedPoints(prismaClient: PrismaClient) {
       maxPendingPerUser: item.maxPendingPerUser ?? null,
       requiresProduct: item.requiresProduct ?? false,
       metadata: toJson(item.metadata),
-      planFeatureKey: ensurePlanFeatureKey(item.planFeatureKey, planFeatureKeys),
+      planFeatureKey: ensurePlanFeatureKey(
+        item.planFeatureKey,
+        planFeatureKeys,
+      ),
     }
 
     const existing = await prismaClient.rewardCatalogItem.findUnique({
@@ -289,9 +302,9 @@ const invokedDirectly = (() => {
 })()
 
 if (invokedDirectly) {
-  seedPoints(prisma)
+  seedRewards(prisma)
     .catch((error) => {
-      console.error("Failed to seed points data", error)
+      console.error("Failed to seed rewards data", error)
       process.exitCode = 1
     })
     .finally(async () => {

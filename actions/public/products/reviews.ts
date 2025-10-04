@@ -15,7 +15,7 @@ import { upsertProductReview } from "@/lib/server/productReviews"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { publish } from "@/lib/server/events"
-import "@/lib/server/points/listeners"
+import "@/lib/server/rewards/listeners"
 
 export type SubmitReviewState = {
   status: "idle" | "success" | "error"

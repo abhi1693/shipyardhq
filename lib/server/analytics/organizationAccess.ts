@@ -53,13 +53,13 @@ export async function organizationHasAdvancedAnalytics(
           select: {
             id: true,
             plan: {
-            select: {
-              assignments: {
-                select: {
-                  enabled: true,
-                  feature: { select: { key: true } },
+              select: {
+                assignments: {
+                  select: {
+                    enabled: true,
+                    feature: { select: { key: true } },
+                  },
                 },
-              },
               },
             },
           },

@@ -144,10 +144,10 @@ export type UseCase = $Result.DefaultSelection<Prisma.$UseCasePayload>
  */
 export type UseCaseCategory = $Result.DefaultSelection<Prisma.$UseCaseCategoryPayload>
 /**
- * Model PointBalance
+ * Model RewardBalance
  * 
  */
-export type PointBalance = $Result.DefaultSelection<Prisma.$PointBalancePayload>
+export type RewardBalance = $Result.DefaultSelection<Prisma.$RewardBalancePayload>
 /**
  * Model RewardRule
  * 
@@ -159,10 +159,10 @@ export type RewardRule = $Result.DefaultSelection<Prisma.$RewardRulePayload>
  */
 export type RewardCatalogItem = $Result.DefaultSelection<Prisma.$RewardCatalogItemPayload>
 /**
- * Model PointTransaction
+ * Model RewardTransaction
  * 
  */
-export type PointTransaction = $Result.DefaultSelection<Prisma.$PointTransactionPayload>
+export type RewardTransaction = $Result.DefaultSelection<Prisma.$RewardTransactionPayload>
 /**
  * Model Redemption
  * 
@@ -267,14 +267,14 @@ export const FeedbackStatus: {
 export type FeedbackStatus = (typeof FeedbackStatus)[keyof typeof FeedbackStatus]
 
 
-export const PointTransactionType: {
+export const RewardTransactionType: {
   earn: 'earn',
   spend: 'spend',
   adjustment: 'adjustment',
   refund: 'refund'
 };
 
-export type PointTransactionType = (typeof PointTransactionType)[keyof typeof PointTransactionType]
+export type RewardTransactionType = (typeof RewardTransactionType)[keyof typeof RewardTransactionType]
 
 
 export const RedemptionStatus: {
@@ -397,9 +397,9 @@ export type FeedbackStatus = $Enums.FeedbackStatus
 
 export const FeedbackStatus: typeof $Enums.FeedbackStatus
 
-export type PointTransactionType = $Enums.PointTransactionType
+export type RewardTransactionType = $Enums.RewardTransactionType
 
-export const PointTransactionType: typeof $Enums.PointTransactionType
+export const RewardTransactionType: typeof $Enums.RewardTransactionType
 
 export type RedemptionStatus = $Enums.RedemptionStatus
 
@@ -812,14 +812,14 @@ export class PrismaClient<
   get useCaseCategory(): Prisma.UseCaseCategoryDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.pointBalance`: Exposes CRUD operations for the **PointBalance** model.
+   * `prisma.rewardBalance`: Exposes CRUD operations for the **RewardBalance** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more PointBalances
-    * const pointBalances = await prisma.pointBalance.findMany()
+    * // Fetch zero or more RewardBalances
+    * const rewardBalances = await prisma.rewardBalance.findMany()
     * ```
     */
-  get pointBalance(): Prisma.PointBalanceDelegate<ExtArgs, ClientOptions>;
+  get rewardBalance(): Prisma.RewardBalanceDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.rewardRule`: Exposes CRUD operations for the **RewardRule** model.
@@ -842,14 +842,14 @@ export class PrismaClient<
   get rewardCatalogItem(): Prisma.RewardCatalogItemDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.pointTransaction`: Exposes CRUD operations for the **PointTransaction** model.
+   * `prisma.rewardTransaction`: Exposes CRUD operations for the **RewardTransaction** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more PointTransactions
-    * const pointTransactions = await prisma.pointTransaction.findMany()
+    * // Fetch zero or more RewardTransactions
+    * const rewardTransactions = await prisma.rewardTransaction.findMany()
     * ```
     */
-  get pointTransaction(): Prisma.PointTransactionDelegate<ExtArgs, ClientOptions>;
+  get rewardTransaction(): Prisma.RewardTransactionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.redemption`: Exposes CRUD operations for the **Redemption** model.
@@ -1346,10 +1346,10 @@ export namespace Prisma {
     ProductBadge: 'ProductBadge',
     UseCase: 'UseCase',
     UseCaseCategory: 'UseCaseCategory',
-    PointBalance: 'PointBalance',
+    RewardBalance: 'RewardBalance',
     RewardRule: 'RewardRule',
     RewardCatalogItem: 'RewardCatalogItem',
-    PointTransaction: 'PointTransaction',
+    RewardTransaction: 'RewardTransaction',
     Redemption: 'Redemption',
     FeatureEntitlement: 'FeatureEntitlement',
     PlacementSchedule: 'PlacementSchedule'
@@ -1371,7 +1371,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "product" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "pointBalance" | "rewardRule" | "rewardCatalogItem" | "pointTransaction" | "redemption" | "featureEntitlement" | "placementSchedule"
+      modelProps: "product" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "productMedia" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3299,77 +3299,77 @@ export namespace Prisma {
           }
         }
       }
-      PointBalance: {
-        payload: Prisma.$PointBalancePayload<ExtArgs>
-        fields: Prisma.PointBalanceFieldRefs
+      RewardBalance: {
+        payload: Prisma.$RewardBalancePayload<ExtArgs>
+        fields: Prisma.RewardBalanceFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.PointBalanceFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload> | null
+            args: Prisma.RewardBalanceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.PointBalanceFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload>
+            args: Prisma.RewardBalanceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload>
           }
           findFirst: {
-            args: Prisma.PointBalanceFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload> | null
+            args: Prisma.RewardBalanceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.PointBalanceFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload>
+            args: Prisma.RewardBalanceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload>
           }
           findMany: {
-            args: Prisma.PointBalanceFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload>[]
+            args: Prisma.RewardBalanceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload>[]
           }
           create: {
-            args: Prisma.PointBalanceCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload>
+            args: Prisma.RewardBalanceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload>
           }
           createMany: {
-            args: Prisma.PointBalanceCreateManyArgs<ExtArgs>
+            args: Prisma.RewardBalanceCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.PointBalanceCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload>[]
+            args: Prisma.RewardBalanceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload>[]
           }
           delete: {
-            args: Prisma.PointBalanceDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload>
+            args: Prisma.RewardBalanceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload>
           }
           update: {
-            args: Prisma.PointBalanceUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload>
+            args: Prisma.RewardBalanceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload>
           }
           deleteMany: {
-            args: Prisma.PointBalanceDeleteManyArgs<ExtArgs>
+            args: Prisma.RewardBalanceDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.PointBalanceUpdateManyArgs<ExtArgs>
+            args: Prisma.RewardBalanceUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.PointBalanceUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload>[]
+            args: Prisma.RewardBalanceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload>[]
           }
           upsert: {
-            args: Prisma.PointBalanceUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointBalancePayload>
+            args: Prisma.RewardBalanceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardBalancePayload>
           }
           aggregate: {
-            args: Prisma.PointBalanceAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregatePointBalance>
+            args: Prisma.RewardBalanceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRewardBalance>
           }
           groupBy: {
-            args: Prisma.PointBalanceGroupByArgs<ExtArgs>
-            result: $Utils.Optional<PointBalanceGroupByOutputType>[]
+            args: Prisma.RewardBalanceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RewardBalanceGroupByOutputType>[]
           }
           count: {
-            args: Prisma.PointBalanceCountArgs<ExtArgs>
-            result: $Utils.Optional<PointBalanceCountAggregateOutputType> | number
+            args: Prisma.RewardBalanceCountArgs<ExtArgs>
+            result: $Utils.Optional<RewardBalanceCountAggregateOutputType> | number
           }
         }
       }
@@ -3521,77 +3521,77 @@ export namespace Prisma {
           }
         }
       }
-      PointTransaction: {
-        payload: Prisma.$PointTransactionPayload<ExtArgs>
-        fields: Prisma.PointTransactionFieldRefs
+      RewardTransaction: {
+        payload: Prisma.$RewardTransactionPayload<ExtArgs>
+        fields: Prisma.RewardTransactionFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.PointTransactionFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload> | null
+            args: Prisma.RewardTransactionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.PointTransactionFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload>
+            args: Prisma.RewardTransactionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload>
           }
           findFirst: {
-            args: Prisma.PointTransactionFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload> | null
+            args: Prisma.RewardTransactionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.PointTransactionFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload>
+            args: Prisma.RewardTransactionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload>
           }
           findMany: {
-            args: Prisma.PointTransactionFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload>[]
+            args: Prisma.RewardTransactionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload>[]
           }
           create: {
-            args: Prisma.PointTransactionCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload>
+            args: Prisma.RewardTransactionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload>
           }
           createMany: {
-            args: Prisma.PointTransactionCreateManyArgs<ExtArgs>
+            args: Prisma.RewardTransactionCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.PointTransactionCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload>[]
+            args: Prisma.RewardTransactionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload>[]
           }
           delete: {
-            args: Prisma.PointTransactionDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload>
+            args: Prisma.RewardTransactionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload>
           }
           update: {
-            args: Prisma.PointTransactionUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload>
+            args: Prisma.RewardTransactionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload>
           }
           deleteMany: {
-            args: Prisma.PointTransactionDeleteManyArgs<ExtArgs>
+            args: Prisma.RewardTransactionDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.PointTransactionUpdateManyArgs<ExtArgs>
+            args: Prisma.RewardTransactionUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.PointTransactionUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload>[]
+            args: Prisma.RewardTransactionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload>[]
           }
           upsert: {
-            args: Prisma.PointTransactionUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PointTransactionPayload>
+            args: Prisma.RewardTransactionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RewardTransactionPayload>
           }
           aggregate: {
-            args: Prisma.PointTransactionAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregatePointTransaction>
+            args: Prisma.RewardTransactionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRewardTransaction>
           }
           groupBy: {
-            args: Prisma.PointTransactionGroupByArgs<ExtArgs>
-            result: $Utils.Optional<PointTransactionGroupByOutputType>[]
+            args: Prisma.RewardTransactionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RewardTransactionGroupByOutputType>[]
           }
           count: {
-            args: Prisma.PointTransactionCountArgs<ExtArgs>
-            result: $Utils.Optional<PointTransactionCountAggregateOutputType> | number
+            args: Prisma.RewardTransactionCountArgs<ExtArgs>
+            result: $Utils.Optional<RewardTransactionCountAggregateOutputType> | number
           }
         }
       }
@@ -3939,10 +3939,10 @@ export namespace Prisma {
     productBadge?: ProductBadgeOmit
     useCase?: UseCaseOmit
     useCaseCategory?: UseCaseCategoryOmit
-    pointBalance?: PointBalanceOmit
+    rewardBalance?: RewardBalanceOmit
     rewardRule?: RewardRuleOmit
     rewardCatalogItem?: RewardCatalogItemOmit
-    pointTransaction?: PointTransactionOmit
+    rewardTransaction?: RewardTransactionOmit
     redemption?: RedemptionOmit
     featureEntitlement?: FeatureEntitlementOmit
     placementSchedule?: PlacementScheduleOmit
@@ -4034,7 +4034,7 @@ export namespace Prisma {
     clickEvents: number
     trafficEvents: number
     MonthlyProductRanking: number
-    pointTransactions: number
+    rewardTransactions: number
     redemptions: number
     featureEntitlements: number
   }
@@ -4048,7 +4048,7 @@ export namespace Prisma {
     clickEvents?: boolean | ProductCountOutputTypeCountClickEventsArgs
     trafficEvents?: boolean | ProductCountOutputTypeCountTrafficEventsArgs
     MonthlyProductRanking?: boolean | ProductCountOutputTypeCountMonthlyProductRankingArgs
-    pointTransactions?: boolean | ProductCountOutputTypeCountPointTransactionsArgs
+    rewardTransactions?: boolean | ProductCountOutputTypeCountRewardTransactionsArgs
     redemptions?: boolean | ProductCountOutputTypeCountRedemptionsArgs
     featureEntitlements?: boolean | ProductCountOutputTypeCountFeatureEntitlementsArgs
   }
@@ -4123,8 +4123,8 @@ export namespace Prisma {
   /**
    * ProductCountOutputType without action
    */
-  export type ProductCountOutputTypeCountPointTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PointTransactionWhereInput
+  export type ProductCountOutputTypeCountRewardTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RewardTransactionWhereInput
   }
 
   /**
@@ -4225,8 +4225,8 @@ export namespace Prisma {
     Organization: number
     feedback: number
     purchases: number
-    pointTransactions: number
-    pointTransactionsActed: number
+    rewardTransactions: number
+    rewardTransactionsActed: number
     redemptions: number
     featureEntitlements: number
   }
@@ -4239,8 +4239,8 @@ export namespace Prisma {
     Organization?: boolean | UserCountOutputTypeCountOrganizationArgs
     feedback?: boolean | UserCountOutputTypeCountFeedbackArgs
     purchases?: boolean | UserCountOutputTypeCountPurchasesArgs
-    pointTransactions?: boolean | UserCountOutputTypeCountPointTransactionsArgs
-    pointTransactionsActed?: boolean | UserCountOutputTypeCountPointTransactionsActedArgs
+    rewardTransactions?: boolean | UserCountOutputTypeCountRewardTransactionsArgs
+    rewardTransactionsActed?: boolean | UserCountOutputTypeCountRewardTransactionsActedArgs
     redemptions?: boolean | UserCountOutputTypeCountRedemptionsArgs
     featureEntitlements?: boolean | UserCountOutputTypeCountFeatureEntitlementsArgs
   }
@@ -4308,15 +4308,15 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountPointTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PointTransactionWhereInput
+  export type UserCountOutputTypeCountRewardTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RewardTransactionWhereInput
   }
 
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountPointTransactionsActedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PointTransactionWhereInput
+  export type UserCountOutputTypeCountRewardTransactionsActedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RewardTransactionWhereInput
   }
 
   /**
@@ -4521,7 +4521,7 @@ export namespace Prisma {
    * RewardRuleCountOutputType without action
    */
   export type RewardRuleCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PointTransactionWhereInput
+    where?: RewardTransactionWhereInput
   }
 
 
@@ -4572,7 +4572,7 @@ export namespace Prisma {
    * RewardCatalogItemCountOutputType without action
    */
   export type RewardCatalogItemCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PointTransactionWhereInput
+    where?: RewardTransactionWhereInput
   }
 
   /**
@@ -4614,7 +4614,7 @@ export namespace Prisma {
    * RedemptionCountOutputType without action
    */
   export type RedemptionCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PointTransactionWhereInput
+    where?: RewardTransactionWhereInput
   }
 
   /**
@@ -5033,7 +5033,7 @@ export namespace Prisma {
     clickEvents?: boolean | Product$clickEventsArgs<ExtArgs>
     trafficEvents?: boolean | Product$trafficEventsArgs<ExtArgs>
     MonthlyProductRanking?: boolean | Product$MonthlyProductRankingArgs<ExtArgs>
-    pointTransactions?: boolean | Product$pointTransactionsArgs<ExtArgs>
+    rewardTransactions?: boolean | Product$rewardTransactionsArgs<ExtArgs>
     redemptions?: boolean | Product$redemptionsArgs<ExtArgs>
     featureEntitlements?: boolean | Product$featureEntitlementsArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
@@ -5149,7 +5149,7 @@ export namespace Prisma {
     clickEvents?: boolean | Product$clickEventsArgs<ExtArgs>
     trafficEvents?: boolean | Product$trafficEventsArgs<ExtArgs>
     MonthlyProductRanking?: boolean | Product$MonthlyProductRankingArgs<ExtArgs>
-    pointTransactions?: boolean | Product$pointTransactionsArgs<ExtArgs>
+    rewardTransactions?: boolean | Product$rewardTransactionsArgs<ExtArgs>
     redemptions?: boolean | Product$redemptionsArgs<ExtArgs>
     featureEntitlements?: boolean | Product$featureEntitlementsArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
@@ -5186,7 +5186,7 @@ export namespace Prisma {
       clickEvents: Prisma.$ProductClickEventPayload<ExtArgs>[]
       trafficEvents: Prisma.$ProductTrafficEventPayload<ExtArgs>[]
       MonthlyProductRanking: Prisma.$MonthlyProductRankingPayload<ExtArgs>[]
-      pointTransactions: Prisma.$PointTransactionPayload<ExtArgs>[]
+      rewardTransactions: Prisma.$RewardTransactionPayload<ExtArgs>[]
       redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
       featureEntitlements: Prisma.$FeatureEntitlementPayload<ExtArgs>[]
     }
@@ -5626,7 +5626,7 @@ export namespace Prisma {
     clickEvents<T extends Product$clickEventsArgs<ExtArgs> = {}>(args?: Subset<T, Product$clickEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductClickEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     trafficEvents<T extends Product$trafficEventsArgs<ExtArgs> = {}>(args?: Subset<T, Product$trafficEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductTrafficEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     MonthlyProductRanking<T extends Product$MonthlyProductRankingArgs<ExtArgs> = {}>(args?: Subset<T, Product$MonthlyProductRankingArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyProductRankingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    pointTransactions<T extends Product$pointTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, Product$pointTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    rewardTransactions<T extends Product$rewardTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, Product$rewardTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     redemptions<T extends Product$redemptionsArgs<ExtArgs> = {}>(args?: Subset<T, Product$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     featureEntitlements<T extends Product$featureEntitlementsArgs<ExtArgs> = {}>(args?: Subset<T, Product$featureEntitlementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeatureEntitlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -6385,27 +6385,27 @@ export namespace Prisma {
   }
 
   /**
-   * Product.pointTransactions
+   * Product.rewardTransactions
    */
-  export type Product$pointTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Product$rewardTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
-    where?: PointTransactionWhereInput
-    orderBy?: PointTransactionOrderByWithRelationInput | PointTransactionOrderByWithRelationInput[]
-    cursor?: PointTransactionWhereUniqueInput
+    include?: RewardTransactionInclude<ExtArgs> | null
+    where?: RewardTransactionWhereInput
+    orderBy?: RewardTransactionOrderByWithRelationInput | RewardTransactionOrderByWithRelationInput[]
+    cursor?: RewardTransactionWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: PointTransactionScalarFieldEnum | PointTransactionScalarFieldEnum[]
+    distinct?: RewardTransactionScalarFieldEnum | RewardTransactionScalarFieldEnum[]
   }
 
   /**
@@ -21059,9 +21059,9 @@ export namespace Prisma {
     Organization?: boolean | User$OrganizationArgs<ExtArgs>
     feedback?: boolean | User$feedbackArgs<ExtArgs>
     purchases?: boolean | User$purchasesArgs<ExtArgs>
-    pointBalance?: boolean | User$pointBalanceArgs<ExtArgs>
-    pointTransactions?: boolean | User$pointTransactionsArgs<ExtArgs>
-    pointTransactionsActed?: boolean | User$pointTransactionsActedArgs<ExtArgs>
+    rewardBalance?: boolean | User$rewardBalanceArgs<ExtArgs>
+    rewardTransactions?: boolean | User$rewardTransactionsArgs<ExtArgs>
+    rewardTransactionsActed?: boolean | User$rewardTransactionsActedArgs<ExtArgs>
     redemptions?: boolean | User$redemptionsArgs<ExtArgs>
     featureEntitlements?: boolean | User$featureEntitlementsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -21127,9 +21127,9 @@ export namespace Prisma {
     Organization?: boolean | User$OrganizationArgs<ExtArgs>
     feedback?: boolean | User$feedbackArgs<ExtArgs>
     purchases?: boolean | User$purchasesArgs<ExtArgs>
-    pointBalance?: boolean | User$pointBalanceArgs<ExtArgs>
-    pointTransactions?: boolean | User$pointTransactionsArgs<ExtArgs>
-    pointTransactionsActed?: boolean | User$pointTransactionsActedArgs<ExtArgs>
+    rewardBalance?: boolean | User$rewardBalanceArgs<ExtArgs>
+    rewardTransactions?: boolean | User$rewardTransactionsArgs<ExtArgs>
+    rewardTransactionsActed?: boolean | User$rewardTransactionsActedArgs<ExtArgs>
     redemptions?: boolean | User$redemptionsArgs<ExtArgs>
     featureEntitlements?: boolean | User$featureEntitlementsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -21147,9 +21147,9 @@ export namespace Prisma {
       Organization: Prisma.$OrganizationPayload<ExtArgs>[]
       feedback: Prisma.$MemberFeedbackPayload<ExtArgs>[]
       purchases: Prisma.$UserPlanPurchasePayload<ExtArgs>[]
-      pointBalance: Prisma.$PointBalancePayload<ExtArgs> | null
-      pointTransactions: Prisma.$PointTransactionPayload<ExtArgs>[]
-      pointTransactionsActed: Prisma.$PointTransactionPayload<ExtArgs>[]
+      rewardBalance: Prisma.$RewardBalancePayload<ExtArgs> | null
+      rewardTransactions: Prisma.$RewardTransactionPayload<ExtArgs>[]
+      rewardTransactionsActed: Prisma.$RewardTransactionPayload<ExtArgs>[]
       redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
       featureEntitlements: Prisma.$FeatureEntitlementPayload<ExtArgs>[]
     }
@@ -21569,9 +21569,9 @@ export namespace Prisma {
     Organization<T extends User$OrganizationArgs<ExtArgs> = {}>(args?: Subset<T, User$OrganizationArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     feedback<T extends User$feedbackArgs<ExtArgs> = {}>(args?: Subset<T, User$feedbackArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MemberFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     purchases<T extends User$purchasesArgs<ExtArgs> = {}>(args?: Subset<T, User$purchasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPlanPurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    pointBalance<T extends User$pointBalanceArgs<ExtArgs> = {}>(args?: Subset<T, User$pointBalanceArgs<ExtArgs>>): Prisma__PointBalanceClient<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    pointTransactions<T extends User$pointTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, User$pointTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    pointTransactionsActed<T extends User$pointTransactionsActedArgs<ExtArgs> = {}>(args?: Subset<T, User$pointTransactionsActedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    rewardBalance<T extends User$rewardBalanceArgs<ExtArgs> = {}>(args?: Subset<T, User$rewardBalanceArgs<ExtArgs>>): Prisma__RewardBalanceClient<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    rewardTransactions<T extends User$rewardTransactionsArgs<ExtArgs> = {}>(args?: Subset<T, User$rewardTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    rewardTransactionsActed<T extends User$rewardTransactionsActedArgs<ExtArgs> = {}>(args?: Subset<T, User$rewardTransactionsActedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     redemptions<T extends User$redemptionsArgs<ExtArgs> = {}>(args?: Subset<T, User$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     featureEntitlements<T extends User$featureEntitlementsArgs<ExtArgs> = {}>(args?: Subset<T, User$featureEntitlementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeatureEntitlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -22173,70 +22173,70 @@ export namespace Prisma {
   }
 
   /**
-   * User.pointBalance
+   * User.rewardBalance
    */
-  export type User$pointBalanceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type User$rewardBalanceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
-    where?: PointBalanceWhereInput
+    include?: RewardBalanceInclude<ExtArgs> | null
+    where?: RewardBalanceWhereInput
   }
 
   /**
-   * User.pointTransactions
+   * User.rewardTransactions
    */
-  export type User$pointTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type User$rewardTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
-    where?: PointTransactionWhereInput
-    orderBy?: PointTransactionOrderByWithRelationInput | PointTransactionOrderByWithRelationInput[]
-    cursor?: PointTransactionWhereUniqueInput
+    include?: RewardTransactionInclude<ExtArgs> | null
+    where?: RewardTransactionWhereInput
+    orderBy?: RewardTransactionOrderByWithRelationInput | RewardTransactionOrderByWithRelationInput[]
+    cursor?: RewardTransactionWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: PointTransactionScalarFieldEnum | PointTransactionScalarFieldEnum[]
+    distinct?: RewardTransactionScalarFieldEnum | RewardTransactionScalarFieldEnum[]
   }
 
   /**
-   * User.pointTransactionsActed
+   * User.rewardTransactionsActed
    */
-  export type User$pointTransactionsActedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type User$rewardTransactionsActedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
-    where?: PointTransactionWhereInput
-    orderBy?: PointTransactionOrderByWithRelationInput | PointTransactionOrderByWithRelationInput[]
-    cursor?: PointTransactionWhereUniqueInput
+    include?: RewardTransactionInclude<ExtArgs> | null
+    where?: RewardTransactionWhereInput
+    orderBy?: RewardTransactionOrderByWithRelationInput | RewardTransactionOrderByWithRelationInput[]
+    cursor?: RewardTransactionWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: PointTransactionScalarFieldEnum | PointTransactionScalarFieldEnum[]
+    distinct?: RewardTransactionScalarFieldEnum | RewardTransactionScalarFieldEnum[]
   }
 
   /**
@@ -34461,18 +34461,18 @@ export namespace Prisma {
 
 
   /**
-   * Model PointBalance
+   * Model RewardBalance
    */
 
-  export type AggregatePointBalance = {
-    _count: PointBalanceCountAggregateOutputType | null
-    _avg: PointBalanceAvgAggregateOutputType | null
-    _sum: PointBalanceSumAggregateOutputType | null
-    _min: PointBalanceMinAggregateOutputType | null
-    _max: PointBalanceMaxAggregateOutputType | null
+  export type AggregateRewardBalance = {
+    _count: RewardBalanceCountAggregateOutputType | null
+    _avg: RewardBalanceAvgAggregateOutputType | null
+    _sum: RewardBalanceSumAggregateOutputType | null
+    _min: RewardBalanceMinAggregateOutputType | null
+    _max: RewardBalanceMaxAggregateOutputType | null
   }
 
-  export type PointBalanceAvgAggregateOutputType = {
+  export type RewardBalanceAvgAggregateOutputType = {
     balance: number | null
     lifetimeEarned: number | null
     lifetimeSpent: number | null
@@ -34482,7 +34482,7 @@ export namespace Prisma {
     longestStreakCount: number | null
   }
 
-  export type PointBalanceSumAggregateOutputType = {
+  export type RewardBalanceSumAggregateOutputType = {
     balance: number | null
     lifetimeEarned: number | null
     lifetimeSpent: number | null
@@ -34492,7 +34492,7 @@ export namespace Prisma {
     longestStreakCount: number | null
   }
 
-  export type PointBalanceMinAggregateOutputType = {
+  export type RewardBalanceMinAggregateOutputType = {
     userId: string | null
     balance: number | null
     lifetimeEarned: number | null
@@ -34511,7 +34511,7 @@ export namespace Prisma {
     updatedAt: Date | null
   }
 
-  export type PointBalanceMaxAggregateOutputType = {
+  export type RewardBalanceMaxAggregateOutputType = {
     userId: string | null
     balance: number | null
     lifetimeEarned: number | null
@@ -34530,7 +34530,7 @@ export namespace Prisma {
     updatedAt: Date | null
   }
 
-  export type PointBalanceCountAggregateOutputType = {
+  export type RewardBalanceCountAggregateOutputType = {
     userId: number
     balance: number
     lifetimeEarned: number
@@ -34551,7 +34551,7 @@ export namespace Prisma {
   }
 
 
-  export type PointBalanceAvgAggregateInputType = {
+  export type RewardBalanceAvgAggregateInputType = {
     balance?: true
     lifetimeEarned?: true
     lifetimeSpent?: true
@@ -34561,7 +34561,7 @@ export namespace Prisma {
     longestStreakCount?: true
   }
 
-  export type PointBalanceSumAggregateInputType = {
+  export type RewardBalanceSumAggregateInputType = {
     balance?: true
     lifetimeEarned?: true
     lifetimeSpent?: true
@@ -34571,7 +34571,7 @@ export namespace Prisma {
     longestStreakCount?: true
   }
 
-  export type PointBalanceMinAggregateInputType = {
+  export type RewardBalanceMinAggregateInputType = {
     userId?: true
     balance?: true
     lifetimeEarned?: true
@@ -34590,7 +34590,7 @@ export namespace Prisma {
     updatedAt?: true
   }
 
-  export type PointBalanceMaxAggregateInputType = {
+  export type RewardBalanceMaxAggregateInputType = {
     userId?: true
     balance?: true
     lifetimeEarned?: true
@@ -34609,7 +34609,7 @@ export namespace Prisma {
     updatedAt?: true
   }
 
-  export type PointBalanceCountAggregateInputType = {
+  export type RewardBalanceCountAggregateInputType = {
     userId?: true
     balance?: true
     lifetimeEarned?: true
@@ -34629,93 +34629,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type PointBalanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PointBalance to aggregate.
+     * Filter which RewardBalance to aggregate.
      */
-    where?: PointBalanceWhereInput
+    where?: RewardBalanceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PointBalances to fetch.
+     * Determine the order of RewardBalances to fetch.
      */
-    orderBy?: PointBalanceOrderByWithRelationInput | PointBalanceOrderByWithRelationInput[]
+    orderBy?: RewardBalanceOrderByWithRelationInput | RewardBalanceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: PointBalanceWhereUniqueInput
+    cursor?: RewardBalanceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PointBalances from the position of the cursor.
+     * Take `±n` RewardBalances from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PointBalances.
+     * Skip the first `n` RewardBalances.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned PointBalances
+     * Count returned RewardBalances
     **/
-    _count?: true | PointBalanceCountAggregateInputType
+    _count?: true | RewardBalanceCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: PointBalanceAvgAggregateInputType
+    _avg?: RewardBalanceAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: PointBalanceSumAggregateInputType
+    _sum?: RewardBalanceSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: PointBalanceMinAggregateInputType
+    _min?: RewardBalanceMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: PointBalanceMaxAggregateInputType
+    _max?: RewardBalanceMaxAggregateInputType
   }
 
-  export type GetPointBalanceAggregateType<T extends PointBalanceAggregateArgs> = {
-        [P in keyof T & keyof AggregatePointBalance]: P extends '_count' | 'count'
+  export type GetRewardBalanceAggregateType<T extends RewardBalanceAggregateArgs> = {
+        [P in keyof T & keyof AggregateRewardBalance]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregatePointBalance[P]>
-      : GetScalarType<T[P], AggregatePointBalance[P]>
+        : GetScalarType<T[P], AggregateRewardBalance[P]>
+      : GetScalarType<T[P], AggregateRewardBalance[P]>
   }
 
 
 
 
-  export type PointBalanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PointBalanceWhereInput
-    orderBy?: PointBalanceOrderByWithAggregationInput | PointBalanceOrderByWithAggregationInput[]
-    by: PointBalanceScalarFieldEnum[] | PointBalanceScalarFieldEnum
-    having?: PointBalanceScalarWhereWithAggregatesInput
+  export type RewardBalanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RewardBalanceWhereInput
+    orderBy?: RewardBalanceOrderByWithAggregationInput | RewardBalanceOrderByWithAggregationInput[]
+    by: RewardBalanceScalarFieldEnum[] | RewardBalanceScalarFieldEnum
+    having?: RewardBalanceScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: PointBalanceCountAggregateInputType | true
-    _avg?: PointBalanceAvgAggregateInputType
-    _sum?: PointBalanceSumAggregateInputType
-    _min?: PointBalanceMinAggregateInputType
-    _max?: PointBalanceMaxAggregateInputType
+    _count?: RewardBalanceCountAggregateInputType | true
+    _avg?: RewardBalanceAvgAggregateInputType
+    _sum?: RewardBalanceSumAggregateInputType
+    _min?: RewardBalanceMinAggregateInputType
+    _max?: RewardBalanceMaxAggregateInputType
   }
 
-  export type PointBalanceGroupByOutputType = {
+  export type RewardBalanceGroupByOutputType = {
     userId: string
     balance: number
     lifetimeEarned: number
@@ -34732,28 +34732,28 @@ export namespace Prisma {
     lastEvaluatedAt: Date | null
     createdAt: Date
     updatedAt: Date
-    _count: PointBalanceCountAggregateOutputType | null
-    _avg: PointBalanceAvgAggregateOutputType | null
-    _sum: PointBalanceSumAggregateOutputType | null
-    _min: PointBalanceMinAggregateOutputType | null
-    _max: PointBalanceMaxAggregateOutputType | null
+    _count: RewardBalanceCountAggregateOutputType | null
+    _avg: RewardBalanceAvgAggregateOutputType | null
+    _sum: RewardBalanceSumAggregateOutputType | null
+    _min: RewardBalanceMinAggregateOutputType | null
+    _max: RewardBalanceMaxAggregateOutputType | null
   }
 
-  type GetPointBalanceGroupByPayload<T extends PointBalanceGroupByArgs> = Prisma.PrismaPromise<
+  type GetRewardBalanceGroupByPayload<T extends RewardBalanceGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<PointBalanceGroupByOutputType, T['by']> &
+      PickEnumerable<RewardBalanceGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof PointBalanceGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof RewardBalanceGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], PointBalanceGroupByOutputType[P]>
-            : GetScalarType<T[P], PointBalanceGroupByOutputType[P]>
+              : GetScalarType<T[P], RewardBalanceGroupByOutputType[P]>
+            : GetScalarType<T[P], RewardBalanceGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type PointBalanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RewardBalanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     userId?: boolean
     balance?: boolean
     lifetimeEarned?: boolean
@@ -34771,9 +34771,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["pointBalance"]>
+  }, ExtArgs["result"]["rewardBalance"]>
 
-  export type PointBalanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RewardBalanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     userId?: boolean
     balance?: boolean
     lifetimeEarned?: boolean
@@ -34791,9 +34791,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["pointBalance"]>
+  }, ExtArgs["result"]["rewardBalance"]>
 
-  export type PointBalanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RewardBalanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     userId?: boolean
     balance?: boolean
     lifetimeEarned?: boolean
@@ -34811,9 +34811,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["pointBalance"]>
+  }, ExtArgs["result"]["rewardBalance"]>
 
-  export type PointBalanceSelectScalar = {
+  export type RewardBalanceSelectScalar = {
     userId?: boolean
     balance?: boolean
     lifetimeEarned?: boolean
@@ -34832,19 +34832,19 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PointBalanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "balance" | "lifetimeEarned" | "lifetimeSpent" | "lifetimeAdjusted" | "lifetimeRefunded" | "currentStreakCount" | "longestStreakCount" | "currentStreakTier" | "streakActiveThrough" | "lastEarnedAt" | "lastRedeemedAt" | "lastAdjustmentAt" | "lastEvaluatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["pointBalance"]>
-  export type PointBalanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "balance" | "lifetimeEarned" | "lifetimeSpent" | "lifetimeAdjusted" | "lifetimeRefunded" | "currentStreakCount" | "longestStreakCount" | "currentStreakTier" | "streakActiveThrough" | "lastEarnedAt" | "lastRedeemedAt" | "lastAdjustmentAt" | "lastEvaluatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["rewardBalance"]>
+  export type RewardBalanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
-  export type PointBalanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
-  export type PointBalanceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
 
-  export type $PointBalancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "PointBalance"
+  export type $RewardBalancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RewardBalance"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
     }
@@ -34865,136 +34865,136 @@ export namespace Prisma {
       lastEvaluatedAt: Date | null
       createdAt: Date
       updatedAt: Date
-    }, ExtArgs["result"]["pointBalance"]>
+    }, ExtArgs["result"]["rewardBalance"]>
     composites: {}
   }
 
-  type PointBalanceGetPayload<S extends boolean | null | undefined | PointBalanceDefaultArgs> = $Result.GetResult<Prisma.$PointBalancePayload, S>
+  type RewardBalanceGetPayload<S extends boolean | null | undefined | RewardBalanceDefaultArgs> = $Result.GetResult<Prisma.$RewardBalancePayload, S>
 
-  type PointBalanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<PointBalanceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: PointBalanceCountAggregateInputType | true
+  type RewardBalanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RewardBalanceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RewardBalanceCountAggregateInputType | true
     }
 
-  export interface PointBalanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PointBalance'], meta: { name: 'PointBalance' } }
+  export interface RewardBalanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RewardBalance'], meta: { name: 'RewardBalance' } }
     /**
-     * Find zero or one PointBalance that matches the filter.
-     * @param {PointBalanceFindUniqueArgs} args - Arguments to find a PointBalance
+     * Find zero or one RewardBalance that matches the filter.
+     * @param {RewardBalanceFindUniqueArgs} args - Arguments to find a RewardBalance
      * @example
-     * // Get one PointBalance
-     * const pointBalance = await prisma.pointBalance.findUnique({
+     * // Get one RewardBalance
+     * const rewardBalance = await prisma.rewardBalance.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends PointBalanceFindUniqueArgs>(args: SelectSubset<T, PointBalanceFindUniqueArgs<ExtArgs>>): Prisma__PointBalanceClient<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends RewardBalanceFindUniqueArgs>(args: SelectSubset<T, RewardBalanceFindUniqueArgs<ExtArgs>>): Prisma__RewardBalanceClient<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one PointBalance that matches the filter or throw an error with `error.code='P2025'`
+     * Find one RewardBalance that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {PointBalanceFindUniqueOrThrowArgs} args - Arguments to find a PointBalance
+     * @param {RewardBalanceFindUniqueOrThrowArgs} args - Arguments to find a RewardBalance
      * @example
-     * // Get one PointBalance
-     * const pointBalance = await prisma.pointBalance.findUniqueOrThrow({
+     * // Get one RewardBalance
+     * const rewardBalance = await prisma.rewardBalance.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends PointBalanceFindUniqueOrThrowArgs>(args: SelectSubset<T, PointBalanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PointBalanceClient<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends RewardBalanceFindUniqueOrThrowArgs>(args: SelectSubset<T, RewardBalanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RewardBalanceClient<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first PointBalance that matches the filter.
+     * Find the first RewardBalance that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointBalanceFindFirstArgs} args - Arguments to find a PointBalance
+     * @param {RewardBalanceFindFirstArgs} args - Arguments to find a RewardBalance
      * @example
-     * // Get one PointBalance
-     * const pointBalance = await prisma.pointBalance.findFirst({
+     * // Get one RewardBalance
+     * const rewardBalance = await prisma.rewardBalance.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends PointBalanceFindFirstArgs>(args?: SelectSubset<T, PointBalanceFindFirstArgs<ExtArgs>>): Prisma__PointBalanceClient<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends RewardBalanceFindFirstArgs>(args?: SelectSubset<T, RewardBalanceFindFirstArgs<ExtArgs>>): Prisma__RewardBalanceClient<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first PointBalance that matches the filter or
+     * Find the first RewardBalance that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointBalanceFindFirstOrThrowArgs} args - Arguments to find a PointBalance
+     * @param {RewardBalanceFindFirstOrThrowArgs} args - Arguments to find a RewardBalance
      * @example
-     * // Get one PointBalance
-     * const pointBalance = await prisma.pointBalance.findFirstOrThrow({
+     * // Get one RewardBalance
+     * const rewardBalance = await prisma.rewardBalance.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends PointBalanceFindFirstOrThrowArgs>(args?: SelectSubset<T, PointBalanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__PointBalanceClient<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends RewardBalanceFindFirstOrThrowArgs>(args?: SelectSubset<T, RewardBalanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__RewardBalanceClient<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more PointBalances that matches the filter.
+     * Find zero or more RewardBalances that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointBalanceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {RewardBalanceFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all PointBalances
-     * const pointBalances = await prisma.pointBalance.findMany()
+     * // Get all RewardBalances
+     * const rewardBalances = await prisma.rewardBalance.findMany()
      * 
-     * // Get first 10 PointBalances
-     * const pointBalances = await prisma.pointBalance.findMany({ take: 10 })
+     * // Get first 10 RewardBalances
+     * const rewardBalances = await prisma.rewardBalance.findMany({ take: 10 })
      * 
      * // Only select the `userId`
-     * const pointBalanceWithUserIdOnly = await prisma.pointBalance.findMany({ select: { userId: true } })
+     * const rewardBalanceWithUserIdOnly = await prisma.rewardBalance.findMany({ select: { userId: true } })
      * 
      */
-    findMany<T extends PointBalanceFindManyArgs>(args?: SelectSubset<T, PointBalanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends RewardBalanceFindManyArgs>(args?: SelectSubset<T, RewardBalanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a PointBalance.
-     * @param {PointBalanceCreateArgs} args - Arguments to create a PointBalance.
+     * Create a RewardBalance.
+     * @param {RewardBalanceCreateArgs} args - Arguments to create a RewardBalance.
      * @example
-     * // Create one PointBalance
-     * const PointBalance = await prisma.pointBalance.create({
+     * // Create one RewardBalance
+     * const RewardBalance = await prisma.rewardBalance.create({
      *   data: {
-     *     // ... data to create a PointBalance
+     *     // ... data to create a RewardBalance
      *   }
      * })
      * 
      */
-    create<T extends PointBalanceCreateArgs>(args: SelectSubset<T, PointBalanceCreateArgs<ExtArgs>>): Prisma__PointBalanceClient<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends RewardBalanceCreateArgs>(args: SelectSubset<T, RewardBalanceCreateArgs<ExtArgs>>): Prisma__RewardBalanceClient<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many PointBalances.
-     * @param {PointBalanceCreateManyArgs} args - Arguments to create many PointBalances.
+     * Create many RewardBalances.
+     * @param {RewardBalanceCreateManyArgs} args - Arguments to create many RewardBalances.
      * @example
-     * // Create many PointBalances
-     * const pointBalance = await prisma.pointBalance.createMany({
+     * // Create many RewardBalances
+     * const rewardBalance = await prisma.rewardBalance.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends PointBalanceCreateManyArgs>(args?: SelectSubset<T, PointBalanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends RewardBalanceCreateManyArgs>(args?: SelectSubset<T, RewardBalanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many PointBalances and returns the data saved in the database.
-     * @param {PointBalanceCreateManyAndReturnArgs} args - Arguments to create many PointBalances.
+     * Create many RewardBalances and returns the data saved in the database.
+     * @param {RewardBalanceCreateManyAndReturnArgs} args - Arguments to create many RewardBalances.
      * @example
-     * // Create many PointBalances
-     * const pointBalance = await prisma.pointBalance.createManyAndReturn({
+     * // Create many RewardBalances
+     * const rewardBalance = await prisma.rewardBalance.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many PointBalances and only return the `userId`
-     * const pointBalanceWithUserIdOnly = await prisma.pointBalance.createManyAndReturn({
+     * // Create many RewardBalances and only return the `userId`
+     * const rewardBalanceWithUserIdOnly = await prisma.rewardBalance.createManyAndReturn({
      *   select: { userId: true },
      *   data: [
      *     // ... provide data here
@@ -35004,28 +35004,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends PointBalanceCreateManyAndReturnArgs>(args?: SelectSubset<T, PointBalanceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends RewardBalanceCreateManyAndReturnArgs>(args?: SelectSubset<T, RewardBalanceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a PointBalance.
-     * @param {PointBalanceDeleteArgs} args - Arguments to delete one PointBalance.
+     * Delete a RewardBalance.
+     * @param {RewardBalanceDeleteArgs} args - Arguments to delete one RewardBalance.
      * @example
-     * // Delete one PointBalance
-     * const PointBalance = await prisma.pointBalance.delete({
+     * // Delete one RewardBalance
+     * const RewardBalance = await prisma.rewardBalance.delete({
      *   where: {
-     *     // ... filter to delete one PointBalance
+     *     // ... filter to delete one RewardBalance
      *   }
      * })
      * 
      */
-    delete<T extends PointBalanceDeleteArgs>(args: SelectSubset<T, PointBalanceDeleteArgs<ExtArgs>>): Prisma__PointBalanceClient<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends RewardBalanceDeleteArgs>(args: SelectSubset<T, RewardBalanceDeleteArgs<ExtArgs>>): Prisma__RewardBalanceClient<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one PointBalance.
-     * @param {PointBalanceUpdateArgs} args - Arguments to update one PointBalance.
+     * Update one RewardBalance.
+     * @param {RewardBalanceUpdateArgs} args - Arguments to update one RewardBalance.
      * @example
-     * // Update one PointBalance
-     * const pointBalance = await prisma.pointBalance.update({
+     * // Update one RewardBalance
+     * const rewardBalance = await prisma.rewardBalance.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -35035,30 +35035,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends PointBalanceUpdateArgs>(args: SelectSubset<T, PointBalanceUpdateArgs<ExtArgs>>): Prisma__PointBalanceClient<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends RewardBalanceUpdateArgs>(args: SelectSubset<T, RewardBalanceUpdateArgs<ExtArgs>>): Prisma__RewardBalanceClient<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more PointBalances.
-     * @param {PointBalanceDeleteManyArgs} args - Arguments to filter PointBalances to delete.
+     * Delete zero or more RewardBalances.
+     * @param {RewardBalanceDeleteManyArgs} args - Arguments to filter RewardBalances to delete.
      * @example
-     * // Delete a few PointBalances
-     * const { count } = await prisma.pointBalance.deleteMany({
+     * // Delete a few RewardBalances
+     * const { count } = await prisma.rewardBalance.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends PointBalanceDeleteManyArgs>(args?: SelectSubset<T, PointBalanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends RewardBalanceDeleteManyArgs>(args?: SelectSubset<T, RewardBalanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more PointBalances.
+     * Update zero or more RewardBalances.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointBalanceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {RewardBalanceUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many PointBalances
-     * const pointBalance = await prisma.pointBalance.updateMany({
+     * // Update many RewardBalances
+     * const rewardBalance = await prisma.rewardBalance.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -35068,14 +35068,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends PointBalanceUpdateManyArgs>(args: SelectSubset<T, PointBalanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends RewardBalanceUpdateManyArgs>(args: SelectSubset<T, RewardBalanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more PointBalances and returns the data updated in the database.
-     * @param {PointBalanceUpdateManyAndReturnArgs} args - Arguments to update many PointBalances.
+     * Update zero or more RewardBalances and returns the data updated in the database.
+     * @param {RewardBalanceUpdateManyAndReturnArgs} args - Arguments to update many RewardBalances.
      * @example
-     * // Update many PointBalances
-     * const pointBalance = await prisma.pointBalance.updateManyAndReturn({
+     * // Update many RewardBalances
+     * const rewardBalance = await prisma.rewardBalance.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -35084,8 +35084,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more PointBalances and only return the `userId`
-     * const pointBalanceWithUserIdOnly = await prisma.pointBalance.updateManyAndReturn({
+     * // Update zero or more RewardBalances and only return the `userId`
+     * const rewardBalanceWithUserIdOnly = await prisma.rewardBalance.updateManyAndReturn({
      *   select: { userId: true },
      *   where: {
      *     // ... provide filter here
@@ -35098,56 +35098,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends PointBalanceUpdateManyAndReturnArgs>(args: SelectSubset<T, PointBalanceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends RewardBalanceUpdateManyAndReturnArgs>(args: SelectSubset<T, RewardBalanceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one PointBalance.
-     * @param {PointBalanceUpsertArgs} args - Arguments to update or create a PointBalance.
+     * Create or update one RewardBalance.
+     * @param {RewardBalanceUpsertArgs} args - Arguments to update or create a RewardBalance.
      * @example
-     * // Update or create a PointBalance
-     * const pointBalance = await prisma.pointBalance.upsert({
+     * // Update or create a RewardBalance
+     * const rewardBalance = await prisma.rewardBalance.upsert({
      *   create: {
-     *     // ... data to create a PointBalance
+     *     // ... data to create a RewardBalance
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the PointBalance we want to update
+     *     // ... the filter for the RewardBalance we want to update
      *   }
      * })
      */
-    upsert<T extends PointBalanceUpsertArgs>(args: SelectSubset<T, PointBalanceUpsertArgs<ExtArgs>>): Prisma__PointBalanceClient<$Result.GetResult<Prisma.$PointBalancePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends RewardBalanceUpsertArgs>(args: SelectSubset<T, RewardBalanceUpsertArgs<ExtArgs>>): Prisma__RewardBalanceClient<$Result.GetResult<Prisma.$RewardBalancePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of PointBalances.
+     * Count the number of RewardBalances.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointBalanceCountArgs} args - Arguments to filter PointBalances to count.
+     * @param {RewardBalanceCountArgs} args - Arguments to filter RewardBalances to count.
      * @example
-     * // Count the number of PointBalances
-     * const count = await prisma.pointBalance.count({
+     * // Count the number of RewardBalances
+     * const count = await prisma.rewardBalance.count({
      *   where: {
-     *     // ... the filter for the PointBalances we want to count
+     *     // ... the filter for the RewardBalances we want to count
      *   }
      * })
     **/
-    count<T extends PointBalanceCountArgs>(
-      args?: Subset<T, PointBalanceCountArgs>,
+    count<T extends RewardBalanceCountArgs>(
+      args?: Subset<T, RewardBalanceCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], PointBalanceCountAggregateOutputType>
+          : GetScalarType<T['select'], RewardBalanceCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a PointBalance.
+     * Allows you to perform aggregations operations on a RewardBalance.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointBalanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {RewardBalanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -35167,13 +35167,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends PointBalanceAggregateArgs>(args: Subset<T, PointBalanceAggregateArgs>): Prisma.PrismaPromise<GetPointBalanceAggregateType<T>>
+    aggregate<T extends RewardBalanceAggregateArgs>(args: Subset<T, RewardBalanceAggregateArgs>): Prisma.PrismaPromise<GetRewardBalanceAggregateType<T>>
 
     /**
-     * Group by PointBalance.
+     * Group by RewardBalance.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointBalanceGroupByArgs} args - Group by arguments.
+     * @param {RewardBalanceGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -35188,14 +35188,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends PointBalanceGroupByArgs,
+      T extends RewardBalanceGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: PointBalanceGroupByArgs['orderBy'] }
-        : { orderBy?: PointBalanceGroupByArgs['orderBy'] },
+        ? { orderBy: RewardBalanceGroupByArgs['orderBy'] }
+        : { orderBy?: RewardBalanceGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -35244,20 +35244,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, PointBalanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPointBalanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, RewardBalanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRewardBalanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the PointBalance model
+   * Fields of the RewardBalance model
    */
-  readonly fields: PointBalanceFieldRefs;
+  readonly fields: RewardBalanceFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for PointBalance.
+   * The delegate class that acts as a "Promise-like" for RewardBalance.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__PointBalanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__RewardBalanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
@@ -35286,436 +35286,436 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the PointBalance model
+   * Fields of the RewardBalance model
    */
-  interface PointBalanceFieldRefs {
-    readonly userId: FieldRef<"PointBalance", 'String'>
-    readonly balance: FieldRef<"PointBalance", 'Int'>
-    readonly lifetimeEarned: FieldRef<"PointBalance", 'Int'>
-    readonly lifetimeSpent: FieldRef<"PointBalance", 'Int'>
-    readonly lifetimeAdjusted: FieldRef<"PointBalance", 'Int'>
-    readonly lifetimeRefunded: FieldRef<"PointBalance", 'Int'>
-    readonly currentStreakCount: FieldRef<"PointBalance", 'Int'>
-    readonly longestStreakCount: FieldRef<"PointBalance", 'Int'>
-    readonly currentStreakTier: FieldRef<"PointBalance", 'String'>
-    readonly streakActiveThrough: FieldRef<"PointBalance", 'DateTime'>
-    readonly lastEarnedAt: FieldRef<"PointBalance", 'DateTime'>
-    readonly lastRedeemedAt: FieldRef<"PointBalance", 'DateTime'>
-    readonly lastAdjustmentAt: FieldRef<"PointBalance", 'DateTime'>
-    readonly lastEvaluatedAt: FieldRef<"PointBalance", 'DateTime'>
-    readonly createdAt: FieldRef<"PointBalance", 'DateTime'>
-    readonly updatedAt: FieldRef<"PointBalance", 'DateTime'>
+  interface RewardBalanceFieldRefs {
+    readonly userId: FieldRef<"RewardBalance", 'String'>
+    readonly balance: FieldRef<"RewardBalance", 'Int'>
+    readonly lifetimeEarned: FieldRef<"RewardBalance", 'Int'>
+    readonly lifetimeSpent: FieldRef<"RewardBalance", 'Int'>
+    readonly lifetimeAdjusted: FieldRef<"RewardBalance", 'Int'>
+    readonly lifetimeRefunded: FieldRef<"RewardBalance", 'Int'>
+    readonly currentStreakCount: FieldRef<"RewardBalance", 'Int'>
+    readonly longestStreakCount: FieldRef<"RewardBalance", 'Int'>
+    readonly currentStreakTier: FieldRef<"RewardBalance", 'String'>
+    readonly streakActiveThrough: FieldRef<"RewardBalance", 'DateTime'>
+    readonly lastEarnedAt: FieldRef<"RewardBalance", 'DateTime'>
+    readonly lastRedeemedAt: FieldRef<"RewardBalance", 'DateTime'>
+    readonly lastAdjustmentAt: FieldRef<"RewardBalance", 'DateTime'>
+    readonly lastEvaluatedAt: FieldRef<"RewardBalance", 'DateTime'>
+    readonly createdAt: FieldRef<"RewardBalance", 'DateTime'>
+    readonly updatedAt: FieldRef<"RewardBalance", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * PointBalance findUnique
+   * RewardBalance findUnique
    */
-  export type PointBalanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
+    include?: RewardBalanceInclude<ExtArgs> | null
     /**
-     * Filter, which PointBalance to fetch.
+     * Filter, which RewardBalance to fetch.
      */
-    where: PointBalanceWhereUniqueInput
+    where: RewardBalanceWhereUniqueInput
   }
 
   /**
-   * PointBalance findUniqueOrThrow
+   * RewardBalance findUniqueOrThrow
    */
-  export type PointBalanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
+    include?: RewardBalanceInclude<ExtArgs> | null
     /**
-     * Filter, which PointBalance to fetch.
+     * Filter, which RewardBalance to fetch.
      */
-    where: PointBalanceWhereUniqueInput
+    where: RewardBalanceWhereUniqueInput
   }
 
   /**
-   * PointBalance findFirst
+   * RewardBalance findFirst
    */
-  export type PointBalanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
+    include?: RewardBalanceInclude<ExtArgs> | null
     /**
-     * Filter, which PointBalance to fetch.
+     * Filter, which RewardBalance to fetch.
      */
-    where?: PointBalanceWhereInput
+    where?: RewardBalanceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PointBalances to fetch.
+     * Determine the order of RewardBalances to fetch.
      */
-    orderBy?: PointBalanceOrderByWithRelationInput | PointBalanceOrderByWithRelationInput[]
+    orderBy?: RewardBalanceOrderByWithRelationInput | RewardBalanceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PointBalances.
+     * Sets the position for searching for RewardBalances.
      */
-    cursor?: PointBalanceWhereUniqueInput
+    cursor?: RewardBalanceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PointBalances from the position of the cursor.
+     * Take `±n` RewardBalances from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PointBalances.
+     * Skip the first `n` RewardBalances.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PointBalances.
+     * Filter by unique combinations of RewardBalances.
      */
-    distinct?: PointBalanceScalarFieldEnum | PointBalanceScalarFieldEnum[]
+    distinct?: RewardBalanceScalarFieldEnum | RewardBalanceScalarFieldEnum[]
   }
 
   /**
-   * PointBalance findFirstOrThrow
+   * RewardBalance findFirstOrThrow
    */
-  export type PointBalanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
+    include?: RewardBalanceInclude<ExtArgs> | null
     /**
-     * Filter, which PointBalance to fetch.
+     * Filter, which RewardBalance to fetch.
      */
-    where?: PointBalanceWhereInput
+    where?: RewardBalanceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PointBalances to fetch.
+     * Determine the order of RewardBalances to fetch.
      */
-    orderBy?: PointBalanceOrderByWithRelationInput | PointBalanceOrderByWithRelationInput[]
+    orderBy?: RewardBalanceOrderByWithRelationInput | RewardBalanceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PointBalances.
+     * Sets the position for searching for RewardBalances.
      */
-    cursor?: PointBalanceWhereUniqueInput
+    cursor?: RewardBalanceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PointBalances from the position of the cursor.
+     * Take `±n` RewardBalances from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PointBalances.
+     * Skip the first `n` RewardBalances.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PointBalances.
+     * Filter by unique combinations of RewardBalances.
      */
-    distinct?: PointBalanceScalarFieldEnum | PointBalanceScalarFieldEnum[]
+    distinct?: RewardBalanceScalarFieldEnum | RewardBalanceScalarFieldEnum[]
   }
 
   /**
-   * PointBalance findMany
+   * RewardBalance findMany
    */
-  export type PointBalanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
+    include?: RewardBalanceInclude<ExtArgs> | null
     /**
-     * Filter, which PointBalances to fetch.
+     * Filter, which RewardBalances to fetch.
      */
-    where?: PointBalanceWhereInput
+    where?: RewardBalanceWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PointBalances to fetch.
+     * Determine the order of RewardBalances to fetch.
      */
-    orderBy?: PointBalanceOrderByWithRelationInput | PointBalanceOrderByWithRelationInput[]
+    orderBy?: RewardBalanceOrderByWithRelationInput | RewardBalanceOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing PointBalances.
+     * Sets the position for listing RewardBalances.
      */
-    cursor?: PointBalanceWhereUniqueInput
+    cursor?: RewardBalanceWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PointBalances from the position of the cursor.
+     * Take `±n` RewardBalances from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PointBalances.
+     * Skip the first `n` RewardBalances.
      */
     skip?: number
-    distinct?: PointBalanceScalarFieldEnum | PointBalanceScalarFieldEnum[]
+    distinct?: RewardBalanceScalarFieldEnum | RewardBalanceScalarFieldEnum[]
   }
 
   /**
-   * PointBalance create
+   * RewardBalance create
    */
-  export type PointBalanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
+    include?: RewardBalanceInclude<ExtArgs> | null
     /**
-     * The data needed to create a PointBalance.
+     * The data needed to create a RewardBalance.
      */
-    data: XOR<PointBalanceCreateInput, PointBalanceUncheckedCreateInput>
+    data: XOR<RewardBalanceCreateInput, RewardBalanceUncheckedCreateInput>
   }
 
   /**
-   * PointBalance createMany
+   * RewardBalance createMany
    */
-  export type PointBalanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many PointBalances.
+     * The data used to create many RewardBalances.
      */
-    data: PointBalanceCreateManyInput | PointBalanceCreateManyInput[]
+    data: RewardBalanceCreateManyInput | RewardBalanceCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * PointBalance createManyAndReturn
+   * RewardBalance createManyAndReturn
    */
-  export type PointBalanceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelectCreateManyAndReturn<ExtArgs> | null
+    select?: RewardBalanceSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
-     * The data used to create many PointBalances.
+     * The data used to create many RewardBalances.
      */
-    data: PointBalanceCreateManyInput | PointBalanceCreateManyInput[]
+    data: RewardBalanceCreateManyInput | RewardBalanceCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: RewardBalanceIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * PointBalance update
+   * RewardBalance update
    */
-  export type PointBalanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
+    include?: RewardBalanceInclude<ExtArgs> | null
     /**
-     * The data needed to update a PointBalance.
+     * The data needed to update a RewardBalance.
      */
-    data: XOR<PointBalanceUpdateInput, PointBalanceUncheckedUpdateInput>
+    data: XOR<RewardBalanceUpdateInput, RewardBalanceUncheckedUpdateInput>
     /**
-     * Choose, which PointBalance to update.
+     * Choose, which RewardBalance to update.
      */
-    where: PointBalanceWhereUniqueInput
+    where: RewardBalanceWhereUniqueInput
   }
 
   /**
-   * PointBalance updateMany
+   * RewardBalance updateMany
    */
-  export type PointBalanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update PointBalances.
+     * The data used to update RewardBalances.
      */
-    data: XOR<PointBalanceUpdateManyMutationInput, PointBalanceUncheckedUpdateManyInput>
+    data: XOR<RewardBalanceUpdateManyMutationInput, RewardBalanceUncheckedUpdateManyInput>
     /**
-     * Filter which PointBalances to update
+     * Filter which RewardBalances to update
      */
-    where?: PointBalanceWhereInput
+    where?: RewardBalanceWhereInput
     /**
-     * Limit how many PointBalances to update.
+     * Limit how many RewardBalances to update.
      */
     limit?: number
   }
 
   /**
-   * PointBalance updateManyAndReturn
+   * RewardBalance updateManyAndReturn
    */
-  export type PointBalanceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: RewardBalanceSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
-     * The data used to update PointBalances.
+     * The data used to update RewardBalances.
      */
-    data: XOR<PointBalanceUpdateManyMutationInput, PointBalanceUncheckedUpdateManyInput>
+    data: XOR<RewardBalanceUpdateManyMutationInput, RewardBalanceUncheckedUpdateManyInput>
     /**
-     * Filter which PointBalances to update
+     * Filter which RewardBalances to update
      */
-    where?: PointBalanceWhereInput
+    where?: RewardBalanceWhereInput
     /**
-     * Limit how many PointBalances to update.
+     * Limit how many RewardBalances to update.
      */
     limit?: number
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceIncludeUpdateManyAndReturn<ExtArgs> | null
+    include?: RewardBalanceIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * PointBalance upsert
+   * RewardBalance upsert
    */
-  export type PointBalanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
+    include?: RewardBalanceInclude<ExtArgs> | null
     /**
-     * The filter to search for the PointBalance to update in case it exists.
+     * The filter to search for the RewardBalance to update in case it exists.
      */
-    where: PointBalanceWhereUniqueInput
+    where: RewardBalanceWhereUniqueInput
     /**
-     * In case the PointBalance found by the `where` argument doesn't exist, create a new PointBalance with this data.
+     * In case the RewardBalance found by the `where` argument doesn't exist, create a new RewardBalance with this data.
      */
-    create: XOR<PointBalanceCreateInput, PointBalanceUncheckedCreateInput>
+    create: XOR<RewardBalanceCreateInput, RewardBalanceUncheckedCreateInput>
     /**
-     * In case the PointBalance was found with the provided `where` argument, update it with this data.
+     * In case the RewardBalance was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<PointBalanceUpdateInput, PointBalanceUncheckedUpdateInput>
+    update: XOR<RewardBalanceUpdateInput, RewardBalanceUncheckedUpdateInput>
   }
 
   /**
-   * PointBalance delete
+   * RewardBalance delete
    */
-  export type PointBalanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
+    include?: RewardBalanceInclude<ExtArgs> | null
     /**
-     * Filter which PointBalance to delete.
+     * Filter which RewardBalance to delete.
      */
-    where: PointBalanceWhereUniqueInput
+    where: RewardBalanceWhereUniqueInput
   }
 
   /**
-   * PointBalance deleteMany
+   * RewardBalance deleteMany
    */
-  export type PointBalanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PointBalances to delete
+     * Filter which RewardBalances to delete
      */
-    where?: PointBalanceWhereInput
+    where?: RewardBalanceWhereInput
     /**
-     * Limit how many PointBalances to delete.
+     * Limit how many RewardBalances to delete.
      */
     limit?: number
   }
 
   /**
-   * PointBalance without action
+   * RewardBalance without action
    */
-  export type PointBalanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardBalanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointBalance
+     * Select specific fields to fetch from the RewardBalance
      */
-    select?: PointBalanceSelect<ExtArgs> | null
+    select?: RewardBalanceSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointBalance
+     * Omit specific fields from the RewardBalance
      */
-    omit?: PointBalanceOmit<ExtArgs> | null
+    omit?: RewardBalanceOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointBalanceInclude<ExtArgs> | null
+    include?: RewardBalanceInclude<ExtArgs> | null
   }
 
 
@@ -35732,7 +35732,7 @@ export namespace Prisma {
   }
 
   export type RewardRuleAvgAggregateOutputType = {
-    basePoints: number | null
+    baseRewardAmount: number | null
     dailyCap: number | null
     lifetimeCap: number | null
     globalCooldownSeconds: number | null
@@ -35740,7 +35740,7 @@ export namespace Prisma {
   }
 
   export type RewardRuleSumAggregateOutputType = {
-    basePoints: number | null
+    baseRewardAmount: number | null
     dailyCap: number | null
     lifetimeCap: number | null
     globalCooldownSeconds: number | null
@@ -35753,7 +35753,7 @@ export namespace Prisma {
     name: string | null
     description: string | null
     category: $Enums.RewardRuleCategory | null
-    basePoints: number | null
+    baseRewardAmount: number | null
     isActive: boolean | null
     dailyCap: number | null
     lifetimeCap: number | null
@@ -35770,7 +35770,7 @@ export namespace Prisma {
     name: string | null
     description: string | null
     category: $Enums.RewardRuleCategory | null
-    basePoints: number | null
+    baseRewardAmount: number | null
     isActive: boolean | null
     dailyCap: number | null
     lifetimeCap: number | null
@@ -35787,7 +35787,7 @@ export namespace Prisma {
     name: number
     description: number
     category: number
-    basePoints: number
+    baseRewardAmount: number
     isActive: number
     dailyCap: number
     lifetimeCap: number
@@ -35803,7 +35803,7 @@ export namespace Prisma {
 
 
   export type RewardRuleAvgAggregateInputType = {
-    basePoints?: true
+    baseRewardAmount?: true
     dailyCap?: true
     lifetimeCap?: true
     globalCooldownSeconds?: true
@@ -35811,7 +35811,7 @@ export namespace Prisma {
   }
 
   export type RewardRuleSumAggregateInputType = {
-    basePoints?: true
+    baseRewardAmount?: true
     dailyCap?: true
     lifetimeCap?: true
     globalCooldownSeconds?: true
@@ -35824,7 +35824,7 @@ export namespace Prisma {
     name?: true
     description?: true
     category?: true
-    basePoints?: true
+    baseRewardAmount?: true
     isActive?: true
     dailyCap?: true
     lifetimeCap?: true
@@ -35841,7 +35841,7 @@ export namespace Prisma {
     name?: true
     description?: true
     category?: true
-    basePoints?: true
+    baseRewardAmount?: true
     isActive?: true
     dailyCap?: true
     lifetimeCap?: true
@@ -35858,7 +35858,7 @@ export namespace Prisma {
     name?: true
     description?: true
     category?: true
-    basePoints?: true
+    baseRewardAmount?: true
     isActive?: true
     dailyCap?: true
     lifetimeCap?: true
@@ -35964,7 +35964,7 @@ export namespace Prisma {
     name: string
     description: string | null
     category: $Enums.RewardRuleCategory
-    basePoints: number
+    baseRewardAmount: number
     isActive: boolean
     dailyCap: number | null
     lifetimeCap: number | null
@@ -36002,7 +36002,7 @@ export namespace Prisma {
     name?: boolean
     description?: boolean
     category?: boolean
-    basePoints?: boolean
+    baseRewardAmount?: boolean
     isActive?: boolean
     dailyCap?: boolean
     lifetimeCap?: boolean
@@ -36023,7 +36023,7 @@ export namespace Prisma {
     name?: boolean
     description?: boolean
     category?: boolean
-    basePoints?: boolean
+    baseRewardAmount?: boolean
     isActive?: boolean
     dailyCap?: boolean
     lifetimeCap?: boolean
@@ -36042,7 +36042,7 @@ export namespace Prisma {
     name?: boolean
     description?: boolean
     category?: boolean
-    basePoints?: boolean
+    baseRewardAmount?: boolean
     isActive?: boolean
     dailyCap?: boolean
     lifetimeCap?: boolean
@@ -36061,7 +36061,7 @@ export namespace Prisma {
     name?: boolean
     description?: boolean
     category?: boolean
-    basePoints?: boolean
+    baseRewardAmount?: boolean
     isActive?: boolean
     dailyCap?: boolean
     lifetimeCap?: boolean
@@ -36074,7 +36074,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type RewardRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "name" | "description" | "category" | "basePoints" | "isActive" | "dailyCap" | "lifetimeCap" | "globalCooldownSeconds" | "perTargetCooldownSeconds" | "metadata" | "tierConfig" | "adminNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["rewardRule"]>
+  export type RewardRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "key" | "name" | "description" | "category" | "baseRewardAmount" | "isActive" | "dailyCap" | "lifetimeCap" | "globalCooldownSeconds" | "perTargetCooldownSeconds" | "metadata" | "tierConfig" | "adminNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["rewardRule"]>
   export type RewardRuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transactions?: boolean | RewardRule$transactionsArgs<ExtArgs>
     _count?: boolean | RewardRuleCountOutputTypeDefaultArgs<ExtArgs>
@@ -36085,7 +36085,7 @@ export namespace Prisma {
   export type $RewardRulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "RewardRule"
     objects: {
-      transactions: Prisma.$PointTransactionPayload<ExtArgs>[]
+      transactions: Prisma.$RewardTransactionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -36093,7 +36093,7 @@ export namespace Prisma {
       name: string
       description: string | null
       category: $Enums.RewardRuleCategory
-      basePoints: number
+      baseRewardAmount: number
       isActive: boolean
       dailyCap: number | null
       lifetimeCap: number | null
@@ -36498,7 +36498,7 @@ export namespace Prisma {
    */
   export interface Prisma__RewardRuleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    transactions<T extends RewardRule$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, RewardRule$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    transactions<T extends RewardRule$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, RewardRule$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -36533,7 +36533,7 @@ export namespace Prisma {
     readonly name: FieldRef<"RewardRule", 'String'>
     readonly description: FieldRef<"RewardRule", 'String'>
     readonly category: FieldRef<"RewardRule", 'RewardRuleCategory'>
-    readonly basePoints: FieldRef<"RewardRule", 'Int'>
+    readonly baseRewardAmount: FieldRef<"RewardRule", 'Int'>
     readonly isActive: FieldRef<"RewardRule", 'Boolean'>
     readonly dailyCap: FieldRef<"RewardRule", 'Int'>
     readonly lifetimeCap: FieldRef<"RewardRule", 'Int'>
@@ -36936,23 +36936,23 @@ export namespace Prisma {
    */
   export type RewardRule$transactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
-    where?: PointTransactionWhereInput
-    orderBy?: PointTransactionOrderByWithRelationInput | PointTransactionOrderByWithRelationInput[]
-    cursor?: PointTransactionWhereUniqueInput
+    include?: RewardTransactionInclude<ExtArgs> | null
+    where?: RewardTransactionWhereInput
+    orderBy?: RewardTransactionOrderByWithRelationInput | RewardTransactionOrderByWithRelationInput[]
+    cursor?: RewardTransactionWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: PointTransactionScalarFieldEnum | PointTransactionScalarFieldEnum[]
+    distinct?: RewardTransactionScalarFieldEnum | RewardTransactionScalarFieldEnum[]
   }
 
   /**
@@ -37346,7 +37346,7 @@ export namespace Prisma {
       planFeature: Prisma.$PlanFeaturePayload<ExtArgs> | null
       redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
       entitlements: Prisma.$FeatureEntitlementPayload<ExtArgs>[]
-      transactions: Prisma.$PointTransactionPayload<ExtArgs>[]
+      transactions: Prisma.$RewardTransactionPayload<ExtArgs>[]
       placementSchedules: Prisma.$PlacementSchedulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -37762,7 +37762,7 @@ export namespace Prisma {
     planFeature<T extends RewardCatalogItem$planFeatureArgs<ExtArgs> = {}>(args?: Subset<T, RewardCatalogItem$planFeatureArgs<ExtArgs>>): Prisma__PlanFeatureClient<$Result.GetResult<Prisma.$PlanFeaturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     redemptions<T extends RewardCatalogItem$redemptionsArgs<ExtArgs> = {}>(args?: Subset<T, RewardCatalogItem$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     entitlements<T extends RewardCatalogItem$entitlementsArgs<ExtArgs> = {}>(args?: Subset<T, RewardCatalogItem$entitlementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeatureEntitlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    transactions<T extends RewardCatalogItem$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, RewardCatalogItem$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    transactions<T extends RewardCatalogItem$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, RewardCatalogItem$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     placementSchedules<T extends RewardCatalogItem$placementSchedulesArgs<ExtArgs> = {}>(args?: Subset<T, RewardCatalogItem$placementSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlacementSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -38275,23 +38275,23 @@ export namespace Prisma {
    */
   export type RewardCatalogItem$transactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
-    where?: PointTransactionWhereInput
-    orderBy?: PointTransactionOrderByWithRelationInput | PointTransactionOrderByWithRelationInput[]
-    cursor?: PointTransactionWhereUniqueInput
+    include?: RewardTransactionInclude<ExtArgs> | null
+    where?: RewardTransactionWhereInput
+    orderBy?: RewardTransactionOrderByWithRelationInput | RewardTransactionOrderByWithRelationInput[]
+    cursor?: RewardTransactionWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: PointTransactionScalarFieldEnum | PointTransactionScalarFieldEnum[]
+    distinct?: RewardTransactionScalarFieldEnum | RewardTransactionScalarFieldEnum[]
   }
 
   /**
@@ -38338,32 +38338,32 @@ export namespace Prisma {
 
 
   /**
-   * Model PointTransaction
+   * Model RewardTransaction
    */
 
-  export type AggregatePointTransaction = {
-    _count: PointTransactionCountAggregateOutputType | null
-    _avg: PointTransactionAvgAggregateOutputType | null
-    _sum: PointTransactionSumAggregateOutputType | null
-    _min: PointTransactionMinAggregateOutputType | null
-    _max: PointTransactionMaxAggregateOutputType | null
+  export type AggregateRewardTransaction = {
+    _count: RewardTransactionCountAggregateOutputType | null
+    _avg: RewardTransactionAvgAggregateOutputType | null
+    _sum: RewardTransactionSumAggregateOutputType | null
+    _min: RewardTransactionMinAggregateOutputType | null
+    _max: RewardTransactionMaxAggregateOutputType | null
   }
 
-  export type PointTransactionAvgAggregateOutputType = {
-    points: number | null
+  export type RewardTransactionAvgAggregateOutputType = {
+    rewardAmount: number | null
     balanceAfter: number | null
   }
 
-  export type PointTransactionSumAggregateOutputType = {
-    points: number | null
+  export type RewardTransactionSumAggregateOutputType = {
+    rewardAmount: number | null
     balanceAfter: number | null
   }
 
-  export type PointTransactionMinAggregateOutputType = {
+  export type RewardTransactionMinAggregateOutputType = {
     id: string | null
     userId: string | null
-    type: $Enums.PointTransactionType | null
-    points: number | null
+    type: $Enums.RewardTransactionType | null
+    rewardAmount: number | null
     balanceAfter: number | null
     ruleId: string | null
     ruleKey: string | null
@@ -38382,11 +38382,11 @@ export namespace Prisma {
     updatedAt: Date | null
   }
 
-  export type PointTransactionMaxAggregateOutputType = {
+  export type RewardTransactionMaxAggregateOutputType = {
     id: string | null
     userId: string | null
-    type: $Enums.PointTransactionType | null
-    points: number | null
+    type: $Enums.RewardTransactionType | null
+    rewardAmount: number | null
     balanceAfter: number | null
     ruleId: string | null
     ruleKey: string | null
@@ -38405,11 +38405,11 @@ export namespace Prisma {
     updatedAt: Date | null
   }
 
-  export type PointTransactionCountAggregateOutputType = {
+  export type RewardTransactionCountAggregateOutputType = {
     id: number
     userId: number
     type: number
-    points: number
+    rewardAmount: number
     balanceAfter: number
     ruleId: number
     ruleKey: number
@@ -38431,21 +38431,21 @@ export namespace Prisma {
   }
 
 
-  export type PointTransactionAvgAggregateInputType = {
-    points?: true
+  export type RewardTransactionAvgAggregateInputType = {
+    rewardAmount?: true
     balanceAfter?: true
   }
 
-  export type PointTransactionSumAggregateInputType = {
-    points?: true
+  export type RewardTransactionSumAggregateInputType = {
+    rewardAmount?: true
     balanceAfter?: true
   }
 
-  export type PointTransactionMinAggregateInputType = {
+  export type RewardTransactionMinAggregateInputType = {
     id?: true
     userId?: true
     type?: true
-    points?: true
+    rewardAmount?: true
     balanceAfter?: true
     ruleId?: true
     ruleKey?: true
@@ -38464,11 +38464,11 @@ export namespace Prisma {
     updatedAt?: true
   }
 
-  export type PointTransactionMaxAggregateInputType = {
+  export type RewardTransactionMaxAggregateInputType = {
     id?: true
     userId?: true
     type?: true
-    points?: true
+    rewardAmount?: true
     balanceAfter?: true
     ruleId?: true
     ruleKey?: true
@@ -38487,11 +38487,11 @@ export namespace Prisma {
     updatedAt?: true
   }
 
-  export type PointTransactionCountAggregateInputType = {
+  export type RewardTransactionCountAggregateInputType = {
     id?: true
     userId?: true
     type?: true
-    points?: true
+    rewardAmount?: true
     balanceAfter?: true
     ruleId?: true
     ruleKey?: true
@@ -38512,97 +38512,97 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type PointTransactionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PointTransaction to aggregate.
+     * Filter which RewardTransaction to aggregate.
      */
-    where?: PointTransactionWhereInput
+    where?: RewardTransactionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PointTransactions to fetch.
+     * Determine the order of RewardTransactions to fetch.
      */
-    orderBy?: PointTransactionOrderByWithRelationInput | PointTransactionOrderByWithRelationInput[]
+    orderBy?: RewardTransactionOrderByWithRelationInput | RewardTransactionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: PointTransactionWhereUniqueInput
+    cursor?: RewardTransactionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PointTransactions from the position of the cursor.
+     * Take `±n` RewardTransactions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PointTransactions.
+     * Skip the first `n` RewardTransactions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned PointTransactions
+     * Count returned RewardTransactions
     **/
-    _count?: true | PointTransactionCountAggregateInputType
+    _count?: true | RewardTransactionCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: PointTransactionAvgAggregateInputType
+    _avg?: RewardTransactionAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: PointTransactionSumAggregateInputType
+    _sum?: RewardTransactionSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: PointTransactionMinAggregateInputType
+    _min?: RewardTransactionMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: PointTransactionMaxAggregateInputType
+    _max?: RewardTransactionMaxAggregateInputType
   }
 
-  export type GetPointTransactionAggregateType<T extends PointTransactionAggregateArgs> = {
-        [P in keyof T & keyof AggregatePointTransaction]: P extends '_count' | 'count'
+  export type GetRewardTransactionAggregateType<T extends RewardTransactionAggregateArgs> = {
+        [P in keyof T & keyof AggregateRewardTransaction]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregatePointTransaction[P]>
-      : GetScalarType<T[P], AggregatePointTransaction[P]>
+        : GetScalarType<T[P], AggregateRewardTransaction[P]>
+      : GetScalarType<T[P], AggregateRewardTransaction[P]>
   }
 
 
 
 
-  export type PointTransactionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PointTransactionWhereInput
-    orderBy?: PointTransactionOrderByWithAggregationInput | PointTransactionOrderByWithAggregationInput[]
-    by: PointTransactionScalarFieldEnum[] | PointTransactionScalarFieldEnum
-    having?: PointTransactionScalarWhereWithAggregatesInput
+  export type RewardTransactionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RewardTransactionWhereInput
+    orderBy?: RewardTransactionOrderByWithAggregationInput | RewardTransactionOrderByWithAggregationInput[]
+    by: RewardTransactionScalarFieldEnum[] | RewardTransactionScalarFieldEnum
+    having?: RewardTransactionScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: PointTransactionCountAggregateInputType | true
-    _avg?: PointTransactionAvgAggregateInputType
-    _sum?: PointTransactionSumAggregateInputType
-    _min?: PointTransactionMinAggregateInputType
-    _max?: PointTransactionMaxAggregateInputType
+    _count?: RewardTransactionCountAggregateInputType | true
+    _avg?: RewardTransactionAvgAggregateInputType
+    _sum?: RewardTransactionSumAggregateInputType
+    _min?: RewardTransactionMinAggregateInputType
+    _max?: RewardTransactionMaxAggregateInputType
   }
 
-  export type PointTransactionGroupByOutputType = {
+  export type RewardTransactionGroupByOutputType = {
     id: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId: string | null
     ruleKey: string | null
@@ -38620,32 +38620,32 @@ export namespace Prisma {
     actedByUserId: string | null
     createdAt: Date
     updatedAt: Date
-    _count: PointTransactionCountAggregateOutputType | null
-    _avg: PointTransactionAvgAggregateOutputType | null
-    _sum: PointTransactionSumAggregateOutputType | null
-    _min: PointTransactionMinAggregateOutputType | null
-    _max: PointTransactionMaxAggregateOutputType | null
+    _count: RewardTransactionCountAggregateOutputType | null
+    _avg: RewardTransactionAvgAggregateOutputType | null
+    _sum: RewardTransactionSumAggregateOutputType | null
+    _min: RewardTransactionMinAggregateOutputType | null
+    _max: RewardTransactionMaxAggregateOutputType | null
   }
 
-  type GetPointTransactionGroupByPayload<T extends PointTransactionGroupByArgs> = Prisma.PrismaPromise<
+  type GetRewardTransactionGroupByPayload<T extends RewardTransactionGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<PointTransactionGroupByOutputType, T['by']> &
+      PickEnumerable<RewardTransactionGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof PointTransactionGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof RewardTransactionGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], PointTransactionGroupByOutputType[P]>
-            : GetScalarType<T[P], PointTransactionGroupByOutputType[P]>
+              : GetScalarType<T[P], RewardTransactionGroupByOutputType[P]>
+            : GetScalarType<T[P], RewardTransactionGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type PointTransactionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RewardTransactionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
     type?: boolean
-    points?: boolean
+    rewardAmount?: boolean
     balanceAfter?: boolean
     ruleId?: boolean
     ruleKey?: boolean
@@ -38664,18 +38664,18 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-    rule?: boolean | PointTransaction$ruleArgs<ExtArgs>
-    catalogItem?: boolean | PointTransaction$catalogItemArgs<ExtArgs>
-    redemption?: boolean | PointTransaction$redemptionArgs<ExtArgs>
-    actedBy?: boolean | PointTransaction$actedByArgs<ExtArgs>
-    product?: boolean | PointTransaction$productArgs<ExtArgs>
-  }, ExtArgs["result"]["pointTransaction"]>
+    rule?: boolean | RewardTransaction$ruleArgs<ExtArgs>
+    catalogItem?: boolean | RewardTransaction$catalogItemArgs<ExtArgs>
+    redemption?: boolean | RewardTransaction$redemptionArgs<ExtArgs>
+    actedBy?: boolean | RewardTransaction$actedByArgs<ExtArgs>
+    product?: boolean | RewardTransaction$productArgs<ExtArgs>
+  }, ExtArgs["result"]["rewardTransaction"]>
 
-  export type PointTransactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RewardTransactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
     type?: boolean
-    points?: boolean
+    rewardAmount?: boolean
     balanceAfter?: boolean
     ruleId?: boolean
     ruleKey?: boolean
@@ -38694,18 +38694,18 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-    rule?: boolean | PointTransaction$ruleArgs<ExtArgs>
-    catalogItem?: boolean | PointTransaction$catalogItemArgs<ExtArgs>
-    redemption?: boolean | PointTransaction$redemptionArgs<ExtArgs>
-    actedBy?: boolean | PointTransaction$actedByArgs<ExtArgs>
-    product?: boolean | PointTransaction$productArgs<ExtArgs>
-  }, ExtArgs["result"]["pointTransaction"]>
+    rule?: boolean | RewardTransaction$ruleArgs<ExtArgs>
+    catalogItem?: boolean | RewardTransaction$catalogItemArgs<ExtArgs>
+    redemption?: boolean | RewardTransaction$redemptionArgs<ExtArgs>
+    actedBy?: boolean | RewardTransaction$actedByArgs<ExtArgs>
+    product?: boolean | RewardTransaction$productArgs<ExtArgs>
+  }, ExtArgs["result"]["rewardTransaction"]>
 
-  export type PointTransactionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RewardTransactionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
     type?: boolean
-    points?: boolean
+    rewardAmount?: boolean
     balanceAfter?: boolean
     ruleId?: boolean
     ruleKey?: boolean
@@ -38724,18 +38724,18 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-    rule?: boolean | PointTransaction$ruleArgs<ExtArgs>
-    catalogItem?: boolean | PointTransaction$catalogItemArgs<ExtArgs>
-    redemption?: boolean | PointTransaction$redemptionArgs<ExtArgs>
-    actedBy?: boolean | PointTransaction$actedByArgs<ExtArgs>
-    product?: boolean | PointTransaction$productArgs<ExtArgs>
-  }, ExtArgs["result"]["pointTransaction"]>
+    rule?: boolean | RewardTransaction$ruleArgs<ExtArgs>
+    catalogItem?: boolean | RewardTransaction$catalogItemArgs<ExtArgs>
+    redemption?: boolean | RewardTransaction$redemptionArgs<ExtArgs>
+    actedBy?: boolean | RewardTransaction$actedByArgs<ExtArgs>
+    product?: boolean | RewardTransaction$productArgs<ExtArgs>
+  }, ExtArgs["result"]["rewardTransaction"]>
 
-  export type PointTransactionSelectScalar = {
+  export type RewardTransactionSelectScalar = {
     id?: boolean
     userId?: boolean
     type?: boolean
-    points?: boolean
+    rewardAmount?: boolean
     balanceAfter?: boolean
     ruleId?: boolean
     ruleKey?: boolean
@@ -38755,34 +38755,34 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PointTransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "type" | "points" | "balanceAfter" | "ruleId" | "ruleKey" | "rewardKey" | "redemptionId" | "productId" | "eventId" | "eventHash" | "sourceType" | "sourceId" | "targetType" | "targetId" | "notes" | "metadata" | "actedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["pointTransaction"]>
-  export type PointTransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "type" | "rewardAmount" | "balanceAfter" | "ruleId" | "ruleKey" | "rewardKey" | "redemptionId" | "productId" | "eventId" | "eventHash" | "sourceType" | "sourceId" | "targetType" | "targetId" | "notes" | "metadata" | "actedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["rewardTransaction"]>
+  export type RewardTransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
-    rule?: boolean | PointTransaction$ruleArgs<ExtArgs>
-    catalogItem?: boolean | PointTransaction$catalogItemArgs<ExtArgs>
-    redemption?: boolean | PointTransaction$redemptionArgs<ExtArgs>
-    actedBy?: boolean | PointTransaction$actedByArgs<ExtArgs>
-    product?: boolean | PointTransaction$productArgs<ExtArgs>
+    rule?: boolean | RewardTransaction$ruleArgs<ExtArgs>
+    catalogItem?: boolean | RewardTransaction$catalogItemArgs<ExtArgs>
+    redemption?: boolean | RewardTransaction$redemptionArgs<ExtArgs>
+    actedBy?: boolean | RewardTransaction$actedByArgs<ExtArgs>
+    product?: boolean | RewardTransaction$productArgs<ExtArgs>
   }
-  export type PointTransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
-    rule?: boolean | PointTransaction$ruleArgs<ExtArgs>
-    catalogItem?: boolean | PointTransaction$catalogItemArgs<ExtArgs>
-    redemption?: boolean | PointTransaction$redemptionArgs<ExtArgs>
-    actedBy?: boolean | PointTransaction$actedByArgs<ExtArgs>
-    product?: boolean | PointTransaction$productArgs<ExtArgs>
+    rule?: boolean | RewardTransaction$ruleArgs<ExtArgs>
+    catalogItem?: boolean | RewardTransaction$catalogItemArgs<ExtArgs>
+    redemption?: boolean | RewardTransaction$redemptionArgs<ExtArgs>
+    actedBy?: boolean | RewardTransaction$actedByArgs<ExtArgs>
+    product?: boolean | RewardTransaction$productArgs<ExtArgs>
   }
-  export type PointTransactionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
-    rule?: boolean | PointTransaction$ruleArgs<ExtArgs>
-    catalogItem?: boolean | PointTransaction$catalogItemArgs<ExtArgs>
-    redemption?: boolean | PointTransaction$redemptionArgs<ExtArgs>
-    actedBy?: boolean | PointTransaction$actedByArgs<ExtArgs>
-    product?: boolean | PointTransaction$productArgs<ExtArgs>
+    rule?: boolean | RewardTransaction$ruleArgs<ExtArgs>
+    catalogItem?: boolean | RewardTransaction$catalogItemArgs<ExtArgs>
+    redemption?: boolean | RewardTransaction$redemptionArgs<ExtArgs>
+    actedBy?: boolean | RewardTransaction$actedByArgs<ExtArgs>
+    product?: boolean | RewardTransaction$productArgs<ExtArgs>
   }
 
-  export type $PointTransactionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "PointTransaction"
+  export type $RewardTransactionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RewardTransaction"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
       rule: Prisma.$RewardRulePayload<ExtArgs> | null
@@ -38794,8 +38794,8 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string
-      type: $Enums.PointTransactionType
-      points: number
+      type: $Enums.RewardTransactionType
+      rewardAmount: number
       balanceAfter: number
       ruleId: string | null
       ruleKey: string | null
@@ -38813,136 +38813,136 @@ export namespace Prisma {
       actedByUserId: string | null
       createdAt: Date
       updatedAt: Date
-    }, ExtArgs["result"]["pointTransaction"]>
+    }, ExtArgs["result"]["rewardTransaction"]>
     composites: {}
   }
 
-  type PointTransactionGetPayload<S extends boolean | null | undefined | PointTransactionDefaultArgs> = $Result.GetResult<Prisma.$PointTransactionPayload, S>
+  type RewardTransactionGetPayload<S extends boolean | null | undefined | RewardTransactionDefaultArgs> = $Result.GetResult<Prisma.$RewardTransactionPayload, S>
 
-  type PointTransactionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<PointTransactionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: PointTransactionCountAggregateInputType | true
+  type RewardTransactionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RewardTransactionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RewardTransactionCountAggregateInputType | true
     }
 
-  export interface PointTransactionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PointTransaction'], meta: { name: 'PointTransaction' } }
+  export interface RewardTransactionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RewardTransaction'], meta: { name: 'RewardTransaction' } }
     /**
-     * Find zero or one PointTransaction that matches the filter.
-     * @param {PointTransactionFindUniqueArgs} args - Arguments to find a PointTransaction
+     * Find zero or one RewardTransaction that matches the filter.
+     * @param {RewardTransactionFindUniqueArgs} args - Arguments to find a RewardTransaction
      * @example
-     * // Get one PointTransaction
-     * const pointTransaction = await prisma.pointTransaction.findUnique({
+     * // Get one RewardTransaction
+     * const rewardTransaction = await prisma.rewardTransaction.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends PointTransactionFindUniqueArgs>(args: SelectSubset<T, PointTransactionFindUniqueArgs<ExtArgs>>): Prisma__PointTransactionClient<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends RewardTransactionFindUniqueArgs>(args: SelectSubset<T, RewardTransactionFindUniqueArgs<ExtArgs>>): Prisma__RewardTransactionClient<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one PointTransaction that matches the filter or throw an error with `error.code='P2025'`
+     * Find one RewardTransaction that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {PointTransactionFindUniqueOrThrowArgs} args - Arguments to find a PointTransaction
+     * @param {RewardTransactionFindUniqueOrThrowArgs} args - Arguments to find a RewardTransaction
      * @example
-     * // Get one PointTransaction
-     * const pointTransaction = await prisma.pointTransaction.findUniqueOrThrow({
+     * // Get one RewardTransaction
+     * const rewardTransaction = await prisma.rewardTransaction.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends PointTransactionFindUniqueOrThrowArgs>(args: SelectSubset<T, PointTransactionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PointTransactionClient<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends RewardTransactionFindUniqueOrThrowArgs>(args: SelectSubset<T, RewardTransactionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RewardTransactionClient<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first PointTransaction that matches the filter.
+     * Find the first RewardTransaction that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointTransactionFindFirstArgs} args - Arguments to find a PointTransaction
+     * @param {RewardTransactionFindFirstArgs} args - Arguments to find a RewardTransaction
      * @example
-     * // Get one PointTransaction
-     * const pointTransaction = await prisma.pointTransaction.findFirst({
+     * // Get one RewardTransaction
+     * const rewardTransaction = await prisma.rewardTransaction.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends PointTransactionFindFirstArgs>(args?: SelectSubset<T, PointTransactionFindFirstArgs<ExtArgs>>): Prisma__PointTransactionClient<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends RewardTransactionFindFirstArgs>(args?: SelectSubset<T, RewardTransactionFindFirstArgs<ExtArgs>>): Prisma__RewardTransactionClient<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first PointTransaction that matches the filter or
+     * Find the first RewardTransaction that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointTransactionFindFirstOrThrowArgs} args - Arguments to find a PointTransaction
+     * @param {RewardTransactionFindFirstOrThrowArgs} args - Arguments to find a RewardTransaction
      * @example
-     * // Get one PointTransaction
-     * const pointTransaction = await prisma.pointTransaction.findFirstOrThrow({
+     * // Get one RewardTransaction
+     * const rewardTransaction = await prisma.rewardTransaction.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends PointTransactionFindFirstOrThrowArgs>(args?: SelectSubset<T, PointTransactionFindFirstOrThrowArgs<ExtArgs>>): Prisma__PointTransactionClient<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends RewardTransactionFindFirstOrThrowArgs>(args?: SelectSubset<T, RewardTransactionFindFirstOrThrowArgs<ExtArgs>>): Prisma__RewardTransactionClient<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more PointTransactions that matches the filter.
+     * Find zero or more RewardTransactions that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointTransactionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {RewardTransactionFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all PointTransactions
-     * const pointTransactions = await prisma.pointTransaction.findMany()
+     * // Get all RewardTransactions
+     * const rewardTransactions = await prisma.rewardTransaction.findMany()
      * 
-     * // Get first 10 PointTransactions
-     * const pointTransactions = await prisma.pointTransaction.findMany({ take: 10 })
+     * // Get first 10 RewardTransactions
+     * const rewardTransactions = await prisma.rewardTransaction.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const pointTransactionWithIdOnly = await prisma.pointTransaction.findMany({ select: { id: true } })
+     * const rewardTransactionWithIdOnly = await prisma.rewardTransaction.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends PointTransactionFindManyArgs>(args?: SelectSubset<T, PointTransactionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends RewardTransactionFindManyArgs>(args?: SelectSubset<T, RewardTransactionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a PointTransaction.
-     * @param {PointTransactionCreateArgs} args - Arguments to create a PointTransaction.
+     * Create a RewardTransaction.
+     * @param {RewardTransactionCreateArgs} args - Arguments to create a RewardTransaction.
      * @example
-     * // Create one PointTransaction
-     * const PointTransaction = await prisma.pointTransaction.create({
+     * // Create one RewardTransaction
+     * const RewardTransaction = await prisma.rewardTransaction.create({
      *   data: {
-     *     // ... data to create a PointTransaction
+     *     // ... data to create a RewardTransaction
      *   }
      * })
      * 
      */
-    create<T extends PointTransactionCreateArgs>(args: SelectSubset<T, PointTransactionCreateArgs<ExtArgs>>): Prisma__PointTransactionClient<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends RewardTransactionCreateArgs>(args: SelectSubset<T, RewardTransactionCreateArgs<ExtArgs>>): Prisma__RewardTransactionClient<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many PointTransactions.
-     * @param {PointTransactionCreateManyArgs} args - Arguments to create many PointTransactions.
+     * Create many RewardTransactions.
+     * @param {RewardTransactionCreateManyArgs} args - Arguments to create many RewardTransactions.
      * @example
-     * // Create many PointTransactions
-     * const pointTransaction = await prisma.pointTransaction.createMany({
+     * // Create many RewardTransactions
+     * const rewardTransaction = await prisma.rewardTransaction.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends PointTransactionCreateManyArgs>(args?: SelectSubset<T, PointTransactionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends RewardTransactionCreateManyArgs>(args?: SelectSubset<T, RewardTransactionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many PointTransactions and returns the data saved in the database.
-     * @param {PointTransactionCreateManyAndReturnArgs} args - Arguments to create many PointTransactions.
+     * Create many RewardTransactions and returns the data saved in the database.
+     * @param {RewardTransactionCreateManyAndReturnArgs} args - Arguments to create many RewardTransactions.
      * @example
-     * // Create many PointTransactions
-     * const pointTransaction = await prisma.pointTransaction.createManyAndReturn({
+     * // Create many RewardTransactions
+     * const rewardTransaction = await prisma.rewardTransaction.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many PointTransactions and only return the `id`
-     * const pointTransactionWithIdOnly = await prisma.pointTransaction.createManyAndReturn({
+     * // Create many RewardTransactions and only return the `id`
+     * const rewardTransactionWithIdOnly = await prisma.rewardTransaction.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -38952,28 +38952,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends PointTransactionCreateManyAndReturnArgs>(args?: SelectSubset<T, PointTransactionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends RewardTransactionCreateManyAndReturnArgs>(args?: SelectSubset<T, RewardTransactionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a PointTransaction.
-     * @param {PointTransactionDeleteArgs} args - Arguments to delete one PointTransaction.
+     * Delete a RewardTransaction.
+     * @param {RewardTransactionDeleteArgs} args - Arguments to delete one RewardTransaction.
      * @example
-     * // Delete one PointTransaction
-     * const PointTransaction = await prisma.pointTransaction.delete({
+     * // Delete one RewardTransaction
+     * const RewardTransaction = await prisma.rewardTransaction.delete({
      *   where: {
-     *     // ... filter to delete one PointTransaction
+     *     // ... filter to delete one RewardTransaction
      *   }
      * })
      * 
      */
-    delete<T extends PointTransactionDeleteArgs>(args: SelectSubset<T, PointTransactionDeleteArgs<ExtArgs>>): Prisma__PointTransactionClient<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends RewardTransactionDeleteArgs>(args: SelectSubset<T, RewardTransactionDeleteArgs<ExtArgs>>): Prisma__RewardTransactionClient<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one PointTransaction.
-     * @param {PointTransactionUpdateArgs} args - Arguments to update one PointTransaction.
+     * Update one RewardTransaction.
+     * @param {RewardTransactionUpdateArgs} args - Arguments to update one RewardTransaction.
      * @example
-     * // Update one PointTransaction
-     * const pointTransaction = await prisma.pointTransaction.update({
+     * // Update one RewardTransaction
+     * const rewardTransaction = await prisma.rewardTransaction.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -38983,30 +38983,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends PointTransactionUpdateArgs>(args: SelectSubset<T, PointTransactionUpdateArgs<ExtArgs>>): Prisma__PointTransactionClient<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends RewardTransactionUpdateArgs>(args: SelectSubset<T, RewardTransactionUpdateArgs<ExtArgs>>): Prisma__RewardTransactionClient<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more PointTransactions.
-     * @param {PointTransactionDeleteManyArgs} args - Arguments to filter PointTransactions to delete.
+     * Delete zero or more RewardTransactions.
+     * @param {RewardTransactionDeleteManyArgs} args - Arguments to filter RewardTransactions to delete.
      * @example
-     * // Delete a few PointTransactions
-     * const { count } = await prisma.pointTransaction.deleteMany({
+     * // Delete a few RewardTransactions
+     * const { count } = await prisma.rewardTransaction.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends PointTransactionDeleteManyArgs>(args?: SelectSubset<T, PointTransactionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends RewardTransactionDeleteManyArgs>(args?: SelectSubset<T, RewardTransactionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more PointTransactions.
+     * Update zero or more RewardTransactions.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointTransactionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {RewardTransactionUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many PointTransactions
-     * const pointTransaction = await prisma.pointTransaction.updateMany({
+     * // Update many RewardTransactions
+     * const rewardTransaction = await prisma.rewardTransaction.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -39016,14 +39016,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends PointTransactionUpdateManyArgs>(args: SelectSubset<T, PointTransactionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends RewardTransactionUpdateManyArgs>(args: SelectSubset<T, RewardTransactionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more PointTransactions and returns the data updated in the database.
-     * @param {PointTransactionUpdateManyAndReturnArgs} args - Arguments to update many PointTransactions.
+     * Update zero or more RewardTransactions and returns the data updated in the database.
+     * @param {RewardTransactionUpdateManyAndReturnArgs} args - Arguments to update many RewardTransactions.
      * @example
-     * // Update many PointTransactions
-     * const pointTransaction = await prisma.pointTransaction.updateManyAndReturn({
+     * // Update many RewardTransactions
+     * const rewardTransaction = await prisma.rewardTransaction.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -39032,8 +39032,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more PointTransactions and only return the `id`
-     * const pointTransactionWithIdOnly = await prisma.pointTransaction.updateManyAndReturn({
+     * // Update zero or more RewardTransactions and only return the `id`
+     * const rewardTransactionWithIdOnly = await prisma.rewardTransaction.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -39046,56 +39046,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends PointTransactionUpdateManyAndReturnArgs>(args: SelectSubset<T, PointTransactionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends RewardTransactionUpdateManyAndReturnArgs>(args: SelectSubset<T, RewardTransactionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one PointTransaction.
-     * @param {PointTransactionUpsertArgs} args - Arguments to update or create a PointTransaction.
+     * Create or update one RewardTransaction.
+     * @param {RewardTransactionUpsertArgs} args - Arguments to update or create a RewardTransaction.
      * @example
-     * // Update or create a PointTransaction
-     * const pointTransaction = await prisma.pointTransaction.upsert({
+     * // Update or create a RewardTransaction
+     * const rewardTransaction = await prisma.rewardTransaction.upsert({
      *   create: {
-     *     // ... data to create a PointTransaction
+     *     // ... data to create a RewardTransaction
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the PointTransaction we want to update
+     *     // ... the filter for the RewardTransaction we want to update
      *   }
      * })
      */
-    upsert<T extends PointTransactionUpsertArgs>(args: SelectSubset<T, PointTransactionUpsertArgs<ExtArgs>>): Prisma__PointTransactionClient<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends RewardTransactionUpsertArgs>(args: SelectSubset<T, RewardTransactionUpsertArgs<ExtArgs>>): Prisma__RewardTransactionClient<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of PointTransactions.
+     * Count the number of RewardTransactions.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointTransactionCountArgs} args - Arguments to filter PointTransactions to count.
+     * @param {RewardTransactionCountArgs} args - Arguments to filter RewardTransactions to count.
      * @example
-     * // Count the number of PointTransactions
-     * const count = await prisma.pointTransaction.count({
+     * // Count the number of RewardTransactions
+     * const count = await prisma.rewardTransaction.count({
      *   where: {
-     *     // ... the filter for the PointTransactions we want to count
+     *     // ... the filter for the RewardTransactions we want to count
      *   }
      * })
     **/
-    count<T extends PointTransactionCountArgs>(
-      args?: Subset<T, PointTransactionCountArgs>,
+    count<T extends RewardTransactionCountArgs>(
+      args?: Subset<T, RewardTransactionCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], PointTransactionCountAggregateOutputType>
+          : GetScalarType<T['select'], RewardTransactionCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a PointTransaction.
+     * Allows you to perform aggregations operations on a RewardTransaction.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointTransactionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {RewardTransactionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -39115,13 +39115,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends PointTransactionAggregateArgs>(args: Subset<T, PointTransactionAggregateArgs>): Prisma.PrismaPromise<GetPointTransactionAggregateType<T>>
+    aggregate<T extends RewardTransactionAggregateArgs>(args: Subset<T, RewardTransactionAggregateArgs>): Prisma.PrismaPromise<GetRewardTransactionAggregateType<T>>
 
     /**
-     * Group by PointTransaction.
+     * Group by RewardTransaction.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PointTransactionGroupByArgs} args - Group by arguments.
+     * @param {RewardTransactionGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -39136,14 +39136,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends PointTransactionGroupByArgs,
+      T extends RewardTransactionGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: PointTransactionGroupByArgs['orderBy'] }
-        : { orderBy?: PointTransactionGroupByArgs['orderBy'] },
+        ? { orderBy: RewardTransactionGroupByArgs['orderBy'] }
+        : { orderBy?: RewardTransactionGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -39192,27 +39192,27 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, PointTransactionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPointTransactionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, RewardTransactionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRewardTransactionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the PointTransaction model
+   * Fields of the RewardTransaction model
    */
-  readonly fields: PointTransactionFieldRefs;
+  readonly fields: RewardTransactionFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for PointTransaction.
+   * The delegate class that acts as a "Promise-like" for RewardTransaction.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__PointTransactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__RewardTransactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    rule<T extends PointTransaction$ruleArgs<ExtArgs> = {}>(args?: Subset<T, PointTransaction$ruleArgs<ExtArgs>>): Prisma__RewardRuleClient<$Result.GetResult<Prisma.$RewardRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    catalogItem<T extends PointTransaction$catalogItemArgs<ExtArgs> = {}>(args?: Subset<T, PointTransaction$catalogItemArgs<ExtArgs>>): Prisma__RewardCatalogItemClient<$Result.GetResult<Prisma.$RewardCatalogItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    redemption<T extends PointTransaction$redemptionArgs<ExtArgs> = {}>(args?: Subset<T, PointTransaction$redemptionArgs<ExtArgs>>): Prisma__RedemptionClient<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    actedBy<T extends PointTransaction$actedByArgs<ExtArgs> = {}>(args?: Subset<T, PointTransaction$actedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    product<T extends PointTransaction$productArgs<ExtArgs> = {}>(args?: Subset<T, PointTransaction$productArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    rule<T extends RewardTransaction$ruleArgs<ExtArgs> = {}>(args?: Subset<T, RewardTransaction$ruleArgs<ExtArgs>>): Prisma__RewardRuleClient<$Result.GetResult<Prisma.$RewardRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    catalogItem<T extends RewardTransaction$catalogItemArgs<ExtArgs> = {}>(args?: Subset<T, RewardTransaction$catalogItemArgs<ExtArgs>>): Prisma__RewardCatalogItemClient<$Result.GetResult<Prisma.$RewardCatalogItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    redemption<T extends RewardTransaction$redemptionArgs<ExtArgs> = {}>(args?: Subset<T, RewardTransaction$redemptionArgs<ExtArgs>>): Prisma__RedemptionClient<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    actedBy<T extends RewardTransaction$actedByArgs<ExtArgs> = {}>(args?: Subset<T, RewardTransaction$actedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    product<T extends RewardTransaction$productArgs<ExtArgs> = {}>(args?: Subset<T, RewardTransaction$productArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -39239,429 +39239,429 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the PointTransaction model
+   * Fields of the RewardTransaction model
    */
-  interface PointTransactionFieldRefs {
-    readonly id: FieldRef<"PointTransaction", 'String'>
-    readonly userId: FieldRef<"PointTransaction", 'String'>
-    readonly type: FieldRef<"PointTransaction", 'PointTransactionType'>
-    readonly points: FieldRef<"PointTransaction", 'Int'>
-    readonly balanceAfter: FieldRef<"PointTransaction", 'Int'>
-    readonly ruleId: FieldRef<"PointTransaction", 'String'>
-    readonly ruleKey: FieldRef<"PointTransaction", 'String'>
-    readonly rewardKey: FieldRef<"PointTransaction", 'String'>
-    readonly redemptionId: FieldRef<"PointTransaction", 'String'>
-    readonly productId: FieldRef<"PointTransaction", 'String'>
-    readonly eventId: FieldRef<"PointTransaction", 'String'>
-    readonly eventHash: FieldRef<"PointTransaction", 'String'>
-    readonly sourceType: FieldRef<"PointTransaction", 'String'>
-    readonly sourceId: FieldRef<"PointTransaction", 'String'>
-    readonly targetType: FieldRef<"PointTransaction", 'String'>
-    readonly targetId: FieldRef<"PointTransaction", 'String'>
-    readonly notes: FieldRef<"PointTransaction", 'String'>
-    readonly metadata: FieldRef<"PointTransaction", 'Json'>
-    readonly actedByUserId: FieldRef<"PointTransaction", 'String'>
-    readonly createdAt: FieldRef<"PointTransaction", 'DateTime'>
-    readonly updatedAt: FieldRef<"PointTransaction", 'DateTime'>
+  interface RewardTransactionFieldRefs {
+    readonly id: FieldRef<"RewardTransaction", 'String'>
+    readonly userId: FieldRef<"RewardTransaction", 'String'>
+    readonly type: FieldRef<"RewardTransaction", 'RewardTransactionType'>
+    readonly rewardAmount: FieldRef<"RewardTransaction", 'Int'>
+    readonly balanceAfter: FieldRef<"RewardTransaction", 'Int'>
+    readonly ruleId: FieldRef<"RewardTransaction", 'String'>
+    readonly ruleKey: FieldRef<"RewardTransaction", 'String'>
+    readonly rewardKey: FieldRef<"RewardTransaction", 'String'>
+    readonly redemptionId: FieldRef<"RewardTransaction", 'String'>
+    readonly productId: FieldRef<"RewardTransaction", 'String'>
+    readonly eventId: FieldRef<"RewardTransaction", 'String'>
+    readonly eventHash: FieldRef<"RewardTransaction", 'String'>
+    readonly sourceType: FieldRef<"RewardTransaction", 'String'>
+    readonly sourceId: FieldRef<"RewardTransaction", 'String'>
+    readonly targetType: FieldRef<"RewardTransaction", 'String'>
+    readonly targetId: FieldRef<"RewardTransaction", 'String'>
+    readonly notes: FieldRef<"RewardTransaction", 'String'>
+    readonly metadata: FieldRef<"RewardTransaction", 'Json'>
+    readonly actedByUserId: FieldRef<"RewardTransaction", 'String'>
+    readonly createdAt: FieldRef<"RewardTransaction", 'DateTime'>
+    readonly updatedAt: FieldRef<"RewardTransaction", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * PointTransaction findUnique
+   * RewardTransaction findUnique
    */
-  export type PointTransactionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
+    include?: RewardTransactionInclude<ExtArgs> | null
     /**
-     * Filter, which PointTransaction to fetch.
+     * Filter, which RewardTransaction to fetch.
      */
-    where: PointTransactionWhereUniqueInput
+    where: RewardTransactionWhereUniqueInput
   }
 
   /**
-   * PointTransaction findUniqueOrThrow
+   * RewardTransaction findUniqueOrThrow
    */
-  export type PointTransactionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
+    include?: RewardTransactionInclude<ExtArgs> | null
     /**
-     * Filter, which PointTransaction to fetch.
+     * Filter, which RewardTransaction to fetch.
      */
-    where: PointTransactionWhereUniqueInput
+    where: RewardTransactionWhereUniqueInput
   }
 
   /**
-   * PointTransaction findFirst
+   * RewardTransaction findFirst
    */
-  export type PointTransactionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
+    include?: RewardTransactionInclude<ExtArgs> | null
     /**
-     * Filter, which PointTransaction to fetch.
+     * Filter, which RewardTransaction to fetch.
      */
-    where?: PointTransactionWhereInput
+    where?: RewardTransactionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PointTransactions to fetch.
+     * Determine the order of RewardTransactions to fetch.
      */
-    orderBy?: PointTransactionOrderByWithRelationInput | PointTransactionOrderByWithRelationInput[]
+    orderBy?: RewardTransactionOrderByWithRelationInput | RewardTransactionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PointTransactions.
+     * Sets the position for searching for RewardTransactions.
      */
-    cursor?: PointTransactionWhereUniqueInput
+    cursor?: RewardTransactionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PointTransactions from the position of the cursor.
+     * Take `±n` RewardTransactions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PointTransactions.
+     * Skip the first `n` RewardTransactions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PointTransactions.
+     * Filter by unique combinations of RewardTransactions.
      */
-    distinct?: PointTransactionScalarFieldEnum | PointTransactionScalarFieldEnum[]
+    distinct?: RewardTransactionScalarFieldEnum | RewardTransactionScalarFieldEnum[]
   }
 
   /**
-   * PointTransaction findFirstOrThrow
+   * RewardTransaction findFirstOrThrow
    */
-  export type PointTransactionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
+    include?: RewardTransactionInclude<ExtArgs> | null
     /**
-     * Filter, which PointTransaction to fetch.
+     * Filter, which RewardTransaction to fetch.
      */
-    where?: PointTransactionWhereInput
+    where?: RewardTransactionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PointTransactions to fetch.
+     * Determine the order of RewardTransactions to fetch.
      */
-    orderBy?: PointTransactionOrderByWithRelationInput | PointTransactionOrderByWithRelationInput[]
+    orderBy?: RewardTransactionOrderByWithRelationInput | RewardTransactionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PointTransactions.
+     * Sets the position for searching for RewardTransactions.
      */
-    cursor?: PointTransactionWhereUniqueInput
+    cursor?: RewardTransactionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PointTransactions from the position of the cursor.
+     * Take `±n` RewardTransactions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PointTransactions.
+     * Skip the first `n` RewardTransactions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PointTransactions.
+     * Filter by unique combinations of RewardTransactions.
      */
-    distinct?: PointTransactionScalarFieldEnum | PointTransactionScalarFieldEnum[]
+    distinct?: RewardTransactionScalarFieldEnum | RewardTransactionScalarFieldEnum[]
   }
 
   /**
-   * PointTransaction findMany
+   * RewardTransaction findMany
    */
-  export type PointTransactionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
+    include?: RewardTransactionInclude<ExtArgs> | null
     /**
-     * Filter, which PointTransactions to fetch.
+     * Filter, which RewardTransactions to fetch.
      */
-    where?: PointTransactionWhereInput
+    where?: RewardTransactionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PointTransactions to fetch.
+     * Determine the order of RewardTransactions to fetch.
      */
-    orderBy?: PointTransactionOrderByWithRelationInput | PointTransactionOrderByWithRelationInput[]
+    orderBy?: RewardTransactionOrderByWithRelationInput | RewardTransactionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing PointTransactions.
+     * Sets the position for listing RewardTransactions.
      */
-    cursor?: PointTransactionWhereUniqueInput
+    cursor?: RewardTransactionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PointTransactions from the position of the cursor.
+     * Take `±n` RewardTransactions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PointTransactions.
+     * Skip the first `n` RewardTransactions.
      */
     skip?: number
-    distinct?: PointTransactionScalarFieldEnum | PointTransactionScalarFieldEnum[]
+    distinct?: RewardTransactionScalarFieldEnum | RewardTransactionScalarFieldEnum[]
   }
 
   /**
-   * PointTransaction create
+   * RewardTransaction create
    */
-  export type PointTransactionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
+    include?: RewardTransactionInclude<ExtArgs> | null
     /**
-     * The data needed to create a PointTransaction.
+     * The data needed to create a RewardTransaction.
      */
-    data: XOR<PointTransactionCreateInput, PointTransactionUncheckedCreateInput>
+    data: XOR<RewardTransactionCreateInput, RewardTransactionUncheckedCreateInput>
   }
 
   /**
-   * PointTransaction createMany
+   * RewardTransaction createMany
    */
-  export type PointTransactionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many PointTransactions.
+     * The data used to create many RewardTransactions.
      */
-    data: PointTransactionCreateManyInput | PointTransactionCreateManyInput[]
+    data: RewardTransactionCreateManyInput | RewardTransactionCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * PointTransaction createManyAndReturn
+   * RewardTransaction createManyAndReturn
    */
-  export type PointTransactionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelectCreateManyAndReturn<ExtArgs> | null
+    select?: RewardTransactionSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
-     * The data used to create many PointTransactions.
+     * The data used to create many RewardTransactions.
      */
-    data: PointTransactionCreateManyInput | PointTransactionCreateManyInput[]
+    data: RewardTransactionCreateManyInput | RewardTransactionCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: RewardTransactionIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * PointTransaction update
+   * RewardTransaction update
    */
-  export type PointTransactionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
+    include?: RewardTransactionInclude<ExtArgs> | null
     /**
-     * The data needed to update a PointTransaction.
+     * The data needed to update a RewardTransaction.
      */
-    data: XOR<PointTransactionUpdateInput, PointTransactionUncheckedUpdateInput>
+    data: XOR<RewardTransactionUpdateInput, RewardTransactionUncheckedUpdateInput>
     /**
-     * Choose, which PointTransaction to update.
+     * Choose, which RewardTransaction to update.
      */
-    where: PointTransactionWhereUniqueInput
+    where: RewardTransactionWhereUniqueInput
   }
 
   /**
-   * PointTransaction updateMany
+   * RewardTransaction updateMany
    */
-  export type PointTransactionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update PointTransactions.
+     * The data used to update RewardTransactions.
      */
-    data: XOR<PointTransactionUpdateManyMutationInput, PointTransactionUncheckedUpdateManyInput>
+    data: XOR<RewardTransactionUpdateManyMutationInput, RewardTransactionUncheckedUpdateManyInput>
     /**
-     * Filter which PointTransactions to update
+     * Filter which RewardTransactions to update
      */
-    where?: PointTransactionWhereInput
+    where?: RewardTransactionWhereInput
     /**
-     * Limit how many PointTransactions to update.
+     * Limit how many RewardTransactions to update.
      */
     limit?: number
   }
 
   /**
-   * PointTransaction updateManyAndReturn
+   * RewardTransaction updateManyAndReturn
    */
-  export type PointTransactionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: RewardTransactionSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
-     * The data used to update PointTransactions.
+     * The data used to update RewardTransactions.
      */
-    data: XOR<PointTransactionUpdateManyMutationInput, PointTransactionUncheckedUpdateManyInput>
+    data: XOR<RewardTransactionUpdateManyMutationInput, RewardTransactionUncheckedUpdateManyInput>
     /**
-     * Filter which PointTransactions to update
+     * Filter which RewardTransactions to update
      */
-    where?: PointTransactionWhereInput
+    where?: RewardTransactionWhereInput
     /**
-     * Limit how many PointTransactions to update.
+     * Limit how many RewardTransactions to update.
      */
     limit?: number
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionIncludeUpdateManyAndReturn<ExtArgs> | null
+    include?: RewardTransactionIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * PointTransaction upsert
+   * RewardTransaction upsert
    */
-  export type PointTransactionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
+    include?: RewardTransactionInclude<ExtArgs> | null
     /**
-     * The filter to search for the PointTransaction to update in case it exists.
+     * The filter to search for the RewardTransaction to update in case it exists.
      */
-    where: PointTransactionWhereUniqueInput
+    where: RewardTransactionWhereUniqueInput
     /**
-     * In case the PointTransaction found by the `where` argument doesn't exist, create a new PointTransaction with this data.
+     * In case the RewardTransaction found by the `where` argument doesn't exist, create a new RewardTransaction with this data.
      */
-    create: XOR<PointTransactionCreateInput, PointTransactionUncheckedCreateInput>
+    create: XOR<RewardTransactionCreateInput, RewardTransactionUncheckedCreateInput>
     /**
-     * In case the PointTransaction was found with the provided `where` argument, update it with this data.
+     * In case the RewardTransaction was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<PointTransactionUpdateInput, PointTransactionUncheckedUpdateInput>
+    update: XOR<RewardTransactionUpdateInput, RewardTransactionUncheckedUpdateInput>
   }
 
   /**
-   * PointTransaction delete
+   * RewardTransaction delete
    */
-  export type PointTransactionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
+    include?: RewardTransactionInclude<ExtArgs> | null
     /**
-     * Filter which PointTransaction to delete.
+     * Filter which RewardTransaction to delete.
      */
-    where: PointTransactionWhereUniqueInput
+    where: RewardTransactionWhereUniqueInput
   }
 
   /**
-   * PointTransaction deleteMany
+   * RewardTransaction deleteMany
    */
-  export type PointTransactionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PointTransactions to delete
+     * Filter which RewardTransactions to delete
      */
-    where?: PointTransactionWhereInput
+    where?: RewardTransactionWhereInput
     /**
-     * Limit how many PointTransactions to delete.
+     * Limit how many RewardTransactions to delete.
      */
     limit?: number
   }
 
   /**
-   * PointTransaction.rule
+   * RewardTransaction.rule
    */
-  export type PointTransaction$ruleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransaction$ruleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the RewardRule
      */
@@ -39678,9 +39678,9 @@ export namespace Prisma {
   }
 
   /**
-   * PointTransaction.catalogItem
+   * RewardTransaction.catalogItem
    */
-  export type PointTransaction$catalogItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransaction$catalogItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the RewardCatalogItem
      */
@@ -39697,9 +39697,9 @@ export namespace Prisma {
   }
 
   /**
-   * PointTransaction.redemption
+   * RewardTransaction.redemption
    */
-  export type PointTransaction$redemptionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransaction$redemptionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Redemption
      */
@@ -39716,9 +39716,9 @@ export namespace Prisma {
   }
 
   /**
-   * PointTransaction.actedBy
+   * RewardTransaction.actedBy
    */
-  export type PointTransaction$actedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransaction$actedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the User
      */
@@ -39735,9 +39735,9 @@ export namespace Prisma {
   }
 
   /**
-   * PointTransaction.product
+   * RewardTransaction.product
    */
-  export type PointTransaction$productArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransaction$productArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Product
      */
@@ -39754,21 +39754,21 @@ export namespace Prisma {
   }
 
   /**
-   * PointTransaction without action
+   * RewardTransaction without action
    */
-  export type PointTransactionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RewardTransactionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
+    include?: RewardTransactionInclude<ExtArgs> | null
   }
 
 
@@ -39787,13 +39787,13 @@ export namespace Prisma {
   export type RedemptionAvgAggregateOutputType = {
     cost: number | null
     originalCost: number | null
-    refundedPoints: number | null
+    refundedRewards: number | null
   }
 
   export type RedemptionSumAggregateOutputType = {
     cost: number | null
     originalCost: number | null
-    refundedPoints: number | null
+    refundedRewards: number | null
   }
 
   export type RedemptionMinAggregateOutputType = {
@@ -39804,7 +39804,7 @@ export namespace Prisma {
     status: $Enums.RedemptionStatus | null
     cost: number | null
     originalCost: number | null
-    refundedPoints: number | null
+    refundedRewards: number | null
     startsAt: Date | null
     activatedAt: Date | null
     expiresAt: Date | null
@@ -39823,7 +39823,7 @@ export namespace Prisma {
     status: $Enums.RedemptionStatus | null
     cost: number | null
     originalCost: number | null
-    refundedPoints: number | null
+    refundedRewards: number | null
     startsAt: Date | null
     activatedAt: Date | null
     expiresAt: Date | null
@@ -39842,7 +39842,7 @@ export namespace Prisma {
     status: number
     cost: number
     originalCost: number
-    refundedPoints: number
+    refundedRewards: number
     startsAt: number
     activatedAt: number
     expiresAt: number
@@ -39859,13 +39859,13 @@ export namespace Prisma {
   export type RedemptionAvgAggregateInputType = {
     cost?: true
     originalCost?: true
-    refundedPoints?: true
+    refundedRewards?: true
   }
 
   export type RedemptionSumAggregateInputType = {
     cost?: true
     originalCost?: true
-    refundedPoints?: true
+    refundedRewards?: true
   }
 
   export type RedemptionMinAggregateInputType = {
@@ -39876,7 +39876,7 @@ export namespace Prisma {
     status?: true
     cost?: true
     originalCost?: true
-    refundedPoints?: true
+    refundedRewards?: true
     startsAt?: true
     activatedAt?: true
     expiresAt?: true
@@ -39895,7 +39895,7 @@ export namespace Prisma {
     status?: true
     cost?: true
     originalCost?: true
-    refundedPoints?: true
+    refundedRewards?: true
     startsAt?: true
     activatedAt?: true
     expiresAt?: true
@@ -39914,7 +39914,7 @@ export namespace Prisma {
     status?: true
     cost?: true
     originalCost?: true
-    refundedPoints?: true
+    refundedRewards?: true
     startsAt?: true
     activatedAt?: true
     expiresAt?: true
@@ -40021,7 +40021,7 @@ export namespace Prisma {
     status: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints: number
+    refundedRewards: number
     startsAt: Date | null
     activatedAt: Date | null
     expiresAt: Date | null
@@ -40060,7 +40060,7 @@ export namespace Prisma {
     status?: boolean
     cost?: boolean
     originalCost?: boolean
-    refundedPoints?: boolean
+    refundedRewards?: boolean
     startsAt?: boolean
     activatedAt?: boolean
     expiresAt?: boolean
@@ -40087,7 +40087,7 @@ export namespace Prisma {
     status?: boolean
     cost?: boolean
     originalCost?: boolean
-    refundedPoints?: boolean
+    refundedRewards?: boolean
     startsAt?: boolean
     activatedAt?: boolean
     expiresAt?: boolean
@@ -40110,7 +40110,7 @@ export namespace Prisma {
     status?: boolean
     cost?: boolean
     originalCost?: boolean
-    refundedPoints?: boolean
+    refundedRewards?: boolean
     startsAt?: boolean
     activatedAt?: boolean
     expiresAt?: boolean
@@ -40133,7 +40133,7 @@ export namespace Prisma {
     status?: boolean
     cost?: boolean
     originalCost?: boolean
-    refundedPoints?: boolean
+    refundedRewards?: boolean
     startsAt?: boolean
     activatedAt?: boolean
     expiresAt?: boolean
@@ -40145,7 +40145,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type RedemptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "featureKey" | "productId" | "status" | "cost" | "originalCost" | "refundedPoints" | "startsAt" | "activatedAt" | "expiresAt" | "completedAt" | "canceledAt" | "failureReason" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["redemption"]>
+  export type RedemptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "featureKey" | "productId" | "status" | "cost" | "originalCost" | "refundedRewards" | "startsAt" | "activatedAt" | "expiresAt" | "completedAt" | "canceledAt" | "failureReason" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["redemption"]>
   export type RedemptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     catalogItem?: boolean | RewardCatalogItemDefaultArgs<ExtArgs>
@@ -40172,7 +40172,7 @@ export namespace Prisma {
       user: Prisma.$UserPayload<ExtArgs>
       catalogItem: Prisma.$RewardCatalogItemPayload<ExtArgs>
       product: Prisma.$ProductPayload<ExtArgs> | null
-      transactions: Prisma.$PointTransactionPayload<ExtArgs>[]
+      transactions: Prisma.$RewardTransactionPayload<ExtArgs>[]
       entitlements: Prisma.$FeatureEntitlementPayload<ExtArgs>[]
       placementSchedules: Prisma.$PlacementSchedulePayload<ExtArgs>[]
     }
@@ -40184,7 +40184,7 @@ export namespace Prisma {
       status: $Enums.RedemptionStatus
       cost: number
       originalCost: number
-      refundedPoints: number
+      refundedRewards: number
       startsAt: Date | null
       activatedAt: Date | null
       expiresAt: Date | null
@@ -40591,7 +40591,7 @@ export namespace Prisma {
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     catalogItem<T extends RewardCatalogItemDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RewardCatalogItemDefaultArgs<ExtArgs>>): Prisma__RewardCatalogItemClient<$Result.GetResult<Prisma.$RewardCatalogItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     product<T extends Redemption$productArgs<ExtArgs> = {}>(args?: Subset<T, Redemption$productArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    transactions<T extends Redemption$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, Redemption$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    transactions<T extends Redemption$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, Redemption$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     entitlements<T extends Redemption$entitlementsArgs<ExtArgs> = {}>(args?: Subset<T, Redemption$entitlementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeatureEntitlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     placementSchedules<T extends Redemption$placementSchedulesArgs<ExtArgs> = {}>(args?: Subset<T, Redemption$placementSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlacementSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -40630,7 +40630,7 @@ export namespace Prisma {
     readonly status: FieldRef<"Redemption", 'RedemptionStatus'>
     readonly cost: FieldRef<"Redemption", 'Int'>
     readonly originalCost: FieldRef<"Redemption", 'Int'>
-    readonly refundedPoints: FieldRef<"Redemption", 'Int'>
+    readonly refundedRewards: FieldRef<"Redemption", 'Int'>
     readonly startsAt: FieldRef<"Redemption", 'DateTime'>
     readonly activatedAt: FieldRef<"Redemption", 'DateTime'>
     readonly expiresAt: FieldRef<"Redemption", 'DateTime'>
@@ -41059,23 +41059,23 @@ export namespace Prisma {
    */
   export type Redemption$transactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PointTransaction
+     * Select specific fields to fetch from the RewardTransaction
      */
-    select?: PointTransactionSelect<ExtArgs> | null
+    select?: RewardTransactionSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the PointTransaction
+     * Omit specific fields from the RewardTransaction
      */
-    omit?: PointTransactionOmit<ExtArgs> | null
+    omit?: RewardTransactionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PointTransactionInclude<ExtArgs> | null
-    where?: PointTransactionWhereInput
-    orderBy?: PointTransactionOrderByWithRelationInput | PointTransactionOrderByWithRelationInput[]
-    cursor?: PointTransactionWhereUniqueInput
+    include?: RewardTransactionInclude<ExtArgs> | null
+    where?: RewardTransactionWhereInput
+    orderBy?: RewardTransactionOrderByWithRelationInput | RewardTransactionOrderByWithRelationInput[]
+    cursor?: RewardTransactionWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: PointTransactionScalarFieldEnum | PointTransactionScalarFieldEnum[]
+    distinct?: RewardTransactionScalarFieldEnum | RewardTransactionScalarFieldEnum[]
   }
 
   /**
@@ -44033,7 +44033,7 @@ export namespace Prisma {
   export type UseCaseCategoryScalarFieldEnum = (typeof UseCaseCategoryScalarFieldEnum)[keyof typeof UseCaseCategoryScalarFieldEnum]
 
 
-  export const PointBalanceScalarFieldEnum: {
+  export const RewardBalanceScalarFieldEnum: {
     userId: 'userId',
     balance: 'balance',
     lifetimeEarned: 'lifetimeEarned',
@@ -44052,7 +44052,7 @@ export namespace Prisma {
     updatedAt: 'updatedAt'
   };
 
-  export type PointBalanceScalarFieldEnum = (typeof PointBalanceScalarFieldEnum)[keyof typeof PointBalanceScalarFieldEnum]
+  export type RewardBalanceScalarFieldEnum = (typeof RewardBalanceScalarFieldEnum)[keyof typeof RewardBalanceScalarFieldEnum]
 
 
   export const RewardRuleScalarFieldEnum: {
@@ -44061,7 +44061,7 @@ export namespace Prisma {
     name: 'name',
     description: 'description',
     category: 'category',
-    basePoints: 'basePoints',
+    baseRewardAmount: 'baseRewardAmount',
     isActive: 'isActive',
     dailyCap: 'dailyCap',
     lifetimeCap: 'lifetimeCap',
@@ -44098,11 +44098,11 @@ export namespace Prisma {
   export type RewardCatalogItemScalarFieldEnum = (typeof RewardCatalogItemScalarFieldEnum)[keyof typeof RewardCatalogItemScalarFieldEnum]
 
 
-  export const PointTransactionScalarFieldEnum: {
+  export const RewardTransactionScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
     type: 'type',
-    points: 'points',
+    rewardAmount: 'rewardAmount',
     balanceAfter: 'balanceAfter',
     ruleId: 'ruleId',
     ruleKey: 'ruleKey',
@@ -44122,7 +44122,7 @@ export namespace Prisma {
     updatedAt: 'updatedAt'
   };
 
-  export type PointTransactionScalarFieldEnum = (typeof PointTransactionScalarFieldEnum)[keyof typeof PointTransactionScalarFieldEnum]
+  export type RewardTransactionScalarFieldEnum = (typeof RewardTransactionScalarFieldEnum)[keyof typeof RewardTransactionScalarFieldEnum]
 
 
   export const RedemptionScalarFieldEnum: {
@@ -44133,7 +44133,7 @@ export namespace Prisma {
     status: 'status',
     cost: 'cost',
     originalCost: 'originalCost',
-    refundedPoints: 'refundedPoints',
+    refundedRewards: 'refundedRewards',
     startsAt: 'startsAt',
     activatedAt: 'activatedAt',
     expiresAt: 'expiresAt',
@@ -44482,16 +44482,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'PointTransactionType'
+   * Reference to a field of type 'RewardTransactionType'
    */
-  export type EnumPointTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PointTransactionType'>
+  export type EnumRewardTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RewardTransactionType'>
     
 
 
   /**
-   * Reference to a field of type 'PointTransactionType[]'
+   * Reference to a field of type 'RewardTransactionType[]'
    */
-  export type ListEnumPointTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PointTransactionType[]'>
+  export type ListEnumRewardTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RewardTransactionType[]'>
     
 
 
@@ -44599,7 +44599,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventListRelationFilter
     trafficEvents?: ProductTrafficEventListRelationFilter
     MonthlyProductRanking?: MonthlyProductRankingListRelationFilter
-    pointTransactions?: PointTransactionListRelationFilter
+    rewardTransactions?: RewardTransactionListRelationFilter
     redemptions?: RedemptionListRelationFilter
     featureEntitlements?: FeatureEntitlementListRelationFilter
   }
@@ -44646,7 +44646,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventOrderByRelationAggregateInput
     trafficEvents?: ProductTrafficEventOrderByRelationAggregateInput
     MonthlyProductRanking?: MonthlyProductRankingOrderByRelationAggregateInput
-    pointTransactions?: PointTransactionOrderByRelationAggregateInput
+    rewardTransactions?: RewardTransactionOrderByRelationAggregateInput
     redemptions?: RedemptionOrderByRelationAggregateInput
     featureEntitlements?: FeatureEntitlementOrderByRelationAggregateInput
   }
@@ -44696,7 +44696,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventListRelationFilter
     trafficEvents?: ProductTrafficEventListRelationFilter
     MonthlyProductRanking?: MonthlyProductRankingListRelationFilter
-    pointTransactions?: PointTransactionListRelationFilter
+    rewardTransactions?: RewardTransactionListRelationFilter
     redemptions?: RedemptionListRelationFilter
     featureEntitlements?: FeatureEntitlementListRelationFilter
   }, "id" | "slug">
@@ -45701,9 +45701,9 @@ export namespace Prisma {
     Organization?: OrganizationListRelationFilter
     feedback?: MemberFeedbackListRelationFilter
     purchases?: UserPlanPurchaseListRelationFilter
-    pointBalance?: XOR<PointBalanceNullableScalarRelationFilter, PointBalanceWhereInput> | null
-    pointTransactions?: PointTransactionListRelationFilter
-    pointTransactionsActed?: PointTransactionListRelationFilter
+    rewardBalance?: XOR<RewardBalanceNullableScalarRelationFilter, RewardBalanceWhereInput> | null
+    rewardTransactions?: RewardTransactionListRelationFilter
+    rewardTransactionsActed?: RewardTransactionListRelationFilter
     redemptions?: RedemptionListRelationFilter
     featureEntitlements?: FeatureEntitlementListRelationFilter
   }
@@ -45730,9 +45730,9 @@ export namespace Prisma {
     Organization?: OrganizationOrderByRelationAggregateInput
     feedback?: MemberFeedbackOrderByRelationAggregateInput
     purchases?: UserPlanPurchaseOrderByRelationAggregateInput
-    pointBalance?: PointBalanceOrderByWithRelationInput
-    pointTransactions?: PointTransactionOrderByRelationAggregateInput
-    pointTransactionsActed?: PointTransactionOrderByRelationAggregateInput
+    rewardBalance?: RewardBalanceOrderByWithRelationInput
+    rewardTransactions?: RewardTransactionOrderByRelationAggregateInput
+    rewardTransactionsActed?: RewardTransactionOrderByRelationAggregateInput
     redemptions?: RedemptionOrderByRelationAggregateInput
     featureEntitlements?: FeatureEntitlementOrderByRelationAggregateInput
   }
@@ -45762,9 +45762,9 @@ export namespace Prisma {
     Organization?: OrganizationListRelationFilter
     feedback?: MemberFeedbackListRelationFilter
     purchases?: UserPlanPurchaseListRelationFilter
-    pointBalance?: XOR<PointBalanceNullableScalarRelationFilter, PointBalanceWhereInput> | null
-    pointTransactions?: PointTransactionListRelationFilter
-    pointTransactionsActed?: PointTransactionListRelationFilter
+    rewardBalance?: XOR<RewardBalanceNullableScalarRelationFilter, RewardBalanceWhereInput> | null
+    rewardTransactions?: RewardTransactionListRelationFilter
+    rewardTransactionsActed?: RewardTransactionListRelationFilter
     redemptions?: RedemptionListRelationFilter
     featureEntitlements?: FeatureEntitlementListRelationFilter
   }, "id" | "clerkId" | "email">
@@ -46550,30 +46550,30 @@ export namespace Prisma {
     categoryId?: StringWithAggregatesFilter<"UseCaseCategory"> | string
   }
 
-  export type PointBalanceWhereInput = {
-    AND?: PointBalanceWhereInput | PointBalanceWhereInput[]
-    OR?: PointBalanceWhereInput[]
-    NOT?: PointBalanceWhereInput | PointBalanceWhereInput[]
-    userId?: StringFilter<"PointBalance"> | string
-    balance?: IntFilter<"PointBalance"> | number
-    lifetimeEarned?: IntFilter<"PointBalance"> | number
-    lifetimeSpent?: IntFilter<"PointBalance"> | number
-    lifetimeAdjusted?: IntFilter<"PointBalance"> | number
-    lifetimeRefunded?: IntFilter<"PointBalance"> | number
-    currentStreakCount?: IntFilter<"PointBalance"> | number
-    longestStreakCount?: IntFilter<"PointBalance"> | number
-    currentStreakTier?: StringNullableFilter<"PointBalance"> | string | null
-    streakActiveThrough?: DateTimeNullableFilter<"PointBalance"> | Date | string | null
-    lastEarnedAt?: DateTimeNullableFilter<"PointBalance"> | Date | string | null
-    lastRedeemedAt?: DateTimeNullableFilter<"PointBalance"> | Date | string | null
-    lastAdjustmentAt?: DateTimeNullableFilter<"PointBalance"> | Date | string | null
-    lastEvaluatedAt?: DateTimeNullableFilter<"PointBalance"> | Date | string | null
-    createdAt?: DateTimeFilter<"PointBalance"> | Date | string
-    updatedAt?: DateTimeFilter<"PointBalance"> | Date | string
+  export type RewardBalanceWhereInput = {
+    AND?: RewardBalanceWhereInput | RewardBalanceWhereInput[]
+    OR?: RewardBalanceWhereInput[]
+    NOT?: RewardBalanceWhereInput | RewardBalanceWhereInput[]
+    userId?: StringFilter<"RewardBalance"> | string
+    balance?: IntFilter<"RewardBalance"> | number
+    lifetimeEarned?: IntFilter<"RewardBalance"> | number
+    lifetimeSpent?: IntFilter<"RewardBalance"> | number
+    lifetimeAdjusted?: IntFilter<"RewardBalance"> | number
+    lifetimeRefunded?: IntFilter<"RewardBalance"> | number
+    currentStreakCount?: IntFilter<"RewardBalance"> | number
+    longestStreakCount?: IntFilter<"RewardBalance"> | number
+    currentStreakTier?: StringNullableFilter<"RewardBalance"> | string | null
+    streakActiveThrough?: DateTimeNullableFilter<"RewardBalance"> | Date | string | null
+    lastEarnedAt?: DateTimeNullableFilter<"RewardBalance"> | Date | string | null
+    lastRedeemedAt?: DateTimeNullableFilter<"RewardBalance"> | Date | string | null
+    lastAdjustmentAt?: DateTimeNullableFilter<"RewardBalance"> | Date | string | null
+    lastEvaluatedAt?: DateTimeNullableFilter<"RewardBalance"> | Date | string | null
+    createdAt?: DateTimeFilter<"RewardBalance"> | Date | string
+    updatedAt?: DateTimeFilter<"RewardBalance"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
-  export type PointBalanceOrderByWithRelationInput = {
+  export type RewardBalanceOrderByWithRelationInput = {
     userId?: SortOrder
     balance?: SortOrder
     lifetimeEarned?: SortOrder
@@ -46593,30 +46593,30 @@ export namespace Prisma {
     user?: UserOrderByWithRelationInput
   }
 
-  export type PointBalanceWhereUniqueInput = Prisma.AtLeast<{
+  export type RewardBalanceWhereUniqueInput = Prisma.AtLeast<{
     userId?: string
-    AND?: PointBalanceWhereInput | PointBalanceWhereInput[]
-    OR?: PointBalanceWhereInput[]
-    NOT?: PointBalanceWhereInput | PointBalanceWhereInput[]
-    balance?: IntFilter<"PointBalance"> | number
-    lifetimeEarned?: IntFilter<"PointBalance"> | number
-    lifetimeSpent?: IntFilter<"PointBalance"> | number
-    lifetimeAdjusted?: IntFilter<"PointBalance"> | number
-    lifetimeRefunded?: IntFilter<"PointBalance"> | number
-    currentStreakCount?: IntFilter<"PointBalance"> | number
-    longestStreakCount?: IntFilter<"PointBalance"> | number
-    currentStreakTier?: StringNullableFilter<"PointBalance"> | string | null
-    streakActiveThrough?: DateTimeNullableFilter<"PointBalance"> | Date | string | null
-    lastEarnedAt?: DateTimeNullableFilter<"PointBalance"> | Date | string | null
-    lastRedeemedAt?: DateTimeNullableFilter<"PointBalance"> | Date | string | null
-    lastAdjustmentAt?: DateTimeNullableFilter<"PointBalance"> | Date | string | null
-    lastEvaluatedAt?: DateTimeNullableFilter<"PointBalance"> | Date | string | null
-    createdAt?: DateTimeFilter<"PointBalance"> | Date | string
-    updatedAt?: DateTimeFilter<"PointBalance"> | Date | string
+    AND?: RewardBalanceWhereInput | RewardBalanceWhereInput[]
+    OR?: RewardBalanceWhereInput[]
+    NOT?: RewardBalanceWhereInput | RewardBalanceWhereInput[]
+    balance?: IntFilter<"RewardBalance"> | number
+    lifetimeEarned?: IntFilter<"RewardBalance"> | number
+    lifetimeSpent?: IntFilter<"RewardBalance"> | number
+    lifetimeAdjusted?: IntFilter<"RewardBalance"> | number
+    lifetimeRefunded?: IntFilter<"RewardBalance"> | number
+    currentStreakCount?: IntFilter<"RewardBalance"> | number
+    longestStreakCount?: IntFilter<"RewardBalance"> | number
+    currentStreakTier?: StringNullableFilter<"RewardBalance"> | string | null
+    streakActiveThrough?: DateTimeNullableFilter<"RewardBalance"> | Date | string | null
+    lastEarnedAt?: DateTimeNullableFilter<"RewardBalance"> | Date | string | null
+    lastRedeemedAt?: DateTimeNullableFilter<"RewardBalance"> | Date | string | null
+    lastAdjustmentAt?: DateTimeNullableFilter<"RewardBalance"> | Date | string | null
+    lastEvaluatedAt?: DateTimeNullableFilter<"RewardBalance"> | Date | string | null
+    createdAt?: DateTimeFilter<"RewardBalance"> | Date | string
+    updatedAt?: DateTimeFilter<"RewardBalance"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "userId">
 
-  export type PointBalanceOrderByWithAggregationInput = {
+  export type RewardBalanceOrderByWithAggregationInput = {
     userId?: SortOrder
     balance?: SortOrder
     lifetimeEarned?: SortOrder
@@ -46633,33 +46633,33 @@ export namespace Prisma {
     lastEvaluatedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    _count?: PointBalanceCountOrderByAggregateInput
-    _avg?: PointBalanceAvgOrderByAggregateInput
-    _max?: PointBalanceMaxOrderByAggregateInput
-    _min?: PointBalanceMinOrderByAggregateInput
-    _sum?: PointBalanceSumOrderByAggregateInput
+    _count?: RewardBalanceCountOrderByAggregateInput
+    _avg?: RewardBalanceAvgOrderByAggregateInput
+    _max?: RewardBalanceMaxOrderByAggregateInput
+    _min?: RewardBalanceMinOrderByAggregateInput
+    _sum?: RewardBalanceSumOrderByAggregateInput
   }
 
-  export type PointBalanceScalarWhereWithAggregatesInput = {
-    AND?: PointBalanceScalarWhereWithAggregatesInput | PointBalanceScalarWhereWithAggregatesInput[]
-    OR?: PointBalanceScalarWhereWithAggregatesInput[]
-    NOT?: PointBalanceScalarWhereWithAggregatesInput | PointBalanceScalarWhereWithAggregatesInput[]
-    userId?: StringWithAggregatesFilter<"PointBalance"> | string
-    balance?: IntWithAggregatesFilter<"PointBalance"> | number
-    lifetimeEarned?: IntWithAggregatesFilter<"PointBalance"> | number
-    lifetimeSpent?: IntWithAggregatesFilter<"PointBalance"> | number
-    lifetimeAdjusted?: IntWithAggregatesFilter<"PointBalance"> | number
-    lifetimeRefunded?: IntWithAggregatesFilter<"PointBalance"> | number
-    currentStreakCount?: IntWithAggregatesFilter<"PointBalance"> | number
-    longestStreakCount?: IntWithAggregatesFilter<"PointBalance"> | number
-    currentStreakTier?: StringNullableWithAggregatesFilter<"PointBalance"> | string | null
-    streakActiveThrough?: DateTimeNullableWithAggregatesFilter<"PointBalance"> | Date | string | null
-    lastEarnedAt?: DateTimeNullableWithAggregatesFilter<"PointBalance"> | Date | string | null
-    lastRedeemedAt?: DateTimeNullableWithAggregatesFilter<"PointBalance"> | Date | string | null
-    lastAdjustmentAt?: DateTimeNullableWithAggregatesFilter<"PointBalance"> | Date | string | null
-    lastEvaluatedAt?: DateTimeNullableWithAggregatesFilter<"PointBalance"> | Date | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"PointBalance"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"PointBalance"> | Date | string
+  export type RewardBalanceScalarWhereWithAggregatesInput = {
+    AND?: RewardBalanceScalarWhereWithAggregatesInput | RewardBalanceScalarWhereWithAggregatesInput[]
+    OR?: RewardBalanceScalarWhereWithAggregatesInput[]
+    NOT?: RewardBalanceScalarWhereWithAggregatesInput | RewardBalanceScalarWhereWithAggregatesInput[]
+    userId?: StringWithAggregatesFilter<"RewardBalance"> | string
+    balance?: IntWithAggregatesFilter<"RewardBalance"> | number
+    lifetimeEarned?: IntWithAggregatesFilter<"RewardBalance"> | number
+    lifetimeSpent?: IntWithAggregatesFilter<"RewardBalance"> | number
+    lifetimeAdjusted?: IntWithAggregatesFilter<"RewardBalance"> | number
+    lifetimeRefunded?: IntWithAggregatesFilter<"RewardBalance"> | number
+    currentStreakCount?: IntWithAggregatesFilter<"RewardBalance"> | number
+    longestStreakCount?: IntWithAggregatesFilter<"RewardBalance"> | number
+    currentStreakTier?: StringNullableWithAggregatesFilter<"RewardBalance"> | string | null
+    streakActiveThrough?: DateTimeNullableWithAggregatesFilter<"RewardBalance"> | Date | string | null
+    lastEarnedAt?: DateTimeNullableWithAggregatesFilter<"RewardBalance"> | Date | string | null
+    lastRedeemedAt?: DateTimeNullableWithAggregatesFilter<"RewardBalance"> | Date | string | null
+    lastAdjustmentAt?: DateTimeNullableWithAggregatesFilter<"RewardBalance"> | Date | string | null
+    lastEvaluatedAt?: DateTimeNullableWithAggregatesFilter<"RewardBalance"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"RewardBalance"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"RewardBalance"> | Date | string
   }
 
   export type RewardRuleWhereInput = {
@@ -46671,7 +46671,7 @@ export namespace Prisma {
     name?: StringFilter<"RewardRule"> | string
     description?: StringNullableFilter<"RewardRule"> | string | null
     category?: EnumRewardRuleCategoryFilter<"RewardRule"> | $Enums.RewardRuleCategory
-    basePoints?: IntFilter<"RewardRule"> | number
+    baseRewardAmount?: IntFilter<"RewardRule"> | number
     isActive?: BoolFilter<"RewardRule"> | boolean
     dailyCap?: IntNullableFilter<"RewardRule"> | number | null
     lifetimeCap?: IntNullableFilter<"RewardRule"> | number | null
@@ -46682,7 +46682,7 @@ export namespace Prisma {
     adminNotes?: StringNullableFilter<"RewardRule"> | string | null
     createdAt?: DateTimeFilter<"RewardRule"> | Date | string
     updatedAt?: DateTimeFilter<"RewardRule"> | Date | string
-    transactions?: PointTransactionListRelationFilter
+    transactions?: RewardTransactionListRelationFilter
   }
 
   export type RewardRuleOrderByWithRelationInput = {
@@ -46691,7 +46691,7 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrderInput | SortOrder
     category?: SortOrder
-    basePoints?: SortOrder
+    baseRewardAmount?: SortOrder
     isActive?: SortOrder
     dailyCap?: SortOrderInput | SortOrder
     lifetimeCap?: SortOrderInput | SortOrder
@@ -46702,7 +46702,7 @@ export namespace Prisma {
     adminNotes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    transactions?: PointTransactionOrderByRelationAggregateInput
+    transactions?: RewardTransactionOrderByRelationAggregateInput
   }
 
   export type RewardRuleWhereUniqueInput = Prisma.AtLeast<{
@@ -46714,7 +46714,7 @@ export namespace Prisma {
     name?: StringFilter<"RewardRule"> | string
     description?: StringNullableFilter<"RewardRule"> | string | null
     category?: EnumRewardRuleCategoryFilter<"RewardRule"> | $Enums.RewardRuleCategory
-    basePoints?: IntFilter<"RewardRule"> | number
+    baseRewardAmount?: IntFilter<"RewardRule"> | number
     isActive?: BoolFilter<"RewardRule"> | boolean
     dailyCap?: IntNullableFilter<"RewardRule"> | number | null
     lifetimeCap?: IntNullableFilter<"RewardRule"> | number | null
@@ -46725,7 +46725,7 @@ export namespace Prisma {
     adminNotes?: StringNullableFilter<"RewardRule"> | string | null
     createdAt?: DateTimeFilter<"RewardRule"> | Date | string
     updatedAt?: DateTimeFilter<"RewardRule"> | Date | string
-    transactions?: PointTransactionListRelationFilter
+    transactions?: RewardTransactionListRelationFilter
   }, "id" | "key">
 
   export type RewardRuleOrderByWithAggregationInput = {
@@ -46734,7 +46734,7 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrderInput | SortOrder
     category?: SortOrder
-    basePoints?: SortOrder
+    baseRewardAmount?: SortOrder
     isActive?: SortOrder
     dailyCap?: SortOrderInput | SortOrder
     lifetimeCap?: SortOrderInput | SortOrder
@@ -46761,7 +46761,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"RewardRule"> | string
     description?: StringNullableWithAggregatesFilter<"RewardRule"> | string | null
     category?: EnumRewardRuleCategoryWithAggregatesFilter<"RewardRule"> | $Enums.RewardRuleCategory
-    basePoints?: IntWithAggregatesFilter<"RewardRule"> | number
+    baseRewardAmount?: IntWithAggregatesFilter<"RewardRule"> | number
     isActive?: BoolWithAggregatesFilter<"RewardRule"> | boolean
     dailyCap?: IntNullableWithAggregatesFilter<"RewardRule"> | number | null
     lifetimeCap?: IntNullableWithAggregatesFilter<"RewardRule"> | number | null
@@ -46796,7 +46796,7 @@ export namespace Prisma {
     planFeature?: XOR<PlanFeatureNullableScalarRelationFilter, PlanFeatureWhereInput> | null
     redemptions?: RedemptionListRelationFilter
     entitlements?: FeatureEntitlementListRelationFilter
-    transactions?: PointTransactionListRelationFilter
+    transactions?: RewardTransactionListRelationFilter
     placementSchedules?: PlacementScheduleListRelationFilter
   }
 
@@ -46819,7 +46819,7 @@ export namespace Prisma {
     planFeature?: PlanFeatureOrderByWithRelationInput
     redemptions?: RedemptionOrderByRelationAggregateInput
     entitlements?: FeatureEntitlementOrderByRelationAggregateInput
-    transactions?: PointTransactionOrderByRelationAggregateInput
+    transactions?: RewardTransactionOrderByRelationAggregateInput
     placementSchedules?: PlacementScheduleOrderByRelationAggregateInput
   }
 
@@ -46845,7 +46845,7 @@ export namespace Prisma {
     planFeature?: XOR<PlanFeatureNullableScalarRelationFilter, PlanFeatureWhereInput> | null
     redemptions?: RedemptionListRelationFilter
     entitlements?: FeatureEntitlementListRelationFilter
-    transactions?: PointTransactionListRelationFilter
+    transactions?: RewardTransactionListRelationFilter
     placementSchedules?: PlacementScheduleListRelationFilter
   }, "id" | "featureKey">
 
@@ -46893,31 +46893,31 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"RewardCatalogItem"> | Date | string
   }
 
-  export type PointTransactionWhereInput = {
-    AND?: PointTransactionWhereInput | PointTransactionWhereInput[]
-    OR?: PointTransactionWhereInput[]
-    NOT?: PointTransactionWhereInput | PointTransactionWhereInput[]
-    id?: StringFilter<"PointTransaction"> | string
-    userId?: StringFilter<"PointTransaction"> | string
-    type?: EnumPointTransactionTypeFilter<"PointTransaction"> | $Enums.PointTransactionType
-    points?: IntFilter<"PointTransaction"> | number
-    balanceAfter?: IntFilter<"PointTransaction"> | number
-    ruleId?: StringNullableFilter<"PointTransaction"> | string | null
-    ruleKey?: StringNullableFilter<"PointTransaction"> | string | null
-    rewardKey?: StringNullableFilter<"PointTransaction"> | string | null
-    redemptionId?: StringNullableFilter<"PointTransaction"> | string | null
-    productId?: StringNullableFilter<"PointTransaction"> | string | null
-    eventId?: StringNullableFilter<"PointTransaction"> | string | null
-    eventHash?: StringNullableFilter<"PointTransaction"> | string | null
-    sourceType?: StringNullableFilter<"PointTransaction"> | string | null
-    sourceId?: StringNullableFilter<"PointTransaction"> | string | null
-    targetType?: StringNullableFilter<"PointTransaction"> | string | null
-    targetId?: StringNullableFilter<"PointTransaction"> | string | null
-    notes?: StringNullableFilter<"PointTransaction"> | string | null
-    metadata?: JsonNullableFilter<"PointTransaction">
-    actedByUserId?: StringNullableFilter<"PointTransaction"> | string | null
-    createdAt?: DateTimeFilter<"PointTransaction"> | Date | string
-    updatedAt?: DateTimeFilter<"PointTransaction"> | Date | string
+  export type RewardTransactionWhereInput = {
+    AND?: RewardTransactionWhereInput | RewardTransactionWhereInput[]
+    OR?: RewardTransactionWhereInput[]
+    NOT?: RewardTransactionWhereInput | RewardTransactionWhereInput[]
+    id?: StringFilter<"RewardTransaction"> | string
+    userId?: StringFilter<"RewardTransaction"> | string
+    type?: EnumRewardTransactionTypeFilter<"RewardTransaction"> | $Enums.RewardTransactionType
+    rewardAmount?: IntFilter<"RewardTransaction"> | number
+    balanceAfter?: IntFilter<"RewardTransaction"> | number
+    ruleId?: StringNullableFilter<"RewardTransaction"> | string | null
+    ruleKey?: StringNullableFilter<"RewardTransaction"> | string | null
+    rewardKey?: StringNullableFilter<"RewardTransaction"> | string | null
+    redemptionId?: StringNullableFilter<"RewardTransaction"> | string | null
+    productId?: StringNullableFilter<"RewardTransaction"> | string | null
+    eventId?: StringNullableFilter<"RewardTransaction"> | string | null
+    eventHash?: StringNullableFilter<"RewardTransaction"> | string | null
+    sourceType?: StringNullableFilter<"RewardTransaction"> | string | null
+    sourceId?: StringNullableFilter<"RewardTransaction"> | string | null
+    targetType?: StringNullableFilter<"RewardTransaction"> | string | null
+    targetId?: StringNullableFilter<"RewardTransaction"> | string | null
+    notes?: StringNullableFilter<"RewardTransaction"> | string | null
+    metadata?: JsonNullableFilter<"RewardTransaction">
+    actedByUserId?: StringNullableFilter<"RewardTransaction"> | string | null
+    createdAt?: DateTimeFilter<"RewardTransaction"> | Date | string
+    updatedAt?: DateTimeFilter<"RewardTransaction"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     rule?: XOR<RewardRuleNullableScalarRelationFilter, RewardRuleWhereInput> | null
     catalogItem?: XOR<RewardCatalogItemNullableScalarRelationFilter, RewardCatalogItemWhereInput> | null
@@ -46926,11 +46926,11 @@ export namespace Prisma {
     product?: XOR<ProductNullableScalarRelationFilter, ProductWhereInput> | null
   }
 
-  export type PointTransactionOrderByWithRelationInput = {
+  export type RewardTransactionOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrder
     type?: SortOrder
-    points?: SortOrder
+    rewardAmount?: SortOrder
     balanceAfter?: SortOrder
     ruleId?: SortOrderInput | SortOrder
     ruleKey?: SortOrderInput | SortOrder
@@ -46956,31 +46956,31 @@ export namespace Prisma {
     product?: ProductOrderByWithRelationInput
   }
 
-  export type PointTransactionWhereUniqueInput = Prisma.AtLeast<{
+  export type RewardTransactionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     eventHash?: string
-    AND?: PointTransactionWhereInput | PointTransactionWhereInput[]
-    OR?: PointTransactionWhereInput[]
-    NOT?: PointTransactionWhereInput | PointTransactionWhereInput[]
-    userId?: StringFilter<"PointTransaction"> | string
-    type?: EnumPointTransactionTypeFilter<"PointTransaction"> | $Enums.PointTransactionType
-    points?: IntFilter<"PointTransaction"> | number
-    balanceAfter?: IntFilter<"PointTransaction"> | number
-    ruleId?: StringNullableFilter<"PointTransaction"> | string | null
-    ruleKey?: StringNullableFilter<"PointTransaction"> | string | null
-    rewardKey?: StringNullableFilter<"PointTransaction"> | string | null
-    redemptionId?: StringNullableFilter<"PointTransaction"> | string | null
-    productId?: StringNullableFilter<"PointTransaction"> | string | null
-    eventId?: StringNullableFilter<"PointTransaction"> | string | null
-    sourceType?: StringNullableFilter<"PointTransaction"> | string | null
-    sourceId?: StringNullableFilter<"PointTransaction"> | string | null
-    targetType?: StringNullableFilter<"PointTransaction"> | string | null
-    targetId?: StringNullableFilter<"PointTransaction"> | string | null
-    notes?: StringNullableFilter<"PointTransaction"> | string | null
-    metadata?: JsonNullableFilter<"PointTransaction">
-    actedByUserId?: StringNullableFilter<"PointTransaction"> | string | null
-    createdAt?: DateTimeFilter<"PointTransaction"> | Date | string
-    updatedAt?: DateTimeFilter<"PointTransaction"> | Date | string
+    AND?: RewardTransactionWhereInput | RewardTransactionWhereInput[]
+    OR?: RewardTransactionWhereInput[]
+    NOT?: RewardTransactionWhereInput | RewardTransactionWhereInput[]
+    userId?: StringFilter<"RewardTransaction"> | string
+    type?: EnumRewardTransactionTypeFilter<"RewardTransaction"> | $Enums.RewardTransactionType
+    rewardAmount?: IntFilter<"RewardTransaction"> | number
+    balanceAfter?: IntFilter<"RewardTransaction"> | number
+    ruleId?: StringNullableFilter<"RewardTransaction"> | string | null
+    ruleKey?: StringNullableFilter<"RewardTransaction"> | string | null
+    rewardKey?: StringNullableFilter<"RewardTransaction"> | string | null
+    redemptionId?: StringNullableFilter<"RewardTransaction"> | string | null
+    productId?: StringNullableFilter<"RewardTransaction"> | string | null
+    eventId?: StringNullableFilter<"RewardTransaction"> | string | null
+    sourceType?: StringNullableFilter<"RewardTransaction"> | string | null
+    sourceId?: StringNullableFilter<"RewardTransaction"> | string | null
+    targetType?: StringNullableFilter<"RewardTransaction"> | string | null
+    targetId?: StringNullableFilter<"RewardTransaction"> | string | null
+    notes?: StringNullableFilter<"RewardTransaction"> | string | null
+    metadata?: JsonNullableFilter<"RewardTransaction">
+    actedByUserId?: StringNullableFilter<"RewardTransaction"> | string | null
+    createdAt?: DateTimeFilter<"RewardTransaction"> | Date | string
+    updatedAt?: DateTimeFilter<"RewardTransaction"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     rule?: XOR<RewardRuleNullableScalarRelationFilter, RewardRuleWhereInput> | null
     catalogItem?: XOR<RewardCatalogItemNullableScalarRelationFilter, RewardCatalogItemWhereInput> | null
@@ -46989,11 +46989,11 @@ export namespace Prisma {
     product?: XOR<ProductNullableScalarRelationFilter, ProductWhereInput> | null
   }, "id" | "eventHash">
 
-  export type PointTransactionOrderByWithAggregationInput = {
+  export type RewardTransactionOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrder
     type?: SortOrder
-    points?: SortOrder
+    rewardAmount?: SortOrder
     balanceAfter?: SortOrder
     ruleId?: SortOrderInput | SortOrder
     ruleKey?: SortOrderInput | SortOrder
@@ -47011,38 +47011,38 @@ export namespace Prisma {
     actedByUserId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    _count?: PointTransactionCountOrderByAggregateInput
-    _avg?: PointTransactionAvgOrderByAggregateInput
-    _max?: PointTransactionMaxOrderByAggregateInput
-    _min?: PointTransactionMinOrderByAggregateInput
-    _sum?: PointTransactionSumOrderByAggregateInput
+    _count?: RewardTransactionCountOrderByAggregateInput
+    _avg?: RewardTransactionAvgOrderByAggregateInput
+    _max?: RewardTransactionMaxOrderByAggregateInput
+    _min?: RewardTransactionMinOrderByAggregateInput
+    _sum?: RewardTransactionSumOrderByAggregateInput
   }
 
-  export type PointTransactionScalarWhereWithAggregatesInput = {
-    AND?: PointTransactionScalarWhereWithAggregatesInput | PointTransactionScalarWhereWithAggregatesInput[]
-    OR?: PointTransactionScalarWhereWithAggregatesInput[]
-    NOT?: PointTransactionScalarWhereWithAggregatesInput | PointTransactionScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"PointTransaction"> | string
-    userId?: StringWithAggregatesFilter<"PointTransaction"> | string
-    type?: EnumPointTransactionTypeWithAggregatesFilter<"PointTransaction"> | $Enums.PointTransactionType
-    points?: IntWithAggregatesFilter<"PointTransaction"> | number
-    balanceAfter?: IntWithAggregatesFilter<"PointTransaction"> | number
-    ruleId?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    ruleKey?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    rewardKey?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    redemptionId?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    productId?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    eventId?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    eventHash?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    sourceType?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    sourceId?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    targetType?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    targetId?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    notes?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    metadata?: JsonNullableWithAggregatesFilter<"PointTransaction">
-    actedByUserId?: StringNullableWithAggregatesFilter<"PointTransaction"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"PointTransaction"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"PointTransaction"> | Date | string
+  export type RewardTransactionScalarWhereWithAggregatesInput = {
+    AND?: RewardTransactionScalarWhereWithAggregatesInput | RewardTransactionScalarWhereWithAggregatesInput[]
+    OR?: RewardTransactionScalarWhereWithAggregatesInput[]
+    NOT?: RewardTransactionScalarWhereWithAggregatesInput | RewardTransactionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"RewardTransaction"> | string
+    userId?: StringWithAggregatesFilter<"RewardTransaction"> | string
+    type?: EnumRewardTransactionTypeWithAggregatesFilter<"RewardTransaction"> | $Enums.RewardTransactionType
+    rewardAmount?: IntWithAggregatesFilter<"RewardTransaction"> | number
+    balanceAfter?: IntWithAggregatesFilter<"RewardTransaction"> | number
+    ruleId?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    ruleKey?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    rewardKey?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    redemptionId?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    productId?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    eventId?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    eventHash?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    sourceType?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    sourceId?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    targetType?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    targetId?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    notes?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    metadata?: JsonNullableWithAggregatesFilter<"RewardTransaction">
+    actedByUserId?: StringNullableWithAggregatesFilter<"RewardTransaction"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"RewardTransaction"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"RewardTransaction"> | Date | string
   }
 
   export type RedemptionWhereInput = {
@@ -47056,7 +47056,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFilter<"Redemption"> | $Enums.RedemptionStatus
     cost?: IntFilter<"Redemption"> | number
     originalCost?: IntFilter<"Redemption"> | number
-    refundedPoints?: IntFilter<"Redemption"> | number
+    refundedRewards?: IntFilter<"Redemption"> | number
     startsAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
     activatedAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
     expiresAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
@@ -47069,7 +47069,7 @@ export namespace Prisma {
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     catalogItem?: XOR<RewardCatalogItemScalarRelationFilter, RewardCatalogItemWhereInput>
     product?: XOR<ProductNullableScalarRelationFilter, ProductWhereInput> | null
-    transactions?: PointTransactionListRelationFilter
+    transactions?: RewardTransactionListRelationFilter
     entitlements?: FeatureEntitlementListRelationFilter
     placementSchedules?: PlacementScheduleListRelationFilter
   }
@@ -47082,7 +47082,7 @@ export namespace Prisma {
     status?: SortOrder
     cost?: SortOrder
     originalCost?: SortOrder
-    refundedPoints?: SortOrder
+    refundedRewards?: SortOrder
     startsAt?: SortOrderInput | SortOrder
     activatedAt?: SortOrderInput | SortOrder
     expiresAt?: SortOrderInput | SortOrder
@@ -47095,7 +47095,7 @@ export namespace Prisma {
     user?: UserOrderByWithRelationInput
     catalogItem?: RewardCatalogItemOrderByWithRelationInput
     product?: ProductOrderByWithRelationInput
-    transactions?: PointTransactionOrderByRelationAggregateInput
+    transactions?: RewardTransactionOrderByRelationAggregateInput
     entitlements?: FeatureEntitlementOrderByRelationAggregateInput
     placementSchedules?: PlacementScheduleOrderByRelationAggregateInput
   }
@@ -47111,7 +47111,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFilter<"Redemption"> | $Enums.RedemptionStatus
     cost?: IntFilter<"Redemption"> | number
     originalCost?: IntFilter<"Redemption"> | number
-    refundedPoints?: IntFilter<"Redemption"> | number
+    refundedRewards?: IntFilter<"Redemption"> | number
     startsAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
     activatedAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
     expiresAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
@@ -47124,7 +47124,7 @@ export namespace Prisma {
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     catalogItem?: XOR<RewardCatalogItemScalarRelationFilter, RewardCatalogItemWhereInput>
     product?: XOR<ProductNullableScalarRelationFilter, ProductWhereInput> | null
-    transactions?: PointTransactionListRelationFilter
+    transactions?: RewardTransactionListRelationFilter
     entitlements?: FeatureEntitlementListRelationFilter
     placementSchedules?: PlacementScheduleListRelationFilter
   }, "id">
@@ -47137,7 +47137,7 @@ export namespace Prisma {
     status?: SortOrder
     cost?: SortOrder
     originalCost?: SortOrder
-    refundedPoints?: SortOrder
+    refundedRewards?: SortOrder
     startsAt?: SortOrderInput | SortOrder
     activatedAt?: SortOrderInput | SortOrder
     expiresAt?: SortOrderInput | SortOrder
@@ -47165,7 +47165,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusWithAggregatesFilter<"Redemption"> | $Enums.RedemptionStatus
     cost?: IntWithAggregatesFilter<"Redemption"> | number
     originalCost?: IntWithAggregatesFilter<"Redemption"> | number
-    refundedPoints?: IntWithAggregatesFilter<"Redemption"> | number
+    refundedRewards?: IntWithAggregatesFilter<"Redemption"> | number
     startsAt?: DateTimeNullableWithAggregatesFilter<"Redemption"> | Date | string | null
     activatedAt?: DateTimeNullableWithAggregatesFilter<"Redemption"> | Date | string | null
     expiresAt?: DateTimeNullableWithAggregatesFilter<"Redemption"> | Date | string | null
@@ -47446,7 +47446,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -47489,7 +47489,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -47532,7 +47532,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -47575,7 +47575,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -48653,9 +48653,9 @@ export namespace Prisma {
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
@@ -48682,9 +48682,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
@@ -48711,9 +48711,9 @@ export namespace Prisma {
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
@@ -48740,9 +48740,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -49584,7 +49584,7 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
   }
 
-  export type PointBalanceCreateInput = {
+  export type RewardBalanceCreateInput = {
     balance?: number
     lifetimeEarned?: number
     lifetimeSpent?: number
@@ -49600,10 +49600,10 @@ export namespace Prisma {
     lastEvaluatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutPointBalanceInput
+    user: UserCreateNestedOneWithoutRewardBalanceInput
   }
 
-  export type PointBalanceUncheckedCreateInput = {
+  export type RewardBalanceUncheckedCreateInput = {
     userId: string
     balance?: number
     lifetimeEarned?: number
@@ -49622,7 +49622,7 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointBalanceUpdateInput = {
+  export type RewardBalanceUpdateInput = {
     balance?: IntFieldUpdateOperationsInput | number
     lifetimeEarned?: IntFieldUpdateOperationsInput | number
     lifetimeSpent?: IntFieldUpdateOperationsInput | number
@@ -49638,10 +49638,10 @@ export namespace Prisma {
     lastEvaluatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutPointBalanceNestedInput
+    user?: UserUpdateOneRequiredWithoutRewardBalanceNestedInput
   }
 
-  export type PointBalanceUncheckedUpdateInput = {
+  export type RewardBalanceUncheckedUpdateInput = {
     userId?: StringFieldUpdateOperationsInput | string
     balance?: IntFieldUpdateOperationsInput | number
     lifetimeEarned?: IntFieldUpdateOperationsInput | number
@@ -49660,7 +49660,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointBalanceCreateManyInput = {
+  export type RewardBalanceCreateManyInput = {
     userId: string
     balance?: number
     lifetimeEarned?: number
@@ -49679,7 +49679,7 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointBalanceUpdateManyMutationInput = {
+  export type RewardBalanceUpdateManyMutationInput = {
     balance?: IntFieldUpdateOperationsInput | number
     lifetimeEarned?: IntFieldUpdateOperationsInput | number
     lifetimeSpent?: IntFieldUpdateOperationsInput | number
@@ -49697,7 +49697,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointBalanceUncheckedUpdateManyInput = {
+  export type RewardBalanceUncheckedUpdateManyInput = {
     userId?: StringFieldUpdateOperationsInput | string
     balance?: IntFieldUpdateOperationsInput | number
     lifetimeEarned?: IntFieldUpdateOperationsInput | number
@@ -49722,7 +49722,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     category: $Enums.RewardRuleCategory
-    basePoints: number
+    baseRewardAmount: number
     isActive?: boolean
     dailyCap?: number | null
     lifetimeCap?: number | null
@@ -49733,7 +49733,7 @@ export namespace Prisma {
     adminNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    transactions?: PointTransactionCreateNestedManyWithoutRuleInput
+    transactions?: RewardTransactionCreateNestedManyWithoutRuleInput
   }
 
   export type RewardRuleUncheckedCreateInput = {
@@ -49742,7 +49742,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     category: $Enums.RewardRuleCategory
-    basePoints: number
+    baseRewardAmount: number
     isActive?: boolean
     dailyCap?: number | null
     lifetimeCap?: number | null
@@ -49753,7 +49753,7 @@ export namespace Prisma {
     adminNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutRuleInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutRuleInput
   }
 
   export type RewardRuleUpdateInput = {
@@ -49762,7 +49762,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumRewardRuleCategoryFieldUpdateOperationsInput | $Enums.RewardRuleCategory
-    basePoints?: IntFieldUpdateOperationsInput | number
+    baseRewardAmount?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     dailyCap?: NullableIntFieldUpdateOperationsInput | number | null
     lifetimeCap?: NullableIntFieldUpdateOperationsInput | number | null
@@ -49773,7 +49773,7 @@ export namespace Prisma {
     adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    transactions?: PointTransactionUpdateManyWithoutRuleNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutRuleNestedInput
   }
 
   export type RewardRuleUncheckedUpdateInput = {
@@ -49782,7 +49782,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumRewardRuleCategoryFieldUpdateOperationsInput | $Enums.RewardRuleCategory
-    basePoints?: IntFieldUpdateOperationsInput | number
+    baseRewardAmount?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     dailyCap?: NullableIntFieldUpdateOperationsInput | number | null
     lifetimeCap?: NullableIntFieldUpdateOperationsInput | number | null
@@ -49793,7 +49793,7 @@ export namespace Prisma {
     adminNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    transactions?: PointTransactionUncheckedUpdateManyWithoutRuleNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutRuleNestedInput
   }
 
   export type RewardRuleCreateManyInput = {
@@ -49802,7 +49802,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     category: $Enums.RewardRuleCategory
-    basePoints: number
+    baseRewardAmount: number
     isActive?: boolean
     dailyCap?: number | null
     lifetimeCap?: number | null
@@ -49821,7 +49821,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumRewardRuleCategoryFieldUpdateOperationsInput | $Enums.RewardRuleCategory
-    basePoints?: IntFieldUpdateOperationsInput | number
+    baseRewardAmount?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     dailyCap?: NullableIntFieldUpdateOperationsInput | number | null
     lifetimeCap?: NullableIntFieldUpdateOperationsInput | number | null
@@ -49840,7 +49840,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumRewardRuleCategoryFieldUpdateOperationsInput | $Enums.RewardRuleCategory
-    basePoints?: IntFieldUpdateOperationsInput | number
+    baseRewardAmount?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     dailyCap?: NullableIntFieldUpdateOperationsInput | number | null
     lifetimeCap?: NullableIntFieldUpdateOperationsInput | number | null
@@ -49871,7 +49871,7 @@ export namespace Prisma {
     planFeature?: PlanFeatureCreateNestedOneWithoutRewardCatalogItemInput
     redemptions?: RedemptionCreateNestedManyWithoutCatalogItemInput
     entitlements?: FeatureEntitlementCreateNestedManyWithoutCatalogItemInput
-    transactions?: PointTransactionCreateNestedManyWithoutCatalogItemInput
+    transactions?: RewardTransactionCreateNestedManyWithoutCatalogItemInput
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutCatalogItemInput
   }
 
@@ -49893,7 +49893,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutCatalogItemInput
     entitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutCatalogItemInput
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutCatalogItemInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutCatalogItemInput
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutCatalogItemInput
   }
 
@@ -49915,7 +49915,7 @@ export namespace Prisma {
     planFeature?: PlanFeatureUpdateOneWithoutRewardCatalogItemNestedInput
     redemptions?: RedemptionUpdateManyWithoutCatalogItemNestedInput
     entitlements?: FeatureEntitlementUpdateManyWithoutCatalogItemNestedInput
-    transactions?: PointTransactionUpdateManyWithoutCatalogItemNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutCatalogItemNestedInput
     placementSchedules?: PlacementScheduleUpdateManyWithoutCatalogItemNestedInput
   }
 
@@ -49937,7 +49937,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     redemptions?: RedemptionUncheckedUpdateManyWithoutCatalogItemNestedInput
     entitlements?: FeatureEntitlementUncheckedUpdateManyWithoutCatalogItemNestedInput
-    transactions?: PointTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutCatalogItemNestedInput
   }
 
@@ -49994,10 +49994,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionCreateInput = {
+  export type RewardTransactionCreateInput = {
     id?: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleKey?: string | null
     eventId?: string | null
@@ -50010,19 +50010,19 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutPointTransactionsInput
+    user: UserCreateNestedOneWithoutRewardTransactionsInput
     rule?: RewardRuleCreateNestedOneWithoutTransactionsInput
     catalogItem?: RewardCatalogItemCreateNestedOneWithoutTransactionsInput
     redemption?: RedemptionCreateNestedOneWithoutTransactionsInput
-    actedBy?: UserCreateNestedOneWithoutPointTransactionsActedInput
-    product?: ProductCreateNestedOneWithoutPointTransactionsInput
+    actedBy?: UserCreateNestedOneWithoutRewardTransactionsActedInput
+    product?: ProductCreateNestedOneWithoutRewardTransactionsInput
   }
 
-  export type PointTransactionUncheckedCreateInput = {
+  export type RewardTransactionUncheckedCreateInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -50042,10 +50042,10 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionUpdateInput = {
+  export type RewardTransactionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50058,19 +50058,19 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutPointTransactionsNestedInput
+    user?: UserUpdateOneRequiredWithoutRewardTransactionsNestedInput
     rule?: RewardRuleUpdateOneWithoutTransactionsNestedInput
     catalogItem?: RewardCatalogItemUpdateOneWithoutTransactionsNestedInput
     redemption?: RedemptionUpdateOneWithoutTransactionsNestedInput
-    actedBy?: UserUpdateOneWithoutPointTransactionsActedNestedInput
-    product?: ProductUpdateOneWithoutPointTransactionsNestedInput
+    actedBy?: UserUpdateOneWithoutRewardTransactionsActedNestedInput
+    product?: ProductUpdateOneWithoutRewardTransactionsNestedInput
   }
 
-  export type PointTransactionUncheckedUpdateInput = {
+  export type RewardTransactionUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50090,11 +50090,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionCreateManyInput = {
+  export type RewardTransactionCreateManyInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -50114,10 +50114,10 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionUpdateManyMutationInput = {
+  export type RewardTransactionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50132,11 +50132,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUncheckedUpdateManyInput = {
+  export type RewardTransactionUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50161,7 +50161,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -50174,7 +50174,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutRedemptionsInput
     catalogItem: RewardCatalogItemCreateNestedOneWithoutRedemptionsInput
     product?: ProductCreateNestedOneWithoutRedemptionsInput
-    transactions?: PointTransactionCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionCreateNestedManyWithoutRedemptionInput
     entitlements?: FeatureEntitlementCreateNestedManyWithoutRedemptionInput
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutRedemptionInput
   }
@@ -50187,7 +50187,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -50197,7 +50197,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutRedemptionInput
     entitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutRedemptionInput
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutRedemptionInput
   }
@@ -50207,7 +50207,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50220,7 +50220,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutRedemptionsNestedInput
     catalogItem?: RewardCatalogItemUpdateOneRequiredWithoutRedemptionsNestedInput
     product?: ProductUpdateOneWithoutRedemptionsNestedInput
-    transactions?: PointTransactionUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutRedemptionNestedInput
     entitlements?: FeatureEntitlementUpdateManyWithoutRedemptionNestedInput
     placementSchedules?: PlacementScheduleUpdateManyWithoutRedemptionNestedInput
   }
@@ -50233,7 +50233,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50243,7 +50243,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    transactions?: PointTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
     entitlements?: FeatureEntitlementUncheckedUpdateManyWithoutRedemptionNestedInput
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutRedemptionNestedInput
   }
@@ -50256,7 +50256,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -50273,7 +50273,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50293,7 +50293,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50741,10 +50741,10 @@ export namespace Prisma {
     none?: MonthlyProductRankingWhereInput
   }
 
-  export type PointTransactionListRelationFilter = {
-    every?: PointTransactionWhereInput
-    some?: PointTransactionWhereInput
-    none?: PointTransactionWhereInput
+  export type RewardTransactionListRelationFilter = {
+    every?: RewardTransactionWhereInput
+    some?: RewardTransactionWhereInput
+    none?: RewardTransactionWhereInput
   }
 
   export type RedemptionListRelationFilter = {
@@ -50796,7 +50796,7 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type PointTransactionOrderByRelationAggregateInput = {
+  export type RewardTransactionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -51665,9 +51665,9 @@ export namespace Prisma {
     none?: UserPlanPurchaseWhereInput
   }
 
-  export type PointBalanceNullableScalarRelationFilter = {
-    is?: PointBalanceWhereInput | null
-    isNot?: PointBalanceWhereInput | null
+  export type RewardBalanceNullableScalarRelationFilter = {
+    is?: RewardBalanceWhereInput | null
+    isNot?: RewardBalanceWhereInput | null
   }
 
   export type OrganizationOrderByRelationAggregateInput = {
@@ -52243,7 +52243,7 @@ export namespace Prisma {
     categoryId?: SortOrder
   }
 
-  export type PointBalanceCountOrderByAggregateInput = {
+  export type RewardBalanceCountOrderByAggregateInput = {
     userId?: SortOrder
     balance?: SortOrder
     lifetimeEarned?: SortOrder
@@ -52262,7 +52262,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type PointBalanceAvgOrderByAggregateInput = {
+  export type RewardBalanceAvgOrderByAggregateInput = {
     balance?: SortOrder
     lifetimeEarned?: SortOrder
     lifetimeSpent?: SortOrder
@@ -52272,7 +52272,7 @@ export namespace Prisma {
     longestStreakCount?: SortOrder
   }
 
-  export type PointBalanceMaxOrderByAggregateInput = {
+  export type RewardBalanceMaxOrderByAggregateInput = {
     userId?: SortOrder
     balance?: SortOrder
     lifetimeEarned?: SortOrder
@@ -52291,7 +52291,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type PointBalanceMinOrderByAggregateInput = {
+  export type RewardBalanceMinOrderByAggregateInput = {
     userId?: SortOrder
     balance?: SortOrder
     lifetimeEarned?: SortOrder
@@ -52310,7 +52310,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type PointBalanceSumOrderByAggregateInput = {
+  export type RewardBalanceSumOrderByAggregateInput = {
     balance?: SortOrder
     lifetimeEarned?: SortOrder
     lifetimeSpent?: SortOrder
@@ -52333,7 +52333,7 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrder
     category?: SortOrder
-    basePoints?: SortOrder
+    baseRewardAmount?: SortOrder
     isActive?: SortOrder
     dailyCap?: SortOrder
     lifetimeCap?: SortOrder
@@ -52347,7 +52347,7 @@ export namespace Prisma {
   }
 
   export type RewardRuleAvgOrderByAggregateInput = {
-    basePoints?: SortOrder
+    baseRewardAmount?: SortOrder
     dailyCap?: SortOrder
     lifetimeCap?: SortOrder
     globalCooldownSeconds?: SortOrder
@@ -52360,7 +52360,7 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrder
     category?: SortOrder
-    basePoints?: SortOrder
+    baseRewardAmount?: SortOrder
     isActive?: SortOrder
     dailyCap?: SortOrder
     lifetimeCap?: SortOrder
@@ -52377,7 +52377,7 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrder
     category?: SortOrder
-    basePoints?: SortOrder
+    baseRewardAmount?: SortOrder
     isActive?: SortOrder
     dailyCap?: SortOrder
     lifetimeCap?: SortOrder
@@ -52389,7 +52389,7 @@ export namespace Prisma {
   }
 
   export type RewardRuleSumOrderByAggregateInput = {
-    basePoints?: SortOrder
+    baseRewardAmount?: SortOrder
     dailyCap?: SortOrder
     lifetimeCap?: SortOrder
     globalCooldownSeconds?: SortOrder
@@ -52494,11 +52494,11 @@ export namespace Prisma {
     _max?: NestedEnumRewardFeatureCategoryFilter<$PrismaModel>
   }
 
-  export type EnumPointTransactionTypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.PointTransactionType | EnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.PointTransactionType[] | ListEnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PointTransactionType[] | ListEnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumPointTransactionTypeFilter<$PrismaModel> | $Enums.PointTransactionType
+  export type EnumRewardTransactionTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.RewardTransactionType | EnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.RewardTransactionType[] | ListEnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RewardTransactionType[] | ListEnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRewardTransactionTypeFilter<$PrismaModel> | $Enums.RewardTransactionType
   }
 
   export type RewardRuleNullableScalarRelationFilter = {
@@ -52521,11 +52521,11 @@ export namespace Prisma {
     isNot?: ProductWhereInput | null
   }
 
-  export type PointTransactionCountOrderByAggregateInput = {
+  export type RewardTransactionCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     type?: SortOrder
-    points?: SortOrder
+    rewardAmount?: SortOrder
     balanceAfter?: SortOrder
     ruleId?: SortOrder
     ruleKey?: SortOrder
@@ -52545,16 +52545,16 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type PointTransactionAvgOrderByAggregateInput = {
-    points?: SortOrder
+  export type RewardTransactionAvgOrderByAggregateInput = {
+    rewardAmount?: SortOrder
     balanceAfter?: SortOrder
   }
 
-  export type PointTransactionMaxOrderByAggregateInput = {
+  export type RewardTransactionMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     type?: SortOrder
-    points?: SortOrder
+    rewardAmount?: SortOrder
     balanceAfter?: SortOrder
     ruleId?: SortOrder
     ruleKey?: SortOrder
@@ -52573,11 +52573,11 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type PointTransactionMinOrderByAggregateInput = {
+  export type RewardTransactionMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     type?: SortOrder
-    points?: SortOrder
+    rewardAmount?: SortOrder
     balanceAfter?: SortOrder
     ruleId?: SortOrder
     ruleKey?: SortOrder
@@ -52596,19 +52596,19 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type PointTransactionSumOrderByAggregateInput = {
-    points?: SortOrder
+  export type RewardTransactionSumOrderByAggregateInput = {
+    rewardAmount?: SortOrder
     balanceAfter?: SortOrder
   }
 
-  export type EnumPointTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.PointTransactionType | EnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.PointTransactionType[] | ListEnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PointTransactionType[] | ListEnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumPointTransactionTypeWithAggregatesFilter<$PrismaModel> | $Enums.PointTransactionType
+  export type EnumRewardTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RewardTransactionType | EnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.RewardTransactionType[] | ListEnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RewardTransactionType[] | ListEnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRewardTransactionTypeWithAggregatesFilter<$PrismaModel> | $Enums.RewardTransactionType
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumPointTransactionTypeFilter<$PrismaModel>
-    _max?: NestedEnumPointTransactionTypeFilter<$PrismaModel>
+    _min?: NestedEnumRewardTransactionTypeFilter<$PrismaModel>
+    _max?: NestedEnumRewardTransactionTypeFilter<$PrismaModel>
   }
 
   export type EnumRedemptionStatusFilter<$PrismaModel = never> = {
@@ -52631,7 +52631,7 @@ export namespace Prisma {
     status?: SortOrder
     cost?: SortOrder
     originalCost?: SortOrder
-    refundedPoints?: SortOrder
+    refundedRewards?: SortOrder
     startsAt?: SortOrder
     activatedAt?: SortOrder
     expiresAt?: SortOrder
@@ -52646,7 +52646,7 @@ export namespace Prisma {
   export type RedemptionAvgOrderByAggregateInput = {
     cost?: SortOrder
     originalCost?: SortOrder
-    refundedPoints?: SortOrder
+    refundedRewards?: SortOrder
   }
 
   export type RedemptionMaxOrderByAggregateInput = {
@@ -52657,7 +52657,7 @@ export namespace Prisma {
     status?: SortOrder
     cost?: SortOrder
     originalCost?: SortOrder
-    refundedPoints?: SortOrder
+    refundedRewards?: SortOrder
     startsAt?: SortOrder
     activatedAt?: SortOrder
     expiresAt?: SortOrder
@@ -52676,7 +52676,7 @@ export namespace Prisma {
     status?: SortOrder
     cost?: SortOrder
     originalCost?: SortOrder
-    refundedPoints?: SortOrder
+    refundedRewards?: SortOrder
     startsAt?: SortOrder
     activatedAt?: SortOrder
     expiresAt?: SortOrder
@@ -52690,7 +52690,7 @@ export namespace Prisma {
   export type RedemptionSumOrderByAggregateInput = {
     cost?: SortOrder
     originalCost?: SortOrder
-    refundedPoints?: SortOrder
+    refundedRewards?: SortOrder
   }
 
   export type EnumRedemptionStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -52975,11 +52975,11 @@ export namespace Prisma {
     connect?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
   }
 
-  export type PointTransactionCreateNestedManyWithoutProductInput = {
-    create?: XOR<PointTransactionCreateWithoutProductInput, PointTransactionUncheckedCreateWithoutProductInput> | PointTransactionCreateWithoutProductInput[] | PointTransactionUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutProductInput | PointTransactionCreateOrConnectWithoutProductInput[]
-    createMany?: PointTransactionCreateManyProductInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionCreateNestedManyWithoutProductInput = {
+    create?: XOR<RewardTransactionCreateWithoutProductInput, RewardTransactionUncheckedCreateWithoutProductInput> | RewardTransactionCreateWithoutProductInput[] | RewardTransactionUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutProductInput | RewardTransactionCreateOrConnectWithoutProductInput[]
+    createMany?: RewardTransactionCreateManyProductInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
   export type RedemptionCreateNestedManyWithoutProductInput = {
@@ -53076,11 +53076,11 @@ export namespace Prisma {
     connect?: MonthlyProductRankingWhereUniqueInput | MonthlyProductRankingWhereUniqueInput[]
   }
 
-  export type PointTransactionUncheckedCreateNestedManyWithoutProductInput = {
-    create?: XOR<PointTransactionCreateWithoutProductInput, PointTransactionUncheckedCreateWithoutProductInput> | PointTransactionCreateWithoutProductInput[] | PointTransactionUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutProductInput | PointTransactionCreateOrConnectWithoutProductInput[]
-    createMany?: PointTransactionCreateManyProductInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<RewardTransactionCreateWithoutProductInput, RewardTransactionUncheckedCreateWithoutProductInput> | RewardTransactionCreateWithoutProductInput[] | RewardTransactionUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutProductInput | RewardTransactionCreateOrConnectWithoutProductInput[]
+    createMany?: RewardTransactionCreateManyProductInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
   export type RedemptionUncheckedCreateNestedManyWithoutProductInput = {
@@ -53331,18 +53331,18 @@ export namespace Prisma {
     deleteMany?: MonthlyProductRankingScalarWhereInput | MonthlyProductRankingScalarWhereInput[]
   }
 
-  export type PointTransactionUpdateManyWithoutProductNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutProductInput, PointTransactionUncheckedCreateWithoutProductInput> | PointTransactionCreateWithoutProductInput[] | PointTransactionUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutProductInput | PointTransactionCreateOrConnectWithoutProductInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutProductInput | PointTransactionUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: PointTransactionCreateManyProductInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutProductInput | PointTransactionUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutProductInput | PointTransactionUpdateManyWithWhereWithoutProductInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUpdateManyWithoutProductNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutProductInput, RewardTransactionUncheckedCreateWithoutProductInput> | RewardTransactionCreateWithoutProductInput[] | RewardTransactionUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutProductInput | RewardTransactionCreateOrConnectWithoutProductInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutProductInput | RewardTransactionUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: RewardTransactionCreateManyProductInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutProductInput | RewardTransactionUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutProductInput | RewardTransactionUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
   export type RedemptionUpdateManyWithoutProductNestedInput = {
@@ -53525,18 +53525,18 @@ export namespace Prisma {
     deleteMany?: MonthlyProductRankingScalarWhereInput | MonthlyProductRankingScalarWhereInput[]
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutProductNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutProductInput, PointTransactionUncheckedCreateWithoutProductInput> | PointTransactionCreateWithoutProductInput[] | PointTransactionUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutProductInput | PointTransactionCreateOrConnectWithoutProductInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutProductInput | PointTransactionUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: PointTransactionCreateManyProductInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutProductInput | PointTransactionUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutProductInput | PointTransactionUpdateManyWithWhereWithoutProductInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutProductInput, RewardTransactionUncheckedCreateWithoutProductInput> | RewardTransactionCreateWithoutProductInput[] | RewardTransactionUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutProductInput | RewardTransactionCreateOrConnectWithoutProductInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutProductInput | RewardTransactionUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: RewardTransactionCreateManyProductInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutProductInput | RewardTransactionUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutProductInput | RewardTransactionUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
   export type RedemptionUncheckedUpdateManyWithoutProductNestedInput = {
@@ -53960,24 +53960,24 @@ export namespace Prisma {
     connect?: UserPlanPurchaseWhereUniqueInput | UserPlanPurchaseWhereUniqueInput[]
   }
 
-  export type PointBalanceCreateNestedOneWithoutUserInput = {
-    create?: XOR<PointBalanceCreateWithoutUserInput, PointBalanceUncheckedCreateWithoutUserInput>
-    connectOrCreate?: PointBalanceCreateOrConnectWithoutUserInput
-    connect?: PointBalanceWhereUniqueInput
+  export type RewardBalanceCreateNestedOneWithoutUserInput = {
+    create?: XOR<RewardBalanceCreateWithoutUserInput, RewardBalanceUncheckedCreateWithoutUserInput>
+    connectOrCreate?: RewardBalanceCreateOrConnectWithoutUserInput
+    connect?: RewardBalanceWhereUniqueInput
   }
 
-  export type PointTransactionCreateNestedManyWithoutUserInput = {
-    create?: XOR<PointTransactionCreateWithoutUserInput, PointTransactionUncheckedCreateWithoutUserInput> | PointTransactionCreateWithoutUserInput[] | PointTransactionUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutUserInput | PointTransactionCreateOrConnectWithoutUserInput[]
-    createMany?: PointTransactionCreateManyUserInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionCreateNestedManyWithoutUserInput = {
+    create?: XOR<RewardTransactionCreateWithoutUserInput, RewardTransactionUncheckedCreateWithoutUserInput> | RewardTransactionCreateWithoutUserInput[] | RewardTransactionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutUserInput | RewardTransactionCreateOrConnectWithoutUserInput[]
+    createMany?: RewardTransactionCreateManyUserInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
-  export type PointTransactionCreateNestedManyWithoutActedByInput = {
-    create?: XOR<PointTransactionCreateWithoutActedByInput, PointTransactionUncheckedCreateWithoutActedByInput> | PointTransactionCreateWithoutActedByInput[] | PointTransactionUncheckedCreateWithoutActedByInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutActedByInput | PointTransactionCreateOrConnectWithoutActedByInput[]
-    createMany?: PointTransactionCreateManyActedByInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionCreateNestedManyWithoutActedByInput = {
+    create?: XOR<RewardTransactionCreateWithoutActedByInput, RewardTransactionUncheckedCreateWithoutActedByInput> | RewardTransactionCreateWithoutActedByInput[] | RewardTransactionUncheckedCreateWithoutActedByInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutActedByInput | RewardTransactionCreateOrConnectWithoutActedByInput[]
+    createMany?: RewardTransactionCreateManyActedByInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
   export type RedemptionCreateNestedManyWithoutUserInput = {
@@ -54043,24 +54043,24 @@ export namespace Prisma {
     connect?: UserPlanPurchaseWhereUniqueInput | UserPlanPurchaseWhereUniqueInput[]
   }
 
-  export type PointBalanceUncheckedCreateNestedOneWithoutUserInput = {
-    create?: XOR<PointBalanceCreateWithoutUserInput, PointBalanceUncheckedCreateWithoutUserInput>
-    connectOrCreate?: PointBalanceCreateOrConnectWithoutUserInput
-    connect?: PointBalanceWhereUniqueInput
+  export type RewardBalanceUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<RewardBalanceCreateWithoutUserInput, RewardBalanceUncheckedCreateWithoutUserInput>
+    connectOrCreate?: RewardBalanceCreateOrConnectWithoutUserInput
+    connect?: RewardBalanceWhereUniqueInput
   }
 
-  export type PointTransactionUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<PointTransactionCreateWithoutUserInput, PointTransactionUncheckedCreateWithoutUserInput> | PointTransactionCreateWithoutUserInput[] | PointTransactionUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutUserInput | PointTransactionCreateOrConnectWithoutUserInput[]
-    createMany?: PointTransactionCreateManyUserInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<RewardTransactionCreateWithoutUserInput, RewardTransactionUncheckedCreateWithoutUserInput> | RewardTransactionCreateWithoutUserInput[] | RewardTransactionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutUserInput | RewardTransactionCreateOrConnectWithoutUserInput[]
+    createMany?: RewardTransactionCreateManyUserInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
-  export type PointTransactionUncheckedCreateNestedManyWithoutActedByInput = {
-    create?: XOR<PointTransactionCreateWithoutActedByInput, PointTransactionUncheckedCreateWithoutActedByInput> | PointTransactionCreateWithoutActedByInput[] | PointTransactionUncheckedCreateWithoutActedByInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutActedByInput | PointTransactionCreateOrConnectWithoutActedByInput[]
-    createMany?: PointTransactionCreateManyActedByInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionUncheckedCreateNestedManyWithoutActedByInput = {
+    create?: XOR<RewardTransactionCreateWithoutActedByInput, RewardTransactionUncheckedCreateWithoutActedByInput> | RewardTransactionCreateWithoutActedByInput[] | RewardTransactionUncheckedCreateWithoutActedByInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutActedByInput | RewardTransactionCreateOrConnectWithoutActedByInput[]
+    createMany?: RewardTransactionCreateManyActedByInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
   export type RedemptionUncheckedCreateNestedManyWithoutUserInput = {
@@ -54179,42 +54179,42 @@ export namespace Prisma {
     deleteMany?: UserPlanPurchaseScalarWhereInput | UserPlanPurchaseScalarWhereInput[]
   }
 
-  export type PointBalanceUpdateOneWithoutUserNestedInput = {
-    create?: XOR<PointBalanceCreateWithoutUserInput, PointBalanceUncheckedCreateWithoutUserInput>
-    connectOrCreate?: PointBalanceCreateOrConnectWithoutUserInput
-    upsert?: PointBalanceUpsertWithoutUserInput
-    disconnect?: PointBalanceWhereInput | boolean
-    delete?: PointBalanceWhereInput | boolean
-    connect?: PointBalanceWhereUniqueInput
-    update?: XOR<XOR<PointBalanceUpdateToOneWithWhereWithoutUserInput, PointBalanceUpdateWithoutUserInput>, PointBalanceUncheckedUpdateWithoutUserInput>
+  export type RewardBalanceUpdateOneWithoutUserNestedInput = {
+    create?: XOR<RewardBalanceCreateWithoutUserInput, RewardBalanceUncheckedCreateWithoutUserInput>
+    connectOrCreate?: RewardBalanceCreateOrConnectWithoutUserInput
+    upsert?: RewardBalanceUpsertWithoutUserInput
+    disconnect?: RewardBalanceWhereInput | boolean
+    delete?: RewardBalanceWhereInput | boolean
+    connect?: RewardBalanceWhereUniqueInput
+    update?: XOR<XOR<RewardBalanceUpdateToOneWithWhereWithoutUserInput, RewardBalanceUpdateWithoutUserInput>, RewardBalanceUncheckedUpdateWithoutUserInput>
   }
 
-  export type PointTransactionUpdateManyWithoutUserNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutUserInput, PointTransactionUncheckedCreateWithoutUserInput> | PointTransactionCreateWithoutUserInput[] | PointTransactionUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutUserInput | PointTransactionCreateOrConnectWithoutUserInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutUserInput | PointTransactionUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: PointTransactionCreateManyUserInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutUserInput | PointTransactionUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutUserInput | PointTransactionUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutUserInput, RewardTransactionUncheckedCreateWithoutUserInput> | RewardTransactionCreateWithoutUserInput[] | RewardTransactionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutUserInput | RewardTransactionCreateOrConnectWithoutUserInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutUserInput | RewardTransactionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: RewardTransactionCreateManyUserInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutUserInput | RewardTransactionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutUserInput | RewardTransactionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
-  export type PointTransactionUpdateManyWithoutActedByNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutActedByInput, PointTransactionUncheckedCreateWithoutActedByInput> | PointTransactionCreateWithoutActedByInput[] | PointTransactionUncheckedCreateWithoutActedByInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutActedByInput | PointTransactionCreateOrConnectWithoutActedByInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutActedByInput | PointTransactionUpsertWithWhereUniqueWithoutActedByInput[]
-    createMany?: PointTransactionCreateManyActedByInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutActedByInput | PointTransactionUpdateWithWhereUniqueWithoutActedByInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutActedByInput | PointTransactionUpdateManyWithWhereWithoutActedByInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUpdateManyWithoutActedByNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutActedByInput, RewardTransactionUncheckedCreateWithoutActedByInput> | RewardTransactionCreateWithoutActedByInput[] | RewardTransactionUncheckedCreateWithoutActedByInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutActedByInput | RewardTransactionCreateOrConnectWithoutActedByInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutActedByInput | RewardTransactionUpsertWithWhereUniqueWithoutActedByInput[]
+    createMany?: RewardTransactionCreateManyActedByInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutActedByInput | RewardTransactionUpdateWithWhereUniqueWithoutActedByInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutActedByInput | RewardTransactionUpdateManyWithWhereWithoutActedByInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
   export type RedemptionUpdateManyWithoutUserNestedInput = {
@@ -54343,42 +54343,42 @@ export namespace Prisma {
     deleteMany?: UserPlanPurchaseScalarWhereInput | UserPlanPurchaseScalarWhereInput[]
   }
 
-  export type PointBalanceUncheckedUpdateOneWithoutUserNestedInput = {
-    create?: XOR<PointBalanceCreateWithoutUserInput, PointBalanceUncheckedCreateWithoutUserInput>
-    connectOrCreate?: PointBalanceCreateOrConnectWithoutUserInput
-    upsert?: PointBalanceUpsertWithoutUserInput
-    disconnect?: PointBalanceWhereInput | boolean
-    delete?: PointBalanceWhereInput | boolean
-    connect?: PointBalanceWhereUniqueInput
-    update?: XOR<XOR<PointBalanceUpdateToOneWithWhereWithoutUserInput, PointBalanceUpdateWithoutUserInput>, PointBalanceUncheckedUpdateWithoutUserInput>
+  export type RewardBalanceUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<RewardBalanceCreateWithoutUserInput, RewardBalanceUncheckedCreateWithoutUserInput>
+    connectOrCreate?: RewardBalanceCreateOrConnectWithoutUserInput
+    upsert?: RewardBalanceUpsertWithoutUserInput
+    disconnect?: RewardBalanceWhereInput | boolean
+    delete?: RewardBalanceWhereInput | boolean
+    connect?: RewardBalanceWhereUniqueInput
+    update?: XOR<XOR<RewardBalanceUpdateToOneWithWhereWithoutUserInput, RewardBalanceUpdateWithoutUserInput>, RewardBalanceUncheckedUpdateWithoutUserInput>
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutUserInput, PointTransactionUncheckedCreateWithoutUserInput> | PointTransactionCreateWithoutUserInput[] | PointTransactionUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutUserInput | PointTransactionCreateOrConnectWithoutUserInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutUserInput | PointTransactionUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: PointTransactionCreateManyUserInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutUserInput | PointTransactionUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutUserInput | PointTransactionUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutUserInput, RewardTransactionUncheckedCreateWithoutUserInput> | RewardTransactionCreateWithoutUserInput[] | RewardTransactionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutUserInput | RewardTransactionCreateOrConnectWithoutUserInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutUserInput | RewardTransactionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: RewardTransactionCreateManyUserInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutUserInput | RewardTransactionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutUserInput | RewardTransactionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutActedByNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutActedByInput, PointTransactionUncheckedCreateWithoutActedByInput> | PointTransactionCreateWithoutActedByInput[] | PointTransactionUncheckedCreateWithoutActedByInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutActedByInput | PointTransactionCreateOrConnectWithoutActedByInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutActedByInput | PointTransactionUpsertWithWhereUniqueWithoutActedByInput[]
-    createMany?: PointTransactionCreateManyActedByInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutActedByInput | PointTransactionUpdateWithWhereUniqueWithoutActedByInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutActedByInput | PointTransactionUpdateManyWithWhereWithoutActedByInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutActedByInput, RewardTransactionUncheckedCreateWithoutActedByInput> | RewardTransactionCreateWithoutActedByInput[] | RewardTransactionUncheckedCreateWithoutActedByInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutActedByInput | RewardTransactionCreateOrConnectWithoutActedByInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutActedByInput | RewardTransactionUpsertWithWhereUniqueWithoutActedByInput[]
+    createMany?: RewardTransactionCreateManyActedByInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutActedByInput | RewardTransactionUpdateWithWhereUniqueWithoutActedByInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutActedByInput | RewardTransactionUpdateManyWithWhereWithoutActedByInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
   export type RedemptionUncheckedUpdateManyWithoutUserNestedInput = {
@@ -54905,64 +54905,64 @@ export namespace Prisma {
     update?: XOR<XOR<CategoryUpdateToOneWithWhereWithoutUseCasesInput, CategoryUpdateWithoutUseCasesInput>, CategoryUncheckedUpdateWithoutUseCasesInput>
   }
 
-  export type UserCreateNestedOneWithoutPointBalanceInput = {
-    create?: XOR<UserCreateWithoutPointBalanceInput, UserUncheckedCreateWithoutPointBalanceInput>
-    connectOrCreate?: UserCreateOrConnectWithoutPointBalanceInput
+  export type UserCreateNestedOneWithoutRewardBalanceInput = {
+    create?: XOR<UserCreateWithoutRewardBalanceInput, UserUncheckedCreateWithoutRewardBalanceInput>
+    connectOrCreate?: UserCreateOrConnectWithoutRewardBalanceInput
     connect?: UserWhereUniqueInput
   }
 
-  export type UserUpdateOneRequiredWithoutPointBalanceNestedInput = {
-    create?: XOR<UserCreateWithoutPointBalanceInput, UserUncheckedCreateWithoutPointBalanceInput>
-    connectOrCreate?: UserCreateOrConnectWithoutPointBalanceInput
-    upsert?: UserUpsertWithoutPointBalanceInput
+  export type UserUpdateOneRequiredWithoutRewardBalanceNestedInput = {
+    create?: XOR<UserCreateWithoutRewardBalanceInput, UserUncheckedCreateWithoutRewardBalanceInput>
+    connectOrCreate?: UserCreateOrConnectWithoutRewardBalanceInput
+    upsert?: UserUpsertWithoutRewardBalanceInput
     connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPointBalanceInput, UserUpdateWithoutPointBalanceInput>, UserUncheckedUpdateWithoutPointBalanceInput>
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutRewardBalanceInput, UserUpdateWithoutRewardBalanceInput>, UserUncheckedUpdateWithoutRewardBalanceInput>
   }
 
-  export type PointTransactionCreateNestedManyWithoutRuleInput = {
-    create?: XOR<PointTransactionCreateWithoutRuleInput, PointTransactionUncheckedCreateWithoutRuleInput> | PointTransactionCreateWithoutRuleInput[] | PointTransactionUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutRuleInput | PointTransactionCreateOrConnectWithoutRuleInput[]
-    createMany?: PointTransactionCreateManyRuleInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionCreateNestedManyWithoutRuleInput = {
+    create?: XOR<RewardTransactionCreateWithoutRuleInput, RewardTransactionUncheckedCreateWithoutRuleInput> | RewardTransactionCreateWithoutRuleInput[] | RewardTransactionUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutRuleInput | RewardTransactionCreateOrConnectWithoutRuleInput[]
+    createMany?: RewardTransactionCreateManyRuleInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
-  export type PointTransactionUncheckedCreateNestedManyWithoutRuleInput = {
-    create?: XOR<PointTransactionCreateWithoutRuleInput, PointTransactionUncheckedCreateWithoutRuleInput> | PointTransactionCreateWithoutRuleInput[] | PointTransactionUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutRuleInput | PointTransactionCreateOrConnectWithoutRuleInput[]
-    createMany?: PointTransactionCreateManyRuleInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionUncheckedCreateNestedManyWithoutRuleInput = {
+    create?: XOR<RewardTransactionCreateWithoutRuleInput, RewardTransactionUncheckedCreateWithoutRuleInput> | RewardTransactionCreateWithoutRuleInput[] | RewardTransactionUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutRuleInput | RewardTransactionCreateOrConnectWithoutRuleInput[]
+    createMany?: RewardTransactionCreateManyRuleInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
   export type EnumRewardRuleCategoryFieldUpdateOperationsInput = {
     set?: $Enums.RewardRuleCategory
   }
 
-  export type PointTransactionUpdateManyWithoutRuleNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutRuleInput, PointTransactionUncheckedCreateWithoutRuleInput> | PointTransactionCreateWithoutRuleInput[] | PointTransactionUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutRuleInput | PointTransactionCreateOrConnectWithoutRuleInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutRuleInput | PointTransactionUpsertWithWhereUniqueWithoutRuleInput[]
-    createMany?: PointTransactionCreateManyRuleInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutRuleInput | PointTransactionUpdateWithWhereUniqueWithoutRuleInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutRuleInput | PointTransactionUpdateManyWithWhereWithoutRuleInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUpdateManyWithoutRuleNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutRuleInput, RewardTransactionUncheckedCreateWithoutRuleInput> | RewardTransactionCreateWithoutRuleInput[] | RewardTransactionUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutRuleInput | RewardTransactionCreateOrConnectWithoutRuleInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutRuleInput | RewardTransactionUpsertWithWhereUniqueWithoutRuleInput[]
+    createMany?: RewardTransactionCreateManyRuleInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutRuleInput | RewardTransactionUpdateWithWhereUniqueWithoutRuleInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutRuleInput | RewardTransactionUpdateManyWithWhereWithoutRuleInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutRuleNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutRuleInput, PointTransactionUncheckedCreateWithoutRuleInput> | PointTransactionCreateWithoutRuleInput[] | PointTransactionUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutRuleInput | PointTransactionCreateOrConnectWithoutRuleInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutRuleInput | PointTransactionUpsertWithWhereUniqueWithoutRuleInput[]
-    createMany?: PointTransactionCreateManyRuleInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutRuleInput | PointTransactionUpdateWithWhereUniqueWithoutRuleInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutRuleInput | PointTransactionUpdateManyWithWhereWithoutRuleInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUncheckedUpdateManyWithoutRuleNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutRuleInput, RewardTransactionUncheckedCreateWithoutRuleInput> | RewardTransactionCreateWithoutRuleInput[] | RewardTransactionUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutRuleInput | RewardTransactionCreateOrConnectWithoutRuleInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutRuleInput | RewardTransactionUpsertWithWhereUniqueWithoutRuleInput[]
+    createMany?: RewardTransactionCreateManyRuleInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutRuleInput | RewardTransactionUpdateWithWhereUniqueWithoutRuleInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutRuleInput | RewardTransactionUpdateManyWithWhereWithoutRuleInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
   export type PlanFeatureCreateNestedOneWithoutRewardCatalogItemInput = {
@@ -54985,11 +54985,11 @@ export namespace Prisma {
     connect?: FeatureEntitlementWhereUniqueInput | FeatureEntitlementWhereUniqueInput[]
   }
 
-  export type PointTransactionCreateNestedManyWithoutCatalogItemInput = {
-    create?: XOR<PointTransactionCreateWithoutCatalogItemInput, PointTransactionUncheckedCreateWithoutCatalogItemInput> | PointTransactionCreateWithoutCatalogItemInput[] | PointTransactionUncheckedCreateWithoutCatalogItemInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutCatalogItemInput | PointTransactionCreateOrConnectWithoutCatalogItemInput[]
-    createMany?: PointTransactionCreateManyCatalogItemInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionCreateNestedManyWithoutCatalogItemInput = {
+    create?: XOR<RewardTransactionCreateWithoutCatalogItemInput, RewardTransactionUncheckedCreateWithoutCatalogItemInput> | RewardTransactionCreateWithoutCatalogItemInput[] | RewardTransactionUncheckedCreateWithoutCatalogItemInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutCatalogItemInput | RewardTransactionCreateOrConnectWithoutCatalogItemInput[]
+    createMany?: RewardTransactionCreateManyCatalogItemInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
   export type PlacementScheduleCreateNestedManyWithoutCatalogItemInput = {
@@ -55013,11 +55013,11 @@ export namespace Prisma {
     connect?: FeatureEntitlementWhereUniqueInput | FeatureEntitlementWhereUniqueInput[]
   }
 
-  export type PointTransactionUncheckedCreateNestedManyWithoutCatalogItemInput = {
-    create?: XOR<PointTransactionCreateWithoutCatalogItemInput, PointTransactionUncheckedCreateWithoutCatalogItemInput> | PointTransactionCreateWithoutCatalogItemInput[] | PointTransactionUncheckedCreateWithoutCatalogItemInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutCatalogItemInput | PointTransactionCreateOrConnectWithoutCatalogItemInput[]
-    createMany?: PointTransactionCreateManyCatalogItemInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionUncheckedCreateNestedManyWithoutCatalogItemInput = {
+    create?: XOR<RewardTransactionCreateWithoutCatalogItemInput, RewardTransactionUncheckedCreateWithoutCatalogItemInput> | RewardTransactionCreateWithoutCatalogItemInput[] | RewardTransactionUncheckedCreateWithoutCatalogItemInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutCatalogItemInput | RewardTransactionCreateOrConnectWithoutCatalogItemInput[]
+    createMany?: RewardTransactionCreateManyCatalogItemInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
   export type PlacementScheduleUncheckedCreateNestedManyWithoutCatalogItemInput = {
@@ -55069,18 +55069,18 @@ export namespace Prisma {
     deleteMany?: FeatureEntitlementScalarWhereInput | FeatureEntitlementScalarWhereInput[]
   }
 
-  export type PointTransactionUpdateManyWithoutCatalogItemNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutCatalogItemInput, PointTransactionUncheckedCreateWithoutCatalogItemInput> | PointTransactionCreateWithoutCatalogItemInput[] | PointTransactionUncheckedCreateWithoutCatalogItemInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutCatalogItemInput | PointTransactionCreateOrConnectWithoutCatalogItemInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutCatalogItemInput | PointTransactionUpsertWithWhereUniqueWithoutCatalogItemInput[]
-    createMany?: PointTransactionCreateManyCatalogItemInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutCatalogItemInput | PointTransactionUpdateWithWhereUniqueWithoutCatalogItemInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutCatalogItemInput | PointTransactionUpdateManyWithWhereWithoutCatalogItemInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUpdateManyWithoutCatalogItemNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutCatalogItemInput, RewardTransactionUncheckedCreateWithoutCatalogItemInput> | RewardTransactionCreateWithoutCatalogItemInput[] | RewardTransactionUncheckedCreateWithoutCatalogItemInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutCatalogItemInput | RewardTransactionCreateOrConnectWithoutCatalogItemInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutCatalogItemInput | RewardTransactionUpsertWithWhereUniqueWithoutCatalogItemInput[]
+    createMany?: RewardTransactionCreateManyCatalogItemInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutCatalogItemInput | RewardTransactionUpdateWithWhereUniqueWithoutCatalogItemInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutCatalogItemInput | RewardTransactionUpdateManyWithWhereWithoutCatalogItemInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
   export type PlacementScheduleUpdateManyWithoutCatalogItemNestedInput = {
@@ -55125,18 +55125,18 @@ export namespace Prisma {
     deleteMany?: FeatureEntitlementScalarWhereInput | FeatureEntitlementScalarWhereInput[]
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutCatalogItemInput, PointTransactionUncheckedCreateWithoutCatalogItemInput> | PointTransactionCreateWithoutCatalogItemInput[] | PointTransactionUncheckedCreateWithoutCatalogItemInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutCatalogItemInput | PointTransactionCreateOrConnectWithoutCatalogItemInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutCatalogItemInput | PointTransactionUpsertWithWhereUniqueWithoutCatalogItemInput[]
-    createMany?: PointTransactionCreateManyCatalogItemInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutCatalogItemInput | PointTransactionUpdateWithWhereUniqueWithoutCatalogItemInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutCatalogItemInput | PointTransactionUpdateManyWithWhereWithoutCatalogItemInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutCatalogItemInput, RewardTransactionUncheckedCreateWithoutCatalogItemInput> | RewardTransactionCreateWithoutCatalogItemInput[] | RewardTransactionUncheckedCreateWithoutCatalogItemInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutCatalogItemInput | RewardTransactionCreateOrConnectWithoutCatalogItemInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutCatalogItemInput | RewardTransactionUpsertWithWhereUniqueWithoutCatalogItemInput[]
+    createMany?: RewardTransactionCreateManyCatalogItemInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutCatalogItemInput | RewardTransactionUpdateWithWhereUniqueWithoutCatalogItemInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutCatalogItemInput | RewardTransactionUpdateManyWithWhereWithoutCatalogItemInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
   export type PlacementScheduleUncheckedUpdateManyWithoutCatalogItemNestedInput = {
@@ -55153,9 +55153,9 @@ export namespace Prisma {
     deleteMany?: PlacementScheduleScalarWhereInput | PlacementScheduleScalarWhereInput[]
   }
 
-  export type UserCreateNestedOneWithoutPointTransactionsInput = {
-    create?: XOR<UserCreateWithoutPointTransactionsInput, UserUncheckedCreateWithoutPointTransactionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutPointTransactionsInput
+  export type UserCreateNestedOneWithoutRewardTransactionsInput = {
+    create?: XOR<UserCreateWithoutRewardTransactionsInput, UserUncheckedCreateWithoutRewardTransactionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutRewardTransactionsInput
     connect?: UserWhereUniqueInput
   }
 
@@ -55177,28 +55177,28 @@ export namespace Prisma {
     connect?: RedemptionWhereUniqueInput
   }
 
-  export type UserCreateNestedOneWithoutPointTransactionsActedInput = {
-    create?: XOR<UserCreateWithoutPointTransactionsActedInput, UserUncheckedCreateWithoutPointTransactionsActedInput>
-    connectOrCreate?: UserCreateOrConnectWithoutPointTransactionsActedInput
+  export type UserCreateNestedOneWithoutRewardTransactionsActedInput = {
+    create?: XOR<UserCreateWithoutRewardTransactionsActedInput, UserUncheckedCreateWithoutRewardTransactionsActedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutRewardTransactionsActedInput
     connect?: UserWhereUniqueInput
   }
 
-  export type ProductCreateNestedOneWithoutPointTransactionsInput = {
-    create?: XOR<ProductCreateWithoutPointTransactionsInput, ProductUncheckedCreateWithoutPointTransactionsInput>
-    connectOrCreate?: ProductCreateOrConnectWithoutPointTransactionsInput
+  export type ProductCreateNestedOneWithoutRewardTransactionsInput = {
+    create?: XOR<ProductCreateWithoutRewardTransactionsInput, ProductUncheckedCreateWithoutRewardTransactionsInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutRewardTransactionsInput
     connect?: ProductWhereUniqueInput
   }
 
-  export type EnumPointTransactionTypeFieldUpdateOperationsInput = {
-    set?: $Enums.PointTransactionType
+  export type EnumRewardTransactionTypeFieldUpdateOperationsInput = {
+    set?: $Enums.RewardTransactionType
   }
 
-  export type UserUpdateOneRequiredWithoutPointTransactionsNestedInput = {
-    create?: XOR<UserCreateWithoutPointTransactionsInput, UserUncheckedCreateWithoutPointTransactionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutPointTransactionsInput
-    upsert?: UserUpsertWithoutPointTransactionsInput
+  export type UserUpdateOneRequiredWithoutRewardTransactionsNestedInput = {
+    create?: XOR<UserCreateWithoutRewardTransactionsInput, UserUncheckedCreateWithoutRewardTransactionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutRewardTransactionsInput
+    upsert?: UserUpsertWithoutRewardTransactionsInput
     connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPointTransactionsInput, UserUpdateWithoutPointTransactionsInput>, UserUncheckedUpdateWithoutPointTransactionsInput>
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutRewardTransactionsInput, UserUpdateWithoutRewardTransactionsInput>, UserUncheckedUpdateWithoutRewardTransactionsInput>
   }
 
   export type RewardRuleUpdateOneWithoutTransactionsNestedInput = {
@@ -55231,24 +55231,24 @@ export namespace Prisma {
     update?: XOR<XOR<RedemptionUpdateToOneWithWhereWithoutTransactionsInput, RedemptionUpdateWithoutTransactionsInput>, RedemptionUncheckedUpdateWithoutTransactionsInput>
   }
 
-  export type UserUpdateOneWithoutPointTransactionsActedNestedInput = {
-    create?: XOR<UserCreateWithoutPointTransactionsActedInput, UserUncheckedCreateWithoutPointTransactionsActedInput>
-    connectOrCreate?: UserCreateOrConnectWithoutPointTransactionsActedInput
-    upsert?: UserUpsertWithoutPointTransactionsActedInput
+  export type UserUpdateOneWithoutRewardTransactionsActedNestedInput = {
+    create?: XOR<UserCreateWithoutRewardTransactionsActedInput, UserUncheckedCreateWithoutRewardTransactionsActedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutRewardTransactionsActedInput
+    upsert?: UserUpsertWithoutRewardTransactionsActedInput
     disconnect?: UserWhereInput | boolean
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPointTransactionsActedInput, UserUpdateWithoutPointTransactionsActedInput>, UserUncheckedUpdateWithoutPointTransactionsActedInput>
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutRewardTransactionsActedInput, UserUpdateWithoutRewardTransactionsActedInput>, UserUncheckedUpdateWithoutRewardTransactionsActedInput>
   }
 
-  export type ProductUpdateOneWithoutPointTransactionsNestedInput = {
-    create?: XOR<ProductCreateWithoutPointTransactionsInput, ProductUncheckedCreateWithoutPointTransactionsInput>
-    connectOrCreate?: ProductCreateOrConnectWithoutPointTransactionsInput
-    upsert?: ProductUpsertWithoutPointTransactionsInput
+  export type ProductUpdateOneWithoutRewardTransactionsNestedInput = {
+    create?: XOR<ProductCreateWithoutRewardTransactionsInput, ProductUncheckedCreateWithoutRewardTransactionsInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutRewardTransactionsInput
+    upsert?: ProductUpsertWithoutRewardTransactionsInput
     disconnect?: ProductWhereInput | boolean
     delete?: ProductWhereInput | boolean
     connect?: ProductWhereUniqueInput
-    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutPointTransactionsInput, ProductUpdateWithoutPointTransactionsInput>, ProductUncheckedUpdateWithoutPointTransactionsInput>
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutRewardTransactionsInput, ProductUpdateWithoutRewardTransactionsInput>, ProductUncheckedUpdateWithoutRewardTransactionsInput>
   }
 
   export type UserCreateNestedOneWithoutRedemptionsInput = {
@@ -55269,11 +55269,11 @@ export namespace Prisma {
     connect?: ProductWhereUniqueInput
   }
 
-  export type PointTransactionCreateNestedManyWithoutRedemptionInput = {
-    create?: XOR<PointTransactionCreateWithoutRedemptionInput, PointTransactionUncheckedCreateWithoutRedemptionInput> | PointTransactionCreateWithoutRedemptionInput[] | PointTransactionUncheckedCreateWithoutRedemptionInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutRedemptionInput | PointTransactionCreateOrConnectWithoutRedemptionInput[]
-    createMany?: PointTransactionCreateManyRedemptionInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionCreateNestedManyWithoutRedemptionInput = {
+    create?: XOR<RewardTransactionCreateWithoutRedemptionInput, RewardTransactionUncheckedCreateWithoutRedemptionInput> | RewardTransactionCreateWithoutRedemptionInput[] | RewardTransactionUncheckedCreateWithoutRedemptionInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutRedemptionInput | RewardTransactionCreateOrConnectWithoutRedemptionInput[]
+    createMany?: RewardTransactionCreateManyRedemptionInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
   export type FeatureEntitlementCreateNestedManyWithoutRedemptionInput = {
@@ -55290,11 +55290,11 @@ export namespace Prisma {
     connect?: PlacementScheduleWhereUniqueInput | PlacementScheduleWhereUniqueInput[]
   }
 
-  export type PointTransactionUncheckedCreateNestedManyWithoutRedemptionInput = {
-    create?: XOR<PointTransactionCreateWithoutRedemptionInput, PointTransactionUncheckedCreateWithoutRedemptionInput> | PointTransactionCreateWithoutRedemptionInput[] | PointTransactionUncheckedCreateWithoutRedemptionInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutRedemptionInput | PointTransactionCreateOrConnectWithoutRedemptionInput[]
-    createMany?: PointTransactionCreateManyRedemptionInputEnvelope
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
+  export type RewardTransactionUncheckedCreateNestedManyWithoutRedemptionInput = {
+    create?: XOR<RewardTransactionCreateWithoutRedemptionInput, RewardTransactionUncheckedCreateWithoutRedemptionInput> | RewardTransactionCreateWithoutRedemptionInput[] | RewardTransactionUncheckedCreateWithoutRedemptionInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutRedemptionInput | RewardTransactionCreateOrConnectWithoutRedemptionInput[]
+    createMany?: RewardTransactionCreateManyRedemptionInputEnvelope
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
   }
 
   export type FeatureEntitlementUncheckedCreateNestedManyWithoutRedemptionInput = {
@@ -55341,18 +55341,18 @@ export namespace Prisma {
     update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutRedemptionsInput, ProductUpdateWithoutRedemptionsInput>, ProductUncheckedUpdateWithoutRedemptionsInput>
   }
 
-  export type PointTransactionUpdateManyWithoutRedemptionNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutRedemptionInput, PointTransactionUncheckedCreateWithoutRedemptionInput> | PointTransactionCreateWithoutRedemptionInput[] | PointTransactionUncheckedCreateWithoutRedemptionInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutRedemptionInput | PointTransactionCreateOrConnectWithoutRedemptionInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutRedemptionInput | PointTransactionUpsertWithWhereUniqueWithoutRedemptionInput[]
-    createMany?: PointTransactionCreateManyRedemptionInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutRedemptionInput | PointTransactionUpdateWithWhereUniqueWithoutRedemptionInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutRedemptionInput | PointTransactionUpdateManyWithWhereWithoutRedemptionInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUpdateManyWithoutRedemptionNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutRedemptionInput, RewardTransactionUncheckedCreateWithoutRedemptionInput> | RewardTransactionCreateWithoutRedemptionInput[] | RewardTransactionUncheckedCreateWithoutRedemptionInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutRedemptionInput | RewardTransactionCreateOrConnectWithoutRedemptionInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutRedemptionInput | RewardTransactionUpsertWithWhereUniqueWithoutRedemptionInput[]
+    createMany?: RewardTransactionCreateManyRedemptionInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutRedemptionInput | RewardTransactionUpdateWithWhereUniqueWithoutRedemptionInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutRedemptionInput | RewardTransactionUpdateManyWithWhereWithoutRedemptionInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
   export type FeatureEntitlementUpdateManyWithoutRedemptionNestedInput = {
@@ -55383,18 +55383,18 @@ export namespace Prisma {
     deleteMany?: PlacementScheduleScalarWhereInput | PlacementScheduleScalarWhereInput[]
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutRedemptionNestedInput = {
-    create?: XOR<PointTransactionCreateWithoutRedemptionInput, PointTransactionUncheckedCreateWithoutRedemptionInput> | PointTransactionCreateWithoutRedemptionInput[] | PointTransactionUncheckedCreateWithoutRedemptionInput[]
-    connectOrCreate?: PointTransactionCreateOrConnectWithoutRedemptionInput | PointTransactionCreateOrConnectWithoutRedemptionInput[]
-    upsert?: PointTransactionUpsertWithWhereUniqueWithoutRedemptionInput | PointTransactionUpsertWithWhereUniqueWithoutRedemptionInput[]
-    createMany?: PointTransactionCreateManyRedemptionInputEnvelope
-    set?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    disconnect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    delete?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    connect?: PointTransactionWhereUniqueInput | PointTransactionWhereUniqueInput[]
-    update?: PointTransactionUpdateWithWhereUniqueWithoutRedemptionInput | PointTransactionUpdateWithWhereUniqueWithoutRedemptionInput[]
-    updateMany?: PointTransactionUpdateManyWithWhereWithoutRedemptionInput | PointTransactionUpdateManyWithWhereWithoutRedemptionInput[]
-    deleteMany?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
+  export type RewardTransactionUncheckedUpdateManyWithoutRedemptionNestedInput = {
+    create?: XOR<RewardTransactionCreateWithoutRedemptionInput, RewardTransactionUncheckedCreateWithoutRedemptionInput> | RewardTransactionCreateWithoutRedemptionInput[] | RewardTransactionUncheckedCreateWithoutRedemptionInput[]
+    connectOrCreate?: RewardTransactionCreateOrConnectWithoutRedemptionInput | RewardTransactionCreateOrConnectWithoutRedemptionInput[]
+    upsert?: RewardTransactionUpsertWithWhereUniqueWithoutRedemptionInput | RewardTransactionUpsertWithWhereUniqueWithoutRedemptionInput[]
+    createMany?: RewardTransactionCreateManyRedemptionInputEnvelope
+    set?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    disconnect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    delete?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    connect?: RewardTransactionWhereUniqueInput | RewardTransactionWhereUniqueInput[]
+    update?: RewardTransactionUpdateWithWhereUniqueWithoutRedemptionInput | RewardTransactionUpdateWithWhereUniqueWithoutRedemptionInput[]
+    updateMany?: RewardTransactionUpdateManyWithWhereWithoutRedemptionInput | RewardTransactionUpdateManyWithWhereWithoutRedemptionInput[]
+    deleteMany?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
   }
 
   export type FeatureEntitlementUncheckedUpdateManyWithoutRedemptionNestedInput = {
@@ -56024,21 +56024,21 @@ export namespace Prisma {
     _max?: NestedEnumRewardFeatureCategoryFilter<$PrismaModel>
   }
 
-  export type NestedEnumPointTransactionTypeFilter<$PrismaModel = never> = {
-    equals?: $Enums.PointTransactionType | EnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.PointTransactionType[] | ListEnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PointTransactionType[] | ListEnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumPointTransactionTypeFilter<$PrismaModel> | $Enums.PointTransactionType
+  export type NestedEnumRewardTransactionTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.RewardTransactionType | EnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.RewardTransactionType[] | ListEnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RewardTransactionType[] | ListEnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRewardTransactionTypeFilter<$PrismaModel> | $Enums.RewardTransactionType
   }
 
-  export type NestedEnumPointTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.PointTransactionType | EnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    in?: $Enums.PointTransactionType[] | ListEnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PointTransactionType[] | ListEnumPointTransactionTypeFieldRefInput<$PrismaModel>
-    not?: NestedEnumPointTransactionTypeWithAggregatesFilter<$PrismaModel> | $Enums.PointTransactionType
+  export type NestedEnumRewardTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.RewardTransactionType | EnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.RewardTransactionType[] | ListEnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.RewardTransactionType[] | ListEnumRewardTransactionTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumRewardTransactionTypeWithAggregatesFilter<$PrismaModel> | $Enums.RewardTransactionType
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumPointTransactionTypeFilter<$PrismaModel>
-    _max?: NestedEnumPointTransactionTypeFilter<$PrismaModel>
+    _min?: NestedEnumRewardTransactionTypeFilter<$PrismaModel>
+    _max?: NestedEnumRewardTransactionTypeFilter<$PrismaModel>
   }
 
   export type NestedEnumRedemptionStatusFilter<$PrismaModel = never> = {
@@ -56130,9 +56130,9 @@ export namespace Prisma {
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
@@ -56158,9 +56158,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
@@ -56619,10 +56619,10 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type PointTransactionCreateWithoutProductInput = {
+  export type RewardTransactionCreateWithoutProductInput = {
     id?: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleKey?: string | null
     eventId?: string | null
@@ -56635,18 +56635,18 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutPointTransactionsInput
+    user: UserCreateNestedOneWithoutRewardTransactionsInput
     rule?: RewardRuleCreateNestedOneWithoutTransactionsInput
     catalogItem?: RewardCatalogItemCreateNestedOneWithoutTransactionsInput
     redemption?: RedemptionCreateNestedOneWithoutTransactionsInput
-    actedBy?: UserCreateNestedOneWithoutPointTransactionsActedInput
+    actedBy?: UserCreateNestedOneWithoutRewardTransactionsActedInput
   }
 
-  export type PointTransactionUncheckedCreateWithoutProductInput = {
+  export type RewardTransactionUncheckedCreateWithoutProductInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -56665,13 +56665,13 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionCreateOrConnectWithoutProductInput = {
-    where: PointTransactionWhereUniqueInput
-    create: XOR<PointTransactionCreateWithoutProductInput, PointTransactionUncheckedCreateWithoutProductInput>
+  export type RewardTransactionCreateOrConnectWithoutProductInput = {
+    where: RewardTransactionWhereUniqueInput
+    create: XOR<RewardTransactionCreateWithoutProductInput, RewardTransactionUncheckedCreateWithoutProductInput>
   }
 
-  export type PointTransactionCreateManyProductInputEnvelope = {
-    data: PointTransactionCreateManyProductInput | PointTransactionCreateManyProductInput[]
+  export type RewardTransactionCreateManyProductInputEnvelope = {
+    data: RewardTransactionCreateManyProductInput | RewardTransactionCreateManyProductInput[]
     skipDuplicates?: boolean
   }
 
@@ -56680,7 +56680,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -56692,7 +56692,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutRedemptionsInput
     catalogItem: RewardCatalogItemCreateNestedOneWithoutRedemptionsInput
-    transactions?: PointTransactionCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionCreateNestedManyWithoutRedemptionInput
     entitlements?: FeatureEntitlementCreateNestedManyWithoutRedemptionInput
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutRedemptionInput
   }
@@ -56704,7 +56704,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -56714,7 +56714,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutRedemptionInput
     entitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutRedemptionInput
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutRedemptionInput
   }
@@ -56807,9 +56807,9 @@ export namespace Prisma {
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
@@ -56835,9 +56835,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -57326,47 +57326,47 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MonthlyProductRanking"> | Date | string
   }
 
-  export type PointTransactionUpsertWithWhereUniqueWithoutProductInput = {
-    where: PointTransactionWhereUniqueInput
-    update: XOR<PointTransactionUpdateWithoutProductInput, PointTransactionUncheckedUpdateWithoutProductInput>
-    create: XOR<PointTransactionCreateWithoutProductInput, PointTransactionUncheckedCreateWithoutProductInput>
+  export type RewardTransactionUpsertWithWhereUniqueWithoutProductInput = {
+    where: RewardTransactionWhereUniqueInput
+    update: XOR<RewardTransactionUpdateWithoutProductInput, RewardTransactionUncheckedUpdateWithoutProductInput>
+    create: XOR<RewardTransactionCreateWithoutProductInput, RewardTransactionUncheckedCreateWithoutProductInput>
   }
 
-  export type PointTransactionUpdateWithWhereUniqueWithoutProductInput = {
-    where: PointTransactionWhereUniqueInput
-    data: XOR<PointTransactionUpdateWithoutProductInput, PointTransactionUncheckedUpdateWithoutProductInput>
+  export type RewardTransactionUpdateWithWhereUniqueWithoutProductInput = {
+    where: RewardTransactionWhereUniqueInput
+    data: XOR<RewardTransactionUpdateWithoutProductInput, RewardTransactionUncheckedUpdateWithoutProductInput>
   }
 
-  export type PointTransactionUpdateManyWithWhereWithoutProductInput = {
-    where: PointTransactionScalarWhereInput
-    data: XOR<PointTransactionUpdateManyMutationInput, PointTransactionUncheckedUpdateManyWithoutProductInput>
+  export type RewardTransactionUpdateManyWithWhereWithoutProductInput = {
+    where: RewardTransactionScalarWhereInput
+    data: XOR<RewardTransactionUpdateManyMutationInput, RewardTransactionUncheckedUpdateManyWithoutProductInput>
   }
 
-  export type PointTransactionScalarWhereInput = {
-    AND?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
-    OR?: PointTransactionScalarWhereInput[]
-    NOT?: PointTransactionScalarWhereInput | PointTransactionScalarWhereInput[]
-    id?: StringFilter<"PointTransaction"> | string
-    userId?: StringFilter<"PointTransaction"> | string
-    type?: EnumPointTransactionTypeFilter<"PointTransaction"> | $Enums.PointTransactionType
-    points?: IntFilter<"PointTransaction"> | number
-    balanceAfter?: IntFilter<"PointTransaction"> | number
-    ruleId?: StringNullableFilter<"PointTransaction"> | string | null
-    ruleKey?: StringNullableFilter<"PointTransaction"> | string | null
-    rewardKey?: StringNullableFilter<"PointTransaction"> | string | null
-    redemptionId?: StringNullableFilter<"PointTransaction"> | string | null
-    productId?: StringNullableFilter<"PointTransaction"> | string | null
-    eventId?: StringNullableFilter<"PointTransaction"> | string | null
-    eventHash?: StringNullableFilter<"PointTransaction"> | string | null
-    sourceType?: StringNullableFilter<"PointTransaction"> | string | null
-    sourceId?: StringNullableFilter<"PointTransaction"> | string | null
-    targetType?: StringNullableFilter<"PointTransaction"> | string | null
-    targetId?: StringNullableFilter<"PointTransaction"> | string | null
-    notes?: StringNullableFilter<"PointTransaction"> | string | null
-    metadata?: JsonNullableFilter<"PointTransaction">
-    actedByUserId?: StringNullableFilter<"PointTransaction"> | string | null
-    createdAt?: DateTimeFilter<"PointTransaction"> | Date | string
-    updatedAt?: DateTimeFilter<"PointTransaction"> | Date | string
+  export type RewardTransactionScalarWhereInput = {
+    AND?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
+    OR?: RewardTransactionScalarWhereInput[]
+    NOT?: RewardTransactionScalarWhereInput | RewardTransactionScalarWhereInput[]
+    id?: StringFilter<"RewardTransaction"> | string
+    userId?: StringFilter<"RewardTransaction"> | string
+    type?: EnumRewardTransactionTypeFilter<"RewardTransaction"> | $Enums.RewardTransactionType
+    rewardAmount?: IntFilter<"RewardTransaction"> | number
+    balanceAfter?: IntFilter<"RewardTransaction"> | number
+    ruleId?: StringNullableFilter<"RewardTransaction"> | string | null
+    ruleKey?: StringNullableFilter<"RewardTransaction"> | string | null
+    rewardKey?: StringNullableFilter<"RewardTransaction"> | string | null
+    redemptionId?: StringNullableFilter<"RewardTransaction"> | string | null
+    productId?: StringNullableFilter<"RewardTransaction"> | string | null
+    eventId?: StringNullableFilter<"RewardTransaction"> | string | null
+    eventHash?: StringNullableFilter<"RewardTransaction"> | string | null
+    sourceType?: StringNullableFilter<"RewardTransaction"> | string | null
+    sourceId?: StringNullableFilter<"RewardTransaction"> | string | null
+    targetType?: StringNullableFilter<"RewardTransaction"> | string | null
+    targetId?: StringNullableFilter<"RewardTransaction"> | string | null
+    notes?: StringNullableFilter<"RewardTransaction"> | string | null
+    metadata?: JsonNullableFilter<"RewardTransaction">
+    actedByUserId?: StringNullableFilter<"RewardTransaction"> | string | null
+    createdAt?: DateTimeFilter<"RewardTransaction"> | Date | string
+    updatedAt?: DateTimeFilter<"RewardTransaction"> | Date | string
   }
 
   export type RedemptionUpsertWithWhereUniqueWithoutProductInput = {
@@ -57396,7 +57396,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFilter<"Redemption"> | $Enums.RedemptionStatus
     cost?: IntFilter<"Redemption"> | number
     originalCost?: IntFilter<"Redemption"> | number
-    refundedPoints?: IntFilter<"Redemption"> | number
+    refundedRewards?: IntFilter<"Redemption"> | number
     startsAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
     activatedAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
     expiresAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
@@ -57482,7 +57482,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -57524,7 +57524,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -57582,7 +57582,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -57624,7 +57624,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -57666,7 +57666,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -57708,7 +57708,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -57766,7 +57766,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -57808,7 +57808,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -57850,7 +57850,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -57892,7 +57892,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -57950,7 +57950,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -57992,7 +57992,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -58034,7 +58034,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -58076,7 +58076,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -58134,7 +58134,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -58176,7 +58176,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -58218,7 +58218,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -58260,7 +58260,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -58318,7 +58318,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -58360,7 +58360,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -58402,7 +58402,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -58444,7 +58444,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -58502,7 +58502,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -58544,7 +58544,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -58586,7 +58586,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -58628,7 +58628,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutProductInput
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -58686,7 +58686,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -58728,7 +58728,7 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutProductNestedInput
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -58770,7 +58770,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -58812,7 +58812,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -58908,7 +58908,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -58950,7 +58950,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -59082,7 +59082,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -59124,7 +59124,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -59155,9 +59155,9 @@ export namespace Prisma {
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
@@ -59183,9 +59183,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
@@ -59243,7 +59243,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -59285,7 +59285,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -59322,9 +59322,9 @@ export namespace Prisma {
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
@@ -59350,9 +59350,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -59420,7 +59420,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -59462,7 +59462,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -59498,9 +59498,9 @@ export namespace Prisma {
     productReviews?: ProductReviewCreateNestedManyWithoutUserInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
@@ -59526,9 +59526,9 @@ export namespace Prisma {
     productReviews?: ProductReviewUncheckedCreateNestedManyWithoutUserInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
@@ -59645,9 +59645,9 @@ export namespace Prisma {
     productReviews?: ProductReviewUpdateManyWithoutUserNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
@@ -59673,9 +59673,9 @@ export namespace Prisma {
     productReviews?: ProductReviewUncheckedUpdateManyWithoutUserNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -59701,9 +59701,9 @@ export namespace Prisma {
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
@@ -59729,9 +59729,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
@@ -59798,9 +59798,9 @@ export namespace Prisma {
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
@@ -59826,9 +59826,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -59901,7 +59901,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -59943,7 +59943,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -60122,7 +60122,7 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type PointBalanceCreateWithoutUserInput = {
+  export type RewardBalanceCreateWithoutUserInput = {
     balance?: number
     lifetimeEarned?: number
     lifetimeSpent?: number
@@ -60140,7 +60140,7 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointBalanceUncheckedCreateWithoutUserInput = {
+  export type RewardBalanceUncheckedCreateWithoutUserInput = {
     balance?: number
     lifetimeEarned?: number
     lifetimeSpent?: number
@@ -60158,15 +60158,15 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointBalanceCreateOrConnectWithoutUserInput = {
-    where: PointBalanceWhereUniqueInput
-    create: XOR<PointBalanceCreateWithoutUserInput, PointBalanceUncheckedCreateWithoutUserInput>
+  export type RewardBalanceCreateOrConnectWithoutUserInput = {
+    where: RewardBalanceWhereUniqueInput
+    create: XOR<RewardBalanceCreateWithoutUserInput, RewardBalanceUncheckedCreateWithoutUserInput>
   }
 
-  export type PointTransactionCreateWithoutUserInput = {
+  export type RewardTransactionCreateWithoutUserInput = {
     id?: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleKey?: string | null
     eventId?: string | null
@@ -60182,14 +60182,14 @@ export namespace Prisma {
     rule?: RewardRuleCreateNestedOneWithoutTransactionsInput
     catalogItem?: RewardCatalogItemCreateNestedOneWithoutTransactionsInput
     redemption?: RedemptionCreateNestedOneWithoutTransactionsInput
-    actedBy?: UserCreateNestedOneWithoutPointTransactionsActedInput
-    product?: ProductCreateNestedOneWithoutPointTransactionsInput
+    actedBy?: UserCreateNestedOneWithoutRewardTransactionsActedInput
+    product?: ProductCreateNestedOneWithoutRewardTransactionsInput
   }
 
-  export type PointTransactionUncheckedCreateWithoutUserInput = {
+  export type RewardTransactionUncheckedCreateWithoutUserInput = {
     id?: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -60209,20 +60209,20 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionCreateOrConnectWithoutUserInput = {
-    where: PointTransactionWhereUniqueInput
-    create: XOR<PointTransactionCreateWithoutUserInput, PointTransactionUncheckedCreateWithoutUserInput>
+  export type RewardTransactionCreateOrConnectWithoutUserInput = {
+    where: RewardTransactionWhereUniqueInput
+    create: XOR<RewardTransactionCreateWithoutUserInput, RewardTransactionUncheckedCreateWithoutUserInput>
   }
 
-  export type PointTransactionCreateManyUserInputEnvelope = {
-    data: PointTransactionCreateManyUserInput | PointTransactionCreateManyUserInput[]
+  export type RewardTransactionCreateManyUserInputEnvelope = {
+    data: RewardTransactionCreateManyUserInput | RewardTransactionCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
-  export type PointTransactionCreateWithoutActedByInput = {
+  export type RewardTransactionCreateWithoutActedByInput = {
     id?: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleKey?: string | null
     eventId?: string | null
@@ -60235,18 +60235,18 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutPointTransactionsInput
+    user: UserCreateNestedOneWithoutRewardTransactionsInput
     rule?: RewardRuleCreateNestedOneWithoutTransactionsInput
     catalogItem?: RewardCatalogItemCreateNestedOneWithoutTransactionsInput
     redemption?: RedemptionCreateNestedOneWithoutTransactionsInput
-    product?: ProductCreateNestedOneWithoutPointTransactionsInput
+    product?: ProductCreateNestedOneWithoutRewardTransactionsInput
   }
 
-  export type PointTransactionUncheckedCreateWithoutActedByInput = {
+  export type RewardTransactionUncheckedCreateWithoutActedByInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -60265,13 +60265,13 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionCreateOrConnectWithoutActedByInput = {
-    where: PointTransactionWhereUniqueInput
-    create: XOR<PointTransactionCreateWithoutActedByInput, PointTransactionUncheckedCreateWithoutActedByInput>
+  export type RewardTransactionCreateOrConnectWithoutActedByInput = {
+    where: RewardTransactionWhereUniqueInput
+    create: XOR<RewardTransactionCreateWithoutActedByInput, RewardTransactionUncheckedCreateWithoutActedByInput>
   }
 
-  export type PointTransactionCreateManyActedByInputEnvelope = {
-    data: PointTransactionCreateManyActedByInput | PointTransactionCreateManyActedByInput[]
+  export type RewardTransactionCreateManyActedByInputEnvelope = {
+    data: RewardTransactionCreateManyActedByInput | RewardTransactionCreateManyActedByInput[]
     skipDuplicates?: boolean
   }
 
@@ -60280,7 +60280,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -60292,7 +60292,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     catalogItem: RewardCatalogItemCreateNestedOneWithoutRedemptionsInput
     product?: ProductCreateNestedOneWithoutRedemptionsInput
-    transactions?: PointTransactionCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionCreateNestedManyWithoutRedemptionInput
     entitlements?: FeatureEntitlementCreateNestedManyWithoutRedemptionInput
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutRedemptionInput
   }
@@ -60304,7 +60304,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -60314,7 +60314,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutRedemptionInput
     entitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutRedemptionInput
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutRedemptionInput
   }
@@ -60526,18 +60526,18 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"UserPlanPurchase"> | Date | string
   }
 
-  export type PointBalanceUpsertWithoutUserInput = {
-    update: XOR<PointBalanceUpdateWithoutUserInput, PointBalanceUncheckedUpdateWithoutUserInput>
-    create: XOR<PointBalanceCreateWithoutUserInput, PointBalanceUncheckedCreateWithoutUserInput>
-    where?: PointBalanceWhereInput
+  export type RewardBalanceUpsertWithoutUserInput = {
+    update: XOR<RewardBalanceUpdateWithoutUserInput, RewardBalanceUncheckedUpdateWithoutUserInput>
+    create: XOR<RewardBalanceCreateWithoutUserInput, RewardBalanceUncheckedCreateWithoutUserInput>
+    where?: RewardBalanceWhereInput
   }
 
-  export type PointBalanceUpdateToOneWithWhereWithoutUserInput = {
-    where?: PointBalanceWhereInput
-    data: XOR<PointBalanceUpdateWithoutUserInput, PointBalanceUncheckedUpdateWithoutUserInput>
+  export type RewardBalanceUpdateToOneWithWhereWithoutUserInput = {
+    where?: RewardBalanceWhereInput
+    data: XOR<RewardBalanceUpdateWithoutUserInput, RewardBalanceUncheckedUpdateWithoutUserInput>
   }
 
-  export type PointBalanceUpdateWithoutUserInput = {
+  export type RewardBalanceUpdateWithoutUserInput = {
     balance?: IntFieldUpdateOperationsInput | number
     lifetimeEarned?: IntFieldUpdateOperationsInput | number
     lifetimeSpent?: IntFieldUpdateOperationsInput | number
@@ -60555,7 +60555,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointBalanceUncheckedUpdateWithoutUserInput = {
+  export type RewardBalanceUncheckedUpdateWithoutUserInput = {
     balance?: IntFieldUpdateOperationsInput | number
     lifetimeEarned?: IntFieldUpdateOperationsInput | number
     lifetimeSpent?: IntFieldUpdateOperationsInput | number
@@ -60573,36 +60573,36 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUpsertWithWhereUniqueWithoutUserInput = {
-    where: PointTransactionWhereUniqueInput
-    update: XOR<PointTransactionUpdateWithoutUserInput, PointTransactionUncheckedUpdateWithoutUserInput>
-    create: XOR<PointTransactionCreateWithoutUserInput, PointTransactionUncheckedCreateWithoutUserInput>
+  export type RewardTransactionUpsertWithWhereUniqueWithoutUserInput = {
+    where: RewardTransactionWhereUniqueInput
+    update: XOR<RewardTransactionUpdateWithoutUserInput, RewardTransactionUncheckedUpdateWithoutUserInput>
+    create: XOR<RewardTransactionCreateWithoutUserInput, RewardTransactionUncheckedCreateWithoutUserInput>
   }
 
-  export type PointTransactionUpdateWithWhereUniqueWithoutUserInput = {
-    where: PointTransactionWhereUniqueInput
-    data: XOR<PointTransactionUpdateWithoutUserInput, PointTransactionUncheckedUpdateWithoutUserInput>
+  export type RewardTransactionUpdateWithWhereUniqueWithoutUserInput = {
+    where: RewardTransactionWhereUniqueInput
+    data: XOR<RewardTransactionUpdateWithoutUserInput, RewardTransactionUncheckedUpdateWithoutUserInput>
   }
 
-  export type PointTransactionUpdateManyWithWhereWithoutUserInput = {
-    where: PointTransactionScalarWhereInput
-    data: XOR<PointTransactionUpdateManyMutationInput, PointTransactionUncheckedUpdateManyWithoutUserInput>
+  export type RewardTransactionUpdateManyWithWhereWithoutUserInput = {
+    where: RewardTransactionScalarWhereInput
+    data: XOR<RewardTransactionUpdateManyMutationInput, RewardTransactionUncheckedUpdateManyWithoutUserInput>
   }
 
-  export type PointTransactionUpsertWithWhereUniqueWithoutActedByInput = {
-    where: PointTransactionWhereUniqueInput
-    update: XOR<PointTransactionUpdateWithoutActedByInput, PointTransactionUncheckedUpdateWithoutActedByInput>
-    create: XOR<PointTransactionCreateWithoutActedByInput, PointTransactionUncheckedCreateWithoutActedByInput>
+  export type RewardTransactionUpsertWithWhereUniqueWithoutActedByInput = {
+    where: RewardTransactionWhereUniqueInput
+    update: XOR<RewardTransactionUpdateWithoutActedByInput, RewardTransactionUncheckedUpdateWithoutActedByInput>
+    create: XOR<RewardTransactionCreateWithoutActedByInput, RewardTransactionUncheckedCreateWithoutActedByInput>
   }
 
-  export type PointTransactionUpdateWithWhereUniqueWithoutActedByInput = {
-    where: PointTransactionWhereUniqueInput
-    data: XOR<PointTransactionUpdateWithoutActedByInput, PointTransactionUncheckedUpdateWithoutActedByInput>
+  export type RewardTransactionUpdateWithWhereUniqueWithoutActedByInput = {
+    where: RewardTransactionWhereUniqueInput
+    data: XOR<RewardTransactionUpdateWithoutActedByInput, RewardTransactionUncheckedUpdateWithoutActedByInput>
   }
 
-  export type PointTransactionUpdateManyWithWhereWithoutActedByInput = {
-    where: PointTransactionScalarWhereInput
-    data: XOR<PointTransactionUpdateManyMutationInput, PointTransactionUncheckedUpdateManyWithoutActedByInput>
+  export type RewardTransactionUpdateManyWithWhereWithoutActedByInput = {
+    where: RewardTransactionScalarWhereInput
+    data: XOR<RewardTransactionUpdateManyMutationInput, RewardTransactionUncheckedUpdateManyWithoutActedByInput>
   }
 
   export type RedemptionUpsertWithWhereUniqueWithoutUserInput = {
@@ -60674,7 +60674,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -60716,7 +60716,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -60747,9 +60747,9 @@ export namespace Prisma {
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
@@ -60775,9 +60775,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
@@ -60835,7 +60835,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -60877,7 +60877,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -60914,9 +60914,9 @@ export namespace Prisma {
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
@@ -60942,9 +60942,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -60970,9 +60970,9 @@ export namespace Prisma {
     productReviews?: ProductReviewCreateNestedManyWithoutUserInput
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
@@ -60998,9 +60998,9 @@ export namespace Prisma {
     productReviews?: ProductReviewUncheckedCreateNestedManyWithoutUserInput
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
@@ -61042,9 +61042,9 @@ export namespace Prisma {
     productReviews?: ProductReviewUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
@@ -61070,9 +61070,9 @@ export namespace Prisma {
     productReviews?: ProductReviewUncheckedUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -61114,7 +61114,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -61156,7 +61156,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -61266,7 +61266,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -61308,7 +61308,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -61488,7 +61488,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     redemptions?: RedemptionCreateNestedManyWithoutCatalogItemInput
     entitlements?: FeatureEntitlementCreateNestedManyWithoutCatalogItemInput
-    transactions?: PointTransactionCreateNestedManyWithoutCatalogItemInput
+    transactions?: RewardTransactionCreateNestedManyWithoutCatalogItemInput
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutCatalogItemInput
   }
 
@@ -61509,7 +61509,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutCatalogItemInput
     entitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutCatalogItemInput
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutCatalogItemInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutCatalogItemInput
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutCatalogItemInput
   }
 
@@ -61753,9 +61753,9 @@ export namespace Prisma {
     productReviews?: ProductReviewCreateNestedManyWithoutUserInput
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
@@ -61781,9 +61781,9 @@ export namespace Prisma {
     productReviews?: ProductReviewUncheckedCreateNestedManyWithoutUserInput
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
@@ -61872,9 +61872,9 @@ export namespace Prisma {
     productReviews?: ProductReviewUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
@@ -61900,9 +61900,9 @@ export namespace Prisma {
     productReviews?: ProductReviewUncheckedUpdateManyWithoutUserNestedInput
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -61997,7 +61997,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -62039,7 +62039,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -62097,7 +62097,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -62139,7 +62139,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -62286,7 +62286,7 @@ export namespace Prisma {
     products?: ProductUncheckedUpdateManyWithoutCategoryNestedInput
   }
 
-  export type UserCreateWithoutPointBalanceInput = {
+  export type UserCreateWithoutRewardBalanceInput = {
     id?: string
     clerkId: string
     email: string
@@ -62308,13 +62308,13 @@ export namespace Prisma {
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
 
-  export type UserUncheckedCreateWithoutPointBalanceInput = {
+  export type UserUncheckedCreateWithoutRewardBalanceInput = {
     id?: string
     clerkId: string
     email: string
@@ -62336,29 +62336,29 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
 
-  export type UserCreateOrConnectWithoutPointBalanceInput = {
+  export type UserCreateOrConnectWithoutRewardBalanceInput = {
     where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutPointBalanceInput, UserUncheckedCreateWithoutPointBalanceInput>
+    create: XOR<UserCreateWithoutRewardBalanceInput, UserUncheckedCreateWithoutRewardBalanceInput>
   }
 
-  export type UserUpsertWithoutPointBalanceInput = {
-    update: XOR<UserUpdateWithoutPointBalanceInput, UserUncheckedUpdateWithoutPointBalanceInput>
-    create: XOR<UserCreateWithoutPointBalanceInput, UserUncheckedCreateWithoutPointBalanceInput>
+  export type UserUpsertWithoutRewardBalanceInput = {
+    update: XOR<UserUpdateWithoutRewardBalanceInput, UserUncheckedUpdateWithoutRewardBalanceInput>
+    create: XOR<UserCreateWithoutRewardBalanceInput, UserUncheckedCreateWithoutRewardBalanceInput>
     where?: UserWhereInput
   }
 
-  export type UserUpdateToOneWithWhereWithoutPointBalanceInput = {
+  export type UserUpdateToOneWithWhereWithoutRewardBalanceInput = {
     where?: UserWhereInput
-    data: XOR<UserUpdateWithoutPointBalanceInput, UserUncheckedUpdateWithoutPointBalanceInput>
+    data: XOR<UserUpdateWithoutRewardBalanceInput, UserUncheckedUpdateWithoutRewardBalanceInput>
   }
 
-  export type UserUpdateWithoutPointBalanceInput = {
+  export type UserUpdateWithoutRewardBalanceInput = {
     id?: StringFieldUpdateOperationsInput | string
     clerkId?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -62380,13 +62380,13 @@ export namespace Prisma {
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
 
-  export type UserUncheckedUpdateWithoutPointBalanceInput = {
+  export type UserUncheckedUpdateWithoutRewardBalanceInput = {
     id?: StringFieldUpdateOperationsInput | string
     clerkId?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -62408,16 +62408,16 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type PointTransactionCreateWithoutRuleInput = {
+  export type RewardTransactionCreateWithoutRuleInput = {
     id?: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleKey?: string | null
     eventId?: string | null
@@ -62430,18 +62430,18 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutPointTransactionsInput
+    user: UserCreateNestedOneWithoutRewardTransactionsInput
     catalogItem?: RewardCatalogItemCreateNestedOneWithoutTransactionsInput
     redemption?: RedemptionCreateNestedOneWithoutTransactionsInput
-    actedBy?: UserCreateNestedOneWithoutPointTransactionsActedInput
-    product?: ProductCreateNestedOneWithoutPointTransactionsInput
+    actedBy?: UserCreateNestedOneWithoutRewardTransactionsActedInput
+    product?: ProductCreateNestedOneWithoutRewardTransactionsInput
   }
 
-  export type PointTransactionUncheckedCreateWithoutRuleInput = {
+  export type RewardTransactionUncheckedCreateWithoutRuleInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleKey?: string | null
     rewardKey?: string | null
@@ -62460,30 +62460,30 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionCreateOrConnectWithoutRuleInput = {
-    where: PointTransactionWhereUniqueInput
-    create: XOR<PointTransactionCreateWithoutRuleInput, PointTransactionUncheckedCreateWithoutRuleInput>
+  export type RewardTransactionCreateOrConnectWithoutRuleInput = {
+    where: RewardTransactionWhereUniqueInput
+    create: XOR<RewardTransactionCreateWithoutRuleInput, RewardTransactionUncheckedCreateWithoutRuleInput>
   }
 
-  export type PointTransactionCreateManyRuleInputEnvelope = {
-    data: PointTransactionCreateManyRuleInput | PointTransactionCreateManyRuleInput[]
+  export type RewardTransactionCreateManyRuleInputEnvelope = {
+    data: RewardTransactionCreateManyRuleInput | RewardTransactionCreateManyRuleInput[]
     skipDuplicates?: boolean
   }
 
-  export type PointTransactionUpsertWithWhereUniqueWithoutRuleInput = {
-    where: PointTransactionWhereUniqueInput
-    update: XOR<PointTransactionUpdateWithoutRuleInput, PointTransactionUncheckedUpdateWithoutRuleInput>
-    create: XOR<PointTransactionCreateWithoutRuleInput, PointTransactionUncheckedCreateWithoutRuleInput>
+  export type RewardTransactionUpsertWithWhereUniqueWithoutRuleInput = {
+    where: RewardTransactionWhereUniqueInput
+    update: XOR<RewardTransactionUpdateWithoutRuleInput, RewardTransactionUncheckedUpdateWithoutRuleInput>
+    create: XOR<RewardTransactionCreateWithoutRuleInput, RewardTransactionUncheckedCreateWithoutRuleInput>
   }
 
-  export type PointTransactionUpdateWithWhereUniqueWithoutRuleInput = {
-    where: PointTransactionWhereUniqueInput
-    data: XOR<PointTransactionUpdateWithoutRuleInput, PointTransactionUncheckedUpdateWithoutRuleInput>
+  export type RewardTransactionUpdateWithWhereUniqueWithoutRuleInput = {
+    where: RewardTransactionWhereUniqueInput
+    data: XOR<RewardTransactionUpdateWithoutRuleInput, RewardTransactionUncheckedUpdateWithoutRuleInput>
   }
 
-  export type PointTransactionUpdateManyWithWhereWithoutRuleInput = {
-    where: PointTransactionScalarWhereInput
-    data: XOR<PointTransactionUpdateManyMutationInput, PointTransactionUncheckedUpdateManyWithoutRuleInput>
+  export type RewardTransactionUpdateManyWithWhereWithoutRuleInput = {
+    where: RewardTransactionScalarWhereInput
+    data: XOR<RewardTransactionUpdateManyMutationInput, RewardTransactionUncheckedUpdateManyWithoutRuleInput>
   }
 
   export type PlanFeatureCreateWithoutRewardCatalogItemInput = {
@@ -62516,7 +62516,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -62528,7 +62528,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutRedemptionsInput
     product?: ProductCreateNestedOneWithoutRedemptionsInput
-    transactions?: PointTransactionCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionCreateNestedManyWithoutRedemptionInput
     entitlements?: FeatureEntitlementCreateNestedManyWithoutRedemptionInput
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutRedemptionInput
   }
@@ -62540,7 +62540,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -62550,7 +62550,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutRedemptionInput
     entitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutRedemptionInput
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutRedemptionInput
   }
@@ -62611,10 +62611,10 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type PointTransactionCreateWithoutCatalogItemInput = {
+  export type RewardTransactionCreateWithoutCatalogItemInput = {
     id?: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleKey?: string | null
     eventId?: string | null
@@ -62627,18 +62627,18 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutPointTransactionsInput
+    user: UserCreateNestedOneWithoutRewardTransactionsInput
     rule?: RewardRuleCreateNestedOneWithoutTransactionsInput
     redemption?: RedemptionCreateNestedOneWithoutTransactionsInput
-    actedBy?: UserCreateNestedOneWithoutPointTransactionsActedInput
-    product?: ProductCreateNestedOneWithoutPointTransactionsInput
+    actedBy?: UserCreateNestedOneWithoutRewardTransactionsActedInput
+    product?: ProductCreateNestedOneWithoutRewardTransactionsInput
   }
 
-  export type PointTransactionUncheckedCreateWithoutCatalogItemInput = {
+  export type RewardTransactionUncheckedCreateWithoutCatalogItemInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -62657,13 +62657,13 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionCreateOrConnectWithoutCatalogItemInput = {
-    where: PointTransactionWhereUniqueInput
-    create: XOR<PointTransactionCreateWithoutCatalogItemInput, PointTransactionUncheckedCreateWithoutCatalogItemInput>
+  export type RewardTransactionCreateOrConnectWithoutCatalogItemInput = {
+    where: RewardTransactionWhereUniqueInput
+    create: XOR<RewardTransactionCreateWithoutCatalogItemInput, RewardTransactionUncheckedCreateWithoutCatalogItemInput>
   }
 
-  export type PointTransactionCreateManyCatalogItemInputEnvelope = {
-    data: PointTransactionCreateManyCatalogItemInput | PointTransactionCreateManyCatalogItemInput[]
+  export type RewardTransactionCreateManyCatalogItemInputEnvelope = {
+    data: RewardTransactionCreateManyCatalogItemInput | RewardTransactionCreateManyCatalogItemInput[]
     skipDuplicates?: boolean
   }
 
@@ -62774,20 +62774,20 @@ export namespace Prisma {
     data: XOR<FeatureEntitlementUpdateManyMutationInput, FeatureEntitlementUncheckedUpdateManyWithoutCatalogItemInput>
   }
 
-  export type PointTransactionUpsertWithWhereUniqueWithoutCatalogItemInput = {
-    where: PointTransactionWhereUniqueInput
-    update: XOR<PointTransactionUpdateWithoutCatalogItemInput, PointTransactionUncheckedUpdateWithoutCatalogItemInput>
-    create: XOR<PointTransactionCreateWithoutCatalogItemInput, PointTransactionUncheckedCreateWithoutCatalogItemInput>
+  export type RewardTransactionUpsertWithWhereUniqueWithoutCatalogItemInput = {
+    where: RewardTransactionWhereUniqueInput
+    update: XOR<RewardTransactionUpdateWithoutCatalogItemInput, RewardTransactionUncheckedUpdateWithoutCatalogItemInput>
+    create: XOR<RewardTransactionCreateWithoutCatalogItemInput, RewardTransactionUncheckedCreateWithoutCatalogItemInput>
   }
 
-  export type PointTransactionUpdateWithWhereUniqueWithoutCatalogItemInput = {
-    where: PointTransactionWhereUniqueInput
-    data: XOR<PointTransactionUpdateWithoutCatalogItemInput, PointTransactionUncheckedUpdateWithoutCatalogItemInput>
+  export type RewardTransactionUpdateWithWhereUniqueWithoutCatalogItemInput = {
+    where: RewardTransactionWhereUniqueInput
+    data: XOR<RewardTransactionUpdateWithoutCatalogItemInput, RewardTransactionUncheckedUpdateWithoutCatalogItemInput>
   }
 
-  export type PointTransactionUpdateManyWithWhereWithoutCatalogItemInput = {
-    where: PointTransactionScalarWhereInput
-    data: XOR<PointTransactionUpdateManyMutationInput, PointTransactionUncheckedUpdateManyWithoutCatalogItemInput>
+  export type RewardTransactionUpdateManyWithWhereWithoutCatalogItemInput = {
+    where: RewardTransactionScalarWhereInput
+    data: XOR<RewardTransactionUpdateManyMutationInput, RewardTransactionUncheckedUpdateManyWithoutCatalogItemInput>
   }
 
   export type PlacementScheduleUpsertWithWhereUniqueWithoutCatalogItemInput = {
@@ -62806,7 +62806,7 @@ export namespace Prisma {
     data: XOR<PlacementScheduleUpdateManyMutationInput, PlacementScheduleUncheckedUpdateManyWithoutCatalogItemInput>
   }
 
-  export type UserCreateWithoutPointTransactionsInput = {
+  export type UserCreateWithoutRewardTransactionsInput = {
     id?: string
     clerkId: string
     email: string
@@ -62828,13 +62828,13 @@ export namespace Prisma {
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
 
-  export type UserUncheckedCreateWithoutPointTransactionsInput = {
+  export type UserUncheckedCreateWithoutRewardTransactionsInput = {
     id?: string
     clerkId: string
     email: string
@@ -62856,15 +62856,15 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
 
-  export type UserCreateOrConnectWithoutPointTransactionsInput = {
+  export type UserCreateOrConnectWithoutRewardTransactionsInput = {
     where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutPointTransactionsInput, UserUncheckedCreateWithoutPointTransactionsInput>
+    create: XOR<UserCreateWithoutRewardTransactionsInput, UserUncheckedCreateWithoutRewardTransactionsInput>
   }
 
   export type RewardRuleCreateWithoutTransactionsInput = {
@@ -62873,7 +62873,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     category: $Enums.RewardRuleCategory
-    basePoints: number
+    baseRewardAmount: number
     isActive?: boolean
     dailyCap?: number | null
     lifetimeCap?: number | null
@@ -62892,7 +62892,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     category: $Enums.RewardRuleCategory
-    basePoints: number
+    baseRewardAmount: number
     isActive?: boolean
     dailyCap?: number | null
     lifetimeCap?: number | null
@@ -62962,7 +62962,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -62987,7 +62987,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -63006,7 +63006,7 @@ export namespace Prisma {
     create: XOR<RedemptionCreateWithoutTransactionsInput, RedemptionUncheckedCreateWithoutTransactionsInput>
   }
 
-  export type UserCreateWithoutPointTransactionsActedInput = {
+  export type UserCreateWithoutRewardTransactionsActedInput = {
     id?: string
     clerkId: string
     email: string
@@ -63028,13 +63028,13 @@ export namespace Prisma {
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
 
-  export type UserUncheckedCreateWithoutPointTransactionsActedInput = {
+  export type UserUncheckedCreateWithoutRewardTransactionsActedInput = {
     id?: string
     clerkId: string
     email: string
@@ -63056,18 +63056,18 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
 
-  export type UserCreateOrConnectWithoutPointTransactionsActedInput = {
+  export type UserCreateOrConnectWithoutRewardTransactionsActedInput = {
     where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutPointTransactionsActedInput, UserUncheckedCreateWithoutPointTransactionsActedInput>
+    create: XOR<UserCreateWithoutRewardTransactionsActedInput, UserUncheckedCreateWithoutRewardTransactionsActedInput>
   }
 
-  export type ProductCreateWithoutPointTransactionsInput = {
+  export type ProductCreateWithoutRewardTransactionsInput = {
     id?: string
     name: string
     slug: string
@@ -63109,7 +63109,7 @@ export namespace Prisma {
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
 
-  export type ProductUncheckedCreateWithoutPointTransactionsInput = {
+  export type ProductUncheckedCreateWithoutRewardTransactionsInput = {
     id?: string
     name: string
     slug: string
@@ -63151,23 +63151,23 @@ export namespace Prisma {
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
 
-  export type ProductCreateOrConnectWithoutPointTransactionsInput = {
+  export type ProductCreateOrConnectWithoutRewardTransactionsInput = {
     where: ProductWhereUniqueInput
-    create: XOR<ProductCreateWithoutPointTransactionsInput, ProductUncheckedCreateWithoutPointTransactionsInput>
+    create: XOR<ProductCreateWithoutRewardTransactionsInput, ProductUncheckedCreateWithoutRewardTransactionsInput>
   }
 
-  export type UserUpsertWithoutPointTransactionsInput = {
-    update: XOR<UserUpdateWithoutPointTransactionsInput, UserUncheckedUpdateWithoutPointTransactionsInput>
-    create: XOR<UserCreateWithoutPointTransactionsInput, UserUncheckedCreateWithoutPointTransactionsInput>
+  export type UserUpsertWithoutRewardTransactionsInput = {
+    update: XOR<UserUpdateWithoutRewardTransactionsInput, UserUncheckedUpdateWithoutRewardTransactionsInput>
+    create: XOR<UserCreateWithoutRewardTransactionsInput, UserUncheckedCreateWithoutRewardTransactionsInput>
     where?: UserWhereInput
   }
 
-  export type UserUpdateToOneWithWhereWithoutPointTransactionsInput = {
+  export type UserUpdateToOneWithWhereWithoutRewardTransactionsInput = {
     where?: UserWhereInput
-    data: XOR<UserUpdateWithoutPointTransactionsInput, UserUncheckedUpdateWithoutPointTransactionsInput>
+    data: XOR<UserUpdateWithoutRewardTransactionsInput, UserUncheckedUpdateWithoutRewardTransactionsInput>
   }
 
-  export type UserUpdateWithoutPointTransactionsInput = {
+  export type UserUpdateWithoutRewardTransactionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     clerkId?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -63189,13 +63189,13 @@ export namespace Prisma {
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
 
-  export type UserUncheckedUpdateWithoutPointTransactionsInput = {
+  export type UserUncheckedUpdateWithoutRewardTransactionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     clerkId?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -63217,8 +63217,8 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -63240,7 +63240,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumRewardRuleCategoryFieldUpdateOperationsInput | $Enums.RewardRuleCategory
-    basePoints?: IntFieldUpdateOperationsInput | number
+    baseRewardAmount?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     dailyCap?: NullableIntFieldUpdateOperationsInput | number | null
     lifetimeCap?: NullableIntFieldUpdateOperationsInput | number | null
@@ -63259,7 +63259,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumRewardRuleCategoryFieldUpdateOperationsInput | $Enums.RewardRuleCategory
-    basePoints?: IntFieldUpdateOperationsInput | number
+    baseRewardAmount?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     dailyCap?: NullableIntFieldUpdateOperationsInput | number | null
     lifetimeCap?: NullableIntFieldUpdateOperationsInput | number | null
@@ -63341,7 +63341,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -63366,7 +63366,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -63380,18 +63380,18 @@ export namespace Prisma {
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutRedemptionNestedInput
   }
 
-  export type UserUpsertWithoutPointTransactionsActedInput = {
-    update: XOR<UserUpdateWithoutPointTransactionsActedInput, UserUncheckedUpdateWithoutPointTransactionsActedInput>
-    create: XOR<UserCreateWithoutPointTransactionsActedInput, UserUncheckedCreateWithoutPointTransactionsActedInput>
+  export type UserUpsertWithoutRewardTransactionsActedInput = {
+    update: XOR<UserUpdateWithoutRewardTransactionsActedInput, UserUncheckedUpdateWithoutRewardTransactionsActedInput>
+    create: XOR<UserCreateWithoutRewardTransactionsActedInput, UserUncheckedCreateWithoutRewardTransactionsActedInput>
     where?: UserWhereInput
   }
 
-  export type UserUpdateToOneWithWhereWithoutPointTransactionsActedInput = {
+  export type UserUpdateToOneWithWhereWithoutRewardTransactionsActedInput = {
     where?: UserWhereInput
-    data: XOR<UserUpdateWithoutPointTransactionsActedInput, UserUncheckedUpdateWithoutPointTransactionsActedInput>
+    data: XOR<UserUpdateWithoutRewardTransactionsActedInput, UserUncheckedUpdateWithoutRewardTransactionsActedInput>
   }
 
-  export type UserUpdateWithoutPointTransactionsActedInput = {
+  export type UserUpdateWithoutRewardTransactionsActedInput = {
     id?: StringFieldUpdateOperationsInput | string
     clerkId?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -63413,13 +63413,13 @@ export namespace Prisma {
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
 
-  export type UserUncheckedUpdateWithoutPointTransactionsActedInput = {
+  export type UserUncheckedUpdateWithoutRewardTransactionsActedInput = {
     id?: StringFieldUpdateOperationsInput | string
     clerkId?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -63441,24 +63441,24 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type ProductUpsertWithoutPointTransactionsInput = {
-    update: XOR<ProductUpdateWithoutPointTransactionsInput, ProductUncheckedUpdateWithoutPointTransactionsInput>
-    create: XOR<ProductCreateWithoutPointTransactionsInput, ProductUncheckedCreateWithoutPointTransactionsInput>
+  export type ProductUpsertWithoutRewardTransactionsInput = {
+    update: XOR<ProductUpdateWithoutRewardTransactionsInput, ProductUncheckedUpdateWithoutRewardTransactionsInput>
+    create: XOR<ProductCreateWithoutRewardTransactionsInput, ProductUncheckedCreateWithoutRewardTransactionsInput>
     where?: ProductWhereInput
   }
 
-  export type ProductUpdateToOneWithWhereWithoutPointTransactionsInput = {
+  export type ProductUpdateToOneWithWhereWithoutRewardTransactionsInput = {
     where?: ProductWhereInput
-    data: XOR<ProductUpdateWithoutPointTransactionsInput, ProductUncheckedUpdateWithoutPointTransactionsInput>
+    data: XOR<ProductUpdateWithoutRewardTransactionsInput, ProductUncheckedUpdateWithoutRewardTransactionsInput>
   }
 
-  export type ProductUpdateWithoutPointTransactionsInput = {
+  export type ProductUpdateWithoutRewardTransactionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
@@ -63500,7 +63500,7 @@ export namespace Prisma {
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
 
-  export type ProductUncheckedUpdateWithoutPointTransactionsInput = {
+  export type ProductUncheckedUpdateWithoutRewardTransactionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
@@ -63564,9 +63564,9 @@ export namespace Prisma {
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutUserInput
   }
 
@@ -63592,9 +63592,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -63620,7 +63620,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     planFeature?: PlanFeatureCreateNestedOneWithoutRewardCatalogItemInput
     entitlements?: FeatureEntitlementCreateNestedManyWithoutCatalogItemInput
-    transactions?: PointTransactionCreateNestedManyWithoutCatalogItemInput
+    transactions?: RewardTransactionCreateNestedManyWithoutCatalogItemInput
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutCatalogItemInput
   }
 
@@ -63641,7 +63641,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     entitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutCatalogItemInput
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutCatalogItemInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutCatalogItemInput
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutCatalogItemInput
   }
 
@@ -63688,7 +63688,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
 
@@ -63730,7 +63730,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -63739,10 +63739,10 @@ export namespace Prisma {
     create: XOR<ProductCreateWithoutRedemptionsInput, ProductUncheckedCreateWithoutRedemptionsInput>
   }
 
-  export type PointTransactionCreateWithoutRedemptionInput = {
+  export type RewardTransactionCreateWithoutRedemptionInput = {
     id?: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleKey?: string | null
     eventId?: string | null
@@ -63755,18 +63755,18 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutPointTransactionsInput
+    user: UserCreateNestedOneWithoutRewardTransactionsInput
     rule?: RewardRuleCreateNestedOneWithoutTransactionsInput
     catalogItem?: RewardCatalogItemCreateNestedOneWithoutTransactionsInput
-    actedBy?: UserCreateNestedOneWithoutPointTransactionsActedInput
-    product?: ProductCreateNestedOneWithoutPointTransactionsInput
+    actedBy?: UserCreateNestedOneWithoutRewardTransactionsActedInput
+    product?: ProductCreateNestedOneWithoutRewardTransactionsInput
   }
 
-  export type PointTransactionUncheckedCreateWithoutRedemptionInput = {
+  export type RewardTransactionUncheckedCreateWithoutRedemptionInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -63785,13 +63785,13 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionCreateOrConnectWithoutRedemptionInput = {
-    where: PointTransactionWhereUniqueInput
-    create: XOR<PointTransactionCreateWithoutRedemptionInput, PointTransactionUncheckedCreateWithoutRedemptionInput>
+  export type RewardTransactionCreateOrConnectWithoutRedemptionInput = {
+    where: RewardTransactionWhereUniqueInput
+    create: XOR<RewardTransactionCreateWithoutRedemptionInput, RewardTransactionUncheckedCreateWithoutRedemptionInput>
   }
 
-  export type PointTransactionCreateManyRedemptionInputEnvelope = {
-    data: PointTransactionCreateManyRedemptionInput | PointTransactionCreateManyRedemptionInput[]
+  export type RewardTransactionCreateManyRedemptionInputEnvelope = {
+    data: RewardTransactionCreateManyRedemptionInput | RewardTransactionCreateManyRedemptionInput[]
     skipDuplicates?: boolean
   }
 
@@ -63918,9 +63918,9 @@ export namespace Prisma {
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutUserNestedInput
   }
 
@@ -63946,9 +63946,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -63980,7 +63980,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     planFeature?: PlanFeatureUpdateOneWithoutRewardCatalogItemNestedInput
     entitlements?: FeatureEntitlementUpdateManyWithoutCatalogItemNestedInput
-    transactions?: PointTransactionUpdateManyWithoutCatalogItemNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutCatalogItemNestedInput
     placementSchedules?: PlacementScheduleUpdateManyWithoutCatalogItemNestedInput
   }
 
@@ -64001,7 +64001,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     entitlements?: FeatureEntitlementUncheckedUpdateManyWithoutCatalogItemNestedInput
-    transactions?: PointTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutCatalogItemNestedInput
   }
 
@@ -64054,7 +64054,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
 
@@ -64096,24 +64096,24 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
 
-  export type PointTransactionUpsertWithWhereUniqueWithoutRedemptionInput = {
-    where: PointTransactionWhereUniqueInput
-    update: XOR<PointTransactionUpdateWithoutRedemptionInput, PointTransactionUncheckedUpdateWithoutRedemptionInput>
-    create: XOR<PointTransactionCreateWithoutRedemptionInput, PointTransactionUncheckedCreateWithoutRedemptionInput>
+  export type RewardTransactionUpsertWithWhereUniqueWithoutRedemptionInput = {
+    where: RewardTransactionWhereUniqueInput
+    update: XOR<RewardTransactionUpdateWithoutRedemptionInput, RewardTransactionUncheckedUpdateWithoutRedemptionInput>
+    create: XOR<RewardTransactionCreateWithoutRedemptionInput, RewardTransactionUncheckedCreateWithoutRedemptionInput>
   }
 
-  export type PointTransactionUpdateWithWhereUniqueWithoutRedemptionInput = {
-    where: PointTransactionWhereUniqueInput
-    data: XOR<PointTransactionUpdateWithoutRedemptionInput, PointTransactionUncheckedUpdateWithoutRedemptionInput>
+  export type RewardTransactionUpdateWithWhereUniqueWithoutRedemptionInput = {
+    where: RewardTransactionWhereUniqueInput
+    data: XOR<RewardTransactionUpdateWithoutRedemptionInput, RewardTransactionUncheckedUpdateWithoutRedemptionInput>
   }
 
-  export type PointTransactionUpdateManyWithWhereWithoutRedemptionInput = {
-    where: PointTransactionScalarWhereInput
-    data: XOR<PointTransactionUpdateManyMutationInput, PointTransactionUncheckedUpdateManyWithoutRedemptionInput>
+  export type RewardTransactionUpdateManyWithWhereWithoutRedemptionInput = {
+    where: RewardTransactionScalarWhereInput
+    data: XOR<RewardTransactionUpdateManyMutationInput, RewardTransactionUncheckedUpdateManyWithoutRedemptionInput>
   }
 
   export type FeatureEntitlementUpsertWithWhereUniqueWithoutRedemptionInput = {
@@ -64170,9 +64170,9 @@ export namespace Prisma {
     Organization?: OrganizationCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
   }
 
@@ -64198,9 +64198,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedCreateNestedManyWithoutOwnerInput
     feedback?: MemberFeedbackUncheckedCreateNestedManyWithoutUserInput
     purchases?: UserPlanPurchaseUncheckedCreateNestedManyWithoutUserInput
-    pointBalance?: PointBalanceUncheckedCreateNestedOneWithoutUserInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutUserInput
-    pointTransactionsActed?: PointTransactionUncheckedCreateNestedManyWithoutActedByInput
+    rewardBalance?: RewardBalanceUncheckedCreateNestedOneWithoutUserInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutUserInput
+    rewardTransactionsActed?: RewardTransactionUncheckedCreateNestedManyWithoutActedByInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -64226,7 +64226,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     planFeature?: PlanFeatureCreateNestedOneWithoutRewardCatalogItemInput
     redemptions?: RedemptionCreateNestedManyWithoutCatalogItemInput
-    transactions?: PointTransactionCreateNestedManyWithoutCatalogItemInput
+    transactions?: RewardTransactionCreateNestedManyWithoutCatalogItemInput
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutCatalogItemInput
   }
 
@@ -64247,7 +64247,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutCatalogItemInput
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutCatalogItemInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutCatalogItemInput
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutCatalogItemInput
   }
 
@@ -64261,7 +64261,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -64274,7 +64274,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutRedemptionsInput
     catalogItem: RewardCatalogItemCreateNestedOneWithoutRedemptionsInput
     product?: ProductCreateNestedOneWithoutRedemptionsInput
-    transactions?: PointTransactionCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionCreateNestedManyWithoutRedemptionInput
     placementSchedules?: PlacementScheduleCreateNestedManyWithoutRedemptionInput
   }
 
@@ -64286,7 +64286,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -64296,7 +64296,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutRedemptionInput
     placementSchedules?: PlacementScheduleUncheckedCreateNestedManyWithoutRedemptionInput
   }
 
@@ -64343,7 +64343,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
   }
 
@@ -64385,7 +64385,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -64471,9 +64471,9 @@ export namespace Prisma {
     Organization?: OrganizationUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
   }
 
@@ -64499,9 +64499,9 @@ export namespace Prisma {
     Organization?: OrganizationUncheckedUpdateManyWithoutOwnerNestedInput
     feedback?: MemberFeedbackUncheckedUpdateManyWithoutUserNestedInput
     purchases?: UserPlanPurchaseUncheckedUpdateManyWithoutUserNestedInput
-    pointBalance?: PointBalanceUncheckedUpdateOneWithoutUserNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutUserNestedInput
-    pointTransactionsActed?: PointTransactionUncheckedUpdateManyWithoutActedByNestedInput
+    rewardBalance?: RewardBalanceUncheckedUpdateOneWithoutUserNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutUserNestedInput
+    rewardTransactionsActed?: RewardTransactionUncheckedUpdateManyWithoutActedByNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -64533,7 +64533,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     planFeature?: PlanFeatureUpdateOneWithoutRewardCatalogItemNestedInput
     redemptions?: RedemptionUpdateManyWithoutCatalogItemNestedInput
-    transactions?: PointTransactionUpdateManyWithoutCatalogItemNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutCatalogItemNestedInput
     placementSchedules?: PlacementScheduleUpdateManyWithoutCatalogItemNestedInput
   }
 
@@ -64554,7 +64554,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     redemptions?: RedemptionUncheckedUpdateManyWithoutCatalogItemNestedInput
-    transactions?: PointTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutCatalogItemNestedInput
   }
 
@@ -64574,7 +64574,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -64587,7 +64587,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutRedemptionsNestedInput
     catalogItem?: RewardCatalogItemUpdateOneRequiredWithoutRedemptionsNestedInput
     product?: ProductUpdateOneWithoutRedemptionsNestedInput
-    transactions?: PointTransactionUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutRedemptionNestedInput
     placementSchedules?: PlacementScheduleUpdateManyWithoutRedemptionNestedInput
   }
 
@@ -64599,7 +64599,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -64609,7 +64609,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    transactions?: PointTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutRedemptionNestedInput
   }
 
@@ -64662,7 +64662,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
   }
 
@@ -64704,7 +64704,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -64770,7 +64770,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -64783,7 +64783,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutRedemptionsInput
     catalogItem: RewardCatalogItemCreateNestedOneWithoutRedemptionsInput
     product?: ProductCreateNestedOneWithoutRedemptionsInput
-    transactions?: PointTransactionCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionCreateNestedManyWithoutRedemptionInput
     entitlements?: FeatureEntitlementCreateNestedManyWithoutRedemptionInput
   }
 
@@ -64795,7 +64795,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -64805,7 +64805,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutRedemptionInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutRedemptionInput
     entitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutRedemptionInput
   }
 
@@ -64832,7 +64832,7 @@ export namespace Prisma {
     planFeature?: PlanFeatureCreateNestedOneWithoutRewardCatalogItemInput
     redemptions?: RedemptionCreateNestedManyWithoutCatalogItemInput
     entitlements?: FeatureEntitlementCreateNestedManyWithoutCatalogItemInput
-    transactions?: PointTransactionCreateNestedManyWithoutCatalogItemInput
+    transactions?: RewardTransactionCreateNestedManyWithoutCatalogItemInput
   }
 
   export type RewardCatalogItemUncheckedCreateWithoutPlacementSchedulesInput = {
@@ -64853,7 +64853,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutCatalogItemInput
     entitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutCatalogItemInput
-    transactions?: PointTransactionUncheckedCreateNestedManyWithoutCatalogItemInput
+    transactions?: RewardTransactionUncheckedCreateNestedManyWithoutCatalogItemInput
   }
 
   export type RewardCatalogItemCreateOrConnectWithoutPlacementSchedulesInput = {
@@ -64898,7 +64898,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionCreateNestedManyWithoutProductInput
     redemptions?: RedemptionCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementCreateNestedManyWithoutProductInput
   }
@@ -64940,7 +64940,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedCreateNestedManyWithoutProductInput
     trafficEvents?: ProductTrafficEventUncheckedCreateNestedManyWithoutProductInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedCreateNestedManyWithoutProductInput
-    pointTransactions?: PointTransactionUncheckedCreateNestedManyWithoutProductInput
+    rewardTransactions?: RewardTransactionUncheckedCreateNestedManyWithoutProductInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutProductInput
     featureEntitlements?: FeatureEntitlementUncheckedCreateNestedManyWithoutProductInput
   }
@@ -65013,7 +65013,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -65026,7 +65026,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutRedemptionsNestedInput
     catalogItem?: RewardCatalogItemUpdateOneRequiredWithoutRedemptionsNestedInput
     product?: ProductUpdateOneWithoutRedemptionsNestedInput
-    transactions?: PointTransactionUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutRedemptionNestedInput
     entitlements?: FeatureEntitlementUpdateManyWithoutRedemptionNestedInput
   }
 
@@ -65038,7 +65038,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -65048,7 +65048,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    transactions?: PointTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
     entitlements?: FeatureEntitlementUncheckedUpdateManyWithoutRedemptionNestedInput
   }
 
@@ -65081,7 +65081,7 @@ export namespace Prisma {
     planFeature?: PlanFeatureUpdateOneWithoutRewardCatalogItemNestedInput
     redemptions?: RedemptionUpdateManyWithoutCatalogItemNestedInput
     entitlements?: FeatureEntitlementUpdateManyWithoutCatalogItemNestedInput
-    transactions?: PointTransactionUpdateManyWithoutCatalogItemNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutCatalogItemNestedInput
   }
 
   export type RewardCatalogItemUncheckedUpdateWithoutPlacementSchedulesInput = {
@@ -65102,7 +65102,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     redemptions?: RedemptionUncheckedUpdateManyWithoutCatalogItemNestedInput
     entitlements?: FeatureEntitlementUncheckedUpdateManyWithoutCatalogItemNestedInput
-    transactions?: PointTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput
   }
 
   export type ProductUpsertWithoutPlacementSchedulesInput = {
@@ -65153,7 +65153,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -65195,7 +65195,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -65287,11 +65287,11 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionCreateManyProductInput = {
+  export type RewardTransactionCreateManyProductInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -65317,7 +65317,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -65607,10 +65607,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUpdateWithoutProductInput = {
+  export type RewardTransactionUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65623,18 +65623,18 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutPointTransactionsNestedInput
+    user?: UserUpdateOneRequiredWithoutRewardTransactionsNestedInput
     rule?: RewardRuleUpdateOneWithoutTransactionsNestedInput
     catalogItem?: RewardCatalogItemUpdateOneWithoutTransactionsNestedInput
     redemption?: RedemptionUpdateOneWithoutTransactionsNestedInput
-    actedBy?: UserUpdateOneWithoutPointTransactionsActedNestedInput
+    actedBy?: UserUpdateOneWithoutRewardTransactionsActedNestedInput
   }
 
-  export type PointTransactionUncheckedUpdateWithoutProductInput = {
+  export type RewardTransactionUncheckedUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65653,11 +65653,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutProductInput = {
+  export type RewardTransactionUncheckedUpdateManyWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65681,7 +65681,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -65693,7 +65693,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutRedemptionsNestedInput
     catalogItem?: RewardCatalogItemUpdateOneRequiredWithoutRedemptionsNestedInput
-    transactions?: PointTransactionUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutRedemptionNestedInput
     entitlements?: FeatureEntitlementUpdateManyWithoutRedemptionNestedInput
     placementSchedules?: PlacementScheduleUpdateManyWithoutRedemptionNestedInput
   }
@@ -65705,7 +65705,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -65715,7 +65715,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    transactions?: PointTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
     entitlements?: FeatureEntitlementUncheckedUpdateManyWithoutRedemptionNestedInput
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutRedemptionNestedInput
   }
@@ -65727,7 +65727,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -65944,7 +65944,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -65986,7 +65986,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -66095,10 +66095,10 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionCreateManyUserInput = {
+  export type RewardTransactionCreateManyUserInput = {
     id?: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -66118,11 +66118,11 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionCreateManyActedByInput = {
+  export type RewardTransactionCreateManyActedByInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -66148,7 +66148,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -66214,7 +66214,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -66256,7 +66256,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -66442,10 +66442,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUpdateWithoutUserInput = {
+  export type RewardTransactionUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66461,14 +66461,14 @@ export namespace Prisma {
     rule?: RewardRuleUpdateOneWithoutTransactionsNestedInput
     catalogItem?: RewardCatalogItemUpdateOneWithoutTransactionsNestedInput
     redemption?: RedemptionUpdateOneWithoutTransactionsNestedInput
-    actedBy?: UserUpdateOneWithoutPointTransactionsActedNestedInput
-    product?: ProductUpdateOneWithoutPointTransactionsNestedInput
+    actedBy?: UserUpdateOneWithoutRewardTransactionsActedNestedInput
+    product?: ProductUpdateOneWithoutRewardTransactionsNestedInput
   }
 
-  export type PointTransactionUncheckedUpdateWithoutUserInput = {
+  export type RewardTransactionUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66488,10 +66488,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutUserInput = {
+  export type RewardTransactionUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66511,10 +66511,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUpdateWithoutActedByInput = {
+  export type RewardTransactionUpdateWithoutActedByInput = {
     id?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66527,18 +66527,18 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutPointTransactionsNestedInput
+    user?: UserUpdateOneRequiredWithoutRewardTransactionsNestedInput
     rule?: RewardRuleUpdateOneWithoutTransactionsNestedInput
     catalogItem?: RewardCatalogItemUpdateOneWithoutTransactionsNestedInput
     redemption?: RedemptionUpdateOneWithoutTransactionsNestedInput
-    product?: ProductUpdateOneWithoutPointTransactionsNestedInput
+    product?: ProductUpdateOneWithoutRewardTransactionsNestedInput
   }
 
-  export type PointTransactionUncheckedUpdateWithoutActedByInput = {
+  export type RewardTransactionUncheckedUpdateWithoutActedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66557,11 +66557,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutActedByInput = {
+  export type RewardTransactionUncheckedUpdateManyWithoutActedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66585,7 +66585,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -66597,7 +66597,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     catalogItem?: RewardCatalogItemUpdateOneRequiredWithoutRedemptionsNestedInput
     product?: ProductUpdateOneWithoutRedemptionsNestedInput
-    transactions?: PointTransactionUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutRedemptionNestedInput
     entitlements?: FeatureEntitlementUpdateManyWithoutRedemptionNestedInput
     placementSchedules?: PlacementScheduleUpdateManyWithoutRedemptionNestedInput
   }
@@ -66609,7 +66609,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -66619,7 +66619,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    transactions?: PointTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
     entitlements?: FeatureEntitlementUncheckedUpdateManyWithoutRedemptionNestedInput
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutRedemptionNestedInput
   }
@@ -66631,7 +66631,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -66764,7 +66764,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -66806,7 +66806,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -66932,7 +66932,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUpdateManyWithoutProductNestedInput
   }
@@ -66974,7 +66974,7 @@ export namespace Prisma {
     clickEvents?: ProductClickEventUncheckedUpdateManyWithoutProductNestedInput
     trafficEvents?: ProductTrafficEventUncheckedUpdateManyWithoutProductNestedInput
     MonthlyProductRanking?: MonthlyProductRankingUncheckedUpdateManyWithoutProductNestedInput
-    pointTransactions?: PointTransactionUncheckedUpdateManyWithoutProductNestedInput
+    rewardTransactions?: RewardTransactionUncheckedUpdateManyWithoutProductNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutProductNestedInput
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -67134,7 +67134,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     redemptions?: RedemptionUpdateManyWithoutCatalogItemNestedInput
     entitlements?: FeatureEntitlementUpdateManyWithoutCatalogItemNestedInput
-    transactions?: PointTransactionUpdateManyWithoutCatalogItemNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutCatalogItemNestedInput
     placementSchedules?: PlacementScheduleUpdateManyWithoutCatalogItemNestedInput
   }
 
@@ -67155,7 +67155,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     redemptions?: RedemptionUncheckedUpdateManyWithoutCatalogItemNestedInput
     entitlements?: FeatureEntitlementUncheckedUpdateManyWithoutCatalogItemNestedInput
-    transactions?: PointTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutCatalogItemNestedInput
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutCatalogItemNestedInput
   }
 
@@ -67192,11 +67192,11 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
   }
 
-  export type PointTransactionCreateManyRuleInput = {
+  export type RewardTransactionCreateManyRuleInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleKey?: string | null
     rewardKey?: string | null
@@ -67215,10 +67215,10 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionUpdateWithoutRuleInput = {
+  export type RewardTransactionUpdateWithoutRuleInput = {
     id?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67231,18 +67231,18 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutPointTransactionsNestedInput
+    user?: UserUpdateOneRequiredWithoutRewardTransactionsNestedInput
     catalogItem?: RewardCatalogItemUpdateOneWithoutTransactionsNestedInput
     redemption?: RedemptionUpdateOneWithoutTransactionsNestedInput
-    actedBy?: UserUpdateOneWithoutPointTransactionsActedNestedInput
-    product?: ProductUpdateOneWithoutPointTransactionsNestedInput
+    actedBy?: UserUpdateOneWithoutRewardTransactionsActedNestedInput
+    product?: ProductUpdateOneWithoutRewardTransactionsNestedInput
   }
 
-  export type PointTransactionUncheckedUpdateWithoutRuleInput = {
+  export type RewardTransactionUncheckedUpdateWithoutRuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
     rewardKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67261,11 +67261,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutRuleInput = {
+  export type RewardTransactionUncheckedUpdateManyWithoutRuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
     rewardKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67291,7 +67291,7 @@ export namespace Prisma {
     status?: $Enums.RedemptionStatus
     cost: number
     originalCost: number
-    refundedPoints?: number
+    refundedRewards?: number
     startsAt?: Date | string | null
     activatedAt?: Date | string | null
     expiresAt?: Date | string | null
@@ -67320,11 +67320,11 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionCreateManyCatalogItemInput = {
+  export type RewardTransactionCreateManyCatalogItemInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -67365,7 +67365,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -67377,7 +67377,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutRedemptionsNestedInput
     product?: ProductUpdateOneWithoutRedemptionsNestedInput
-    transactions?: PointTransactionUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUpdateManyWithoutRedemptionNestedInput
     entitlements?: FeatureEntitlementUpdateManyWithoutRedemptionNestedInput
     placementSchedules?: PlacementScheduleUpdateManyWithoutRedemptionNestedInput
   }
@@ -67389,7 +67389,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -67399,7 +67399,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    transactions?: PointTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
+    transactions?: RewardTransactionUncheckedUpdateManyWithoutRedemptionNestedInput
     entitlements?: FeatureEntitlementUncheckedUpdateManyWithoutRedemptionNestedInput
     placementSchedules?: PlacementScheduleUncheckedUpdateManyWithoutRedemptionNestedInput
   }
@@ -67411,7 +67411,7 @@ export namespace Prisma {
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     cost?: IntFieldUpdateOperationsInput | number
     originalCost?: IntFieldUpdateOperationsInput | number
-    refundedPoints?: IntFieldUpdateOperationsInput | number
+    refundedRewards?: IntFieldUpdateOperationsInput | number
     startsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     activatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -67476,10 +67476,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUpdateWithoutCatalogItemInput = {
+  export type RewardTransactionUpdateWithoutCatalogItemInput = {
     id?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67492,18 +67492,18 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutPointTransactionsNestedInput
+    user?: UserUpdateOneRequiredWithoutRewardTransactionsNestedInput
     rule?: RewardRuleUpdateOneWithoutTransactionsNestedInput
     redemption?: RedemptionUpdateOneWithoutTransactionsNestedInput
-    actedBy?: UserUpdateOneWithoutPointTransactionsActedNestedInput
-    product?: ProductUpdateOneWithoutPointTransactionsNestedInput
+    actedBy?: UserUpdateOneWithoutRewardTransactionsActedNestedInput
+    product?: ProductUpdateOneWithoutRewardTransactionsNestedInput
   }
 
-  export type PointTransactionUncheckedUpdateWithoutCatalogItemInput = {
+  export type RewardTransactionUncheckedUpdateWithoutCatalogItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67522,11 +67522,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutCatalogItemInput = {
+  export type RewardTransactionUncheckedUpdateManyWithoutCatalogItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67596,11 +67596,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionCreateManyRedemptionInput = {
+  export type RewardTransactionCreateManyRedemptionInput = {
     id?: string
     userId: string
-    type: $Enums.PointTransactionType
-    points: number
+    type: $Enums.RewardTransactionType
+    rewardAmount: number
     balanceAfter: number
     ruleId?: string | null
     ruleKey?: string | null
@@ -67653,10 +67653,10 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type PointTransactionUpdateWithoutRedemptionInput = {
+  export type RewardTransactionUpdateWithoutRedemptionInput = {
     id?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67669,18 +67669,18 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutPointTransactionsNestedInput
+    user?: UserUpdateOneRequiredWithoutRewardTransactionsNestedInput
     rule?: RewardRuleUpdateOneWithoutTransactionsNestedInput
     catalogItem?: RewardCatalogItemUpdateOneWithoutTransactionsNestedInput
-    actedBy?: UserUpdateOneWithoutPointTransactionsActedNestedInput
-    product?: ProductUpdateOneWithoutPointTransactionsNestedInput
+    actedBy?: UserUpdateOneWithoutRewardTransactionsActedNestedInput
+    product?: ProductUpdateOneWithoutRewardTransactionsNestedInput
   }
 
-  export type PointTransactionUncheckedUpdateWithoutRedemptionInput = {
+  export type RewardTransactionUncheckedUpdateWithoutRedemptionInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67699,11 +67699,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PointTransactionUncheckedUpdateManyWithoutRedemptionInput = {
+  export type RewardTransactionUncheckedUpdateManyWithoutRedemptionInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    type?: EnumPointTransactionTypeFieldUpdateOperationsInput | $Enums.PointTransactionType
-    points?: IntFieldUpdateOperationsInput | number
+    type?: EnumRewardTransactionTypeFieldUpdateOperationsInput | $Enums.RewardTransactionType
+    rewardAmount?: IntFieldUpdateOperationsInput | number
     balanceAfter?: IntFieldUpdateOperationsInput | number
     ruleId?: NullableStringFieldUpdateOperationsInput | string | null
     ruleKey?: NullableStringFieldUpdateOperationsInput | string | null

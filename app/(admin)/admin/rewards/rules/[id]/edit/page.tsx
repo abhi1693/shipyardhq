@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 
 import { buildPageMetadata } from "@/lib/metadata"
-import { getRewardRuleById } from "@/actions/admin/points/actions"
+import { getRewardRuleById } from "@/actions/admin/rewards/actions"
 
 import RuleForm from "../../form"
 
@@ -10,7 +10,9 @@ type PageParams = {
   params: Promise<{ id: string }>
 }
 
-export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageParams): Promise<Metadata> {
   const { id } = await params
   const rule = await getRewardRuleById(id)
   return buildPageMetadata({

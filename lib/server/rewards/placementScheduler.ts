@@ -85,7 +85,9 @@ export async function runPlacementScheduler(
         if (existingBadge) {
           await tx.productBadge.update({
             where: { id: existingBadge.id },
-            data: { expiresAt: schedule.endsAt ?? existingBadge.expiresAt ?? null },
+            data: {
+              expiresAt: schedule.endsAt ?? existingBadge.expiresAt ?? null,
+            },
           })
         } else {
           await tx.productBadge.create({

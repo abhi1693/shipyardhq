@@ -9,7 +9,7 @@ import { adminPath } from "@/lib/routes"
 import {
   getRewardRules,
   getRewardRulesCount,
-} from "@/actions/admin/points/actions"
+} from "@/actions/admin/rewards/actions"
 
 import { columns } from "./columns"
 

@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from "react"
 import { useFormState, useFormStatus } from "react-dom"
 import { toast } from "sonner"
 
-import { adjustUserPointsAction } from "@/actions/admin/points/actions"
+import { adjustUserRewardsAction } from "@/actions/admin/rewards/actions"
 import {
-  initialAdjustPointsState,
-  type AdjustPointsFormState,
-} from "@/actions/admin/points/form-state"
+  initialAdjustRewardsState,
+  type AdjustRewardsFormState,
+} from "@/actions/admin/rewards/form-state"
 import {
   Card,
   CardContent,
@@ -46,15 +46,15 @@ function SubmitButton({ disabled }: { disabled?: boolean }) {
   )
 }
 
-type AdjustPointsFormProps = {
+type AdjustRewardsFormProps = {
   users: UserOption[]
 }
 
-export default function AdjustPointsForm({ users }: AdjustPointsFormProps) {
+export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
   const formRef = useRef<HTMLFormElement>(null)
-  const [state, formAction] = useFormState<AdjustPointsFormState, FormData>(
-    adjustUserPointsAction,
-    initialAdjustPointsState,
+  const [state, formAction] = useFormState<AdjustRewardsFormState, FormData>(
+    adjustUserRewardsAction,
+    initialAdjustRewardsState,
   )
   const [selectedUserId, setSelectedUserId] = useState<string>("")
 

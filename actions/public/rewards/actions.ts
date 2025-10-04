@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 import { accelerateTags, DEFAULT_SWR, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
-  PointTransactionType,
+  RewardTransactionType,
   RedemptionStatus,
   type RewardFeatureCategory,
   type RewardRuleCategory,
@@ -10,7 +10,7 @@ import {
 type RuleUsageGroup = {
   ruleId: string | null
   ruleKey: string | null
-  _sum: { points: number | null }
+  _sum: { rewardAmount: number | null }
   _count: { _all: number }
 }
 
@@ -42,7 +42,7 @@ type RuleRecord = {
   name: string
   description: string | null
   category: RewardRuleCategory
-  basePoints: number
+  baseRewardAmount: number
   dailyCap: number | null
   lifetimeCap: number | null
 }
@@ -50,19 +50,19 @@ type RuleRecord = {
 const THIRTY_DAYS_MS = 1000 * 60 * 60 * 24 * 30
 const NINETY_DAYS_MS = 1000 * 60 * 60 * 24 * 90
 
-export type PublicPointsRule = {
+export type PublicRewardsRule = {
   id: string
   name: string
   description: string | null
   category: RewardRuleCategory
-  basePoints: number
+  baseRewardAmount: number
   dailyCap: number | null
   lifetimeCap: number | null
   totalAwarded: number
   awardCount: number
 }
 
-export type PublicPointsReward = {
+export type PublicRewardsReward = {
   featureKey: string
   name: string
   description: string | null
@@ -75,7 +75,7 @@ export type PublicPointsReward = {
   redemptionCount: number
 }
 
-export type PublicPointsRedemption = {
+export type PublicRewardsRedemption = {
   id: string
   featureKey: string
   name: string | null
@@ -86,39 +86,39 @@ export type PublicPointsRedemption = {
   createdAt: Date
 }
 
-export type PublicPointsStats = {
-  membersWithPoints: number
+export type PublicRewardsStats = {
+  membersWithRewards: number
   activeBalances: number
   earnedLast30d: {
-    points: number
+    rewardAmount: number
     transactions: number
   }
   spentLast30d: {
-    points: number
+    rewardAmount: number
     redemptions: number
   }
 }
 
-export type PublicPointsData = {
-  stats: PublicPointsStats
-  topRules: PublicPointsRule[]
-  rewards: PublicPointsReward[]
-  recentRedemptions: PublicPointsRedemption[]
+export type PublicRewardsData = {
+  stats: PublicRewardsStats
+  topRules: PublicRewardsRule[]
+  rewards: PublicRewardsReward[]
+  recentRedemptions: PublicRewardsRedemption[]
 }
 
-const pointsCache = {
+const rewardsCache = {
   ttl: DEFAULT_TTL.fast,
   swr: DEFAULT_SWR.fast,
-  tags: accelerateTags([TAGS.points]),
+  tags: accelerateTags([TAGS.rewards]),
 } as const
 
-export async function getPublicPointsData(): Promise<PublicPointsData> {
+export async function getPublicRewardsData(): Promise<PublicRewardsData> {
   const now = Date.now()
   const thirtyDaysAgo = new Date(now - THIRTY_DAYS_MS)
   const ninetyDaysAgo = new Date(now - NINETY_DAYS_MS)
 
   const [
-    membersWithPoints,
+    membersWithRewards,
     activeBalances,
     earnedAggregateRaw,
     spentAggregateRaw,
@@ -129,42 +129,42 @@ export async function getPublicPointsData(): Promise<PublicPointsData> {
     redemptionCountsRaw,
     recentRedemptionsRaw,
   ] = await Promise.all([
-    prisma.pointBalance.count({
+    prisma.rewardBalance.count({
       where: { lifetimeEarned: { gt: 0 } },
       cacheStrategy: {
-        ...pointsCache,
-        tags: accelerateTags([TAGS.points, "points:stats"]),
+        ...rewardsCache,
+        tags: accelerateTags([TAGS.rewards, "rewards:stats"]),
       },
     }),
-    prisma.pointBalance.count({
+    prisma.rewardBalance.count({
       where: { balance: { gt: 0 } },
       cacheStrategy: {
-        ...pointsCache,
-        tags: accelerateTags([TAGS.points, "points:stats"]),
+        ...rewardsCache,
+        tags: accelerateTags([TAGS.rewards, "rewards:stats"]),
       },
     }),
-    prisma.pointTransaction.aggregate({
+    prisma.rewardTransaction.aggregate({
       where: {
-        type: PointTransactionType.earn,
+        type: RewardTransactionType.earn,
         createdAt: { gte: thirtyDaysAgo },
       },
-      _sum: { points: true },
+      _sum: { rewardAmount: true },
       _count: { _all: true },
       cacheStrategy: {
-        ...pointsCache,
-        tags: accelerateTags([TAGS.points, "points:earned:30d"]),
+        ...rewardsCache,
+        tags: accelerateTags([TAGS.rewards, "rewards:earned:30d"]),
       },
     }),
-    prisma.pointTransaction.aggregate({
+    prisma.rewardTransaction.aggregate({
       where: {
-        type: PointTransactionType.spend,
+        type: RewardTransactionType.spend,
         createdAt: { gte: thirtyDaysAgo },
       },
-      _sum: { points: true },
+      _sum: { rewardAmount: true },
       _count: { _all: true },
       cacheStrategy: {
-        ...pointsCache,
-        tags: accelerateTags([TAGS.points, "points:spent:30d"]),
+        ...rewardsCache,
+        tags: accelerateTags([TAGS.rewards, "rewards:spent:30d"]),
       },
     }),
     prisma.redemption.count({
@@ -179,24 +179,24 @@ export async function getPublicPointsData(): Promise<PublicPointsData> {
         },
       },
       cacheStrategy: {
-        ...pointsCache,
-        tags: accelerateTags([TAGS.points, "points:redemptions:30d"]),
+        ...rewardsCache,
+        tags: accelerateTags([TAGS.rewards, "rewards:redemptions:30d"]),
       },
     }),
-    prisma.pointTransaction.groupBy({
+    prisma.rewardTransaction.groupBy({
       by: ["ruleId", "ruleKey"],
       where: {
-        type: PointTransactionType.earn,
+        type: RewardTransactionType.earn,
         createdAt: { gte: ninetyDaysAgo },
         ruleId: { not: null },
       },
-      _sum: { points: true },
+      _sum: { rewardAmount: true },
       _count: { _all: true },
-      orderBy: { _sum: { points: "desc" } },
+      orderBy: { _sum: { rewardAmount: "desc" } },
       take: 8,
       cacheStrategy: {
-        ...pointsCache,
-        tags: accelerateTags([TAGS.points, "points:rules"]),
+        ...rewardsCache,
+        tags: accelerateTags([TAGS.rewards, "rewards:rules"]),
       },
     }),
     prisma.rewardRule.findMany({
@@ -206,13 +206,13 @@ export async function getPublicPointsData(): Promise<PublicPointsData> {
         name: true,
         description: true,
         category: true,
-        basePoints: true,
+        baseRewardAmount: true,
         dailyCap: true,
         lifetimeCap: true,
       },
       cacheStrategy: {
-        ...pointsCache,
-        tags: accelerateTags([TAGS.points, "points:rules"]),
+        ...rewardsCache,
+        tags: accelerateTags([TAGS.rewards, "rewards:rules"]),
       },
     }),
     prisma.rewardCatalogItem.findMany({
@@ -228,14 +228,10 @@ export async function getPublicPointsData(): Promise<PublicPointsData> {
         maxActivePerUser: true,
         maxPendingPerUser: true,
       },
-      orderBy: [
-        { category: "asc" },
-        { baseCost: "asc" },
-        { name: "asc" },
-      ],
+      orderBy: [{ category: "asc" }, { baseCost: "asc" }, { name: "asc" }],
       cacheStrategy: {
-        ...pointsCache,
-        tags: accelerateTags([TAGS.points, "points:rewards"]),
+        ...rewardsCache,
+        tags: accelerateTags([TAGS.rewards, "rewards:catalog"]),
       },
     }),
     prisma.redemption.groupBy({
@@ -252,8 +248,8 @@ export async function getPublicPointsData(): Promise<PublicPointsData> {
       },
       _count: { _all: true },
       cacheStrategy: {
-        ...pointsCache,
-        tags: accelerateTags([TAGS.points, "points:reward-usage"]),
+        ...rewardsCache,
+        tags: accelerateTags([TAGS.rewards, "rewards:usage"]),
       },
     }),
     prisma.redemption.findMany({
@@ -278,29 +274,29 @@ export async function getPublicPointsData(): Promise<PublicPointsData> {
         product: { select: { name: true, slug: true } },
       },
       cacheStrategy: {
-        ...pointsCache,
-        tags: accelerateTags([TAGS.points, "points:redemptions:recent"]),
+        ...rewardsCache,
+        tags: accelerateTags([TAGS.rewards, "rewards:redemptions:recent"]),
       },
     }),
   ])
 
   const earnedAggregate = earnedAggregateRaw ?? {
-    _sum: { points: 0 },
+    _sum: { rewardAmount: 0 },
     _count: { _all: 0 },
   }
   const spentAggregate = spentAggregateRaw ?? {
-    _sum: { points: 0 },
+    _sum: { rewardAmount: 0 },
     _count: { _all: 0 },
   }
 
   const ruleUsage = (ruleUsageRaw as RuleUsageGroup[]).filter(
-    (entry) => entry.ruleId && (entry._sum.points ?? 0) > 0,
+    (entry) => entry.ruleId && (entry._sum.rewardAmount ?? 0) > 0,
   )
   const ruleRecords = new Map(
     (ruleRecordsRaw as RuleRecord[]).map((rule) => [rule.id, rule]),
   )
 
-  const topRules: PublicPointsRule[] = ruleUsage
+  const topRules: PublicRewardsRule[] = ruleUsage
     .map((entry) => {
       const id = entry.ruleId as string
       const record = ruleRecords.get(id)
@@ -310,37 +306,37 @@ export async function getPublicPointsData(): Promise<PublicPointsData> {
         name: record.name,
         description: record.description,
         category: record.category,
-        basePoints: record.basePoints,
+        baseRewardAmount: record.baseRewardAmount,
         dailyCap: record.dailyCap,
         lifetimeCap: record.lifetimeCap,
-        totalAwarded: entry._sum.points ?? 0,
+        totalAwarded: entry._sum.rewardAmount ?? 0,
         awardCount: entry._count._all,
       }
     })
-    .filter((rule): rule is PublicPointsRule => Boolean(rule))
+    .filter((rule): rule is PublicRewardsRule => Boolean(rule))
 
   const redemptionCounts = new Map<string, number>(
-    (redemptionCountsRaw as { featureKey: string; _count: { _all: number } }[]).map(
-      (entry) => [entry.featureKey, entry._count._all],
-    ),
+    (
+      redemptionCountsRaw as { featureKey: string; _count: { _all: number } }[]
+    ).map((entry) => [entry.featureKey, entry._count._all]),
   )
 
-  const rewards: PublicPointsReward[] = (catalogItemsRaw as CatalogItemRecord[]).map(
-    (item) => ({
-      featureKey: item.featureKey,
-      name: item.name,
-      description: item.description,
-      category: item.category,
-      baseCost: item.baseCost,
-      durationSeconds: item.durationSeconds,
-      requiresProduct: item.requiresProduct,
-      maxActivePerUser: item.maxActivePerUser,
-      maxPendingPerUser: item.maxPendingPerUser,
-      redemptionCount: redemptionCounts.get(item.featureKey) ?? 0,
-    }),
-  )
+  const rewards: PublicRewardsReward[] = (
+    catalogItemsRaw as CatalogItemRecord[]
+  ).map((item) => ({
+    featureKey: item.featureKey,
+    name: item.name,
+    description: item.description,
+    category: item.category,
+    baseCost: item.baseCost,
+    durationSeconds: item.durationSeconds,
+    requiresProduct: item.requiresProduct,
+    maxActivePerUser: item.maxActivePerUser,
+    maxPendingPerUser: item.maxPendingPerUser,
+    redemptionCount: redemptionCounts.get(item.featureKey) ?? 0,
+  }))
 
-  const recentRedemptions: PublicPointsRedemption[] = (
+  const recentRedemptions: PublicRewardsRedemption[] = (
     recentRedemptionsRaw as RedemptionRecord[]
   ).map((item) => ({
     id: item.id,
@@ -355,14 +351,14 @@ export async function getPublicPointsData(): Promise<PublicPointsData> {
 
   return {
     stats: {
-      membersWithPoints,
+      membersWithRewards,
       activeBalances,
       earnedLast30d: {
-        points: earnedAggregate._sum?.points ?? 0,
+        rewardAmount: earnedAggregate._sum?.rewardAmount ?? 0,
         transactions: earnedAggregate._count?._all ?? 0,
       },
       spentLast30d: {
-        points: spentAggregate._sum?.points ?? 0,
+        rewardAmount: spentAggregate._sum?.rewardAmount ?? 0,
         redemptions: redeemedCountLast30d,
       },
     },

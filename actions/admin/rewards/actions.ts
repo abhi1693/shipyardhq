@@ -5,20 +5,20 @@ import crypto from "node:crypto"
 
 import prisma from "@/lib/prisma"
 import {
-  PointTransactionType,
+  RewardTransactionType,
   RewardRuleCategory,
   type Prisma,
 } from "@/lib/vendor/prisma/client"
 import { adminPath } from "@/lib/routes"
 import { parseInteger } from "./utils"
-import { adjustPoints } from "@/lib/points/engine"
+import { adjustRewards } from "@/lib/rewards/engine"
 import {
-  PointsError,
-  PointsInsufficientBalanceError,
-} from "@/lib/points/errors"
+  RewardsError,
+  RewardsInsufficientBalanceError,
+} from "@/lib/rewards/errors"
 import { auth } from "@clerk/nextjs/server"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
-import type { AdjustPointsFormState } from "./form-state"
+import type { AdjustRewardsFormState } from "./form-state"
 
 const DEFAULT_LIMIT = 20
 
@@ -32,7 +32,7 @@ type RuleInput = {
   key: string
   description?: string | null
   category: RewardRuleCategory
-  basePoints: number
+  baseRewardAmount: number
   isActive: boolean
   dailyCap?: number | null
   lifetimeCap?: number | null
@@ -43,7 +43,9 @@ type RuleInput = {
   adminNotes?: string | null
 }
 
-function parseJson(value: FormDataEntryValue | null): Prisma.InputJsonValue | undefined {
+function parseJson(
+  value: FormDataEntryValue | null,
+): Prisma.InputJsonValue | undefined {
   if (value == null) return undefined
   const raw = value.toString().trim()
   if (!raw.length) return undefined
@@ -58,16 +60,21 @@ function parseJson(value: FormDataEntryValue | null): Prisma.InputJsonValue | un
 function parseRuleForm(formData: FormData): RuleInput {
   const name = formData.get("name")?.toString().trim()
   const key = formData.get("key")?.toString().trim()
-  const categoryRaw = formData.get("category")?.toString() as keyof typeof RewardRuleCategory | undefined
-  const basePoints = parseInteger(formData.get("basePoints"), "Base points")
+  const categoryRaw = formData.get("category")?.toString() as
+    | keyof typeof RewardRuleCategory
+    | undefined
+  const baseRewardAmount = parseInteger(
+    formData.get("baseRewardAmount"),
+    "Base reward amount",
+  )
 
   if (!name) throw new Error("Rule name is required")
   if (!key) throw new Error("Rule key is required")
   if (!categoryRaw || !(categoryRaw in RewardRuleCategory)) {
     throw new Error("Invalid category")
   }
-  if (!basePoints || basePoints <= 0) {
-    throw new Error("Base points must be greater than zero")
+  if (!baseRewardAmount || baseRewardAmount <= 0) {
+    throw new Error("Base reward amount must be greater than zero")
   }
 
   const isActive =
@@ -81,7 +88,7 @@ function parseRuleForm(formData: FormData): RuleInput {
     key,
     description,
     category: RewardRuleCategory[categoryRaw],
-    basePoints,
+    baseRewardAmount,
     isActive,
     dailyCap: parseInteger(formData.get("dailyCap"), "Daily cap"),
     lifetimeCap: parseInteger(formData.get("lifetimeCap"), "Lifetime cap"),
@@ -134,7 +141,9 @@ export async function getRewardRuleById(id: string) {
 export async function createRewardRuleAction(formData: FormData) {
   const input = parseRuleForm(formData)
   try {
-    const existing = await prisma.rewardRule.findUnique({ where: { key: input.key } })
+    const existing = await prisma.rewardRule.findUnique({
+      where: { key: input.key },
+    })
     if (existing) {
       return { error: "A reward rule with that key already exists." }
     }
@@ -171,12 +180,12 @@ export async function toggleRewardRuleAction(id: string, isActive: boolean) {
   }
 }
 
-export async function getPointTransactions(
-  args: PaginationArgs & { type?: PointTransactionType | "all" } = {},
+export async function getRewardTransactions(
+  args: PaginationArgs & { type?: RewardTransactionType | "all" } = {},
 ) {
   const { skip = 0, take = DEFAULT_LIMIT, type = "all" } = args
   try {
-    return await prisma.pointTransaction.findMany({
+    return await prisma.rewardTransaction.findMany({
       orderBy: { createdAt: "desc" },
       skip,
       take,
@@ -213,21 +222,21 @@ export async function getPointTransactions(
       },
     })
   } catch (error) {
-    console.error("Failed to fetch point transactions", error)
-    throw new Error("Unable to load point transactions")
+    console.error("Failed to fetch reward transactions", error)
+    throw new Error("Unable to load reward transactions")
   }
 }
 
-export async function getPointTransactionsCount(
-  type: PointTransactionType | "all" = "all",
+export async function getRewardTransactionsCount(
+  type: RewardTransactionType | "all" = "all",
 ) {
   try {
-    return await prisma.pointTransaction.count({
+    return await prisma.rewardTransaction.count({
       where: type === "all" ? undefined : { type },
     })
   } catch (error) {
-    console.error("Failed to count point transactions", error)
-    throw new Error("Unable to count point transactions")
+    console.error("Failed to count reward transactions", error)
+    throw new Error("Unable to count reward transactions")
   }
 }
 
@@ -261,10 +270,10 @@ async function resolveAdminUser() {
   return adminUser
 }
 
-export async function adjustUserPointsAction(
-  _prevState: AdjustPointsFormState,
+export async function adjustUserRewardsAction(
+  _prevState: AdjustRewardsFormState,
   formData: FormData,
-): Promise<AdjustPointsFormState> {
+): Promise<AdjustRewardsFormState> {
   try {
     const adminUser = await resolveAdminUser()
 
@@ -313,7 +322,7 @@ export async function adjustUserPointsAction(
       },
     }
 
-    await adjustPoints(targetUser.id, amount, {
+    await adjustRewards(targetUser.id, amount, {
       actorUserId: adminUser.id,
       notes: reason,
       metadata,
@@ -328,17 +337,18 @@ export async function adjustUserPointsAction(
       message: `Adjustment queued. ${amount > 0 ? "Granted" : "Removed"} ${Math.abs(amount)} rewards from ${targetUser.email ?? targetUser.id}.`,
     }
   } catch (error) {
-    if (error instanceof PointsInsufficientBalanceError) {
+    if (error instanceof RewardsInsufficientBalanceError) {
       return {
         status: "error",
         message: "User does not have enough rewards for that deduction.",
       }
     }
-    if (error instanceof PointsError) {
+    if (error instanceof RewardsError) {
       return { status: "error", message: error.message }
     }
     console.error("Failed to adjust user rewards", error)
-    const message = error instanceof Error ? error.message : "Failed to adjust rewards."
+    const message =
+      error instanceof Error ? error.message : "Failed to adjust rewards."
     return {
       status: "error",
       message,

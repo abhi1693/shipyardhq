@@ -37,7 +37,7 @@ const navItems: NavItem[] = [
   {
     title: "Rewards",
     url: MEMBER_REWARDS_PATH,
-    icon: "points",
+    icon: "rewards",
   },
   {
     title: "Products",

@@ -177,10 +177,7 @@ export const getStickyBannerProducts = cached(
         cacheStrategy: {
           ttl: DEFAULT_TTL.fast,
           swr: DEFAULT_SWR.fast,
-          tags: accelerateTags([
-            TAGS.products,
-            TAGS.placement("stickyBanner"),
-          ]),
+          tags: accelerateTags([TAGS.products, TAGS.placement("stickyBanner")]),
         },
         include: {
           product: {
@@ -282,10 +279,7 @@ export const getHomepageFeatureProducts = cached(
         cacheStrategy: {
           ttl: DEFAULT_TTL.fast,
           swr: DEFAULT_SWR.fast,
-          tags: accelerateTags([
-            TAGS.products,
-            TAGS.placement("homepage"),
-          ]),
+          tags: accelerateTags([TAGS.products, TAGS.placement("homepage")]),
         },
         include: {
           product: {

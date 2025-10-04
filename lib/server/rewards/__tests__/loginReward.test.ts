@@ -1,33 +1,33 @@
 import { describe, expect, it, vi, beforeEach } from "vitest"
 
 import { ensureDailyLoginReward } from "../loginReward"
-import { awardPoints } from "@/lib/points/engine"
-import { PointsError } from "@/lib/points/errors"
+import { awardRewards } from "@/lib/rewards/engine"
+import { RewardsError } from "@/lib/rewards/errors"
 
-vi.mock("@/lib/points/engine", () => ({
-  awardPoints: vi.fn(),
+vi.mock("@/lib/rewards/engine", () => ({
+  awardRewards: vi.fn(),
 }))
 
-const mockedAwardPoints = vi.mocked(awardPoints)
+const mockedAwardRewards = vi.mocked(awardRewards)
 const CACHE_SYMBOL = Symbol.for("__shipyard_login_reward_cache")
 
 describe("ensureDailyLoginReward", () => {
   beforeEach(() => {
-    mockedAwardPoints.mockReset()
+    mockedAwardRewards.mockReset()
     const globalWithCache = globalThis as typeof globalThis & {
       [CACHE_SYMBOL]?: Map<string, string>
     }
     delete globalWithCache[CACHE_SYMBOL]
   })
 
-  it("awards login points with stable event id per day", async () => {
+  it("awards login rewards with stable event id per day", async () => {
     const now = new Date("2025-03-15T08:30:00Z")
 
     await ensureDailyLoginReward("user-123", { now })
 
-    expect(mockedAwardPoints).toHaveBeenCalledWith(
+    expect(mockedAwardRewards).toHaveBeenCalledWith(
       "user-123",
-      "points.login.daily",
+      "rewards.login.daily",
       expect.objectContaining({
         eventId: "2025-03-15:login",
         sourceType: "auth.login",
@@ -36,21 +36,21 @@ describe("ensureDailyLoginReward", () => {
       }),
     )
 
-    // subsequent call same day should short-circuit before hitting awardPoints
-    mockedAwardPoints.mockClear()
+    // subsequent call same day should short-circuit before hitting awardRewards
+    mockedAwardRewards.mockClear()
     await ensureDailyLoginReward("user-123", { now })
-    expect(mockedAwardPoints).not.toHaveBeenCalled()
+    expect(mockedAwardRewards).not.toHaveBeenCalled()
   })
 
   it("ignores cooldown and cap errors", async () => {
-    mockedAwardPoints.mockRejectedValueOnce(
-      new PointsError("cooldown", "COOLDOWN_ACTIVE"),
+    mockedAwardRewards.mockRejectedValueOnce(
+      new RewardsError("cooldown", "COOLDOWN_ACTIVE"),
     )
 
     await expect(ensureDailyLoginReward("user-123")).resolves.toBeUndefined()
 
-    mockedAwardPoints.mockRejectedValueOnce(
-      new PointsError("capped", "CAP_EXCEEDED"),
+    mockedAwardRewards.mockRejectedValueOnce(
+      new RewardsError("capped", "CAP_EXCEEDED"),
     )
 
     await expect(ensureDailyLoginReward("user-123")).resolves.toBeUndefined()
@@ -60,8 +60,8 @@ describe("ensureDailyLoginReward", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-    mockedAwardPoints.mockRejectedValueOnce(
-      new PointsError("missing", "RULE_NOT_FOUND"),
+    mockedAwardRewards.mockRejectedValueOnce(
+      new RewardsError("missing", "RULE_NOT_FOUND"),
     )
 
     await expect(ensureDailyLoginReward("user-123")).resolves.toBeUndefined()

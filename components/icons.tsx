@@ -40,5 +40,5 @@ export const Icons = {
   conversions: IconChartFunnel,
   feedback: IconMessage,
   leaderboard: IconTrophy,
-  points: IconSparkles,
+  rewards: IconSparkles,
 }

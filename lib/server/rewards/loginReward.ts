@@ -1,7 +1,7 @@
-import { awardPoints } from "@/lib/points/engine"
-import { PointsError } from "@/lib/points/errors"
+import { awardRewards } from "@/lib/rewards/engine"
+import { RewardsError } from "@/lib/rewards/errors"
 
-const LOGIN_RULE_KEY = "points.login.daily"
+const LOGIN_RULE_KEY = "rewards.login.daily"
 const NON_FATAL_CODES = new Set([
   "COOLDOWN_ACTIVE",
   "CAP_EXCEEDED",
@@ -43,7 +43,7 @@ export async function ensureDailyLoginReward(
   const eventId = `${dayKey}:login`
 
   try {
-    await awardPoints(userId, LOGIN_RULE_KEY, {
+    await awardRewards(userId, LOGIN_RULE_KEY, {
       eventId,
       sourceType: "auth.login",
       sourceId: eventId,
@@ -56,13 +56,13 @@ export async function ensureDailyLoginReward(
     })
     cache.set(userId, dayKey)
   } catch (error) {
-    if (error instanceof PointsError) {
+    if (error instanceof RewardsError) {
       if (NON_FATAL_CODES.has(error.code)) {
         if (error.code === "COOLDOWN_ACTIVE" || error.code === "CAP_EXCEEDED") {
           cache.set(userId, dayKey)
         }
         if (error.code === "RULE_NOT_FOUND" || error.code === "RULE_INACTIVE") {
-          console.warn("[points] Daily login rule unavailable", {
+          console.warn("[rewards] Daily login rule unavailable", {
             userId,
             code: error.code,
           })
@@ -71,7 +71,7 @@ export async function ensureDailyLoginReward(
       }
     }
 
-    console.error("[points] Failed to award daily login points", {
+    console.error("[rewards] Failed to award daily login rewards", {
       error,
       userId,
       eventId,

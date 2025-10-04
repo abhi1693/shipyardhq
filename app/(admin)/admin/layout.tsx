@@ -160,7 +160,7 @@ const baseNavItems: NavItem[] = [
   {
     title: "Rewards",
     url: "#",
-    icon: "leaderboard",
+    icon: "rewards",
     items: [
       {
         title: "Reward rules",
@@ -175,7 +175,7 @@ const baseNavItems: NavItem[] = [
       {
         title: "Adjust rewards",
         url: adminPath("rewards", "adjust"),
-        icon: "points",
+        icon: "rewards",
       },
     ],
   },

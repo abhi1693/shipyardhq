@@ -7,23 +7,24 @@ import {
 } from "@/lib/pagination"
 import { adminPath } from "@/lib/routes"
 import {
-  getPointTransactions,
-  getPointTransactionsCount,
-} from "@/actions/admin/points/actions"
-import { PointTransactionType } from "@/lib/vendor/prisma/client"
+  getRewardTransactions,
+  getRewardTransactionsCount,
+} from "@/actions/admin/rewards/actions"
+import { RewardTransactionType } from "@/lib/vendor/prisma/client"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import { Button } from "@/components/atoms/button"
 
 import { columns, type TransactionRow } from "./columns"
 
-const filterOptions: { label: string; value: PointTransactionType | "all" }[] = [
-  { label: "All", value: "all" },
-  { label: "Earn", value: PointTransactionType.earn },
-  { label: "Spend", value: PointTransactionType.spend },
-  { label: "Adjustments", value: PointTransactionType.adjustment },
-  { label: "Refunds", value: PointTransactionType.refund },
-]
+const filterOptions: { label: string; value: RewardTransactionType | "all" }[] =
+  [
+    { label: "All", value: "all" },
+    { label: "Earn", value: RewardTransactionType.earn },
+    { label: "Spend", value: RewardTransactionType.spend },
+    { label: "Adjustments", value: RewardTransactionType.adjustment },
+    { label: "Refunds", value: RewardTransactionType.refund },
+  ]
 
 export const metadata = buildPageMetadata({
   title: "Reward transactions",
@@ -31,9 +32,14 @@ export const metadata = buildPageMetadata({
   description: "Audit user reward balance changes.",
 })
 
-function isValidType(value: unknown): value is PointTransactionType | "all" {
+function isValidType(value: unknown): value is RewardTransactionType | "all" {
   if (value === "all") return true
-  return typeof value === "string" && Object.values(PointTransactionType).includes(value as PointTransactionType)
+  return (
+    typeof value === "string" &&
+    Object.values(RewardTransactionType).includes(
+      value as RewardTransactionType,
+    )
+  )
 }
 
 export default async function RewardTransactionsPage({
@@ -47,8 +53,8 @@ export default async function RewardTransactionsPage({
   const type = isValidType(requestedType) ? requestedType : "all"
 
   const [transactions, total] = await Promise.all([
-    getPointTransactions({ skip, take, type }),
-    getPointTransactionsCount(type === "all" ? "all" : type),
+    getRewardTransactions({ skip, take, type }),
+    getRewardTransactionsCount(type === "all" ? "all" : type),
   ])
 
   const pageCount = Math.max(Math.ceil(total / pageSize), 1)

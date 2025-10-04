@@ -61,7 +61,7 @@ type PublicProduct = Prisma.ProductGetPayload<{
     }
     featureEntitlements: {
       where: {
-        status: { in: ["active", "pending"] },
+        status: { in: ["active", "pending"] }
       }
       select: { featureKey: true }
     }
@@ -141,7 +141,8 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
     (ent) => ent.featureKey,
   )
 
-  const { featureEntitlements, ...rest } = fullProduct
+  const { featureEntitlements: _featureEntitlements, ...rest } = fullProduct
+  void _featureEntitlements
 
   return {
     ...rest,

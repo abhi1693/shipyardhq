@@ -68,10 +68,10 @@ export type LeaderboardMonthlyWinnersEvent = {
   }>
 }
 
-export type PointsAwardedEvent = {
+export type RewardsAwardedEvent = {
   transactionId: string
   userId: string
-  points: number
+  rewardAmount: number
   ruleKey: string
   ruleName: string
   balanceAfter: number
@@ -84,7 +84,7 @@ export type PointsAwardedEvent = {
   productId?: string | null
 }
 
-export type PointsRedeemedEvent = {
+export type RewardsRedeemedEvent = {
   transactionId: string
   userId: string
   featureKey: string
@@ -98,7 +98,7 @@ export type PointsRedeemedEvent = {
   placementScheduleId?: string | null
 }
 
-export type PointsAdjustedEvent = {
+export type RewardsAdjustedEvent = {
   transactionId: string
   userId: string
   amount: number
@@ -122,9 +122,9 @@ type AppEvents = {
   "badge.removed": BadgeRemovedEvent
   "analytics.product-traffic": ProductTrafficRecordedEvent
   "leaderboard.monthly.winners": LeaderboardMonthlyWinnersEvent
-  "points.awarded": PointsAwardedEvent
-  "points.redeemed": PointsRedeemedEvent
-  "points.adjusted": PointsAdjustedEvent
+  "rewards.awarded": RewardsAwardedEvent
+  "rewards.redeemed": RewardsRedeemedEvent
+  "rewards.adjusted": RewardsAdjustedEvent
 }
 
 type Handler<K extends keyof AppEvents> = (

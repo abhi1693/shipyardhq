@@ -18,14 +18,14 @@
     "prisma:seed:usecases": "tsx prisma/seed.use-cases.ts",
     "prisma:seed:plan-features": "tsx prisma/seed.plan-features.ts",
     "prisma:seed:plans": "tsx prisma/seed.plans.ts",
-    "prisma:seed:points": "tsx prisma/seed.points.ts",
     "prisma:seed:prod": "npm run prisma:seed:categories && npm run prisma:seed:usecases && npm run prisma:seed:plan-features",
     "postinstall": "npm run prisma:deploy",
     "test": "vitest run --coverage --reporter=verbose",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "test:e2e": "cypress run",
-    "test:e2e:open": "cypress open"
+    "test:e2e:open": "cypress open",
+    "prisma:seed:rewards": "tsx prisma/seed.rewards.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.33.1",

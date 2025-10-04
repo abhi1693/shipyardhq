@@ -5,21 +5,21 @@ import { publish } from "@/lib/server/events"
 import {
   FeatureEntitlementStatus,
   PlacementStatus,
-  PointTransactionType,
+  RewardTransactionType,
   RedemptionStatus,
   RewardFeatureCategory,
   RewardRuleCategory,
-  type PointBalance,
+  type RewardBalance,
   type RewardCatalogItem,
   type RewardRule,
   Prisma,
 } from "@/lib/vendor/prisma/client"
 
 import {
-  PointsCapExceededError,
-  PointsCooldownError,
-  PointsError,
-  PointsInsufficientBalanceError,
+  RewardsCapExceededError,
+  RewardsCooldownError,
+  RewardsError,
+  RewardsInsufficientBalanceError,
   RedemptionLimitError,
   RedemptionValidationError,
   RewardRuleInactiveError,
@@ -27,9 +27,9 @@ import {
   RewardUnavailableError,
 } from "./errors"
 import type {
-  AdjustPointsOptions,
-  AwardPointsPayload,
-  AwardPointsResult,
+  AdjustRewardsOptions,
+  AwardRewardsPayload,
+  AwardRewardsResult,
   RedeemOptions,
   RedeemResult,
   StreakPayload,
@@ -52,7 +52,10 @@ const SCHEDULED_SURFACES = new Set(["homepage", "sticky-banner"])
 const SCHEDULED_CHANNELS = new Set(["newsletter"])
 
 type TransactionArg = Parameters<typeof prisma.$transaction>[0]
-type TxClient = TransactionArg extends (arg: infer Client, ...rest: any[]) => any
+type TxClient = TransactionArg extends (
+  arg: infer Client,
+  ...rest: any[]
+) => any
   ? Client
   : Prisma.TransactionClient
 
@@ -76,7 +79,9 @@ function extractChannel(metadata: JsonValue | null | undefined): string | null {
   return extractMetadataString(metadata, "channel")
 }
 
-export function requiresPlacementSchedule(catalogItem: RewardCatalogItem): boolean {
+export function requiresPlacementSchedule(
+  catalogItem: RewardCatalogItem,
+): boolean {
   if (catalogItem.category === RewardFeatureCategory.placement) {
     return true
   }
@@ -94,11 +99,11 @@ export function requiresPlacementSchedule(catalogItem: RewardCatalogItem): boole
   return false
 }
 
-export async function awardPoints(
+export async function awardRewards(
   userId: string,
   ruleKey: string,
-  payload: AwardPointsPayload,
-): Promise<AwardPointsResult> {
+  payload: AwardRewardsPayload,
+): Promise<AwardRewardsResult> {
   const eventHash = buildEventHash(userId, ruleKey, payload.eventId)
   const now = new Date()
 
@@ -107,91 +112,97 @@ export async function awardPoints(
       const rule = await tx.rewardRule.findUnique({ where: { key: ruleKey } })
       if (!rule) {
         throw new RewardRuleNotFoundError(ruleKey)
-    }
-    if (!rule.isActive) {
-      throw new RewardRuleInactiveError(ruleKey)
-    }
-
-    if (eventHash) {
-      const existing = await tx.pointTransaction.findUnique({
-        where: { eventHash },
-        include: { redemption: true, catalogItem: true },
-      })
-      if (existing) {
-        const balance = await requireBalance(tx, userId)
-        return { transaction: existing, balance, rule, created: false }
       }
-    }
 
-    const points = resolvePointValue(rule, payload)
-    if (points <= 0) {
-      throw new PointsError(`Points for '${ruleKey}' must be positive`, "INVALID_POINTS")
-    }
+      if (!rule.isActive) {
+        throw new RewardRuleInactiveError(ruleKey)
+      }
 
-    await enforceCaps(tx, userId, rule, points, now)
-    await enforceCooldowns(tx, userId, rule, payload, now)
-
-    const existingBalance = await tx.pointBalance.findUnique({ where: { userId } })
-    const streakUpdate = resolveStreak(existingBalance, payload.streak, now)
-
-    const balance = existingBalance
-      ? await tx.pointBalance.update({
-          where: { userId },
-          data: {
-            balance: { increment: points },
-            lifetimeEarned: { increment: points },
-            lastEarnedAt: now,
-            lastEvaluatedAt: streakUpdate.lastEvaluatedAt,
-            currentStreakCount: streakUpdate.currentStreakCount,
-            longestStreakCount: streakUpdate.longestStreakCount,
-            currentStreakTier: streakUpdate.currentStreakTier,
-            streakActiveThrough: streakUpdate.streakActiveThrough,
-          },
+      if (eventHash) {
+        const existing = await tx.rewardTransaction.findUnique({
+          where: { eventHash },
+          include: { redemption: true, catalogItem: true },
         })
-      : await tx.pointBalance.create({
-          data: {
-            userId,
-            balance: points,
-            lifetimeEarned: points,
-            lastEarnedAt: now,
-            lastEvaluatedAt: streakUpdate.lastEvaluatedAt,
-            currentStreakCount: streakUpdate.currentStreakCount,
-            longestStreakCount: streakUpdate.longestStreakCount,
-            currentStreakTier: streakUpdate.currentStreakTier,
-            streakActiveThrough: streakUpdate.streakActiveThrough,
-          },
-        })
+        if (existing) {
+          const balance = await requireBalance(tx, userId)
+          return { transaction: existing, balance, rule, created: false }
+        }
+      }
 
-    const transaction = await tx.pointTransaction.create({
-      data: {
-        userId,
-        type: PointTransactionType.earn,
-        points,
-        balanceAfter: balance.balance,
-        ruleId: rule.id,
-        ruleKey: rule.key,
-        rewardKey: null,
-        eventId: payload.eventId ?? null,
-        eventHash,
-        sourceType: payload.sourceType,
-        sourceId: payload.sourceId,
-        targetType: payload.targetType,
-        targetId: payload.targetId,
-        productId: payload.productId,
-        metadata: payload.metadata,
-        notes: payload.notes,
-        actedByUserId: payload.actorUserId ?? null,
-      },
-    })
+      const rewardAmount = resolveRewardAmount(rule, payload)
+      if (rewardAmount <= 0) {
+        throw new RewardsError(
+          `Rewards for '${ruleKey}' must be positive`,
+          "INVALID_REWARDS",
+        )
+      }
+
+      await enforceCaps(tx, userId, rule, rewardAmount, now)
+      await enforceCooldowns(tx, userId, rule, payload, now)
+
+      const existingBalance = await tx.rewardBalance.findUnique({
+        where: { userId },
+      })
+      const streakUpdate = resolveStreak(existingBalance, payload.streak, now)
+
+      const balance = existingBalance
+        ? await tx.rewardBalance.update({
+            where: { userId },
+            data: {
+              balance: { increment: rewardAmount },
+              lifetimeEarned: { increment: rewardAmount },
+              lastEarnedAt: now,
+              lastEvaluatedAt: streakUpdate.lastEvaluatedAt,
+              currentStreakCount: streakUpdate.currentStreakCount,
+              longestStreakCount: streakUpdate.longestStreakCount,
+              currentStreakTier: streakUpdate.currentStreakTier,
+              streakActiveThrough: streakUpdate.streakActiveThrough,
+            },
+          })
+        : await tx.rewardBalance.create({
+            data: {
+              userId,
+              balance: rewardAmount,
+              lifetimeEarned: rewardAmount,
+              lastEarnedAt: now,
+              lastEvaluatedAt: streakUpdate.lastEvaluatedAt,
+              currentStreakCount: streakUpdate.currentStreakCount,
+              longestStreakCount: streakUpdate.longestStreakCount,
+              currentStreakTier: streakUpdate.currentStreakTier,
+              streakActiveThrough: streakUpdate.streakActiveThrough,
+            },
+          })
+
+      const transaction = await tx.rewardTransaction.create({
+        data: {
+          userId,
+          type: RewardTransactionType.earn,
+          rewardAmount,
+          balanceAfter: balance.balance,
+          ruleId: rule.id,
+          ruleKey: rule.key,
+          rewardKey: null,
+          eventId: payload.eventId ?? null,
+          eventHash,
+          sourceType: payload.sourceType,
+          sourceId: payload.sourceId,
+          targetType: payload.targetType,
+          targetId: payload.targetId,
+          productId: payload.productId,
+          metadata: payload.metadata,
+          notes: payload.notes,
+          actedByUserId: payload.actorUserId ?? null,
+        },
+      })
 
       return { transaction, balance, rule, created: true }
     })
 
     if (result.created) {
-      await publish("points.awarded", {
+      await publish("rewards.awarded", {
         transactionId: result.transaction.id,
         userId,
-        points: result.transaction.points,
+        rewardAmount: result.transaction.rewardAmount,
         ruleKey: result.rule.key,
         ruleName: result.rule.name,
         balanceAfter: result.transaction.balanceAfter,
@@ -207,7 +218,7 @@ export async function awardPoints(
 
     return result
   } catch (error) {
-    const recovered = await recoverAwardPointsFromDuplicate({
+    const recovered = await recoverAwardRewardsFromDuplicate({
       error,
       eventHash,
       userId,
@@ -225,7 +236,12 @@ export async function redeem(
   featureKey: string,
   options: RedeemOptions = {},
 ): Promise<RedeemResult> {
-  const eventHash = buildEventHash(userId, featureKey, options.idempotencyKey, "redeem")
+  const eventHash = buildEventHash(
+    userId,
+    featureKey,
+    options.idempotencyKey,
+    "redeem",
+  )
   const now = new Date()
 
   type RedemptionWithCatalog = Prisma.RedemptionGetPayload<{
@@ -241,7 +257,7 @@ export async function redeem(
     }
 
     if (eventHash) {
-      const existing = await tx.pointTransaction.findUnique({
+      const existing = await tx.rewardTransaction.findUnique({
         where: { eventHash },
         include: {
           redemption: {
@@ -261,7 +277,8 @@ export async function redeem(
           transaction: existing,
           balance,
           redemption: existing.redemption,
-          entitlement: entitlement ?? (await fetchEntitlement(tx, existing.redemption.id)),
+          entitlement:
+            entitlement ?? (await fetchEntitlement(tx, existing.redemption.id)),
           placementSchedule: schedule,
           catalogItem: existing.redemption.catalogItem,
           created: false,
@@ -275,7 +292,10 @@ export async function redeem(
         featureKey,
       )
     }
-    if (catalogItem.category === RewardFeatureCategory.placement && !options.productId) {
+    if (
+      catalogItem.category === RewardFeatureCategory.placement &&
+      !options.productId
+    ) {
       throw new RedemptionValidationError(
         `Placement rewards must target a product`,
         featureKey,
@@ -289,18 +309,23 @@ export async function redeem(
     )
     const balanceBefore = await requireBalance(tx, userId)
     if (balanceBefore.balance < effectiveCost) {
-      throw new PointsInsufficientBalanceError(userId, effectiveCost)
+      throw new RewardsInsufficientBalanceError(userId, effectiveCost)
     }
 
     await enforceRedemptionLimits(tx, userId, featureKey, catalogItem)
 
     const requiresSchedule = requiresPlacementSchedule(catalogItem)
     const autoActivate = options.autoActivate ?? !requiresSchedule
-    const startsAt = options.reservation?.startsAt ?? (autoActivate ? now : null)
-    const durationSeconds = resolveDuration(options.reservation?.durationSeconds, catalogItem.durationSeconds)
-    const expiresAt = startsAt && durationSeconds ? addSeconds(startsAt, durationSeconds) : null
+    const startsAt =
+      options.reservation?.startsAt ?? (autoActivate ? now : null)
+    const durationSeconds = resolveDuration(
+      options.reservation?.durationSeconds,
+      catalogItem.durationSeconds,
+    )
+    const expiresAt =
+      startsAt && durationSeconds ? addSeconds(startsAt, durationSeconds) : null
 
-    const updatedBalance = await tx.pointBalance.update({
+    const updatedBalance = await tx.rewardBalance.update({
       where: { userId },
       data: {
         balance: { decrement: effectiveCost },
@@ -314,15 +339,20 @@ export async function redeem(
         userId,
         featureKey,
         productId: options.productId ?? null,
-        status: autoActivate ? RedemptionStatus.active : RedemptionStatus.pending,
+        status: autoActivate
+          ? RedemptionStatus.active
+          : RedemptionStatus.pending,
         cost: effectiveCost,
         originalCost: catalogItem.baseCost,
-        refundedPoints: 0,
+        refundedRewards: 0,
         startsAt,
         activatedAt: autoActivate ? startsAt : null,
         expiresAt,
         metadata: mergeMetadata(options.metadata, {
-          reservation: serializeReservation(options.reservation, durationSeconds),
+          reservation: serializeReservation(
+            options.reservation,
+            durationSeconds,
+          ),
         }),
         failureReason: null,
       },
@@ -344,7 +374,10 @@ export async function redeem(
         activatedAt: autoActivate ? startsAt : null,
         expiresAt,
         metadata: mergeMetadata(options.metadata, {
-          reservation: serializeReservation(options.reservation, durationSeconds),
+          reservation: serializeReservation(
+            options.reservation,
+            durationSeconds,
+          ),
         }),
       },
     })
@@ -370,21 +403,26 @@ export async function redeem(
           featureKey,
           productId: options.productId!,
           slotKey: options.reservation.slotKey,
-          status: autoActivate ? PlacementStatus.active : PlacementStatus.pending,
+          status: autoActivate
+            ? PlacementStatus.active
+            : PlacementStatus.pending,
           startsAt,
           endsAt: expiresAt,
           metadata: mergeMetadata(options.metadata, {
-            reservation: serializeReservation(options.reservation, durationSeconds),
+            reservation: serializeReservation(
+              options.reservation,
+              durationSeconds,
+            ),
           }),
         },
       })
     }
 
-    const transaction = await tx.pointTransaction.create({
+    const transaction = await tx.rewardTransaction.create({
       data: {
         userId,
-        type: PointTransactionType.spend,
-        points: effectiveCost,
+        type: RewardTransactionType.spend,
+        rewardAmount: effectiveCost,
         balanceAfter: updatedBalance.balance,
         rewardKey: featureKey,
         redemptionId: redemption.id,
@@ -409,12 +447,12 @@ export async function redeem(
   })
 
   if (result.created) {
-    await publish("points.redeemed", {
+    await publish("rewards.redeemed", {
       transactionId: result.transaction.id,
       userId,
       featureKey,
       redemptionId: result.redemption.id,
-      cost: result.transaction.points,
+      cost: result.transaction.rewardAmount,
       balanceAfter: result.transaction.balanceAfter,
       status: result.redemption.status,
       createdAt: result.transaction.createdAt,
@@ -427,20 +465,23 @@ export async function redeem(
   return result
 }
 
-export async function adjustPoints(
+export async function adjustRewards(
   userId: string,
   amount: number,
-  options: AdjustPointsOptions,
-): Promise<AwardPointsResult> {
+  options: AdjustRewardsOptions,
+): Promise<AwardRewardsResult> {
   if (amount === 0) {
-    throw new RedemptionValidationError("Adjustment amount must be non-zero", "adjustment")
+    throw new RedemptionValidationError(
+      "Adjustment amount must be non-zero",
+      "adjustment",
+    )
   }
   const now = new Date()
   const eventHash = buildEventHash(userId, "adjust", options.eventId, "adjust")
 
   const result = await prisma.$transaction(async (tx) => {
     if (eventHash) {
-      const existing = await tx.pointTransaction.findUnique({
+      const existing = await tx.rewardTransaction.findUnique({
         where: { eventHash },
         include: { redemption: true, catalogItem: true, rule: true },
       })
@@ -455,19 +496,24 @@ export async function adjustPoints(
       }
     }
 
-    const balanceBefore = await tx.pointBalance.findUnique({ where: { userId } })
+    const balanceBefore = await tx.rewardBalance.findUnique({
+      where: { userId },
+    })
     if (amount < 0) {
       const needs = Math.abs(amount)
       const available = balanceBefore?.balance ?? 0
       if (available < needs) {
-        throw new PointsInsufficientBalanceError(userId, needs)
+        throw new RewardsInsufficientBalanceError(userId, needs)
       }
     }
     const balance = balanceBefore
-      ? await tx.pointBalance.update({
+      ? await tx.rewardBalance.update({
           where: { userId },
           data: {
-            balance: amount > 0 ? { increment: amount } : { decrement: Math.abs(amount) },
+            balance:
+              amount > 0
+                ? { increment: amount }
+                : { decrement: Math.abs(amount) },
             lifetimeAdjusted:
               amount > 0
                 ? { increment: amount }
@@ -475,7 +521,7 @@ export async function adjustPoints(
             lastAdjustmentAt: now,
           },
         })
-      : await tx.pointBalance.create({
+      : await tx.rewardBalance.create({
           data: {
             userId,
             balance: Math.max(amount, 0),
@@ -484,11 +530,11 @@ export async function adjustPoints(
           },
         })
 
-    const transaction = await tx.pointTransaction.create({
+    const transaction = await tx.rewardTransaction.create({
       data: {
         userId,
-        type: PointTransactionType.adjustment,
-        points: Math.abs(amount),
+        type: RewardTransactionType.adjustment,
+        rewardAmount: Math.abs(amount),
         balanceAfter: balance.balance,
         eventId: options.eventId ?? null,
         eventHash,
@@ -507,7 +553,7 @@ export async function adjustPoints(
   })
 
   if (result.created) {
-    await publish("points.adjusted", {
+    await publish("rewards.adjusted", {
       transactionId: result.transaction.id,
       userId,
       amount,
@@ -526,38 +572,38 @@ async function enforceCaps(
   tx: TxClient,
   userId: string,
   rule: RewardRule,
-  incomingPoints: number,
+  incomingRewardAmount: number,
   now: Date,
 ) {
   if (rule.dailyCap != null) {
     const startOfDay = startOfUtcDay(now)
-    const dailySum = await tx.pointTransaction.aggregate({
+    const dailySum = await tx.rewardTransaction.aggregate({
       where: {
         userId,
         ruleKey: rule.key,
-        type: PointTransactionType.earn,
+        type: RewardTransactionType.earn,
         createdAt: { gte: startOfDay },
       },
-      _sum: { points: true },
+      _sum: { rewardAmount: true },
     })
-    const used = dailySum._sum.points ?? 0
-    if (used + incomingPoints > rule.dailyCap) {
-      throw new PointsCapExceededError(rule.key, "daily")
+    const used = dailySum._sum.rewardAmount ?? 0
+    if (used + incomingRewardAmount > rule.dailyCap) {
+      throw new RewardsCapExceededError(rule.key, "daily")
     }
   }
 
   if (rule.lifetimeCap != null) {
-    const lifetime = await tx.pointTransaction.aggregate({
+    const lifetime = await tx.rewardTransaction.aggregate({
       where: {
         userId,
         ruleKey: rule.key,
-        type: PointTransactionType.earn,
+        type: RewardTransactionType.earn,
       },
-      _sum: { points: true },
+      _sum: { rewardAmount: true },
     })
-    const used = lifetime._sum.points ?? 0
-    if (used + incomingPoints > rule.lifetimeCap) {
-      throw new PointsCapExceededError(rule.key, "lifetime")
+    const used = lifetime._sum.rewardAmount ?? 0
+    if (used + incomingRewardAmount > rule.lifetimeCap) {
+      throw new RewardsCapExceededError(rule.key, "lifetime")
     }
   }
 }
@@ -566,39 +612,43 @@ async function enforceCooldowns(
   tx: TxClient,
   userId: string,
   rule: RewardRule,
-  payload: AwardPointsPayload,
+  payload: AwardRewardsPayload,
   now: Date,
 ) {
   if (rule.globalCooldownSeconds != null) {
-    const threshold = new Date(now.getTime() - rule.globalCooldownSeconds * 1000)
-    const recent = await tx.pointTransaction.findFirst({
+    const threshold = new Date(
+      now.getTime() - rule.globalCooldownSeconds * 1000,
+    )
+    const recent = await tx.rewardTransaction.findFirst({
       where: {
         userId,
         ruleKey: rule.key,
-        type: PointTransactionType.earn,
+        type: RewardTransactionType.earn,
         createdAt: { gte: threshold },
       },
       orderBy: { createdAt: "desc" },
     })
     if (recent) {
-      throw new PointsCooldownError(rule.key, "global")
+      throw new RewardsCooldownError(rule.key, "global")
     }
   }
 
   if (rule.perTargetCooldownSeconds != null && payload.targetId) {
-    const threshold = new Date(now.getTime() - rule.perTargetCooldownSeconds * 1000)
-    const recentTarget = await tx.pointTransaction.findFirst({
+    const threshold = new Date(
+      now.getTime() - rule.perTargetCooldownSeconds * 1000,
+    )
+    const recentTarget = await tx.rewardTransaction.findFirst({
       where: {
         userId,
         ruleKey: rule.key,
-        type: PointTransactionType.earn,
+        type: RewardTransactionType.earn,
         targetId: payload.targetId,
         createdAt: { gte: threshold },
       },
       orderBy: { createdAt: "desc" },
     })
     if (recentTarget) {
-      throw new PointsCooldownError(rule.key, "target")
+      throw new RewardsCooldownError(rule.key, "target")
     }
   }
 }
@@ -607,7 +657,10 @@ async function enforceRedemptionLimits(
   tx: TxClient,
   userId: string,
   featureKey: string,
-  catalogItem: { maxActivePerUser: number | null; maxPendingPerUser: number | null },
+  catalogItem: {
+    maxActivePerUser: number | null
+    maxPendingPerUser: number | null
+  },
 ) {
   if (catalogItem.maxActivePerUser != null) {
     const activeCount = await tx.featureEntitlement.count({
@@ -636,16 +689,20 @@ async function enforceRedemptionLimits(
   }
 }
 
-function resolvePointValue(rule: RewardRule, payload: AwardPointsPayload): number {
-  if (typeof payload.points === "number") {
-    return Math.max(0, Math.round(payload.points))
+function resolveRewardAmount(
+  rule: RewardRule,
+  payload: AwardRewardsPayload,
+): number {
+  if (typeof payload.amount === "number") {
+    return Math.max(0, Math.round(payload.amount))
   }
-  const multiplier = typeof payload.multiplier === "number" ? payload.multiplier : 1
-  return Math.max(0, Math.round(rule.basePoints * multiplier))
+  const multiplier =
+    typeof payload.multiplier === "number" ? payload.multiplier : 1
+  return Math.max(0, Math.round(rule.baseRewardAmount * multiplier))
 }
 
 function resolveStreak(
-  balance: PointBalance | null,
+  balance: RewardBalance | null,
   streak: StreakPayload | undefined,
   now: Date,
 ) {
@@ -669,7 +726,8 @@ function resolveStreak(
     currentStreakCount: currentCount,
     longestStreakCount: longest,
     currentStreakTier: streak.tier ?? balance?.currentStreakTier ?? null,
-    streakActiveThrough: streak.activeThrough ?? balance?.streakActiveThrough ?? null,
+    streakActiveThrough:
+      streak.activeThrough ?? balance?.streakActiveThrough ?? null,
     lastEvaluatedAt: streak.evaluatedAt ?? now,
   }
 }
@@ -699,7 +757,10 @@ function resolveDuration(
   if (typeof override === "number") {
     const overrideValue = Number(override)
     if (!Number.isFinite(overrideValue) || overrideValue <= 0) {
-      throw new RedemptionValidationError("Duration must be positive", "duration")
+      throw new RedemptionValidationError(
+        "Duration must be positive",
+        "duration",
+      )
     }
     return overrideValue
   }
@@ -725,13 +786,15 @@ function addSeconds(start: Date, seconds: number): Date {
 }
 
 function startOfUtcDay(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  )
 }
 
 async function requireBalance(tx: TxClient, userId: string) {
-  const balance = await tx.pointBalance.findUnique({ where: { userId } })
+  const balance = await tx.rewardBalance.findUnique({ where: { userId } })
   if (!balance) {
-    return await tx.pointBalance.create({ data: { userId } })
+    return await tx.rewardBalance.create({ data: { userId } })
   }
   return balance
 }
@@ -750,7 +813,10 @@ async function fetchEntitlement(tx: TxClient, redemptionId: string) {
   return entitlement
 }
 
-function mergeMetadata(base: JsonValue | undefined, extra: Record<string, unknown>) {
+function mergeMetadata(
+  base: JsonValue | undefined,
+  extra: Record<string, unknown>,
+) {
   const sanitizedExtra = Object.fromEntries(
     Object.entries(extra).filter(([, value]) => value !== undefined),
   )
@@ -784,7 +850,7 @@ function createSyntheticRule(amount: number): RewardRule {
     name: "Manual Adjustment",
     description: null,
     category: RewardRuleCategory.admin,
-    basePoints: Math.round(Math.abs(amount)),
+    baseRewardAmount: Math.round(Math.abs(amount)),
     isActive: true,
     dailyCap: null,
     lifetimeCap: null,
@@ -798,26 +864,26 @@ function createSyntheticRule(amount: number): RewardRule {
   }
 }
 
-type AwardPointsRecoveryArgs = {
+type AwardRewardsRecoveryArgs = {
   error: unknown
   eventHash: string | null
   userId: string
   ruleKey: string
 }
 
-async function recoverAwardPointsFromDuplicate({
+async function recoverAwardRewardsFromDuplicate({
   error,
   eventHash,
   userId,
   ruleKey,
-}: AwardPointsRecoveryArgs): Promise<AwardPointsResult | null> {
+}: AwardRewardsRecoveryArgs): Promise<AwardRewardsResult | null> {
   if (!eventHash || !isRecoverableTransactionError(error)) {
     return null
   }
 
   try {
     const [transaction, rule] = await Promise.all([
-      prisma.pointTransaction.findUnique({ where: { eventHash } }),
+      prisma.rewardTransaction.findUnique({ where: { eventHash } }),
       prisma.rewardRule.findUnique({ where: { key: ruleKey } }),
     ])
 
@@ -825,14 +891,14 @@ async function recoverAwardPointsFromDuplicate({
       return null
     }
 
-    const balance = await prisma.pointBalance.findUnique({ where: { userId } })
+    const balance = await prisma.rewardBalance.findUnique({ where: { userId } })
     if (!balance) {
       return null
     }
 
     return { transaction, balance, rule, created: false }
   } catch (recoveryError) {
-    console.error("[points] Failed to recover duplicate award result", {
+    console.error("[rewards] Failed to recover duplicate award result", {
       error: recoveryError,
       originalError: error,
       eventHash,

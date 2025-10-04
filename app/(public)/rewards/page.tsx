@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 
-import { getPublicPointsData } from "@/actions/public/points/actions"
+import { getPublicRewardsData } from "@/actions/public/rewards/actions"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import PublicContainer from "@/components/layout/PublicContainer"
@@ -94,12 +94,12 @@ function formatCap(label: string, value: number | null) {
 }
 
 export default async function RewardsExplainerPage() {
-  const data = await getPublicPointsData()
+  const data = await getPublicRewardsData()
 
   const stats = [
     {
       label: "Members earning",
-      value: formatNumber(data.stats.membersWithPoints),
+      value: formatNumber(data.stats.membersWithRewards),
       helper: "Received rewards",
     },
     {
@@ -109,13 +109,13 @@ export default async function RewardsExplainerPage() {
     },
     {
       label: "Rewards awarded (30d)",
-      value: formatRewards(data.stats.earnedLast30d.points),
+      value: formatRewards(data.stats.earnedLast30d.rewardAmount),
       helper: `${formatNumber(data.stats.earnedLast30d.transactions)} payouts logged`,
     },
     {
       label: "Rewards redeemed (30d)",
       value: formatNumber(data.stats.spentLast30d.redemptions),
-      helper: `${formatRewards(data.stats.spentLast30d.points)} spent on launches`,
+      helper: `${formatRewards(data.stats.spentLast30d.rewardAmount)} spent on launches`,
     },
   ]
 
@@ -123,16 +123,22 @@ export default async function RewardsExplainerPage() {
   const topRulesPreview = data.topRules.slice(0, 3)
   const rewardsPreview = data.rewards.slice(0, 6)
 
-  const earnedPoints = data.stats.earnedLast30d.points
+  const earnedRewardAmount = data.stats.earnedLast30d.rewardAmount
   const earnedTransactions = data.stats.earnedLast30d.transactions
-  const spentPoints = data.stats.spentLast30d.points
+  const spentRewardAmount = data.stats.spentLast30d.rewardAmount
   const spentRedemptions = data.stats.spentLast30d.redemptions
-  const conversionRate = earnedPoints > 0 ? Math.min(spentPoints / earnedPoints, 1) * 100 : 0
-  const averagePayout = earnedTransactions > 0 ? earnedPoints / earnedTransactions : 0
-  const averageRedemption = spentRedemptions > 0 ? spentPoints / spentRedemptions : 0
-  const activeShare = data.stats.membersWithPoints > 0
-    ? (data.stats.activeBalances / data.stats.membersWithPoints) * 100
-    : 0
+  const conversionRate =
+    earnedRewardAmount > 0
+      ? Math.min(spentRewardAmount / earnedRewardAmount, 1) * 100
+      : 0
+  const averagePayout =
+    earnedTransactions > 0 ? earnedRewardAmount / earnedTransactions : 0
+  const averageRedemption =
+    spentRedemptions > 0 ? spentRewardAmount / spentRedemptions : 0
+  const activeShare =
+    data.stats.membersWithRewards > 0
+      ? (data.stats.activeBalances / data.stats.membersWithRewards) * 100
+      : 0
 
   const earningGridClass = cn(
     "mx-auto mt-12 grid grid-cols-1 justify-items-center gap-6",
@@ -140,7 +146,7 @@ export default async function RewardsExplainerPage() {
       ? "max-w-sm"
       : topRulesPreview.length === 2
         ? "max-w-3xl sm:grid-cols-2 lg:grid-cols-2"
-        : "max-w-5xl sm:grid-cols-2 lg:grid-cols-3"
+        : "max-w-5xl sm:grid-cols-2 lg:grid-cols-3",
   )
 
   return (
@@ -185,11 +191,17 @@ export default async function RewardsExplainerPage() {
               Turn authentic engagement into launch-grade visibility
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-muted-foreground">
-              Contribute reviews, verify traction, and keep streaks alive to bank rewards. When you&apos;re ready, swap that momentum for homepage features, analytics, and marquee placements.
+              Contribute reviews, verify traction, and keep streaks alive to
+              bank rewards. When you&apos;re ready, swap that momentum for
+              homepage features, analytics, and marquee placements.
             </p>
           </div>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
-            <Button asChild size="lg" className="shadow-[0px_24px_60px_-40px_rgba(7,58,104,0.65)]">
+            <Button
+              asChild
+              size="lg"
+              className="shadow-[0px_24px_60px_-40px_rgba(7,58,104,0.65)]"
+            >
               <Link href={MEMBER_REWARDS_PATH}>Check your balance</Link>
             </Button>
             <Button
@@ -226,7 +238,9 @@ export default async function RewardsExplainerPage() {
                     {item.value}
                   </p>
                   {item.helper ? (
-                    <p className="text-xs text-muted-foreground/80">{item.helper}</p>
+                    <p className="text-xs text-muted-foreground/80">
+                      {item.helper}
+                    </p>
                   ) : null}
                 </div>
               </div>
@@ -270,7 +284,10 @@ export default async function RewardsExplainerPage() {
                     Earned fuel vs launch spend
                   </h2>
                 </div>
-                <Badge variant="secondary" className="uppercase tracking-[0.2em] text-[10px]">
+                <Badge
+                  variant="secondary"
+                  className="uppercase tracking-[0.2em] text-[10px]"
+                >
                   Live snapshot
                 </Badge>
               </div>
@@ -279,18 +296,22 @@ export default async function RewardsExplainerPage() {
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-end justify-between gap-3 text-left">
                     <div>
-                      <p className="text-sm font-semibold text-muted-foreground">Rewards earned</p>
+                      <p className="text-sm font-semibold text-muted-foreground">
+                        Rewards earned
+                      </p>
                       <p className="text-2xl font-semibold text-foreground">
-                        {formatRewards(earnedPoints)}
+                        {formatRewards(earnedRewardAmount)}
                       </p>
                       <p className="text-[11px] text-muted-foreground/80">
                         {formatNumber(earnedTransactions)} payouts logged
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-muted-foreground">Rewards spent</p>
+                      <p className="text-sm font-semibold text-muted-foreground">
+                        Rewards spent
+                      </p>
                       <p className="text-2xl font-semibold text-foreground">
-                        {formatRewards(spentPoints)}
+                        {formatRewards(spentRewardAmount)}
                       </p>
                       <p className="text-[11px] text-muted-foreground/80">
                         {formatNumber(spentRedemptions)} redemptions
@@ -301,12 +322,17 @@ export default async function RewardsExplainerPage() {
                   <div className="relative mt-4 h-2 rounded-full bg-[color:var(--brand-1)/0.08]">
                     <div
                       className="absolute inset-y-0 left-0 rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2))]"
-                      style={{ width: `${Math.min(conversionRate, 100).toFixed(0)}%` }}
+                      style={{
+                        width: `${Math.min(conversionRate, 100).toFixed(0)}%`,
+                      }}
                     />
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-muted-foreground/80">
                     <span>0%</span>
-                    <span>{conversionRate.toFixed(0)}% of earned rewards already reinvested</span>
+                    <span>
+                      {conversionRate.toFixed(0)}% of earned rewards already
+                      reinvested
+                    </span>
                     <span>100%</span>
                   </div>
                 </div>
@@ -348,7 +374,6 @@ export default async function RewardsExplainerPage() {
                 </div>
               </div>
             </article>
-
           </div>
 
           <article className="relative overflow-hidden rounded-[32px] bg-white/68 p-6 shadow-[0px_36px_110px_-56px_rgba(7,58,104,0.5)] backdrop-blur md:p-8 ring-1 ring-[rgba(7,58,104,0.08)]">
@@ -365,7 +390,10 @@ export default async function RewardsExplainerPage() {
                   Builders spending momentum this week
                 </h3>
               </div>
-              <Badge variant="secondary" className="uppercase tracking-[0.2em] text-[10px]">
+              <Badge
+                variant="secondary"
+                className="uppercase tracking-[0.2em] text-[10px]"
+              >
                 Live feed
               </Badge>
             </div>
@@ -391,7 +419,9 @@ export default async function RewardsExplainerPage() {
                               {productLabel}
                             </Link>
                           ) : (
-                            <p className="text-base font-semibold text-foreground">{productLabel}</p>
+                            <p className="text-base font-semibold text-foreground">
+                              {productLabel}
+                            </p>
                           )}
                         </div>
                         <span className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 text-xs font-semibold text-[color:var(--brand-1)]">
@@ -399,7 +429,12 @@ export default async function RewardsExplainerPage() {
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground/80">
-                        <span className={cn("font-semibold", redemptionStatusTone[entry.status])}>
+                        <span
+                          className={cn(
+                            "font-semibold",
+                            redemptionStatusTone[entry.status],
+                          )}
+                        >
                           {redemptionStatusLabels[entry.status]}
                         </span>
                         <span>{dateFormatter.format(entry.createdAt)}</span>
@@ -410,7 +445,8 @@ export default async function RewardsExplainerPage() {
                 })
               ) : (
                 <li className="rounded-2xl border border-dashed border-[color:var(--brand-1)/0.18] bg-white/70 px-4 py-6 text-xs text-muted-foreground backdrop-blur">
-                  Redemptions will appear here as soon as the first rewards activate.
+                  Redemptions will appear here as soon as the first rewards
+                  activate.
                 </li>
               )}
             </ul>
@@ -441,17 +477,28 @@ export default async function RewardsExplainerPage() {
             Actions that unlock the biggest reward streaks
           </h2>
           <p className="text-sm text-muted-foreground">
-            The ledger spotlights the rules that keep Shipyard signal-rich. Hit these consistently to make every redemption within reach.
+            The ledger spotlights the rules that keep Shipyard signal-rich. Hit
+            these consistently to make every redemption within reach.
           </p>
         </div>
         <div className={earningGridClass}>
           {topRulesPreview.length > 0 ? (
             topRulesPreview.map((rule) => {
-              const limitChips = [formatCap("Lifetime cap", rule.lifetimeCap)].filter(Boolean)
-              const baseAward = typeof rule.basePoints === "number" ? rule.basePoints : 0
-              const totalAwardedPoints = typeof rule.totalAwarded === "number" ? rule.totalAwarded : 0
-              const payoutCount = typeof rule.awardCount === "number" ? rule.awardCount : 0
-              const streakLabel = payoutCount === 1 ? "Streak awarded (90d)" : "Streaks awarded (90d)"
+              const limitChips = [
+                formatCap("Lifetime cap", rule.lifetimeCap),
+              ].filter(Boolean)
+              const baseAward =
+                typeof rule.baseRewardAmount === "number"
+                  ? rule.baseRewardAmount
+                  : 0
+              const totalAwardedRewardAmount =
+                typeof rule.totalAwarded === "number" ? rule.totalAwarded : 0
+              const payoutCount =
+                typeof rule.awardCount === "number" ? rule.awardCount : 0
+              const streakLabel =
+                payoutCount === 1
+                  ? "Streak awarded (90d)"
+                  : "Streaks awarded (90d)"
               return (
                 <article
                   key={rule.id}
@@ -463,12 +510,19 @@ export default async function RewardsExplainerPage() {
                   />
 
                   <div className="space-y-3">
-                    <Badge variant="secondary" className="w-fit uppercase tracking-[0.18em] text-[10px]">
+                    <Badge
+                      variant="secondary"
+                      className="w-fit uppercase tracking-[0.18em] text-[10px]"
+                    >
                       {ruleCategoryLabels[rule.category]}
                     </Badge>
-                    <h3 className="text-lg font-semibold text-foreground text-balance">{rule.name}</h3>
+                    <h3 className="text-lg font-semibold text-foreground text-balance">
+                      {rule.name}
+                    </h3>
                     {rule.description ? (
-                      <p className="text-sm text-muted-foreground text-balance">{rule.description}</p>
+                      <p className="text-sm text-muted-foreground text-balance">
+                        {rule.description}
+                      </p>
                     ) : null}
                   </div>
 
@@ -484,7 +538,7 @@ export default async function RewardsExplainerPage() {
                     <div className="flex items-center justify-between text-xs text-muted-foreground/80">
                       <span>Rewards awarded (90d)</span>
                       <span className="font-semibold text-foreground">
-                        {formatRewards(totalAwardedPoints)}
+                        {formatRewards(totalAwardedRewardAmount)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground/80">
@@ -496,7 +550,10 @@ export default async function RewardsExplainerPage() {
                     {limitChips.length ? (
                       <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground/80">
                         {limitChips.map((chip) => (
-                          <span key={chip} className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 font-medium text-[color:var(--brand-1)]">
+                          <span
+                            key={chip}
+                            className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 font-medium text-[color:var(--brand-1)]"
+                          >
                             {chip}
                           </span>
                         ))}
@@ -505,7 +562,9 @@ export default async function RewardsExplainerPage() {
                   </div>
 
                   <div className="flex items-center justify-between text-xs text-muted-foreground/80">
-                    <span className="font-semibold text-[color:var(--brand-1)]">{formatNumber(payoutCount)}</span>
+                    <span className="font-semibold text-[color:var(--brand-1)]">
+                      {formatNumber(payoutCount)}
+                    </span>
                     <span>{streakLabel}</span>
                   </div>
                 </article>
@@ -513,7 +572,8 @@ export default async function RewardsExplainerPage() {
             })
           ) : (
             <div className="col-span-full rounded-[28px] border border-dashed border-[color:var(--brand-1)/0.16] bg-white/70 px-6 py-12 text-center text-sm text-muted-foreground backdrop-blur">
-              We&apos;ll spotlight the top earn rules as soon as the first streaks land.
+              We&apos;ll spotlight the top earn rules as soon as the first
+              streaks land.
             </div>
           )}
         </div>
@@ -542,7 +602,9 @@ export default async function RewardsExplainerPage() {
             Premium exposure without a paid plan
           </h2>
           <p className="text-sm text-muted-foreground">
-            Catalog items mirror the perks available to Shipyard crews—homepage features, analytics, promos, and utility boosts. Queue them up as soon as your balance is ready.
+            Catalog items mirror the perks available to Shipyard crews—homepage
+            features, analytics, promos, and utility boosts. Queue them up as
+            soon as your balance is ready.
           </p>
         </div>
         <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -568,26 +630,42 @@ export default async function RewardsExplainerPage() {
                     className="absolute inset-x-7 top-0 h-px bg-gradient-to-r from-[color:var(--brand-2)/0] via-[color:var(--brand-2)/0.45] to-[color:var(--brand-3)/0]"
                   />
                   <div className="space-y-3">
-                    <Badge variant="secondary" className="w-fit uppercase tracking-[0.18em] text-[10px]">
+                    <Badge
+                      variant="secondary"
+                      className="w-fit uppercase tracking-[0.18em] text-[10px]"
+                    >
                       {rewardCategoryLabels[reward.category]}
                     </Badge>
-                    <h3 className="text-lg font-semibold text-foreground">{reward.name}</h3>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {reward.name}
+                    </h3>
                     {reward.description ? (
-                      <p className="text-sm text-muted-foreground">{reward.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {reward.description}
+                      </p>
                     ) : null}
                   </div>
                   <div className="mt-6 space-y-3 text-sm text-muted-foreground">
                     <div className="flex items-center justify-between text-foreground">
-                      <span className="text-base font-semibold text-foreground">{formatRewards(reward.baseCost)}</span>
+                      <span className="text-base font-semibold text-foreground">
+                        {formatRewards(reward.baseCost)}
+                      </span>
                       <span className="text-xs text-muted-foreground/80">
                         {formatNumber(reward.redemptionCount)} redeems (90d)
                       </span>
                     </div>
-                    {durationLabel ? <div className="text-xs text-muted-foreground/80">{durationLabel}</div> : null}
+                    {durationLabel ? (
+                      <div className="text-xs text-muted-foreground/80">
+                        {durationLabel}
+                      </div>
+                    ) : null}
                     {limitBadges.length ? (
                       <div className="flex flex-wrap gap-2 text-xs text-muted-foreground/80">
                         {limitBadges.map((badge) => (
-                          <span key={badge} className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 font-medium text-[color:var(--brand-1)]">
+                          <span
+                            key={badge}
+                            className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 font-medium text-[color:var(--brand-1)]"
+                          >
                             {badge}
                           </span>
                         ))}
@@ -631,7 +709,9 @@ export default async function RewardsExplainerPage() {
                 Ready to turn participation into prime placement?
               </h3>
               <p className="text-sm text-muted-foreground">
-                Shipyard rewards give every builder a path to front-page visibility. Keep the streak alive, monitor the ledger, and swap rewards for exposure when your next launch is ready.
+                Shipyard rewards give every builder a path to front-page
+                visibility. Keep the streak alive, monitor the ledger, and swap
+                rewards for exposure when your next launch is ready.
               </p>
             </div>
             <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-end">

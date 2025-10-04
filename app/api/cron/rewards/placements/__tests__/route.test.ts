@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 
 const schedulerMock = vi.hoisted(() => vi.fn())
-vi.mock("@/lib/server/points/placementScheduler", () => ({
+vi.mock("@/lib/server/rewards/placementScheduler", () => ({
   runPlacementScheduler: schedulerMock,
 }))
 

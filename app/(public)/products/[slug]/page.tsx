@@ -182,9 +182,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       content,
     })
 
-  const entitlementFeatures = new Set(
-    product.activeFeatureEntitlements ?? [],
-  )
+  const entitlementFeatures = new Set(product.activeFeatureEntitlements ?? [])
 
   const hasBacklinkFeature =
     hasPlanFeature(product.plan, "backlink") ||

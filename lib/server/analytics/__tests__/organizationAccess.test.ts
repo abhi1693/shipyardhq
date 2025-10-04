@@ -130,7 +130,9 @@ describe("organizationHasAdvancedAnalytics", () => {
 
   it("grants access when an active entitlement exists", async () => {
     prismaMock.product.findFirst.mockResolvedValue(null)
-    prismaMock.organization.findUnique.mockResolvedValue({ ownerUserId: "owner" })
+    prismaMock.organization.findUnique.mockResolvedValue({
+      ownerUserId: "owner",
+    })
     prismaMock.featureEntitlement.findFirst.mockResolvedValue({ id: "ent-1" })
 
     const result = await organizationHasAdvancedAnalytics("org-6")

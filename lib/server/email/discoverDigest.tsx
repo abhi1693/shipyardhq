@@ -98,7 +98,13 @@ export async function sendDiscoverDigestEmails(now: Date = new Date()) {
   const newsletterPlacements = (await prisma.placementSchedule.findMany({
     where: {
       featureKey: "newsletterPromotion",
-      status: { in: [PlacementStatus.active, PlacementStatus.pending, PlacementStatus.scheduled] },
+      status: {
+        in: [
+          PlacementStatus.active,
+          PlacementStatus.pending,
+          PlacementStatus.scheduled,
+        ],
+      },
       startsAt: { lte: now },
       endsAt: { gte: now },
     },

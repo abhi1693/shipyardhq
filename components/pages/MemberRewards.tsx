@@ -41,15 +41,15 @@ import {
   TableRow,
 } from "@/components/atoms/table"
 import { cn } from "@/lib/utils"
-import { redeemCatalogItemAction } from "@/actions/member/points/actions"
+import { redeemCatalogItemAction } from "@/actions/member/rewards/actions"
 import {
   initialRedeemState,
   type MemberRewardsSnapshot,
   type RedeemFormState,
-} from "@/actions/member/points/types"
+} from "@/actions/member/rewards/types"
 import {
   FeatureEntitlementStatus,
-  PointTransactionType,
+  RewardTransactionType,
   RedemptionStatus,
   RewardFeatureCategory,
 } from "@/lib/vendor/prisma/client"
@@ -75,11 +75,11 @@ const categoryLabels: Record<RewardFeatureCategory, string> = {
   [RewardFeatureCategory.utility]: "Utility",
 }
 
-const transactionTypeLabels: Record<PointTransactionType, string> = {
-  [PointTransactionType.earn]: "Earned",
-  [PointTransactionType.spend]: "Redeemed",
-  [PointTransactionType.adjustment]: "Adjusted",
-  [PointTransactionType.refund]: "Refunded",
+const transactionTypeLabels: Record<RewardTransactionType, string> = {
+  [RewardTransactionType.earn]: "Earned",
+  [RewardTransactionType.spend]: "Redeemed",
+  [RewardTransactionType.adjustment]: "Adjusted",
+  [RewardTransactionType.refund]: "Refunded",
 }
 
 const entitlementStatusTone: Record<FeatureEntitlementStatus, string> = {
@@ -114,14 +114,14 @@ function formatDateTime(date: Date | null) {
   return format(date, "MMM d, yyyy • h:mm a")
 }
 
-function RedeemSubmitButton({
-  disabled,
-}: {
-  disabled?: boolean
-}) {
+function RedeemSubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus()
   return (
-    <Button type="submit" disabled={pending || disabled} className="w-full sm:w-auto">
+    <Button
+      type="submit"
+      disabled={pending || disabled}
+      className="w-full sm:w-auto"
+    >
       {pending ? "Redeeming…" : "Redeem reward"}
     </Button>
   )
@@ -164,7 +164,12 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
   }, [productOptions.length, requiresProduct])
 
   return (
-    <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
+    >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Redeem {item.name}</DialogTitle>
@@ -187,7 +192,9 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
                 </Badge>
                 <span>{formatNumber(item.baseCost)} rewards</span>
                 {item.durationSeconds ? (
-                  <span>{Math.round(item.durationSeconds / 3600)}h duration</span>
+                  <span>
+                    {Math.round(item.durationSeconds / 3600)}h duration
+                  </span>
                 ) : null}
               </div>
             </div>
@@ -201,7 +208,10 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
                 onValueChange={setProductId}
                 disabled={!productOptions.length}
               >
-                <SelectTrigger className="w-full justify-between" data-testid="redeem-product-select">
+                <SelectTrigger
+                  className="w-full justify-between"
+                  data-testid="redeem-product-select"
+                >
                   <SelectValue placeholder={productPlaceholder} />
                 </SelectTrigger>
                 <SelectContent className="w-full min-w-[16rem]">
@@ -216,7 +226,8 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
               </Select>
               <input type="hidden" name="productId" value={productId ?? ""} />
               <p className="text-xs text-muted-foreground">
-                Redeemments attach to a single product for scheduling and auditing.
+                Redeemments attach to a single product for scheduling and
+                auditing.
               </p>
             </div>
           ) : (
@@ -224,9 +235,7 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
           )}
 
           <DialogFooter>
-            <RedeemSubmitButton
-              disabled={requiresProduct && !productId}
-            />
+            <RedeemSubmitButton disabled={requiresProduct && !productId} />
           </DialogFooter>
         </form>
       </DialogContent>
@@ -235,19 +244,28 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
 }
 
 export default function MemberRewards({ snapshot }: MemberRewardsProps) {
-  const { balance, catalog, activeEntitlements, recentRedemptions, transactions, productOptions } =
-    snapshot
+  const {
+    balance,
+    catalog,
+    activeEntitlements,
+    recentRedemptions,
+    transactions,
+    productOptions,
+  } = snapshot
 
   const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null)
 
   const balanceDelta = useMemo(
-    () => balance.lifetimeEarned - balance.lifetimeSpent + balance.lifetimeAdjusted,
+    () =>
+      balance.lifetimeEarned - balance.lifetimeSpent + balance.lifetimeAdjusted,
     [balance.lifetimeEarned, balance.lifetimeSpent, balance.lifetimeAdjusted],
   )
 
   const hasCatalog = catalog.length > 0
 
-  const formatAdjustmentDetail = (transaction: MemberRewardsSnapshot["transactions"][number]) => {
+  const formatAdjustmentDetail = (
+    transaction: MemberRewardsSnapshot["transactions"][number],
+  ) => {
     if (transaction.notes && transaction.notes.length) {
       return transaction.notes
     }
@@ -321,7 +339,9 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
               </span>
             </div>
             <div className="flex items-baseline justify-between text-sm">
-              <span className="text-muted-foreground">Net (incl. adjustments)</span>
+              <span className="text-muted-foreground">
+                Net (incl. adjustments)
+              </span>
               <span
                 className={cn(
                   "font-semibold",
@@ -346,7 +366,9 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
             </div>
             <p className="text-sm text-muted-foreground">
               Longest streak {formatNumber(balance.longestStreakCount)} days.
-              {balance.currentStreakTier ? ` Tier: ${balance.currentStreakTier}.` : ""}
+              {balance.currentStreakTier
+                ? ` Tier: ${balance.currentStreakTier}.`
+                : ""}
             </p>
             <p className="text-xs text-muted-foreground">
               {balance.streakActiveThrough
@@ -368,7 +390,8 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                   {recentRedemptions[0].name}
                 </p>
                 <p className="text-muted-foreground">
-                  {formatRelative(recentRedemptions[0].createdAt)} · {formatNumber(recentRedemptions[0].cost)} rewards
+                  {formatRelative(recentRedemptions[0].createdAt)} ·{" "}
+                  {formatNumber(recentRedemptions[0].cost)} rewards
                 </p>
               </div>
             ) : (
@@ -384,7 +407,9 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
         <Card className="bg-white/95">
           <CardHeader>
             <CardTitle>Active perks</CardTitle>
-            <CardDescription>Everything currently running on your products.</CardDescription>
+            <CardDescription>
+              Everything currently running on your products.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {activeEntitlements.length ? (
@@ -407,7 +432,7 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                             {entitlement.productName}
                           </Link>
                         ) : (
-                          entitlement.productName ?? "Account-wide"
+                          (entitlement.productName ?? "Account-wide")
                         )}
                       </p>
                     </div>
@@ -428,7 +453,8 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
               ))
             ) : (
               <p className="text-sm text-muted-foreground">
-                No active entitlements yet. Redeem a reward to see it tracked here.
+                No active entitlements yet. Redeem a reward to see it tracked
+                here.
               </p>
             )}
           </CardContent>
@@ -437,19 +463,25 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
         <Card className="bg-white/95">
           <CardHeader>
             <CardTitle>Recent redemptions</CardTitle>
-            <CardDescription>Ledger of your latest spend events.</CardDescription>
+            <CardDescription>
+              Ledger of your latest spend events.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentRedemptions.length ? (
               recentRedemptions.slice(0, 5).map((redemption) => (
-                <div key={redemption.id} className="rounded-lg border border-slate-200 px-4 py-3">
+                <div
+                  key={redemption.id}
+                  className="rounded-lg border border-slate-200 px-4 py-3"
+                >
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-medium text-slate-900">
                         {redemption.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {formatRelative(redemption.createdAt)} · {formatNumber(redemption.cost)} rewards
+                        {formatRelative(redemption.createdAt)} ·{" "}
+                        {formatNumber(redemption.cost)} rewards
                       </p>
                     </div>
                     <span
@@ -470,14 +502,15 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                         {redemption.productName}
                       </Link>
                     ) : (
-                      redemption.productName ?? "Account-wide"
+                      (redemption.productName ?? "Account-wide")
                     )}
                   </div>
                 </div>
               ))
             ) : (
               <p className="text-sm text-muted-foreground">
-                When you redeem rewards, the ledger shows the status and assigned product here.
+                When you redeem rewards, the ledger shows the status and
+                assigned product here.
               </p>
             )}
           </CardContent>
@@ -519,16 +552,21 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                       </Badge>
                     </div>
                     <p className="text-sm text-slate-600">
-                      {item.description ?? "Redeem to activate this capability."}
+                      {item.description ??
+                        "Redeem to activate this capability."}
                     </p>
                   </div>
                   <div className="mt-4 space-y-2 text-xs text-muted-foreground">
                     <div>
                       Active: {item.activeCount}
-                      {item.maxActivePerUser != null ? ` / ${item.maxActivePerUser}` : ""}
+                      {item.maxActivePerUser != null
+                        ? ` / ${item.maxActivePerUser}`
+                        : ""}
                     </div>
                     {item.maxPendingPerUser != null ? (
-                      <div>Pending: {item.pendingCount} / {item.maxPendingPerUser}</div>
+                      <div>
+                        Pending: {item.pendingCount} / {item.maxPendingPerUser}
+                      </div>
                     ) : null}
                   </div>
                   <div className="mt-auto pt-4">
@@ -550,7 +588,8 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              No rewards are configured yet. Check back soon for placements and analytics boosts.
+              No rewards are configured yet. Check back soon for placements and
+              analytics boosts.
             </p>
           )}
         </CardContent>
@@ -559,7 +598,9 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
       <Card className="bg-white/95">
         <CardHeader>
           <CardTitle>Rewards activity</CardTitle>
-          <CardDescription>Recent reward transactions from your ledger.</CardDescription>
+          <CardDescription>
+            Recent reward transactions from your ledger.
+          </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {transactions.length ? (
@@ -583,38 +624,59 @@ export default function MemberRewards({ snapshot }: MemberRewardsProps) {
                       {transactionTypeLabels[transaction.type]}
                     </TableCell>
                     <TableCell className="text-sm text-slate-600">
-                      {transaction.type === PointTransactionType.earn
-                        ? transaction.ruleName ?? transaction.ruleKey ?? "Earned"
-                        : transaction.type === PointTransactionType.adjustment
+                      {transaction.type === RewardTransactionType.earn
+                        ? (transaction.ruleName ??
+                          transaction.ruleKey ??
+                          "Earned")
+                        : transaction.type === RewardTransactionType.adjustment
                           ? formatAdjustmentDetail(transaction)
-                          : transaction.type === PointTransactionType.refund
-                            ? transaction.rewardName ?? transaction.rewardKey ?? "Refunded"
-                            : transaction.rewardName ?? transaction.rewardKey ?? "Redeemed"}
+                          : transaction.type === RewardTransactionType.refund
+                            ? (transaction.rewardName ??
+                              transaction.rewardKey ??
+                              "Refunded")
+                            : (transaction.rewardName ??
+                              transaction.rewardKey ??
+                              "Redeemed")}
                     </TableCell>
                     <TableCell
                       className={cn(
                         "text-right text-sm font-semibold",
                         (() => {
-                          if (transaction.type === PointTransactionType.earn) return "text-emerald-600"
-                          if (transaction.type === PointTransactionType.refund) return "text-emerald-600"
-                          if (transaction.type === PointTransactionType.adjustment) {
-                            const delta = transaction.adjustmentAmount ?? transaction.points
-                            return delta >= 0 ? "text-emerald-600" : "text-rose-600"
+                          if (transaction.type === RewardTransactionType.earn)
+                            return "text-emerald-600"
+                          if (transaction.type === RewardTransactionType.refund)
+                            return "text-emerald-600"
+                          if (
+                            transaction.type ===
+                            RewardTransactionType.adjustment
+                          ) {
+                            const delta =
+                              transaction.adjustmentAmount ??
+                              transaction.rewardAmount
+                            return delta >= 0
+                              ? "text-emerald-600"
+                              : "text-rose-600"
                           }
                           return "text-rose-600"
                         })(),
                       )}
                     >
                       {(() => {
-                        if (transaction.type === PointTransactionType.earn) return "+"
-                        if (transaction.type === PointTransactionType.refund) return "+"
-                        if (transaction.type === PointTransactionType.adjustment) {
-                          const delta = transaction.adjustmentAmount ?? transaction.points
+                        if (transaction.type === RewardTransactionType.earn)
+                          return "+"
+                        if (transaction.type === RewardTransactionType.refund)
+                          return "+"
+                        if (
+                          transaction.type === RewardTransactionType.adjustment
+                        ) {
+                          const delta =
+                            transaction.adjustmentAmount ??
+                            transaction.rewardAmount
                           return delta >= 0 ? "+" : "-"
                         }
                         return "-"
                       })()}
-                      {formatNumber(transaction.points)}
+                      {formatNumber(transaction.rewardAmount)}
                     </TableCell>
                     <TableCell className="text-right text-sm">
                       {formatNumber(transaction.balanceAfter)}

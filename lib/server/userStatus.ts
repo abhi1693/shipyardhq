@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
 import { redirect } from "next/navigation"
-import { ensureDailyLoginReward } from "@/lib/server/points/loginReward"
+import { ensureDailyLoginReward } from "@/lib/server/rewards/loginReward"
 
 export const INACTIVE_ACCOUNT_MESSAGE = "Account is not active"
 export const SUSPENDED_ACCOUNT_PATH = "/auth/suspended"

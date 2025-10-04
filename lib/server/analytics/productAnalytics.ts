@@ -27,10 +27,7 @@ export const productAnalyticsSelect = {
   featureEntitlements: {
     where: {
       status: {
-        in: [
-          "active",
-          "pending",
-        ],
+        in: ["active", "pending"],
       },
     },
     select: {

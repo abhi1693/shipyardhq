@@ -1,12 +1,12 @@
 import prisma from "@/lib/prisma"
-import { awardPoints } from "@/lib/points/engine"
-import { PointsError } from "@/lib/points/errors"
+import { awardRewards } from "@/lib/rewards/engine"
+import { RewardsError } from "@/lib/rewards/errors"
 import { on } from "@/lib/server/events"
-import type { AwardPointsPayload } from "@/lib/points/types"
+import type { AwardRewardsPayload } from "@/lib/rewards/types"
 
-const UPVOTE_RULE_KEY = "points.upvote.give"
-const REVIEW_RULE_KEY = "points.review.publish"
-const REVIEW_DEPTH_RULE_KEY = "points.review.depth"
+const UPVOTE_RULE_KEY = "rewards.upvote.give"
+const REVIEW_RULE_KEY = "rewards.review.publish"
+const REVIEW_DEPTH_RULE_KEY = "rewards.review.depth"
 const REVIEW_DEPTH_THRESHOLD = 200
 
 const IGNORED_ERROR_CODES = new Set(["COOLDOWN_ACTIVE", "CAP_EXCEEDED"])
@@ -19,19 +19,19 @@ async function getProductOwnerId(productId: string): Promise<string | null> {
   return record?.userId ?? null
 }
 
-async function safelyAwardPoints(
+async function safelyAwardRewards(
   userId: string,
   ruleKey: string,
-  payload: AwardPointsPayload,
+  payload: AwardRewardsPayload,
   context: string,
 ) {
   try {
-    await awardPoints(userId, ruleKey, payload)
+    await awardRewards(userId, ruleKey, payload)
   } catch (error) {
-    if (error instanceof PointsError && IGNORED_ERROR_CODES.has(error.code)) {
+    if (error instanceof RewardsError && IGNORED_ERROR_CODES.has(error.code)) {
       return
     }
-    console.error(`[points] ${context} failed`, {
+    console.error(`[rewards] ${context} failed`, {
       error,
       userId,
       ruleKey,
@@ -46,7 +46,7 @@ on("product.upvoted", async (event) => {
     if (!ownerId) return
     if (ownerId === event.userId) return
 
-    await safelyAwardPoints(
+    await safelyAwardRewards(
       event.userId,
       UPVOTE_RULE_KEY,
       {
@@ -61,10 +61,10 @@ on("product.upvoted", async (event) => {
           occurredAt: event.occurredAt.toISOString(),
         },
       },
-      "award upvote points",
+      "award upvote rewards",
     )
   } catch (error) {
-    console.error("[points] upvote listener error", { error, event })
+    console.error("[rewards] upvote listener error", { error, event })
   }
 })
 
@@ -81,7 +81,7 @@ on("product.reviewed", async (event) => {
       updatedAt: event.updatedAt.toISOString(),
     }
 
-    await safelyAwardPoints(
+    await safelyAwardRewards(
       event.userId,
       REVIEW_RULE_KEY,
       {
@@ -94,11 +94,11 @@ on("product.reviewed", async (event) => {
         actorUserId: event.userId,
         metadata,
       },
-      "award review points",
+      "award review rewards",
     )
 
     if (event.messageLength > REVIEW_DEPTH_THRESHOLD) {
-      await safelyAwardPoints(
+      await safelyAwardRewards(
         event.userId,
         REVIEW_DEPTH_RULE_KEY,
         {
@@ -115,6 +115,6 @@ on("product.reviewed", async (event) => {
       )
     }
   } catch (error) {
-    console.error("[points] review listener error", { error, event })
+    console.error("[rewards] review listener error", { error, event })
   }
 })
