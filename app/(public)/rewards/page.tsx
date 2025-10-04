@@ -114,7 +114,7 @@ export default async function RewardsExplainerPage() {
     },
   ]
 
-  const heroRedemptions = data.recentRedemptions.slice(0, 4)
+  const heroRedemptions = data.recentRedemptions
   const rewardRules = data.rules
   const rewardsCatalog = data.rewards
 

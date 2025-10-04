@@ -263,7 +263,7 @@ export async function getPublicRewardsData(): Promise<PublicRewardsData> {
         },
       },
       orderBy: { createdAt: "desc" },
-      take: 6,
+      take: 4,
       select: {
         id: true,
         featureKey: true,
