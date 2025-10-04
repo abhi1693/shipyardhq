@@ -7,6 +7,7 @@ import prisma from "@/lib/prisma"
 import {
   RewardTransactionType,
   RewardRuleCategory,
+  RewardFeatureCategory,
   type Prisma,
 } from "@/lib/vendor/prisma/client"
 import { adminPath } from "@/lib/routes"
@@ -44,6 +45,21 @@ type RuleInput = {
   metadata?: Prisma.InputJsonValue
   tierConfig?: Prisma.InputJsonValue
   adminNotes?: string | null
+}
+
+type CatalogInput = {
+  featureKey: string
+  planFeatureKey?: string | null
+  name: string
+  description?: string | null
+  category: RewardFeatureCategory
+  baseCost: number
+  durationSeconds?: number | null
+  isActive: boolean
+  maxActivePerUser?: number | null
+  maxPendingPerUser?: number | null
+  requiresProduct: boolean
+  metadata?: Prisma.InputJsonValue
 }
 
 function parseJson(
@@ -124,6 +140,72 @@ export async function getRewardRules(args: PaginationArgs = {}) {
   }
 }
 
+function parseCatalogForm(formData: FormData): CatalogInput {
+  const name = formData.get("name")?.toString().trim()
+  const featureKey = formData.get("featureKey")?.toString().trim()
+  const categoryRaw = formData.get("category")?.toString() as
+    | keyof typeof RewardFeatureCategory
+    | undefined
+  const baseCost = parseInteger(formData.get("baseCost"), "Base cost")
+
+  if (!name) throw new Error("Catalog item name is required")
+  if (!featureKey) throw new Error("Feature key is required")
+  if (!categoryRaw || !(categoryRaw in RewardFeatureCategory)) {
+    throw new Error("Invalid catalog category")
+  }
+  if (!baseCost || baseCost <= 0) {
+    throw new Error("Base cost must be greater than zero")
+  }
+
+  const planFeatureKey = formData.get("planFeatureKey")?.toString().trim()
+  const description = formData.get("description")?.toString().trim()
+  const durationSeconds = parseInteger(
+    formData.get("durationSeconds"),
+    "Duration seconds",
+  )
+  if (durationSeconds != null && durationSeconds <= 0) {
+    throw new Error("Duration must be greater than zero")
+  }
+
+  const maxActivePerUser = parseInteger(
+    formData.get("maxActivePerUser"),
+    "Active limit",
+  )
+  if (maxActivePerUser != null && maxActivePerUser <= 0) {
+    throw new Error("Active limit must be greater than zero")
+  }
+
+  const maxPendingPerUser = parseInteger(
+    formData.get("maxPendingPerUser"),
+    "Pending limit",
+  )
+  if (maxPendingPerUser != null && maxPendingPerUser <= 0) {
+    throw new Error("Pending limit must be greater than zero")
+  }
+
+  const requiresProduct =
+    formData.get("requiresProduct") === "true" ||
+    formData.get("requiresProduct") === "on"
+  const isActive =
+    formData.get("isActive") === "true" || formData.get("isActive") === "on"
+  const metadata = parseJson(formData.get("metadata"))
+
+  return {
+    featureKey,
+    planFeatureKey: planFeatureKey && planFeatureKey.length ? planFeatureKey : null,
+    name,
+    description: description && description.length ? description : null,
+    category: RewardFeatureCategory[categoryRaw],
+    baseCost,
+    durationSeconds: durationSeconds ?? null,
+    isActive,
+    maxActivePerUser: maxActivePerUser ?? null,
+    maxPendingPerUser: maxPendingPerUser ?? null,
+    requiresProduct,
+    metadata,
+  }
+}
+
 export async function getRewardRulesCount() {
   await resolveAdminUser()
   try {
@@ -186,6 +268,101 @@ export async function toggleRewardRuleAction(id: string, isActive: boolean) {
   } catch (error) {
     console.error("Failed to toggle reward rule", error)
     return { error: "Failed to update rule state." }
+  }
+}
+
+export async function getRewardCatalogItems(args: PaginationArgs = {}) {
+  await resolveAdminUser()
+  const { skip = 0, take = DEFAULT_LIMIT } = args
+  try {
+    return await prisma.rewardCatalogItem.findMany({
+      orderBy: [
+        { category: "asc" },
+        { baseCost: "asc" },
+        { name: "asc" },
+      ],
+      skip,
+      take,
+    })
+  } catch (error) {
+    console.error("Failed to fetch reward catalog items", error)
+    throw new Error("Unable to load reward catalog")
+  }
+}
+
+export async function getRewardCatalogItemsCount() {
+  await resolveAdminUser()
+  try {
+    return await prisma.rewardCatalogItem.count()
+  } catch (error) {
+    console.error("Failed to count reward catalog items", error)
+    throw new Error("Unable to count catalog")
+  }
+}
+
+export async function getRewardCatalogItemById(id: string) {
+  await resolveAdminUser()
+  try {
+    return await prisma.rewardCatalogItem.findUnique({ where: { id } })
+  } catch (error) {
+    console.error("Failed to fetch reward catalog item", error)
+    throw new Error("Unable to load catalog item")
+  }
+}
+
+export async function createRewardCatalogItemAction(formData: FormData) {
+  await resolveAdminUser()
+  const input = parseCatalogForm(formData)
+  try {
+    const existing = await prisma.rewardCatalogItem.findUnique({
+      where: { featureKey: input.featureKey },
+    })
+    if (existing) {
+      return { error: "A catalog item with that feature key already exists." }
+    }
+
+    await prisma.rewardCatalogItem.create({ data: input })
+    revalidatePath(adminPath("rewards", "catalog"))
+    return { success: true }
+  } catch (error) {
+    console.error("Failed to create reward catalog item", error)
+    return { error: "Failed to create catalog item." }
+  }
+}
+
+export async function updateRewardCatalogItemAction(
+  id: string,
+  formData: FormData,
+) {
+  await resolveAdminUser()
+  const input = parseCatalogForm(formData)
+  try {
+    await prisma.rewardCatalogItem.update({ where: { id }, data: input })
+    revalidatePath(adminPath("rewards", "catalog"))
+    return { success: true }
+  } catch (error) {
+    console.error("Failed to update reward catalog item", error)
+    if (error instanceof Error && "code" in error && error.code === "P2002") {
+      return {
+        error: "Feature key already exists. Choose a different key.",
+      }
+    }
+    return { error: "Failed to update catalog item." }
+  }
+}
+
+export async function toggleRewardCatalogItemAction(
+  id: string,
+  isActive: boolean,
+) {
+  await resolveAdminUser()
+  try {
+    await prisma.rewardCatalogItem.update({ where: { id }, data: { isActive } })
+    revalidatePath(adminPath("rewards", "catalog"))
+    return { success: true }
+  } catch (error) {
+    console.error("Failed to toggle reward catalog item", error)
+    return { error: "Failed to update catalog item state." }
   }
 }
 
