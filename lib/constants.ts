@@ -86,5 +86,4 @@ export const PLAN_FEATURE_KEYS = [
 
 export type PlanFeatureKey = (typeof PLAN_FEATURE_KEYS)[number]
 
-export const INSIGHTS_PIPELINE_FEATURE_KEY =
-  REWARD_FEATURE_KEY.insightsPipeline
+export const INSIGHTS_PIPELINE_FEATURE_KEY = REWARD_FEATURE_KEY.insightsPipeline
