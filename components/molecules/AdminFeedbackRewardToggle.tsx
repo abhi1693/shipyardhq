@@ -10,7 +10,7 @@ import { Switch } from "@/components/atoms/switch"
 type AdminFeedbackRewardToggleProps = {
   feedbackId: string
   rewardEligible: boolean
-  rewardGrantedAt: string | null
+  rewardGrantedAt: Date | string | null
 }
 
 export default function AdminFeedbackRewardToggle({
@@ -28,10 +28,20 @@ export default function AdminFeedbackRewardToggle({
     previous.current = rewardEligible
   }, [rewardEligible])
 
+  const rewardTimestamp =
+    typeof rewardGrantedAt === "string"
+      ? new Date(rewardGrantedAt)
+      : rewardGrantedAt
+
+  const validRewardTimestamp =
+    rewardTimestamp && !Number.isNaN(rewardTimestamp.getTime())
+      ? rewardTimestamp
+      : null
+
   const rewardLocked = Boolean(rewardGrantedAt)
   const switchHint = rewardLocked
-    ? rewardGrantedAt
-      ? `Rewards granted ${formatDistanceToNow(new Date(rewardGrantedAt), {
+    ? validRewardTimestamp
+      ? `Rewards granted ${formatDistanceToNow(validRewardTimestamp, {
           addSuffix: true,
         })}`
       : "Rewards already granted"
