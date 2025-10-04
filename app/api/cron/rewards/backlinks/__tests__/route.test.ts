@@ -45,9 +45,7 @@ describe("cron backlink verification route", () => {
   })
 
   it("returns 500 on verifier failure", async () => {
-    mockedRunBacklinkVerification.mockRejectedValueOnce(
-      new Error("uh oh")
-    )
+    mockedRunBacklinkVerification.mockRejectedValueOnce(new Error("uh oh"))
 
     const res = await GET(
       new Request("https://example.com", {

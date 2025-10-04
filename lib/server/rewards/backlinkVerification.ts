@@ -10,10 +10,7 @@ import {
 import { getAppBaseUrl } from "@/lib/email/utils"
 import { productPath } from "@/lib/routes"
 import prisma from "@/lib/prisma"
-import {
-  ProductStatus,
-  type Prisma,
-} from "@/lib/vendor/prisma/client"
+import { ProductStatus, type Prisma } from "@/lib/vendor/prisma/client"
 
 type BacklinkCheckSuccess = {
   status: "verified"
@@ -165,13 +162,11 @@ function matchesExpectedTarget(url: URL, slug: string): boolean {
   return true
 }
 
-async function checkBacklink(
-  product: {
-    id: string
-    slug: string
-    websiteUrl: string | null
-  },
-): Promise<BacklinkCheckResult> {
+async function checkBacklink(product: {
+  id: string
+  slug: string
+  websiteUrl: string | null
+}): Promise<BacklinkCheckResult> {
   const rawWebsite = product.websiteUrl?.trim()
   if (!rawWebsite) {
     return { status: "error", reason: "Missing website URL" }
