@@ -97,9 +97,9 @@ describe("getOnboardingAnswersSummary", () => {
 
   it("aggregates onboarding responses with friendly labels", async () => {
     countMock
-      .mockResolvedValueOnce(40) // total active
-      .mockResolvedValueOnce(25) // completed
-      .mockResolvedValueOnce(6) // last 7 days
+      .mockResolvedValueOnce(40) // active in range
+      .mockResolvedValueOnce(25) // completed in range
+      .mockResolvedValueOnce(15) // pending in range
 
     groupByMock
       .mockResolvedValueOnce([
@@ -172,12 +172,13 @@ describe("getOnboardingAnswersSummary", () => {
       },
     ])
 
-    const summary = await getOnboardingAnswersSummary()
+    const summary = await getOnboardingAnswersSummary(7)
 
+    expect(summary.rangeDays).toBe(7)
     expect(summary.totalActiveUsers).toBe(40)
     expect(summary.completedResponses).toBe(25)
     expect(summary.pendingUsers).toBe(15)
-    expect(summary.completedLast7Days).toBe(6)
+    expect(summary.completedInRange).toBe(25)
     expect(summary.lastResponseAt).toBe("2024-04-18T15:00:00.000Z")
     expect(summary.completionRate).toBeCloseTo((25 / 40) * 100)
 
@@ -294,17 +295,12 @@ describe("getOnboardingAnswersSummary", () => {
       },
     ])
 
-    expect(summary.signupTimeline).toHaveLength(30)
+    expect(summary.signupTimeline).toHaveLength(summary.rangeDays)
     const signupTotal = summary.signupTimeline.reduce(
       (total, point) => total + point.signups,
       0,
     )
-    expect(signupTotal).toBe(2)
-    expect(
-      summary.signupTimeline.some(
-        (point) => point.date === "2024-04-10" && point.signups === 1,
-      ),
-    ).toBe(true)
+    expect(signupTotal).toBe(1)
     expect(
       summary.signupTimeline.some(
         (point) => point.date === "2024-04-19" && point.signups === 1,
@@ -366,10 +362,10 @@ describe("getOnboardingAnswersSummary", () => {
     expect(summary.newsletterUnregisteredSubscribers).toBe(0)
     expect(summary.roleIntentOutcomes).toEqual([])
     expect(summary.heardFromOutcomes).toEqual([])
-    expect(summary.signupTimeline).toHaveLength(30)
-    expect(
-      summary.signupTimeline.every((point) => point.signups === 0),
-    ).toBe(true)
+    expect(summary.signupTimeline).toHaveLength(summary.rangeDays)
+    expect(summary.signupTimeline.every((point) => point.signups === 0)).toBe(
+      true,
+    )
 
     expect(cacheMissMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -381,11 +377,12 @@ describe("getOnboardingAnswersSummary", () => {
 
   it("returns cached onboarding summary when available", async () => {
     const cached = {
+      rangeDays: 7,
       totalActiveUsers: 0,
       completedResponses: 0,
       completionRate: 0,
       pendingUsers: 0,
-      completedLast7Days: 0,
+      completedInRange: 0,
       lastResponseAt: null,
       roleIntentBreakdown: [],
       heardFromBreakdown: [],
@@ -402,7 +399,7 @@ describe("getOnboardingAnswersSummary", () => {
 
     cacheHitMock.mockResolvedValueOnce(cached)
 
-    const result = await getOnboardingAnswersSummary()
+    const result = await getOnboardingAnswersSummary(7)
 
     expect(result).toBe(cached)
     expect(countMock).not.toHaveBeenCalled()
@@ -416,6 +413,10 @@ describe("getOnboardingAnswersSummary", () => {
       where: {
         status: "active",
         OR: [{ roleIntent: null }, { heardFrom: null }],
+        createdAt: {
+          gte: expect.any(Date),
+          lt: expect.any(Date),
+        },
       },
       orderBy: { createdAt: "desc" },
       take: 5,
@@ -437,6 +438,10 @@ describe("getOnboardingAnswersSummary", () => {
         status: "active",
         roleIntent: { not: null },
         heardFrom: { not: null },
+        updatedAt: {
+          gte: expect.any(Date),
+          lt: expect.any(Date),
+        },
       },
       orderBy: [{ updatedAt: "desc" }],
       take: 8,

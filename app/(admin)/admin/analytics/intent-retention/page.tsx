@@ -21,25 +21,25 @@ export const dynamic = "force-dynamic"
 type SearchParams = { range?: string }
 
 const RANGE_OPTIONS = [
+  { label: "7d", value: "7d" },
+  { label: "14d", value: "14d" },
   { label: "30d", value: "30d" },
-  { label: "60d", value: "60d" },
   { label: "90d", value: "90d" },
-  { label: "180d", value: "180d" },
 ]
 
 const CACHE_TTL_SECONDS = resolveCacheTtl("slowest")
 
 function rangeToDays(range?: string): number {
   switch (range) {
+    case "14d":
+      return 14
     case "30d":
       return 30
-    case "60d":
-      return 60
-    case "180d":
-      return 180
     case "90d":
-    default:
       return 90
+    case "7d":
+    default:
+      return 7
   }
 }
 

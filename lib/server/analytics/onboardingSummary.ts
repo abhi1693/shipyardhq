@@ -46,7 +46,6 @@ const NEWSLETTER_INTENT_GROUPS: {
   },
 ]
 
-const SIGNUP_TIMELINE_DAYS = 30
 const SIGNUP_TIMELINE_LABEL_FORMAT = "MMM d"
 
 function isSignupTimeline(value: unknown): value is OnboardingSignupPoint[] {
@@ -192,20 +191,41 @@ function buildOutcomeItems(
     .sort((a, b) => b.total - a.total)
 }
 
-export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSummary> {
-  const activeWhere = { status: "active" as const }
-  const completedWhere = {
+export async function getOnboardingAnswersSummary(
+  rangeDays = 7,
+): Promise<OnboardingAnswersSummary> {
+  const windowDays = Math.max(Math.floor(rangeDays), 1)
+  const today = startOfDay(new Date())
+  const rangeStart = subDays(today, windowDays - 1)
+  const rangeEnd = addDays(today, 1)
+
+  const activeWhere = {
+    status: "active" as const,
+    updatedAt: {
+      gte: rangeStart,
+      lt: rangeEnd,
+    },
+  }
+
+  const completedRangeWhere = {
     ...activeWhere,
     roleIntent: { not: null },
     heardFrom: { not: null },
   }
 
-  const oneWeekAgo = subDays(new Date(), 7)
-  const today = startOfDay(new Date())
-  const timelineStart = subDays(today, SIGNUP_TIMELINE_DAYS - 1)
-  const timelineEnd = addDays(today, 1)
+  const pendingRangeWhere = {
+    ...activeWhere,
+    OR: [{ roleIntent: null }, { heardFrom: null }],
+  }
 
-  const cacheKey = buildCacheKey("analytics", "onboardingSummary")
+  const timelineStart = rangeStart
+  const timelineEnd = rangeEnd
+
+  const cacheKey = buildCacheKey(
+    "analytics",
+    "onboardingSummary",
+    `range:${windowDays}`,
+  )
   const cacheTtlSeconds = resolveCacheTtl("slowest")
 
   const cachedSummary = await cacheHit<OnboardingAnswersSummary>({
@@ -219,7 +239,12 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   })
 
   if (cachedSummary) {
-    if (isSignupTimeline((cachedSummary as { signupTimeline?: unknown }).signupTimeline)) {
+    if (
+      cachedSummary.rangeDays === windowDays &&
+      isSignupTimeline(
+        (cachedSummary as { signupTimeline?: unknown }).signupTimeline,
+      )
+    ) {
       return cachedSummary
     }
 
@@ -234,7 +259,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     completedResponses,
     rawRoleIntentGroups,
     rawHeardFromGroups,
-    completedLast7Days,
+    pendingInRange,
     latestCompleted,
     completedMembers,
     allNewsletterSubscriptions,
@@ -245,33 +270,30 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
       where: activeWhere,
     }),
     prisma.user.count({
-      where: completedWhere,
+      where: completedRangeWhere,
     }),
     prisma.user.groupBy({
       by: ["roleIntent"],
-      where: completedWhere,
+      where: completedRangeWhere,
       _count: { roleIntent: true },
     }),
     prisma.user.groupBy({
       by: ["heardFrom"],
-      where: completedWhere,
+      where: completedRangeWhere,
       _count: { heardFrom: true },
     }),
     prisma.user.count({
-      where: {
-        ...completedWhere,
-        updatedAt: { gte: oneWeekAgo },
-      },
+      where: pendingRangeWhere,
     }),
     prisma.user.findFirst({
-      where: completedWhere,
+      where: completedRangeWhere,
       orderBy: [{ updatedAt: "desc" }],
       select: {
         updatedAt: true,
       },
     }),
     prisma.user.findMany({
-      where: completedWhere,
+      where: completedRangeWhere,
       select: {
         id: true,
         email: true,
@@ -287,7 +309,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     }) as Promise<RegisteredUserEmail[]>,
     prisma.user.findMany({
       where: {
-        ...activeWhere,
+        status: "active" as const,
         createdAt: {
           gte: timelineStart,
           lt: timelineEnd,
@@ -340,7 +362,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   const completionRate =
     totalActiveUsers === 0 ? 0 : (completedResponses / totalActiveUsers) * 100
 
-  const pendingUsers = Math.max(totalActiveUsers - completedResponses, 0)
+  const pendingUsers = pendingInRange
 
   const lastResponseAt = latestCompleted?.updatedAt?.toISOString() ?? null
 
@@ -557,7 +579,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   const heardFromOutcomes = buildOutcomeItems(heardFromOutcomeMap)
 
   const signupTimelineBuckets = new Map<string, OnboardingSignupPoint>()
-  for (let index = 0; index < SIGNUP_TIMELINE_DAYS; index += 1) {
+  for (let index = 0; index < windowDays; index += 1) {
     const bucketDate = addDays(timelineStart, index)
     const iso = format(bucketDate, "yyyy-MM-dd")
     signupTimelineBuckets.set(iso, {
@@ -576,13 +598,15 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   }
 
   const signupTimeline = Array.from(signupTimelineBuckets.values())
+  const completedInRange = completedResponses
 
   const summary: OnboardingAnswersSummary = {
+    rangeDays: windowDays,
     totalActiveUsers,
     completedResponses,
     completionRate,
     pendingUsers,
-    completedLast7Days,
+    completedInRange,
     lastResponseAt,
     roleIntentBreakdown,
     heardFromBreakdown,
@@ -614,11 +638,21 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
 
 export async function getPendingOnboardingUsers(
   limit = 12,
+  rangeDays = 7,
 ): Promise<PendingOnboardingUser[]> {
+  const windowDays = Math.max(Math.floor(rangeDays), 1)
+  const today = startOfDay(new Date())
+  const rangeStart = subDays(today, windowDays - 1)
+  const rangeEnd = addDays(today, 1)
+
   return prisma.user.findMany({
     where: {
       status: "active",
       OR: [{ roleIntent: null }, { heardFrom: null }],
+      createdAt: {
+        gte: rangeStart,
+        lt: rangeEnd,
+      },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -634,12 +668,22 @@ export async function getPendingOnboardingUsers(
 
 export async function getRecentOnboardingCompletions(
   limit = 12,
+  rangeDays = 7,
 ): Promise<RecentOnboardingUser[]> {
+  const windowDays = Math.max(Math.floor(rangeDays), 1)
+  const today = startOfDay(new Date())
+  const rangeStart = subDays(today, windowDays - 1)
+  const rangeEnd = addDays(today, 1)
+
   return prisma.user.findMany({
     where: {
       status: "active",
       roleIntent: { not: null },
       heardFrom: { not: null },
+      updatedAt: {
+        gte: rangeStart,
+        lt: rangeEnd,
+      },
     },
     orderBy: [{ updatedAt: "desc" }],
     take: limit,

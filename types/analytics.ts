@@ -244,11 +244,12 @@ export interface NewsletterIntentBreakdownItem {
 }
 
 export interface OnboardingAnswersSummary {
+  rangeDays: number
   totalActiveUsers: number
   completedResponses: number
   completionRate: number
   pendingUsers: number
-  completedLast7Days: number
+  completedInRange: number
   lastResponseAt: string | null
   roleIntentBreakdown: OnboardingAnswerBreakdownItem[]
   heardFromBreakdown: OnboardingAnswerBreakdownItem[]
@@ -329,6 +330,61 @@ export interface IntentOutcomeCohort {
   totalUsers: number
   stageMetrics: IntentOutcomeStageMetrics[]
   retention: IntentOutcomeRetentionMetrics
+}
+
+export interface LeaderboardRangeProduct {
+  id: string
+  name: string
+  slug: string
+  tagline: string | null
+  categoryName: string | null
+  makerName: string
+  rangeUpvotes: number
+  previousUpvotes: number
+  upvoteChange: number
+  upvoteDelta: number
+  totalUpvotes: number
+  rank: number
+  previousRank: number | null
+  isNew: boolean
+}
+
+export interface LeaderboardRangeHistoryPoint {
+  date: string
+  label: string
+  upvotes: number
+  champion: number
+  average: number
+}
+
+export interface LeaderboardRangeSummary {
+  totalUpvotes: number
+  previousUpvotes: number
+  upvoteChange: number
+  upvoteDelta: number
+  uniqueProducts: number
+  previousUniqueProducts: number
+  newProducts: number
+  returningProducts: number
+  returningRate: number
+  improvingProducts: number
+  decliningProducts: number
+  stableProducts: number
+  championUpvotes: number | null
+  championPreviousUpvotes: number | null
+  championDelta: number | null
+  averageDailyUpvotes: number
+}
+
+export interface LeaderboardRangeAnalytics {
+  rangeDays: number
+  summary: LeaderboardRangeSummary
+  products: {
+    top: LeaderboardRangeProduct[]
+    surging: LeaderboardRangeProduct[]
+    new: LeaderboardRangeProduct[]
+  }
+  history: LeaderboardRangeHistoryPoint[]
 }
 
 export interface IntentOutcomeSummary {

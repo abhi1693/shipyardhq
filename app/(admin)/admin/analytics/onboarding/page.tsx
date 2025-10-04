@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
+import RangeSelector from "@/components/molecules/RangeSelector"
 import { OnboardingAnswersAnalytics } from "@/components/pages/OnboardingAnswersAnalytics"
 import {
   getHeardFromLabel,
@@ -33,23 +34,48 @@ function formatRelative(date?: Date | null) {
 
 export const revalidate = 3600
 
-export default async function OnboardingAnalyticsPage() {
+type SearchParams = { range?: string }
+
+function rangeToDays(range?: string): number {
+  switch (range) {
+    case "14d":
+      return 14
+    case "30d":
+      return 30
+    case "90d":
+      return 90
+    case "7d":
+    default:
+      return 7
+  }
+}
+
+export default async function OnboardingAnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>
+}) {
+  const sp = await searchParams
+  const days = rangeToDays(sp?.range)
   const [summary, pending, recent] = await Promise.all([
-    getOnboardingAnswersSummary(),
-    getPendingOnboardingUsers(8),
-    getRecentOnboardingCompletions(8),
+    getOnboardingAnswersSummary(days),
+    getPendingOnboardingUsers(8, days),
+    getRecentOnboardingCompletions(8, days),
   ])
 
   return (
     <div className="space-y-10">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">
-          Onboarding analytics
-        </h1>
-        <p className="text-sm text-muted-foreground max-w-2xl">
-          Track completion trends, understand member intent, and spot pending
-          onboarding journeys that may need a nudge.
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">
+            Onboarding analytics
+          </h1>
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            Track completion trends, understand member intent, and spot pending
+            onboarding journeys that may need a nudge.
+          </p>
+        </div>
+        <RangeSelector />
       </div>
 
       <OnboardingAnswersAnalytics summary={summary} />

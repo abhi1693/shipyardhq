@@ -147,21 +147,22 @@ export function OnboardingAnswersAnalytics({
 }: {
   summary: OnboardingAnswersSummary
 }) {
+  const rangeLabel = `${summary.rangeDays}d`
   const highlights = [
     {
       label: "Completed onboarding",
       value: formatNumber(summary.completedResponses),
-      helper: `${formatPercent(summary.completionRate)} of active members`,
+      helper: `${formatPercent(summary.completionRate)} completion rate (${rangeLabel})`,
     },
     {
-      label: "Active members",
+      label: `Active members (${rangeLabel})`,
       value: formatNumber(summary.totalActiveUsers),
       helper: `${formatNumber(summary.pendingUsers)} still pending`,
     },
     {
-      label: "New this week",
-      value: formatNumber(summary.completedLast7Days),
-      helper: "Completed in the past 7 days",
+      label: "New completions",
+      value: formatNumber(summary.completedInRange),
+      helper: `Completed in the past ${rangeLabel}`,
     },
     {
       label: "Latest response",
@@ -324,8 +325,7 @@ export function OnboardingAnswersAnalytics({
               New active accounts • last {Math.max(trackedDays, 1)} days
             </span>
             <span className="ml-auto text-xs text-muted-foreground">
-              {latestSignupLabel}: {formatNumber(latestSignups)}
-              {" "}
+              {latestSignupLabel}: {formatNumber(latestSignups)}{" "}
               {latestSignups === 1 ? "signup" : "signups"}
             </span>
           </div>
