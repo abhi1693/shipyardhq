@@ -1,12 +1,13 @@
 "use client"
 
 import { Button } from "@/components/atoms/button"
-import { Save as SaveIcon } from "lucide-react"
+import { Loader2 as LoaderIcon, Save as SaveIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import * as React from "react"
 
 type Props = React.ComponentProps<typeof Button> & {
   label?: string
+  loading?: boolean
 }
 
 export default function SaveButton({
@@ -14,15 +15,23 @@ export default function SaveButton({
   className,
   children,
   variant,
+  loading = false,
+  disabled,
   ...props
 }: Props) {
   return (
     <Button
       variant={variant ?? "success"}
-      className={cn("", className)}
+      className={cn("gap-2", className)}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
     >
-      <SaveIcon className="size-4" />
+      {loading ? (
+        <LoaderIcon aria-hidden className="size-4 animate-spin" />
+      ) : (
+        <SaveIcon aria-hidden className="size-4" />
+      )}
       {children ?? label}
     </Button>
   )

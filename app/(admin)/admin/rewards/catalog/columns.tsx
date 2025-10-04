@@ -31,7 +31,9 @@ function CatalogActiveToggle({ item }: { item: RewardCatalogItem }) {
               toast.error(result.error)
               setChecked((prev) => !prev)
             } else {
-              toast.success(next ? "Catalog item enabled" : "Catalog item disabled")
+              toast.success(
+                next ? "Catalog item enabled" : "Catalog item disabled",
+              )
             }
           })
         }}

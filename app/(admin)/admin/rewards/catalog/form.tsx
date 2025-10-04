@@ -131,9 +131,13 @@ export default function CatalogForm({
       category: item?.category ?? RewardFeatureCategory.placement,
       baseCost: item ? String(item.baseCost) : "100",
       durationSeconds:
-        item?.durationSeconds != null ? String(item.durationSeconds) : undefined,
+        item?.durationSeconds != null
+          ? String(item.durationSeconds)
+          : undefined,
       maxActivePerUser:
-        item?.maxActivePerUser != null ? String(item.maxActivePerUser) : undefined,
+        item?.maxActivePerUser != null
+          ? String(item.maxActivePerUser)
+          : undefined,
       maxPendingPerUser:
         item?.maxPendingPerUser != null
           ? String(item.maxPendingPerUser)
@@ -202,9 +206,7 @@ export default function CatalogForm({
       <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="text-left text-2xl font-bold">
-            {mode === "create"
-              ? "Create catalog item"
-              : "Edit catalog item"}
+            {mode === "create" ? "Create catalog item" : "Edit catalog item"}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -340,7 +342,9 @@ export default function CatalogForm({
                       <FormControl>
                         <Input placeholder="150" {...field} />
                       </FormControl>
-                      <FormDescription>Rewards required to redeem.</FormDescription>
+                      <FormDescription>
+                        Rewards required to redeem.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -445,7 +449,9 @@ export default function CatalogForm({
                     <FormControl>
                       <Textarea placeholder="{}" rows={4} {...field} />
                     </FormControl>
-                    <FormDescription>Optional JSON payload stored on the item.</FormDescription>
+                    <FormDescription>
+                      Optional JSON payload stored on the item.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

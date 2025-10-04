@@ -192,7 +192,8 @@ function parseCatalogForm(formData: FormData): CatalogInput {
 
   return {
     featureKey,
-    planFeatureKey: planFeatureKey && planFeatureKey.length ? planFeatureKey : null,
+    planFeatureKey:
+      planFeatureKey && planFeatureKey.length ? planFeatureKey : null,
     name,
     description: description && description.length ? description : null,
     category: RewardFeatureCategory[categoryRaw],
@@ -276,11 +277,7 @@ export async function getRewardCatalogItems(args: PaginationArgs = {}) {
   const { skip = 0, take = DEFAULT_LIMIT } = args
   try {
     return await prisma.rewardCatalogItem.findMany({
-      orderBy: [
-        { category: "asc" },
-        { baseCost: "asc" },
-        { name: "asc" },
-      ],
+      orderBy: [{ category: "asc" }, { baseCost: "asc" }, { name: "asc" }],
       skip,
       take,
     })
