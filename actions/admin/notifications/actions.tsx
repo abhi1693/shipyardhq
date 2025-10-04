@@ -100,6 +100,64 @@ async function getSubscribedNewsletterEmails(): Promise<string[]> {
   return Array.from(normalized)
 }
 
+async function subscribeSentOutreachRecipients(emails: string[]) {
+  if (!emails.length) {
+    return
+  }
+
+  const normalized = Array.from(
+    new Set(
+      emails
+        .map((email) => email.trim().toLowerCase())
+        .filter((email) => email.length > 0),
+    ),
+  )
+
+  if (!normalized.length) {
+    return
+  }
+
+  const emailWhereClauses = normalized.map((email) => ({
+    email: { equals: email, mode: "insensitive" as const },
+  }))
+
+  const [existingUsers, existingSubscriptions] = await Promise.all([
+    prisma.user.findMany({
+      where: { OR: emailWhereClauses },
+      select: { email: true },
+    }),
+    prisma.newsletterSubscription.findMany({
+      where: { OR: emailWhereClauses },
+      select: { email: true },
+    }),
+  ])
+
+  const registeredEmails = new Set(
+    existingUsers
+      .map((user) => user.email?.trim().toLowerCase())
+      .filter((email): email is string => Boolean(email)),
+  )
+
+  const subscribedEmails = new Set(
+    existingSubscriptions
+      .map((entry) => entry.email?.trim().toLowerCase())
+      .filter((email): email is string => Boolean(email)),
+  )
+
+  const emailsToSubscribe = normalized.filter(
+    (email) => !registeredEmails.has(email) && !subscribedEmails.has(email),
+  )
+
+  if (!emailsToSubscribe.length) {
+    return
+  }
+
+  await prisma.newsletterSubscription.createMany({
+    data: emailsToSubscribe.map((email) => ({ email })),
+    skipDuplicates: true,
+  })
+}
+
 function getGreetingName(recipient: ResolvedRecipient): string {
   const explicit = recipient.firstName?.trim()
   if (explicit) {
@@ -611,6 +669,7 @@ export async function sendBuilderOutreachEmailsAction(
 
   const failed: { email: string; error: string }[] = []
   let sent = 0
+  const successfullySent: string[] = []
 
   for (const [index, email] of recipients.entries()) {
     if (index > 0) {
@@ -627,6 +686,7 @@ export async function sendBuilderOutreachEmailsAction(
         react: <BuilderOutreachEmail firstName={firstName} />,
       })
       sent += 1
+      successfullySent.push(email)
     } catch (error: any) {
       console.error(`Failed to send builder outreach email to ${email}`, error)
       failed.push({
@@ -634,6 +694,12 @@ export async function sendBuilderOutreachEmailsAction(
         error: error?.message ?? "Unknown error",
       })
     }
+  }
+
+  try {
+    await subscribeSentOutreachRecipients(successfullySent)
+  } catch (error) {
+    console.error("Failed to subscribe builder outreach recipients", error)
   }
 
   if (sent === 0) {

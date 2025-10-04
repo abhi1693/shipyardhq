@@ -4,22 +4,15 @@ import {
   revalidateLeaderboard,
   revalidateProduct,
 } from "@/lib/cache/revalidate"
+import { ensureCronAuthorized } from "@/lib/server/cronAuth"
 import { flushPendingVotesToDatabase } from "@/lib/server/productVotesStore"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-function isAuthorized(request: Request) {
-  const secret = process.env.CRON_SECRET
-  if (!secret) return true
-  const authHeader = request.headers.get("authorization") || ""
-  return authHeader === `Bearer ${secret}`
-}
-
 export async function POST(request: Request) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+  const authResponse = ensureCronAuthorized(request)
+  if (authResponse) return authResponse
 
   try {
     const result = await flushPendingVotesToDatabase()

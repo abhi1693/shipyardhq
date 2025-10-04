@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { ensureCronAuthorized } from "@/lib/server/cronAuth"
 import {
   dequeueProductInsightPipelineJobs,
   markPipelineJobComplete,
@@ -30,13 +31,8 @@ function getMaxAttempts() {
 }
 
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET
-  if (secret) {
-    const authHeader = request.headers.get("authorization") || ""
-    if (authHeader !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-  }
+  const authResponse = ensureCronAuthorized(request)
+  if (authResponse) return authResponse
 
   const batchSize = getBatchSize()
   const maxAttempts = getMaxAttempts()

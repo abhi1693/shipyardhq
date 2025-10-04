@@ -61,4 +61,56 @@ describe("cron product insight refresh route", () => {
 
     errorSpy.mockRestore()
   })
+
+  it("rejects when cron secret is missing", async () => {
+    delete process.env.CRON_SECRET
+
+    const res = await GET(
+      new Request("https://example.com", {
+        headers: { authorization: "Bearer top-secret" },
+      }),
+    )
+
+    expect(res.status).toBe(401)
+  })
+
+  it("accepts raw secret without bearer prefix", async () => {
+    schedulerMock.mockResolvedValueOnce({
+      examined: 0,
+      queued: 0,
+      skipped: 0,
+      limit: 25,
+      staleAfterMs: undefined,
+      results: [],
+    })
+
+    const res = await GET(
+      new Request("https://example.com", {
+        headers: { authorization: "top-secret" },
+      }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(schedulerMock).toHaveBeenCalled()
+  })
+
+  it("accepts x-cron-secret header", async () => {
+    schedulerMock.mockResolvedValueOnce({
+      examined: 0,
+      queued: 0,
+      skipped: 0,
+      limit: 25,
+      staleAfterMs: undefined,
+      results: [],
+    })
+
+    const res = await GET(
+      new Request("https://example.com", {
+        headers: { "x-cron-secret": "top-secret" },
+      }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(schedulerMock).toHaveBeenCalled()
+  })
 })
