@@ -25,6 +25,9 @@ export const TAGS = {
   feedback: "feedback",
   subscriptions: "subscriptions",
   placement: (key: string) => `placement:${key}`,
+  points: "points",
+  pointRule: (key: string) => `points:rule:${key}`,
+  pointReward: (key: string) => `points:reward:${key}`,
 } as const
 
 export type Tag = (typeof TAGS)[keyof typeof TAGS] | string
