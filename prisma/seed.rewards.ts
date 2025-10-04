@@ -7,6 +7,7 @@ import {
   RewardFeatureCategory,
   RewardRuleCategory,
 } from "@/lib/vendor/prisma/client"
+import { REWARD_FEATURE_KEY } from "@/lib/rewards/constants"
 
 const prisma = new PrismaClient()
 
@@ -115,8 +116,8 @@ const RULES: RuleSeed[] = [
 
 const CATALOG: CatalogSeed[] = [
   {
-    featureKey: "priorityPlacement",
-    planFeatureKey: "priorityPlacement",
+    featureKey: REWARD_FEATURE_KEY.priorityPlacement,
+    planFeatureKey: REWARD_FEATURE_KEY.priorityPlacement,
     name: "Priority placement",
     description: "Boost to the top of browse results for 24 hours.",
     category: RewardFeatureCategory.placement,
@@ -128,8 +129,8 @@ const CATALOG: CatalogSeed[] = [
     metadata: { surface: "priority" },
   },
   {
-    featureKey: "featured",
-    planFeatureKey: "featured",
+    featureKey: REWARD_FEATURE_KEY.featured,
+    planFeatureKey: REWARD_FEATURE_KEY.featured,
     name: "Featured badge",
     description: "Highlight the product across Shipyard for seven days.",
     category: RewardFeatureCategory.placement,
@@ -140,8 +141,8 @@ const CATALOG: CatalogSeed[] = [
     metadata: { surface: "featured" },
   },
   {
-    featureKey: "homepage",
-    planFeatureKey: "homepage",
+    featureKey: REWARD_FEATURE_KEY.homepage,
+    planFeatureKey: REWARD_FEATURE_KEY.homepage,
     name: "Homepage placement",
     description: "Showcase on the homepage hero carousel for three days.",
     category: RewardFeatureCategory.exposure,
@@ -152,8 +153,8 @@ const CATALOG: CatalogSeed[] = [
     metadata: { surface: "homepage" },
   },
   {
-    featureKey: "stickyBanner",
-    planFeatureKey: "stickyBanner",
+    featureKey: REWARD_FEATURE_KEY.stickyBanner,
+    planFeatureKey: REWARD_FEATURE_KEY.stickyBanner,
     name: "Sticky banner",
     description:
       "Reserve a persistent ribbon across browse and product pages for two days.",
@@ -164,8 +165,8 @@ const CATALOG: CatalogSeed[] = [
     metadata: { surface: "sticky-banner" },
   },
   {
-    featureKey: "newsletterPromotion",
-    planFeatureKey: "newsletterPromotion",
+    featureKey: REWARD_FEATURE_KEY.newsletterPromotion,
+    planFeatureKey: REWARD_FEATURE_KEY.newsletterPromotion,
     name: "Newsletter promotion",
     description: "Reserve a slot in the next weekly newsletter.",
     category: RewardFeatureCategory.exposure,
@@ -176,8 +177,8 @@ const CATALOG: CatalogSeed[] = [
     metadata: { channel: "newsletter" },
   },
   {
-    featureKey: "analytics.advanced",
-    planFeatureKey: "analytics.advanced",
+    featureKey: REWARD_FEATURE_KEY.analyticsAdvanced,
+    planFeatureKey: REWARD_FEATURE_KEY.analyticsAdvanced,
     name: "Advanced analytics",
     description: "Unlock conversion and cohort dashboards for 30 days.",
     category: RewardFeatureCategory.analytics,
@@ -187,8 +188,8 @@ const CATALOG: CatalogSeed[] = [
     metadata: { capabilities: ["funnels", "geo", "utm"] },
   },
   {
-    featureKey: "insights.pipeline",
-    planFeatureKey: "insights.pipeline",
+    featureKey: REWARD_FEATURE_KEY.insightsPipeline,
+    planFeatureKey: REWARD_FEATURE_KEY.insightsPipeline,
     name: "Insights pipeline",
     description: "Run a full competitive and sentiment insights refresh.",
     category: RewardFeatureCategory.insights,
@@ -198,8 +199,8 @@ const CATALOG: CatalogSeed[] = [
     metadata: { includes: ["community", "threads", "aiSummary"] },
   },
   {
-    featureKey: "customCTA",
-    planFeatureKey: "customCTA",
+    featureKey: REWARD_FEATURE_KEY.customCTA,
+    planFeatureKey: REWARD_FEATURE_KEY.customCTA,
     name: "Custom call-to-action",
     description: "Swap the default CTA with a bespoke message for 14 days.",
     category: RewardFeatureCategory.utility,

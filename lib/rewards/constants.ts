@@ -1,16 +1,59 @@
-export const REWARD_FEATURE_KEY_OPTIONS = [
-  { value: "priorityPlacement", label: "Priority placement" },
-  { value: "featured", label: "Featured badge" },
-  { value: "homepage", label: "Homepage placement" },
-  { value: "stickyBanner", label: "Sticky banner" },
-  { value: "newsletterPromotion", label: "Newsletter promotion" },
-  { value: "analytics.advanced", label: "Advanced analytics" },
-  { value: "insights.pipeline", label: "Insights pipeline" },
-  { value: "customCTA", label: "Custom call-to-action" },
-] as const
+const REWARD_FEATURE_DEFINITIONS = {
+  priorityPlacement: {
+    value: "priorityPlacement",
+    label: "Priority placement",
+  },
+  featured: {
+    value: "featured",
+    label: "Featured badge",
+  },
+  homepage: {
+    value: "homepage",
+    label: "Homepage placement",
+  },
+  stickyBanner: {
+    value: "stickyBanner",
+    label: "Sticky banner",
+  },
+  newsletterPromotion: {
+    value: "newsletterPromotion",
+    label: "Newsletter promotion",
+  },
+  analyticsAdvanced: {
+    value: "analytics.advanced",
+    label: "Advanced analytics",
+  },
+  insightsPipeline: {
+    value: "insights.pipeline",
+    label: "Insights pipeline",
+  },
+  customCTA: {
+    value: "customCTA",
+    label: "Custom call-to-action",
+  },
+} as const
 
-export type RewardFeatureKeyOption =
-  (typeof REWARD_FEATURE_KEY_OPTIONS)[number]
+type RewardFeatureDefinitionRecord = typeof REWARD_FEATURE_DEFINITIONS
+type RewardFeatureDefinition =
+  RewardFeatureDefinitionRecord[keyof RewardFeatureDefinitionRecord]
+
+export const REWARD_FEATURE_KEY = Object.freeze(
+  Object.fromEntries(
+    Object.entries(REWARD_FEATURE_DEFINITIONS).map(([key, definition]) => [
+      key,
+      definition.value,
+    ]),
+  ),
+) as {
+  readonly [K in keyof RewardFeatureDefinitionRecord]:
+    RewardFeatureDefinitionRecord[K]["value"]
+}
+
+export const REWARD_FEATURE_KEY_OPTIONS = Object.freeze(
+  Object.values(REWARD_FEATURE_DEFINITIONS),
+) as readonly RewardFeatureDefinition[]
+
+export type RewardFeatureKeyOption = (typeof REWARD_FEATURE_KEY_OPTIONS)[number]
 export type RewardFeatureKey = RewardFeatureKeyOption["value"]
 
 export const REWARD_FEATURE_KEYS = Object.freeze(

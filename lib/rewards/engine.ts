@@ -14,6 +14,11 @@ import {
   type RewardRule,
   Prisma,
 } from "@/lib/vendor/prisma/client"
+import {
+  REWARD_FEATURE_KEY,
+  isRewardFeatureKey,
+  type RewardFeatureKey,
+} from "@/lib/rewards/constants"
 
 import {
   RewardsCapExceededError,
@@ -45,11 +50,11 @@ const ACTIVE_ENTITLEMENT_STATUSES = [
   FeatureEntitlementStatus.paused,
 ]
 
-const SCHEDULED_REWARD_KEYS = new Set([
-  "homepage",
-  "stickyBanner",
-  "priorityPlacement",
-  "newsletterPromotion",
+const SCHEDULED_REWARD_KEYS = new Set<RewardFeatureKey>([
+  REWARD_FEATURE_KEY.homepage,
+  REWARD_FEATURE_KEY.stickyBanner,
+  REWARD_FEATURE_KEY.priorityPlacement,
+  REWARD_FEATURE_KEY.newsletterPromotion,
 ])
 
 const SCHEDULED_SURFACES = new Set(["homepage", "sticky-banner"])
@@ -89,7 +94,10 @@ export function requiresPlacementSchedule(
   if (catalogItem.category === RewardFeatureCategory.placement) {
     return true
   }
-  if (SCHEDULED_REWARD_KEYS.has(catalogItem.featureKey)) {
+  if (
+    isRewardFeatureKey(catalogItem.featureKey) &&
+    SCHEDULED_REWARD_KEYS.has(catalogItem.featureKey)
+  ) {
     return true
   }
   const surface = extractSurface(catalogItem.metadata)

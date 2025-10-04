@@ -1,3 +1,5 @@
+import { REWARD_FEATURE_KEY } from "./rewards/constants"
+
 export const IS_PROD = process.env.NODE_ENV === "production"
 export const HAS_APP_URL = Boolean(process.env.NEXT_PUBLIC_APP_URL)
 
@@ -70,18 +72,19 @@ export type PlatformCode = (typeof PLATFORMS)[number]
 export const PLAN_FEATURE_KEYS = [
   "analytics.basic",
   "product.sitemap",
-  "featured",
-  "priorityPlacement",
-  "homepage",
-  "stickyBanner",
-  "customCTA",
+  REWARD_FEATURE_KEY.featured,
+  REWARD_FEATURE_KEY.priorityPlacement,
+  REWARD_FEATURE_KEY.homepage,
+  REWARD_FEATURE_KEY.stickyBanner,
+  REWARD_FEATURE_KEY.customCTA,
   "earlyAccess",
-  "newsletterPromotion",
+  REWARD_FEATURE_KEY.newsletterPromotion,
   "backlink",
   "organization",
-  "insights.pipeline",
+  REWARD_FEATURE_KEY.insightsPipeline,
 ] as const
 
 export type PlanFeatureKey = (typeof PLAN_FEATURE_KEYS)[number]
 
-export const INSIGHTS_PIPELINE_FEATURE_KEY = "insights.pipeline" as const
+export const INSIGHTS_PIPELINE_FEATURE_KEY =
+  REWARD_FEATURE_KEY.insightsPipeline
