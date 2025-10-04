@@ -23525,6 +23525,8 @@ export namespace Prisma {
     rating: number | null
     status: $Enums.FeedbackStatus | null
     adminNote: string | null
+    rewardEligible: boolean | null
+    rewardGrantedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -23537,6 +23539,8 @@ export namespace Prisma {
     rating: number | null
     status: $Enums.FeedbackStatus | null
     adminNote: string | null
+    rewardEligible: boolean | null
+    rewardGrantedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -23549,6 +23553,8 @@ export namespace Prisma {
     rating: number
     status: number
     adminNote: number
+    rewardEligible: number
+    rewardGrantedAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -23571,6 +23577,8 @@ export namespace Prisma {
     rating?: true
     status?: true
     adminNote?: true
+    rewardEligible?: true
+    rewardGrantedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -23583,6 +23591,8 @@ export namespace Prisma {
     rating?: true
     status?: true
     adminNote?: true
+    rewardEligible?: true
+    rewardGrantedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -23595,6 +23605,8 @@ export namespace Prisma {
     rating?: true
     status?: true
     adminNote?: true
+    rewardEligible?: true
+    rewardGrantedAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -23694,6 +23706,8 @@ export namespace Prisma {
     rating: number | null
     status: $Enums.FeedbackStatus
     adminNote: string | null
+    rewardEligible: boolean
+    rewardGrantedAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: MemberFeedbackCountAggregateOutputType | null
@@ -23725,6 +23739,8 @@ export namespace Prisma {
     rating?: boolean
     status?: boolean
     adminNote?: boolean
+    rewardEligible?: boolean
+    rewardGrantedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -23738,6 +23754,8 @@ export namespace Prisma {
     rating?: boolean
     status?: boolean
     adminNote?: boolean
+    rewardEligible?: boolean
+    rewardGrantedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -23751,6 +23769,8 @@ export namespace Prisma {
     rating?: boolean
     status?: boolean
     adminNote?: boolean
+    rewardEligible?: boolean
+    rewardGrantedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -23764,11 +23784,13 @@ export namespace Prisma {
     rating?: boolean
     status?: boolean
     adminNote?: boolean
+    rewardEligible?: boolean
+    rewardGrantedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type MemberFeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "subject" | "message" | "rating" | "status" | "adminNote" | "createdAt" | "updatedAt", ExtArgs["result"]["memberFeedback"]>
+  export type MemberFeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "subject" | "message" | "rating" | "status" | "adminNote" | "rewardEligible" | "rewardGrantedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["memberFeedback"]>
   export type MemberFeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -23792,6 +23814,8 @@ export namespace Prisma {
       rating: number | null
       status: $Enums.FeedbackStatus
       adminNote: string | null
+      rewardEligible: boolean
+      rewardGrantedAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["memberFeedback"]>
@@ -24225,6 +24249,8 @@ export namespace Prisma {
     readonly rating: FieldRef<"MemberFeedback", 'Int'>
     readonly status: FieldRef<"MemberFeedback", 'FeedbackStatus'>
     readonly adminNote: FieldRef<"MemberFeedback", 'String'>
+    readonly rewardEligible: FieldRef<"MemberFeedback", 'Boolean'>
+    readonly rewardGrantedAt: FieldRef<"MemberFeedback", 'DateTime'>
     readonly createdAt: FieldRef<"MemberFeedback", 'DateTime'>
     readonly updatedAt: FieldRef<"MemberFeedback", 'DateTime'>
   }
@@ -43982,6 +44008,8 @@ export namespace Prisma {
     rating: 'rating',
     status: 'status',
     adminNote: 'adminNote',
+    rewardEligible: 'rewardEligible',
+    rewardGrantedAt: 'rewardGrantedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -45986,6 +46014,8 @@ export namespace Prisma {
     rating?: IntNullableFilter<"MemberFeedback"> | number | null
     status?: EnumFeedbackStatusFilter<"MemberFeedback"> | $Enums.FeedbackStatus
     adminNote?: StringNullableFilter<"MemberFeedback"> | string | null
+    rewardEligible?: BoolFilter<"MemberFeedback"> | boolean
+    rewardGrantedAt?: DateTimeNullableFilter<"MemberFeedback"> | Date | string | null
     createdAt?: DateTimeFilter<"MemberFeedback"> | Date | string
     updatedAt?: DateTimeFilter<"MemberFeedback"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -45999,6 +46029,8 @@ export namespace Prisma {
     rating?: SortOrderInput | SortOrder
     status?: SortOrder
     adminNote?: SortOrderInput | SortOrder
+    rewardEligible?: SortOrder
+    rewardGrantedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -46015,6 +46047,8 @@ export namespace Prisma {
     rating?: IntNullableFilter<"MemberFeedback"> | number | null
     status?: EnumFeedbackStatusFilter<"MemberFeedback"> | $Enums.FeedbackStatus
     adminNote?: StringNullableFilter<"MemberFeedback"> | string | null
+    rewardEligible?: BoolFilter<"MemberFeedback"> | boolean
+    rewardGrantedAt?: DateTimeNullableFilter<"MemberFeedback"> | Date | string | null
     createdAt?: DateTimeFilter<"MemberFeedback"> | Date | string
     updatedAt?: DateTimeFilter<"MemberFeedback"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -46028,6 +46062,8 @@ export namespace Prisma {
     rating?: SortOrderInput | SortOrder
     status?: SortOrder
     adminNote?: SortOrderInput | SortOrder
+    rewardEligible?: SortOrder
+    rewardGrantedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: MemberFeedbackCountOrderByAggregateInput
@@ -46048,6 +46084,8 @@ export namespace Prisma {
     rating?: IntNullableWithAggregatesFilter<"MemberFeedback"> | number | null
     status?: EnumFeedbackStatusWithAggregatesFilter<"MemberFeedback"> | $Enums.FeedbackStatus
     adminNote?: StringNullableWithAggregatesFilter<"MemberFeedback"> | string | null
+    rewardEligible?: BoolWithAggregatesFilter<"MemberFeedback"> | boolean
+    rewardGrantedAt?: DateTimeNullableWithAggregatesFilter<"MemberFeedback"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"MemberFeedback"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"MemberFeedback"> | Date | string
   }
@@ -49003,6 +49041,8 @@ export namespace Prisma {
     rating?: number | null
     status?: $Enums.FeedbackStatus
     adminNote?: string | null
+    rewardEligible?: boolean
+    rewardGrantedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutFeedbackInput
@@ -49016,6 +49056,8 @@ export namespace Prisma {
     rating?: number | null
     status?: $Enums.FeedbackStatus
     adminNote?: string | null
+    rewardEligible?: boolean
+    rewardGrantedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49027,6 +49069,8 @@ export namespace Prisma {
     rating?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
     adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    rewardEligible?: BoolFieldUpdateOperationsInput | boolean
+    rewardGrantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutFeedbackNestedInput
@@ -49040,6 +49084,8 @@ export namespace Prisma {
     rating?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
     adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    rewardEligible?: BoolFieldUpdateOperationsInput | boolean
+    rewardGrantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49052,6 +49098,8 @@ export namespace Prisma {
     rating?: number | null
     status?: $Enums.FeedbackStatus
     adminNote?: string | null
+    rewardEligible?: boolean
+    rewardGrantedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49063,6 +49111,8 @@ export namespace Prisma {
     rating?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
     adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    rewardEligible?: BoolFieldUpdateOperationsInput | boolean
+    rewardGrantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49075,6 +49125,8 @@ export namespace Prisma {
     rating?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
     adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    rewardEligible?: BoolFieldUpdateOperationsInput | boolean
+    rewardGrantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -51946,6 +51998,8 @@ export namespace Prisma {
     rating?: SortOrder
     status?: SortOrder
     adminNote?: SortOrder
+    rewardEligible?: SortOrder
+    rewardGrantedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -51962,6 +52016,8 @@ export namespace Prisma {
     rating?: SortOrder
     status?: SortOrder
     adminNote?: SortOrder
+    rewardEligible?: SortOrder
+    rewardGrantedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -51974,6 +52030,8 @@ export namespace Prisma {
     rating?: SortOrder
     status?: SortOrder
     adminNote?: SortOrder
+    rewardEligible?: SortOrder
+    rewardGrantedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -60236,6 +60294,8 @@ export namespace Prisma {
     rating?: number | null
     status?: $Enums.FeedbackStatus
     adminNote?: string | null
+    rewardEligible?: boolean
+    rewardGrantedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -60247,6 +60307,8 @@ export namespace Prisma {
     rating?: number | null
     status?: $Enums.FeedbackStatus
     adminNote?: string | null
+    rewardEligible?: boolean
+    rewardGrantedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -60659,6 +60721,8 @@ export namespace Prisma {
     rating?: IntNullableFilter<"MemberFeedback"> | number | null
     status?: EnumFeedbackStatusFilter<"MemberFeedback"> | $Enums.FeedbackStatus
     adminNote?: StringNullableFilter<"MemberFeedback"> | string | null
+    rewardEligible?: BoolFilter<"MemberFeedback"> | boolean
+    rewardGrantedAt?: DateTimeNullableFilter<"MemberFeedback"> | Date | string | null
     createdAt?: DateTimeFilter<"MemberFeedback"> | Date | string
     updatedAt?: DateTimeFilter<"MemberFeedback"> | Date | string
   }
@@ -66248,6 +66312,8 @@ export namespace Prisma {
     rating?: number | null
     status?: $Enums.FeedbackStatus
     adminNote?: string | null
+    rewardEligible?: boolean
+    rewardGrantedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -66557,6 +66623,8 @@ export namespace Prisma {
     rating?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
     adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    rewardEligible?: BoolFieldUpdateOperationsInput | boolean
+    rewardGrantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -66568,6 +66636,8 @@ export namespace Prisma {
     rating?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
     adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    rewardEligible?: BoolFieldUpdateOperationsInput | boolean
+    rewardGrantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -66579,6 +66649,8 @@ export namespace Prisma {
     rating?: NullableIntFieldUpdateOperationsInput | number | null
     status?: EnumFeedbackStatusFieldUpdateOperationsInput | $Enums.FeedbackStatus
     adminNote?: NullableStringFieldUpdateOperationsInput | string | null
+    rewardEligible?: BoolFieldUpdateOperationsInput | boolean
+    rewardGrantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

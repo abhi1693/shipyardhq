@@ -220,6 +220,11 @@ export default function MemberFeedback({
                   new Date(entry.createdAt),
                   { addSuffix: true },
                 )
+                const rewardGrantedAt = entry.rewardGrantedAt
+                  ? formatDistanceToNow(new Date(entry.rewardGrantedAt), {
+                      addSuffix: true,
+                    })
+                  : null
 
                 return (
                   <li
@@ -235,6 +240,16 @@ export default function MemberFeedback({
                           <span className="text-xs font-medium text-amber-600">
                             Rating: {entry.rating}/5
                           </span>
+                        ) : null}
+                        {entry.rewardEligible ? (
+                          <Badge
+                            variant={entry.rewardGrantedAt ? "default" : "secondary"}
+                            className="text-[10px] uppercase"
+                          >
+                            {entry.rewardGrantedAt
+                              ? "Reward granted"
+                              : "Reward eligible"}
+                          </Badge>
                         ) : null}
                       </div>
                       <span className="text-xs text-muted-foreground">
@@ -258,6 +273,13 @@ export default function MemberFeedback({
                           {entry.adminNote}
                         </p>
                       </div>
+                    ) : null}
+                    {entry.rewardEligible ? (
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-600">
+                        {entry.rewardGrantedAt
+                          ? `Rewards granted ${rewardGrantedAt}`
+                          : "Rewards will be granted once this feedback is closed."}
+                      </p>
                     ) : null}
                   </li>
                 )

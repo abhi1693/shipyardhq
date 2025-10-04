@@ -23,6 +23,8 @@ export type MemberFeedbackListItem = {
   rating: number | null
   status: FeedbackStatus
   adminNote: string | null
+  rewardEligible: boolean
+  rewardGrantedAt: string | null
   createdAt: string
   updatedAt: string
 }
@@ -57,6 +59,10 @@ export async function listMyFeedback(
     rating: row.rating,
     status: row.status,
     adminNote: row.adminNote,
+    rewardEligible: row.rewardEligible,
+    rewardGrantedAt: row.rewardGrantedAt
+      ? row.rewardGrantedAt.toISOString()
+      : null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   }))

@@ -5,6 +5,7 @@ import type { AdminFeedbackEntry } from "@/actions/admin/feedback/actions"
 import { formatDate } from "@/lib/ui/formatters"
 import AdminFeedbackStatusSelect from "@/components/molecules/AdminFeedbackStatusSelect"
 import AdminFeedbackNoteButton from "@/components/molecules/AdminFeedbackNoteButton"
+import AdminFeedbackRewardToggle from "@/components/molecules/AdminFeedbackRewardToggle"
 
 export const columns: ColumnDef<AdminFeedbackEntry>[] = [
   {
@@ -72,6 +73,17 @@ export const columns: ColumnDef<AdminFeedbackEntry>[] = [
       <AdminFeedbackStatusSelect
         feedbackId={row.original.id}
         status={row.original.status}
+      />
+    ),
+  },
+  {
+    id: "reward",
+    header: "Reward on close",
+    cell: ({ row }) => (
+      <AdminFeedbackRewardToggle
+        feedbackId={row.original.id}
+        rewardEligible={row.original.rewardEligible}
+        rewardGrantedAt={row.original.rewardGrantedAt}
       />
     ),
   },

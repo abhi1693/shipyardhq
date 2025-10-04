@@ -468,15 +468,17 @@ enum FeatureEntitlementStatus {
 }
 
 model MemberFeedback {
-  id        String         @id @default(cuid())
-  userId    String
-  subject   String?
-  message   String
-  rating    Int?
-  status    FeedbackStatus @default(received)
-  adminNote String?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id              String         @id @default(cuid())
+  userId          String
+  subject         String?
+  message         String
+  rating          Int?
+  status          FeedbackStatus @default(received)
+  adminNote       String?
+  rewardEligible  Boolean        @default(false)
+  rewardGrantedAt DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
