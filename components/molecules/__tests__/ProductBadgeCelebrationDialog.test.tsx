@@ -22,6 +22,9 @@ describe("ProductBadgeCelebrationDialog", () => {
     expect(
       screen.getByAltText(`Featured on ${siteConfig.name}`),
     ).toBeInTheDocument()
+    expect(
+      screen.getByText(/backlink verification reward/i),
+    ).toBeInTheDocument()
     const textarea = screen.getByRole("textbox") as HTMLTextAreaElement
     expect(textarea.value).toContain("/featured-on-light.png")
     expect(textarea.value).toContain(siteConfig.url)

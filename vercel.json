@@ -31,6 +31,10 @@
     {
       "path": "/api/cron/rewards/placements",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/rewards/backlinks",
+      "schedule": "0 5 * * *"
     }
   ]
 }

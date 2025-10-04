@@ -9683,6 +9683,11 @@ export namespace Prisma {
     verificationTxt: string | null
     isVerified: boolean | null
     verifiedAt: Date | null
+    backlinkIsVerified: boolean | null
+    backlinkVerifiedAt: Date | null
+    backlinkLastCheckedAt: Date | null
+    backlinkFoundUrl: string | null
+    backlinkLastError: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9693,6 +9698,11 @@ export namespace Prisma {
     verificationTxt: string | null
     isVerified: boolean | null
     verifiedAt: Date | null
+    backlinkIsVerified: boolean | null
+    backlinkVerifiedAt: Date | null
+    backlinkLastCheckedAt: Date | null
+    backlinkFoundUrl: string | null
+    backlinkLastError: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9703,6 +9713,11 @@ export namespace Prisma {
     verificationTxt: number
     isVerified: number
     verifiedAt: number
+    backlinkIsVerified: number
+    backlinkVerifiedAt: number
+    backlinkLastCheckedAt: number
+    backlinkFoundUrl: number
+    backlinkLastError: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -9715,6 +9730,11 @@ export namespace Prisma {
     verificationTxt?: true
     isVerified?: true
     verifiedAt?: true
+    backlinkIsVerified?: true
+    backlinkVerifiedAt?: true
+    backlinkLastCheckedAt?: true
+    backlinkFoundUrl?: true
+    backlinkLastError?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9725,6 +9745,11 @@ export namespace Prisma {
     verificationTxt?: true
     isVerified?: true
     verifiedAt?: true
+    backlinkIsVerified?: true
+    backlinkVerifiedAt?: true
+    backlinkLastCheckedAt?: true
+    backlinkFoundUrl?: true
+    backlinkLastError?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9735,6 +9760,11 @@ export namespace Prisma {
     verificationTxt?: true
     isVerified?: true
     verifiedAt?: true
+    backlinkIsVerified?: true
+    backlinkVerifiedAt?: true
+    backlinkLastCheckedAt?: true
+    backlinkFoundUrl?: true
+    backlinkLastError?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -9818,6 +9848,11 @@ export namespace Prisma {
     verificationTxt: string
     isVerified: boolean
     verifiedAt: Date | null
+    backlinkIsVerified: boolean
+    backlinkVerifiedAt: Date | null
+    backlinkLastCheckedAt: Date | null
+    backlinkFoundUrl: string | null
+    backlinkLastError: string | null
     createdAt: Date
     updatedAt: Date
     _count: ProductVerificationCountAggregateOutputType | null
@@ -9845,6 +9880,11 @@ export namespace Prisma {
     verificationTxt?: boolean
     isVerified?: boolean
     verifiedAt?: boolean
+    backlinkIsVerified?: boolean
+    backlinkVerifiedAt?: boolean
+    backlinkLastCheckedAt?: boolean
+    backlinkFoundUrl?: boolean
+    backlinkLastError?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -9856,6 +9896,11 @@ export namespace Prisma {
     verificationTxt?: boolean
     isVerified?: boolean
     verifiedAt?: boolean
+    backlinkIsVerified?: boolean
+    backlinkVerifiedAt?: boolean
+    backlinkLastCheckedAt?: boolean
+    backlinkFoundUrl?: boolean
+    backlinkLastError?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -9867,6 +9912,11 @@ export namespace Prisma {
     verificationTxt?: boolean
     isVerified?: boolean
     verifiedAt?: boolean
+    backlinkIsVerified?: boolean
+    backlinkVerifiedAt?: boolean
+    backlinkLastCheckedAt?: boolean
+    backlinkFoundUrl?: boolean
+    backlinkLastError?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -9878,11 +9928,16 @@ export namespace Prisma {
     verificationTxt?: boolean
     isVerified?: boolean
     verifiedAt?: boolean
+    backlinkIsVerified?: boolean
+    backlinkVerifiedAt?: boolean
+    backlinkLastCheckedAt?: boolean
+    backlinkFoundUrl?: boolean
+    backlinkLastError?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ProductVerificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "verificationTxt" | "isVerified" | "verifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["productVerification"]>
+  export type ProductVerificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "verificationTxt" | "isVerified" | "verifiedAt" | "backlinkIsVerified" | "backlinkVerifiedAt" | "backlinkLastCheckedAt" | "backlinkFoundUrl" | "backlinkLastError" | "createdAt" | "updatedAt", ExtArgs["result"]["productVerification"]>
   export type ProductVerificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }
@@ -9904,6 +9959,11 @@ export namespace Prisma {
       verificationTxt: string
       isVerified: boolean
       verifiedAt: Date | null
+      backlinkIsVerified: boolean
+      backlinkVerifiedAt: Date | null
+      backlinkLastCheckedAt: Date | null
+      backlinkFoundUrl: string | null
+      backlinkLastError: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["productVerification"]>
@@ -10335,6 +10395,11 @@ export namespace Prisma {
     readonly verificationTxt: FieldRef<"ProductVerification", 'String'>
     readonly isVerified: FieldRef<"ProductVerification", 'Boolean'>
     readonly verifiedAt: FieldRef<"ProductVerification", 'DateTime'>
+    readonly backlinkIsVerified: FieldRef<"ProductVerification", 'Boolean'>
+    readonly backlinkVerifiedAt: FieldRef<"ProductVerification", 'DateTime'>
+    readonly backlinkLastCheckedAt: FieldRef<"ProductVerification", 'DateTime'>
+    readonly backlinkFoundUrl: FieldRef<"ProductVerification", 'String'>
+    readonly backlinkLastError: FieldRef<"ProductVerification", 'String'>
     readonly createdAt: FieldRef<"ProductVerification", 'DateTime'>
     readonly updatedAt: FieldRef<"ProductVerification", 'DateTime'>
   }
@@ -43735,6 +43800,11 @@ export namespace Prisma {
     verificationTxt: 'verificationTxt',
     isVerified: 'isVerified',
     verifiedAt: 'verifiedAt',
+    backlinkIsVerified: 'backlinkIsVerified',
+    backlinkVerifiedAt: 'backlinkVerifiedAt',
+    backlinkLastCheckedAt: 'backlinkLastCheckedAt',
+    backlinkFoundUrl: 'backlinkFoundUrl',
+    backlinkLastError: 'backlinkLastError',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -44955,6 +45025,11 @@ export namespace Prisma {
     verificationTxt?: StringFilter<"ProductVerification"> | string
     isVerified?: BoolFilter<"ProductVerification"> | boolean
     verifiedAt?: DateTimeNullableFilter<"ProductVerification"> | Date | string | null
+    backlinkIsVerified?: BoolFilter<"ProductVerification"> | boolean
+    backlinkVerifiedAt?: DateTimeNullableFilter<"ProductVerification"> | Date | string | null
+    backlinkLastCheckedAt?: DateTimeNullableFilter<"ProductVerification"> | Date | string | null
+    backlinkFoundUrl?: StringNullableFilter<"ProductVerification"> | string | null
+    backlinkLastError?: StringNullableFilter<"ProductVerification"> | string | null
     createdAt?: DateTimeFilter<"ProductVerification"> | Date | string
     updatedAt?: DateTimeFilter<"ProductVerification"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
@@ -44966,6 +45041,11 @@ export namespace Prisma {
     verificationTxt?: SortOrder
     isVerified?: SortOrder
     verifiedAt?: SortOrderInput | SortOrder
+    backlinkIsVerified?: SortOrder
+    backlinkVerifiedAt?: SortOrderInput | SortOrder
+    backlinkLastCheckedAt?: SortOrderInput | SortOrder
+    backlinkFoundUrl?: SortOrderInput | SortOrder
+    backlinkLastError?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     product?: ProductOrderByWithRelationInput
@@ -44980,6 +45060,11 @@ export namespace Prisma {
     verificationTxt?: StringFilter<"ProductVerification"> | string
     isVerified?: BoolFilter<"ProductVerification"> | boolean
     verifiedAt?: DateTimeNullableFilter<"ProductVerification"> | Date | string | null
+    backlinkIsVerified?: BoolFilter<"ProductVerification"> | boolean
+    backlinkVerifiedAt?: DateTimeNullableFilter<"ProductVerification"> | Date | string | null
+    backlinkLastCheckedAt?: DateTimeNullableFilter<"ProductVerification"> | Date | string | null
+    backlinkFoundUrl?: StringNullableFilter<"ProductVerification"> | string | null
+    backlinkLastError?: StringNullableFilter<"ProductVerification"> | string | null
     createdAt?: DateTimeFilter<"ProductVerification"> | Date | string
     updatedAt?: DateTimeFilter<"ProductVerification"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
@@ -44991,6 +45076,11 @@ export namespace Prisma {
     verificationTxt?: SortOrder
     isVerified?: SortOrder
     verifiedAt?: SortOrderInput | SortOrder
+    backlinkIsVerified?: SortOrder
+    backlinkVerifiedAt?: SortOrderInput | SortOrder
+    backlinkLastCheckedAt?: SortOrderInput | SortOrder
+    backlinkFoundUrl?: SortOrderInput | SortOrder
+    backlinkLastError?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ProductVerificationCountOrderByAggregateInput
@@ -45007,6 +45097,11 @@ export namespace Prisma {
     verificationTxt?: StringWithAggregatesFilter<"ProductVerification"> | string
     isVerified?: BoolWithAggregatesFilter<"ProductVerification"> | boolean
     verifiedAt?: DateTimeNullableWithAggregatesFilter<"ProductVerification"> | Date | string | null
+    backlinkIsVerified?: BoolWithAggregatesFilter<"ProductVerification"> | boolean
+    backlinkVerifiedAt?: DateTimeNullableWithAggregatesFilter<"ProductVerification"> | Date | string | null
+    backlinkLastCheckedAt?: DateTimeNullableWithAggregatesFilter<"ProductVerification"> | Date | string | null
+    backlinkFoundUrl?: StringNullableWithAggregatesFilter<"ProductVerification"> | string | null
+    backlinkLastError?: StringNullableWithAggregatesFilter<"ProductVerification"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ProductVerification"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ProductVerification"> | Date | string
   }
@@ -47852,6 +47947,11 @@ export namespace Prisma {
     verificationTxt: string
     isVerified?: boolean
     verifiedAt?: Date | string | null
+    backlinkIsVerified?: boolean
+    backlinkVerifiedAt?: Date | string | null
+    backlinkLastCheckedAt?: Date | string | null
+    backlinkFoundUrl?: string | null
+    backlinkLastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     product: ProductCreateNestedOneWithoutVerificationInput
@@ -47863,6 +47963,11 @@ export namespace Prisma {
     verificationTxt: string
     isVerified?: boolean
     verifiedAt?: Date | string | null
+    backlinkIsVerified?: boolean
+    backlinkVerifiedAt?: Date | string | null
+    backlinkLastCheckedAt?: Date | string | null
+    backlinkFoundUrl?: string | null
+    backlinkLastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -47872,6 +47977,11 @@ export namespace Prisma {
     verificationTxt?: StringFieldUpdateOperationsInput | string
     isVerified?: BoolFieldUpdateOperationsInput | boolean
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkIsVerified?: BoolFieldUpdateOperationsInput | boolean
+    backlinkVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkLastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkFoundUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    backlinkLastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     product?: ProductUpdateOneRequiredWithoutVerificationNestedInput
@@ -47883,6 +47993,11 @@ export namespace Prisma {
     verificationTxt?: StringFieldUpdateOperationsInput | string
     isVerified?: BoolFieldUpdateOperationsInput | boolean
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkIsVerified?: BoolFieldUpdateOperationsInput | boolean
+    backlinkVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkLastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkFoundUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    backlinkLastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -47893,6 +48008,11 @@ export namespace Prisma {
     verificationTxt: string
     isVerified?: boolean
     verifiedAt?: Date | string | null
+    backlinkIsVerified?: boolean
+    backlinkVerifiedAt?: Date | string | null
+    backlinkLastCheckedAt?: Date | string | null
+    backlinkFoundUrl?: string | null
+    backlinkLastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -47902,6 +48022,11 @@ export namespace Prisma {
     verificationTxt?: StringFieldUpdateOperationsInput | string
     isVerified?: BoolFieldUpdateOperationsInput | boolean
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkIsVerified?: BoolFieldUpdateOperationsInput | boolean
+    backlinkVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkLastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkFoundUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    backlinkLastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -47912,6 +48037,11 @@ export namespace Prisma {
     verificationTxt?: StringFieldUpdateOperationsInput | string
     isVerified?: BoolFieldUpdateOperationsInput | boolean
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkIsVerified?: BoolFieldUpdateOperationsInput | boolean
+    backlinkVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkLastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkFoundUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    backlinkLastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -51152,6 +51282,11 @@ export namespace Prisma {
     verificationTxt?: SortOrder
     isVerified?: SortOrder
     verifiedAt?: SortOrder
+    backlinkIsVerified?: SortOrder
+    backlinkVerifiedAt?: SortOrder
+    backlinkLastCheckedAt?: SortOrder
+    backlinkFoundUrl?: SortOrder
+    backlinkLastError?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -51162,6 +51297,11 @@ export namespace Prisma {
     verificationTxt?: SortOrder
     isVerified?: SortOrder
     verifiedAt?: SortOrder
+    backlinkIsVerified?: SortOrder
+    backlinkVerifiedAt?: SortOrder
+    backlinkLastCheckedAt?: SortOrder
+    backlinkFoundUrl?: SortOrder
+    backlinkLastError?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -51172,6 +51312,11 @@ export namespace Prisma {
     verificationTxt?: SortOrder
     isVerified?: SortOrder
     verifiedAt?: SortOrder
+    backlinkIsVerified?: SortOrder
+    backlinkVerifiedAt?: SortOrder
+    backlinkLastCheckedAt?: SortOrder
+    backlinkFoundUrl?: SortOrder
+    backlinkLastError?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -56322,6 +56467,11 @@ export namespace Prisma {
     verificationTxt: string
     isVerified?: boolean
     verifiedAt?: Date | string | null
+    backlinkIsVerified?: boolean
+    backlinkVerifiedAt?: Date | string | null
+    backlinkLastCheckedAt?: Date | string | null
+    backlinkFoundUrl?: string | null
+    backlinkLastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -56331,6 +56481,11 @@ export namespace Prisma {
     verificationTxt: string
     isVerified?: boolean
     verifiedAt?: Date | string | null
+    backlinkIsVerified?: boolean
+    backlinkVerifiedAt?: Date | string | null
+    backlinkLastCheckedAt?: Date | string | null
+    backlinkFoundUrl?: string | null
+    backlinkLastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -57035,6 +57190,11 @@ export namespace Prisma {
     verificationTxt?: StringFieldUpdateOperationsInput | string
     isVerified?: BoolFieldUpdateOperationsInput | boolean
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkIsVerified?: BoolFieldUpdateOperationsInput | boolean
+    backlinkVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkLastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkFoundUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    backlinkLastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -57044,6 +57204,11 @@ export namespace Prisma {
     verificationTxt?: StringFieldUpdateOperationsInput | string
     isVerified?: BoolFieldUpdateOperationsInput | boolean
     verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkIsVerified?: BoolFieldUpdateOperationsInput | boolean
+    backlinkVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkLastCheckedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    backlinkFoundUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    backlinkLastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

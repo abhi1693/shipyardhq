@@ -154,13 +154,18 @@ model ProductMedia {
 }
 
 model ProductVerification {
-  id              String    @id @default(cuid())
-  productId       String    @unique
-  verificationTxt String
-  isVerified      Boolean   @default(false)
-  verifiedAt      DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id                   String    @id @default(cuid())
+  productId            String    @unique
+  verificationTxt      String
+  isVerified           Boolean   @default(false)
+  verifiedAt           DateTime?
+  backlinkIsVerified   Boolean   @default(false)
+  backlinkVerifiedAt   DateTime?
+  backlinkLastCheckedAt DateTime?
+  backlinkFoundUrl     String?
+  backlinkLastError    String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 

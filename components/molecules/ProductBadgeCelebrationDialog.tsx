@@ -89,8 +89,15 @@ export function ProductBadgeCelebrationDialog({
         <DialogHeader>
           <DialogTitle>Congratulations on the new launch!</DialogTitle>
           <DialogDescription>
-            Celebrate your feature on {siteConfig.name} by adding this badge to
-            your website. Copy the snippet below or download the asset directly.
+            <span>
+              Celebrate your feature on {siteConfig.name} by adding this badge
+              to your website. Copy the snippet below or download the asset
+              directly.
+            </span>
+            <span className="mt-2 block text-muted-foreground">
+              Drop it on your homepage and you&apos;ll automatically earn the
+              backlink verification reward once we spot the link.
+            </span>
           </DialogDescription>
         </DialogHeader>
 
