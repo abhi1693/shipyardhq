@@ -49,6 +49,20 @@ const NEWSLETTER_INTENT_GROUPS: {
 const SIGNUP_TIMELINE_DAYS = 30
 const SIGNUP_TIMELINE_LABEL_FORMAT = "MMM d"
 
+function isSignupTimeline(value: unknown): value is OnboardingSignupPoint[] {
+  if (!Array.isArray(value)) return false
+  return value.every((item) => {
+    if (!item || typeof item !== "object") return false
+    const entry = item as Record<string, unknown>
+    return (
+      typeof entry.date === "string" &&
+      typeof entry.label === "string" &&
+      typeof entry.signups === "number" &&
+      Number.isFinite(entry.signups)
+    )
+  })
+}
+
 type PendingOnboardingUser = Prisma.UserGetPayload<{
   select: {
     id: true
@@ -205,7 +219,14 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   })
 
   if (cachedSummary) {
-    return cachedSummary
+    if (isSignupTimeline((cachedSummary as { signupTimeline?: unknown }).signupTimeline)) {
+      return cachedSummary
+    }
+
+    console.warn(
+      "[analytics] detected invalid signup timeline cache entry; refreshing",
+      { cacheKey },
+    )
   }
 
   const [
