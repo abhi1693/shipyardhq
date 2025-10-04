@@ -1,4 +1,4 @@
-import { subDays } from "date-fns"
+import { addDays, format, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
 import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
@@ -8,6 +8,7 @@ import type {
   OnboardingAnswerBreakdownItem,
   OnboardingAnswersSummary,
   OnboardingOutcomeDeltaItem,
+  OnboardingSignupPoint,
 } from "@/types/analytics"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 
@@ -44,6 +45,9 @@ const NEWSLETTER_INTENT_GROUPS: {
     intents: new Set(["explore"]),
   },
 ]
+
+const SIGNUP_TIMELINE_DAYS = 30
+const SIGNUP_TIMELINE_LABEL_FORMAT = "MMM d"
 
 type PendingOnboardingUser = Prisma.UserGetPayload<{
   select: {
@@ -183,6 +187,9 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   }
 
   const oneWeekAgo = subDays(new Date(), 7)
+  const today = startOfDay(new Date())
+  const timelineStart = subDays(today, SIGNUP_TIMELINE_DAYS - 1)
+  const timelineEnd = addDays(today, 1)
 
   const cacheKey = buildCacheKey("analytics", "onboardingSummary")
   const cacheTtlSeconds = resolveCacheTtl("slowest")
@@ -211,6 +218,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     completedMembers,
     allNewsletterSubscriptions,
     registeredUsers,
+    signupRecords,
   ] = await Promise.all([
     prisma.user.count({
       where: activeWhere,
@@ -256,6 +264,16 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     prisma.user.findMany({
       select: { email: true },
     }) as Promise<RegisteredUserEmail[]>,
+    prisma.user.findMany({
+      where: {
+        ...activeWhere,
+        createdAt: {
+          gte: timelineStart,
+          lt: timelineEnd,
+        },
+      },
+      select: { createdAt: true },
+    }) as Promise<Array<{ createdAt: Date }>>,
   ])
 
   type RoleIntentGroup = Pick<
@@ -517,6 +535,27 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
   const roleIntentOutcomes = buildOutcomeItems(roleIntentOutcomeMap)
   const heardFromOutcomes = buildOutcomeItems(heardFromOutcomeMap)
 
+  const signupTimelineBuckets = new Map<string, OnboardingSignupPoint>()
+  for (let index = 0; index < SIGNUP_TIMELINE_DAYS; index += 1) {
+    const bucketDate = addDays(timelineStart, index)
+    const iso = format(bucketDate, "yyyy-MM-dd")
+    signupTimelineBuckets.set(iso, {
+      date: iso,
+      label: format(bucketDate, SIGNUP_TIMELINE_LABEL_FORMAT),
+      signups: 0,
+    })
+  }
+
+  for (const record of signupRecords) {
+    const bucketKey = format(startOfDay(record.createdAt), "yyyy-MM-dd")
+    const bucket = signupTimelineBuckets.get(bucketKey)
+    if (bucket) {
+      bucket.signups += 1
+    }
+  }
+
+  const signupTimeline = Array.from(signupTimelineBuckets.values())
+
   const summary: OnboardingAnswersSummary = {
     totalActiveUsers,
     completedResponses,
@@ -534,6 +573,7 @@ export async function getOnboardingAnswersSummary(): Promise<OnboardingAnswersSu
     newsletterUnregisteredSubscribers,
     roleIntentOutcomes,
     heardFromOutcomes,
+    signupTimeline,
   }
 
   await cacheMiss({

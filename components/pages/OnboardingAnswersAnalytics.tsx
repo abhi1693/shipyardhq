@@ -13,6 +13,11 @@ import {
   type ChartConfig,
 } from "@/components/atoms/chart"
 import { AnalyticsBarChart } from "@/components/molecules/AnalyticsBarChart"
+import { AnalyticsChartCard } from "@/components/molecules/AnalyticsChartCard"
+import {
+  AnalyticsLineChart,
+  type AnalyticsLineDefinition,
+} from "@/components/molecules/AnalyticsLineChart"
 import type {
   OnboardingAnswersSummary,
   OnboardingOutcomeDeltaItem,
@@ -169,6 +174,21 @@ export function OnboardingAnswersAnalytics({
     },
   ]
 
+  const trackedDays = summary.signupTimeline.length
+  const totalSignups = summary.signupTimeline.reduce(
+    (total, point) => total + point.signups,
+    0,
+  )
+  const latestSignupPoint = summary.signupTimeline.at(-1)
+  const latestSignups = latestSignupPoint?.signups ?? 0
+  const latestSignupLabel = latestSignupPoint?.label ?? "Most recent day"
+  const signupChartConfig: ChartConfig = {
+    signups: { label: "Signups", color: "#0ea5e9" },
+  }
+  const signupLineDefinition: AnalyticsLineDefinition<
+    (typeof summary.signupTimeline)[number]
+  >[] = [{ dataKey: "signups" }]
+
   const newsletterTotal =
     summary.newsletterSubscribed + summary.newsletterOptedOut
 
@@ -286,6 +306,43 @@ export function OnboardingAnswersAnalytics({
           </div>
         </CardContent>
       </Card>
+
+      <AnalyticsChartCard
+        title="Signup velocity"
+        description={`Daily active signups over the last ${Math.max(trackedDays, 1)} days.`}
+        tooltip="Visualises how many active members created accounts each day. Use it to spot launch spikes or quiet stretches in onboarding activity."
+        infoLabel="Learn more about signup velocity"
+        headerClassName="px-4 pb-0"
+        contentClassName="px-4 pb-5 pt-4"
+      >
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-wrap items-baseline gap-3">
+            <p className="text-2xl font-semibold text-foreground">
+              {formatNumber(totalSignups)}
+            </p>
+            <span className="text-sm text-muted-foreground">
+              New active accounts • last {Math.max(trackedDays, 1)} days
+            </span>
+            <span className="ml-auto text-xs text-muted-foreground">
+              {latestSignupLabel}: {formatNumber(latestSignups)}
+              {" "}
+              {latestSignups === 1 ? "signup" : "signups"}
+            </span>
+          </div>
+
+          <AnalyticsLineChart
+            className="min-h-[260px]"
+            data={summary.signupTimeline}
+            config={signupChartConfig}
+            lines={signupLineDefinition}
+            showLegend={false}
+            yTickFormatter={formatNumber}
+            tooltipFormatter={formatNumber}
+            tooltipLabelFormatter={(label) => String(label)}
+            cursorStroke="var(--chart-signups)"
+          />
+        </div>
+      </AnalyticsChartCard>
 
       <Card>
         <CardHeader>

@@ -146,6 +146,10 @@ describe("getOnboardingAnswersSummary", () => {
         { email: "alice@example.com" },
         { email: "bob@example.com" },
       ])
+      .mockResolvedValueOnce([
+        { createdAt: new Date("2024-04-19T10:00:00.000Z") },
+        { createdAt: new Date("2024-04-10T12:00:00.000Z") },
+      ])
 
     newsletterFindManyMock.mockResolvedValueOnce([
       { email: "alice@example.com" },
@@ -290,10 +294,27 @@ describe("getOnboardingAnswersSummary", () => {
       },
     ])
 
+    expect(summary.signupTimeline).toHaveLength(30)
+    const signupTotal = summary.signupTimeline.reduce(
+      (total, point) => total + point.signups,
+      0,
+    )
+    expect(signupTotal).toBe(2)
+    expect(
+      summary.signupTimeline.some(
+        (point) => point.date === "2024-04-10" && point.signups === 1,
+      ),
+    ).toBe(true)
+    expect(
+      summary.signupTimeline.some(
+        (point) => point.date === "2024-04-19" && point.signups === 1,
+      ),
+    ).toBe(true)
+
     expect(countMock).toHaveBeenCalledTimes(3)
     expect(groupByMock).toHaveBeenCalledTimes(2)
     expect(findFirstMock).toHaveBeenCalledTimes(1)
-    expect(findManyMock).toHaveBeenCalledTimes(2)
+    expect(findManyMock).toHaveBeenCalledTimes(3)
     expect(productFindManyMock).toHaveBeenCalledTimes(1)
     expect(upvoteFindManyMock).toHaveBeenCalledTimes(1)
     expect(purchaseFindManyMock).toHaveBeenCalledTimes(1)
@@ -318,7 +339,10 @@ describe("getOnboardingAnswersSummary", () => {
 
     findFirstMock.mockResolvedValue(null)
 
-    findManyMock.mockResolvedValueOnce([]).mockResolvedValueOnce([])
+    findManyMock
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
     newsletterFindManyMock.mockResolvedValueOnce([])
     productFindManyMock.mockResolvedValueOnce([])
     upvoteFindManyMock.mockResolvedValueOnce([])
@@ -342,6 +366,10 @@ describe("getOnboardingAnswersSummary", () => {
     expect(summary.newsletterUnregisteredSubscribers).toBe(0)
     expect(summary.roleIntentOutcomes).toEqual([])
     expect(summary.heardFromOutcomes).toEqual([])
+    expect(summary.signupTimeline).toHaveLength(30)
+    expect(
+      summary.signupTimeline.every((point) => point.signups === 0),
+    ).toBe(true)
 
     expect(cacheMissMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -369,6 +397,7 @@ describe("getOnboardingAnswersSummary", () => {
       newsletterUnregisteredSubscribers: 0,
       roleIntentOutcomes: [],
       heardFromOutcomes: [],
+      signupTimeline: [],
     } as Awaited<ReturnType<typeof getOnboardingAnswersSummary>>
 
     cacheHitMock.mockResolvedValueOnce(cached)

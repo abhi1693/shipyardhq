@@ -260,6 +260,13 @@ export interface OnboardingAnswersSummary {
   newsletterUnregisteredSubscribers: number
   roleIntentOutcomes: OnboardingOutcomeDeltaItem[]
   heardFromOutcomes: OnboardingOutcomeDeltaItem[]
+  signupTimeline: OnboardingSignupPoint[]
+}
+
+export interface OnboardingSignupPoint {
+  date: string
+  label: string
+  signups: number
 }
 
 export interface OnboardingOutcomeDeltaItem {
