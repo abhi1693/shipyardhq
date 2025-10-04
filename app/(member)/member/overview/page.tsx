@@ -26,9 +26,11 @@ import {
   getRecentActivity,
   getProductHealthSummary,
 } from "@/actions/member/overview/actions"
+import { getMemberRewardsSnapshot } from "@/actions/member/rewards/actions"
 import {
   MEMBER_PRODUCTS_ADD_PATH,
   MEMBER_PRODUCTS_PATH,
+  MEMBER_REWARDS_PATH,
   memberProductPath,
   memberProductsStatusPath,
   memberProductsVerificationPath,
@@ -51,6 +53,15 @@ type NeedsMediaProduct = Awaited<
 type UnverifiedProduct = Awaited<
   ReturnType<typeof getUnverifiedProducts>
 >[number]
+
+type SimpleTaskItem = { id: string; name: string; timestamp?: Date }
+
+type Highlight = {
+  title: string
+  body: string
+  href?: string
+  cta?: string
+}
 
 function rangeToDays(range?: string): number {
   switch (range) {
@@ -128,7 +139,7 @@ function MetricTile({
   href?: string
 }) {
   const card = (
-    <Card className="h-full border-slate-200/70 bg-white/90 shadow-sm transition hover:border-sky-200/70">
+    <Card className="h-full border-slate-200/70 bg-white/95 shadow-sm transition hover:border-sky-200/70">
       <CardHeader className="pb-2">
         <CardTitle className="text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
           {title}
@@ -160,6 +171,73 @@ function MetricTile({
   )
 }
 
+function TaskCollection({
+  title,
+  count,
+  description,
+  items,
+  href,
+}: {
+  title: string
+  count: number
+  description: string
+  items: SimpleTaskItem[]
+  href: string
+}) {
+  const hasItems = count > 0 && items.length > 0
+
+  return (
+    <div className="flex h-full flex-col gap-3 rounded-lg border border-slate-200/70 bg-white/85 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1">
+          <p className="text-sm font-medium text-slate-900">{title}</p>
+          <p className="text-xs text-muted-foreground">{description}</p>
+        </div>
+        <Badge
+          variant="outline"
+          className="rounded-full border-slate-200 bg-white px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.28em]"
+        >
+          {formatNumber(count)}
+        </Badge>
+      </div>
+      {hasItems ? (
+        <>
+          <ul className="space-y-1.5 text-xs text-muted-foreground">
+            {items.slice(0, 3).map((item) => (
+              <li
+                key={item.id}
+                className="flex items-center justify-between gap-2"
+              >
+                <span className="truncate text-slate-900">{item.name}</span>
+                {item.timestamp ? (
+                  <span>{formatRelative(item.timestamp)}</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+          {items.length > 3 ? (
+            <p className="text-[11px] italic text-muted-foreground">
+              +{formatNumber(items.length - 3)} more queued
+            </p>
+          ) : null}
+        </>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          All clear for now—nothing urgent here.
+        </p>
+      )}
+      <div className="mt-auto flex justify-end">
+        <Link
+          href={href}
+          className="text-xs font-semibold text-[color:var(--brand-1)] hover:underline"
+        >
+          Go to list →
+        </Link>
+      </div>
+    </div>
+  )
+}
+
 export default async function OverviewPage({
   searchParams,
 }: {
@@ -179,6 +257,7 @@ export default async function OverviewPage({
     needsMedia,
     activity,
     health,
+    rewardsSnapshot,
     user,
   ] = await Promise.all([
     getUserDashboardStats(days),
@@ -192,6 +271,7 @@ export default async function OverviewPage({
     getProductsNeedingMedia(2, 4),
     getRecentActivity(days, 8),
     getProductHealthSummary(days),
+    getMemberRewardsSnapshot(),
     currentUser(),
   ])
 
@@ -264,8 +344,6 @@ export default async function OverviewPage({
     },
   ]
 
-  type SimpleTaskItem = { id: string; name: string; timestamp?: Date }
-
   const taskItems: Record<
     "unverified" | "drafts" | "media" | "badges",
     SimpleTaskItem[]
@@ -294,6 +372,7 @@ export default async function OverviewPage({
 
   const quickTasks = [
     {
+      key: "unverified" as const,
       title: "Verify domains",
       count: stats.unverifiedCount,
       description: "Keep trust signals strong by completing TXT verification.",
@@ -301,6 +380,7 @@ export default async function OverviewPage({
       items: taskItems.unverified,
     },
     {
+      key: "drafts" as const,
       title: "Finish drafts",
       count: stats.draftsCount,
       description: "Polish copy and screenshots before launch.",
@@ -308,6 +388,7 @@ export default async function OverviewPage({
       items: taskItems.drafts,
     },
     {
+      key: "media" as const,
       title: "Add visuals",
       count: needsMedia.length,
       description: "Fresh screenshots help conversions.",
@@ -315,6 +396,7 @@ export default async function OverviewPage({
       items: taskItems.media,
     },
     {
+      key: "badges" as const,
       title: "Expiring badges",
       count: expiringBadges.length,
       description: "Renew perks before they lapse.",
@@ -335,7 +417,7 @@ export default async function OverviewPage({
 
   const topClickProduct = topByClicks[0]
 
-  const highlight = (() => {
+  const highlight: Highlight = (() => {
     if (stats.unverifiedCount > 0) {
       const count = stats.unverifiedCount
       return {
@@ -416,58 +498,67 @@ export default async function OverviewPage({
       ? `Your launches have gathered ${formatNumber(stats.totalClicks)} clicks and ${formatNumber(stats.totalUpvotes)} upvotes so far.`
       : "Invite your audience to explore your listings to start gathering clicks and upvotes."
 
+  const rewardsBalance = rewardsSnapshot.balance.balance
+  const rewardsLifetimeEarned = rewardsSnapshot.balance.lifetimeEarned
+  const rewardsLifetimeSpent = rewardsSnapshot.balance.lifetimeSpent
+  const rewardsStreakTier = rewardsSnapshot.balance.currentStreakTier
+  const rewardsStreakCount = rewardsSnapshot.balance.currentStreakCount
+  const hasRewardsStreak =
+    (rewardsStreakTier && rewardsStreakTier.length > 0) ||
+    rewardsStreakCount > 0
+  const lastEarnedLabel = rewardsSnapshot.balance.lastEarnedAt
+    ? `Earned ${formatRelative(rewardsSnapshot.balance.lastEarnedAt)}`
+    : "Haven’t earned rewards yet"
+  const lastRedeemedLabel = rewardsSnapshot.balance.lastRedeemedAt
+    ? `Redeemed ${formatRelative(rewardsSnapshot.balance.lastRedeemedAt)}`
+    : "No redemptions yet"
+
   return (
     <div className="space-y-10">
-      <section className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-3">
+      <section className="relative overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.28] bg-gradient-to-br from-white/95 via-white/88 to-sky-50/70 p-6 shadow-[0_32px_80px_-72px_rgba(11,79,135,0.75)] sm:p-8">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,var(--brand-1)/0.18,transparent_55%)]"
+        />
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground/80">
-              <span className="rounded-full border border-[color:var(--brand-1)/0.35] px-3 py-1 text-[10px] text-[color:var(--brand-1)]">
+              <span className="rounded-full border border-[color:var(--brand-1)/0.35] bg-white/80 px-3 py-1 text-[10px] text-[color:var(--brand-1)]">
                 Member Command Deck
               </span>
-              <span className="rounded-full border border-[color:var(--brand-1)/0.22] px-3 py-1 text-[10px] text-[color:var(--brand-1)]/80">
+              <span className="rounded-full border border-[color:var(--brand-1)/0.22] bg-white/70 px-3 py-1 text-[10px] text-[color:var(--brand-1)]/80">
                 {rangeLabel}
               </span>
               {planLabel ? (
-                <span className="rounded-full border border-[color:var(--brand-1)/0.22] px-3 py-1 text-[10px] text-[color:var(--brand-1)]/80">
+                <span className="rounded-full border border-[color:var(--brand-1)/0.22] bg-white/70 px-3 py-1 text-[10px] text-[color:var(--brand-1)]/80">
                   {planLabel}
                 </span>
               ) : null}
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-              Welcome back, {displayName}
-            </h1>
-            <p className="max-w-2xl text-sm text-muted-foreground">
-              Here’s what’s happened {rangeDescriptor}. {lifetimeSummary}
-            </p>
-            <div className="rounded-xl border border-[color:var(--brand-1)/0.18] bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)]/80">
-                Next best step
+            <div className="space-y-3">
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-[32px]">
+                Welcome back, {displayName}
+              </h1>
+              <p className="max-w-2xl text-sm text-muted-foreground">
+                Here’s what shifted {rangeDescriptor}. {lifetimeSummary}
               </p>
-              <p className="mt-1 text-sm font-medium text-slate-900">
-                {highlight.title}
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                {highlight.body}
-              </p>
-              {highlight.href ? (
-                <Link
-                  href={highlight.href}
-                  className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[color:var(--brand-1)] hover:underline"
-                >
-                  {highlight.cta ?? "Open"}
-                  <span aria-hidden>→</span>
-                </Link>
-              ) : null}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <CreateButton asChild label="Add product">
+                <Link href={MEMBER_PRODUCTS_ADD_PATH}>Add product</Link>
+              </CreateButton>
+              <Button asChild variant="outline" size="sm">
+                <Link href={MEMBER_PRODUCTS_PATH}>View products</Link>
+              </Button>
             </div>
           </div>
-          <div className="flex flex-col items-start gap-3 sm:items-end">
+          <div className="flex w-full flex-col items-start gap-4 sm:w-auto sm:items-end">
             <RangeSelector />
-            <div className="flex flex-wrap gap-2 sm:justify-end">
+            <div className="grid w-full gap-3 sm:min-w-[240px] sm:grid-cols-3">
               {heroStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="min-w-[120px] rounded-lg border border-[color:var(--brand-1)/0.18] bg-white/90 px-3 py-2 text-left shadow-sm"
+                  className="rounded-lg border border-[color:var(--brand-1)/0.18] bg-white/90 px-3 py-2 text-left shadow-sm"
                 >
                   <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground/80">
                     {stat.label}
@@ -482,220 +573,363 @@ export default async function OverviewPage({
         </div>
       </section>
 
-      <section className="space-y-4">
-        <div>
+      <section className="space-y-3">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-            At a glance
+            Mission metrics
           </h2>
+          <span className="text-xs text-muted-foreground">
+            Snapshot {rangeDescriptor}.
+          </span>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {metrics.map((metric) => (
             <MetricTile key={metric.title} {...metric} />
           ))}
         </div>
       </section>
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-            Operations
-          </h2>
-          <CreateButton asChild size="sm" label="Add product">
-            <Link href={MEMBER_PRODUCTS_ADD_PATH}>Add product</Link>
-          </CreateButton>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px] 2xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="space-y-6">
+          <section className="space-y-4">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                Operations board
+              </h2>
+              <span className="text-xs text-muted-foreground">
+                Keep your launch workflow unblocked.
+              </span>
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Card className="border-slate-200/70 bg-white/95 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-base">Quick shortcuts</CardTitle>
+                  <CardDescription>
+                    Jump directly to the work that matters.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-2">
+                  <Button asChild size="sm">
+                    <Link href={MEMBER_PRODUCTS_PATH}>View products</Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={memberProductsStatusPath("draft")}>
+                      Manage drafts
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={memberProductsVerificationPath("unverified")}>
+                      Verify domains
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200/70 bg-white/95 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-base">Verification progress</CardTitle>
+                  <CardDescription>
+                    {formatNumber(stats.verifiedDomains)} verified of {" "}
+                    {formatNumber(stats.totalProducts)} products.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-sky-500 via-sky-400 to-sky-600"
+                      style={{ width: `${verificationProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.unverifiedCount > 0
+                      ? `${formatNumber(stats.unverifiedCount)} product(s) still need domain verification.`
+                      : "Everything verified — nice work."}
+                  </p>
+                  <Link
+                    href={memberProductsVerificationPath("unverified")}
+                    className="text-xs font-medium text-sky-600 hover:underline"
+                  >
+                    Review unverified products →
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200/70 bg-white/95 shadow-sm lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="text-base">Action queue</CardTitle>
+                  <CardDescription>
+                    Focus on the next set of ship-ready tasks.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-3 sm:grid-cols-2">
+                  {quickTasks.map((task) => (
+                    <TaskCollection
+                      key={task.key}
+                      title={task.title}
+                      count={task.count}
+                      description={task.description}
+                      items={task.items}
+                      href={task.href}
+                    />
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                Performance intel
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Spot the launches that are resonating right now.
+              </p>
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Card className="border-slate-200/70 bg-white/95 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-base">Most clicked</CardTitle>
+                  <CardDescription>
+                    Products winning attention this period.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {topByClicks.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No click data yet.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2 text-sm">
+                      {topByClicks.slice(0, 5).map((product) => (
+                        <li
+                          key={product.id}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <Link
+                            href={memberProductPath(product.id)}
+                            className="truncate font-medium text-slate-900 hover:underline"
+                          >
+                            {product.name}
+                          </Link>
+                          <span className="text-xs text-muted-foreground">
+                            {formatNumber(product.analytics?.clicks ?? 0)} clicks
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200/70 bg-white/95 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-base">Most upvoted</CardTitle>
+                  <CardDescription>
+                    Community favorites from the range.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {topByUpvotes.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No upvote data yet.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2 text-sm">
+                      {topByUpvotes.slice(0, 5).map((product) => (
+                        <li
+                          key={product.id}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <Link
+                            href={memberProductPath(product.id)}
+                            className="truncate font-medium text-slate-900 hover:underline"
+                          >
+                            {product.name}
+                          </Link>
+                          <span className="text-xs text-muted-foreground">
+                            {formatNumber(product.analytics?.upvotes ?? 0)} upvotes
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                Signal & stability
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Keep a pulse on the latest events and health of your fleet.
+              </p>
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Card className="border-slate-200/70 bg-white/95 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-base">Recent activity</CardTitle>
+                  <CardDescription>
+                    Latest events impacting your products.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {activity.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No notable activity yet.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2 text-sm">
+                      {activity.slice(0, 6).map((item) => (
+                        <li
+                          key={`${item.type}-${item.product.id}-${item.ts.toISOString()}`}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <div className="flex flex-col">
+                            <Link
+                              href={memberProductPath(item.product.id)}
+                              className="font-medium text-slate-900 hover:underline"
+                            >
+                              {item.product.name}
+                            </Link>
+                            <span className="text-xs text-muted-foreground">
+                              {renderActivityLabel(item)}
+                            </span>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {formatRelative(item.ts)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200/70 bg-white/95 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-base">Product health</CardTitle>
+                  <CardDescription>
+                    Average completeness across your portfolio: {" "}
+                    {health.averageScore}%
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-sky-500"
+                      style={{
+                        width: `${Math.min(100, Math.max(0, health.averageScore))}%`,
+                      }}
+                    />
+                  </div>
+                  {health.suggestions.length === 0 ? (
+                    <p className="text-muted-foreground">
+                      Everything looks sharp — keep shipping!
+                    </p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {health.suggestions.slice(0, 4).map((suggestion) => (
+                        <li
+                          key={suggestion.label}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <span className="text-slate-900">{suggestion.label}</span>
+                          <Link
+                            href={suggestion.href ?? MEMBER_PRODUCTS_PATH}
+                            className="text-xs text-sky-600 hover:underline"
+                          >
+                            Fix it →
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </section>
         </div>
-        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-          <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+
+        <aside className="space-y-6">
+          <Card className="border-slate-200/70 bg-white/95 shadow-md">
             <CardHeader>
-              <CardTitle className="text-base">Quick shortcuts</CardTitle>
+              <CardTitle className="text-base">Next best move</CardTitle>
               <CardDescription>
-                Jump directly to the work that matters.
+                Prioritized from what changed {rangeDescriptor}.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              <Button asChild size="sm">
-                <Link href={MEMBER_PRODUCTS_PATH}>View products</Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href={memberProductsStatusPath("draft")}>
-                  Manage drafts
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href={memberProductsVerificationPath("unverified")}>
-                  Verify domains
-                </Link>
-              </Button>
+            <CardContent className="space-y-3 text-sm">
+              <p className="font-medium text-slate-900">{highlight.title}</p>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {highlight.body}
+              </p>
             </CardContent>
+            {highlight.href ? (
+              <CardFooter>
+                <Link
+                  href={highlight.href}
+                  className="text-sm font-semibold text-[color:var(--brand-1)] hover:underline"
+                >
+                  {highlight.cta ?? "Open"} →
+                </Link>
+              </CardFooter>
+            ) : null}
           </Card>
 
-          <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+          <Card className="border-slate-200/70 bg-white/95 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-base">Verification progress</CardTitle>
+              <CardTitle className="text-base">Rewards balance</CardTitle>
               <CardDescription>
-                {formatNumber(stats.verifiedDomains)} verified of{" "}
-                {formatNumber(stats.totalProducts)}
-                products.
+                Shipyard rewards ready to redeem.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-sky-500 via-sky-400 to-sky-600"
-                  style={{ width: `${verificationProgress}%` }}
-                />
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-semibold text-slate-900">
+                  {formatNumber(rewardsBalance)}
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                  points
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground">
-                {stats.unverifiedCount > 0
-                  ? `${formatNumber(stats.unverifiedCount)} product(s) still need domain verification.`
-                  : "Everything verified — nice work."}
-              </p>
-              <Link
-                href={memberProductsVerificationPath("unverified")}
-                className="text-xs font-medium text-sky-600 hover:underline"
-              >
-                Review unverified products →
-              </Link>
-            </CardContent>
-          </Card>
-
-          {quickTasks.map((task) => (
-            <Card
-              key={task.title}
-              className="border-slate-200/70 bg-white/90 shadow-sm"
-            >
-              <CardHeader>
-                <CardTitle className="text-base">
-                  {task.title}
-                  <span className="ml-2 text-xs font-medium text-muted-foreground">
-                    {formatNumber(task.count)}
-                  </span>
-                </CardTitle>
-                <CardDescription>{task.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                {task.count === 0 ? (
-                  <p className="text-muted-foreground">All clear for now.</p>
-                ) : (
-                  <ul className="space-y-1.5 text-sm text-muted-foreground">
-                    {task.items?.map((item) => (
-                      <li
-                        key={item.id}
-                        className="flex items-center justify-between gap-2"
-                      >
-                        <span className="truncate text-slate-900">
-                          {item.name}
-                        </span>
-                        {item.timestamp ? (
-                          <span className="text-xs text-muted-foreground">
-                            {formatRelative(item.timestamp)}
-                          </span>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Link
-                  href={task.href}
-                  className="text-sm text-sky-600 hover:underline"
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <span>
+                  Earned {formatNumber(rewardsLifetimeEarned)}
+                </span>
+                <span aria-hidden>•</span>
+                <span>Spent {formatNumber(rewardsLifetimeSpent)}</span>
+              </div>
+              <div className="space-y-1 text-xs text-muted-foreground">
+                <p>{lastEarnedLabel}</p>
+                <p>{lastRedeemedLabel}</p>
+              </div>
+              {hasRewardsStreak ? (
+                <Badge
+                  variant="secondary"
+                  className="mt-1 w-fit gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium"
                 >
-                  Go to list →
-                </Link>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-            Top performers
-          </h2>
-        </div>
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="border-slate-200/70 bg-white/90 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base">Most clicked</CardTitle>
-              <CardDescription>
-                Products winning attention this period.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {topByClicks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No click data yet.
-                </p>
-              ) : (
-                <ul className="space-y-2 text-sm">
-                  {topByClicks.slice(0, 5).map((product) => (
-                    <li
-                      key={product.id}
-                      className="flex items-center justify-between gap-3"
-                    >
-                      <Link
-                        href={memberProductPath(product.id)}
-                        className="truncate font-medium text-slate-900 hover:underline"
-                      >
-                        {product.name}
-                      </Link>
-                      <span className="text-xs text-muted-foreground">
-                        {formatNumber(product.analytics?.clicks ?? 0)} clicks
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                  {rewardsStreakTier ? <span>{rewardsStreakTier}</span> : null}
+                  <span>
+                    Streak ×{formatNumber(rewardsStreakCount)}
+                  </span>
+                </Badge>
+              ) : null}
             </CardContent>
+            <CardFooter>
+              <Link
+                href={MEMBER_REWARDS_PATH}
+                className="text-sm font-semibold text-[color:var(--brand-1)] hover:underline"
+              >
+                Open rewards →
+              </Link>
+            </CardFooter>
           </Card>
 
-          <Card className="border-slate-200/70 bg-white/90 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base">Most upvoted</CardTitle>
-              <CardDescription>
-                Community favorites from the range.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {topByUpvotes.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No upvote data yet.
-                </p>
-              ) : (
-                <ul className="space-y-2 text-sm">
-                  {topByUpvotes.slice(0, 5).map((product) => (
-                    <li
-                      key={product.id}
-                      className="flex items-center justify-between gap-3"
-                    >
-                      <Link
-                        href={memberProductPath(product.id)}
-                        className="truncate font-medium text-slate-900 hover:underline"
-                      >
-                        {product.name}
-                      </Link>
-                      <span className="text-xs text-muted-foreground">
-                        {formatNumber(product.analytics?.upvotes ?? 0)} upvotes
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-            Performance pulse
-          </h2>
-        </div>
-        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-          <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+          <Card className="border-slate-200/70 bg-white/95 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base">Fresh off the deck</CardTitle>
               <CardDescription>
@@ -755,7 +989,7 @@ export default async function OverviewPage({
             </CardFooter>
           </Card>
 
-          <Card className="border-slate-200/70 bg-white/90 shadow-sm">
+          <Card className="border-slate-200/70 bg-white/95 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base">Recent launches</CardTitle>
               <CardDescription>
@@ -796,8 +1030,7 @@ export default async function OverviewPage({
                           {formatNumber(product.analytics?.clicks ?? 0)} clicks
                         </span>
                         <span>
-                          {formatNumber(product.analytics?.upvotes ?? 0)}{" "}
-                          upvotes
+                          {formatNumber(product.analytics?.upvotes ?? 0)} upvotes
                         </span>
                       </div>
                     </li>
@@ -814,90 +1047,8 @@ export default async function OverviewPage({
               </Link>
             </CardFooter>
           </Card>
-
-          <Card className="border-slate-200/70 bg-white/90 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base">Recent activity</CardTitle>
-              <CardDescription>
-                Latest events impacting your products.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {activity.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No notable activity yet.
-                </p>
-              ) : (
-                <ul className="space-y-2 text-sm">
-                  {activity.slice(0, 6).map((item) => (
-                    <li
-                      key={`${item.type}-${item.product.id}-${item.ts.toISOString()}`}
-                      className="flex items-center justify-between gap-3"
-                    >
-                      <div className="flex flex-col">
-                        <Link
-                          href={memberProductPath(item.product.id)}
-                          className="font-medium text-slate-900 hover:underline"
-                        >
-                          {item.product.name}
-                        </Link>
-                        <span className="text-xs text-muted-foreground">
-                          {renderActivityLabel(item)}
-                        </span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {formatRelative(item.ts)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="border-slate-200/70 bg-white/90 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base">Product health</CardTitle>
-              <CardDescription>
-                Average completeness across your portfolio:{" "}
-                {health.averageScore}%
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-sky-500"
-                  style={{
-                    width: `${Math.min(100, Math.max(0, health.averageScore))}%`,
-                  }}
-                />
-              </div>
-              {health.suggestions.length === 0 ? (
-                <p className="text-muted-foreground">
-                  Everything looks sharp — keep shipping!
-                </p>
-              ) : (
-                <ul className="space-y-2">
-                  {health.suggestions.slice(0, 4).map((suggestion) => (
-                    <li
-                      key={suggestion.label}
-                      className="flex items-center justify-between gap-3"
-                    >
-                      <span className="text-slate-900">{suggestion.label}</span>
-                      <Link
-                        href={suggestion.href ?? MEMBER_PRODUCTS_PATH}
-                        className="text-xs text-sky-600 hover:underline"
-                      >
-                        Fix it →
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+        </aside>
+      </div>
     </div>
   )
 }

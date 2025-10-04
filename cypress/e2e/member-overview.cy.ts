@@ -30,20 +30,21 @@ describe("Member overview command deck", () => {
       }
 
       cy.contains(/Welcome back/i).should("be.visible")
-      cy.contains("Next best step").should("be.visible")
+      cy.contains("Next best move").should("be.visible")
+      cy.contains("Rewards balance").should("be.visible")
       cy.contains("7d").should("be.visible")
       cy.contains("Live products").should("be.visible")
       cy.contains("Drafts in queue").should("be.visible")
       cy.contains("Verified rate").should("be.visible")
 
       cy.story("Jamie reviews the at-a-glance metrics for their fleet.")
-      cy.contains("At a glance").scrollIntoView().should("be.visible")
+      cy.contains("Mission metrics").scrollIntoView().should("be.visible")
       cy.contains("New products").should("be.visible")
       cy.contains("Drafts waiting").should("be.visible")
       cy.contains("Verified domains").should("be.visible")
 
       cy.story("They plan their work from the operations section.")
-      cy.contains("Operations").scrollIntoView().should("be.visible")
+      cy.contains("Operations board").scrollIntoView().should("be.visible")
       cy.contains("Quick shortcuts").should("be.visible")
       cy.contains("Verification progress").should("be.visible")
       cy.contains("Verify domains").should("be.visible")
@@ -51,16 +52,17 @@ describe("Member overview command deck", () => {
       cy.contains("Add visuals").should("be.visible")
       cy.contains("Expiring badges").should("be.visible")
       cy.contains("Go to list →").should("be.visible")
+      cy.contains("Open rewards").should("be.visible")
 
       cy.story("They scan top performers and recent activity before moving on.")
-      cy.contains("Top performers").scrollIntoView().should("be.visible")
+      cy.contains("Performance intel").scrollIntoView().should("be.visible")
       cy.contains("Most clicked").should("be.visible")
       cy.contains("Most upvoted").should("be.visible")
 
       cy.story(
         "To wrap up, they review badges, launches, and portfolio health.",
       )
-      cy.contains("Performance pulse").scrollIntoView().should("be.visible")
+      cy.contains("Signal & stability").scrollIntoView().should("be.visible")
       cy.contains("Fresh off the deck").should("be.visible")
       cy.contains("Manage badges").should("be.visible")
       cy.contains("Recent launches").should("be.visible")
