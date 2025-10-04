@@ -460,24 +460,25 @@ export async function getRewardAnalytics(
   const buildUserEntry = (
     rows: GroupRow[],
     total: number,
-  ): RewardAnalyticsUserEntry[] =>
-    rows
-      .map((row) => {
-        const userId = row.userId
-        if (!userId) return null
-        const amount = normaliseAmount(row._sum.rewardAmount)
-        if (amount <= 0) return null
-        const user = userMap.get(userId)
-        return {
-          id: userId,
-          name: user?.name ?? userId,
-          email: user?.email,
-          amount,
-          share: total > 0 ? amount / total : 0,
-          count: row._count._all ?? 0,
-        }
+  ): RewardAnalyticsUserEntry[] => {
+    const result: RewardAnalyticsUserEntry[] = []
+    for (const row of rows) {
+      const userId = row.userId
+      if (!userId) continue
+      const amount = normaliseAmount(row._sum.rewardAmount)
+      if (amount <= 0) continue
+      const user = userMap.get(userId)
+      result.push({
+        id: userId,
+        name: user?.name ?? userId,
+        email: user?.email,
+        amount,
+        share: total > 0 ? amount / total : 0,
+        count: row._count._all ?? 0,
       })
-      .filter((value): value is RewardAnalyticsUserEntry => Boolean(value))
+    }
+    return result
+  }
 
   const topEarners = buildUserEntry(topEarnerRows, earnedAmount)
   const topSpenders = buildUserEntry(topSpenderRows, spentAmount)
