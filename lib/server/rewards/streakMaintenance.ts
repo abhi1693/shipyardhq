@@ -1,9 +1,6 @@
 import prisma from "@/lib/prisma"
 import { awardRewards } from "@/lib/rewards/engine"
-import type {
-  Prisma,
-  RewardBalance,
-} from "@/lib/vendor/prisma/client"
+import type { Prisma, RewardBalance } from "@/lib/vendor/prisma/client"
 
 const MS_PER_DAY = 86_400_000
 const STREAK_RULE_KEY = "rewards.streak.maintain"
@@ -26,13 +23,12 @@ type StreakTriggerRule = (typeof STREAK_TRIGGER_RULE_KEYS)[number]
 
 type StreakBalanceSnapshot = Pick<
   RewardBalance,
-  |
-    "userId"
-    | "currentStreakCount"
-    | "longestStreakCount"
-    | "currentStreakTier"
-    | "streakActiveThrough"
-    | "lastEvaluatedAt"
+  | "userId"
+  | "currentStreakCount"
+  | "longestStreakCount"
+  | "currentStreakTier"
+  | "streakActiveThrough"
+  | "lastEvaluatedAt"
 >
 
 type RunStreakMaintenanceOptions = {
@@ -284,7 +280,9 @@ function addDays(date: Date, days: number): Date {
 }
 
 function startOfUtcDay(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  )
 }
 
 function formatDayKey(date: Date): string {
