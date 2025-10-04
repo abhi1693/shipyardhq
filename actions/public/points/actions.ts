@@ -32,8 +32,9 @@ type RedemptionRecord = {
   cost: number
   status: RedemptionStatus
   createdAt: Date
-  catalogItem: { name: string | null }
-  product: { name: string | null; slug: string | null } | null
+  catalogItem?: { name: string | null } | null
+  product?: { name: string | null; slug: string | null } | null
+  [key: string]: unknown
 }
 
 type RuleRecord = {

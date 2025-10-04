@@ -30,7 +30,11 @@ type PublicProduct = Prisma.ProductGetPayload<{
     metadata: true
     analytics: true
     verification: true
-    ProductMedia: true
+    ProductMedia: {
+      orderBy: {
+        createdAt: "asc"
+      }
+    }
     ProductBadge: true
     plan: {
       include: {
@@ -69,7 +73,7 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   if (where.id) tagSet.add(TAGS.product(String(where.id)))
   if (where.slug) tagSet.add(TAGS.product(String(where.slug)))
 
-  const product: PublicProduct | null = await prisma.product.findUnique({
+  const product = await prisma.product.findUnique({
     where,
     include: {
       category: {
@@ -126,16 +130,18 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
 
   if (!product) return null
 
-  const activeBadges = product.ProductBadge.filter(
+  const fullProduct = product as PublicProduct
+
+  const activeBadges = fullProduct.ProductBadge.filter(
     (badge: PublicProduct["ProductBadge"][number]) =>
       !badge.expiresAt || badge.expiresAt > new Date(),
   ).map((badge) => badge.badge)
 
-  const activeFeatureEntitlements = (product.featureEntitlements ?? []).map(
+  const activeFeatureEntitlements = (fullProduct.featureEntitlements ?? []).map(
     (ent) => ent.featureKey,
   )
 
-  const { featureEntitlements, ...rest } = product
+  const { featureEntitlements, ...rest } = fullProduct
 
   return {
     ...rest,

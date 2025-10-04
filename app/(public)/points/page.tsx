@@ -470,11 +470,6 @@ export default async function PointsExplainerPage() {
                     {rule.description ? (
                       <p className="text-sm text-muted-foreground text-balance">{rule.description}</p>
                     ) : null}
-                    {rule.frequencyLabel ? (
-                      <p className="text-xs font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
-                        {rule.frequencyLabel}
-                      </p>
-                    ) : null}
                   </div>
 
                   <div className="space-y-3 text-sm text-muted-foreground">

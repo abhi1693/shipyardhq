@@ -63,7 +63,6 @@ function extractMetadataString(
   key: string,
 ): string | null {
   if (!metadata || typeof metadata !== "object") return null
-  if (metadata === Prisma.JsonNull) return null
   if (Array.isArray(metadata)) return null
   const value = (metadata as Record<string, unknown>)[key]
   return typeof value === "string" ? value : null
@@ -698,10 +697,11 @@ function resolveDuration(
   fromCatalog: number | null,
 ): number | null {
   if (typeof override === "number") {
-    if (override <= 0) {
+    const overrideValue = Number(override)
+    if (!Number.isFinite(overrideValue) || overrideValue <= 0) {
       throw new RedemptionValidationError("Duration must be positive", "duration")
     }
-    return override
+    return overrideValue
   }
   return fromCatalog ?? null
 }
