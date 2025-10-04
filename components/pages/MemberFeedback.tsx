@@ -243,7 +243,9 @@ export default function MemberFeedback({
                         ) : null}
                         {entry.rewardEligible ? (
                           <Badge
-                            variant={entry.rewardGrantedAt ? "default" : "secondary"}
+                            variant={
+                              entry.rewardGrantedAt ? "default" : "secondary"
+                            }
                             className="text-[10px] uppercase"
                           >
                             {entry.rewardGrantedAt

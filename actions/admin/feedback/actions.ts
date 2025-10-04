@@ -169,7 +169,8 @@ export async function updateFeedbackStatus({
         } else if (error instanceof RewardsCapExceededError) {
           message = "Feedback reward cap has been reached."
         } else if (error instanceof RewardsCooldownError) {
-          message = "Feedback reward cooldown is active. Please try again later."
+          message =
+            "Feedback reward cooldown is active. Please try again later."
         } else if (error instanceof RewardsError) {
           message = error.message
         } else {
@@ -243,7 +244,8 @@ export async function updateFeedbackRewardEligibility({
 
     if (existing.rewardGrantedAt) {
       return {
-        error: "Rewards already granted for this feedback. Eligibility can no longer be changed.",
+        error:
+          "Rewards already granted for this feedback. Eligibility can no longer be changed.",
       }
     }
 
