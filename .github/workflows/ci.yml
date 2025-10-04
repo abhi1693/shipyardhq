@@ -9,6 +9,10 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}-${{ github.actor }}
   cancel-in-progress: true
 
+env:
+  CI: true
+  NEXT_TELEMETRY_DISABLED: "1"
+
 jobs:
   quality:
     name: Lint & Format Check
