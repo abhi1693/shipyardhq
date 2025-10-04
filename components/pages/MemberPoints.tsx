@@ -24,7 +24,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/atoms/dialog"
-import { Input } from "@/components/atoms/input"
 import { Label } from "@/components/atoms/label"
 import {
   Select,
@@ -144,11 +143,6 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
   const requiresSchedule = item.requiresSchedule
 
   const [productId, setProductId] = useState<string | undefined>(undefined)
-  const [scheduledAt, setScheduledAt] = useState<string>(() => {
-    const now = new Date()
-    now.setMinutes(now.getMinutes() + 5)
-    return now.toISOString().slice(0, 16)
-  })
 
   const defaultSlotKey = useMemo(
     () => `${item.featureKey}:default`,
@@ -228,22 +222,6 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
           ) : (
             <input type="hidden" name="productId" value="" />
           )}
-
-          {requiresSchedule ? (
-            <div className="space-y-2">
-              <Label htmlFor="scheduledAt">Scheduled start</Label>
-              <Input
-                id="scheduledAt"
-                name="scheduledAt"
-                type="datetime-local"
-                value={scheduledAt}
-                onChange={(event) => setScheduledAt(event.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                We hold your slot while pending. You can adjust timing later from support if needed.
-              </p>
-            </div>
-          ) : null}
 
           <DialogFooter>
             <RedeemSubmitButton

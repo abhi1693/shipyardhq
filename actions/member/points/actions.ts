@@ -271,15 +271,6 @@ export async function getMemberPointsSnapshot(): Promise<MemberPointsSnapshot> {
   }
 }
 
-function parseDate(value: FormDataEntryValue | null): Date | null {
-  if (!value) return null
-  const trimmed = value.toString().trim()
-  if (!trimmed.length) return null
-  const timestamp = Date.parse(trimmed)
-  if (Number.isNaN(timestamp)) return null
-  return new Date(timestamp)
-}
-
 export async function redeemCatalogItemAction(
   _prevState: RedeemFormState,
   formData: FormData,
@@ -293,7 +284,6 @@ export async function redeemCatalogItemAction(
 
   const productIdRaw = formData.get("productId")?.toString().trim()
   const notesRaw = formData.get("notes")?.toString().trim()
-  const scheduledRaw = parseDate(formData.get("scheduledAt"))
   const slotKeyRaw = formData.get("slotKey")?.toString().trim()
 
   try {
@@ -357,7 +347,18 @@ export async function redeemCatalogItemAction(
           message: "Placement reward is missing duration configuration",
         }
       }
-      const startsAt = scheduledRaw ?? new Date()
+      const now = new Date()
+      const startsAt = new Date(
+        Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate(),
+          now.getUTCHours(),
+          now.getUTCMinutes(),
+          now.getUTCSeconds(),
+          now.getUTCMilliseconds(),
+        ),
+      )
       options.reservation = {
         startsAt,
         durationSeconds: catalogItem.durationSeconds,
