@@ -121,7 +121,7 @@ export default async function RewardsExplainerPage() {
 
   const heroRedemptions = data.recentRedemptions.slice(0, 4)
   const topRulesPreview = data.topRules.slice(0, 3)
-  const rewardsPreview = data.rewards.slice(0, 6)
+  const rewardsCatalog = data.rewards
 
   const earnedRewardAmount = data.stats.earnedLast30d.rewardAmount
   const earnedTransactions = data.stats.earnedLast30d.transactions
@@ -608,8 +608,8 @@ export default async function RewardsExplainerPage() {
           </p>
         </div>
         <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {rewardsPreview.length > 0 ? (
-            rewardsPreview.map((reward) => {
+          {rewardsCatalog.length > 0 ? (
+            rewardsCatalog.map((reward) => {
               const durationLabel = formatDuration(reward.durationSeconds)
               const limitBadges = [
                 reward.maxActivePerUser != null && reward.maxActivePerUser > 1
