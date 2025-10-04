@@ -12,6 +12,8 @@ import { productPath } from "@/lib/routes"
 import prisma from "@/lib/prisma"
 import { ProductStatus, type Prisma } from "@/lib/vendor/prisma/client"
 
+export const BACKLINK_CRON_LOG_PREFIX = "[cron.rewards.backlinks]" as const
+
 type BacklinkCheckSuccess = {
   status: "verified"
   foundUrl: string
@@ -242,6 +244,10 @@ async function processProduct(
   now: Date,
 ) {
   if (!product.verification) {
+    console.error(`${BACKLINK_CRON_LOG_PREFIX} missing verification record`, {
+      productId: product.id,
+      slug: product.slug,
+    })
     summary.failures.push({
       productId: product.id,
       reason: "Product missing verification record",
@@ -251,6 +257,14 @@ async function processProduct(
   }
 
   const verification = product.verification
+
+  console.info(`${BACKLINK_CRON_LOG_PREFIX} checking backlink`, {
+    productId: product.id,
+    slug: product.slug,
+    websiteUrl: product.websiteUrl,
+    previouslyVerified: verification.backlinkIsVerified,
+    lastCheckedAt: verification.backlinkLastCheckedAt?.toISOString() ?? null,
+  })
 
   const check = await checkBacklink(product)
   summary.checked += 1
@@ -265,6 +279,12 @@ async function processProduct(
     update.backlinkFoundUrl = check.foundUrl
     update.backlinkLastError = null
     if (!verification.backlinkIsVerified) {
+      console.info(`${BACKLINK_CRON_LOG_PREFIX} backlink verified`, {
+        productId: product.id,
+        slug: product.slug,
+        foundUrl: check.foundUrl,
+        status: "newlyVerified",
+      })
       summary.newlyVerified += 1
       update.backlinkVerifiedAt = now
       await persistUpdateAndMaybeReward(
@@ -286,6 +306,11 @@ async function processProduct(
       where: { id: verification.id },
       data: update,
     })
+    console.info(`${BACKLINK_CRON_LOG_PREFIX} backlink already verified`, {
+      productId: product.id,
+      slug: product.slug,
+      foundUrl: check.foundUrl,
+    })
     return
   }
 
@@ -299,6 +324,11 @@ async function processProduct(
       where: { id: verification.id },
       data: update,
     })
+    console.warn(`${BACKLINK_CRON_LOG_PREFIX} backlink missing`, {
+      productId: product.id,
+      slug: product.slug,
+      reason: check.reason,
+    })
     return
   }
 
@@ -311,6 +341,11 @@ async function processProduct(
   await prisma.productVerification.update({
     where: { id: verification.id },
     data: update,
+  })
+  console.error(`${BACKLINK_CRON_LOG_PREFIX} backlink check error`, {
+    productId: product.id,
+    slug: product.slug,
+    reason: check.reason,
   })
 }
 
@@ -348,13 +383,34 @@ async function persistUpdateAndMaybeReward(
       sourceId: "backlink-verifier",
     })
     summary.awarded += 1
+    console.info(`${BACKLINK_CRON_LOG_PREFIX} reward granted`, {
+      productId: product.id,
+      slug: product.slug,
+      eventId,
+    })
   } catch (error) {
-    if (
-      error instanceof RewardsCapExceededError ||
-      error instanceof RewardRuleNotFoundError ||
-      error instanceof RewardRuleInactiveError
-    ) {
-      // Treat as already awarded or disabled rule; avoid failing job
+    if (error instanceof RewardsCapExceededError) {
+      console.info(`${BACKLINK_CRON_LOG_PREFIX} reward skipped`, {
+        productId: product.id,
+        slug: product.slug,
+        reason: "capExceeded",
+      })
+      return
+    }
+    if (error instanceof RewardRuleNotFoundError) {
+      console.warn(`${BACKLINK_CRON_LOG_PREFIX} reward rule missing`, {
+        productId: product.id,
+        slug: product.slug,
+        reason: "ruleNotFound",
+      })
+      return
+    }
+    if (error instanceof RewardRuleInactiveError) {
+      console.warn(`${BACKLINK_CRON_LOG_PREFIX} reward rule inactive`, {
+        productId: product.id,
+        slug: product.slug,
+        reason: "ruleInactive",
+      })
       return
     }
     if (error instanceof RewardsError) {
@@ -363,8 +419,18 @@ async function persistUpdateAndMaybeReward(
         reason: `Rewards error: ${error.message}`,
       })
       summary.errors += 1
+      console.error(`${BACKLINK_CRON_LOG_PREFIX} reward processing error`, {
+        productId: product.id,
+        slug: product.slug,
+        message: error.message,
+      })
       return
     }
+    console.error(`${BACKLINK_CRON_LOG_PREFIX} unexpected reward error`, {
+      productId: product.id,
+      slug: product.slug,
+      message: error instanceof Error ? error.message : "Unknown error",
+    })
     throw error
   }
 }
@@ -394,6 +460,10 @@ export async function runBacklinkVerification(
     },
   })
 
+  console.info(`${BACKLINK_CRON_LOG_PREFIX} fetched published products`, {
+    count: products.length,
+  })
+
   const summary: BacklinkVerificationSummary = {
     checked: 0,
     verified: 0,
@@ -420,6 +490,11 @@ export async function runBacklinkVerification(
               error instanceof Error ? error.message : "Unknown error"
             summary.errors += 1
             summary.failures.push({ productId: product.id, reason })
+            console.error(`${BACKLINK_CRON_LOG_PREFIX} product processing failed`, {
+              productId: product.id,
+              slug: product.slug,
+              reason,
+            })
           }
         }
       })(),
@@ -427,6 +502,13 @@ export async function runBacklinkVerification(
   }
 
   await Promise.all(workers)
+
+  const summarySnapshot: BacklinkVerificationSummary = {
+    ...summary,
+    failures: summary.failures.map((failure) => ({ ...failure })),
+  }
+
+  console.info(`${BACKLINK_CRON_LOG_PREFIX} verification summary`, summarySnapshot)
 
   return summary
 }
