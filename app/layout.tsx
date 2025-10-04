@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Toaster } from "@/components/atoms/sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
-import NextTopLoader from "nextjs-toploader"
 import Providers from "@/components/layout/providers"
 import { ClarityAnalytics } from "@/components/layout/ClarityAnalytics"
 import "./globals.css"
@@ -62,7 +61,6 @@ export default function RootLayout({
         <link rel="preconnect" href="https://www.googletagmanager.com" />
       </head>
       <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
-        <NextTopLoader showSpinner={false} />
         <ClarityAnalytics />
         <Providers>
           <Toaster position="top-right" />
