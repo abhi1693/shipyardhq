@@ -964,8 +964,8 @@ async function lockRewardBalance(
   userId: string,
 ): Promise<RewardBalance> {
   await tx.$executeRaw`
-    INSERT INTO "RewardBalance" ("userId")
-    VALUES (${userId})
+    INSERT INTO "RewardBalance" ("userId", "updatedAt")
+    VALUES (${userId}, NOW())
     ON CONFLICT ("userId") DO NOTHING
   `
 
