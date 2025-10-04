@@ -99,6 +99,16 @@ export function requiresPlacementSchedule(
   return false
 }
 
+/**
+ * Awards rewards for a user according to the provided rule key.
+ *
+ * The operation is idempotent when `payload.eventId` is supplied, since it is
+ * hashed into an event signature and the previously created transaction is
+ * returned with `created: false` when a duplicate is detected. Reward caps and
+ * cooldowns are enforced inside the transaction before the balance is mutated,
+ * and the updated balance along with the new transaction is returned to the
+ * caller when a new grant is recorded.
+ */
 export async function awardRewards(
   userId: string,
   ruleKey: string,
@@ -137,41 +147,26 @@ export async function awardRewards(
         )
       }
 
+      const lockedBalance = await lockRewardBalance(tx, userId)
+
       await enforceCaps(tx, userId, rule, rewardAmount, now)
       await enforceCooldowns(tx, userId, rule, payload, now)
 
-      const existingBalance = await tx.rewardBalance.findUnique({
-        where: { userId },
-      })
-      const streakUpdate = resolveStreak(existingBalance, payload.streak, now)
+      const streakUpdate = resolveStreak(lockedBalance, payload.streak, now)
 
-      const balance = existingBalance
-        ? await tx.rewardBalance.update({
-            where: { userId },
-            data: {
-              balance: { increment: rewardAmount },
-              lifetimeEarned: { increment: rewardAmount },
-              lastEarnedAt: now,
-              lastEvaluatedAt: streakUpdate.lastEvaluatedAt,
-              currentStreakCount: streakUpdate.currentStreakCount,
-              longestStreakCount: streakUpdate.longestStreakCount,
-              currentStreakTier: streakUpdate.currentStreakTier,
-              streakActiveThrough: streakUpdate.streakActiveThrough,
-            },
-          })
-        : await tx.rewardBalance.create({
-            data: {
-              userId,
-              balance: rewardAmount,
-              lifetimeEarned: rewardAmount,
-              lastEarnedAt: now,
-              lastEvaluatedAt: streakUpdate.lastEvaluatedAt,
-              currentStreakCount: streakUpdate.currentStreakCount,
-              longestStreakCount: streakUpdate.longestStreakCount,
-              currentStreakTier: streakUpdate.currentStreakTier,
-              streakActiveThrough: streakUpdate.streakActiveThrough,
-            },
-          })
+      const balance = await tx.rewardBalance.update({
+        where: { userId },
+        data: {
+          balance: { increment: rewardAmount },
+          lifetimeEarned: { increment: rewardAmount },
+          lastEarnedAt: now,
+          lastEvaluatedAt: streakUpdate.lastEvaluatedAt,
+          currentStreakCount: streakUpdate.currentStreakCount,
+          longestStreakCount: streakUpdate.longestStreakCount,
+          currentStreakTier: streakUpdate.currentStreakTier,
+          streakActiveThrough: streakUpdate.streakActiveThrough,
+        },
+      })
 
       const transaction = await tx.rewardTransaction.create({
         data: {
@@ -307,8 +302,10 @@ export async function redeem(
       options.costOverride,
       featureKey,
     )
-    const balanceBefore = await requireBalance(tx, userId)
-    if (balanceBefore.balance < effectiveCost) {
+    const balanceBefore = await tx.rewardBalance.findUnique({
+      where: { userId },
+    })
+    if (!balanceBefore || balanceBefore.balance < effectiveCost) {
       throw new RewardsInsufficientBalanceError(userId, effectiveCost)
     }
 
@@ -324,15 +321,34 @@ export async function redeem(
     )
     const expiresAt =
       startsAt && durationSeconds ? addSeconds(startsAt, durationSeconds) : null
-
-    const updatedBalance = await tx.rewardBalance.update({
-      where: { userId },
+    const reservationDetails = serializeReservation(
+      options.reservation,
+      durationSeconds,
+    )
+    const reservationMetadata = mergeMetadata(options.metadata, {
+      reservation: reservationDetails,
+    })
+    const updateResult = await tx.rewardBalance.updateMany({
+      where: {
+        userId,
+        balance: { gte: effectiveCost },
+      },
       data: {
         balance: { decrement: effectiveCost },
         lifetimeSpent: { increment: effectiveCost },
         lastRedeemedAt: now,
       },
     })
+    if (updateResult.count === 0) {
+      throw new RewardsInsufficientBalanceError(userId, effectiveCost)
+    }
+
+    const updatedBalance = await tx.rewardBalance.findUnique({
+      where: { userId },
+    })
+    if (!updatedBalance) {
+      throw new RewardsInsufficientBalanceError(userId, effectiveCost)
+    }
 
     const redemption = (await tx.redemption.create({
       data: {
@@ -348,12 +364,7 @@ export async function redeem(
         startsAt,
         activatedAt: autoActivate ? startsAt : null,
         expiresAt,
-        metadata: mergeMetadata(options.metadata, {
-          reservation: serializeReservation(
-            options.reservation,
-            durationSeconds,
-          ),
-        }),
+        metadata: reservationMetadata,
         failureReason: null,
       },
       include: { catalogItem: true },
@@ -373,12 +384,7 @@ export async function redeem(
         startsAt,
         activatedAt: autoActivate ? startsAt : null,
         expiresAt,
-        metadata: mergeMetadata(options.metadata, {
-          reservation: serializeReservation(
-            options.reservation,
-            durationSeconds,
-          ),
-        }),
+        metadata: reservationMetadata,
       },
     })
 
@@ -408,12 +414,7 @@ export async function redeem(
             : PlacementStatus.pending,
           startsAt,
           endsAt: expiresAt,
-          metadata: mergeMetadata(options.metadata, {
-            reservation: serializeReservation(
-              options.reservation,
-              durationSeconds,
-            ),
-          }),
+          metadata: reservationMetadata,
         },
       })
     }
@@ -789,6 +790,34 @@ function startOfUtcDay(date: Date): Date {
   return new Date(
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
   )
+}
+
+async function lockRewardBalance(
+  tx: TxClient,
+  userId: string,
+): Promise<RewardBalance> {
+  await tx.$executeRaw`
+    INSERT INTO "RewardBalance" ("userId")
+    VALUES (${userId})
+    ON CONFLICT ("userId") DO NOTHING
+  `
+
+  const balances = await tx.$queryRaw<RewardBalance[]>`
+    SELECT *
+    FROM "RewardBalance"
+    WHERE "userId" = ${userId}
+    FOR UPDATE
+  `
+
+  const balance = balances[0]
+  if (!balance) {
+    throw new RewardsError(
+      `Failed to lock reward balance for user '${userId}'`,
+      "BALANCE_LOCK_FAILED",
+    )
+  }
+
+  return balance
 }
 
 async function requireBalance(tx: TxClient, userId: string) {

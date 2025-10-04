@@ -107,6 +107,7 @@ function parseRuleForm(formData: FormData): RuleInput {
 }
 
 export async function getRewardRules(args: PaginationArgs = {}) {
+  await resolveAdminUser()
   const { skip = 0, take = DEFAULT_LIMIT } = args
   try {
     return await prisma.rewardRule.findMany({
@@ -121,6 +122,7 @@ export async function getRewardRules(args: PaginationArgs = {}) {
 }
 
 export async function getRewardRulesCount() {
+  await resolveAdminUser()
   try {
     return await prisma.rewardRule.count()
   } catch (error) {
@@ -130,6 +132,7 @@ export async function getRewardRulesCount() {
 }
 
 export async function getRewardRuleById(id: string) {
+  await resolveAdminUser()
   try {
     return await prisma.rewardRule.findUnique({ where: { id } })
   } catch (error) {
@@ -139,6 +142,7 @@ export async function getRewardRuleById(id: string) {
 }
 
 export async function createRewardRuleAction(formData: FormData) {
+  await resolveAdminUser()
   const input = parseRuleForm(formData)
   try {
     const existing = await prisma.rewardRule.findUnique({
@@ -158,6 +162,7 @@ export async function createRewardRuleAction(formData: FormData) {
 }
 
 export async function updateRewardRuleAction(id: string, formData: FormData) {
+  await resolveAdminUser()
   const input = parseRuleForm(formData)
   try {
     await prisma.rewardRule.update({ where: { id }, data: input })
@@ -170,6 +175,7 @@ export async function updateRewardRuleAction(id: string, formData: FormData) {
 }
 
 export async function toggleRewardRuleAction(id: string, isActive: boolean) {
+  await resolveAdminUser()
   try {
     await prisma.rewardRule.update({ where: { id }, data: { isActive } })
     revalidatePath(adminPath("rewards", "rules"))
@@ -183,6 +189,7 @@ export async function toggleRewardRuleAction(id: string, isActive: boolean) {
 export async function getRewardTransactions(
   args: PaginationArgs & { type?: RewardTransactionType | "all" } = {},
 ) {
+  await resolveAdminUser()
   const { skip = 0, take = DEFAULT_LIMIT, type = "all" } = args
   try {
     return await prisma.rewardTransaction.findMany({
@@ -230,6 +237,7 @@ export async function getRewardTransactions(
 export async function getRewardTransactionsCount(
   type: RewardTransactionType | "all" = "all",
 ) {
+  await resolveAdminUser()
   try {
     return await prisma.rewardTransaction.count({
       where: type === "all" ? undefined : { type },

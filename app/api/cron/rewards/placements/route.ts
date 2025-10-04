@@ -7,7 +7,10 @@ export const dynamic = "force-dynamic"
 
 function isAuthorized(request: Request) {
   const secret = process.env.CRON_SECRET
-  if (!secret) return true
+  if (!secret) {
+    // Fail closed in production if the secret is missing
+    return process.env.NODE_ENV !== "production"
+  }
   const authHeader = request.headers.get("authorization") || ""
   return authHeader === `Bearer ${secret}`
 }

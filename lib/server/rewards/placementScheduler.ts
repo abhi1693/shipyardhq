@@ -36,6 +36,57 @@ export async function runPlacementScheduler(
   const touchedFeatures = new Set<string>()
 
   await prisma.$transaction(async (tx) => {
+    type BadgeTarget = { productId: string; badge: string }
+    type BadgeRecord = {
+      id: string
+      productId: string
+      badge: string
+      expiresAt: Date | null
+    }
+
+    const badgeKeyFor = (productId: string, badge: string) =>
+      `${productId}:${badge}`
+
+    const collectBadgeTargets = (
+      schedules: Array<{ productId: string; featureKey: string }>,
+    ): BadgeTarget[] => {
+      const seen = new Set<string>()
+      const targets: BadgeTarget[] = []
+      for (const schedule of schedules) {
+        const badge = FEATURE_BADGE_MAP[schedule.featureKey]
+        if (!badge) continue
+        const key = badgeKeyFor(schedule.productId, badge)
+        if (seen.has(key)) continue
+        seen.add(key)
+        targets.push({ productId: schedule.productId, badge })
+      }
+      return targets
+    }
+
+    const loadBadgeMap = async (
+      targets: BadgeTarget[],
+    ): Promise<Map<string, BadgeRecord>> => {
+      if (!targets.length) {
+        return new Map<string, BadgeRecord>()
+      }
+      const existing = await tx.productBadge.findMany({
+        where: {
+          OR: targets.map(({ productId, badge }) => ({ productId, badge })),
+        },
+        select: {
+          id: true,
+          productId: true,
+          badge: true,
+          expiresAt: true,
+        },
+      })
+      const map = new Map<string, BadgeRecord>()
+      for (const record of existing) {
+        map.set(badgeKeyFor(record.productId, record.badge), record)
+      }
+      return map
+    }
+
     const pendingSchedules = await tx.placementSchedule.findMany({
       where: {
         status: PlacementStatus.pending,
@@ -51,6 +102,9 @@ export async function runPlacementScheduler(
         featureKey: true,
       },
     })
+
+    const pendingBadgeTargets = collectBadgeTargets(pendingSchedules)
+    const pendingBadges = await loadBadgeMap(pendingBadgeTargets)
 
     for (const schedule of pendingSchedules) {
       await tx.placementSchedule.update({
@@ -78,25 +132,38 @@ export async function runPlacementScheduler(
 
       const badge = FEATURE_BADGE_MAP[schedule.featureKey]
       if (badge) {
-        const existingBadge = await tx.productBadge.findFirst({
-          where: { productId: schedule.productId, badge },
-        })
+        const key = badgeKeyFor(schedule.productId, badge)
+        const existingBadge = pendingBadges.get(key)
 
         if (existingBadge) {
-          await tx.productBadge.update({
+          const updatedBadge = await tx.productBadge.update({
             where: { id: existingBadge.id },
             data: {
               expiresAt: schedule.endsAt ?? existingBadge.expiresAt ?? null,
             },
+            select: {
+              id: true,
+              productId: true,
+              badge: true,
+              expiresAt: true,
+            },
           })
+          pendingBadges.set(key, updatedBadge)
         } else {
-          await tx.productBadge.create({
+          const createdBadge = await tx.productBadge.create({
             data: {
               productId: schedule.productId,
               badge,
               expiresAt: schedule.endsAt ?? null,
             },
+            select: {
+              id: true,
+              productId: true,
+              badge: true,
+              expiresAt: true,
+            },
           })
+          pendingBadges.set(key, createdBadge)
         }
 
         badgesActivated += 1
@@ -122,6 +189,9 @@ export async function runPlacementScheduler(
         featureKey: true,
       },
     })
+
+    const endingBadgeTargets = collectBadgeTargets(endingSchedules)
+    const endingBadges = await loadBadgeMap(endingBadgeTargets)
 
     for (const schedule of endingSchedules) {
       await tx.placementSchedule.update({
@@ -149,15 +219,21 @@ export async function runPlacementScheduler(
 
       const badge = FEATURE_BADGE_MAP[schedule.featureKey]
       if (badge) {
-        const existingBadge = await tx.productBadge.findFirst({
-          where: { productId: schedule.productId, badge },
-        })
+        const key = badgeKeyFor(schedule.productId, badge)
+        const existingBadge = endingBadges.get(key)
 
         if (existingBadge) {
-          await tx.productBadge.update({
+          const updatedBadge = await tx.productBadge.update({
             where: { id: existingBadge.id },
             data: { expiresAt: schedule.endsAt ?? now },
+            select: {
+              id: true,
+              productId: true,
+              badge: true,
+              expiresAt: true,
+            },
           })
+          endingBadges.set(key, updatedBadge)
           badgesExpired += 1
           badgesTouched = true
         }

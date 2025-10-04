@@ -226,7 +226,7 @@ function RedeemDialog({ item, productOptions, onClose }: RedeemDialogProps) {
               </Select>
               <input type="hidden" name="productId" value={productId ?? ""} />
               <p className="text-xs text-muted-foreground">
-                Redeemments attach to a single product for scheduling and
+                Redemptions attach to a single product for scheduling and
                 auditing.
               </p>
             </div>
