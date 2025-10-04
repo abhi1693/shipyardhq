@@ -23,6 +23,7 @@ import {
   LEADERBOARD_PATH,
   MEMBER_FEEDBACK_PATH,
   MEMBER_OVERVIEW_PATH,
+  REWARDS_PATH,
 } from "@/lib/routes"
 import { IS_PROD } from "@/lib/constants"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
@@ -123,6 +124,7 @@ export async function completeOnboarding(formData: FormData) {
             monthlyUrl: `${baseUrl}${LEADERBOARD_MONTHLY_PATH}`,
             guideUrl: `${baseUrl}${LEADERBOARD_GUIDE_PATH}`,
             feedbackUrl: `${baseUrl}${MEMBER_FEEDBACK_PATH}`,
+            rewardsUrl: `${baseUrl}${REWARDS_PATH}`,
           }
 
           await sendEmail({

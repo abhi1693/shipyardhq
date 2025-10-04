@@ -18,7 +18,6 @@ import {
   CATEGORIES_PATH,
   HOME_PATH,
   LEADERBOARD_PATH,
-  REWARDS_PATH,
   MEMBER_BASE_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
@@ -28,7 +27,6 @@ import {
 const navLinks = [
   { label: "Browse", href: BROWSE_PATH },
   { label: "Categories", href: CATEGORIES_PATH },
-  { label: "Rewards", href: REWARDS_PATH },
   { label: "Leaderboard", href: LEADERBOARD_PATH },
   { label: "Analytics", href: ANALYTICS_PATH },
   { label: "Makers", href: USERS_PATH },
