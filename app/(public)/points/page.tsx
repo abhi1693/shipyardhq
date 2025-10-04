@@ -119,7 +119,6 @@ export default async function PointsExplainerPage() {
     },
   ]
 
-  const topEarningRule = data.topRules[0] ?? null
   const heroRedemptions = data.recentRedemptions.slice(0, 4)
   const topRulesPreview = data.topRules.slice(0, 3)
   const rewardsPreview = data.rewards.slice(0, 6)
@@ -134,6 +133,15 @@ export default async function PointsExplainerPage() {
   const activeShare = data.stats.membersWithPoints > 0
     ? (data.stats.activeBalances / data.stats.membersWithPoints) * 100
     : 0
+
+  const earningGridClass = cn(
+    "mx-auto mt-12 grid grid-cols-1 justify-items-center gap-6",
+    topRulesPreview.length === 1
+      ? "max-w-sm"
+      : topRulesPreview.length === 2
+        ? "max-w-3xl sm:grid-cols-2 lg:grid-cols-2"
+        : "max-w-5xl sm:grid-cols-2 lg:grid-cols-3"
+  )
 
   return (
     <main className="relative isolate overflow-hidden">
@@ -232,11 +240,27 @@ export default async function PointsExplainerPage() {
         max="marketing"
         paddingY="py-20"
         fillScreen={false}
-        className="relative"
+        className="relative overflow-hidden"
       >
-        <div className="grid gap-8 lg:grid-cols-[1.05fr,0.95fr]">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.16,transparent_58%)]"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_100%_0%,var(--brand-2)/0.14,transparent_60%)]"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 -z-10 h-64 bg-gradient-to-t from-[color:var(--brand-1)/0.08] via-transparent to-transparent"
+        />
+        <div className="grid gap-10 lg:grid-cols-[1.05fr,0.95fr]">
           <div className="space-y-6">
-            <article className="rounded-3xl border border-[color:var(--brand-1)/0.06] bg-white/95 p-6 md:p-8 shadow-[0px_26px_70px_-50px_rgba(7,58,104,0.5)]">
+            <article className="relative overflow-hidden rounded-[32px] bg-white/70 p-6 shadow-[0px_40px_120px_-60px_rgba(7,58,104,0.55)] backdrop-blur md:p-8 ring-1 ring-[rgba(7,58,104,0.08)]">
+              <div
+                aria-hidden
+                className="absolute inset-x-0 -top-1 h-1 bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]"
+              />
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1 text-left">
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
@@ -327,7 +351,11 @@ export default async function PointsExplainerPage() {
 
           </div>
 
-          <article className="rounded-3xl border border-[color:var(--brand-1)/0.08] bg-white/92 p-6 md:p-8 shadow-[0px_24px_60px_-42px_rgba(7,58,104,0.45)]">
+          <article className="relative overflow-hidden rounded-[32px] bg-white/68 p-6 shadow-[0px_36px_110px_-56px_rgba(7,58,104,0.5)] backdrop-blur md:p-8 ring-1 ring-[rgba(7,58,104,0.08)]">
+            <div
+              aria-hidden
+              className="absolute inset-x-0 -top-1 h-1 bg-[linear-gradient(90deg,var(--brand-2),var(--brand-3),var(--brand-1))]"
+            />
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
@@ -381,7 +409,7 @@ export default async function PointsExplainerPage() {
                   )
                 })
               ) : (
-                <li className="rounded-2xl border border-dashed border-[color:var(--brand-1)/0.18] bg-white px-4 py-6 text-xs text-muted-foreground">
+                <li className="rounded-2xl border border-dashed border-[color:var(--brand-1)/0.18] bg-white/70 px-4 py-6 text-xs text-muted-foreground backdrop-blur">
                   Redemptions will appear here as soon as the first rewards activate.
                 </li>
               )}
@@ -395,9 +423,17 @@ export default async function PointsExplainerPage() {
         max="marketing"
         paddingY="py-16"
         fillScreen={false}
-        className="relative border-t border-[color:var(--brand-1)/0.08] bg-background/95"
+        className="relative overflow-hidden"
       >
-        <div className="mx-auto max-w-3xl text-center space-y-5">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_10%_-20%,var(--brand-1)/0.12,transparent_68%)]"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_90%_-10%,var(--brand-3)/0.14,transparent_70%)]"
+        />
+        <div className="mx-auto max-w-3xl space-y-5 text-center">
           <span className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
             Earning opportunities
           </span>
@@ -408,55 +444,80 @@ export default async function PointsExplainerPage() {
             The ledger spotlights the rules that keep Shipyard signal-rich. Hit these consistently to make every redemption within reach.
           </p>
         </div>
-        <div className="mx-auto mt-10 flex max-w-5xl flex-wrap items-stretch justify-center gap-5">
+        <div className={earningGridClass}>
           {topRulesPreview.length > 0 ? (
             topRulesPreview.map((rule) => {
-              const caps = [formatCap("Daily cap", rule.dailyCap), formatCap("Lifetime cap", rule.lifetimeCap)].filter(Boolean)
+              const limitChips = [formatCap("Lifetime cap", rule.lifetimeCap)].filter(Boolean)
+              const baseAward = typeof rule.basePoints === "number" ? rule.basePoints : 0
+              const totalAwardedPoints = typeof rule.totalAwarded === "number" ? rule.totalAwarded : 0
+              const payoutCount = typeof rule.awardCount === "number" ? rule.awardCount : 0
+              const streakLabel = payoutCount === 1 ? "Streak awarded (90d)" : "Streaks awarded (90d)"
               return (
                 <article
                   key={rule.id}
-                  className="w-full max-w-sm rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/95 px-6 py-6 text-center shadow-[0px_24px_55px_-40px_rgba(7,58,104,0.5)]"
+                  className="group relative flex w-full max-w-sm flex-col gap-6 overflow-hidden rounded-[28px] bg-white/70 px-7 py-8 text-left shadow-[0px_40px_120px_-60px_rgba(7,58,104,0.5)] backdrop-blur ring-1 ring-[rgba(7,58,104,0.08)]"
                 >
-                  <div className="flex flex-col items-center gap-3">
-                    <Badge variant="outline" className="uppercase tracking-[0.22em] text-[10px]">
+                  <div
+                    aria-hidden
+                    className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-[color:var(--brand-1)/0] via-[color:var(--brand-1)/0.45] to-[color:var(--brand-2)/0]"
+                  />
+
+                  <div className="space-y-3">
+                    <Badge variant="secondary" className="w-fit uppercase tracking-[0.18em] text-[10px]">
                       {ruleCategoryLabels[rule.category]}
                     </Badge>
-                    <h3 className="text-lg font-semibold text-foreground">{rule.name}</h3>
+                    <h3 className="text-lg font-semibold text-foreground text-balance">{rule.name}</h3>
                     {rule.description ? (
                       <p className="text-sm text-muted-foreground text-balance">{rule.description}</p>
                     ) : null}
-                    <span className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 text-xs font-semibold text-[color:var(--brand-1)]">
-                      {formatPoints(rule.basePoints)} base
-                    </span>
+                    {rule.frequencyLabel ? (
+                      <p className="text-xs font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
+                        {rule.frequencyLabel}
+                      </p>
+                    ) : null}
                   </div>
-                  <div className="mt-5 grid gap-2 text-xs text-muted-foreground">
-                    <div className="flex items-center justify-between">
+
+                  <div className="space-y-3 text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between text-foreground">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                        Earn reward
+                      </span>
+                      <span className="text-lg font-semibold text-foreground">
+                        {formatPoints(baseAward)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground/80">
                       <span>Points awarded (90d)</span>
                       <span className="font-semibold text-foreground">
-                        {formatPoints(rule.totalAwarded)}
+                        {formatPoints(totalAwardedPoints)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground/80">
                       <span>Payouts triggered</span>
                       <span className="font-semibold text-foreground">
-                        {formatNumber(rule.awardCount)}
+                        {formatNumber(payoutCount)}
                       </span>
                     </div>
-                    {caps.length ? (
-                      <div className="flex flex-wrap justify-center gap-2 text-[11px] text-muted-foreground/80">
-                        {caps.map((cap) => (
-                          <span key={cap} className="rounded-full border border-slate-200 px-3 py-1">
-                            {cap}
+                    {limitChips.length ? (
+                      <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground/80">
+                        {limitChips.map((chip) => (
+                          <span key={chip} className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 font-medium text-[color:var(--brand-1)]">
+                            {chip}
                           </span>
                         ))}
                       </div>
                     ) : null}
                   </div>
+
+                  <div className="flex items-center justify-between text-xs text-muted-foreground/80">
+                    <span className="font-semibold text-[color:var(--brand-1)]">{formatNumber(payoutCount)}</span>
+                    <span>{streakLabel}</span>
+                  </div>
                 </article>
               )
             })
           ) : (
-            <div className="col-span-full rounded-3xl border border-dashed border-[color:var(--brand-1)/0.2] bg-white px-6 py-12 text-center text-sm text-muted-foreground">
+            <div className="col-span-full rounded-[28px] border border-dashed border-[color:var(--brand-1)/0.16] bg-white/70 px-6 py-12 text-center text-sm text-muted-foreground backdrop-blur">
               We&apos;ll spotlight the top earn rules as soon as the first streaks land.
             </div>
           )}
@@ -468,9 +529,17 @@ export default async function PointsExplainerPage() {
         max="marketing"
         paddingY="py-16"
         fillScreen={false}
-        className="relative border-t border-[color:var(--brand-1)/0.08]"
+        className="relative overflow-hidden"
       >
-        <div className="mx-auto max-w-3xl text-center space-y-5">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.12,transparent_70%)]"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-[radial-gradient(100%_140%_at_100%_-20%,var(--brand-2)/0.12,transparent_68%)]"
+        />
+        <div className="mx-auto max-w-3xl space-y-5 text-center">
           <span className="text-xs font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
             Redeem the momentum
           </span>
@@ -481,27 +550,30 @@ export default async function PointsExplainerPage() {
             Catalog items mirror the perks available to Shipyard crews—homepage features, analytics, promos, and utility boosts. Queue them up as soon as your balance is ready.
           </p>
         </div>
-        <div className="mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {rewardsPreview.length > 0 ? (
             rewardsPreview.map((reward) => {
               const durationLabel = formatDuration(reward.durationSeconds)
               const limitBadges = [
-                reward.maxActivePerUser != null
+                reward.maxActivePerUser != null && reward.maxActivePerUser > 1
                   ? `Active limit: ${formatNumber(reward.maxActivePerUser)}`
                   : null,
-                reward.maxPendingPerUser != null
+                reward.maxPendingPerUser != null && reward.maxPendingPerUser > 2
                   ? `Pending limit: ${formatNumber(reward.maxPendingPerUser)}`
                   : null,
-                reward.requiresProduct ? "Requires product" : null,
               ].filter(Boolean)
 
               return (
                 <article
                   key={reward.featureKey}
-                  className="rounded-3xl border border-[color:var(--brand-1)/0.12] bg-white/95 px-6 py-7 text-left shadow-[0px_24px_55px_-40px_rgba(7,58,104,0.5)]"
+                  className="group relative flex h-full flex-col justify-between overflow-hidden rounded-[28px] bg-white/70 px-7 py-8 text-left shadow-[0px_42px_130px_-60px_rgba(7,58,104,0.52)] backdrop-blur ring-1 ring-[rgba(7,58,104,0.08)]"
                 >
+                  <div
+                    aria-hidden
+                    className="absolute inset-x-7 top-0 h-px bg-gradient-to-r from-[color:var(--brand-2)/0] via-[color:var(--brand-2)/0.45] to-[color:var(--brand-3)/0]"
+                  />
                   <div className="space-y-3">
-                    <Badge variant="secondary" className="uppercase tracking-[0.18em] text-[10px]">
+                    <Badge variant="secondary" className="w-fit uppercase tracking-[0.18em] text-[10px]">
                       {rewardCategoryLabels[reward.category]}
                     </Badge>
                     <h3 className="text-lg font-semibold text-foreground">{reward.name}</h3>
@@ -509,9 +581,9 @@ export default async function PointsExplainerPage() {
                       <p className="text-sm text-muted-foreground">{reward.description}</p>
                     ) : null}
                   </div>
-                  <div className="mt-5 space-y-2 text-sm text-muted-foreground">
+                  <div className="mt-6 space-y-3 text-sm text-muted-foreground">
                     <div className="flex items-center justify-between text-foreground">
-                      <span className="font-semibold">{formatPoints(reward.baseCost)}</span>
+                      <span className="text-base font-semibold text-foreground">{formatPoints(reward.baseCost)}</span>
                       <span className="text-xs text-muted-foreground/80">
                         {formatNumber(reward.redemptionCount)} redeems (90d)
                       </span>
@@ -520,7 +592,7 @@ export default async function PointsExplainerPage() {
                     {limitBadges.length ? (
                       <div className="flex flex-wrap gap-2 text-xs text-muted-foreground/80">
                         {limitBadges.map((badge) => (
-                          <span key={badge} className="rounded-full border border-slate-200 px-3 py-1">
+                          <span key={badge} className="rounded-full bg-[color:var(--brand-1)/0.08] px-3 py-1 font-medium text-[color:var(--brand-1)]">
                             {badge}
                           </span>
                         ))}
@@ -531,7 +603,7 @@ export default async function PointsExplainerPage() {
               )
             })
           ) : (
-            <div className="col-span-full rounded-3xl border border-dashed border-[color:var(--brand-1)/0.2] bg-white px-6 py-12 text-center text-sm text-muted-foreground">
+            <div className="col-span-full rounded-[28px] border border-dashed border-[color:var(--brand-1)/0.16] bg-white/70 px-6 py-12 text-center text-sm text-muted-foreground backdrop-blur">
               Rewards will populate here once the catalog opens to the public.
             </div>
           )}
@@ -543,9 +615,21 @@ export default async function PointsExplainerPage() {
         max="marketing"
         paddingY="py-16"
         fillScreen={false}
-        className="relative border-t border-[color:var(--brand-1)/0.08]"
+        className="relative overflow-hidden"
       >
-        <div className="relative overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.12] bg-[linear-gradient(135deg,rgba(7,58,104,0.08),rgba(14,91,150,0.12),rgba(255,255,255,0.95))] px-8 py-12 shadow-[0px_32px_80px_-45px_rgba(7,58,104,0.5)] sm:px-12">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_50%_-30%,var(--brand-1)/0.14,transparent_68%)]"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-20 bg-[radial-gradient(120%_160%_at_50%_120%,var(--brand-3)/0.12,transparent_72%)]"
+        />
+        <div className="relative overflow-hidden rounded-[36px] bg-white/70 px-8 py-12 shadow-[0px_48px_140px_-70px_rgba(7,58,104,0.6)] backdrop-blur ring-1 ring-[rgba(7,58,104,0.08)] sm:px-12">
+          <div
+            aria-hidden
+            className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-[color:var(--brand-1)/0] via-[color:var(--brand-1)/0.35] to-[color:var(--brand-2)/0]"
+          />
           <div className="grid gap-8 lg:grid-cols-[1.2fr,0.8fr] lg:items-center">
             <div className="space-y-4">
               <h3 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
@@ -559,7 +643,12 @@ export default async function PointsExplainerPage() {
               <Button asChild size="lg">
                 <Link href={MEMBER_PRODUCTS_PATH}>List your product</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-[color:var(--brand-1)/0.35] text-[color:var(--brand-1)]">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-[color:var(--brand-1)/0.25] bg-white/70 text-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)/0.06]"
+              >
                 <Link href={MEMBER_POINTS_PATH}>Review your ledger</Link>
               </Button>
             </div>
