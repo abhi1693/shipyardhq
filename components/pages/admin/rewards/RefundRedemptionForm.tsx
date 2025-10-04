@@ -29,10 +29,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select"
-import { Badge } from "@/components/atoms/badge"
+import { Badge, badgeVariants } from "@/components/atoms/badge"
 import { cn } from "@/lib/utils"
 import type { RedemptionStatus } from "@/lib/vendor/prisma/client"
 import { Switch } from "@/components/atoms/switch"
+import type { VariantProps } from "class-variance-authority"
 
 const statusLabels: Record<RedemptionStatus, string> = {
   pending: "Pending",
@@ -43,7 +44,9 @@ const statusLabels: Record<RedemptionStatus, string> = {
   refunded: "Refunded",
 }
 
-const statusVariants: Record<RedemptionStatus, string> = {
+type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>
+
+const statusVariants: Record<RedemptionStatus, BadgeVariant> = {
   pending: "secondary",
   active: "default",
   expired: "outline",
