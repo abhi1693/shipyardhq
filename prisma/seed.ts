@@ -12,6 +12,7 @@ import { PRICING_PATH } from "@/lib/routes"
 import { seedCategories } from "./seed.categories"
 import { seedPlanFeatures } from "./seed.plan-features"
 import { seedPlans } from "./seed.plans"
+import { seedPoints } from "./seed.points"
 import { seedUseCases } from "./seed.use-cases"
 
 const prisma = new PrismaClient()
@@ -243,6 +244,7 @@ async function main() {
   await seedUseCases(prisma)
   await seedPlanFeatures(prisma)
   await seedPlans(prisma)
+  await seedPoints(prisma)
 
   const userSeeds = [
     {
