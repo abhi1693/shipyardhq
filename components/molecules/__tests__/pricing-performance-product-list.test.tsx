@@ -171,7 +171,6 @@ describe("PricingCard, PerformanceCard, ProductList", () => {
     const { rerender } = render(
       <ProductList
         items={items}
-        compact={false}
         showCategory
         showVerified
         columns="grid-cols-2"
@@ -191,7 +190,6 @@ describe("PricingCard, PerformanceCard, ProductList", () => {
     rerender(
       <ProductList
         items={items}
-        compact={false}
         showCategory
         showVerified
         columns="grid-cols-2"
@@ -207,7 +205,6 @@ describe("PricingCard, PerformanceCard, ProductList", () => {
     rerender(
       <ProductList
         items={items}
-        compact
         showCategory={false}
         showVerified={false}
         showRank
@@ -221,7 +218,6 @@ describe("PricingCard, PerformanceCard, ProductList", () => {
     rerender(
       <ProductList
         items={items}
-        compact
         showCategory={false}
         showVerified={false}
         showRank

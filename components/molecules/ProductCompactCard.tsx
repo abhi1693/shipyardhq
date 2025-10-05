@@ -2,6 +2,8 @@ import { ReactNode } from "react"
 import Image from "next/image"
 import { clickProductCardAction } from "@/actions/public/products/analytics"
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
+import { Badge } from "@/components/atoms/badge"
+import { BADGE_OPTIONS } from "@/lib/constants"
 
 interface ProductCompactCardProps {
   product: {
@@ -16,6 +18,8 @@ interface ProductCompactCardProps {
   imagePriority?: boolean
   meta?: ReactNode
   showCategory?: boolean
+  badges?: string[]
+  showBadges?: boolean
 }
 
 export function ProductCompactCard({
@@ -25,7 +29,20 @@ export function ProductCompactCard({
   imagePriority = false,
   meta,
   showCategory = true,
+  badges = [],
+  showBadges = true,
 }: ProductCompactCardProps) {
+  const resolvedBadges = badges
+    .map(
+      (value) => BADGE_OPTIONS.find((option) => option.value === value) ?? null,
+    )
+    .filter((badge): badge is (typeof BADGE_OPTIONS)[number] => Boolean(badge))
+
+  const badgeLimit = 3
+  const visibleBadges = resolvedBadges.slice(0, badgeLimit)
+  const extraBadgeCount = Math.max(0, badges.length - visibleBadges.length)
+  const showMetaRow = showCategory && category
+
   return (
     <form
       action={clickProductCardAction}
@@ -55,22 +72,45 @@ export function ProductCompactCard({
               />
             </span>
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold leading-tight text-foreground line-clamp-1">
+              <h3 className="line-clamp-1 text-sm font-semibold leading-tight text-foreground">
                 {product.name}
               </h3>
-              <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                 {product.tagline}
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-between pt-1">
+
+          {showBadges && (visibleBadges.length > 0 || extraBadgeCount > 0) ? (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {visibleBadges.map((badge, index) => (
+                <Badge
+                  key={`${badge.value}-${index}`}
+                  title={badge.label}
+                  className="rounded-full border-transparent bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-[10px] font-medium text-[color:var(--brand-1)] shadow-[0px_14px_28px_-26px_rgba(7,58,104,0.78)] ring-1 ring-inset ring-white/5"
+                  variant="outline"
+                >
+                  {badge.icon}
+                  <span className="ml-1 font-medium">{badge.label}</span>
+                </Badge>
+              ))}
+              {extraBadgeCount > 0 ? (
+                <span className="text-xs font-medium text-muted-foreground">
+                  +{extraBadgeCount}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+
+          <div className="mt-auto flex items-center justify-between pt-1">
             <UpvoteSquare
               count={upvotes}
               compact
               className="shrink-0"
               title={`${upvotes} upvotes`}
             />
-            {showCategory && category ? (
+
+            {showMetaRow ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-[11px] font-medium text-[color:var(--brand-1)] shadow-[0px_12px_32px_-28px_rgba(7,58,104,0.75)] ring-1 ring-inset ring-white/10">
                 {category}
               </span>

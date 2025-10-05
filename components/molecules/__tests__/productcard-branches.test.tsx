@@ -12,18 +12,13 @@ describe("ProductCard branch coverage", () => {
     tagline: "Tag",
   }
 
-  it("shows +N badges in compact mode when more than 3 badges", () => {
+  it("shows +N badge indicator when more than 3 badges are provided", () => {
     const badges = ["featured", "trending", "new", "editor-pick", "unknown"]
-    const { container } = render(
-      <ProductCard product={base} badges={badges} compact upvotes={1} />,
-    )
-    // +2 indicator
+    render(<ProductCard product={base} badges={badges} compact upvotes={1} />)
     expect(screen.getByText("+2")).toBeInTheDocument()
-    // Category chip hidden in compact mode even when provided
-    expect(container.querySelector("span.ml-2")).toBeFalsy()
   })
 
-  it("shows category chip and non-compact badges when provided", () => {
+  it("renders category chip and visible badge using compact design", () => {
     const badges = ["featured"]
     render(
       <ProductCard

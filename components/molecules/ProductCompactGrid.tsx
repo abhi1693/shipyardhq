@@ -31,7 +31,11 @@ export function ProductCompactGrid<T extends CompactProductItem>({
 }: ProductCompactGridProps<T>) {
   return (
     <div
-      className={cn("grid gap-5", columns, className)}
+      className={cn(
+        "grid auto-rows-[minmax(0,1fr)] gap-5",
+        columns,
+        className,
+      )}
       data-testid="product-compact-grid"
     >
       {items.map((item, index) => (

@@ -78,10 +78,7 @@ export default function ProductGridClient({
 
   return (
     <section className="space-y-6">
-      <ProductCompactGrid
-        items={products}
-        columns="grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
-      />
+      <ProductCompactGrid items={products} />
 
       {isPending && (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">

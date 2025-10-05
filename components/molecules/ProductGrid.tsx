@@ -71,10 +71,8 @@ export default function ProductGrid({
             (pb) => !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
           ).map((pb) => pb.badge),
         }))}
-        compact
         showCategory
         showVerified
-        columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         topRight={(p) => (
           <div className="flex items-center gap-1">
             {p.verification?.isVerified && (

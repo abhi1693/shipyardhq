@@ -3,7 +3,7 @@
 import React from "react"
 import { CheckCircle } from "lucide-react"
 
-import { ProductCard } from "@/components/molecules/ProductCard"
+import { ProductCompactCard } from "@/components/molecules/ProductCompactCard"
 import { Badge } from "@/components/atoms/badge"
 
 type ProductListItem = {
@@ -21,7 +21,6 @@ type ProductListItem = {
 
 interface ProductListProps<T extends ProductListItem> {
   items: T[]
-  compact?: boolean
   showCategory?: boolean
   showVerified?: boolean
   columns?: string // tailwind grid cols classes
@@ -34,10 +33,9 @@ interface ProductListProps<T extends ProductListItem> {
 
 export default function ProductList<T extends ProductListItem>({
   items,
-  compact = true,
   showCategory = true,
   showVerified = true,
-  columns = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-4",
+  columns = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4",
   className,
   topRight,
   imagePriorityFirstN = 4,
@@ -46,10 +44,14 @@ export default function ProductList<T extends ProductListItem>({
 }: ProductListProps<T>) {
   return (
     <div
-      className={"grid gap-4 " + columns + (className ? ` ${className}` : "")}
+      className={
+        "grid auto-rows-[minmax(0,1fr)] gap-5 " +
+        columns +
+        (className ? ` ${className}` : "")
+      }
     >
       {items.map((p, i) => (
-        <ProductCard
+        <ProductCompactCard
           key={p.id}
           product={{
             id: p.id,
@@ -58,18 +60,10 @@ export default function ProductList<T extends ProductListItem>({
             logo: p.logo,
             tagline: p.tagline,
           }}
-          badges={p.badges}
           upvotes={p.analytics?.upvotes ?? 0}
-          author={
-            p.user
-              ? {
-                  name: `${p.user.firstName ?? ""} ${p.user.lastName ?? ""}`.trim(),
-                  initial: (p.user.firstName?.[0] ?? "U").toUpperCase(),
-                }
-              : undefined
-          }
-          category={showCategory ? (p.category?.name ?? undefined) : undefined}
-          topRight={
+          badges={p.badges}
+          category={showCategory ? p.category?.name ?? null : null}
+          meta={
             topRight ? (
               topRight(p, i)
             ) : showRank ? (
@@ -83,7 +77,7 @@ export default function ProductList<T extends ProductListItem>({
             ) : undefined
           }
           imagePriority={i < imagePriorityFirstN}
-          compact={compact}
+          showCategory={showCategory}
         />
       ))}
     </div>
