@@ -29,6 +29,10 @@
       "schedule": "0 8 * * *"
     },
     {
+      "path": "/api/cron/product-review-milestones",
+      "schedule": "30 7 * * *"
+    },
+    {
       "path": "/api/cron/rewards/placements",
       "schedule": "*/5 * * * *"
     },
@@ -39,6 +43,10 @@
     {
       "path": "/api/cron/rewards/streak",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/user-reengagement",
+      "schedule": "0 9 * * *"
     }
   ]
 }
