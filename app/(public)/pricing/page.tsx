@@ -15,7 +15,7 @@ import {
   AccordionTrigger,
 } from "@/components/atoms/accordion"
 import { buildPageMetadata } from "@/lib/metadata"
-import { ANALYTICS_PATH } from "@/lib/routes"
+import { ANALYTICS_PATH, REWARDS_PATH } from "@/lib/routes"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 
 export const metadata = buildPageMetadata({
@@ -131,10 +131,10 @@ export default async function PricingPage() {
             <Button
               asChild
               size="lg"
-              variant="outline"
-              className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
+              variant="ghost"
+              className="text-[color:var(--brand-1)] hover:text-[color:var(--brand-1)/0.75]"
             >
-              <Link href="#faq">Talk with the crew</Link>
+              <Link href={REWARDS_PATH}>Explore rewards</Link>
             </Button>
           </div>
           <div className="grid gap-4 rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-6 text-left shadow-[0px_25px_60px_-40px_rgba(7,58,104,0.6)] backdrop-blur sm:grid-cols-3">
