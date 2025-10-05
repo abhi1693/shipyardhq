@@ -7,6 +7,7 @@ import {
 } from "@/lib/server/events"
 import { getRedisClient, type RedisClient } from "@/lib/server/redis"
 import "@/lib/server/rewards/listeners"
+import "@/lib/server/email/productVoteMilestone"
 
 export type VoteState = "upvoted" | "not_upvoted"
 
