@@ -3,7 +3,11 @@ import UserReengagementEmail from "@/lib/email/templates/outreach/userReengageme
 import { getAppBaseUrl } from "@/lib/email/utils"
 import prisma from "@/lib/prisma"
 import { getRedisClient } from "@/lib/server/redis"
-import { LEADERBOARD_PATH, MEMBER_OVERVIEW_PATH } from "@/lib/routes"
+import {
+  LEADERBOARD_PATH,
+  MEMBER_OVERVIEW_PATH,
+  MEMBER_REWARDS_PATH,
+} from "@/lib/routes"
 
 const LOGIN_RULE_KEY = "rewards.login.daily"
 const REENGAGEMENT_MILESTONES = [7, 14, 30, 90]
@@ -108,6 +112,7 @@ export async function sendUserReengagementEmails(now: Date = new Date()) {
     }
 
     const memberDashboardUrl = buildAbsoluteUrl(MEMBER_OVERVIEW_PATH)
+    const memberRewardsUrl = buildAbsoluteUrl(MEMBER_REWARDS_PATH)
     const leaderboardUrl = buildAbsoluteUrl(LEADERBOARD_PATH)
     const userName = formatName(user.firstName, user.lastName)
 
@@ -122,6 +127,7 @@ export async function sendUserReengagementEmails(now: Date = new Date()) {
           <UserReengagementEmail
             userName={userName}
             milestone={milestone}
+            memberRewardsUrl={memberRewardsUrl}
             memberDashboardUrl={memberDashboardUrl}
             leaderboardUrl={leaderboardUrl}
           />
