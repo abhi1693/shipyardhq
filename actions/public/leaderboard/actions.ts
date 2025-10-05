@@ -27,13 +27,7 @@ const monthlyCacheTags = (monthKey?: string) =>
 
 export const getLeaderboardStats = cached(
   async () => {
-    const [
-      totalProducts,
-      totalCreators,
-      upvoteAgg,
-      topProduct,
-      insightsAgg,
-    ] =
+    const [totalProducts, totalCreators, upvoteAgg, topProduct, insightsAgg] =
       await Promise.all([
         prisma.product.count({
           cacheStrategy: {

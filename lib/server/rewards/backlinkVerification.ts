@@ -489,11 +489,14 @@ export async function runBacklinkVerification(
               error instanceof Error ? error.message : "Unknown error"
             summary.errors += 1
             summary.failures.push({ productId: product.id, reason })
-            console.error(`${BACKLINK_CRON_LOG_PREFIX} product processing failed`, {
-              productId: product.id,
-              slug: product.slug,
-              reason,
-            })
+            console.error(
+              `${BACKLINK_CRON_LOG_PREFIX} product processing failed`,
+              {
+                productId: product.id,
+                slug: product.slug,
+                reason,
+              },
+            )
           }
         }
       })(),
@@ -507,7 +510,10 @@ export async function runBacklinkVerification(
     failures: summary.failures.map((failure) => ({ ...failure })),
   }
 
-  console.info(`${BACKLINK_CRON_LOG_PREFIX} verification summary`, summarySnapshot)
+  console.info(
+    `${BACKLINK_CRON_LOG_PREFIX} verification summary`,
+    summarySnapshot,
+  )
 
   return summary
 }

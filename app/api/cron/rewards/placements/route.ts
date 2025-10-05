@@ -30,7 +30,9 @@ export async function POST(request: Request) {
       expired: result.expired,
       badgesActivated: result.badgesActivated,
       badgesExpired: result.badgesExpired,
-      activatedProductIds: activatedCount ? result.activatedProductIds : undefined,
+      activatedProductIds: activatedCount
+        ? result.activatedProductIds
+        : undefined,
       expiredProductIds: expiredCount ? result.expiredProductIds : undefined,
     })
     return NextResponse.json({ success: true, ...result })
