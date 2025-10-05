@@ -65,8 +65,8 @@ export function ProductCard({
       >
         <Card
           className={clsx(
-            "relative h-full overflow-hidden rounded-xl border border-[color:var(--brand-1)/0.18] bg-background/92 text-foreground shadow-[0px_20px_55px_-35px_rgba(7,58,104,0.65)] transition-all duration-200 ease-out",
-            "cursor-pointer group-hover:-translate-y-1 group-hover:shadow-[0px_28px_70px_-45px_rgba(7,58,104,0.7)] group-focus-visible:-translate-y-1 group-focus-visible:shadow-[0px_28px_70px_-45px_rgba(7,58,104,0.7)]",
+            "relative h-full overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.1] bg-gradient-to-br from-background/98 via-background/92 to-[color:var(--brand-1)/0.05] text-foreground shadow-[0px_20px_60px_-48px_rgba(7,58,104,0.52)] ring-1 ring-inset ring-white/12 transition-all duration-300 ease-out backdrop-blur-sm dark:border-white/14",
+            "cursor-pointer group-hover:-translate-y-1.5 group-hover:border-[color:var(--brand-1)/0.16] group-hover:shadow-[0px_28px_82px_-54px_rgba(7,58,104,0.66)] group-focus-visible:-translate-y-1.5 group-focus-visible:border-[color:var(--brand-1)/0.16] group-focus-visible:shadow-[0px_28px_82px_-54px_rgba(7,58,104,0.66)]",
             compact ? "gap-4 py-4" : "gap-5 py-6",
           )}
         >
@@ -81,7 +81,7 @@ export function ProductCard({
             >
               <div
                 className={clsx(
-                  "flex-shrink-0 overflow-hidden rounded-lg border border-[color:var(--brand-1)/0.28] bg-[color:var(--brand-1)/0.08]",
+                  "flex-shrink-0 overflow-hidden rounded-xl bg-[color:var(--brand-1)/0.12] shadow-[0px_22px_40px_-34px_rgba(7,58,104,0.9)] ring-1 ring-inset ring-white/5",
                   compact ? "h-10 w-10" : "h-16 w-16",
                 )}
               >
@@ -107,7 +107,7 @@ export function ProductCard({
                     {product.name}
                   </CardTitle>
                   {category && !compact && (
-                    <span className="ml-3 inline-flex items-center rounded-full border border-[color:var(--brand-1)/0.22] bg-[color:var(--brand-1)/0.08] px-3 py-1 text-[11px] font-medium text-[color:var(--brand-1)]">
+                    <span className="ml-3 inline-flex items-center gap-1 rounded-full bg-[color:var(--brand-1)/0.12] px-3 py-1 text-[11px] font-medium text-[color:var(--brand-1)] shadow-[0px_15px_35px_-30px_rgba(7,58,104,0.75)]">
                       {category}
                     </span>
                   )}
@@ -129,7 +129,7 @@ export function ProductCard({
                         key={`${badge.value}-${i}`}
                         title={badge.label}
                         className={clsx(
-                          "rounded-full border border-[color:var(--brand-1)/0.18] bg-background/80 px-2.5 py-0.5 text-xs font-medium text-[color:var(--brand-1)]",
+                          "rounded-full border-transparent bg-[color:var(--brand-1)/0.12] px-2.5 py-0.5 text-xs font-medium text-[color:var(--brand-1)] shadow-[0px_14px_32px_-28px_rgba(7,58,104,0.8)] ring-1 ring-inset ring-white/5",
                         )}
                         variant="outline"
                       >
@@ -148,7 +148,7 @@ export function ProductCard({
                         key={`${badge.value}-${i}`}
                         title={badge.label}
                         className={clsx(
-                          "rounded-full border border-[color:var(--brand-1)/0.18] bg-background/80 px-2 py-0.5 text-[10px] font-medium text-[color:var(--brand-1)]",
+                          "rounded-full border-transparent bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-[10px] font-medium text-[color:var(--brand-1)] shadow-[0px_14px_28px_-26px_rgba(7,58,104,0.78)] ring-1 ring-inset ring-white/5",
                         )}
                         variant="outline"
                       >

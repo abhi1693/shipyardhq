@@ -36,14 +36,14 @@ export function ProductCompactCard({
       <input type="hidden" name="productSlug" value={product.slug} />
       <button
         type="submit"
-        className="group relative block h-full w-full cursor-pointer rounded-lg border bg-card p-4 text-left text-card-foreground shadow-sm transition-all hover:border-[color:var(--brand-1)/0.35] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.25]"
+        className="group relative block h-full w-full cursor-pointer overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.1] bg-gradient-to-br from-background/98 via-background/92 to-[color:var(--brand-1)/0.04] p-4 text-left text-card-foreground shadow-[0px_18px_52px_-44px_rgba(7,58,104,0.5)] ring-1 ring-inset ring-white/12 transition-all duration-300 hover:-translate-y-1 hover:border-[color:var(--brand-1)/0.16] hover:shadow-[0px_24px_70px_-50px_rgba(7,58,104,0.64)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.22] dark:border-white/14"
       >
         {meta ? (
           <div className="absolute right-4 top-3 sm:top-4">{meta}</div>
         ) : null}
         <div className="flex h-full flex-col gap-3">
           <div className="flex items-start gap-3">
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.08]">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[color:var(--brand-1)/0.12] shadow-[0px_18px_38px_-30px_rgba(7,58,104,0.85)] ring-1 ring-inset ring-white/10">
               <Image
                 src={product.logo}
                 alt={product.name}
@@ -71,7 +71,7 @@ export function ProductCompactCard({
               title={`${upvotes} upvotes`}
             />
             {showCategory && category ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.08] px-2 py-0.5 text-[11px] font-medium text-[color:var(--brand-1)]">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-[11px] font-medium text-[color:var(--brand-1)] shadow-[0px_12px_32px_-28px_rgba(7,58,104,0.75)] ring-1 ring-inset ring-white/10">
                 {category}
               </span>
             ) : null}

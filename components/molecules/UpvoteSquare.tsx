@@ -23,11 +23,11 @@ export function UpvoteSquare({
   return (
     <div
       className={clsx(
-        "inline-flex select-none items-center gap-2 rounded-lg border border-[color:var(--brand-1)/0.22] bg-background/90 px-3 py-1.5 text-[color:var(--brand-1)] shadow-[0px_15px_35px_-30px_rgba(7,58,104,0.6)] transition-colors",
-        compact && "gap-1 px-2.5 py-1 text-xs",
+        "inline-flex select-none items-center gap-2 rounded-xl bg-gradient-to-br from-[color:var(--brand-1)/0.18] via-background/80 to-background/75 px-3 py-1.5 text-[color:var(--brand-1)] shadow-[0px_18px_38px_-32px_rgba(7,58,104,0.75)] ring-1 ring-inset ring-white/10 transition-colors",
+        compact && "gap-1 rounded-lg px-2.5 py-1 text-xs",
         pending && "opacity-70",
         active &&
-          "border-[color:var(--brand-2)/0.4] text-[color:var(--brand-2)]",
+          "text-[color:var(--brand-2)] ring-[color:var(--brand-2)/0.4]",
         className,
       )}
       aria-label="Upvotes"
