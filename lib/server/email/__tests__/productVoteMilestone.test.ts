@@ -117,7 +117,9 @@ describe("handleProductVoteMilestone", () => {
     expect(element.props.ownerName).toBe("Kai Sailor")
     expect(element.props.milestone).toBe(1)
     expect(element.props.totalUpvotes).toBe(1)
-    expect(element.props.productUrl).toBe("https://app.test/products/wave-tracker")
+    expect(element.props.productUrl).toBe(
+      "https://app.test/products/wave-tracker",
+    )
     expect(element.props.dashboardUrl).toBe(
       "https://app.test/member/products/wave-tracker",
     )

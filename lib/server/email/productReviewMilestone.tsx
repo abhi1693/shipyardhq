@@ -29,7 +29,10 @@ type ProductReviewGroupCount = {
   _count: { productId: number | null }
 }
 
-async function getReviewCounts(periodStart: Date, periodEnd: Date): Promise<ReviewGroup[]> {
+async function getReviewCounts(
+  periodStart: Date,
+  periodEnd: Date,
+): Promise<ReviewGroup[]> {
   const grouped = (await prisma.productReview.groupBy({
     by: ["productId"],
     where: {

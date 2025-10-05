@@ -83,9 +83,7 @@ export default function ProductVoteMilestoneEmail({
   dashboardUrl,
 }: ProductVoteMilestoneEmailProps) {
   const milestoneLabel =
-    milestone === 1
-      ? "First upvote"
-      : `${milestone}+ upvotes unlocked`
+    milestone === 1 ? "First upvote" : `${milestone}+ upvotes unlocked`
 
   return (
     <BaseEmailTemplate

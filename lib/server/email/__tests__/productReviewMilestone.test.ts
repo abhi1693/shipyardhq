@@ -105,7 +105,11 @@ describe("sendProductReviewMilestoneEmails", () => {
         id: "prod-2",
         name: "Wave Tracker",
         slug: "wave-tracker",
-        user: { email: "owner@example.com", firstName: "Kai", lastName: "Sailor" },
+        user: {
+          email: "owner@example.com",
+          firstName: "Kai",
+          lastName: "Sailor",
+        },
       },
     ])
 
@@ -151,7 +155,11 @@ describe("sendProductReviewMilestoneEmails", () => {
         id: "prod-3",
         name: "Crew Planner",
         slug: "crew-planner",
-        user: { email: "crew@example.com", firstName: "Morgan", lastName: "Lee" },
+        user: {
+          email: "crew@example.com",
+          firstName: "Morgan",
+          lastName: "Lee",
+        },
       },
     ])
 

@@ -15,7 +15,9 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000
 const REDIS_TTL_SECONDS = 60 * 60 * 24 * 365 // roughly a year
 
 function normalizeDay(date: Date) {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  )
 }
 
 function calculateDaysSince(reference: Date, comparison: Date) {
@@ -87,7 +89,9 @@ export async function sendUserReengagementEmails(now: Date = new Date()) {
     }
 
     const daysSinceLogin = calculateDaysSince(now, loginRecord.createdAt)
-    const milestone = REENGAGEMENT_MILESTONES.find((value) => value === daysSinceLogin)
+    const milestone = REENGAGEMENT_MILESTONES.find(
+      (value) => value === daysSinceLogin,
+    )
     if (!milestone) {
       continue
     }

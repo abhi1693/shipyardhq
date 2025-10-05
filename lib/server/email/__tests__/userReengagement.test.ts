@@ -29,9 +29,8 @@ vi.mock("@/lib/server/redis", () => ({
 }))
 
 vi.mock("@/lib/routes", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/routes")>(
-    "@/lib/routes",
-  )
+  const actual =
+    await vi.importActual<typeof import("@/lib/routes")>("@/lib/routes")
   return {
     ...actual,
   }
@@ -55,9 +54,7 @@ describe("sendUserReengagementEmails", () => {
         email: "sailor@example.com",
         firstName: "Kai",
         lastName: "Sailor",
-        rewardTransactions: [
-          { createdAt: new Date("2024-04-03T10:00:00Z") },
-        ],
+        rewardTransactions: [{ createdAt: new Date("2024-04-03T10:00:00Z") }],
       },
     ])
     redisSetMock.mockResolvedValueOnce("OK")
@@ -80,9 +77,7 @@ describe("sendUserReengagementEmails", () => {
         email: "sailor@example.com",
         firstName: "Kai",
         lastName: "Sailor",
-        rewardTransactions: [
-          { createdAt: new Date("2024-04-08T00:00:00Z") },
-        ],
+        rewardTransactions: [{ createdAt: new Date("2024-04-08T00:00:00Z") }],
       },
     ])
 
@@ -99,9 +94,7 @@ describe("sendUserReengagementEmails", () => {
         email: "sailor@example.com",
         firstName: "Kai",
         lastName: "Sailor",
-        rewardTransactions: [
-          { createdAt: new Date("2024-04-03T09:00:00Z") },
-        ],
+        rewardTransactions: [{ createdAt: new Date("2024-04-03T09:00:00Z") }],
       },
     ])
     redisSetMock.mockResolvedValueOnce(null)

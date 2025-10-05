@@ -98,7 +98,9 @@ export default function ProductReviewMilestoneEmail({
       intro={`${productName} picked up ${reviewCount} new reviews between ${formatRange(periodStart, periodEnd)}.`}
     >
       <p style={paragraph}>
-        <span style={highlight}>{`Milestone: ${milestone}+ lifetime reviews`}</span>
+        <span
+          style={highlight}
+        >{`Milestone: ${milestone}+ lifetime reviews`}</span>
       </p>
 
       <p style={paragraph}>
