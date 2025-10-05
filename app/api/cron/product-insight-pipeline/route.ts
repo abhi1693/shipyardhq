@@ -38,12 +38,25 @@ export async function GET(request: Request) {
   const maxAttempts = getMaxAttempts()
 
   try {
+    console.info("[cron.product-insight-pipeline] run started", {
+      batchSize,
+      maxAttempts,
+    })
     const jobs = await dequeueProductInsightPipelineJobs(batchSize)
     if (!jobs.length) {
+      console.info("[cron.product-insight-pipeline] no jobs available")
       return NextResponse.json({ success: true, processed: 0 })
     }
 
     const results: Array<Record<string, unknown>> = []
+    let completedCount = 0
+    let failedCount = 0
+    let requeuedCount = 0
+
+    console.info("[cron.product-insight-pipeline] processing jobs", {
+      jobCount: jobs.length,
+      productIds: jobs.map((job) => job.productId),
+    })
 
     for (const job of jobs) {
       try {
@@ -61,6 +74,7 @@ export async function GET(request: Request) {
           attempts: job.attempts ?? 0,
           stageSetId: job.stageSetId,
         })
+        completedCount += 1
       } catch (error) {
         const attempts = (job.attempts ?? 0) + 1
         const message =
@@ -81,6 +95,7 @@ export async function GET(request: Request) {
             error: message,
             stageSetId: job.stageSetId,
           })
+          failedCount += 1
         } else {
           console.warn("[productInsights:pipeline] job failed; requeueing", {
             productId: job.productId,
@@ -96,13 +111,21 @@ export async function GET(request: Request) {
             error: message,
             stageSetId: job.stageSetId,
           })
+          requeuedCount += 1
         }
       }
     }
 
+    console.info("[cron.product-insight-pipeline] run completed", {
+      processed: jobs.length,
+      completed: completedCount,
+      failed: failedCount,
+      requeued: requeuedCount,
+    })
+
     return NextResponse.json({ success: true, processed: jobs.length, results })
   } catch (error: any) {
-    console.error("[cron] product insight pipeline failed", error)
+    console.error("[cron.product-insight-pipeline] run failed", error)
     return NextResponse.json(
       {
         success: false,

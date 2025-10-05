@@ -22,13 +22,25 @@ export async function GET(request: Request) {
     : undefined
 
   try {
+    console.info("[cron.product-insight-refresh] run started", {
+      limit,
+      staleDaysParam,
+      staleAfterMs,
+    })
     const result = await scheduleStaleProductInsightPipelines({
       limit,
       staleAfterMs,
     })
+    console.info("[cron.product-insight-refresh] run completed", {
+      examined: result.examined,
+      queued: result.queued,
+      skipped: result.skipped,
+      limit: result.limit,
+      staleAfterMs: result.staleAfterMs,
+    })
     return NextResponse.json({ success: true, ...result })
   } catch (error: any) {
-    console.error("[cron] product insight refresh scheduler failed", error)
+    console.error("[cron.product-insight-refresh] run failed", error)
     return NextResponse.json(
       { success: false, error: error?.message || "Failed" },
       { status: 500 },

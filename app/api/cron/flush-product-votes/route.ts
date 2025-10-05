@@ -15,9 +15,20 @@ export async function POST(request: Request) {
   if (authResponse) return authResponse
 
   try {
+    console.info("[cron.flush-product-votes] flush started")
     const result = await flushPendingVotesToDatabase()
+    const processedCount = result.processedProductIds.length
+    console.info("[cron.flush-product-votes] flush completed", {
+      processedCount,
+      additions: result.additions,
+      removals: result.removals,
+      productIds: processedCount ? result.processedProductIds : undefined,
+    })
 
-    if (result.processedProductIds.length) {
+    if (processedCount) {
+      console.info("[cron.flush-product-votes] revalidating surfaces", {
+        productIds: result.processedProductIds,
+      })
       for (const productId of result.processedProductIds) {
         revalidateProduct(productId)
       }
@@ -26,7 +37,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, ...result })
   } catch (error: any) {
-    console.error("[cron] flush product votes failed", error)
+    console.error("[cron.flush-product-votes] flush failed", error)
     return NextResponse.json(
       { success: false, error: error?.message ?? "Failed to flush votes" },
       { status: 500 },

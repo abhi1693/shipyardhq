@@ -11,10 +11,15 @@ export async function GET(request: Request) {
   if (authResponse) return authResponse
 
   try {
+    console.info("[cron.product-review-digest] run started")
     const result = await sendProductReviewDigestEmails()
+    console.info("[cron.product-review-digest] run completed", {
+      sent: result.sent,
+      skipped: result.skipped,
+    })
     return NextResponse.json({ success: true, ...result })
   } catch (error: any) {
-    console.error("[cron] product review digest failed", error)
+    console.error("[cron.product-review-digest] run failed", error)
     return NextResponse.json(
       {
         success: false,
