@@ -22,12 +22,20 @@ type ExpiredBoost = {
 }
 
 export async function expireBoostedPlans(now: Date = new Date()) {
+  const runAt =
+    now instanceof Date && !Number.isNaN(now.valueOf())
+      ? now.toISOString()
+      : undefined
+
+  console.info("[cron] expire plans start", { runAt })
+
   const defaultPlan = await prisma.plan.findFirst({
     where: { isDefault: true },
     select: { id: true },
   })
 
   if (!defaultPlan) {
+    console.error("[cron] expire plans missing default plan")
     throw new Error("No default plan configured; cannot expire boosts.")
   }
 
@@ -51,6 +59,10 @@ export async function expireBoostedPlans(now: Date = new Date()) {
     },
   })
 
+  console.info("[cron] expire plans fetched candidates", {
+    count: candidates.length,
+  })
+
   const expired: ExpiredBoost[] = []
 
   for (const product of candidates) {
@@ -68,12 +80,23 @@ export async function expireBoostedPlans(now: Date = new Date()) {
   }
 
   if (!expired.length) {
+    console.info("[cron] expire plans no boosts to expire")
     return { expired: [], count: 0 }
   }
 
-  await prisma.product.updateMany({
+  const updateResult = await prisma.product.updateMany({
     where: { id: { in: expired.map((item) => item.productId) } },
     data: { planId: defaultPlan.id, planAssignedAt: null },
+  })
+
+  console.info("[cron] expire plans reverted boosts", {
+    expired: expired.map((item) => ({
+      productId: item.productId,
+      productName: item.productName,
+      planName: item.planName,
+      boostForDays: item.boostForDays,
+    })),
+    updatedCount: updateResult?.count ?? 0,
   })
 
   return { expired, count: expired.length }

@@ -12,8 +12,24 @@ export async function GET(request: Request) {
 
   try {
     const result = await expireBoostedPlans()
+
+    if (!result.count) {
+      console.info("[cron] expire plans noop")
+    } else {
+      console.info("[cron] expire plans expired boosts", {
+        count: result.count,
+        expired: result.expired.map((item) => ({
+          productId: item.productId,
+          productName: item.productName,
+          planName: item.planName,
+          boostForDays: item.boostForDays,
+        })),
+      })
+    }
+
     return NextResponse.json({ success: true, ...result })
   } catch (err: any) {
+    console.error("[cron] expire plans failed", err)
     return NextResponse.json(
       { success: false, error: err?.message || "Failed" },
       { status: 500 },
