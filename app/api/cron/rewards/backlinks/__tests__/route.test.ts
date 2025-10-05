@@ -3,9 +3,16 @@ import { describe, it, expect, beforeEach, vi } from "vitest"
 import { GET } from "../route"
 import { runBacklinkVerification } from "@/lib/server/rewards/backlinkVerification"
 
-vi.mock("@/lib/server/rewards/backlinkVerification", () => ({
-  runBacklinkVerification: vi.fn(),
-}))
+vi.mock("@/lib/server/rewards/backlinkVerification", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/lib/server/rewards/backlinkVerification")
+  >("@/lib/server/rewards/backlinkVerification")
+
+  return {
+    ...actual,
+    runBacklinkVerification: vi.fn(),
+  }
+})
 
 const mockedRunBacklinkVerification = vi.mocked(runBacklinkVerification)
 
