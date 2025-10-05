@@ -14,7 +14,14 @@ describe("ProductBadgeCelebrationDialog", () => {
   })
 
   it("renders the badge preview and embed snippet when open", () => {
-    render(<ProductBadgeCelebrationDialog open onOpenChange={() => {}} />)
+    const publicPath = "/products/test-product"
+    render(
+      <ProductBadgeCelebrationDialog
+        open
+        onOpenChange={() => {}}
+        productPublicPath={publicPath}
+      />,
+    )
 
     expect(
       screen.getByText(/congratulations on the new launch/i),
@@ -27,12 +34,20 @@ describe("ProductBadgeCelebrationDialog", () => {
     ).toBeInTheDocument()
     const textarea = screen.getByRole("textbox") as HTMLTextAreaElement
     expect(textarea.value).toContain("/featured-on-light.png")
-    expect(textarea.value).toContain(siteConfig.url)
+    expect(textarea.value).toContain(
+      new URL(publicPath, siteConfig.url).toString(),
+    )
   })
 
   it("switches to the dark badge variant", async () => {
     const user = userEvent.setup()
-    render(<ProductBadgeCelebrationDialog open onOpenChange={() => {}} />)
+    render(
+      <ProductBadgeCelebrationDialog
+        open
+        onOpenChange={() => {}}
+        productPublicPath="/products/test-product"
+      />,
+    )
 
     await user.click(screen.getByRole("button", { name: /dark badge/i }))
 

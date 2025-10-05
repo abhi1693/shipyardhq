@@ -42,9 +42,11 @@ const BADGES: BadgeVariant[] = [
 export function ProductBadgeCelebrationDialog({
   open,
   onOpenChange,
+  productPublicPath,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  productPublicPath?: string
 }) {
   const [origin, setOrigin] = useState(() => siteConfig.url)
   const [activeBadgeId, setActiveBadgeId] = useState<BadgeVariant["id"]>(
@@ -62,6 +64,15 @@ export function ProductBadgeCelebrationDialog({
     [activeBadgeId],
   )
 
+  const productUrl = useMemo(() => {
+    if (!productPublicPath) return siteConfig.url
+    try {
+      return new URL(productPublicPath, siteConfig.url).toString()
+    } catch {
+      return siteConfig.url
+    }
+  }, [productPublicPath])
+
   const badgeUrl = useMemo(() => {
     try {
       return new URL(activeBadge.path, origin).toString()
@@ -75,8 +86,8 @@ export function ProductBadgeCelebrationDialog({
 
   const embedCode = useMemo(
     () =>
-      `<a href="${siteConfig.url}" target="_blank" rel="noopener noreferrer">\n  <img src="${badgeUrl}" alt="Featured on ${siteConfig.name}" style="height: 56px;" />\n</a>`,
-    [badgeUrl],
+      `<a href="${productUrl}" target="_blank" rel="noopener">\n  <img src="${badgeUrl}" alt="Featured on ${siteConfig.name}" style="height: 56px;" />\n</a>`,
+    [badgeUrl, productUrl],
   )
 
   const handleBadgeSelect = useCallback((variantId: BadgeVariant["id"]) => {

@@ -10,8 +10,10 @@ const CELEBRATE_QUERY_VALUE = "1"
 
 export default function ProductBadgeCelebrationGate({
   initialOpen,
+  productPublicPath,
 }: {
   initialOpen: boolean
+  productPublicPath?: string
 }) {
   const [open, setOpen] = useState(initialOpen)
   const shouldCleanQuery = useRef(initialOpen)
@@ -62,6 +64,7 @@ export default function ProductBadgeCelebrationGate({
     <ProductBadgeCelebrationDialog
       open={open}
       onOpenChange={handleOpenChange}
+      productPublicPath={productPublicPath}
     />
   )
 }

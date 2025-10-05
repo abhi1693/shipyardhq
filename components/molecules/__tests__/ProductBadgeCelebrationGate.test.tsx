@@ -7,12 +7,14 @@ vi.mock("@/components/molecules/ProductBadgeCelebrationDialog", () => ({
   default: ({
     open,
     onOpenChange,
+    productPublicPath,
   }: {
     open: boolean
     onOpenChange: (nextOpen: boolean) => void
+    productPublicPath?: string
   }) =>
     open ? (
-      <div data-testid="badge-dialog">
+      <div data-testid="badge-dialog" data-path={productPublicPath ?? ""}>
         <button type="button" onClick={() => onOpenChange(false)}>
           Close dialog
         </button>
@@ -26,6 +28,7 @@ import {
 } from "@/components/molecules/ProductBadgeCelebrationGate"
 
 const TEST_URL = "/member/products/test?foo=bar"
+const PUBLIC_PATH = "/products/test"
 
 describe("ProductBadgeCelebrationGate", () => {
   beforeEach(() => {
@@ -38,22 +41,36 @@ describe("ProductBadgeCelebrationGate", () => {
   })
 
   it("shows the celebration when initialOpen is true", async () => {
-    render(<ProductBadgeCelebrationGate initialOpen />)
+    render(
+      <ProductBadgeCelebrationGate
+        initialOpen
+        productPublicPath={PUBLIC_PATH}
+      />,
+    )
 
-    expect(await screen.findByTestId("badge-dialog")).toBeInTheDocument()
+    const dialog = await screen.findByTestId("badge-dialog")
+    expect(dialog).toBeInTheDocument()
+    expect(dialog).toHaveAttribute("data-path", PUBLIC_PATH)
     await waitFor(() => {
       expect(window.location.search).toContain("celebrate=1")
     })
   })
 
   it("opens the dialog and sets the query when the event fires", async () => {
-    render(<ProductBadgeCelebrationGate initialOpen={false} />)
+    render(
+      <ProductBadgeCelebrationGate
+        initialOpen={false}
+        productPublicPath={PUBLIC_PATH}
+      />,
+    )
 
     act(() => {
       window.dispatchEvent(new CustomEvent(BADGE_CELEBRATION_EVENT))
     })
 
-    expect(await screen.findByTestId("badge-dialog")).toBeInTheDocument()
+    const dialog = await screen.findByTestId("badge-dialog")
+    expect(dialog).toBeInTheDocument()
+    expect(dialog).toHaveAttribute("data-path", PUBLIC_PATH)
     await waitFor(() => {
       expect(window.location.search).toContain("celebrate=1")
     })
@@ -61,7 +78,12 @@ describe("ProductBadgeCelebrationGate", () => {
 
   it("clears the celebrate query when the dialog closes", async () => {
     const user = userEvent.setup()
-    render(<ProductBadgeCelebrationGate initialOpen />)
+    render(
+      <ProductBadgeCelebrationGate
+        initialOpen
+        productPublicPath={PUBLIC_PATH}
+      />,
+    )
 
     await screen.findByTestId("badge-dialog")
 

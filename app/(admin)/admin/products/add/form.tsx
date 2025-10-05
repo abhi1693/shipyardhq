@@ -38,7 +38,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import { Label } from "@/components/atoms/label"
-import { adminPath } from "@/lib/routes"
+import { adminPath, productPath } from "@/lib/routes"
 
 const schema = makeAddProductSchema()
 
@@ -57,6 +57,9 @@ export default function AddProductForm({
   const [ownerId, setOwnerId] = useState("")
   const [showCelebration, setShowCelebration] = useState(false)
   const [isCompletionPending, setIsCompletionPending] = useState(false)
+  const [celebrationProductSlug, setCelebrationProductSlug] = useState<
+    string | null
+  >(null)
 
   const [newProductId] = useState(() => {
     const g: any = typeof globalThis !== "undefined" ? (globalThis as any) : {}
@@ -87,6 +90,11 @@ export default function AddProductForm({
       toast.error((result as any).error)
       return
     }
+    const nextSlug =
+      typeof (result as any)?.slug === "string" && (result as any).slug.length
+        ? (result as any).slug
+        : null
+    setCelebrationProductSlug(nextSlug)
     toast.success("Product created successfully!")
     setIsCompletionPending(true)
     setShowCelebration(true)
@@ -181,11 +189,19 @@ export default function AddProductForm({
         open={showCelebration}
         onOpenChange={(open) => {
           setShowCelebration(open)
-          if (!open && isCompletionPending) {
-            setIsCompletionPending(false)
-            router.push(adminPath("products"))
+          if (!open) {
+            setCelebrationProductSlug(null)
+            if (isCompletionPending) {
+              setIsCompletionPending(false)
+              router.push(adminPath("products"))
+            }
           }
         }}
+        productPublicPath={
+          celebrationProductSlug
+            ? productPath(celebrationProductSlug)
+            : undefined
+        }
       />
     </>
   )

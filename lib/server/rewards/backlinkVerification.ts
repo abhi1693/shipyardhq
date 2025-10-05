@@ -147,7 +147,6 @@ function parseHrefAttributes(html: string): string[] {
     const href = match[1] ?? match[2] ?? match[3] ?? ""
     if (!href) continue
     hrefs.push(href.trim())
-    if (hrefs.length >= 256) break
   }
   return hrefs
 }

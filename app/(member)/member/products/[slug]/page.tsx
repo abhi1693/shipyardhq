@@ -325,7 +325,10 @@ export default async function ViewUserProductPage({
 
   return (
     <>
-      <ProductBadgeCelebrationGate initialOpen={celebrate} />
+      <ProductBadgeCelebrationGate
+        initialOpen={celebrate}
+        productPublicPath={publicPath}
+      />
       <PurchasePlanToast />
       <ObjectPageLayout
         heading={{
