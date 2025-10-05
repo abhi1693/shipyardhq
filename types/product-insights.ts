@@ -378,6 +378,7 @@ export type ProductInsightProfilePayload = {
   status: ProductInsightStatus
   errorMessage?: string | null
   lastRunAt: string | null
+  insightsGeneratedCount: number
   stages: ProductInsightStageViewMap
   pipelineJobState?: ProductInsightPipelineJobState
   sitemapUrl?: string | null

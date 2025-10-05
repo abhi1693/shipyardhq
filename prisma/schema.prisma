@@ -58,7 +58,7 @@ model Product {
   clickEvents           ProductClickEvent[]
   trafficEvents         ProductTrafficEvent[]
   MonthlyProductRanking MonthlyProductRanking[]
-  rewardTransactions     RewardTransaction[]
+  rewardTransactions    RewardTransaction[]
   redemptions           Redemption[]
   featureEntitlements   FeatureEntitlement[]
 
@@ -154,18 +154,18 @@ model ProductMedia {
 }
 
 model ProductVerification {
-  id                   String    @id @default(cuid())
-  productId            String    @unique
-  verificationTxt      String
-  isVerified           Boolean   @default(false)
-  verifiedAt           DateTime?
-  backlinkIsVerified   Boolean   @default(false)
-  backlinkVerifiedAt   DateTime?
+  id                    String    @id @default(cuid())
+  productId             String    @unique
+  verificationTxt       String
+  isVerified            Boolean   @default(false)
+  verifiedAt            DateTime?
+  backlinkIsVerified    Boolean   @default(false)
+  backlinkVerifiedAt    DateTime?
   backlinkLastCheckedAt DateTime?
-  backlinkFoundUrl     String?
-  backlinkLastError    String?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  backlinkFoundUrl      String?
+  backlinkLastError     String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
@@ -256,13 +256,14 @@ model ProductTrafficEvent {
 }
 
 model ProductInsightProfile {
-  id           String               @id @default(cuid())
-  productId    String               @unique
-  status       ProductInsightStatus @default(pending)
-  errorMessage String?              @db.Text
-  lastRunAt    DateTime?
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
+  id                     String               @id @default(cuid())
+  productId              String               @unique
+  status                 ProductInsightStatus @default(pending)
+  errorMessage           String?              @db.Text
+  lastRunAt              DateTime?
+  insightsGeneratedCount Int                  @default(0)
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
 
   product Product                     @relation(fields: [productId], references: [id], onDelete: Cascade)
   stages  ProductInsightStageResult[]
@@ -357,18 +358,18 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  products               Product[]
-  memberships            OrganizationMembership[]
-  ProductUpvote          ProductUpvote[]
-  productReviews         ProductReview[]
-  Organization           Organization[]
-  feedback               MemberFeedback[]
-  purchases              UserPlanPurchase[]
+  products                Product[]
+  memberships             OrganizationMembership[]
+  ProductUpvote           ProductUpvote[]
+  productReviews          ProductReview[]
+  Organization            Organization[]
+  feedback                MemberFeedback[]
+  purchases               UserPlanPurchase[]
   rewardBalance           RewardBalance?
-  rewardTransactions      RewardTransaction[]       @relation("RewardUserTransactions")
-  rewardTransactionsActed RewardTransaction[]       @relation("RewardTransactionActor")
-  redemptions            Redemption[]
-  featureEntitlements    FeatureEntitlement[]
+  rewardTransactions      RewardTransaction[]      @relation("RewardUserTransactions")
+  rewardTransactionsActed RewardTransaction[]      @relation("RewardTransactionActor")
+  redemptions             Redemption[]
+  featureEntitlements     FeatureEntitlement[]
 
   @@index([status])
   @@index([roleIntent])
@@ -468,17 +469,17 @@ enum FeatureEntitlementStatus {
 }
 
 model MemberFeedback {
-  id        String         @id @default(cuid())
-  userId    String
-  subject   String?
-  message   String
-  rating    Int?
-  status    FeedbackStatus @default(received)
-  adminNote String?
-  rewardEligible Boolean   @default(false)
+  id              String         @id @default(cuid())
+  userId          String
+  subject         String?
+  message         String
+  rating          Int?
+  status          FeedbackStatus @default(received)
+  adminNote       String?
+  rewardEligible  Boolean        @default(false)
   rewardGrantedAt DateTime?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -671,7 +672,7 @@ model RewardRule {
   name                     String
   description              String?
   category                 RewardRuleCategory
-  baseRewardAmount               Int
+  baseRewardAmount         Int
   isActive                 Boolean            @default(true)
   dailyCap                 Int?
   lifetimeCap              Int?
@@ -719,10 +720,10 @@ model RewardCatalogItem {
 }
 
 model RewardTransaction {
-  id            String               @id @default(cuid())
+  id            String                @id @default(cuid())
   userId        String
   type          RewardTransactionType
-  rewardAmount   Int
+  rewardAmount  Int
   balanceAfter  Int
   ruleId        String?
   ruleKey       String?
@@ -738,8 +739,8 @@ model RewardTransaction {
   notes         String?
   metadata      Json?
   actedByUserId String?
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
 
   user        User               @relation("RewardUserTransactions", fields: [userId], references: [id], onDelete: Cascade)
   rule        RewardRule?        @relation(fields: [ruleId], references: [id], onDelete: SetNull)
@@ -758,23 +759,23 @@ model RewardTransaction {
 }
 
 model Redemption {
-  id             String           @id @default(cuid())
-  userId         String
-  featureKey     String
-  productId      String?
-  status         RedemptionStatus @default(pending)
-  cost           Int
-  originalCost   Int
+  id              String           @id @default(cuid())
+  userId          String
+  featureKey      String
+  productId       String?
+  status          RedemptionStatus @default(pending)
+  cost            Int
+  originalCost    Int
   refundedRewards Int              @default(0)
-  startsAt       DateTime?
-  activatedAt    DateTime?
-  expiresAt      DateTime?
-  completedAt    DateTime?
-  canceledAt     DateTime?
-  failureReason  String?
-  metadata       Json?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  startsAt        DateTime?
+  activatedAt     DateTime?
+  expiresAt       DateTime?
+  completedAt     DateTime?
+  canceledAt      DateTime?
+  failureReason   String?
+  metadata        Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   catalogItem        RewardCatalogItem    @relation(fields: [featureKey], references: [featureKey], onDelete: Restrict)

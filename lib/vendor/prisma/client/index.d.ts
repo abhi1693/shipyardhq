@@ -15352,8 +15352,18 @@ export namespace Prisma {
 
   export type AggregateProductInsightProfile = {
     _count: ProductInsightProfileCountAggregateOutputType | null
+    _avg: ProductInsightProfileAvgAggregateOutputType | null
+    _sum: ProductInsightProfileSumAggregateOutputType | null
     _min: ProductInsightProfileMinAggregateOutputType | null
     _max: ProductInsightProfileMaxAggregateOutputType | null
+  }
+
+  export type ProductInsightProfileAvgAggregateOutputType = {
+    insightsGeneratedCount: number | null
+  }
+
+  export type ProductInsightProfileSumAggregateOutputType = {
+    insightsGeneratedCount: number | null
   }
 
   export type ProductInsightProfileMinAggregateOutputType = {
@@ -15362,6 +15372,7 @@ export namespace Prisma {
     status: $Enums.ProductInsightStatus | null
     errorMessage: string | null
     lastRunAt: Date | null
+    insightsGeneratedCount: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -15372,6 +15383,7 @@ export namespace Prisma {
     status: $Enums.ProductInsightStatus | null
     errorMessage: string | null
     lastRunAt: Date | null
+    insightsGeneratedCount: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -15382,11 +15394,20 @@ export namespace Prisma {
     status: number
     errorMessage: number
     lastRunAt: number
+    insightsGeneratedCount: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
+
+  export type ProductInsightProfileAvgAggregateInputType = {
+    insightsGeneratedCount?: true
+  }
+
+  export type ProductInsightProfileSumAggregateInputType = {
+    insightsGeneratedCount?: true
+  }
 
   export type ProductInsightProfileMinAggregateInputType = {
     id?: true
@@ -15394,6 +15415,7 @@ export namespace Prisma {
     status?: true
     errorMessage?: true
     lastRunAt?: true
+    insightsGeneratedCount?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -15404,6 +15426,7 @@ export namespace Prisma {
     status?: true
     errorMessage?: true
     lastRunAt?: true
+    insightsGeneratedCount?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -15414,6 +15437,7 @@ export namespace Prisma {
     status?: true
     errorMessage?: true
     lastRunAt?: true
+    insightsGeneratedCount?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -15457,6 +15481,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: ProductInsightProfileAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProductInsightProfileSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: ProductInsightProfileMinAggregateInputType
@@ -15487,6 +15523,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ProductInsightProfileCountAggregateInputType | true
+    _avg?: ProductInsightProfileAvgAggregateInputType
+    _sum?: ProductInsightProfileSumAggregateInputType
     _min?: ProductInsightProfileMinAggregateInputType
     _max?: ProductInsightProfileMaxAggregateInputType
   }
@@ -15497,9 +15535,12 @@ export namespace Prisma {
     status: $Enums.ProductInsightStatus
     errorMessage: string | null
     lastRunAt: Date | null
+    insightsGeneratedCount: number
     createdAt: Date
     updatedAt: Date
     _count: ProductInsightProfileCountAggregateOutputType | null
+    _avg: ProductInsightProfileAvgAggregateOutputType | null
+    _sum: ProductInsightProfileSumAggregateOutputType | null
     _min: ProductInsightProfileMinAggregateOutputType | null
     _max: ProductInsightProfileMaxAggregateOutputType | null
   }
@@ -15524,6 +15565,7 @@ export namespace Prisma {
     status?: boolean
     errorMessage?: boolean
     lastRunAt?: boolean
+    insightsGeneratedCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -15537,6 +15579,7 @@ export namespace Prisma {
     status?: boolean
     errorMessage?: boolean
     lastRunAt?: boolean
+    insightsGeneratedCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -15548,6 +15591,7 @@ export namespace Prisma {
     status?: boolean
     errorMessage?: boolean
     lastRunAt?: boolean
+    insightsGeneratedCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
@@ -15559,11 +15603,12 @@ export namespace Prisma {
     status?: boolean
     errorMessage?: boolean
     lastRunAt?: boolean
+    insightsGeneratedCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ProductInsightProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "status" | "errorMessage" | "lastRunAt" | "createdAt" | "updatedAt", ExtArgs["result"]["productInsightProfile"]>
+  export type ProductInsightProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "status" | "errorMessage" | "lastRunAt" | "insightsGeneratedCount" | "createdAt" | "updatedAt", ExtArgs["result"]["productInsightProfile"]>
   export type ProductInsightProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
     stages?: boolean | ProductInsightProfile$stagesArgs<ExtArgs>
@@ -15588,6 +15633,7 @@ export namespace Prisma {
       status: $Enums.ProductInsightStatus
       errorMessage: string | null
       lastRunAt: Date | null
+      insightsGeneratedCount: number
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["productInsightProfile"]>
@@ -16020,6 +16066,7 @@ export namespace Prisma {
     readonly status: FieldRef<"ProductInsightProfile", 'ProductInsightStatus'>
     readonly errorMessage: FieldRef<"ProductInsightProfile", 'String'>
     readonly lastRunAt: FieldRef<"ProductInsightProfile", 'DateTime'>
+    readonly insightsGeneratedCount: FieldRef<"ProductInsightProfile", 'Int'>
     readonly createdAt: FieldRef<"ProductInsightProfile", 'DateTime'>
     readonly updatedAt: FieldRef<"ProductInsightProfile", 'DateTime'>
   }
@@ -43908,6 +43955,7 @@ export namespace Prisma {
     status: 'status',
     errorMessage: 'errorMessage',
     lastRunAt: 'lastRunAt',
+    insightsGeneratedCount: 'insightsGeneratedCount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -45465,6 +45513,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusFilter<"ProductInsightProfile"> | $Enums.ProductInsightStatus
     errorMessage?: StringNullableFilter<"ProductInsightProfile"> | string | null
     lastRunAt?: DateTimeNullableFilter<"ProductInsightProfile"> | Date | string | null
+    insightsGeneratedCount?: IntFilter<"ProductInsightProfile"> | number
     createdAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
     updatedAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
@@ -45477,6 +45526,7 @@ export namespace Prisma {
     status?: SortOrder
     errorMessage?: SortOrderInput | SortOrder
     lastRunAt?: SortOrderInput | SortOrder
+    insightsGeneratedCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     product?: ProductOrderByWithRelationInput
@@ -45492,6 +45542,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusFilter<"ProductInsightProfile"> | $Enums.ProductInsightStatus
     errorMessage?: StringNullableFilter<"ProductInsightProfile"> | string | null
     lastRunAt?: DateTimeNullableFilter<"ProductInsightProfile"> | Date | string | null
+    insightsGeneratedCount?: IntFilter<"ProductInsightProfile"> | number
     createdAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
     updatedAt?: DateTimeFilter<"ProductInsightProfile"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
@@ -45504,11 +45555,14 @@ export namespace Prisma {
     status?: SortOrder
     errorMessage?: SortOrderInput | SortOrder
     lastRunAt?: SortOrderInput | SortOrder
+    insightsGeneratedCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ProductInsightProfileCountOrderByAggregateInput
+    _avg?: ProductInsightProfileAvgOrderByAggregateInput
     _max?: ProductInsightProfileMaxOrderByAggregateInput
     _min?: ProductInsightProfileMinOrderByAggregateInput
+    _sum?: ProductInsightProfileSumOrderByAggregateInput
   }
 
   export type ProductInsightProfileScalarWhereWithAggregatesInput = {
@@ -45520,6 +45574,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusWithAggregatesFilter<"ProductInsightProfile"> | $Enums.ProductInsightStatus
     errorMessage?: StringNullableWithAggregatesFilter<"ProductInsightProfile"> | string | null
     lastRunAt?: DateTimeNullableWithAggregatesFilter<"ProductInsightProfile"> | Date | string | null
+    insightsGeneratedCount?: IntWithAggregatesFilter<"ProductInsightProfile"> | number
     createdAt?: DateTimeWithAggregatesFilter<"ProductInsightProfile"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ProductInsightProfile"> | Date | string
   }
@@ -48449,6 +48504,7 @@ export namespace Prisma {
     status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
     lastRunAt?: Date | string | null
+    insightsGeneratedCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     product: ProductCreateNestedOneWithoutInsightProfileInput
@@ -48461,6 +48517,7 @@ export namespace Prisma {
     status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
     lastRunAt?: Date | string | null
+    insightsGeneratedCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     stages?: ProductInsightStageResultUncheckedCreateNestedManyWithoutProfileInput
@@ -48471,6 +48528,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    insightsGeneratedCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     product?: ProductUpdateOneRequiredWithoutInsightProfileNestedInput
@@ -48483,6 +48541,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    insightsGeneratedCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stages?: ProductInsightStageResultUncheckedUpdateManyWithoutProfileNestedInput
@@ -48494,6 +48553,7 @@ export namespace Prisma {
     status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
     lastRunAt?: Date | string | null
+    insightsGeneratedCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -48503,6 +48563,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    insightsGeneratedCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -48513,6 +48574,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    insightsGeneratedCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -51587,8 +51649,13 @@ export namespace Prisma {
     status?: SortOrder
     errorMessage?: SortOrder
     lastRunAt?: SortOrder
+    insightsGeneratedCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type ProductInsightProfileAvgOrderByAggregateInput = {
+    insightsGeneratedCount?: SortOrder
   }
 
   export type ProductInsightProfileMaxOrderByAggregateInput = {
@@ -51597,6 +51664,7 @@ export namespace Prisma {
     status?: SortOrder
     errorMessage?: SortOrder
     lastRunAt?: SortOrder
+    insightsGeneratedCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -51607,8 +51675,13 @@ export namespace Prisma {
     status?: SortOrder
     errorMessage?: SortOrder
     lastRunAt?: SortOrder
+    insightsGeneratedCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type ProductInsightProfileSumOrderByAggregateInput = {
+    insightsGeneratedCount?: SortOrder
   }
 
   export type EnumProductInsightStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -56558,6 +56631,7 @@ export namespace Prisma {
     status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
     lastRunAt?: Date | string | null
+    insightsGeneratedCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     stages?: ProductInsightStageResultCreateNestedManyWithoutProfileInput
@@ -56568,6 +56642,7 @@ export namespace Prisma {
     status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
     lastRunAt?: Date | string | null
+    insightsGeneratedCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     stages?: ProductInsightStageResultUncheckedCreateNestedManyWithoutProfileInput
@@ -57287,6 +57362,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    insightsGeneratedCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stages?: ProductInsightStageResultUpdateManyWithoutProfileNestedInput
@@ -57297,6 +57373,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    insightsGeneratedCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stages?: ProductInsightStageResultUncheckedUpdateManyWithoutProfileNestedInput
@@ -59217,6 +59294,7 @@ export namespace Prisma {
     status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
     lastRunAt?: Date | string | null
+    insightsGeneratedCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     product: ProductCreateNestedOneWithoutInsightProfileInput
@@ -59228,6 +59306,7 @@ export namespace Prisma {
     status?: $Enums.ProductInsightStatus
     errorMessage?: string | null
     lastRunAt?: Date | string | null
+    insightsGeneratedCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -59253,6 +59332,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    insightsGeneratedCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     product?: ProductUpdateOneRequiredWithoutInsightProfileNestedInput
@@ -59264,6 +59344,7 @@ export namespace Prisma {
     status?: EnumProductInsightStatusFieldUpdateOperationsInput | $Enums.ProductInsightStatus
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    insightsGeneratedCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

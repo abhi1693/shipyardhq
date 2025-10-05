@@ -26,6 +26,7 @@ export const insightProfileSelect = {
   status: true,
   errorMessage: true,
   lastRunAt: true,
+  insightsGeneratedCount: true,
   createdAt: true,
   updatedAt: true,
   stages: {
@@ -444,6 +445,7 @@ export function serializeInsightProfile(
     errorMessage:
       snapshotStage?.errorMessage ?? record.errorMessage ?? undefined,
     lastRunAt: record.lastRunAt ? record.lastRunAt.toISOString() : null,
+    insightsGeneratedCount: record.insightsGeneratedCount ?? 0,
     stages,
     sitemapUrl: snapshotData?.sitemapUrl ?? null,
     discoveredUrls: snapshotData?.discoveredUrls ?? null,

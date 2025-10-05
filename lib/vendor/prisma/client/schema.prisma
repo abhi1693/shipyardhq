@@ -256,13 +256,14 @@ model ProductTrafficEvent {
 }
 
 model ProductInsightProfile {
-  id           String               @id @default(cuid())
-  productId    String               @unique
-  status       ProductInsightStatus @default(pending)
-  errorMessage String?              @db.Text
-  lastRunAt    DateTime?
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
+  id                     String               @id @default(cuid())
+  productId              String               @unique
+  status                 ProductInsightStatus @default(pending)
+  errorMessage           String?              @db.Text
+  lastRunAt              DateTime?
+  insightsGeneratedCount Int                  @default(0)
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
 
   product Product                     @relation(fields: [productId], references: [id], onDelete: Cascade)
   stages  ProductInsightStageResult[]

@@ -384,7 +384,11 @@ async function markStageFailed(
 async function updateProfileStatus(
   productId: string,
   status: ProductInsightStatus,
-  options: { errorMessage?: string | null; lastRunAt?: Date | null } = {},
+  options: {
+    errorMessage?: string | null
+    lastRunAt?: Date | null
+    incrementInsightsCount?: boolean
+  } = {},
 ) {
   const data: Prisma.ProductInsightProfileUpdateInput = {
     status,
@@ -392,6 +396,9 @@ async function updateProfileStatus(
   }
   if (options.lastRunAt) {
     data.lastRunAt = options.lastRunAt
+  }
+  if (options.incrementInsightsCount) {
+    data.insightsGeneratedCount = { increment: 1 }
   }
   await prisma.productInsightProfile.update({
     where: { productId },
@@ -621,6 +628,7 @@ export async function runProductInsightPipeline(job: {
   await updateProfileStatus(productRecord.id, ProductInsightStatus.ready, {
     errorMessage: null,
     lastRunAt: new Date(),
+    incrementInsightsCount: true,
   })
 
   const refreshed = await prisma.productInsightProfile.findUnique({
