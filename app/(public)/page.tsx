@@ -11,6 +11,7 @@ import { Leaderboard } from "@/components/organisms/Leaderboard"
 import { TopCategories } from "@/components/organisms/TopCategories"
 import { EditorsPick } from "@/components/organisms/EditorsPick"
 import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
+import HomepageExperience from "@/components/organisms/HomepageExperience"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import JoinCrewCTA from "@/components/organisms/JoinCrewCTA"
 import FeaturedOnSection from "@/components/organisms/FeaturedOnSection"
@@ -105,28 +106,33 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <main className="relative isolate overflow-hidden">
+      <main className="relative isolate overflow-hidden bg-background">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(250,252,255,0.96),rgba(243,247,252,0.92)40%,rgba(233,243,251,0.9))] dark:bg-[linear-gradient(180deg,rgba(6,18,36,0.92),rgba(4,24,43,0.92)40%,rgba(9,32,55,0.92))]"
+          className="pointer-events-none absolute inset-0 -z-40 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.16,transparent_70%),radial-gradient(110%_110%_at_100%_-10%,var(--brand-3)/0.16,transparent_78%)] dark:bg-[radial-gradient(120%_120%_at_0%_0%,rgba(10,32,52,0.7),transparent_72%),radial-gradient(110%_110%_at_100%_-10%,rgba(5,24,48,0.7),transparent_80%)]"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_90%_at_0%_0%,var(--brand-2)/0.12,transparent_65%),radial-gradient(120%_120%_at_100%_10%,var(--brand-3)/0.14,transparent_72%)]"
+          className="pointer-events-none absolute inset-x-0 top-0 -z-30 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-2)/0.4] to-transparent dark:via-[color:var(--brand-2)/0.5]"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-35"
+          className="pointer-events-none absolute inset-0 -z-20 opacity-35"
           style={{
             backgroundImage:
-              "linear-gradient(90deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-            backgroundSize: "160px 160px",
+              "linear-gradient(90deg, rgba(11, 53, 94, 0.08) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.08) 1px, transparent 1px)",
+            backgroundSize: "180px 180px",
             maskImage:
-              "radial-gradient(80% 110% at 50% 10%, rgba(0, 0, 0, 0.9), transparent 70%)",
+              "radial-gradient(85% 120% at 50% 12%, rgba(0, 0, 0, 0.85), transparent 72%)",
           }}
         />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-[-35%] top-[28rem] -z-10 h-72 rounded-[45%] bg-[radial-gradient(80%_100%_at_50%_0%,var(--brand-2)/0.22,transparent_85%)] blur-3xl"
+        />
 
-        <LandingHero
+        <LandingHero />
+        <HomepageExperience
           stats={{
             totalProducts: stats.totalProducts,
             totalCreators: stats.totalCreators,

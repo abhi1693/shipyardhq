@@ -69,12 +69,30 @@ export function FeaturedOnSection() {
     <PublicContainer
       as="section"
       paddingY="py-16"
-      className="bg-background/80"
-      innerClassName="flex flex-col items-center gap-8 text-center"
+      className="relative overflow-hidden bg-background/90"
+      innerClassName="relative flex flex-col items-center gap-8 text-center"
       fillScreen={false}
     >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-2)/0.4] to-transparent"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-20"
+        style={{
+          backgroundImage:
+            "radial-gradient(120%_120%_at_10%_-10%, rgba(7, 58, 104, 0.2), transparent 72%), radial-gradient(110%_110%_at_90%_-10%, rgba(16, 88, 142, 0.18), transparent 78%)",
+          maskImage:
+            "radial-gradient(80%_120%_at_50%_0%, rgba(0,0,0,0.92), transparent 75%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-[-30%] bottom-[-48px] -z-30 h-52 rounded-[50%] bg-[radial-gradient(75%_100%_at_50%_0%,var(--brand-3)/0.24,transparent_82%)] blur-3xl"
+      />
       <div className="space-y-3">
-        <span className="inline-flex items-center rounded-full border border-[color:var(--brand-2)/0.3] bg-background/70 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-2)]">
+        <span className="inline-flex items-center rounded-full bg-white/8 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-2)] backdrop-blur">
           Featured On
         </span>
         <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
@@ -90,19 +108,17 @@ export function FeaturedOnSection() {
             target="_blank"
             rel="noopener noreferrer"
             title={badge.title}
-            className="transition-transform duration-200 hover:scale-[1.02] hover:opacity-90"
+            className="group relative flex h-16 w-52 items-center justify-center overflow-hidden px-3 transition-transform duration-200 hover:-translate-y-0.5"
           >
-            <div className="flex h-16 w-52 items-center justify-center overflow-hidden rounded-md">
-              <Image
-                src={badge.src}
-                alt={badge.alt}
-                width={badge.width ?? 200}
-                height={badge.height ?? 60}
-                className="max-h-full max-w-full object-contain"
-                loading="lazy"
-                unoptimized
-              />
-            </div>
+            <Image
+              src={badge.src}
+              alt={badge.alt}
+              width={badge.width ?? 200}
+              height={badge.height ?? 60}
+              className="max-h-full max-w-full object-contain opacity-90 transition-opacity group-hover:opacity-100"
+              loading="lazy"
+              unoptimized
+            />
           </a>
         ))}
       </div>

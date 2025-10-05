@@ -10,24 +10,7 @@ import {
 import { ArrowUpRight, Ship } from "lucide-react"
 import SubmitProductButton from "@/components/molecules/SubmitProductButton"
 
-type Stats = {
-  totalProducts?: number
-  totalCreators?: number
-  totalUpvotes?: number
-  totalInsights?: number
-}
-
-export default function Hero({ stats }: { stats?: Stats }) {
-  const totalProducts = stats?.totalProducts ?? 0
-  const totalCreators = stats?.totalCreators ?? 0
-  const totalUpvotes = stats?.totalUpvotes ?? 0
-  const totalInsights = stats?.totalInsights ?? 0
-
-  const formattedProducts = totalProducts.toLocaleString()
-  const formattedCreators = totalCreators.toLocaleString()
-  const formattedUpvotes = totalUpvotes.toLocaleString()
-  const formattedInsights = totalInsights.toLocaleString()
-
+export default function Hero() {
   return (
     <section className="relative isolate w-full overflow-hidden border-b bg-background/90 py-20 md:py-32">
       <div
@@ -61,16 +44,15 @@ export default function Hero({ stats }: { stats?: Stats }) {
       />
 
       <div className="relative mx-auto max-w-5xl px-4 text-center">
-        <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.4] bg-background/80 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.24] bg-background/80 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
           <Ship className="h-3.5 w-3.5" />
           Shipyard Fleet
         </span>
         <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight text-transparent sm:text-5xl xl:text-6xl bg-clip-text bg-[linear-gradient(92deg,var(--brand-1),var(--brand-2),var(--brand-3))]">
-          Set sail to your next product launch.
+          Launch where builders discover what&apos;s next.
         </h1>
         <p className="mx-auto mt-6 max-w-3xl text-lg text-muted-foreground">
-          Bring your latest build aboard a crew of early adopters and fellow
-          makers charting the next horizon.
+          Shipyard&apos;s launchpad gives you instant reach, real user sentiment, and metrics designed for product-led teams.
         </p>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap">
@@ -85,57 +67,17 @@ export default function Hero({ stats }: { stats?: Stats }) {
             <Button
               size="lg"
               variant="outline"
-              className="border-[color:var(--brand-1)/0.35] bg-background/70 text-[color:var(--brand-1)] shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.75)]"
+              className="border-[color:var(--brand-1)/0.2] bg-background/70 text-[color:var(--brand-1)] shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.75)]"
             >
               Explore Products
             </Button>
           </Link>
         </div>
-
-        {stats && (
-          <div className="mx-auto mt-12 max-w-4xl">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-5 text-center shadow-[0px_25px_50px_-28px_rgba(7,58,104,0.85)] backdrop-blur">
-                <div className="text-3xl font-semibold tracking-tight text-[color:var(--brand-1)] sm:text-4xl">
-                  {formattedProducts}
-                </div>
-                <div className="mt-2 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-                  Products Listed
-                </div>
-              </div>
-              <div className="rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-5 text-center shadow-[0px_25px_50px_-28px_rgba(7,58,104,0.85)] backdrop-blur">
-                <div className="text-3xl font-semibold tracking-tight text-[color:var(--brand-1)] sm:text-4xl">
-                  {formattedCreators}
-                </div>
-                <div className="mt-2 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-                  Makers Onboard
-                </div>
-              </div>
-              <div className="rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-5 text-center shadow-[0px_25px_50px_-28px_rgba(7,58,104,0.85)] backdrop-blur">
-                <div className="text-3xl font-semibold tracking-tight text-[color:var(--brand-1)] sm:text-4xl">
-                  {formattedUpvotes}
-                </div>
-                <div className="mt-2 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-                  Community Upvotes
-                </div>
-              </div>
-              <div className="rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-5 text-center shadow-[0px_25px_50px_-28px_rgba(7,58,104,0.85)] backdrop-blur">
-                <div className="text-3xl font-semibold tracking-tight text-[color:var(--brand-1)] sm:text-4xl">
-                  {formattedInsights}
-                </div>
-                <div className="mt-2 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-                  Insights Generated
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="mt-10 flex flex-col items-center gap-4 text-sm text-muted-foreground sm:mt-12">
           <span>Curious how we compare?</span>
           <Link
             href={WHY_SHIPYARD_PATH}
-            className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.4] bg-background/80 px-4 py-2 font-semibold text-[color:var(--brand-1)] shadow-[0px_16px_40px_-28px_rgba(7,58,104,0.65)] transition-colors hover:bg-[color:var(--brand-2)/0.08]"
+            className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.24] bg-background/80 px-4 py-2 font-semibold text-[color:var(--brand-1)] shadow-[0px_16px_40px_-28px_rgba(7,58,104,0.65)] transition-colors hover:bg-[color:var(--brand-2)/0.08]"
           >
             See why founders list with Shipyard
             <ArrowUpRight className="h-4 w-4" />

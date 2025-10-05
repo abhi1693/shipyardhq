@@ -227,10 +227,10 @@ export default function InteractiveTrendRadar({
                     type="button"
                     onClick={() => setModeKey(item.key)}
                     className={cn(
-                      "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                      "rounded-full border px-3 py-1.5 text-sm font-medium transition-all shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.65)] backdrop-blur",
                       mode.key === item.key
-                        ? "border-[color:var(--brand-3)/0.5] bg-[color:var(--brand-3)/0.08] text-[color:var(--brand-3)]"
-                        : "border-transparent bg-slate-100/60 text-slate-500 hover:bg-slate-100",
+                        ? "border-[color:var(--brand-3)/0.28] bg-[color:var(--brand-3)/0.12] text-[color:var(--brand-3)]"
+                        : "border-transparent bg-white/65 text-slate-500 hover:border-[color:var(--brand-3)/0.18] hover:bg-white",
                     )}
                   >
                     {item.label}
@@ -282,20 +282,23 @@ export default function InteractiveTrendRadar({
             </div>
           </ChartContainer>
 
-          <aside className="space-y-6 rounded-xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur">
-            <div className="space-y-2 text-sm text-slate-600">
+          <aside className="space-y-6">
+            <div className="relative space-y-2 pl-6 text-sm text-slate-600">
+              <span
+                aria-hidden
+                className="absolute left-0 top-0 h-full w-[2px] rounded-full bg-[linear-gradient(180deg,var(--brand-1),var(--brand-2))]"
+              />
               <p>
-                Scanning {categories.length} standout categories fueled by{" "}
-                {totals.trendingProducts} recent trending launches and{" "}
-                {numberFormatter.format(totals.upvotes)} upvotes.
+                Scanning {categories.length} standout categories fueled by {totals.trendingProducts} recent
+                trending launches and {numberFormatter.format(totals.upvotes)} upvotes.
               </p>
               <p>
-                Use the lenses to spot where to discover products, or which
-                harbors are primed for your next launch.
+                Use the lenses to spot where to discover products, or which harbors are primed for your next
+                launch.
               </p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {sortedByMode.map((category, index) => {
                 const normalizedValue = category[mode.metricKey]
                 const primaryStat = category[mode.statKey]
@@ -305,14 +308,16 @@ export default function InteractiveTrendRadar({
                   <Link
                     key={category.id}
                     href={categoryPath(category.slug)}
-                    className="group block rounded-lg border border-slate-100 bg-white/80 p-3 shadow-sm transition-all hover:border-[color:var(--brand-3)/0.4] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-3)/0.45]"
+                    className="group relative block overflow-hidden pl-6 transition-transform hover:translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-3)/0.45]"
                   >
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-0 h-full w-[2px] rounded-full bg-[linear-gradient(180deg,var(--brand-2),var(--brand-3))] opacity-70 transition-opacity group-hover:opacity-100"
+                    />
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                          <span className="text-xs font-medium text-slate-400">
-                            #{index + 1}
-                          </span>
+                          <span className="text-xs font-medium text-slate-400">#{index + 1}</span>
                           <span className="transition-colors group-hover:text-[color:var(--brand-3)]">
                             {category.name}
                           </span>
@@ -325,11 +330,11 @@ export default function InteractiveTrendRadar({
                         {Math.round(normalizedValue)}
                       </span>
                     </div>
-                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
+                    <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-200/70">
                       <div
                         className="h-full rounded-full"
                         style={{
-                          width: `${Math.max(4, Math.round(normalizedValue))}%`,
+                          width: `${Math.max(6, Math.round(normalizedValue))}%`,
                           background: mode.themeColor,
                           opacity: 0.45,
                         }}
