@@ -4,6 +4,13 @@ import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
+type HeaderActionConfig = {
+  label: string
+  href: string
+  variant?: "default" | "outline" | "ghost" | "secondary"
+  className?: string
+}
+
 interface DirectoryHeaderProps {
   stats: {
     totalProducts: number
@@ -12,6 +19,11 @@ interface DirectoryHeaderProps {
     topScore: number
     totalInsights: number
   }
+  eyebrow?: string
+  title?: string
+  description?: string
+  primaryAction?: HeaderActionConfig | null
+  secondaryAction?: HeaderActionConfig | null
 }
 
 const metrics = [
@@ -37,7 +49,67 @@ const metrics = [
   },
 ] as const
 
-export function DirectoryHeader({ stats }: DirectoryHeaderProps) {
+export function DirectoryHeader({
+  stats,
+  eyebrow,
+  title,
+  description,
+  primaryAction,
+  secondaryAction,
+}: DirectoryHeaderProps) {
+  const resolvedEyebrow = eyebrow ?? "Shipyard Directory"
+  const resolvedTitle = title ?? "Shipyard launch directory"
+  const resolvedDescription =
+    description ??
+    "Shipyard is the launch directory built for builders, investors, and operator-fans to discover breakout products."
+
+  const defaultPrimary: HeaderActionConfig = {
+    label: "Explore the full launch lineup",
+    href: BROWSE_PATH,
+  }
+  const defaultSecondary: HeaderActionConfig = {
+    label: "Submit your launch",
+    href: MEMBER_PRODUCTS_PATH,
+    variant: "outline",
+  }
+
+  const resolvedPrimary = primaryAction === undefined ? defaultPrimary : primaryAction
+  const resolvedSecondary =
+    secondaryAction === undefined ? defaultSecondary : secondaryAction
+
+  const renderAction = (action: HeaderActionConfig, index: number) => {
+    const variant = action.variant ?? (index === 0 ? "default" : "outline")
+    const buttonProps =
+      variant === "ghost"
+        ? {
+            variant: "ghost" as const,
+            className:
+              action.className ?? "hover:bg-muted/60 text-muted-foreground",
+          }
+        : variant === "outline"
+          ? {
+              variant: "outline" as const,
+              className:
+                action.className ??
+                "border-border/70 text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground",
+            }
+          : variant === "secondary"
+            ? {
+                variant: "secondary" as const,
+                className: action.className,
+              }
+            : {
+                variant: "default" as const,
+                className: action.className,
+              }
+
+    return (
+      <Button key={action.href} asChild size="lg" {...buttonProps}>
+        <Link href={action.href}>{action.label}</Link>
+      </Button>
+    )
+  }
+
   return (
     <section className="relative overflow-hidden rounded-3xl border border-border/60 bg-background/90 px-6 py-12 shadow-lg shadow-black/5 backdrop-blur md:px-10">
       <div
@@ -47,29 +119,22 @@ export function DirectoryHeader({ stats }: DirectoryHeaderProps) {
       <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="space-y-5">
           <span className="inline-flex items-center gap-2 rounded-full bg-muted/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.26em] text-muted-foreground">
-            Shipyard Directory
+            {resolvedEyebrow}
           </span>
           <div className="space-y-3">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Shipyard launch directory
+              {resolvedTitle}
             </h1>
             <p className="max-w-xl text-base text-muted-foreground">
-              Shipyard is the launch directory built for builders, investors, and operator-fans to discover breakout products.
+              {resolvedDescription}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button asChild size="lg">
-              <Link href={BROWSE_PATH}>Explore the full launch lineup</Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="border-border/70 text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
-            >
-              <Link href={MEMBER_PRODUCTS_PATH}>Submit your launch</Link>
-            </Button>
-          </div>
+          {(resolvedPrimary ?? resolvedSecondary) ? (
+            <div className="flex flex-wrap items-center gap-3">
+              {resolvedPrimary ? renderAction(resolvedPrimary, 0) : null}
+              {resolvedSecondary ? renderAction(resolvedSecondary, 1) : null}
+            </div>
+          ) : null}
         </div>
         <dl className="grid grid-cols-2 gap-5 text-sm sm:grid-cols-4 lg:grid-cols-2">
           {metrics.map((metric) => {
