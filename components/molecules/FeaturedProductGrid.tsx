@@ -42,6 +42,7 @@ export function FeaturedProductGrid({
               upvotes={p.analytics?.upvotes ?? 0}
               category={p.category?.name ?? null}
               showCategory
+              showBadges={false}
             />
           </UniformCard>
         )

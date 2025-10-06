@@ -1,5 +1,5 @@
 import type { HomepageFeaturePlacement } from "@/actions/public/products/featured"
-import { Badge } from "@/components/atoms/badge"
+import { Sparkles } from "lucide-react"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
 import DirectoryProductList from "@/components/organisms/directory/DirectoryProductList"
 
@@ -9,53 +9,35 @@ interface SpotlightListItem {
   name: string
   logo: string
   tagline: string
-  badges?: string[]
   analytics?: { upvotes?: number | null } | null
   category?: { name?: string | null } | null
   placementKind: "schedule" | "plan"
-  placementLabel: string
-  metaLabel?: string
 }
 
 function toSpotlightItem(
   placement: HomepageFeaturePlacement,
 ): SpotlightListItem {
   const { product } = placement
-  const activeBadges = (product.ProductBadge ?? []).filter((badge) => {
-    if (!badge.expiresAt) return true
-    return new Date(badge.expiresAt).getTime() > Date.now()
-  })
-
-  const placementLabel =
-    placement.origin === "schedule"
-      ? placement.schedule?.slotKey?.replace(/[-_]/g, " ") ?? "Scheduled slot"
-      : "Plan placement"
-
   return {
     id: product.id,
     slug: product.slug,
     name: product.name,
     logo: product.logo,
     tagline: product.tagline,
-    badges: activeBadges.map((badge) => badge.badge),
     analytics: product.analytics ?? null,
     category: product.category ?? undefined,
     placementKind: placement.origin,
-    placementLabel,
-    metaLabel: placementLabel,
   }
 }
 
-function PlacementBadge({ label }: { label: string }) {
-  return (
-    <Badge
-      variant="outline"
-      className="rounded-full border-amber-200 bg-amber-50 px-3 py-0.5 text-xs font-semibold text-amber-800 shadow-sm"
-    >
-      {label}
-    </Badge>
-  )
-}
+const PlacementBadge = () => (
+  <span
+    className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-100/70 text-amber-600 shadow-sm"
+    aria-label="Sponsored placement"
+  >
+    <Sparkles className="h-3 w-3" aria-hidden />
+  </span>
+)
 
 export function HomepageSpotlight({
   placements,
@@ -70,12 +52,14 @@ export function HomepageSpotlight({
   const sections: Array<{
     heading: string
     items: SpotlightListItem[]
+    showBadge?: boolean
   }> = []
 
   if (scheduled.length > 0) {
     sections.push({
       heading: "Scheduled homepage placements",
       items: scheduled.map(toSpotlightItem),
+      showBadge: true,
     })
   }
 
@@ -83,6 +67,7 @@ export function HomepageSpotlight({
     sections.push({
       heading: "Reserved homepage placements",
       items: reserved.map(toSpotlightItem),
+      showBadge: false,
     })
   }
 
@@ -97,20 +82,13 @@ export function HomepageSpotlight({
       <div className="mt-8 space-y-8">
         {sections.map((section) => (
           <div key={section.heading} className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-base font-semibold text-foreground">
-                {section.heading}
-              </h3>
-              <PlacementBadge label="Sponsored" />
+            <div className="flex flex-wrap items-center gap-2 text-base font-semibold text-foreground">
+              <span>{section.heading}</span>
+              {section.showBadge ? <PlacementBadge /> : null}
             </div>
             <DirectoryProductList
-              items={section.items}
+              items={section.items.map((item) => ({ ...item, badges: [] }))}
               columns="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
-              metaConfig={{
-                type: "badge",
-                badgeClassName:
-                  "border-amber-200 bg-amber-50 text-amber-800 shadow-sm",
-              }}
             />
           </div>
         ))}

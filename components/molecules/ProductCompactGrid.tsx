@@ -19,6 +19,7 @@ interface ProductCompactGridProps<T extends CompactProductItem> {
   imagePriorityFirstN?: number
   renderMeta?: (item: T, index: number) => ReactNode
   showCategory?: boolean
+  showBadges?: boolean
 }
 
 export function ProductCompactGrid<T extends CompactProductItem>({
@@ -28,6 +29,7 @@ export function ProductCompactGrid<T extends CompactProductItem>({
   imagePriorityFirstN = 6,
   renderMeta,
   showCategory = true,
+  showBadges = false,
 }: ProductCompactGridProps<T>) {
   return (
     <div
@@ -53,6 +55,7 @@ export function ProductCompactGrid<T extends CompactProductItem>({
           imagePriority={index < imagePriorityFirstN}
           meta={renderMeta?.(item, index)}
           showCategory={showCategory}
+          showBadges={showBadges}
         />
       ))}
     </div>

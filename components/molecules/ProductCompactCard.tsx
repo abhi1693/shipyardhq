@@ -30,7 +30,7 @@ export function ProductCompactCard({
   meta,
   showCategory = true,
   badges = [],
-  showBadges = true,
+  showBadges = false,
 }: ProductCompactCardProps) {
   const resolvedBadges = badges
     .map(
@@ -53,7 +53,7 @@ export function ProductCompactCard({
       <input type="hidden" name="productSlug" value={product.slug} />
       <button
         type="submit"
-        className="group relative block h-full w-full cursor-pointer overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.1] bg-gradient-to-br from-background/98 via-background/92 to-[color:var(--brand-1)/0.04] p-4 text-left text-card-foreground shadow-[0px_18px_52px_-44px_rgba(7,58,104,0.5)] ring-1 ring-inset ring-white/12 transition-all duration-300 hover:-translate-y-1 hover:border-[color:var(--brand-1)/0.16] hover:shadow-[0px_24px_70px_-50px_rgba(7,58,104,0.64)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.22] dark:border-white/14"
+        className="group relative block h-full w-full cursor-pointer overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-br from-background/98 via-background/94 to-[color:var(--brand-1)/0.03] p-4 text-left text-card-foreground shadow-[0px_14px_46px_-46px_rgba(7,58,104,0.5)] ring-1 ring-inset ring-white/10 transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-[radial-gradient(115%_115%_at_50%_0%,var(--brand-1)/0.17,transparent_72%)] before:opacity-0 before:transition-opacity before:duration-300 before:content-[''] hover:-translate-y-1 hover:border-[color:var(--brand-1)/0.22] hover:bg-background/98 hover:shadow-[0px_26px_78px_-56px_rgba(7,58,104,0.72)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.22] group-hover:before:opacity-100 dark:border-white/14"
       >
         {meta ? (
           <div className="absolute right-4 top-3 sm:top-4">{meta}</div>

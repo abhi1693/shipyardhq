@@ -98,7 +98,7 @@ describe("Organisms", () => {
     expect(
       screen.getByText("Reserved homepage placements"),
     ).toBeInTheDocument()
-    expect(screen.getByText("Plan placement")).toBeInTheDocument()
+    expect(screen.queryByText("Plan placement")).not.toBeInTheDocument()
   })
 
   it("LatestLaunches returns null when empty, otherwise renders grid", () => {

@@ -38,6 +38,7 @@ interface DirectoryProductListProps<
   columns?: string
   showCategory?: boolean
   metaConfig?: MetaConfig
+  showBadges?: boolean
 }
 
 export function DirectoryProductList<
@@ -47,6 +48,7 @@ export function DirectoryProductList<
   columns,
   showCategory = true,
   metaConfig,
+  showBadges = false,
 }: DirectoryProductListProps<T>) {
   const topRight = metaConfig
     ? (item: T, index: number) => {
@@ -89,6 +91,7 @@ export function DirectoryProductList<
       columns={columns}
       showCategory={showCategory}
       topRight={topRight}
+      showBadges={showBadges}
     />
   )
 }
