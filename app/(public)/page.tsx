@@ -1,4 +1,3 @@
-import LandingHero from "@/components/organisms/LandingHero"
 import { FeaturedHighlights } from "@/components/organisms/FeaturedHighlights"
 import {
   getProducts,
@@ -11,7 +10,6 @@ import { Leaderboard } from "@/components/organisms/Leaderboard"
 import { TopCategories } from "@/components/organisms/TopCategories"
 import { EditorsPick } from "@/components/organisms/EditorsPick"
 import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
-import HomepageExperience from "@/components/organisms/HomepageExperience"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import JoinCrewCTA from "@/components/organisms/JoinCrewCTA"
 import FeaturedOnSection from "@/components/organisms/FeaturedOnSection"
@@ -131,15 +129,6 @@ export default async function HomePage() {
           className="pointer-events-none absolute inset-x-[-35%] top-[28rem] -z-10 h-72 rounded-[45%] bg-[radial-gradient(80%_100%_at_50%_0%,var(--brand-2)/0.22,transparent_85%)] blur-3xl"
         />
 
-        <LandingHero />
-        <HomepageExperience
-          stats={{
-            totalProducts: stats.totalProducts,
-            totalCreators: stats.totalCreators,
-            totalUpvotes: stats.totalUpvotes,
-            totalInsights: stats.totalInsights,
-          }}
-        />
         <FeaturedHighlights products={featuredProducts} />
         <HomepageSpotlight products={homepagePromo} />
         <EditorsPick products={editorsPick} />

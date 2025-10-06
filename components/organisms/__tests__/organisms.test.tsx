@@ -7,7 +7,6 @@ import { LatestLaunches } from "@/components/organisms/LatestLaunches"
 import { PricingTable } from "@/components/organisms/PricingTable"
 import CategoryFeatured from "@/components/organisms/CategoryFeatured"
 import { FeaturedHighlights } from "@/components/organisms/FeaturedHighlights"
-import Hero from "@/components/organisms/LandingHero"
 
 function featured(id: string, overrides: Partial<any> = {}) {
   const base = {
@@ -132,22 +131,15 @@ describe("Organisms", () => {
     expect(screen.getByText("Name 2")).toBeInTheDocument()
   })
 
-  it("FeaturedHighlights renders CTA extra and grid", () => {
+  it("FeaturedHighlights returns null when empty and renders grid when populated", () => {
+    const { container, rerender } = render(
+      (<FeaturedHighlights products={[]} />) as any,
+    )
+    expect(container.firstChild).toBeNull()
     const items = [featured("1")]
-    render(<FeaturedHighlights products={items as any} />)
+    rerender(<FeaturedHighlights products={items as any} />)
     expect(screen.getByText("Highlights From the Helm")).toBeInTheDocument()
     expect(screen.getByText("Featured Fleet")).toBeInTheDocument()
-    // CTA card text
-    expect(
-      screen.getByText("Want to see your product featured here?"),
-    ).toBeInTheDocument()
   })
 
-  it("LandingHero renders hero content and CTA", () => {
-    render(<Hero />)
-    expect(screen.getByText(/Set sail/i)).toBeInTheDocument()
-    expect(
-      screen.getByRole("button", { name: /submit your product/i }),
-    ).toBeInTheDocument()
-  })
 })

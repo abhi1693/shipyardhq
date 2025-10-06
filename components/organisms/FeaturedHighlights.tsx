@@ -1,4 +1,3 @@
-import CTAFeatureYourProductCard from "@/components/molecules/CTAFeatureYourProductCard"
 import { FeaturedProduct } from "@/types"
 import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
 import PublicContainer from "@/components/layout/PublicContainer"
@@ -11,6 +10,10 @@ export function FeaturedHighlights({
 }: {
   products: FeaturedProduct[]
 }) {
+  if (!products || products.length === 0) {
+    return null
+  }
+
   return (
     <PublicContainer
       as="section"
@@ -62,11 +65,7 @@ export function FeaturedHighlights({
           }
         />
 
-        <FeaturedProductGrid
-          items={products}
-          filterExpiredBadges={false}
-          extra={<CTAFeatureYourProductCard />}
-        />
+        <FeaturedProductGrid items={products} filterExpiredBadges={false} />
       </div>
     </PublicContainer>
   )
