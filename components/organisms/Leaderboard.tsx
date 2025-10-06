@@ -41,7 +41,7 @@ export function Leaderboard({ products }: { products: FeaturedProduct[] }) {
       <div className="mt-8">
         <DirectoryProductList
           items={items}
-          columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
           metaConfig={{
             type: "rank",
             badgeClassName:

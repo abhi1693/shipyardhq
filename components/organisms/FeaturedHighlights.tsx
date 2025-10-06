@@ -114,7 +114,7 @@ export function FeaturedHighlights({
             </div>
             <DirectoryProductList
               items={sponsoredItems}
-              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
               metaConfig={{
                 type: "badge",
                 badgeClassName:
@@ -133,7 +133,7 @@ export function FeaturedHighlights({
             </div>
             <DirectoryProductList
               items={organicItems}
-              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
             />
           </div>
         ) : null}

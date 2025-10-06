@@ -82,7 +82,7 @@ export function HomepageSpotlight({
             </div>
             <DirectoryProductList
               items={section.items.map((item) => ({ ...item, badges: [] }))}
-              columns="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
             />
           </div>
         ))}
@@ -94,7 +94,7 @@ export function HomepageSpotlight({
             </div>
             <DirectoryProductList
               items={remaining.map((item) => ({ ...item, badges: [] }))}
-              columns="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
             />
           </div>
         ) : null}
