@@ -139,10 +139,12 @@ describe("Top sections", () => {
         }
       />,
     )
-    expect(screen.getByText("Trending Fleet")).toBeInTheDocument()
-    expect(screen.getByText("Fleet Standings")).toBeInTheDocument()
     expect(
-      screen.getByRole("link", { name: "See leaderboard" }),
+      screen.getByText("Community momentum from the leaderboard"),
+    ).toBeInTheDocument()
+    expect(screen.getByText("Trending now")).toBeInTheDocument()
+    expect(
+      screen.getByRole("link", { name: "View full leaderboard" }),
     ).toHaveAttribute("href", LEADERBOARD_PATH)
   })
 })

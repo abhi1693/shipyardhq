@@ -10,6 +10,27 @@ import {
 import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
 
+type HomepageProduct = Prisma.ProductGetPayload<{
+  include: {
+    category: true
+    user: true
+    analytics: true
+    ProductBadge: true
+  }
+}>
+
+export type HomepageFeaturePlacement = {
+  id: string
+  product: HomepageProduct
+  origin: "schedule" | "plan"
+  schedule?: {
+    id: string
+    slotKey: string
+    startsAt: Date
+    endsAt: Date
+  }
+}
+
 export const getProducts = cached(
   async (badge: string): Promise<FeaturedProduct[]> => {
     const now = new Date()
@@ -329,24 +350,38 @@ export const getHomepageFeatureProducts = cached(
     ])
 
     const seen = new Set<string>()
-    const results: typeof planProducts = []
+    const placements: HomepageFeaturePlacement[] = []
 
     for (const entry of schedules) {
       const product = entry.product
       if (!product || seen.has(product.id)) continue
       seen.add(product.id)
-      results.push(product)
-      if (results.length >= limit) return results
+      placements.push({
+        id: `schedule:${entry.id}`,
+        product,
+        origin: "schedule",
+        schedule: {
+          id: entry.id,
+          slotKey: entry.slotKey,
+          startsAt: entry.startsAt,
+          endsAt: entry.endsAt,
+        },
+      })
+      if (placements.length >= limit) return placements
     }
 
     for (const product of planProducts) {
       if (seen.has(product.id)) continue
       seen.add(product.id)
-      results.push(product)
-      if (results.length >= limit) break
+      placements.push({
+        id: `plan:${product.id}`,
+        product,
+        origin: "plan",
+      })
+      if (placements.length >= limit) break
     }
 
-    return results
+    return placements
   },
   "products:homepage-feature",
   {

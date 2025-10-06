@@ -7,17 +7,20 @@ import {
 } from "@/actions/public/products/featured"
 import { LatestLaunches } from "@/components/organisms/LatestLaunches"
 import { Leaderboard } from "@/components/organisms/Leaderboard"
-import { TopCategories } from "@/components/organisms/TopCategories"
 import { EditorsPick } from "@/components/organisms/EditorsPick"
 import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import JoinCrewCTA from "@/components/organisms/JoinCrewCTA"
-import FeaturedOnSection from "@/components/organisms/FeaturedOnSection"
-import InteractiveTrendRadar from "@/components/organisms/InteractiveTrendRadar"
-import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 import { computeTrendRadarMetrics } from "@/lib/trend-radar"
 import { siteConfig } from "@/lib/siteConfig"
-import { BROWSE_PATH } from "@/lib/routes"
+import {
+  BROWSE_PATH,
+  MEMBER_PRODUCTS_PATH,
+  PRICING_PATH,
+} from "@/lib/routes"
+import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
+import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
+import { DirectoryRadarDigest } from "@/components/organisms/directory/RadarDigest"
+import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 
 const siteUrl = siteConfig.url.replace(/\/$/, "")
 const homepageTitle = `Launch Faster, Get Discovered. Submit Your Product | ${siteConfig.name}`
@@ -65,7 +68,7 @@ export default async function HomePage() {
     latestLaunches,
     trendingProducts,
     topCategories,
-    homepagePromo,
+    homepagePlacements,
     stats,
   ] = await Promise.all([
     getProducts("featured"),
@@ -104,48 +107,56 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <main className="relative isolate overflow-hidden bg-background">
+      <main className="relative isolate bg-background">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-40 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.16,transparent_70%),radial-gradient(110%_110%_at_100%_-10%,var(--brand-3)/0.16,transparent_78%)] dark:bg-[radial-gradient(120%_120%_at_0%_0%,rgba(10,32,52,0.7),transparent_72%),radial-gradient(110%_110%_at_100%_-10%,rgba(5,24,48,0.7),transparent_80%)]"
+          className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.08,transparent_60%),radial-gradient(110%_140%_at_100%_-10%,var(--brand-3)/0.08,transparent_70%)]"
         />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 -z-30 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-2)/0.4] to-transparent dark:via-[color:var(--brand-2)/0.5]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-20 opacity-35"
-          style={{
-            backgroundImage:
-              "linear-gradient(90deg, rgba(11, 53, 94, 0.08) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.08) 1px, transparent 1px)",
-            backgroundSize: "180px 180px",
-            maskImage:
-              "radial-gradient(85% 120% at 50% 12%, rgba(0, 0, 0, 0.85), transparent 72%)",
-          }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-[-35%] top-[28rem] -z-10 h-72 rounded-[45%] bg-[radial-gradient(80%_100%_at_50%_0%,var(--brand-2)/0.22,transparent_85%)] blur-3xl"
-        />
-
-        <FeaturedHighlights products={featuredProducts} />
-        <HomepageSpotlight products={homepagePromo} />
-        <EditorsPick products={editorsPick} />
-        <LatestLaunches products={latestLaunches} />
-        <Leaderboard products={trendingProducts.slice(0, 3)} />
-        <InteractiveTrendRadar
-          categories={radarData.metrics}
-          totals={radarData.totals}
-        />
-        <InsightsShowcase
-          eyebrow="New: Shipyard Insights"
-          title="Insights turns launch signal into strategy"
-          description="Run the pipeline to combine analytics, competitive research, and community sentiment into an action plan—free plans include one run each week when you publish."
-        />
-        <TopCategories categories={topCategories} />
-        <JoinCrewCTA />
-        <FeaturedOnSection />
+        <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
+          <div className="space-y-12">
+            <DirectoryHeader stats={stats} />
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
+              <div className="flex flex-col gap-10">
+                <HomepageSpotlight placements={homepagePlacements} />
+                <FeaturedHighlights products={featuredProducts} />
+                <EditorsPick products={editorsPick} />
+                <LatestLaunches products={latestLaunches} />
+                <Leaderboard products={trendingProducts} />
+              </div>
+              <aside className="flex flex-col gap-8">
+                <DirectoryCategoryRail categories={topCategories} />
+                <DirectoryRadarDigest
+                  metrics={radarData.metrics}
+                  totals={radarData.totals}
+                />
+                <DirectoryPromoCard
+                  eyebrow="Submit a launch"
+                  title="Ready to anchor your product on the homepage?"
+                  description="Publish your launch to unlock eligibility for homepage, featured, and leaderboard placement across the directory."
+                  cta={{ label: "Submit your product", href: MEMBER_PRODUCTS_PATH }}
+                  subtleCta={{
+                    label: "View launch guidelines",
+                    href: `${BROWSE_PATH}?sort=latest`,
+                  }}
+                />
+                <DirectoryPromoCard
+                  eyebrow="Insights pipeline"
+                  title="Turn real-time launch signal into next moves"
+                  description="Run Shipyard Insights to combine analytics, community sentiment, and competitor scans into shippable recommendations."
+                  cta={{
+                    label: "Compare plans",
+                    href: PRICING_PATH,
+                    variant: "ghost",
+                  }}
+                  subtleCta={{
+                    label: "Learn about Insights",
+                    href: `${BROWSE_PATH}?ref=insights`,
+                  }}
+                />
+              </aside>
+            </div>
+          </div>
+        </div>
       </main>
     </>
   )

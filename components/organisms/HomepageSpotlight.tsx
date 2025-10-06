@@ -1,86 +1,122 @@
-import PublicContainer from "@/components/layout/PublicContainer"
-import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
-import ProductList from "@/components/molecules/ProductList"
-import { getWaveBackground } from "@/lib/nautical"
+import type { HomepageFeaturePlacement } from "@/actions/public/products/featured"
+import { Badge } from "@/components/atoms/badge"
+import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
+import DirectoryProductList from "@/components/organisms/directory/DirectoryProductList"
 
-type ProductItem = {
+interface SpotlightListItem {
   id: string
   slug: string
   name: string
   logo: string
   tagline: string
-  ProductBadge?: { badge: string; expiresAt?: Date | string | null }[]
+  badges?: string[]
   analytics?: { upvotes?: number | null } | null
-  user?: { firstName?: string | null; lastName?: string | null } | null
   category?: { name?: string | null } | null
+  placementKind: "schedule" | "plan"
+  placementLabel: string
+  metaLabel?: string
 }
 
-export default function HomepageSpotlight({
-  products,
-}: {
-  products: ProductItem[]
-}) {
-  if (!products || products.length === 0) return null
-  return (
-    <PublicContainer
-      as="section"
-      max="marketing"
-      paddingY="py-20"
-      className="relative overflow-hidden border-b bg-background/85 shadow-[0px_35px_90px_-60px_rgba(7,58,104,0.85)] backdrop-blur"
-      innerClassName="relative"
-      fillScreen={false}
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-2)/0.3] to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30"
-        style={{
-          backgroundImage:
-            "radial-gradient(120%_90%_at_10%_10%, rgba(7, 58, 104, 0.22), transparent 70%), radial-gradient(95%_80%_at_85%_20%, rgba(20, 90, 140, 0.18), transparent 75%)",
-          maskImage:
-            "radial-gradient(85%_100%_at_50%_5%, rgba(0, 0, 0, 0.92), transparent 72%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 opacity-30"
-        style={{
-          ...getWaveBackground("240px 90px"),
-          backgroundPosition: "0 50%",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-[-20%] bottom-[-40px] -z-40 h-48 rounded-[50%] bg-[radial-gradient(70%_100%_at_50%_0%,var(--brand-2)/0.22,transparent_82%)] blur-3xl"
-      />
+function toSpotlightItem(
+  placement: HomepageFeaturePlacement,
+): SpotlightListItem {
+  const { product } = placement
+  const activeBadges = (product.ProductBadge ?? []).filter((badge) => {
+    if (!badge.expiresAt) return true
+    return new Date(badge.expiresAt).getTime() > Date.now()
+  })
 
-      <div className="relative space-y-10">
-        <PageSectionHeader
-          eyebrow="Harbor Picks"
-          align="center"
-          title="Harbor Spotlight"
-          subtitle="Flagship picks charted to greet every newcomer at the dock."
-        />
-        <ProductList
-          items={products.map((p) => ({
-            id: p.id,
-            slug: p.slug,
-            name: p.name,
-            logo: p.logo,
-            tagline: p.tagline,
-            analytics: p.analytics ?? null,
-            user: p.user ?? undefined,
-            category: p.category ?? undefined,
-            badges: (p.ProductBadge || [])
-              .filter((b) => !b.expiresAt || new Date(b.expiresAt) > new Date())
-              .map((b) => b.badge),
-          }))}
-          showCategory
-        />
-      </div>
-    </PublicContainer>
+  const placementLabel =
+    placement.origin === "schedule"
+      ? placement.schedule?.slotKey?.replace(/[-_]/g, " ") ?? "Scheduled slot"
+      : "Plan placement"
+
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    logo: product.logo,
+    tagline: product.tagline,
+    badges: activeBadges.map((badge) => badge.badge),
+    analytics: product.analytics ?? null,
+    category: product.category ?? undefined,
+    placementKind: placement.origin,
+    placementLabel,
+    metaLabel: placementLabel,
+  }
+}
+
+function PlacementBadge({ label }: { label: string }) {
+  return (
+    <Badge
+      variant="outline"
+      className="rounded-full border-amber-200 bg-amber-50 px-3 py-0.5 text-xs font-semibold text-amber-800 shadow-sm"
+    >
+      {label}
+    </Badge>
   )
 }
+
+export function HomepageSpotlight({
+  placements,
+}: {
+  placements: HomepageFeaturePlacement[]
+}) {
+  if (!placements || placements.length === 0) return null
+
+  const scheduled = placements.filter((entry) => entry.origin === "schedule")
+  const reserved = placements.filter((entry) => entry.origin === "plan")
+
+  const sections: Array<{
+    heading: string
+    items: SpotlightListItem[]
+  }> = []
+
+  if (scheduled.length > 0) {
+    sections.push({
+      heading: "Scheduled homepage placements",
+      items: scheduled.map(toSpotlightItem),
+    })
+  }
+
+  if (reserved.length > 0) {
+    sections.push({
+      heading: "Reserved homepage placements",
+      items: reserved.map(toSpotlightItem),
+    })
+  }
+
+  return (
+    <section className="rounded-3xl border border-border/80 bg-background/75 p-6 shadow-sm shadow-black/5 md:p-8">
+      <DirectorySectionHeader
+        kicker="Homepage spotlight"
+        title="Sponsored products greeting every visitor"
+        description="Homepage placements are paid slots that stay visible the moment someone lands on Shipyard. We surface both scheduled blocks and plan-based add-ons in order of priority."
+      />
+
+      <div className="mt-8 space-y-8">
+        {sections.map((section) => (
+          <div key={section.heading} className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-base font-semibold text-foreground">
+                {section.heading}
+              </h3>
+              <PlacementBadge label="Sponsored" />
+            </div>
+            <DirectoryProductList
+              items={section.items}
+              columns="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+              metaConfig={{
+                type: "badge",
+                badgeClassName:
+                  "border-amber-200 bg-amber-50 text-amber-800 shadow-sm",
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+export default HomepageSpotlight

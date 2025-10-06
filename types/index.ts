@@ -1,5 +1,10 @@
 import { Icons } from "@/components/icons"
-import { Category, Prisma, UseCase } from "@/lib/vendor/prisma/client"
+import {
+  Category,
+  PlacementStatus,
+  Prisma,
+  UseCase,
+} from "@/lib/vendor/prisma/client"
 
 export interface NavItem {
   title: string
@@ -34,6 +39,42 @@ export const featuredProductSelect = {
           id: true,
           badge: true,
           expiresAt: true,
+        },
+      },
+      featureEntitlements: {
+        where: {
+          status: { in: ["active", "pending"] },
+        },
+        select: {
+          id: true,
+          featureKey: true,
+          status: true,
+          expiresAt: true,
+        },
+      },
+      plan: {
+        select: {
+          assignments: {
+            where: { enabled: true },
+            select: {
+              feature: {
+                select: {
+                  key: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      placementSchedules: {
+        where: {
+          status: PlacementStatus.active,
+        },
+        select: {
+          id: true,
+          featureKey: true,
+          startsAt: true,
+          endsAt: true,
         },
       },
     },
