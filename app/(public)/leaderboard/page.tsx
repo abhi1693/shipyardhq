@@ -38,6 +38,25 @@ type LeaderboardProduct = Awaited<
   ReturnType<typeof getTopRankedProducts>
 >[number]
 
+const leaderboardMetrics = [
+  {
+    key: "totalProducts",
+    label: "Launches ranked",
+  },
+  {
+    key: "totalUpvotes",
+    label: "Upvotes cast",
+  },
+  {
+    key: "topScore",
+    label: "Current high score",
+  },
+  {
+    key: "totalCreators",
+    label: "Supporting makers",
+  },
+] as const
+
 export default async function LeaderboardPage({
   searchParams,
 }: {
@@ -91,6 +110,7 @@ export default async function LeaderboardPage({
               href: BROWSE_PATH,
               variant: "outline",
             }}
+            metrics={leaderboardMetrics}
           />
 
           <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.05fr)]">

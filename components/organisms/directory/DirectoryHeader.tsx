@@ -11,22 +11,31 @@ type HeaderActionConfig = {
   className?: string
 }
 
+type StatsShape = {
+  totalProducts: number
+  totalCreators: number
+  totalUpvotes: number
+  topScore: number
+  totalInsights: number
+}
+
+type MetricConfig = {
+  key: keyof StatsShape
+  label: string
+  formatter?: (value: number) => string
+}
+
 interface DirectoryHeaderProps {
-  stats: {
-    totalProducts: number
-    totalCreators: number
-    totalUpvotes: number
-    topScore: number
-    totalInsights: number
-  }
+  stats: StatsShape
   eyebrow?: string
   title?: string
   description?: string
   primaryAction?: HeaderActionConfig | null
   secondaryAction?: HeaderActionConfig | null
+  metrics?: readonly MetricConfig[]
 }
 
-const metrics = [
+const defaultMetrics: readonly MetricConfig[] = [
   {
     key: "totalProducts",
     label: "Products launched",
@@ -56,6 +65,7 @@ export function DirectoryHeader({
   description,
   primaryAction,
   secondaryAction,
+  metrics = defaultMetrics,
 }: DirectoryHeaderProps) {
   const resolvedEyebrow = eyebrow ?? "Shipyard Directory"
   const resolvedTitle = title ?? "Shipyard launch directory"
@@ -150,7 +160,9 @@ export function DirectoryHeader({
                   {metric.label}
                 </dt>
                 <dd className="mt-3 text-2xl font-semibold text-foreground">
-                  {metric.formatter(rawValue)}
+                  {(metric.formatter ?? ((value: number) => value.toLocaleString()))(
+                    rawValue,
+                  )}
                 </dd>
               </div>
             )
