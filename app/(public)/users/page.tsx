@@ -1,16 +1,27 @@
 import Link from "next/link"
+
 import { getPublicUsersWithCounts } from "@/actions/public/users/actions"
-import PublicContainer from "@/components/layout/PublicContainer"
+import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
+import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
+import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
+import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
+import { MakerCard } from "@/components/molecules/directory/MakerCard"
 import type { Metadata } from "next"
 import { buildPageMetadata } from "@/lib/metadata"
-import { USERS_PATH, userPath } from "@/lib/routes"
+import {
+  BROWSE_PATH,
+  LEADERBOARD_PATH,
+  MEMBER_PRODUCTS_PATH,
+  USERS_PATH,
+  userPath,
+} from "@/lib/routes"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
 export const revalidate = 120
 
 const baseMetadata = buildPageMetadata({
-  title: "Users",
-  description:
-    "Discover makers and explore their published products on ShipYardHQ.",
+  title: "Makers — Shipyard",
+  description: "Explore Shipyard makers, see what they have launched, and discover who is building momentum right now.",
   openGraph: {
     url: USERS_PATH,
     type: "website",
@@ -25,92 +36,197 @@ export const metadata: Metadata = {
   alternates: { canonical: USERS_PATH },
 }
 
+const makerMetrics = [
+  {
+    key: "totalCreators" as const,
+    label: "Active makers",
+  },
+  {
+    key: "totalProducts" as const,
+    label: "Launches shipped",
+  },
+  {
+    key: "totalUpvotes" as const,
+    label: "Community upvotes",
+  },
+  {
+    key: "totalInsights" as const,
+    label: "Insights generated",
+  },
+] as const
+
 type PublicUserSummary = Awaited<
   ReturnType<typeof getPublicUsersWithCounts>
 >[number]
 
+type MakerWithAvatar = PublicUserSummary & { avatarUrl: string | null }
+
 export default async function UsersIndexPage() {
-  const users = await getPublicUsersWithCounts(48)
+  const [stats, users] = await Promise.all([
+    getLeaderboardStats(),
+    getPublicUsersWithCounts(60),
+  ])
+
+  const makersWithAvatars: MakerWithAvatar[] = await Promise.all(
+    users.map(async (maker) => {
+      let avatarUrl: string | null = null
+      if (maker.clerkId) {
+        try {
+          const clerkUser = await getClerkUserByIdCached(maker.clerkId)
+          avatarUrl = clerkUser.imageUrl ?? null
+        } catch {
+          avatarUrl = null
+        }
+      }
+      return { ...maker, avatarUrl }
+    }),
+  )
+
+  const topMakers = makersWithAvatars.slice(0, 3)
+  const roster = makersWithAvatars.slice(3)
 
   return (
-    <main className="relative isolate overflow-hidden">
+    <main className="relative isolate bg-background">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(250,252,255,0.96),rgba(243,247,252,0.92)40%,rgba(233,243,251,0.9))] dark:bg-[linear-gradient(180deg,rgba(6,18,36,0.92),rgba(4,24,43,0.92)40%,rgba(9,32,55,0.92))]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_90%_at_0%_0%,var(--brand-2)/0.12,transparent_60%),radial-gradient(110%_120%_at_100%_10%,var(--brand-3)/0.14,transparent_72%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-30"
-        style={{
-          backgroundImage:
-            "linear-gradient(90deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-          backgroundSize: "160px 160px",
-          maskImage:
-            "radial-gradient(80% 110% at 50% 5%, rgba(0,0,0,0.9), transparent 70%)",
-        }}
+        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.08,transparent_60%),radial-gradient(110%_140%_at_100%_-10%,var(--brand-3)/0.08,transparent_70%)]"
       />
 
-      <PublicContainer
-        as="section"
-        paddingY="py-20"
-        max="7xl"
-        className="relative"
-      >
-        <div className="relative isolate mx-auto flex max-w-5xl flex-col gap-10 overflow-hidden rounded-[2.5rem] border border-[color:var(--brand-1)/0.16] bg-background/88 px-10 py-12 shadow-[0_60px_150px_-90px_rgba(7,58,104,0.85)] backdrop-blur">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(100%_80%_at_0%_0%,var(--brand-2)/0.18,transparent_55%),radial-gradient(120%_110%_at_100%_0%,var(--brand-3)/0.18,transparent_72%)]"
+      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
+        <div className="space-y-12">
+          <DirectoryHeader
+            stats={stats}
+            eyebrow="Profile directory"
+            title="Meet the people powering Shipyard"
+            description="Explore the profiles behind Shipyard launches. Follow their work, track upcoming drops, and see who is earning community momentum."
+            primaryAction={{
+              label: "Submit your launch",
+              href: MEMBER_PRODUCTS_PATH,
+            }}
+            secondaryAction={{
+              label: "Explore featured products",
+              href: `${BROWSE_PATH}?sort=featured`,
+              variant: "outline",
+            }}
+            metrics={makerMetrics}
           />
 
-          <div className="relative space-y-8 text-center">
-            <span className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/85 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
-              Crew Roster
-            </span>
-            <header className="space-y-3">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Makers charting new waters
-              </h1>
-              <p className="text-base text-muted-foreground sm:text-lg">
-                Explore creators and the products they’ve launched across the
-                harbor.
-              </p>
-            </header>
-          </div>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.05fr)]">
+            <div className="flex flex-col gap-10">
+              {topMakers.length > 0 ? (
+                <section className="rounded-3xl border border-border/80 bg-background/78 p-6 shadow-sm shadow-black/5 md:p-8">
+                  <DirectorySectionHeader
+                    kicker="Featured crew"
+                    title="Makers leading the launch cadence"
+                    description="These makers have shipped the most products on Shipyard. Explore their profiles to track what they launch next."
+                  />
 
-          {users.length === 0 ? (
-            <div className="relative rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/85 px-6 py-10 text-center text-sm text-muted-foreground backdrop-blur">
-              No creators to show yet.
+                  <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {topMakers.map((maker, index) => {
+                      const { name, initials, launches, avatarUrl } =
+                        resolveMakerMeta(maker)
+                      return (
+                        <MakerCard
+                          key={maker.id}
+                          href={userPath(maker.id)}
+                          name={name}
+                          initials={initials}
+                          launches={launches}
+                          avatarUrl={avatarUrl}
+                          rank={index + 1}
+                          variant="highlight"
+                        />
+                      )
+                    })}
+                  </div>
+                </section>
+              ) : null}
+
+              {roster.length > 0 ? (
+                <section className="rounded-3xl border border-border/80 bg-background/78 p-6 shadow-sm shadow-black/5 md:p-8">
+                  <DirectorySectionHeader
+                    kicker="Crew directory"
+                    title="Every maker currently featured"
+                    description={`Showing ${users.length.toLocaleString()} makers with published launches.`}
+                    action={
+                      <Link
+                        href={LEADERBOARD_PATH}
+                        className="text-sm font-semibold text-[color:var(--brand-1)] hover:underline"
+                      >
+                        Watch the leaderboard
+                      </Link>
+                    }
+                  />
+
+                  <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {roster.map((maker) => {
+                      const { name, initials, launches, avatarUrl } =
+                        resolveMakerMeta(maker)
+                      return (
+                        <MakerCard
+                          key={maker.id}
+                          href={userPath(maker.id)}
+                          name={name}
+                          initials={initials}
+                          launches={launches}
+                          avatarUrl={avatarUrl}
+                        />
+                      )
+                    })}
+                  </div>
+                </section>
+              ) : users.length === 0 ? (
+                <section className="rounded-3xl border border-dashed border-border/60 bg-background/78 p-6 text-center text-sm text-muted-foreground shadow-sm shadow-black/5 md:p-8">
+                  No profiles to show yet. Check back as new builders publish their first launch.
+                </section>
+              ) : null}
             </div>
-          ) : (
-            <ul className="grid grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-3">
-              {users.map((u: PublicUserSummary) => {
-                const fullName =
-                  `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim() || "User"
-                const count = u.products.length
-                return (
-                  <li key={u.id} className="group">
-                    <Link
-                      href={userPath(u.id)}
-                      className="group relative block overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/85 px-6 py-5 shadow-[0_30px_75px_-60px_rgba(7,58,104,0.65)] backdrop-blur transition duration-200 hover:-translate-y-1 hover:border-[color:var(--brand-1)/0.35] hover:shadow-[0_35px_85px_-55px_rgba(7,58,104,0.7)]"
-                    >
-                      <div className="text-lg font-semibold text-foreground transition-colors group-hover:text-[color:var(--brand-1)]">
-                        {fullName}
-                      </div>
-                      <div className="mt-1 text-sm text-muted-foreground">
-                        {count} published product{count === 1 ? "" : "s"}
-                      </div>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
+
+            <aside className="flex flex-col gap-8">
+              <DirectoryPromoCard
+                eyebrow="Shipyard for makers"
+                title="Ready to launch your next product?"
+                description="Publish on Shipyard to get on the maker directory, earn homepage placements, and rally upvotes from the community."
+                cta={{ label: "Submit your launch", href: MEMBER_PRODUCTS_PATH }}
+                subtleCta={{ label: "Browse the launch playbook", href: LEADERBOARD_PATH }}
+              />
+
+              <DirectoryPromoCard
+                eyebrow="Discover products"
+                title="Explore what these makers are shipping"
+                description="Jump straight into the product directory to see live launches, trending picks, and the campaigns your favorite makers recently shipped."
+                cta={{
+                  label: "Visit the directory",
+                  href: BROWSE_PATH,
+                  variant: "ghost",
+                }}
+                subtleCta={{
+                  label: "Track the leaderboard",
+                  href: LEADERBOARD_PATH,
+                }}
+              />
+            </aside>
+          </div>
         </div>
-      </PublicContainer>
+      </div>
     </main>
   )
+}
+
+function resolveMakerMeta(maker: MakerWithAvatar) {
+  const first = maker.firstName?.trim() ?? ""
+  const last = maker.lastName?.trim() ?? ""
+  const name = `${first} ${last}`.trim() || "Shipyard maker"
+  const initialsSource = name.split(/\s+/).slice(0, 2)
+  const initials = initialsSource
+    .map((segment) => segment.charAt(0).toUpperCase())
+    .join("")
+    .slice(0, 2) || "SY"
+  const launches = maker.products.length
+
+  return { name, initials, launches, avatarUrl: maker.avatarUrl }
 }

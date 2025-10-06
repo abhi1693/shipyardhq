@@ -21,7 +21,6 @@ import {
   MEMBER_BASE_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
-  USERS_PATH,
 } from "@/lib/routes"
 
 const navLinks = [
@@ -29,7 +28,6 @@ const navLinks = [
   { label: "Categories", href: CATEGORIES_PATH },
   { label: "Leaderboard", href: LEADERBOARD_PATH },
   { label: "Analytics", href: ANALYTICS_PATH },
-  { label: "Makers", href: USERS_PATH },
   { label: "Pricing", href: PRICING_PATH },
 ]
 

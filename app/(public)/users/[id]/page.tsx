@@ -2,18 +2,30 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { format } from "date-fns"
-import { ArrowUpRight } from "lucide-react"
+
 import {
   getPublicUserMeta,
   getPublicUserProfile,
 } from "@/actions/public/users/actions"
-import PublicContainer from "@/components/layout/PublicContainer"
-import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
-import { EmptyState } from "@/components/molecules/empty-state"
 import CopyButton from "@/components/molecules/CopyButton"
 import ShareProfileButton from "@/components/molecules/ShareProfileButton"
+import { EmptyState } from "@/components/molecules/empty-state"
+import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
+import DirectoryProductList from "@/components/organisms/directory/DirectoryProductList"
+import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
+import { Badge } from "@/components/atoms/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { buildPageMetadata } from "@/lib/metadata"
-import { HOME_PATH, USERS_PATH, productPath, userPath } from "@/lib/routes"
+import {
+  BROWSE_PATH,
+  HOME_PATH,
+  LEADERBOARD_PATH,
+  MEMBER_PRODUCTS_PATH,
+  USERS_PATH,
+  productPath,
+  userPath,
+} from "@/lib/routes"
+import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 
 export const revalidate = 120
 
@@ -31,10 +43,11 @@ export async function generateMetadata({
   const { id } = await params
   const user = await getPublicUserMeta(id)
   if (!user) return {}
+
   const fullName =
     `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"
   const relativeUrl = userPath(id)
-  const desc = `${fullName}'s published products on ShipYardHQ.`
+  const desc = `${fullName}'s published products on Shipyard.`
   const baseMetadata = buildPageMetadata({
     title: fullName,
     section: "Profile",
@@ -54,118 +67,111 @@ export async function generateMetadata({
   }
 }
 
-export default async function PublicUserPage({ params }: PageProps) {
+export default async function MakerProfilePage({ params }: PageProps) {
   const { id } = await params
-  const user = await getPublicUserProfile(id)
+  const profile = await getPublicUserProfile(id)
 
-  if (!user) return notFound()
+  if (!profile) return notFound()
 
   const fullName =
-    `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"
+    `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() || "Shipyard maker"
 
-  const products = user.products || []
+  let avatarUrl: string | null = null
+  if (profile.clerkId) {
+    try {
+      const clerkUser = await getClerkUserByIdCached(profile.clerkId)
+      avatarUrl = clerkUser.imageUrl ?? null
+    } catch {
+      avatarUrl = null
+    }
+  }
+
   const now = new Date()
-  const categorySet = new Set<string>()
-  const badgeSet = new Set<string>()
-  let verifiedCount = 0
   let totalUpvotes = 0
+  let verifiedCount = 0
 
-  const items = products.map((p: PublicUserProduct) => {
-    const upvotes = p.analytics?.upvotes ?? 0
+  const categoryCounts = new Map<string, number>()
+  const badgeSet = new Set<string>()
+
+  const products = profile.products ?? []
+
+  const items = products.map((product: PublicUserProduct) => {
+    const upvotes = product.analytics?.upvotes ?? 0
     totalUpvotes += upvotes
 
-    if (p.verification?.isVerified) {
+    if (product.verification?.isVerified) {
       verifiedCount += 1
     }
 
-    if (p.category?.name) {
-      categorySet.add(p.category.name)
+    const categoryName = product.category?.name
+    if (categoryName) {
+      categoryCounts.set(categoryName, (categoryCounts.get(categoryName) ?? 0) + 1)
     }
 
-    const activeBadges = (p.ProductBadge || [])
-      .filter(
-        (b: PublicUserProduct["ProductBadge"][number]) =>
-          !b.expiresAt || new Date(b.expiresAt) > now,
-      )
-      .map((b: PublicUserProduct["ProductBadge"][number]) => {
-        badgeSet.add(b.badge)
-        return b.badge
+    const activeBadges = (product.ProductBadge ?? [])
+      .filter((badge) => !badge.expiresAt || new Date(badge.expiresAt) > now)
+      .map((badge) => {
+        badgeSet.add(badge.badge)
+        return badge.badge
       })
 
+    const launchedAtRaw = product.publishedAt ?? product.createdAt ?? null
+    const launchedAt = launchedAtRaw ? new Date(launchedAtRaw) : null
+    const metaLabel = launchedAt ? format(launchedAt, "MMM d, yyyy") : undefined
+
     return {
-      id: p.id,
-      slug: p.slug,
-      name: p.name,
-      logo: p.logo,
-      tagline: p.tagline,
-      analytics: p.analytics,
-      user: { firstName: p.user.firstName, lastName: p.user.lastName },
-      category: { name: p.category?.name },
-      verification: p.verification,
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      logo: product.logo,
+      tagline: product.tagline,
+      analytics: product.analytics ?? null,
+      category: product.category ? { name: product.category.name } : undefined,
+      verification: product.verification ?? undefined,
       badges: activeBadges,
-      createdAt: p.createdAt,
-      publishedAt: p.publishedAt,
-      websiteUrl: p.websiteUrl,
+      metaLabel,
+      launchedAt,
     }
   })
 
-  const categories = Array.from(categorySet)
-  const uniqueBadges = Array.from(badgeSet)
-  const firstPublishedAt = items.reduce<Date | null>((earliest, product) => {
-    const timestamp = product.publishedAt ?? product.createdAt
-    if (!timestamp) return earliest
-    if (!earliest || timestamp < earliest) return timestamp
-    return earliest
-  }, null)
-  const highlightItem = items.reduce<(typeof items)[number] | null>(
-    (best, current) => {
-      if (!best) return current
-      const bestUpvotes = best.analytics?.upvotes ?? 0
-      const currentUpvotes = current.analytics?.upvotes ?? 0
-      if (currentUpvotes > bestUpvotes) return current
-      if (currentUpvotes === bestUpvotes) {
-        const bestDate = best.publishedAt ?? best.createdAt
-        const currentDate = current.publishedAt ?? current.createdAt
-        if (currentDate && bestDate && currentDate > bestDate) {
-          return current
-        }
-      }
-      return best
-    },
-    null,
-  )
   const totalProducts = items.length
-  const featuredCategories = categories.slice(0, 4)
-  const extraCategories = Math.max(
-    categories.length - featuredCategories.length,
-    0,
+  const categoryEntries = Array.from(categoryCounts.entries()).sort(
+    (a, b) => b[1] - a[1],
   )
+  const focusCategories = categoryEntries.slice(0, 4).map(([name]) => name)
+  const extraCategoryCount = Math.max(categoryEntries.length - focusCategories.length, 0)
+  const uniqueBadges = Array.from(badgeSet)
+  const badgeShowcase = uniqueBadges.slice(0, 6)
+  const badgeOverflow = Math.max(uniqueBadges.length - badgeShowcase.length, 0)
+
+  const sortedByDate = [...items].sort((a, b) => {
+    const aTime = a.launchedAt ? a.launchedAt.getTime() : 0
+    const bTime = b.launchedAt ? b.launchedAt.getTime() : 0
+    return bTime - aTime
+  })
+  const recentLaunches = sortedByDate.slice(0, 5)
+
+  const earliestLaunch = sortedByDate[sortedByDate.length - 1]?.launchedAt ?? null
+
+  const stats = [
+    { label: "Published launches", value: totalProducts },
+    { label: "Community upvotes", value: totalUpvotes },
+    { label: "Verified wins", value: verifiedCount },
+    { label: "Focus areas", value: categoryEntries.length },
+  ]
   const statFormatter = new Intl.NumberFormat("en-US", {
     notation: "compact",
     maximumFractionDigits: 1,
   })
-  const stats = [
-    { label: "Published products", value: totalProducts },
-    { label: "Total upvotes", value: totalUpvotes },
-    { label: "Verified launches", value: verifiedCount },
-    { label: "Focus categories", value: categories.length },
-  ]
-  const initials =
-    fullName
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((part) => part[0]?.toUpperCase() ?? "")
-      .join("")
-      .slice(0, 2) || "BU"
-  const builderSinceLabel = firstPublishedAt
-    ? `Building on Shipyard since ${format(firstPublishedAt, "MMMM yyyy")}.`
-    : null
+
   const summaryParts: string[] = []
-  if (builderSinceLabel) summaryParts.push(builderSinceLabel)
-  if (categories.length) {
+  if (earliestLaunch) {
+    summaryParts.push(`Building on Shipyard since ${format(earliestLaunch, "MMMM yyyy")}.`)
+  }
+  if (focusCategories.length) {
     summaryParts.push(
-      `Focus areas: ${featuredCategories.join(", ")}${
-        extraCategories ? ` (+${extraCategories} more)` : ""
+      `Focus areas: ${focusCategories.join(", ")}${
+        extraCategoryCount ? ` (+${extraCategoryCount} more)` : ""
       }.`,
     )
   }
@@ -177,36 +183,41 @@ export default async function PublicUserPage({ params }: PageProps) {
   if (!summaryParts.length) {
     summaryParts.push(
       totalProducts
-        ? `${fullName} is shipping products with the Shipyard community.`
-        : "This builder hasn’t published any products yet. Check back soon for their first launch.",
+        ? `${fullName} is actively shipping products with the Shipyard community.`
+        : "This maker hasn’t published any products yet. Check back soon for their first launch.",
     )
   }
   const profileSummary = summaryParts.join(" ")
-  const highlightBadges = highlightItem?.badges?.slice(0, 2) ?? []
-  const highlightBadgeOverflow = Math.max(
-    (highlightItem?.badges?.length ?? 0) - highlightBadges.length,
-    0,
-  )
-  const profilePath = userPath(user.id)
 
-  const base = (
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  ).replace(/\/$/, "")
-  const profileUrl = `${base}${profilePath}`
+  const initials =
+    fullName
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0]?.toUpperCase() ?? "")
+      .join("")
+      .slice(0, 2) || "SY"
+
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(
+    /\/$/,
+    "",
+  )
+  const profilePath = userPath(profile.id)
+  const profileUrl = `${baseUrl}${profilePath}`
+
   const ldPerson = {
     "@context": "https://schema.org",
     "@type": "Person",
     name: fullName,
     url: profileUrl,
-    identifier: user.id,
+    identifier: profile.id,
   }
   const ldItemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: items.map((p, i) => ({
+    itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
-      position: i + 1,
-      item: `${base}${productPath(p.slug)}`,
+      position: index + 1,
+      item: `${baseUrl}${productPath(item.slug)}`,
     })),
   }
   const ldBreadcrumb = {
@@ -217,13 +228,13 @@ export default async function PublicUserPage({ params }: PageProps) {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: `${base}${HOME_PATH}`,
+        item: `${baseUrl}${HOME_PATH}`,
       },
       {
         "@type": "ListItem",
         position: 2,
-        name: "Users",
-        item: `${base}${USERS_PATH}`,
+        name: "Makers",
+        item: `${baseUrl}${USERS_PATH}`,
       },
       {
         "@type": "ListItem",
@@ -235,185 +246,266 @@ export default async function PublicUserPage({ params }: PageProps) {
   }
 
   return (
-    <PublicContainer paddingY="py-10" max="7xl" innerClassName="space-y-8">
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(ldPerson) }}
+    <main className="relative isolate bg-background">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.09,transparent_60%),radial-gradient(110%_150%_at_100%_-10%,var(--brand-3)/0.1,transparent_70%)]"
       />
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumb) }}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(248,252,255,0.95),rgba(236,244,253,0.92)45%,rgba(227,240,250,0.9))] dark:bg-[linear-gradient(180deg,rgba(4,16,34,0.92),rgba(6,24,42,0.9)45%,rgba(9,32,55,0.9))]"
       />
-      {items.length > 0 && (
+
+      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-14 md:px-8">
         <script
           type="application/ld+json"
           suppressHydrationWarning
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ldItemList) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ldPerson) }}
         />
-      )}
-      <section className="relative isolate overflow-hidden rounded-[32px] border border-[color:var(--brand-1)/0.22] bg-background/92 px-6 py-12 shadow-[0_40px_120px_-80px_rgba(7,58,104,0.75)] backdrop-blur sm:px-10 md:py-16">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(246,250,255,0.9),rgba(236,245,253,0.88)55%,rgba(229,240,250,0.92))] dark:bg-[linear-gradient(180deg,rgba(4,16,34,0.92),rgba(6,22,42,0.9)55%,rgba(9,32,55,0.9))]"
+        <script
+          type="application/ld+json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumb) }}
         />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_85%_at_6%_0%,var(--brand-1)/0.22,transparent_68%),radial-gradient(95%_95%_at_95%_-10%,var(--brand-2)/0.18,transparent_75%)]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-40"
-          style={{
-            backgroundImage:
-              "linear-gradient(90deg, rgba(10,52,88,0.12) 1px, transparent 1px), linear-gradient(180deg, rgba(10,52,88,0.12) 1px, transparent 1px)",
-            backgroundSize: "140px 140px",
-            maskImage:
-              "radial-gradient(80% 120% at 50% 0%, rgba(0,0,0,0.9), transparent 72%)",
-          }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 -z-10 h-44 bg-gradient-to-t from-[color:var(--brand-1)/0.24] via-transparent to-transparent"
-        />
+        {items.length > 0 ? (
+          <script
+            type="application/ld+json"
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(ldItemList) }}
+          />
+        ) : null}
 
-        <div className="relative flex flex-col gap-10">
-          <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-            <div className="flex items-start gap-4 md:gap-6">
-              <span className="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl border border-[color:var(--brand-1)/0.35] bg-[color:var(--brand-1)/0.12] text-2xl font-semibold text-[color:var(--brand-1)] shadow-[0_22px_48px_-34px_rgba(7,58,104,0.75)] md:h-20 md:w-20 md:text-3xl">
-                {initials}
-              </span>
-              <div className="space-y-3">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.4] bg-background/80 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-[0_16px_40px_-30px_rgba(7,58,104,0.65)]">
-                  Builder Profile
-                </span>
-                <h1 className="bg-[linear-gradient(92deg,var(--brand-1),var(--brand-2),var(--brand-3))] bg-clip-text text-3xl font-semibold leading-tight text-transparent sm:text-4xl md:text-5xl">
-                  {fullName}
-                </h1>
-                <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
-                  {profileSummary}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <CopyButton
-                text={profilePath}
-                resolveAbsolute
-                size="sm"
-                variant="outline"
-                className="border-[color:var(--brand-1)/0.35] bg-background/70 text-[color:var(--brand-1)] shadow-[0_18px_40px_-32px_rgba(7,58,104,0.75)]"
-              >
-                Copy profile link
-              </CopyButton>
-              <ShareProfileButton
-                path={profilePath}
-                fullName={fullName}
-                productCount={totalProducts}
-                className="border-[color:var(--brand-2)/0.35] bg-background/70 text-[color:var(--brand-2)] shadow-[0_18px_40px_-32px_rgba(7,58,104,0.7)]"
-              />
-            </div>
-          </div>
-
-          {categories.length ? (
-            <div className="flex flex-wrap gap-2">
-              {featuredCategories.map((category) => (
-                <span
-                  key={category}
-                  className="inline-flex items-center gap-1 rounded-full border border-[color:var(--brand-2)/0.35] bg-[color:var(--brand-2)/0.12] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-[color:var(--brand-2)]"
-                >
-                  {category}
-                </span>
-              ))}
-              {extraCategories > 0 && (
-                <span className="inline-flex items-center rounded-full border border-border/60 bg-background/85 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
-                  +{extraCategories} more
-                </span>
-              )}
-            </div>
-          ) : null}
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-2xl border border-[color:var(--brand-1)/0.18] bg-background/84 px-5 py-6 text-left shadow-[0_25px_60px_-48px_rgba(7,58,104,0.85)] backdrop-blur"
-              >
-                <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
-                  {stat.label}
-                </p>
-                <p className="mt-3 text-3xl font-semibold leading-tight text-[color:var(--brand-1)]">
-                  {statFormatter.format(stat.value)}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {highlightItem ? (
-            <Link
-              href={productPath(highlightItem.slug)}
-              className="group relative flex flex-col gap-4 overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/86 px-6 py-6 shadow-[0_30px_72px_-52px_rgba(7,58,104,0.9)] transition-all hover:border-[color:var(--brand-1)/0.4] hover:shadow-[0_36px_90px_-55px_rgba(7,58,104,0.95)]"
-            >
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
+          <div className="flex flex-col gap-10">
+            <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-background/92 p-6 shadow-[0_32px_98px_-60px_rgba(7,58,104,0.75)] backdrop-blur md:p-10">
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_10%_0%,var(--brand-1)/0.18,transparent_70%),radial-gradient(110%_110%_at_100%_0%,var(--brand-3)/0.16,transparent_75%)] opacity-90"
+                className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.18,transparent_65%),radial-gradient(120%_140%_at_100%_-10%,var(--brand-2)/0.16,transparent_70%)]"
               />
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
-                  Featured launch
-                </span>
-                <ArrowUpRight className="h-5 w-5 text-muted-foreground transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </div>
-              <div className="space-y-2">
-                <p className="text-lg font-semibold text-foreground md:text-xl">
-                  {highlightItem.name}
-                </p>
-                <p className="text-sm text-muted-foreground line-clamp-2 md:text-base">
-                  {highlightItem.tagline}
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1 rounded-full border border-[color:var(--brand-1)/0.25] bg-background/70 px-2.5 py-0.5 text-[color:var(--brand-1)]">
-                  {statFormatter.format(highlightItem.analytics?.upvotes ?? 0)}{" "}
-                  upvotes
-                </span>
-                {highlightItem.verification?.isVerified ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/60 bg-emerald-100/80 px-2.5 py-0.5 text-emerald-700">
-                    Verified
-                  </span>
-                ) : null}
-                {highlightItem.category?.name ? (
-                  <span className="inline-flex items-center rounded-full border border-[color:var(--brand-2)/0.3] bg-background/75 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                    {highlightItem.category.name}
-                  </span>
-                ) : null}
-                {highlightBadges.map((badge) => (
-                  <span
-                    key={badge}
-                    className="inline-flex items-center rounded-full border border-[color:var(--brand-2)/0.35] bg-[color:var(--brand-2)/0.16] px-2.5 py-0.5 text-xs font-medium text-[color:var(--brand-2)]"
-                  >
-                    {badge}
-                  </span>
-                ))}
-                {highlightBadgeOverflow > 0 && (
-                  <span className="inline-flex items-center rounded-full border border-border/60 bg-background/80 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                    +{highlightBadgeOverflow} more
-                  </span>
-                )}
-              </div>
-            </Link>
-          ) : null}
-        </div>
-      </section>
 
-      {items.length ? (
-        <ProductCompactGrid items={items} />
-      ) : (
-        <EmptyState
-          title="No published products yet"
-          description="This user hasn’t published any products. Check back later."
-        />
-      )}
-    </PublicContainer>
+              <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+                  <div className="flex items-start gap-5 md:items-center">
+                    <Avatar
+                      className="h-16 w-16 shrink-0 rounded-3xl bg-[color:var(--brand-1)/0.12] shadow-[0_24px_54px_-36px_rgba(7,58,104,0.7)] md:h-20 md:w-20"
+                    >
+                      {avatarUrl ? (
+                        <AvatarImage
+                          src={avatarUrl}
+                          alt={fullName}
+                          className="object-cover"
+                        />
+                      ) : null}
+                      <AvatarFallback className="flex h-full w-full items-center justify-center rounded-[inherit] bg-[color:var(--brand-1)/0.12] text-2xl font-semibold text-[color:var(--brand-1)] md:text-3xl">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-3 md:pt-1">
+                      <h1 className="bg-[linear-gradient(95deg,var(--brand-1),var(--brand-2),var(--brand-3))] bg-clip-text text-3xl font-semibold leading-tight text-transparent sm:text-4xl md:text-5xl">
+                        {fullName}
+                      </h1>
+                      <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
+                        {profileSummary}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <CopyButton
+                      text={profilePath}
+                      resolveAbsolute
+                      size="sm"
+                      variant="outline"
+                      className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
+                    >
+                      Copy profile link
+                    </CopyButton>
+                    <ShareProfileButton
+                      path={profilePath}
+                      fullName={fullName}
+                      productCount={totalProducts}
+                      className="border-[color:var(--brand-2)/0.35] bg-background/80 text-[color:var(--brand-2)]"
+                    />
+                  </div>
+                </div>
+
+                {focusCategories.length ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {focusCategories.map((category) => (
+                      <Badge
+                        key={category}
+                        variant="outline"
+                        className="rounded-full border-[color:var(--brand-2)/0.35] bg-[color:var(--brand-2)/0.12] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.26em] text-[color:var(--brand-2)]"
+                      >
+                        {category}
+                      </Badge>
+                    ))}
+                    {extraCategoryCount > 0 ? (
+                      <Badge
+                        variant="outline"
+                        className="rounded-full border-border/60 bg-background/80 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.26em] text-muted-foreground"
+                      >
+                        +{extraCategoryCount} more
+                      </Badge>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {stats.map((stat) => (
+                    <div
+                      key={stat.label}
+                      className="rounded-2xl border border-border/70 bg-background/85 px-5 py-6 shadow-[0_24px_64px_-48px_rgba(7,58,104,0.7)] backdrop-blur"
+                    >
+                      <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
+                        {stat.label}
+                      </p>
+                      <p className="mt-3 text-3xl font-semibold leading-tight text-[color:var(--brand-1)]">
+                        {statFormatter.format(stat.value)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-border/80 bg-background/88 p-6 shadow-sm shadow-black/5 md:p-8">
+              <DirectorySectionHeader
+                kicker="Launch roster"
+                title="Published products"
+                description={
+                  totalProducts
+                    ? `Showing ${totalProducts.toLocaleString()} launch${
+                        totalProducts === 1 ? "" : "es"
+                      } from ${fullName}.`
+                    : `${fullName} hasn’t published any launches yet.`
+                }
+              />
+
+              {totalProducts ? (
+                <div className="mt-8">
+                  <DirectoryProductList
+                    items={items}
+                    columns="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+                    showBadges
+                    metaConfig={{
+                      type: "badge",
+                      badgeClassName:
+                        "border-border/60 bg-muted/60 text-muted-foreground",
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="mt-10">
+                  <EmptyState
+                    title="No published products"
+                    description="This maker hasn’t shipped a product yet. Check back soon."
+                  />
+                </div>
+              )}
+            </section>
+          </div>
+
+          <aside className="flex flex-col gap-8">
+            <section className="rounded-3xl border border-border/70 bg-background/90 p-6 shadow-sm shadow-black/5">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                Launch cadence
+              </h2>
+              {recentLaunches.length ? (
+                <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+                  {recentLaunches.map((launch) => (
+                    <li key={launch.id} className="flex justify-between gap-3">
+                      <Link
+                        href={productPath(launch.slug)}
+                        className="truncate font-medium text-foreground hover:text-[color:var(--brand-1)]"
+                      >
+                        {launch.name}
+                      </Link>
+                      <span className="shrink-0 text-xs uppercase tracking-[0.28em] text-muted-foreground">
+                        {launch.launchedAt ? format(launch.launchedAt, "MMM d, yyyy") : "—"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  No launches yet — follow this maker to see their first drop.
+                </p>
+              )}
+            </section>
+
+            <section className="rounded-3xl border border-border/70 bg-background/90 p-6 shadow-sm shadow-black/5">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                Focus categories
+              </h2>
+              {categoryEntries.length ? (
+                <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                  {categoryEntries.map(([name, count]) => (
+                    <li key={name} className="flex justify-between gap-3">
+                      <span className="text-foreground">{name}</span>
+                      <span className="text-xs uppercase tracking-[0.28em]">{count}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  No categories recorded yet.
+                </p>
+              )}
+            </section>
+
+            <section className="rounded-3xl border border-border/70 bg-background/90 p-6 shadow-sm shadow-black/5">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                Badges earned
+              </h2>
+              {badgeShowcase.length ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {badgeShowcase.map((badge) => (
+                    <Badge
+                      key={badge}
+                      variant="outline"
+                      className="rounded-full border-[color:var(--brand-3)/0.35] bg-[color:var(--brand-3)/0.14] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-3)]"
+                    >
+                      {badge}
+                    </Badge>
+                  ))}
+                  {badgeOverflow > 0 ? (
+                    <Badge
+                      variant="outline"
+                      className="rounded-full border-border/60 bg-background/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
+                    >
+                      +{badgeOverflow} more
+                    </Badge>
+                  ) : null}
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  No badges unlocked yet.
+                </p>
+              )}
+            </section>
+
+            <DirectoryPromoCard
+              eyebrow="Launch with Shipyard"
+              title="Ready to publish your own product?"
+              description="Join Shipyard to unlock homepage features, leaderboard visibility, and analytics that help your next launch go further."
+              cta={{ label: "Submit your launch", href: MEMBER_PRODUCTS_PATH }}
+              subtleCta={{ label: "Browse the product directory", href: BROWSE_PATH }}
+            />
+
+            <DirectoryPromoCard
+              eyebrow="Track the momentum"
+              title="Watch makers climb the leaderboard"
+              description="Head back to the live leaderboard to see which launches are earning upvotes right now across every category."
+              cta={{
+                label: "View the leaderboard",
+                href: LEADERBOARD_PATH,
+                variant: "ghost",
+              }}
+            />
+          </aside>
+        </div>
+      </div>
+    </main>
   )
 }
