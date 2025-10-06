@@ -30,11 +30,12 @@ export function DirectoryRadarDigest({
     <section className="rounded-3xl border border-border/60 bg-background/80 p-6 shadow-sm shadow-black/5">
       <div className="mb-6 space-y-2">
         <h3 className="text-lg font-semibold text-foreground">
-          Radar: momentum signals
+          Trend radar: live momentum signals
         </h3>
         <p className="text-sm text-muted-foreground">
-          Snapshot of categories earning the most traction right now. Each score
-          blends fresh launches, catalog depth, and upvote velocity.
+          A fast pulse on categories gaining steam in real time. Scores blend
+          fresh launches, catalog depth, and upvote velocity for a signal you can
+          act on.
         </p>
       </div>
       <ul className="space-y-4">
@@ -53,7 +54,7 @@ export function DirectoryRadarDigest({
               </div>
               <div className="text-right">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                  Momentum
+                  Momentum score
                 </p>
                 <p className="text-xl font-semibold text-primary">
                   {metric.normalizedMomentum}

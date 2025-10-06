@@ -57,26 +57,20 @@ export function HomepageSpotlight({
 
   if (scheduled.length > 0) {
     sections.push({
-      heading: "Scheduled homepage placements",
+      heading: "Scheduled homepage takeovers",
       items: scheduled.map(toSpotlightItem),
       showBadge: true,
     })
   }
 
-  if (reserved.length > 0) {
-    sections.push({
-      heading: "Reserved homepage placements",
-      items: reserved.map(toSpotlightItem),
-      showBadge: false,
-    })
-  }
+  const remaining = reserved.map(toSpotlightItem)
 
   return (
     <section className="rounded-3xl border border-border/80 bg-background/75 p-6 shadow-sm shadow-black/5 md:p-8">
       <DirectorySectionHeader
         kicker="Homepage spotlight"
-        title="Sponsored products greeting every visitor"
-        description="Homepage placements are paid slots that stay visible the moment someone lands on Shipyard. We surface both scheduled blocks and plan-based add-ons in order of priority."
+        title="Flagship homepage spotlight"
+        description="Command the first impression every visitor experiences. These premium slots pair scheduled takeovers with campaign boosts so your launch leads the directory the moment it goes live."
       />
 
       <div className="mt-8 space-y-8">
@@ -92,6 +86,18 @@ export function HomepageSpotlight({
             />
           </div>
         ))}
+
+        {remaining.length > 0 ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between text-base font-semibold text-foreground">
+              <span>Plan upgrades on deck</span>
+            </div>
+            <DirectoryProductList
+              items={remaining.map((item) => ({ ...item, badges: [] }))}
+              columns="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+            />
+          </div>
+        ) : null}
       </div>
     </section>
   )

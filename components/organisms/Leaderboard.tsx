@@ -27,14 +27,14 @@ export function Leaderboard({ products }: { products: FeaturedProduct[] }) {
     <section className="rounded-3xl border border-border/80 bg-background/70 p-6 shadow-sm shadow-black/5 md:p-8">
       <DirectorySectionHeader
         kicker="Trending now"
-        title="Community momentum from the leaderboard"
-        description="Upvotes over the last day determine momentum. Explore the full leaderboard to compare categories and see longer trendlines."
+        title="The community leaderboard with momentum to prove it"
+        description="Upvotes over the last day reveal who's commanding the conversation. Open the full leaderboard to compare categories and watch trendlines stretch over time."
         action={
           <Link
             href={LEADERBOARD_PATH}
             className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
           >
-            View full leaderboard
+            Open full leaderboard
           </Link>
         }
       />

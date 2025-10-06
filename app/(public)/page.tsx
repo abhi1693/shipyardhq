@@ -130,27 +130,19 @@ export default async function HomePage() {
                   totals={radarData.totals}
                 />
                 <DirectoryPromoCard
-                  eyebrow="Submit a launch"
-                  title="Ready to anchor your product on the homepage?"
-                  description="Publish your launch to unlock eligibility for homepage, featured, and leaderboard placement across the directory."
-                  cta={{ label: "Submit your product", href: MEMBER_PRODUCTS_PATH }}
-                  subtleCta={{
-                    label: "View launch guidelines",
-                    href: `${BROWSE_PATH}?sort=latest`,
-                  }}
+                  eyebrow="Launch with Shipyard"
+                  title="Claim the homepage spotlight for your next drop"
+                  description="Publish your launch to unlock priority across the homepage, featured lanes, and leaderboard placements that drive discovery."
+                  cta={{ label: "Submit your launch", href: MEMBER_PRODUCTS_PATH }}
                 />
                 <DirectoryPromoCard
-                  eyebrow="Insights pipeline"
-                  title="Turn real-time launch signal into next moves"
-                  description="Run Shipyard Insights to combine analytics, community sentiment, and competitor scans into shippable recommendations."
+                  eyebrow="Shipyard Insights"
+                  title="Transform real-time signals into your next play"
+                  description="Run Shipyard Insights to merge analytics, community sentiment, and competitor scans into action-ready recommendations."
                   cta={{
-                    label: "Compare plans",
+                    label: "Explore Insights plans",
                     href: PRICING_PATH,
                     variant: "ghost",
-                  }}
-                  subtleCta={{
-                    label: "Learn about Insights",
-                    href: `${BROWSE_PATH}?ref=insights`,
                   }}
                 />
               </aside>

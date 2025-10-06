@@ -2,7 +2,7 @@ import Link from "next/link"
 
 import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
-import { BROWSE_PATH } from "@/lib/routes"
+import { BROWSE_PATH, WHY_SHIPYARD_PATH } from "@/lib/routes"
 
 interface DirectoryHeaderProps {
   stats: {
@@ -17,22 +17,22 @@ interface DirectoryHeaderProps {
 const metrics = [
   {
     key: "totalProducts",
-    label: "Launched products",
+    label: "Products launched",
     formatter: (value: number) => value.toLocaleString(),
   },
   {
     key: "totalCreators",
-    label: "Makers onboard",
+    label: "Builders on deck",
     formatter: (value: number) => value.toLocaleString(),
   },
   {
     key: "totalUpvotes",
-    label: "Community upvotes",
+    label: "Community endorsements",
     formatter: (value: number) => value.toLocaleString(),
   },
   {
     key: "topScore",
-    label: "Today’s leader",
+    label: "Today's chart-topper",
     formatter: (value: number) => `#${Math.max(value, 0).toLocaleString()}`,
   },
 ] as const
@@ -51,21 +51,23 @@ export function DirectoryHeader({ stats }: DirectoryHeaderProps) {
           </span>
           <div className="space-y-3">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Discover launches making waves today
+              Shipyard launch directory
             </h1>
             <p className="max-w-xl text-base text-muted-foreground">
-              Shipyard surfaces every product launch in a single directory. Start
-              with the homepage spotlight, explore featured placements, then dig
-              into editor picks, new arrivals, and the trends powering the
-              leaderboard.
+              Shipyard is the launch directory built for builders, investors, and operator-fans to discover breakout products.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Button asChild size="lg">
-              <Link href={BROWSE_PATH}>Browse the full directory</Link>
+              <Link href={BROWSE_PATH}>Explore the full launch lineup</Link>
             </Button>
-            <Button asChild variant="ghost" size="lg" className="hover:bg-muted/70">
-              <Link href={`${BROWSE_PATH}?sort=latest`}>Jump to latest launches</Link>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-border/70 text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
+            >
+              <Link href={WHY_SHIPYARD_PATH}>Why choose Shipyard</Link>
             </Button>
           </div>
         </div>

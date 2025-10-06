@@ -29,9 +29,9 @@ export function EditorsPick({ products }: { products: FeaturedProduct[] }) {
   return (
     <section className="rounded-3xl border border-border/80 bg-background/70 p-6 shadow-sm shadow-black/5 md:p-8">
       <DirectorySectionHeader
-        kicker="Editorial picks"
-        title="Crew-selected launches worth a closer look"
-        description="An editorial sweep from the Shipyard crew. These picks blend strong storytelling, polish, and traction to help you spot the next standout ship."
+        kicker="Crew spotlight"
+        title="Launches our editorial crew can't stop talking about"
+        description="Handpicked by the Shipyard team for narrative, polish, and traction. Use this mix to discover the story-driven ships poised for breakout growth."
       />
       <div className="mt-8">
         <ProductList

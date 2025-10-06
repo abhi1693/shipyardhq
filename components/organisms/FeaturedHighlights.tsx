@@ -91,12 +91,14 @@ export function FeaturedHighlights({
   return (
     <section className="rounded-3xl border border-border/80 bg-background/75 p-6 shadow-sm shadow-black/5 md:p-8">
       <DirectorySectionHeader
-        kicker="Featured directory"
-        title="High-visibility placements across the fleet"
-        description="Featured placements mix paid campaigns with editorial picks. Sponsored cards lead each row, followed by organic highlights pulled from community momentum."
+        kicker="Featured showcase"
+        title="Marquee placements that keep your launch in view"
+        description="Featured cards combine sponsored campaigns with editorial standouts. Sponsored spotlights lead the row, followed by organic highlights powered by community momentum."
         action={
           <Button asChild variant="ghost" size="sm" className="hover:bg-muted/70">
-            <Link href={`${BROWSE_PATH}?badge=featured`}>Open featured filter</Link>
+            <Link href={`${BROWSE_PATH}?badge=featured`}>
+              See every featured product
+            </Link>
           </Button>
         }
       />
@@ -106,7 +108,7 @@ export function FeaturedHighlights({
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-base font-semibold text-foreground">
-                Sponsored featured placements
+                Sponsored featured spotlights
               </h3>
               <SponsoredMeta label="Sponsored" />
             </div>
@@ -126,7 +128,7 @@ export function FeaturedHighlights({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-semibold text-foreground">
-                Organic featured picks
+                Featured on merit
               </h3>
             </div>
             <DirectoryProductList

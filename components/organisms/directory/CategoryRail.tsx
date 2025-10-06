@@ -33,11 +33,11 @@ export function DirectoryCategoryRail({
     <section className="rounded-3xl border border-border/60 bg-background/80 p-6 shadow-sm shadow-black/5">
       <div className="mb-6 space-y-2">
         <h3 className="text-lg font-semibold text-foreground">
-          Navigate by category
+          Browse by top categories
         </h3>
         <p className="text-sm text-muted-foreground">
-          Quick links into the busiest harbors. Use these as shortcuts into the
-          /browse directory when you need full filtering.
+          Quick jumps into the busiest harbors on Shipyard. Use them as launch
+          points before dialing in filters on the full directory.
         </p>
       </div>
       <ul className="space-y-3">
