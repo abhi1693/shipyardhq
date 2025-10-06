@@ -152,7 +152,7 @@ export default function BrowseFilterBar({
   )
 
   return (
-    <div className="sticky top-24 z-20 rounded-lg border bg-card/80 backdrop-blur px-3 py-2 md:px-4 md:py-3 shadow-sm">
+    <div className="rounded-lg border bg-card/80 backdrop-blur px-3 py-2 md:px-4 md:py-3 shadow-sm">
       <div className="flex flex-wrap items-center gap-2 md:gap-3">
         {/* Search */}
         <div className="w-full sm:w-auto sm:min-w-[14rem]">
