@@ -2,7 +2,7 @@ import Link from "next/link"
 
 import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
-import { BROWSE_PATH, WHY_SHIPYARD_PATH } from "@/lib/routes"
+import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 interface DirectoryHeaderProps {
   stats: {
@@ -31,9 +31,9 @@ const metrics = [
     formatter: (value: number) => value.toLocaleString(),
   },
   {
-    key: "topScore",
-    label: "Today's chart-topper",
-    formatter: (value: number) => `#${Math.max(value, 0).toLocaleString()}`,
+    key: "totalInsights",
+    label: "Insights generated",
+    formatter: (value: number) => value.toLocaleString(),
   },
 ] as const
 
@@ -67,7 +67,7 @@ export function DirectoryHeader({ stats }: DirectoryHeaderProps) {
               size="lg"
               className="border-border/70 text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
             >
-              <Link href={WHY_SHIPYARD_PATH}>Why choose Shipyard</Link>
+              <Link href={MEMBER_PRODUCTS_PATH}>Submit your launch</Link>
             </Button>
           </div>
         </div>
