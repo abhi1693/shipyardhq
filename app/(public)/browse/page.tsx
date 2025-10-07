@@ -102,8 +102,16 @@ export default async function BrowsePage({
       getProducts("featured"),
       getUseCasesWithCounts(),
       getCategories({
+        where: {
+          products: {
+            some: {},
+          },
+        },
         include: { _count: { select: { products: true } } },
-        orderBy: { createdAt: "desc" },
+        orderBy: [
+          { products: { _count: "desc" } },
+          { name: "asc" },
+        ],
       }),
       getLeaderboardStats(),
     ])
@@ -152,12 +160,6 @@ export default async function BrowsePage({
         : verified === "true"
           ? "Verified launches"
           : "Browse every Shipyard launch"
-
-  const sidebarCategories = [...categories].sort((a, b) => {
-    const aCount = a._count?.products ?? 0
-    const bCount = b._count?.products ?? 0
-    return bCount - aCount
-  })
 
   return (
     <main className="relative isolate bg-background">
@@ -253,7 +255,7 @@ export default async function BrowsePage({
 
             <aside className="flex flex-col gap-8">
               <BrowseFeaturedCarousel products={featured} />
-              <DirectoryCategoryRail categories={sidebarCategories} />
+              <DirectoryCategoryRail categories={categories} />
               <DirectoryPromoCard
                 eyebrow="Need more reach?"
                 title="Secure premium placement before launch day"

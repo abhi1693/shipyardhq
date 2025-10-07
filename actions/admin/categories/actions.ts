@@ -168,37 +168,57 @@ export async function getUseCasesCount(args: Prisma.UseCaseCountArgs = {}) {
   }
 }
 
-type UseCaseWithCategories = Prisma.UseCaseGetPayload<{
-  include: { categories: { select: { categoryId: true } } }
-}>
-
 export async function getUseCasesWithCounts() {
   try {
-    const useCases: UseCaseWithCategories[] = await prisma.useCase.findMany({
+    const useCases = await prisma.useCase.findMany({
       orderBy: { createdAt: "desc" },
+      where: {
+        categories: {
+          some: {
+            category: {
+              products: {
+                some: {},
+              },
+            },
+          },
+        },
+      },
       include: {
-        categories: { select: { categoryId: true } },
+        categories: {
+          where: {
+            category: {
+              products: {
+                some: {},
+              },
+            },
+          },
+          select: {
+            category: {
+              select: {
+                id: true,
+                _count: {
+                  select: {
+                    products: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     })
 
-    const results = await Promise.all(
-      useCases.map(async (uc) => {
-        const categoryIds = uc.categories.map((c) => c.categoryId)
-        const productCount = categoryIds.length
-          ? await prisma.product.count({
-              where: { categoryId: { in: categoryIds } },
-            })
-          : 0
-        return {
-          id: uc.id,
-          slug: uc.slug,
-          label: uc.label,
-          productCount,
-        }
-      }),
-    )
-
-    return results
+    return useCases
+      .map((uc) => ({
+        id: uc.id,
+        slug: uc.slug,
+        label: uc.label,
+        productCount: uc.categories.reduce((total, relation) => {
+          const count = relation.category?._count?.products ?? 0
+          return total + count
+        }, 0),
+      }))
+      .filter((uc) => uc.productCount > 0)
   } catch (error) {
     console.error("Error fetching use cases with counts:", error)
     throw new Error("Failed to fetch use cases with counts")
