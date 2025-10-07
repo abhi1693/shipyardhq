@@ -9,6 +9,7 @@ import PublishButton from "@/components/molecules/PublishButton"
 import UnpublishButton from "@/components/molecules/UnpublishButton"
 import UnarchiveButton from "@/components/molecules/UnarchiveButton"
 import ArchiveButton from "@/components/molecules/ArchiveButton"
+import { AlertModal } from "@/components/atoms/alert-modal"
 
 export default function ProductStatusActions({
   productId,
@@ -47,24 +48,39 @@ export default function ProductStatusActions({
         />
       )}
       {status === "published" && (
-        <UnpublishButton
-          size="sm"
-          onClick={() => updateStatus("draft")}
-          disabled={isPending}
+        <AlertModal
+          title="Unpublish this launch?"
+          description="The product will disappear from the public directory until you publish it again. Existing analytics remain intact."
+          confirmText="Unpublish"
+          loading={isPending}
+          onConfirm={() => updateStatus("draft")}
+          trigger={(open) => (
+            <UnpublishButton size="sm" onClick={open} disabled={isPending} />
+          )}
         />
       )}
       {status === "archived" && (
-        <UnarchiveButton
-          size="sm"
-          onClick={() => updateStatus("draft")}
-          disabled={isPending}
+        <AlertModal
+          title="Restore this launch?"
+          description="The launch will move back to draft so you can make updates before publishing again."
+          confirmText="Restore"
+          loading={isPending}
+          onConfirm={() => updateStatus("draft")}
+          trigger={(open) => (
+            <UnarchiveButton size="sm" onClick={open} disabled={isPending} />
+          )}
         />
       )}
       {status !== "archived" && (
-        <ArchiveButton
-          size="sm"
-          onClick={() => updateStatus("archived")}
-          disabled={isPending}
+        <AlertModal
+          title="Archive this launch?"
+          description="Archiving hides the launch from Shipyard listings and pauses new upvotes until you restore it."
+          confirmText="Archive"
+          loading={isPending}
+          onConfirm={() => updateStatus("archived")}
+          trigger={(open) => (
+            <ArchiveButton size="sm" onClick={open} disabled={isPending} />
+          )}
         />
       )}
     </div>

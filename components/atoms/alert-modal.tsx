@@ -1,5 +1,8 @@
 "use client"
 
+import { useState } from "react"
+import { Trash2 } from "lucide-react"
+
 import {
   Dialog,
   DialogContent,
@@ -9,8 +12,6 @@ import {
   DialogTitle,
 } from "@/components/atoms/dialog"
 import { Button } from "@/components/atoms/button"
-import { Trash2 } from "lucide-react"
-import { useState } from "react"
 
 interface AlertModalProps {
   title?: string
@@ -39,14 +40,21 @@ export function AlertModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {trigger(() => setOpen(true))}
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+      <DialogContent className="sm:max-w-md rounded-3xl border border-border bg-white p-6 shadow-xl shadow-black/10">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-xl font-semibold text-foreground">
+            {title}
+          </DialogTitle>
+          {description ? (
+            <DialogDescription className="text-sm text-muted-foreground">
+              {description}
+            </DialogDescription>
+          ) : null}
         </DialogHeader>
-        <DialogFooter className="mt-4">
+        <DialogFooter className="mt-6 flex items-center justify-end gap-3">
           <Button
             variant="outline"
+            className="border-border/70 text-muted-foreground hover:bg-muted/40"
             onClick={() => setOpen(false)}
             disabled={loading}
           >
@@ -54,6 +62,7 @@ export function AlertModal({
           </Button>
           <Button
             variant="destructive"
+            className="gap-2 bg-foreground text-background shadow-none hover:bg-foreground/90"
             onClick={handleConfirm}
             disabled={loading}
           >

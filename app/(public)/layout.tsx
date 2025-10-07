@@ -1,6 +1,6 @@
 import PublicHeader from "@/components/layout/headers/public-header"
 import PublicFooter from "@/components/layout/footers/public-footer"
-import { StickyBannerCarousel } from "@/components/organisms/StickyBannerCarousel"
+import StickyBannerCarousel from "@/components/organisms/StickyBannerCarousel"
 import { getPublicUseCasesWithCounts } from "@/actions/public/use-cases/actions"
 import { getStickyBannerProducts } from "@/actions/public/products/featured"
 import { buildSectionMetadata } from "@/lib/metadata"

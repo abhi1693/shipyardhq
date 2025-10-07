@@ -22,7 +22,6 @@ import { DirectoryCategoryRail } from "@/components/organisms/directory/Category
 import { DirectoryRadarDigest } from "@/components/organisms/directory/RadarDigest"
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
-import { DirectoryOutro } from "@/components/organisms/directory/DirectoryOutro"
 
 const siteUrl = siteConfig.url.replace(/\/$/, "")
 const homepageTitle = `Launch Faster, Get Discovered. Submit Your Product | ${siteConfig.name}`
@@ -146,7 +145,6 @@ export default async function HomePage() {
               </aside>
             </div>
             <DirectoryHowItWorks />
-            <DirectoryOutro />
           </div>
         </div>
       </main>

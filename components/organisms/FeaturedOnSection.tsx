@@ -1,5 +1,13 @@
 import Image from "next/image"
-import PublicContainer from "@/components/layout/PublicContainer"
+import { cn } from "@/lib/utils"
+
+type FeaturedOnSectionProps = {
+  className?: string
+  eyebrow?: string
+  title?: string
+  description?: string
+  align?: "left" | "center"
+}
 
 const featuredBadges = [
   {
@@ -64,43 +72,44 @@ const featuredBadges = [
   },
 ]
 
-export function FeaturedOnSection() {
+export function FeaturedOnSection({
+  className,
+  eyebrow = "Featured on",
+  title = "Spotlighted across indie launch guides",
+  description = "Shipyard listings are regularly surfaced across trusted directories and launch roundups. Here are a few recent features.",
+  align = "center",
+}: FeaturedOnSectionProps) {
+  const isCenter = align === "center"
+
   return (
-    <PublicContainer
-      as="section"
-      paddingY="py-16"
-      className="relative overflow-hidden bg-background/90"
-      innerClassName="relative flex flex-col items-center gap-8 text-center"
-      fillScreen={false}
+    <section
+      className={cn(
+        "rounded-3xl border border-border bg-white px-6 py-8 shadow-sm md:px-8",
+        className,
+      )}
     >
       <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-2)/0.4] to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20"
-        style={{
-          backgroundImage:
-            "radial-gradient(120%_120%_at_10%_-10%, rgba(7, 58, 104, 0.2), transparent 72%), radial-gradient(110%_110%_at_90%_-10%, rgba(16, 88, 142, 0.18), transparent 78%)",
-          maskImage:
-            "radial-gradient(80%_120%_at_50%_0%, rgba(0,0,0,0.92), transparent 75%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-[-30%] bottom-[-48px] -z-30 h-52 rounded-[50%] bg-[radial-gradient(75%_100%_at_50%_0%,var(--brand-3)/0.24,transparent_82%)] blur-3xl"
-      />
-      <div className="space-y-3">
-        <span className="inline-flex items-center rounded-full bg-white/8 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-2)] backdrop-blur">
-          Featured On
-        </span>
-        <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-          ShipYardHQ is making waves across the indie maker community. Explore a
-          few of the platforms that have highlighted our journey.
-        </p>
+        className={cn(
+          "flex flex-col gap-2",
+          isCenter ? "items-center text-center" : "text-left",
+        )}
+      >
+        {eyebrow ? (
+          <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.34em] text-muted-foreground">
+            {eyebrow}
+          </span>
+        ) : null}
+        <h3 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+          {title}
+        </h3>
+        {description ? (
+          <p className="text-sm text-muted-foreground md:text-base">
+            {description}
+          </p>
+        ) : null}
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {featuredBadges.map((badge) => (
           <a
             key={badge.href}
@@ -108,7 +117,7 @@ export function FeaturedOnSection() {
             target="_blank"
             rel="noopener noreferrer"
             title={badge.title}
-            className="group relative flex h-16 w-52 items-center justify-center overflow-hidden px-3 transition-transform duration-200 hover:-translate-y-0.5"
+            className="group relative flex h-16 items-center justify-center rounded-xl border border-border/70 bg-muted/15 px-4 transition hover:border-border hover:bg-muted/40"
           >
             <Image
               src={badge.src}
@@ -122,7 +131,7 @@ export function FeaturedOnSection() {
           </a>
         ))}
       </div>
-    </PublicContainer>
+    </section>
   )
 }
 

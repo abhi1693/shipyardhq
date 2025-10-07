@@ -14,6 +14,7 @@ import { TopPlacementCard } from "@/components/molecules/LeaderboardTopPlacement
 import { LeaderboardFilters } from "./filters"
 import { IconAnchor, IconTargetArrow } from "@tabler/icons-react"
 import { buildPageMetadata } from "@/lib/metadata"
+import { TopCategories } from "@/components/organisms/TopCategories"
 import {
   BROWSE_PATH,
   LEADERBOARD_MONTHLY_PATH,
@@ -253,6 +254,16 @@ export default async function LeaderboardPage({
                 description="Guarantee homepage and leaderboard exposure by booking featured or sponsored placements with Shipyard."
                 cta={{ label: "Explore promotion plans", href: PRICING_PATH }}
                 subtleCta={{ label: "Submit your launch", href: MEMBER_PRODUCTS_PATH }}
+              />
+
+              <TopCategories
+                categories={categories.map((category: CategoryListItem) => ({
+                  ...category,
+                  count: category.count,
+                }))}
+                limit={6}
+                className="border-border/70"
+                description="Browse the leaderboard by the categories with the highest launch volume this week."
               />
 
               <DirectoryPromoCard

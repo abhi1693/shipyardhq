@@ -3,6 +3,7 @@
 import { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import InlineSelect from "@/components/molecules/InlineSelect"
+import { leaderboardSelectTriggerClasses } from "@/components/pages/admin/analytics/LeaderboardMonthSelect"
 import {
   LEADERBOARD_MONTHLY_PATH,
   monthlyLeaderboardArchivePath,
@@ -47,7 +48,7 @@ export function MonthlyLeaderboardMonthSelect({
       onValueChange={(v) => navigateToMonth(v || undefined)}
       options={options}
       placeholder="Select a month"
-      triggerClassName="h-9 w-[220px] rounded-lg border border-[color:var(--brand-1)/0.35] bg-background/90 px-3 text-sm font-medium text-foreground shadow-[0px_14px_36px_-28px_rgba(7,58,104,0.55)] transition-colors hover:border-[color:var(--brand-1)/0.55]"
+      triggerClassName={leaderboardSelectTriggerClasses}
       testId="monthly-leaderboard-month-select"
       dropdownTestId="monthly-leaderboard-month-dropdown"
     />
