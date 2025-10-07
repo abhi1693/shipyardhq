@@ -1,7 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Check, ListChecks, Radar, Sparkles, Target, Users } from "lucide-react"
-import PublicContainer from "@/components/layout/PublicContainer"
 import { Button } from "@/components/atoms/button"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 
@@ -70,14 +69,8 @@ export function InsightsShowcase({
   secondaryCta = DEFAULT_SECONDARY_CTA,
 }: InsightsShowcaseProps = {}) {
   return (
-    <PublicContainer
-      as="section"
-      max="marketing"
-      paddingY="py-20"
-      className="relative border-y border-border bg-white"
-      innerClassName="relative space-y-16"
-      fillScreen={false}
-    >
+    <section className="relative border-y border-border bg-white py-20">
+      <div className="relative mx-auto max-w-[84rem] px-4 md:px-8 space-y-16">
 
       <div className="relative mx-auto max-w-3xl text-center space-y-6">
         <span className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
@@ -158,7 +151,8 @@ export function InsightsShowcase({
           while higher tiers add extra credits for faster iteration.
         </p>
       </div>
-    </PublicContainer>
+      </div>
+    </section>
   )
 }
 

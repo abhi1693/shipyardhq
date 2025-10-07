@@ -8,7 +8,6 @@ import {
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
 } from "@/lib/routes"
-import PublicContainer from "@/components/layout/PublicContainer"
 import { FaqSection } from "@/components/organisms/FaqSection"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/atoms/dialog"
 import { cn } from "@/lib/utils"
@@ -145,62 +144,59 @@ export default function AnalyticsPage() {
   return (
     <main className="relative isolate overflow-hidden bg-white">
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-24"
+      <section
         className={brandGradient(
-          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
+          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
         )}
-        innerClassName="relative flex flex-col items-center gap-10 text-center text-white"
-        fillScreen={false}
       >
-        <span
-          className={gradientTint(
-            "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
-          )}
-        >
-          Analytics
-        </span>
-        <div className="mx-auto max-w-3xl space-y-6">
-          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Analytics built for every Shipyard builder
-          </h1>
-          <p className="text-lg text-white/85">
-            Whether you are launching your first product or managing an entire
-            fleet, the dashboards pair with Insights so you can understand
-            traction, surface opportunities, and capture every conversation
-            around your brand—starting with a weekly run on the free plan.
+        <div className="relative mx-auto flex max-w-[84rem] flex-col items-center gap-10 px-4 text-center text-white md:px-8">
+          <span
+            className={gradientTint(
+              "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
+            )}
+          >
+            Analytics
+          </span>
+          <div className="mx-auto max-w-3xl space-y-6">
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              Analytics built for every Shipyard builder
+            </h1>
+            <p className="text-lg text-white/85">
+              Whether you are launching your first product or managing an entire
+              fleet, the dashboards pair with Insights so you can understand
+              traction, surface opportunities, and capture every conversation
+              around your brand—starting with a weekly run on the free plan.
+            </p>
+          </div>
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href={MEMBER_BASE_PATH}
+              className={launchPrimaryButton({ size: "lg" })}
+            >
+              View your dashboard
+            </Link>
+            <Link
+              href={PRICING_PATH}
+              className={launchSecondaryButton({
+                size: "lg",
+                className: "text-white/90 hover:text-white",
+              })}
+            >
+              Compare plans
+            </Link>
+          </div>
+          <p className="mt-4 flex items-center justify-center gap-2 text-sm text-white/80">
+            <Sparkles className="size-4 text-white/80" aria-hidden />
+            Every analytics page now opens with an AI-crafted recap.
+            <Link
+              href={MEMBER_PRODUCTS_PATH}
+              className="inline-flex items-center gap-1 font-semibold text-white hover:text-white/90 underline-offset-4 hover:underline"
+            >
+              See your AI summary
+            </Link>
           </p>
         </div>
-        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link
-            href={MEMBER_BASE_PATH}
-            className={launchPrimaryButton({ size: "lg" })}
-          >
-            View your dashboard
-          </Link>
-          <Link
-            href={PRICING_PATH}
-            className={launchSecondaryButton({
-              size: "lg",
-              className: "text-white/90 hover:text-white",
-            })}
-          >
-            Compare plans
-          </Link>
-        </div>
-        <p className="mt-4 flex items-center justify-center gap-2 text-sm text-white/80">
-          <Sparkles className="size-4 text-white/80" aria-hidden />
-          Every analytics page now opens with an AI-crafted recap.
-          <Link
-            href={MEMBER_PRODUCTS_PATH}
-            className="inline-flex items-center gap-1 font-semibold text-white hover:text-white/90 underline-offset-4 hover:underline"
-          >
-            See your AI summary
-          </Link>
-        </p>
-      </PublicContainer>
+      </section>
 
       <InsightsShowcase
         eyebrow="Insights + Analytics"
@@ -216,14 +212,8 @@ export default function AnalyticsPage() {
         }}
       />
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        className="relative"
-        innerClassName="space-y-10"
-        fillScreen={false}
-      >
+      <section className="relative py-16">
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8 space-y-10">
         <div className="space-y-4 text-center">
           <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             See your dashboards in action
@@ -289,16 +279,11 @@ export default function AnalyticsPage() {
             </div>
           ))}
         </div>
-      </PublicContainer>
+        </div>
+      </section>
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-20"
-        className="relative"
-        innerClassName="space-y-12"
-        fillScreen={false}
-      >
+      <section className="relative py-20">
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8 space-y-12">
         <div className="space-y-4 text-center">
           <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             Choose the visibility that fits your crew
@@ -335,16 +320,11 @@ export default function AnalyticsPage() {
             </article>
           ))}
         </div>
-      </PublicContainer>
+        </div>
+      </section>
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        className="relative"
-        innerClassName="grid gap-12 lg:grid-cols-[1.2fr_minmax(0,1fr)]"
-        fillScreen={false}
-      >
+      <section className="relative py-16">
+        <div className="mx-auto grid max-w-[84rem] gap-12 px-4 md:px-8 lg:grid-cols-[1.2fr_minmax(0,1fr)]">
         <div className="space-y-6">
           <div className="space-y-4">
             <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
@@ -390,7 +370,8 @@ export default function AnalyticsPage() {
             share highlights with your crew to keep momentum rolling.
           </p>
         </div>
-      </PublicContainer>
+        </div>
+      </section>
 
       <FaqSection />
     </main>

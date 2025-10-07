@@ -4,7 +4,6 @@ import Link from "next/link"
 import { ArrowRight, Anchor, Users2, Rocket, ThumbsUp } from "lucide-react"
 
 import { Button } from "@/components/atoms/button"
-import PublicContainer from "@/components/layout/PublicContainer"
 import { cn } from "@/lib/utils"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
@@ -54,15 +53,9 @@ export function JoinCrewCTA({ stats, className }: JoinCrewCTAProps) {
     .filter((entry) => entry.value !== null)
 
   return (
-    <PublicContainer
-      as="section"
-      max="marketing"
-      paddingY="py-16"
-      className={cn("relative", className)}
-      innerClassName="relative"
-      fillScreen={false}
-    >
-      <section className="relative overflow-hidden rounded-3xl border border-border bg-white px-6 py-8 shadow-sm md:px-10 md:py-10">
+    <section className={cn("relative py-16", className)}>
+      <div className="relative mx-auto max-w-[84rem] px-4 md:px-8">
+        <section className="relative overflow-hidden rounded-3xl border border-border bg-white px-6 py-8 shadow-sm md:px-10 md:py-10">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="max-w-xl space-y-4">
             <span className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-muted/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
@@ -110,7 +103,8 @@ export function JoinCrewCTA({ stats, className }: JoinCrewCTAProps) {
           ) : null}
         </div>
       </section>
-    </PublicContainer>
+      </div>
+    </section>
   )
 }
 

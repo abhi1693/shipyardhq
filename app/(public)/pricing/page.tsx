@@ -3,7 +3,6 @@ import { IconFlag3, IconSparkles, IconTargetArrow } from "@tabler/icons-react"
 
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import { PricingTable } from "@/components/organisms/PricingTable"
-import PublicContainer from "@/components/layout/PublicContainer"
 import { getProducts } from "@/actions/public/products/featured"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { SubscriptionPlanCard } from "@/components/molecules/SubscriptionPlanCard"
@@ -81,16 +80,12 @@ export default async function PricingPage() {
   return (
     <main className="relative isolate overflow-hidden bg-white">
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-24"
+      <section
         className={brandGradient(
-          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
+          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
         )}
-        fillScreen={false}
-        innerClassName="relative flex flex-col items-center gap-10 text-center text-white"
       >
+        <div className="relative mx-auto flex max-w-[84rem] flex-col items-center gap-10 px-4 text-center text-white md:px-8">
         <span
           className={gradientTint(
             "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
@@ -146,15 +141,12 @@ export default async function PricingPage() {
             </p>
           </div>
         </div>
-      </PublicContainer>
+          </div>
+        </div>
+      </section>
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        className="relative"
-        fillScreen={false}
-      >
+      <section className="relative py-16">
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-foreground">
             Choose your promotion tier
@@ -165,7 +157,8 @@ export default async function PricingPage() {
           </p>
         </div>
         <PricingTable plans={plans} />
-      </PublicContainer>
+        </div>
+      </section>
 
       <InsightsShowcase
         eyebrow="Insights included"
@@ -182,13 +175,8 @@ export default async function PricingPage() {
       />
 
       {subscriptionPlans.length > 0 && (
-        <PublicContainer
-          as="section"
-          max="marketing"
-          paddingY="py-16"
-          className="relative"
-          fillScreen={false}
-        >
+        <section className="relative py-16">
+          <div className="mx-auto max-w-[84rem] px-4 md:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-foreground">
               Keep your crew connected
@@ -208,16 +196,12 @@ export default async function PricingPage() {
               </div>
             ))}
           </div>
-        </PublicContainer>
+          </div>
+        </section>
       )}
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        className="relative"
-        fillScreen={false}
-      >
+      <section className="relative py-16">
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
         <div className="grid gap-6 rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/85 px-8 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.65)] backdrop-blur sm:grid-cols-3">
           {CORE_PERKS.map(({ icon: Icon, title, body }) => (
             <div key={title} className="space-y-3">
@@ -231,55 +215,49 @@ export default async function PricingPage() {
             </div>
           ))}
         </div>
-      </PublicContainer>
+        </div>
+      </section>
 
       {featured.length > 0 && (
-        <PublicContainer
-          as="section"
-          max="marketing"
-          paddingY="py-16"
-          className="relative"
-          fillScreen={false}
-        >
-          <div className="mx-auto max-w-2xl text-center space-y-3">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">
-              Featured success stories
-            </h2>
-            <p className="text-muted-foreground">
-              Makers who upgraded to featured placements and found their crew.
-            </p>
+        <section className="relative py-16">
+          <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+            <div className="mx-auto max-w-2xl text-center space-y-3">
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">
+                Featured success stories
+              </h2>
+              <p className="text-muted-foreground">
+                Makers who upgraded to featured placements and found their crew.
+              </p>
+            </div>
+            <div className="mt-10">
+              <FeaturedProductGrid items={featured.slice(0, 6)} />
+            </div>
           </div>
-          <div className="mt-10">
-            <FeaturedProductGrid items={featured.slice(0, 6)} />
-          </div>
-        </PublicContainer>
+        </section>
       )}
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        className="relative"
-        fillScreen={false}
-        innerClassName="max-w-3xl"
-      >
-        <div className="space-y-8 rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/85 px-6 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight">FAQ</h2>
-            <p className="mt-2 text-muted-foreground">
-              Answers to the questions launch captains ask most.
-            </p>
+      <section className="relative py-16">
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+          <div className="max-w-3xl">
+            <div className="space-y-8 rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/85 px-6 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold tracking-tight">FAQ</h2>
+                <p className="mt-2 text-muted-foreground">
+                  Answers to the questions launch captains ask most.
+                </p>
+              </div>
+              <Accordion type="multiple" className="w-full" id="faq">
+                {PRICING_FAQS.map((faq, index) => (
+                  <AccordionItem key={faq.question} value={`pricing-faq-${index}`}>
+                    <AccordionTrigger>{faq.question}</AccordionTrigger>
+                    <AccordionContent>{faq.answer}</AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
           </div>
-          <Accordion type="multiple" className="w-full" id="faq">
-            {PRICING_FAQS.map((faq, index) => (
-              <AccordionItem key={faq.question} value={`pricing-faq-${index}`}>
-                <AccordionTrigger>{faq.question}</AccordionTrigger>
-                <AccordionContent>{faq.answer}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
         </div>
-      </PublicContainer>
+      </section>
     </main>
   )
 }
