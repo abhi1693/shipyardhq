@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { IconFlag3, IconSparkles, IconTargetArrow } from "@tabler/icons-react"
+
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import { PricingTable } from "@/components/organisms/PricingTable"
 import PublicContainer from "@/components/layout/PublicContainer"
@@ -7,7 +8,6 @@ import { getProducts } from "@/actions/public/products/featured"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { SubscriptionPlanCard } from "@/components/molecules/SubscriptionPlanCard"
 import { PlanType } from "@/lib/vendor/prisma/client"
-import { Button } from "@/components/atoms/button"
 import {
   Accordion,
   AccordionContent,
@@ -17,6 +17,8 @@ import {
 import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, REWARDS_PATH } from "@/lib/routes"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
+import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
+import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 export const metadata = buildPageMetadata({
   title: "Pricing",
@@ -83,68 +85,65 @@ export default async function PricingPage() {
         as="section"
         max="marketing"
         paddingY="py-24"
-        className="relative"
+        className={brandGradient(
+          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
+        )}
         fillScreen={false}
-        innerClassName="relative"
+        innerClassName="relative flex flex-col items-center gap-10 text-center text-white"
       >
-        <div className="mx-auto max-w-3xl text-center space-y-8">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
-            Pricing
-          </span>
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              Pricing built for every voyage
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Pick the placement that fits your launch. Switch plans anytime,
-              keep full control of your product page, and tap Insights for
-              automated research—starting with weekly runs on the free plan.
+        <span
+          className={gradientTint(
+            "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
+          )}
+        >
+          Pricing
+        </span>
+        <div className="max-w-3xl space-y-4">
+          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+            Pricing built for every voyage
+          </h1>
+          <p className="text-lg text-white/85">
+            Pick the placement that fits your launch. Switch plans anytime,
+            keep full control of your product page, and tap Insights for
+            automated research—starting with weekly runs on the free plan.
+          </p>
+        </div>
+        <div className="flex flex-col justify-center gap-3 sm:flex-row">
+          <Link href="/register" className={launchPrimaryButton({ size: "lg" })}>
+            Start for free
+          </Link>
+          <Link
+            href={REWARDS_PATH}
+            className={launchSecondaryButton({
+              size: "lg",
+              className: "text-white/90 hover:text-white",
+            })}
+          >
+            Explore rewards
+          </Link>
+        </div>
+        <div className="grid gap-4 rounded-2xl border border-white/30 bg-white/10 px-6 py-6 text-left text-white shadow-[0px_25px_60px_-40px_rgba(7,58,104,0.6)] backdrop-blur sm:grid-cols-3">
+          <div>
+            <p className="text-sm font-semibold text-white">Launch playbooks</p>
+            <p className="mt-1 text-xs text-white/80">
+              Step-by-step checklists for every plan.
             </p>
           </div>
-          <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Button
-              asChild
-              size="lg"
-              className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
-            >
-              <Link href="/register">Start for free</Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="ghost"
-              className="text-[color:var(--brand-1)] hover:text-[color:var(--brand-1)/0.75]"
-            >
-              <Link href={REWARDS_PATH}>Explore rewards</Link>
-            </Button>
+          <div>
+            <p className="text-sm font-semibold text-white">Upgrade anytime</p>
+            <p className="mt-1 text-xs text-white/80">
+              Plans stack instantly—no downtime for your listing.
+            </p>
           </div>
-          <div className="grid gap-4 rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-6 text-left shadow-[0px_25px_60px_-40px_rgba(7,58,104,0.6)] backdrop-blur sm:grid-cols-3">
-            <div>
-              <p className="text-sm font-semibold text-[color:var(--brand-1)]">
-                Launch playbooks
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Step-by-step checklists for every plan.
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[color:var(--brand-1)]">
-                Upgrade anytime
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Plans stack instantly—no downtime for your listing.
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[color:var(--brand-1)]">
-                Analytics & insights
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Track signal across every tier and trigger Insights runs for
-                competitive, community, and action reports—free includes one run
-                per week and upgrades add more credits.
-              </p>
-            </div>
+          <div>
+            <p className="text-sm font-semibold text-white">
+              Analytics & insights
+            </p>
+            <p className="mt-1 text-xs text-white/80">
+              Track signal across every tier and trigger Insights runs for
+              competitive, community, and action reports—free includes one run
+              per week and upgrades add more credits.
+            </p>
           </div>
         </div>
       </PublicContainer>

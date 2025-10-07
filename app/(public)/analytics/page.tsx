@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
+
 import { buildPageMetadata } from "@/lib/metadata"
 import {
   MEMBER_BASE_PATH,
@@ -8,11 +9,12 @@ import {
   PRICING_PATH,
 } from "@/lib/routes"
 import PublicContainer from "@/components/layout/PublicContainer"
-import { Button } from "@/components/atoms/button"
 import { FaqSection } from "@/components/organisms/FaqSection"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/atoms/dialog"
 import { cn } from "@/lib/utils"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
+import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
+import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 const PLAN_HIGHLIGHTS = [
   {
@@ -147,55 +149,56 @@ export default function AnalyticsPage() {
         as="section"
         max="marketing"
         paddingY="py-24"
-        className="relative"
-        innerClassName="relative text-center"
+        className={brandGradient(
+          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
+        )}
+        innerClassName="relative flex flex-col items-center gap-10 text-center text-white"
         fillScreen={false}
       >
-        <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
+        <span
+          className={gradientTint(
+            "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
+          )}
+        >
           Analytics
         </span>
-        <div className="mx-auto mt-8 max-w-3xl space-y-6">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+        <div className="mx-auto max-w-3xl space-y-6">
+          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
             Analytics built for every Shipyard builder
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-white/85">
             Whether you are launching your first product or managing an entire
-            fleet, the new dashboards pair with Insights so you can understand
-            traction, surface opportunities, and map conversations around your
-            brand—starting with a weekly run on the free plan.
+            fleet, the dashboards pair with Insights so you can understand
+            traction, surface opportunities, and capture every conversation
+            around your brand—starting with a weekly run on the free plan.
           </p>
         </div>
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Button
-            asChild
-            size="lg"
-            className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
+        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <Link
+            href={MEMBER_BASE_PATH}
+            className={launchPrimaryButton({ size: "lg" })}
           >
-            <Link href={MEMBER_BASE_PATH}>View your dashboard</Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="border-[color:var(--brand-1)/0.35] bg-background/70 text-[color:var(--brand-1)] shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.75)]"
+            View your dashboard
+          </Link>
+          <Link
+            href={PRICING_PATH}
+            className={launchSecondaryButton({
+              size: "lg",
+              className: "text-white/90 hover:text-white",
+            })}
           >
-            <Link href={PRICING_PATH}>Compare plans</Link>
-          </Button>
+            Compare plans
+          </Link>
         </div>
-        <p className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Sparkles
-            className="size-4 text-[color:var(--brand-2)]"
-            aria-hidden
-          />
-          Every product analytics page now opens with an AI-crafted recap.
-          <Button
-            asChild
-            size="sm"
-            variant="link"
-            className="px-0 text-[color:var(--brand-1)]"
+        <p className="mt-4 flex items-center justify-center gap-2 text-sm text-white/80">
+          <Sparkles className="size-4 text-white/80" aria-hidden />
+          Every analytics page now opens with an AI-crafted recap.
+          <Link
+            href={MEMBER_PRODUCTS_PATH}
+            className="inline-flex items-center gap-1 font-semibold text-white hover:text-white/90 underline-offset-4 hover:underline"
           >
-            <Link href={MEMBER_PRODUCTS_PATH}>See your AI summary</Link>
-          </Button>
+            See your AI summary
+          </Link>
         </p>
       </PublicContainer>
 

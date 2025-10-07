@@ -7,8 +7,6 @@ import {
   getCategoryWithProducts,
 } from "@/actions/public/categories/actions"
 import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
-import { Badge } from "@/components/atoms/badge"
-import { Button } from "@/components/atoms/button"
 import FeaturedBanner from "@/components/molecules/FeaturedBanner"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
@@ -17,6 +15,8 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { productHasFeature } from "@/lib/features"
 import { pluralize } from "@/lib/pluralize"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
+import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
+import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
@@ -89,60 +89,73 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-16">
-          <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-12 shadow-[0_28px_90px_-50px_rgba(7,58,104,0.55)] backdrop-blur md:px-10">
+          <section
+            className={brandGradient(
+              "rounded-3xl border border-[color:var(--brand-1)/0.18] px-6 py-12 text-white shadow-[0_28px_100px_-48px_rgba(18,66,112,0.65)] backdrop-blur md:px-10",
+            )}
+          >
             <div className="grid gap-10 lg:grid-cols-[minmax(0,2.3fr)_minmax(0,1fr)]">
               <div className="space-y-8">
                 <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
-                  <span className="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-border/60 bg-[color:var(--brand-1)/0.12] text-[color:var(--brand-1)] shadow-[0_20px_46px_-32px_rgba(7,58,104,0.6)]">
+                  <span className="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/30 bg-white/10 text-white shadow-[0_20px_46px_-32px_rgba(7,58,104,0.6)]">
                     <CategoryIcon
                       icon={category.icon}
                       size={28}
-                      className="text-[color:var(--brand-1)]"
+                      className="text-white"
                     />
                   </span>
                   <div className="space-y-5">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/90 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                    <span
+                      className={gradientTint(
+                        "inline-flex items-center gap-2 rounded-full px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
+                      )}
+                    >
                       Category profile
                     </span>
                     <div className="space-y-3">
-                      <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                      <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
                         {category.name}
                       </h1>
                       {category.description ? (
-                        <p className="max-w-2xl text-base text-muted-foreground">
+                        <p className="max-w-2xl text-base text-white/85">
                           {category.description}
                         </p>
                       ) : null}
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {heroHighlights.map((highlight) => (
-                        <Badge
+                        <span
                           key={highlight}
-                          variant="outline"
-                          className="border-border/60 bg-background/90 text-xs font-medium uppercase tracking-[0.26em] text-muted-foreground"
+                          className={gradientTint(
+                            "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-[0.26em] text-white/80",
+                          )}
                         >
                           {highlight}
-                        </Badge>
+                        </span>
                       ))}
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                  <Button size="lg" asChild className="shadow-sm shadow-black/10">
-                    <Link href={MEMBER_PRODUCTS_PATH}>Launch in this category</Link>
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    asChild
-                    className="border-border/70 text-[color:var(--brand-1)] hover:border-border hover:bg-muted/60"
+                  <Link
+                    href={MEMBER_PRODUCTS_PATH}
+                    className={launchPrimaryButton({ size: "lg" })}
                   >
-                    <Link href={PRICING_PATH}>Explore promotion tiers</Link>
-                  </Button>
+                    Launch in this category
+                  </Link>
+                  <Link
+                    href={PRICING_PATH}
+                    className={launchSecondaryButton({
+                      size: "lg",
+                      className: "text-white/90 hover:text-white",
+                    })}
+                  >
+                    Explore promotion tiers
+                  </Link>
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                <div className="rounded-2xl border border-white/25 bg-white/90 p-5 text-foreground shadow-sm">
                   <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
                     Launches live
                   </p>
@@ -166,7 +179,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                       : "Claim the next editorial spotlight."}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                <div className="rounded-2xl border border-white/25 bg-white/90 p-5 text-foreground shadow-sm">
                   <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
                     Community signal
                   </p>
@@ -194,14 +207,15 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     Spotlighted launches sailing ahead in this harbor.
                   </p>
                 </div>
-                <Button
-                  asChild
-                  size="sm"
-                  variant="outline"
-                  className="border-border/70 text-[color:var(--brand-1)] hover:border-border hover:bg-muted/60"
+                <Link
+                  href={PRICING_PATH}
+                  className={launchSecondaryButton({
+                    size: "sm",
+                    className: "text-[color:var(--brand-1)] hover:text-[color:var(--brand-1)]",
+                  })}
                 >
-                  <Link href={PRICING_PATH}>Get featured</Link>
-                </Button>
+                  Get featured
+                </Link>
               </div>
               <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr,1fr]">
                 <FeaturedBanner item={featured[0]} />
@@ -242,17 +256,18 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 the directory, daily digest, and leaderboard pulses.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Button asChild size="lg" className="shadow-sm shadow-black/10">
-                  <Link href={PRICING_PATH}>View featured packages</Link>
-                </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="border-border/70 text-[color:var(--brand-1)] hover:border-border hover:bg-muted/60"
+                <Link
+                  href={PRICING_PATH}
+                  className={launchPrimaryButton({ size: "lg" })}
                 >
-                  <Link href={MEMBER_PRODUCTS_PATH}>Submit your launch</Link>
-                </Button>
+                  View featured packages
+                </Link>
+                <Link
+                  href={MEMBER_PRODUCTS_PATH}
+                  className={launchSecondaryButton({ size: "lg" })}
+                >
+                  Submit your launch
+                </Link>
               </div>
             </div>
           </section>

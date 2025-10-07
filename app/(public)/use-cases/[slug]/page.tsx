@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import Link from "next/link"
-import { Badge } from "@/components/atoms/badge"
-import { Button } from "@/components/atoms/button"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { CategoryCard } from "@/components/molecules/CategoryCard"
 import { CategoryProductsClient as UseCaseProductsClient } from "@/app/(public)/categories/[slug]/client-products"
@@ -22,6 +20,8 @@ import {
   getPublicUseCasesWithCounts,
 } from "@/actions/public/use-cases/actions"
 import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
+import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
+import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
@@ -137,66 +137,62 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
         max="marketing"
         paddingY="py-20"
         fillScreen={false}
-        className="relative"
+        className={brandGradient(
+          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] shadow-[0px_70px_160px_-70px_rgba(18,66,112,0.75)]",
+        )}
+        innerClassName="mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 text-center text-white"
       >
-        <div className="mx-auto max-w-5xl px-4">
-          <div className="rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/85 px-8 py-10 shadow-[0px_32px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
-            <div className="flex flex-col items-center gap-6 text-center">
-              <div className="flex flex-col items-center gap-6">
-                <div className="space-y-3">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
-                    Use Case
-                  </span>
-                  <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-                    {useCase.label}
-                  </h1>
-                  <p className="text-base text-muted-foreground sm:text-lg">
-                    A curated fleet of tools designed for makers tackling{" "}
-                    {useCase.label}. Explore what’s shipping, discover related
-                    categories, and find the perfect fit for your workflow.
-                  </p>
-                </div>
+        <div className="space-y-4">
+          <span
+            className={gradientTint(
+              "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/80",
+            )}
+          >
+            Use Case
+          </span>
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+            {useCase.label}
+          </h1>
+          <p className="text-base text-white/85 sm:text-lg">
+            A curated fleet of tools designed for makers tackling {useCase.label}.
+            Explore what’s shipping, discover related categories, and find the
+            perfect fit for your workflow.
+          </p>
+        </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.28em] text-muted-foreground">
-                  <Badge
-                    variant="outline"
-                    className="border-[color:var(--brand-1)/0.35] bg-background/70 text-[color:var(--brand-1)]"
-                  >
-                    {productCount} {pluralize(productCount, "product")}
-                  </Badge>
-                  {categories.length > 0 && (
-                    <span>
-                      {categories.length}{" "}
-                      {pluralize(categories.length, "category")}
-                    </span>
-                  )}
-                  {heroHighlight && (
-                    <span>Trending in {heroHighlight.name}</span>
-                  )}
-                </div>
-              </div>
+        <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.28em] text-white/80">
+          <span
+            className={gradientTint(
+              "inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold",
+            )}
+          >
+            {productCount} {pluralize(productCount, "product")}
+          </span>
+          {categories.length > 0 && (
+            <span>{categories.length} {pluralize(categories.length, "category")}</span>
+          )}
+          {heroHighlight ? <span>Trending in {heroHighlight.name}</span> : null}
+        </div>
 
-              <div className="flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full min-w-[200px] shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)] sm:w-auto"
-                >
-                  <Link href={`${BROWSE_PATH}?useCase=${slug}`}>
-                    Explore in browse
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="w-full min-w-[200px] border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)] sm:w-auto"
-                >
-                  <Link href={MEMBER_PRODUCTS_PATH}>Submit your launch</Link>
-                </Button>
-              </div>
-            </div>
-          </div>
+        <div className="flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+          <Link
+            href={`${BROWSE_PATH}?useCase=${slug}`}
+            className={launchPrimaryButton({
+              size: "lg",
+              className: "w-full min-w-[200px] sm:w-auto",
+            })}
+          >
+            Explore in browse
+          </Link>
+          <Link
+            href={MEMBER_PRODUCTS_PATH}
+            className={launchSecondaryButton({
+              size: "lg",
+              className: "w-full min-w-[200px] text-white/90 hover:text-white sm:w-auto",
+            })}
+          >
+            Submit your launch
+          </Link>
         </div>
       </PublicContainer>
 
@@ -271,9 +267,12 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
             Share your launch with the fleet and reach makers who need exactly
             what you’re crafting.
           </p>
-          <Button asChild size="lg" variant="secondary">
-            <Link href={MEMBER_PRODUCTS_PATH}>Add your product</Link>
-          </Button>
+          <Link
+            href={MEMBER_PRODUCTS_PATH}
+            className={launchPrimaryButton({ size: "lg" })}
+          >
+            Add your product
+          </Link>
         </div>
       </PublicContainer>
 
