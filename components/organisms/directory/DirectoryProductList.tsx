@@ -95,5 +95,3 @@ export function DirectoryProductList<
     />
   )
 }
-
-export default DirectoryProductList

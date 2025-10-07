@@ -4,7 +4,7 @@ import { FeaturedProduct } from "@/types"
 import { Button } from "@/components/atoms/button"
 import { Badge } from "@/components/atoms/badge"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
-import DirectoryProductList from "@/components/organisms/directory/DirectoryProductList"
+import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import {
   partitionFeaturedProducts,
   resolveSponsoredPlacement,

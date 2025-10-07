@@ -1,7 +1,7 @@
 import type { HomepageFeaturePlacement } from "@/actions/public/products/featured"
 import { Sparkles } from "lucide-react"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
-import DirectoryProductList from "@/components/organisms/directory/DirectoryProductList"
+import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 
 interface SpotlightListItem {
   id: string

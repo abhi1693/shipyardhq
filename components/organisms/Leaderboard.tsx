@@ -2,7 +2,7 @@ import Link from "next/link"
 
 import { FeaturedProduct } from "@/types"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
-import DirectoryProductList from "@/components/organisms/directory/DirectoryProductList"
+import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { LEADERBOARD_PATH } from "@/lib/routes"
 
 function toListItem(entry: FeaturedProduct) {
