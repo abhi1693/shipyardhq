@@ -32,9 +32,7 @@ describe("PublicHeader", () => {
     // Active class applied for current pathname
     expect(browse.className).toMatch(/text-foreground/)
 
-    expect(
-      screen.getAllByRole("link", { name: /Categories/i })[0],
-    ).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /Categories/i })).toBeNull()
     expect(
       screen.getAllByRole("link", { name: /Leaderboard/i })[0],
     ).toBeInTheDocument()

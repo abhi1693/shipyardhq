@@ -1,20 +1,21 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import Link from "next/link"
+
 import {
   getCategoryMeta,
   getCategoryWithProducts,
 } from "@/actions/public/categories/actions"
-import { Badge } from "@/components/atoms/badge"
-import { CategoryIcon } from "@/components/molecules/CategoryIcons"
-import PublicContainer from "@/components/layout/PublicContainer"
-import { CategoryProductsClient } from "./client-products"
 import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
-import { productHasFeature } from "@/lib/features"
+import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import FeaturedBanner from "@/components/molecules/FeaturedBanner"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
+import { CategoryIcon } from "@/components/molecules/CategoryIcons"
+import { CategoryProductsClient } from "./client-products"
 import { buildPageMetadata } from "@/lib/metadata"
+import { productHasFeature } from "@/lib/features"
+import { pluralize } from "@/lib/pluralize"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 
 interface CategoryPageProps {
@@ -49,179 +50,222 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   if (!data) notFound()
 
   const { category, products } = data
+  const totalProducts = products.length
+  const totalFeatured = featured.length
+  const priorityPlacements = products.filter((product) =>
+    productHasFeature(product, "priorityPlacement"),
+  )
+  const totalPriority = priorityPlacements.length
+  const totalUpvotes = products.reduce(
+    (acc, product) => acc + (product.analytics?.upvotes ?? 0),
+    0,
+  )
+  const averageUpvotes = totalProducts > 0 ? Math.round(totalUpvotes / totalProducts) : 0
+  const latestLaunch = [...products]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+    .at(0)
+  const latestLaunchDate = latestLaunch
+    ? new Date(latestLaunch.createdAt).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null
+  const heroHighlights = [
+    `${pluralize(totalProducts, "launch")} live`,
+    totalFeatured > 0
+      ? `${totalFeatured} featured spot${totalFeatured === 1 ? "" : "s"}`
+      : "Feature your launch",
+    totalPriority > 0
+      ? `${totalPriority} premium placement${totalPriority === 1 ? "" : "s"}`
+      : "Premium slots open",
+  ]
 
   return (
-    <main className="relative isolate overflow-hidden">
+    <main className="relative isolate bg-background">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(250,252,255,0.96),rgba(243,247,252,0.92)40%,rgba(233,243,251,0.9))] dark:bg-[linear-gradient(180deg,rgba(6,18,36,0.92),rgba(4,24,43,0.92)40%,rgba(9,32,55,0.92))]"
+        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(250,252,255,0.95),rgba(243,247,252,0.9)40%,rgba(233,243,251,0.88))] dark:bg-[linear-gradient(180deg,rgba(6,18,36,0.92),rgba(4,24,43,0.9)40%,rgba(9,32,55,0.92))]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_80%_at_0%_0%,var(--brand-2)/0.12,transparent_60%),radial-gradient(110%_120%_at_100%_10%,var(--brand-3)/0.14,transparent_74%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-30"
-        style={{
-          backgroundImage:
-            "linear-gradient(90deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-          backgroundSize: "160px 160px",
-          maskImage:
-            "radial-gradient(80% 110% at 50% 0%, rgba(0,0,0,0.9), transparent 70%)",
-        }}
+        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.08,transparent_60%),radial-gradient(110%_140%_at_100%_-10%,var(--brand-3)/0.08,transparent_70%)]"
       />
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-20"
-        fillScreen={false}
-        className="relative"
-      >
-        <div className="mx-auto max-w-5xl px-4">
-          <div className="rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/85 px-8 py-10 shadow-[0px_32px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-                <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-[color:var(--brand-1)/0.25] bg-[color:var(--brand-1)/0.12] text-[color:var(--brand-1)] shadow-[0px_20px_40px_-30px_rgba(7,58,104,0.55)]">
-                  <CategoryIcon
-                    icon={category.icon}
-                    size={26}
-                    className="text-[color:var(--brand-1)]"
-                  />
-                </span>
-                <div className="space-y-4 max-w-2xl">
-                  <div className="space-y-2">
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                      {category.name}
-                    </h1>
-                    <p className="text-sm text-muted-foreground sm:text-base">
-                      {category.description}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.28em] text-muted-foreground">
-                    <Badge
-                      variant="outline"
-                      className="border-[color:var(--brand-1)/0.35] bg-background/70 text-[color:var(--brand-1)]"
-                    >
-                      {products.length} product{products.length !== 1 && "s"}
-                    </Badge>
-                    {featured.length > 0 ? (
-                      <span>{featured.length} featured underway</span>
-                    ) : (
-                      <span>New submissions welcome</span>
-                    )}
+      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
+        <div className="space-y-16">
+          <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-12 shadow-[0_28px_90px_-50px_rgba(7,58,104,0.55)] backdrop-blur md:px-10">
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,2.3fr)_minmax(0,1fr)]">
+              <div className="space-y-8">
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
+                  <span className="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-border/60 bg-[color:var(--brand-1)/0.12] text-[color:var(--brand-1)] shadow-[0_20px_46px_-32px_rgba(7,58,104,0.6)]">
+                    <CategoryIcon
+                      icon={category.icon}
+                      size={28}
+                      className="text-[color:var(--brand-1)]"
+                    />
+                  </span>
+                  <div className="space-y-5">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/90 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                      Category profile
+                    </span>
+                    <div className="space-y-3">
+                      <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                        {category.name}
+                      </h1>
+                      {category.description ? (
+                        <p className="max-w-2xl text-base text-muted-foreground">
+                          {category.description}
+                        </p>
+                      ) : null}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {heroHighlights.map((highlight) => (
+                        <Badge
+                          key={highlight}
+                          variant="outline"
+                          className="border-border/60 bg-background/90 text-xs font-medium uppercase tracking-[0.26em] text-muted-foreground"
+                        >
+                          {highlight}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                  <Button size="lg" asChild className="shadow-sm shadow-black/10">
+                    <Link href={MEMBER_PRODUCTS_PATH}>Launch in this category</Link>
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    asChild
+                    className="border-border/70 text-[color:var(--brand-1)] hover:border-border hover:bg-muted/60"
+                  >
+                    <Link href={PRICING_PATH}>Explore promotion tiers</Link>
+                  </Button>
+                </div>
               </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                  <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
+                    Launches live
+                  </p>
+                  <p className="mt-3 text-3xl font-semibold text-foreground">
+                    {totalProducts.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {pluralize(totalProducts, "launch")} currently charted in this harbor.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                  <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
+                    Featured momentum
+                  </p>
+                  <p className="mt-3 text-3xl font-semibold text-foreground">
+                    {totalFeatured.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {totalFeatured > 0
+                      ? "Spotlights anchored this week."
+                      : "Claim the next editorial spotlight."}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                  <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
+                    Community signal
+                  </p>
+                  <p className="mt-3 text-3xl font-semibold text-foreground">
+                    {averageUpvotes.toLocaleString()} avg upvotes
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {latestLaunch
+                      ? `Latest arrival ${latestLaunch.name} (${latestLaunchDate}).`
+                      : "Be the first to launch and set the tone."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
 
-              <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end lg:w-auto">
+          {featured.length > 0 ? (
+            <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-10 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur md:px-10">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+                    Featured in {category.name}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Spotlighted launches sailing ahead in this harbor.
+                  </p>
+                </div>
                 <Button
                   asChild
-                  size="lg"
-                  className="w-full min-w-[220px] shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)] sm:w-auto"
+                  size="sm"
+                  variant="outline"
+                  className="border-border/70 text-[color:var(--brand-1)] hover:border-border hover:bg-muted/60"
                 >
-                  <Link href={MEMBER_PRODUCTS_PATH}>
-                    Launch in this category
-                  </Link>
+                  <Link href={PRICING_PATH}>Get featured</Link>
+                </Button>
+              </div>
+              <div className="mt-8 grid gap-6 lg:grid-cols-[1.4fr,1fr]">
+                <FeaturedBanner item={featured[0]} />
+                {featured.length > 1 ? (
+                  <FeaturedProductGrid
+                    items={featured.slice(1)}
+                    className="grid-cols-1"
+                  />
+                ) : null}
+              </div>
+            </section>
+          ) : null}
+
+          <CategoryProductsClient
+            products={products.map((p: CategoryProduct) => ({
+              ...p,
+              priority: productHasFeature(p, "priorityPlacement"),
+              badges:
+                p.ProductBadge?.filter(
+                  (pb: CategoryProduct["ProductBadge"][number]) =>
+                    !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
+                ).map(
+                  (pb: CategoryProduct["ProductBadge"][number]) => pb.badge,
+                ) ?? [],
+            }))}
+          />
+
+          <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-12 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur md:px-10">
+            <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                Elevate your launch
+              </span>
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                Secure prime placement in {category.name}
+              </h2>
+              <p className="max-w-xl text-sm text-muted-foreground">
+                Book a featured slot or premium placement to get surfaced across
+                the directory, daily digest, and leaderboard pulses.
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Button asChild size="lg" className="shadow-sm shadow-black/10">
+                  <Link href={PRICING_PATH}>View featured packages</Link>
                 </Button>
                 <Button
                   asChild
                   size="lg"
                   variant="outline"
-                  className="w-full min-w-[220px] border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)] sm:w-auto"
+                  className="border-border/70 text-[color:var(--brand-1)] hover:border-border hover:bg-muted/60"
                 >
-                  <Link href={PRICING_PATH}>Explore promotion tiers</Link>
+                  <Link href={MEMBER_PRODUCTS_PATH}>Submit your launch</Link>
                 </Button>
               </div>
             </div>
-          </div>
+          </section>
         </div>
-      </PublicContainer>
-
-      {featured.length > 0 && (
-        <PublicContainer
-          as="section"
-          max="marketing"
-          paddingY="py-16"
-          fillScreen={false}
-          className="relative"
-        >
-          <div className="rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/88 px-6 py-8 shadow-[0px_30px_80px_-60px_rgba(7,58,104,0.55)] backdrop-blur space-y-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-2xl font-semibold text-foreground">
-                  Featured in {category.name}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Spotlighted launches currently making waves here.
-                </p>
-              </div>
-              <Button
-                asChild
-                size="sm"
-                variant="outline"
-                className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
-              >
-                <Link href={PRICING_PATH}>Get featured</Link>
-              </Button>
-            </div>
-            <div className="grid gap-6 lg:grid-cols-[1.4fr,1fr]">
-              <FeaturedBanner item={featured[0]} />
-              {featured.length > 1 && (
-                <FeaturedProductGrid
-                  items={featured.slice(1)}
-                  className="grid-cols-1"
-                />
-              )}
-            </div>
-          </div>
-        </PublicContainer>
-      )}
-
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-      >
-        <CategoryProductsClient
-          className="border-[color:var(--brand-1)/0.18]"
-          products={products.map((p: CategoryProduct) => ({
-            ...p,
-            priority: productHasFeature(p, "priorityPlacement"),
-            badges:
-              p.ProductBadge?.filter(
-                (pb: CategoryProduct["ProductBadge"][number]) =>
-                  !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
-              ).map(
-                (pb: CategoryProduct["ProductBadge"][number]) => pb.badge,
-              ) ?? [],
-          }))}
-        />
-      </PublicContainer>
-
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-      >
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/82 px-8 py-12 text-center shadow-[0px_32px_90px_-60px_rgba(7,58,104,0.55)] backdrop-blur">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">
-            Want featured placement in {category.name}?
-          </h2>
-          <p className="text-muted-foreground">
-            Upgrade your launch to appear at the top of this category and in the
-            harbor hero feed. Our crew will help polish your spotlight.
-          </p>
-          <Button asChild size="lg" variant="secondary">
-            <Link href={PRICING_PATH}>View featured packages</Link>
-          </Button>
-        </div>
-      </PublicContainer>
+      </div>
     </main>
   )
 }
