@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ArrowUpRight } from "lucide-react"
 
 import { ProductCompactCard } from "@/components/molecules/ProductCompactCard"
 import { type CompactProductItem } from "@/components/molecules/ProductCompactGrid"
@@ -22,7 +23,7 @@ export function ProductSimilarVoyages<T extends CompactProductItem>({
   const { recommendations } = productPageCopy
 
   return (
-    <section className="rounded-2xl border border-border/70 bg-card p-5">
+    <section className="rounded-2xl border border-border bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
           <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
@@ -34,10 +35,10 @@ export function ProductSimilarVoyages<T extends CompactProductItem>({
         </div>
         <Link
           href={browseHref}
-          className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background px-3 py-1 text-sm font-semibold text-muted-foreground transition hover:border-border hover:text-foreground"
+          className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground transition hover:bg-foreground/5 hover:text-foreground"
         >
-          {recommendations.ctaLabel}
-          <span aria-hidden>↗</span>
+          <span>{recommendations.ctaLabel}</span>
+          <ArrowUpRight className="h-3 w-3" aria-hidden />
         </Link>
       </div>
 
@@ -57,7 +58,7 @@ export function ProductSimilarVoyages<T extends CompactProductItem>({
             imagePriority={index === 0}
             showCategory={false}
             disableHoverEffects
-            className="border border-border/60 bg-background/90 p-3 shadow-none"
+            className="border border-border bg-white p-3 shadow-none"
           />
         ))}
       </div>

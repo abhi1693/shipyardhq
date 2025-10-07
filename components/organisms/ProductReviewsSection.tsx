@@ -30,7 +30,7 @@ export default function ProductReviewsSection({
 
   return (
     <section id="product-reviews" className="space-y-6">
-      <div className="rounded-3xl border border-border/70 bg-card px-6 py-8 shadow-sm shadow-black/5">
+      <div className="rounded-3xl border border-border bg-white px-6 py-8 shadow-sm">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
@@ -43,7 +43,7 @@ export default function ProductReviewsSection({
               Hear how other builders experienced this product and add your take to help the next customer.
             </p>
           </div>
-          <div className="inline-flex flex-col gap-2 rounded-2xl border border-border/70 bg-background px-5 py-4">
+          <div className="inline-flex flex-col gap-2 rounded-2xl border border-border bg-white px-5 py-4 shadow-sm">
             <div className="flex items-center gap-3">
               <RatingStars rating={average} />
               <span className="text-sm font-semibold text-foreground">
@@ -59,7 +59,7 @@ export default function ProductReviewsSection({
         </div>
 
         <div className="mt-8 space-y-6">
-          <div className="rounded-2xl border border-border/70 bg-background p-6">
+          <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
             <div id="product-review-form" className="scroll-mt-32 space-y-4">
               {isSignedIn ? (
                 <ProductReviewForm
@@ -69,7 +69,7 @@ export default function ProductReviewsSection({
                   initialMessage={viewerReview?.message ?? null}
                 />
               ) : (
-                <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-1">
                     <h3 className="text-lg font-semibold text-foreground">
                       Sign in to leave a review
@@ -94,7 +94,7 @@ export default function ProductReviewsSection({
             {reviewSummary.reviews.map((review) => (
               <article
                 key={review.id}
-                className="flex h-full flex-col gap-3 rounded-2xl border border-border/70 bg-card p-5"
+                className="flex h-full flex-col gap-3 rounded-2xl border border-border bg-white p-5 shadow-sm"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
@@ -113,7 +113,7 @@ export default function ProductReviewsSection({
               </article>
             ))}
             {!hasReviews && (
-              <div className="col-span-full rounded-2xl border border-dashed border-[color:var(--brand-1)/0.25] bg-background p-8 text-center text-sm text-muted-foreground">
+              <div className="col-span-full rounded-2xl border border-dashed border-border bg-white p-8 text-center text-sm text-muted-foreground">
                 Be the first to share how {productName} performed for you.
               </div>
             )}

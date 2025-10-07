@@ -28,11 +28,6 @@ interface HeroTag {
   href: string
 }
 
-interface HeroStat {
-  label: string
-  value: string
-}
-
 interface ProductDetailHeroProps {
   name: string
   tagline?: string | null
@@ -44,7 +39,6 @@ interface ProductDetailHeroProps {
   primaryLinks: JSX.Element[]
   platforms: HeroPlatform[]
   tags: HeroTag[]
-  stats?: HeroStat[]
   reviewPrompt?: {
     isSignedIn: boolean
     redirectUrl: string
@@ -63,7 +57,6 @@ export function ProductDetailHero({
   primaryLinks,
   platforms,
   tags,
-  stats,
   reviewPrompt,
 }: ProductDetailHeroProps) {
   const { hero, reviewPrompt: reviewCopy } = productPageCopy
@@ -73,13 +66,11 @@ export function ProductDetailHero({
   const hasBadgeContent = isVerified || badges.length > 0
   const showReviewPrompt = Boolean(reviewPrompt)
 
-  const hasStats = Boolean(stats && stats.length)
-
   return (
-    <div className="space-y-6 rounded-3xl border border-border/60 bg-card px-6 py-7 shadow-[0_22px_70px_-50px_rgba(15,36,72,0.24)]">
+    <div className="space-y-6 rounded-3xl border border-border bg-white px-6 py-7 shadow-sm">
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start">
         <div className="flex gap-5">
-          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-background shadow-sm shadow-black/5 sm:h-20 sm:w-20">
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
             <Image
               src={logo}
               alt={`${name} logo`}
@@ -95,7 +86,7 @@ export function ProductDetailHero({
                 <span>{hero.chartedLabel}</span>
                 <Link
                   href={category.href}
-                  className="font-semibold tracking-[0.24em] text-foreground underline decoration-border underline-offset-4 transition hover:text-[color:var(--brand-1)]"
+                  className="font-semibold tracking-[0.24em] text-foreground underline decoration-border underline-offset-4 transition hover:text-foreground"
                 >
                   {category.label}
                 </Link>
@@ -113,7 +104,7 @@ export function ProductDetailHero({
             {hasBadgeContent ? (
               <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
                 {isVerified ? (
-                  <Badge className="flex items-center gap-1 rounded-full border border-[color:var(--brand-2)/0.4] bg-[color:var(--brand-2)/0.08] px-3 py-1 text-[color:var(--brand-2)]">
+                  <Badge className="flex items-center gap-1 rounded-full border border-border bg-white bg-none px-3 py-1 text-xs font-medium text-foreground shadow-none">
                     <CheckCircle className="size-3" aria-hidden />
                     Verified launch
                   </Badge>
@@ -122,7 +113,7 @@ export function ProductDetailHero({
                   <Badge
                     key={badge.id}
                     className={cn(
-                      "flex items-center gap-1 rounded-full border border-border/60 bg-background px-3 py-1 text-xs font-medium",
+                      "flex items-center gap-1 rounded-full border border-border bg-white bg-none px-3 py-1 text-xs font-medium text-muted-foreground shadow-none",
                       badge.className,
                     )}
                   >
@@ -139,7 +130,7 @@ export function ProductDetailHero({
                   {hero.ownerPrefix}{" "}
                   <Link
                     href={owner.href}
-                    className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-[color:var(--brand-1)]"
+                    className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-foreground"
                   >
                     {owner.name}
                   </Link>
@@ -147,7 +138,7 @@ export function ProductDetailHero({
               ) : null}
               <Link
                 href={category.href}
-                className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-[color:var(--brand-1)]"
+                className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-foreground"
               >
                 Category: {category.label}
               </Link>
@@ -176,7 +167,7 @@ export function ProductDetailHero({
               <Badge
                 key={platform.id}
                 variant="outline"
-                className="flex items-center gap-1 rounded-full border-border/70 bg-background px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground"
+                className="flex items-center gap-1 rounded-full border border-border bg-white bg-none px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground shadow-none"
               >
                 {platform.icon}
                 {platform.label}
@@ -194,7 +185,7 @@ export function ProductDetailHero({
           <div className="flex flex-wrap gap-1.5">
             {tags.map((tag) => (
               <Link key={tag.id} href={tag.href} className="inline-flex">
-                <Badge className="rounded-full border border-border/70 bg-background px-3 py-0.5 text-[11px] font-medium text-muted-foreground transition hover:border-[color:var(--brand-1)/0.4]">
+                <Badge className="rounded-full border border-border bg-white bg-none px-3 py-0.5 text-[11px] font-medium text-muted-foreground shadow-none transition hover:border-border/70">
                   {tag.label}
                 </Badge>
               </Link>
@@ -204,7 +195,7 @@ export function ProductDetailHero({
       ) : null}
 
       {showReviewPrompt && reviewPrompt ? (
-        <div className="rounded-2xl border border-border/70 bg-card px-5 py-4">
+        <div className="rounded-2xl border border-border bg-white px-5 py-4 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
@@ -234,24 +225,6 @@ export function ProductDetailHero({
               )}
             </div>
           </div>
-        </div>
-      ) : null}
-
-      {hasStats ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {stats!.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-2xl border border-border/70 bg-background px-4 py-3"
-            >
-              <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-                {stat.label}
-              </p>
-              <p className="mt-2 text-base font-semibold text-foreground">
-                {stat.value}
-              </p>
-            </div>
-          ))}
         </div>
       ) : null}
     </div>

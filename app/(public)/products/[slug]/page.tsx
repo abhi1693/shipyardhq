@@ -211,7 +211,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         follow={hasBacklinkFeature}
         target={hasBacklinkFeature ? "_blank" : undefined}
         rel={hasBacklinkFeature ? "noopener" : undefined}
-        className="inline-flex items-center gap-2 rounded-lg border border-[color:var(--brand-2)/0.3] bg-[color:var(--brand-2)/0.08] px-4 py-2 text-sm font-semibold text-[color:var(--brand-2)] transition hover:bg-[color:var(--brand-2)/0.12]"
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted"
       >
         {ctaLabel || `Get started with ${product.name}`}
       </ExternalBadgeLink>,
@@ -230,7 +230,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         follow={hasBacklinkFeature}
         target={hasBacklinkFeature ? "_blank" : undefined}
         rel={hasBacklinkFeature ? "noopener" : undefined}
-        className="inline-flex items-center gap-2 rounded-lg border border-border/70 bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:border-border hover:bg-muted/70"
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted"
       >
         <span className="flex items-center gap-1">
           <ExternalLink size={14} /> Visit website
@@ -252,7 +252,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         target={hasBacklinkFeature ? "_blank" : undefined}
         rel={hasBacklinkFeature ? "noopener" : undefined}
         variant="outline"
-        className="inline-flex items-center gap-2 rounded-lg border border-border/70 bg-background px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:text-foreground"
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-muted-foreground shadow-sm transition hover:text-foreground"
       >
         Live demo
       </ExternalBadgeLink>,
@@ -397,7 +397,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const hasCrewDetails = crewRoster.length > 0 || Boolean(product.organization?.name)
 
   return (
-    <main className="relative isolate bg-background">
+    <main className="relative isolate bg-white">
       {structuredData ? (
         <script
           type="application/ld+json"
@@ -430,7 +430,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               primaryLinks={primaryLinks}
               platforms={heroPlatforms}
               tags={signalTags}
-              stats={heroStats}
               reviewPrompt={{
                 isSignedIn: Boolean(userId),
                 redirectUrl: productPath(product.slug),
@@ -467,7 +466,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <aside className="space-y-6">
             {supportCard}
             {heroStats.length ? (
-              <section className="rounded-2xl border border-border/70 bg-card p-5">
+              <section className="rounded-2xl border border-border bg-white p-5 shadow-sm">
                 <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
                   {productPageCopy.hero.statsLabel}
                 </p>
@@ -487,7 +486,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             ) : null}
 
             {secondaryLinks.length ? (
-              <section className="rounded-2xl border border-border/70 bg-card p-4">
+              <section className="rounded-2xl border border-border bg-white p-4 shadow-sm">
                 <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
                   Signal links
                 </p>
@@ -498,7 +497,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background px-3 py-1 text-sm font-medium text-muted-foreground transition hover:border-border hover:text-foreground"
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-1 text-sm font-medium text-muted-foreground transition hover:text-foreground"
                     >
                       {link.icon}
                       {link.label}
@@ -524,7 +523,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         </div>
 
         <div className="mt-12">
-          <NewsletterSignupSection className="rounded-3xl border border-border/70" />
+          <NewsletterSignupSection className="rounded-3xl border border-border bg-white shadow-sm" />
         </div>
       </div>
     </main>

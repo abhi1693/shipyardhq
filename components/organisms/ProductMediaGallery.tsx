@@ -34,7 +34,7 @@ export function ProductMediaGallery({
     <section className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--brand-1)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
             {mediaCopy.eyebrow}
           </p>
           {hasGallery && media.length > 3 ? (
@@ -44,16 +44,16 @@ export function ProductMediaGallery({
           ) : null}
         </div>
         {hasGallery ? (
-          <span className="rounded-full border border-border/60 bg-background/95 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground dark:border-slate-700/60 dark:bg-slate-950/70">
+          <span className="rounded-full border border-border bg-white px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
             {media.length} asset{media.length === 1 ? "" : "s"}
           </span>
         ) : null}
       </div>
 
-      <div className="space-y-4 rounded-3xl border border-border/70 bg-card p-4 shadow-sm shadow-black/5">
+      <div className="space-y-4 rounded-3xl border border-border bg-white p-4 shadow-sm">
         {hasBanner ? (
           <ImageLightbox src={bannerImage!} alt={`${productName} banner`}>
-            <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-background">
+            <div className="relative overflow-hidden rounded-2xl border border-border bg-white">
               <div className="relative aspect-[3/1] w-full">
                 <Image
                   src={bannerImage!}
@@ -77,7 +77,7 @@ export function ProductMediaGallery({
                 src={item.imageUrl}
                 alt={item.altText || productName}
               >
-                <div className="relative h-40 w-64 shrink-0 overflow-hidden rounded-2xl border border-border/60 bg-background transition hover:border-[color:var(--brand-1)/0.4]">
+                <div className="relative h-40 w-64 shrink-0 overflow-hidden rounded-2xl border border-border bg-white transition hover:border-border/70">
                   <Image
                     src={item.imageUrl}
                     alt={item.altText || productName}

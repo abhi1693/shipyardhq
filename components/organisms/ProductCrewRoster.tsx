@@ -23,21 +23,21 @@ export function ProductCrewRoster({
   const hasMembers = members.length > 0
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border/70 bg-card p-5">
+    <section className="space-y-4 rounded-2xl border border-border bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-center gap-3">
-        <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
+        <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">
           {crew.heading}
         </p>
         {organizationName ? (
-          <span className="rounded-full border border-border/70 bg-background px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          <span className="rounded-full border border-border bg-white px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
             {crew.organizationPrefix} {organizationName}
           </span>
         ) : null}
       </div>
 
       {hasMembers ? (
-        <div className="overflow-hidden rounded-2xl border border-border/60 bg-background">
-          <ul className="divide-y divide-border/60">
+        <div className="overflow-hidden rounded-2xl border border-border bg-white">
+          <ul className="divide-y divide-border">
             {members.map((member) => (
               <li
                 key={member.id}
