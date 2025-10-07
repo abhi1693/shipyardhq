@@ -66,7 +66,7 @@ export function HomepageSpotlight({
   const remaining = reserved.map(toSpotlightItem)
 
   return (
-    <section className="rounded-3xl border border-border/80 bg-background/75 p-6 shadow-sm shadow-black/5 md:p-8">
+    <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
       <DirectorySectionHeader
         kicker="Homepage spotlight"
         title="Flagship homepage spotlight"

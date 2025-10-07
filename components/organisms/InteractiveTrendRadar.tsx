@@ -177,31 +177,9 @@ export default function InteractiveTrendRadar({
       as="section"
       paddingY="py-20"
       max="7xl"
-      className="relative overflow-hidden border-b bg-background/85 shadow-[0px_50px_120px_-90px_rgba(7,58,104,0.95)] backdrop-blur"
+      className="relative border-b border-border bg-white"
       innerClassName="relative"
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-3)/0.35] to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20"
-        style={{
-          backgroundImage:
-            "radial-gradient(140%_90%_at_85%_110%, rgba(6, 38, 68, 0.24), transparent 78%), radial-gradient(95%_70%_at_10%_20%, rgba(5, 30, 54, 0.2), transparent 70%)",
-          maskImage:
-            "radial-gradient(90%_100%_at_50%_95%, rgba(0,0,0,0.95), transparent 78%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 opacity-25"
-        style={{
-          backgroundImage:
-            "radial-gradient(120%_120%_at_50%_0%, rgba(0, 53, 102, 0.25), transparent 75%)",
-        }}
-      />
 
       <div className="relative space-y-10">
         <PageSectionHeader
@@ -227,7 +205,7 @@ export default function InteractiveTrendRadar({
                     type="button"
                     onClick={() => setModeKey(item.key)}
                     className={cn(
-                      "rounded-full border px-3 py-1.5 text-sm font-medium transition-all shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.65)] backdrop-blur",
+                      "rounded-full border px-3 py-1.5 text-sm font-medium transition-all",
                       mode.key === item.key
                         ? "border-[color:var(--brand-3)/0.28] bg-[color:var(--brand-3)/0.12] text-[color:var(--brand-3)]"
                         : "border-transparent bg-white/65 text-slate-500 hover:border-[color:var(--brand-3)/0.18] hover:bg-white",

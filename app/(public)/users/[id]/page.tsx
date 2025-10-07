@@ -246,15 +246,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
   }
 
   return (
-    <main className="relative isolate bg-background">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.09,transparent_60%),radial-gradient(110%_150%_at_100%_-10%,var(--brand-3)/0.1,transparent_70%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(248,252,255,0.95),rgba(236,244,253,0.92)45%,rgba(227,240,250,0.9))] dark:bg-[linear-gradient(180deg,rgba(4,16,34,0.92),rgba(6,24,42,0.9)45%,rgba(9,32,55,0.9))]"
-      />
+    <main className="relative isolate bg-white">
 
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-14 md:px-8">
         <script
@@ -277,17 +269,13 @@ export default async function MakerProfilePage({ params }: PageProps) {
 
         <div className="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
           <div className="flex flex-col gap-10">
-            <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-background/92 p-6 shadow-[0_32px_98px_-60px_rgba(7,58,104,0.75)] backdrop-blur md:p-10">
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.18,transparent_65%),radial-gradient(120%_140%_at_100%_-10%,var(--brand-2)/0.16,transparent_70%)]"
-              />
+            <section className="relative overflow-hidden rounded-3xl border border-border bg-white p-6 shadow-sm md:p-10">
 
               <div className="flex flex-col gap-8">
                 <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
                   <div className="flex items-start gap-5 md:items-center">
                     <Avatar
-                      className="h-16 w-16 shrink-0 rounded-3xl bg-[color:var(--brand-1)/0.12] shadow-[0_24px_54px_-36px_rgba(7,58,104,0.7)] md:h-20 md:w-20"
+                      className="h-16 w-16 shrink-0 rounded-3xl bg-muted shadow-sm md:h-20 md:w-20"
                     >
                       {avatarUrl ? (
                         <AvatarImage
@@ -296,7 +284,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                           className="object-cover"
                         />
                       ) : null}
-                      <AvatarFallback className="flex h-full w-full items-center justify-center rounded-[inherit] bg-[color:var(--brand-1)/0.12] text-2xl font-semibold text-[color:var(--brand-1)] md:text-3xl">
+                      <AvatarFallback className="flex h-full w-full items-center justify-center rounded-[inherit] bg-muted text-2xl font-semibold text-muted-foreground md:text-3xl">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
@@ -315,7 +303,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                       resolveAbsolute
                       size="sm"
                       variant="outline"
-                      className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
+                      className="border-border bg-white text-muted-foreground"
                     >
                       Copy profile link
                     </CopyButton>
@@ -323,7 +311,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                       path={profilePath}
                       fullName={fullName}
                       productCount={totalProducts}
-                      className="border-[color:var(--brand-2)/0.35] bg-background/80 text-[color:var(--brand-2)]"
+                      className="border-border bg-white text-muted-foreground"
                     />
                   </div>
                 </div>
@@ -334,7 +322,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                       <Badge
                         key={category}
                         variant="outline"
-                        className="rounded-full border-[color:var(--brand-2)/0.35] bg-[color:var(--brand-2)/0.12] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.26em] text-[color:var(--brand-2)]"
+                        className="rounded-full border-border bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.26em] text-muted-foreground"
                       >
                         {category}
                       </Badge>
@@ -342,7 +330,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                     {extraCategoryCount > 0 ? (
                       <Badge
                         variant="outline"
-                        className="rounded-full border-border/60 bg-background/80 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.26em] text-muted-foreground"
+                        className="rounded-full border-border bg-white px-3 py-1 text-[11px] font-medium uppercase tracking-[0.26em] text-muted-foreground"
                       >
                         +{extraCategoryCount} more
                       </Badge>
@@ -354,12 +342,12 @@ export default async function MakerProfilePage({ params }: PageProps) {
                   {stats.map((stat) => (
                     <div
                       key={stat.label}
-                      className="rounded-2xl border border-border/70 bg-background/85 px-5 py-6 shadow-[0_24px_64px_-48px_rgba(7,58,104,0.7)] backdrop-blur"
+                      className="rounded-2xl border border-border bg-white px-5 py-6 shadow-sm"
                     >
                       <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
                         {stat.label}
                       </p>
-                      <p className="mt-3 text-3xl font-semibold leading-tight text-[color:var(--brand-1)]">
+                      <p className="mt-3 text-3xl font-semibold leading-tight text-foreground">
                         {statFormatter.format(stat.value)}
                       </p>
                     </div>
@@ -417,7 +405,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                     <li key={launch.id} className="flex justify-between gap-3">
                       <Link
                         href={productPath(launch.slug)}
-                        className="truncate font-medium text-foreground hover:text-[color:var(--brand-1)]"
+                        className="truncate font-medium text-foreground hover:text-foreground"
                       >
                         {launch.name}
                       </Link>
@@ -464,7 +452,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                     <Badge
                       key={badge}
                       variant="outline"
-                      className="rounded-full border-[color:var(--brand-3)/0.35] bg-[color:var(--brand-3)/0.14] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-3)]"
+                        className="rounded-full border-border bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
                     >
                       {badge}
                     </Badge>

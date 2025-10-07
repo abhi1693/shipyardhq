@@ -21,7 +21,7 @@ export function LatestLaunches({ products }: { products: FeaturedProduct[] }) {
   const items = products.map(toListItem)
 
   return (
-    <section className="rounded-3xl border border-border/80 bg-background/70 p-6 shadow-sm shadow-black/5 md:p-8">
+    <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
       <DirectorySectionHeader
         kicker="New today"
         title="Fresh launches charted in the last 24 hours"

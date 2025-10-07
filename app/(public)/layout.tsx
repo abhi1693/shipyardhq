@@ -31,7 +31,7 @@ export default async function PublicLayout({
     <div className="min-h-screen flex flex-col">
       <PublicHeader />
       <StickyBannerCarousel products={stickyBannerProducts} />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 bg-white">{children}</main>
       <PublicFooter useCases={footerUseCases} />
     </div>
   )

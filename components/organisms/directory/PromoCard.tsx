@@ -28,7 +28,7 @@ export function DirectoryPromoCard({
   subtleCta,
 }: DirectoryPromoCardProps) {
   return (
-    <section className="rounded-3xl border border-border/60 bg-gradient-to-br from-background/95 via-background/80 to-muted/40 p-6 shadow-sm shadow-black/5">
+    <section className="rounded-3xl border border-border bg-white p-6 shadow-sm">
       <div className="space-y-5">
         {eyebrow ? (
           <span className="inline-flex items-center gap-2 rounded-full bg-muted/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">

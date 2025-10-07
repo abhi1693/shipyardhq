@@ -89,7 +89,7 @@ export function FeaturedHighlights({
   const organicItems = organic.map(toListItem)
 
   return (
-    <section className="rounded-3xl border border-border/80 bg-background/75 p-6 shadow-sm shadow-black/5 md:p-8">
+    <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
       <DirectorySectionHeader
         kicker="Featured showcase"
         title="Marquee placements that keep your launch in view"

@@ -74,24 +74,10 @@ export function InsightsShowcase({
       as="section"
       max="marketing"
       paddingY="py-20"
-      className="relative overflow-hidden border-y bg-background/92 shadow-[0px_50px_140px_-90px_rgba(7,58,104,0.9)] backdrop-blur"
+      className="relative border-y border-border bg-white"
       innerClassName="relative space-y-16"
       fillScreen={false}
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-2)/0.45] to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30"
-        style={{
-          backgroundImage:
-            "radial-gradient(120%_90%_at_10%_-10%, rgba(7, 58, 104, 0.28), transparent 78%), radial-gradient(105%_85%_at_90%_-5%, rgba(16, 88, 142, 0.22), transparent 75%)",
-          maskImage:
-            "radial-gradient(85%_110%_at_50%_0%, rgba(0,0,0,0.95), transparent 75%)",
-        }}
-      />
 
       <div className="relative mx-auto max-w-3xl text-center space-y-6">
         <span className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
@@ -116,7 +102,7 @@ export function InsightsShowcase({
               asChild
               size="lg"
               variant="outline"
-              className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)] shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.75)]"
+              className="border-border bg-white text-muted-foreground shadow-sm"
             >
               <Link href={secondaryCta.href}>{secondaryCta.label}</Link>
             </Button>
@@ -124,11 +110,7 @@ export function InsightsShowcase({
         </div>
       </div>
 
-      <figure className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-[32px] border border-[color:var(--brand-1)/0.24] bg-[color:var(--brand-3)/0.05] shadow-[0px_45px_120px_-70px_rgba(7,58,104,0.85)]">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(140%_120%_at_15%_15%,rgba(11,53,94,0.12),transparent_70%)]"
-        />
+      <figure className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-[32px] border border-border bg-white shadow-sm">
         <Image
           src="/insights-demo.png"
           alt="Shipyard Insights pipeline report preview"
@@ -143,9 +125,9 @@ export function InsightsShowcase({
           ({ title: stageTitle, description: stageDescription, Icon }) => (
             <article
               key={stageTitle}
-              className="flex h-full flex-col gap-4 rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/85 p-6 text-left shadow-[0px_30px_70px_-50px_rgba(7,58,104,0.7)] backdrop-blur"
+              className="flex h-full flex-col gap-4 rounded-3xl border border-border bg-white p-6 text-left shadow-sm"
             >
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--brand-2)/0.16] text-[color:var(--brand-2)] shadow-[0px_14px_30px_-20px_rgba(7,58,104,0.6)]">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
                 <Icon className="h-6 w-6" />
               </span>
               <h3 className="text-lg font-semibold text-foreground">
@@ -159,12 +141,12 @@ export function InsightsShowcase({
         )}
       </div>
 
-      <div className="relative rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/90 px-8 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.65)] backdrop-blur">
+      <div className="relative rounded-3xl border border-border bg-white px-8 py-10 shadow-sm">
         <h3 className="text-2xl font-semibold text-foreground">What you get</h3>
         <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
           {INSIGHT_OUTCOMES.map((outcome) => (
             <li key={outcome} className="flex items-start gap-3">
-              <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[color:var(--brand-1)/0.12] text-[color:var(--brand-1)]">
+              <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted text-muted-foreground">
                 <Check className="h-3.5 w-3.5" />
               </span>
               <span>{outcome}</span>

@@ -92,15 +92,7 @@ export const metadata = buildPageMetadata({
 
 export default function LeaderboardGuidePage() {
   return (
-    <main className="relative isolate overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(245,250,255,0.96),rgba(230,241,252,0.92)55%,rgba(220,234,249,0.9))] dark:bg-[linear-gradient(180deg,rgba(4,16,32,0.94),rgba(6,24,42,0.94)55%,rgba(10,32,53,0.9))]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-[-120px] -z-20 h-[420px] bg-[radial-gradient(65%_90%_at_50%_0%,var(--brand-2)/0.25,transparent_70%)] blur-3xl"
-      />
+    <main className="relative isolate overflow-hidden bg-white">
       <PublicContainer
         as="section"
         max="marketing"

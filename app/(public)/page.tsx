@@ -109,11 +109,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <main className="relative isolate bg-background">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.08,transparent_60%),radial-gradient(110%_140%_at_100%_-10%,var(--brand-3)/0.08,transparent_70%)]"
-        />
+      <main className="relative isolate bg-white">
         <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
           <div className="space-y-12">
             <DirectoryHeader stats={stats} />

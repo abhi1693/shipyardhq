@@ -121,11 +121,7 @@ export function DirectoryHeader({
   }
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-border/60 bg-background/90 px-6 py-12 shadow-lg shadow-black/5 backdrop-blur md:px-10">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(110%_90%_at_0%_0%,var(--brand-1)/0.12,transparent_60%),radial-gradient(110%_90%_at_100%_20%,var(--brand-2)/0.12,transparent_65%)]"
-      />
+    <section className="relative overflow-hidden rounded-3xl border border-border bg-white px-6 py-12 shadow-sm md:px-10">
       <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="space-y-5">
           <span className="inline-flex items-center gap-2 rounded-full bg-muted/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.26em] text-muted-foreground">
@@ -153,7 +149,7 @@ export function DirectoryHeader({
               <div
                 key={metric.key}
                 className={cn(
-                  "rounded-2xl border border-border/80 bg-background/80 p-5 shadow-[0_20px_45px_-34px_rgba(7,58,104,0.7)]",
+                  "rounded-2xl border border-border bg-white p-5 shadow-sm",
                 )}
               >
                 <dt className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">

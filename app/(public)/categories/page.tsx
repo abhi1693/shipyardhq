@@ -29,22 +29,14 @@ export default async function CategoriesPage() {
   const busiestCategory = categories[0]
 
   return (
-    <main className="relative isolate bg-background">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(250,252,255,0.95),rgba(243,247,252,0.9)40%,rgba(233,243,251,0.88))] dark:bg-[linear-gradient(180deg,rgba(6,18,36,0.92),rgba(4,24,43,0.9)40%,rgba(9,32,55,0.92))]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.08,transparent_60%),radial-gradient(110%_140%_at_100%_-10%,var(--brand-3)/0.08,transparent_70%)]"
-      />
+    <main className="relative isolate bg-white">
 
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-16">
-          <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-12 shadow-[0_28px_90px_-50px_rgba(7,58,104,0.55)] backdrop-blur md:px-10">
+          <section className="rounded-3xl border border-border bg-white px-6 py-12 shadow-sm md:px-10">
             <div className="grid gap-12 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)]">
               <div className="space-y-6">
-                <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/90 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                <span className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
                   Category directory
                 </span>
                 <div className="space-y-4">
@@ -65,7 +57,7 @@ export default async function CategoriesPage() {
                     size="lg"
                     variant="outline"
                     asChild
-                    className="border-border/70 text-[color:var(--brand-1)] hover:border-border hover:bg-muted/60"
+                    className="border-border text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
                   >
                     <Link href={MEMBER_PRODUCTS_PATH}>Submit your category launch</Link>
                   </Button>
@@ -76,11 +68,11 @@ export default async function CategoriesPage() {
                       <Link
                         key={cat.id}
                         href={categoryPath(cat.slug)}
-                        className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-border hover:bg-muted/60 hover:text-foreground"
+                        className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-muted-foreground transition hover:text-foreground"
                       >
                         <span className="truncate">{cat.name}</span>
                         {typeof cat.count === "number" ? (
-                          <span className="rounded-full bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--brand-1)]">
+                          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                             {cat.count.toLocaleString()}
                           </span>
                         ) : null}
@@ -90,7 +82,7 @@ export default async function CategoriesPage() {
                 ) : null}
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
                   <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
                     Active categories
                   </p>
@@ -101,7 +93,7 @@ export default async function CategoriesPage() {
                     {pluralize(categories.length, "category")} captaining the directory.
                   </p>
                 </div>
-                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
                   <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
                     Launches cataloged
                   </p>
@@ -112,7 +104,7 @@ export default async function CategoriesPage() {
                     {pluralize(totalProducts, "product")}{" "} charted across the fleet.
                   </p>
                 </div>
-                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
                   <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
                     Momentum snapshot
                   </p>
@@ -129,7 +121,7 @@ export default async function CategoriesPage() {
             </div>
           </section>
 
-          <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-10 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur md:px-10">
+          <section className="rounded-3xl border border-border bg-white px-6 py-10 shadow-sm md:px-10">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-1">
                 <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">

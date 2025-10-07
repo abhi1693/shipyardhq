@@ -23,7 +23,7 @@ const steps = [
 
 export function DirectoryHowItWorks() {
   return (
-    <section className="rounded-3xl border border-border/60 bg-background/90 px-6 py-12 shadow-[0_24px_70px_-45px_rgba(12,54,98,0.45)] md:px-12">
+    <section className="rounded-3xl border border-border bg-white px-6 py-12 shadow-sm md:px-12">
       <div className="space-y-6">
         <span className="inline-flex items-center gap-2 rounded-full bg-muted/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
           How it works
@@ -40,7 +40,7 @@ export function DirectoryHowItWorks() {
           {steps.map((step, index) => (
             <div
               key={step.title}
-              className="group relative overflow-hidden rounded-3xl border border-border/60 bg-muted/40 p-6 backdrop-blur transition-transform hover:-translate-y-1"
+              className="group relative overflow-hidden rounded-3xl border border-border bg-white p-6 transition-transform hover:-translate-y-1"
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold text-primary">
                 {String(index + 1).padStart(2, "0")}

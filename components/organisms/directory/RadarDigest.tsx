@@ -27,7 +27,7 @@ export function DirectoryRadarDigest({
     .slice(0, 5)
 
   return (
-    <section className="rounded-3xl border border-border/60 bg-background/80 p-6 shadow-sm shadow-black/5">
+    <section className="rounded-3xl border border-border bg-white p-6 shadow-sm">
       <div className="mb-6 space-y-2">
         <h3 className="text-lg font-semibold text-foreground">
           Trend radar: live momentum signals

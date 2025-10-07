@@ -86,15 +86,7 @@ export default async function UsersIndexPage() {
   const roster = makersWithAvatars.slice(3)
 
   return (
-    <main className="relative isolate bg-background">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(250,252,255,0.96),rgba(243,247,252,0.92)40%,rgba(233,243,251,0.9))] dark:bg-[linear-gradient(180deg,rgba(6,18,36,0.92),rgba(4,24,43,0.92)40%,rgba(9,32,55,0.92))]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.08,transparent_60%),radial-gradient(110%_140%_at_100%_-10%,var(--brand-3)/0.08,transparent_70%)]"
-      />
+    <main className="relative isolate bg-white">
 
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-12">

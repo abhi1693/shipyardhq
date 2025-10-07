@@ -145,37 +145,8 @@ export default async function RewardsExplainerPage() {
   )
 
   return (
-    <main className="relative isolate overflow-hidden">
-      <section className="relative isolate w-full overflow-hidden border-b bg-background/90 py-20 md:py-32">
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-20 bg-[radial-gradient(120%_80%_at_10%_0%,var(--brand-1)/0.2,transparent_68%)]"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-20 bg-[radial-gradient(100%_80%_at_85%_-10%,var(--brand-2)/0.18,transparent_70%)]"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-2)/0.45] to-transparent opacity-80"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10 opacity-40"
-          style={{
-            backgroundImage:
-              "linear-gradient(90deg, rgba(10, 52, 88, 0.12) 1px, transparent 1px), linear-gradient(180deg, rgba(10, 52, 88, 0.12) 1px, transparent 1px)",
-            backgroundSize: "140px 140px",
-          }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-[color:var(--brand-1)/0.28] via-transparent to-transparent"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-12 -z-10 h-32 blur-3xl bg-[radial-gradient(70%_100%_at_50%_0%,var(--brand-3)/0.22,transparent_78%)]"
-        />
+    <main className="relative isolate overflow-hidden bg-white">
+      <section className="relative isolate w-full border-b border-border bg-white py-20 md:py-32">
 
         <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-10 px-4 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.35] bg-background/80 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-1)] shadow-sm backdrop-blur">
