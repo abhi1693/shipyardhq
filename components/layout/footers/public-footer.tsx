@@ -21,6 +21,7 @@ import {
   SHIPYARD_TWITTER_URL,
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
+import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 type UseCaseLink = { label: string; slug: string }
 
@@ -70,11 +71,19 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
 
   return (
     <footer className="border-t bg-gradient-to-b from-white via-white to-white/90 text-sm text-foreground">
-      <section className="relative w-full overflow-hidden border-b border-[color:var(--brand-1)/0.15] bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))] px-4 py-10 text-white shadow-[0_40px_120px_-60px_rgba(18,66,112,0.8)] md:px-8">
+      <section
+        className={brandGradient(
+          "relative w-full overflow-hidden border-b border-[color:var(--brand-1)/0.15] px-4 py-10 text-white shadow-[0_40px_120px_-60px_rgba(18,66,112,0.8)] md:px-8",
+        )}
+      >
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl space-y-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white/80">
+              <span
+                className={gradientTint(
+                  "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white/80",
+                )}
+              >
                 Launch update
               </span>
               <h2 className="text-2xl font-semibold leading-tight tracking-tight md:text-3xl">
@@ -94,7 +103,9 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
               </Link>
               <Link
                 href={PRICING_PATH}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20"
+                className={gradientTint(
+                  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20",
+                )}
               >
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
                 Book a spotlight tour
