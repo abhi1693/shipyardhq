@@ -106,8 +106,8 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
 
       <div className="w-full px-4 pb-16 pt-12 sm:px-6 lg:px-8 lg:pb-20 lg:pt-16">
         <section className="grid gap-12 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-          <div className="space-y-10">
-            <div className="space-y-5">
+          <div className="space-y-6">
+            <div className="space-y-4">
               <Link
                 href={HOME_PATH}
                 className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/80 px-3 py-2 shadow-sm"
@@ -206,8 +206,8 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
             </div>
           </div>
 
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-4">
+          <div className="grid gap-y-8 gap-x-8 sm:grid-cols-2 lg:grid-cols-4 lg:[grid-template-columns:minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="space-y-3">
               <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
                 Discover
               </h3>
