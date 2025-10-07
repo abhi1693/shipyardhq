@@ -108,6 +108,7 @@ export function BrowseFeaturedCarousel({
               upvotes={item.analytics?.upvotes ?? 0}
               imagePriority={itemIndex === index}
               className="h-full"
+              disableHoverEffects
             />
           </div>
         ))}
@@ -121,7 +122,7 @@ export function BrowseFeaturedCarousel({
                 key={`${item.id}-dot`}
                 type="button"
                 className={cn(
-                  "h-1.5 w-6 rounded-full bg-border transition-colors",
+                  "h-1 w-4 rounded-full bg-border transition-colors",
                   dotIndex === index && "bg-[color:var(--brand-1)]",
                 )}
                 onClick={() => setIndex(dotIndex)}
@@ -134,21 +135,21 @@ export function BrowseFeaturedCarousel({
               type="button"
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-7 w-7 rounded-full border-border/70"
               onClick={() => goTo("prev")}
               aria-label="Previous featured product"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
             <Button
               type="button"
               variant="outline"
               size="icon"
-              className="h-8 w-8"
+              className="h-7 w-7 rounded-full border-border/70"
               onClick={() => goTo("next")}
               aria-label="Next featured product"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>

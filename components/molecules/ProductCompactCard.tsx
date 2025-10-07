@@ -23,6 +23,7 @@ interface ProductCompactCardProps {
   badges?: string[]
   showBadges?: boolean
   className?: string
+  disableHoverEffects?: boolean
 }
 
 export function ProductCompactCard({
@@ -35,6 +36,7 @@ export function ProductCompactCard({
   badges = [],
   showBadges = false,
   className,
+  disableHoverEffects = false,
 }: ProductCompactCardProps) {
   const resolvedBadges = badges
     .map(
@@ -48,6 +50,13 @@ export function ProductCompactCard({
   const showDockLabel = showCategory && category
   const dockLabel = showDockLabel ? category ?? "Launch ready" : "View details"
 
+  const baseClasses =
+    "group relative block h-full w-full cursor-pointer overflow-hidden rounded-2xl border border-border/30 bg-background/95 p-4 text-left text-card-foreground shadow-[0_18px_46px_-52px_rgba(7,58,104,0.6)] ring-1 ring-inset ring-white/6 transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-[radial-gradient(120%_140%_at_50%_-10%,var(--brand-1)/0.16,transparent_70%)] before:opacity-0 before:transition-opacity before:duration-500 before:delay-100 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] dark:border-white/14"
+
+  const hoverClasses = disableHoverEffects
+    ? ""
+    : "hover:-translate-y-1 hover:scale-[1.015] hover:border-[color:var(--brand-1)/0.24] hover:bg-[color:var(--brand-1)/0.03] hover:shadow-[0_36px_110px_-62px_rgba(7,58,104,0.68)] hover:ring-[1.5px] hover:ring-[color:var(--brand-1)/0.22] group-hover:before:opacity-100"
+
   return (
     <form
       action={clickProductCardAction}
@@ -59,7 +68,8 @@ export function ProductCompactCard({
       <button
         type="submit"
         className={cn(
-          "group relative block h-full w-full cursor-pointer overflow-hidden rounded-2xl border border-border/30 bg-background/95 p-4 text-left text-card-foreground shadow-[0_18px_46px_-52px_rgba(7,58,104,0.6)] ring-1 ring-inset ring-white/6 transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-[radial-gradient(120%_140%_at_50%_-10%,var(--brand-1)/0.16,transparent_70%)] before:opacity-0 before:transition-opacity before:duration-500 before:delay-100 before:content-[''] hover:-translate-y-1 hover:scale-[1.015] hover:border-[color:var(--brand-1)/0.24] hover:bg-[color:var(--brand-1)/0.03] hover:shadow-[0_36px_110px_-62px_rgba(7,58,104,0.68)] hover:ring-[1.5px] hover:ring-[color:var(--brand-1)/0.22] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] group-hover:before:opacity-100 dark:border-white/14",
+          baseClasses,
+          hoverClasses,
           className,
         )}
       >
