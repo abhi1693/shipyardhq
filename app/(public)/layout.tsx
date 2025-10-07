@@ -1,6 +1,5 @@
 import PublicHeader from "@/components/layout/headers/public-header"
 import PublicFooter from "@/components/layout/footers/public-footer"
-import StickyBannerCarousel from "@/components/organisms/StickyBannerCarousel"
 import { getPublicUseCasesWithCounts } from "@/actions/public/use-cases/actions"
 import { getStickyBannerProducts } from "@/actions/public/products/featured"
 import { buildSectionMetadata } from "@/lib/metadata"
@@ -29,8 +28,7 @@ export default async function PublicLayout({
     .map((useCase) => ({ label: useCase.label, slug: useCase.slug }))
   return (
     <div className="min-h-screen flex flex-col">
-      <PublicHeader />
-      <StickyBannerCarousel products={stickyBannerProducts} />
+      <PublicHeader stickyBannerProducts={stickyBannerProducts} />
       <main className="flex-1 bg-white">{children}</main>
       <PublicFooter useCases={footerUseCases} />
     </div>
