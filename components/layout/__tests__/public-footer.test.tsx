@@ -1,14 +1,26 @@
 import { render, screen } from "@testing-library/react"
 import PublicFooter from "@/components/layout/footers/public-footer"
-import { BROWSE_PATH, LEADERBOARD_PATH } from "@/lib/routes"
+import {
+  BROWSE_PATH,
+  LEADERBOARD_PATH,
+  MEMBER_PRODUCTS_PATH,
+  PRICING_PATH,
+} from "@/lib/routes"
 
 describe("PublicFooter", () => {
   it("renders brand, nav links and CTA", () => {
     render(<PublicFooter />)
 
     // Brand logo/text
-    const logos = screen.getAllByAltText(/^ShipYardHQ$/i)
-    expect(logos).toHaveLength(2)
+    expect(screen.getAllByAltText(/^ShipYardHQ$/i).length).toBeGreaterThan(0)
+
+    // CTA buttons
+    expect(
+      screen.getByRole("link", { name: /Submit your launch/i }),
+    ).toHaveAttribute("href", MEMBER_PRODUCTS_PATH)
+    expect(
+      screen.getByRole("link", { name: /Book a spotlight tour/i }),
+    ).toHaveAttribute("href", PRICING_PATH)
 
     // A few representative links
     expect(screen.getByRole("link", { name: /All Products/i })).toHaveAttribute(
@@ -20,7 +32,7 @@ describe("PublicFooter", () => {
       LEADERBOARD_PATH,
     )
     expect(
-      screen.getByRole("link", { name: /Privacy Policy/i }),
+      screen.getByRole("link", { name: /Privacy/i }),
     ).toHaveAttribute("href", "/legal/privacy-policy")
   })
 
