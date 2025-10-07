@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useId, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/atoms/button"
 import Link from "next/link"
@@ -18,6 +18,7 @@ import InlineSelect from "@/components/molecules/InlineSelect"
 import { ScrollArea } from "@/components/atoms/scroll-area"
 import { buildQuery } from "@/lib/urlParams"
 import { BROWSE_PATH } from "@/lib/routes"
+import { Label } from "@/components/atoms/label"
 
 type UseCase = {
   id: string
@@ -131,6 +132,21 @@ export default function BrowseFilterBar({
     [qs],
   )
 
+  const setVerified = useCallback(
+    (next: boolean) => {
+      router.push(
+        buildQuery(BROWSE_PATH, qs, {
+          verified: next ? "true" : undefined,
+          page: "1",
+        }),
+      )
+    },
+    [qs, router],
+  )
+
+  const verifiedSwitchId = useId()
+  const verifiedActive = Boolean(current.verified)
+
   const hasActiveFilters =
     (!!current.useCase && current.useCase !== "__all__") ||
     (!!current.category && current.category !== "__all__") ||
@@ -152,11 +168,23 @@ export default function BrowseFilterBar({
   )
 
   return (
-    <div className="rounded-lg border bg-card/80 backdrop-blur px-3 py-2 md:px-4 md:py-3 shadow-sm">
+    <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/95 px-4 py-4 shadow-[0_20px_60px_-40px_rgba(7,58,104,0.45)] backdrop-blur dark:border-border/40 dark:bg-slate-950/75">
       <div className="flex flex-wrap items-center gap-2 md:gap-3">
         {/* Search */}
-        <div className="w-full sm:w-auto sm:min-w-[14rem]">
-          <div className="relative">
+        <div className="w-full sm:w-auto sm:min-w-[17rem]">
+          <div className="relative flex h-9 items-center gap-2 rounded-full border border-border/60 bg-background/95 px-3 text-sm text-foreground shadow-sm dark:border-border/40 dark:bg-slate-950/60">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[color:var(--brand-1)] shadow-inner">
+              <svg
+                viewBox="0 0 24 24"
+                className="h-3.5 w-3.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <circle cx="11" cy="11" r="6" />
+                <line x1="20" y1="20" x2="16.65" y2="16.65" />
+              </svg>
+            </span>
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -165,15 +193,15 @@ export default function BrowseFilterBar({
                   e.preventDefault()
                 }
               }}
-              placeholder="Search products"
-              className="h-8 pr-8"
+              placeholder="Search the directory"
+              className="h-full flex-1 border-none bg-transparent pl-0 pr-8 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
               data-testid="browse-search"
             />
             {q ? (
               <button
                 type="button"
                 aria-label="Clear search"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-[color:var(--brand-1)/0.15] px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[color:var(--brand-1)] transition hover:bg-[color:var(--brand-1)/0.22]"
                 onClick={() => {
                   setQ("")
                   router.push(
@@ -193,7 +221,7 @@ export default function BrowseFilterBar({
             <Button
               variant="outline"
               size="sm"
-              className="min-w-[9rem] justify-between"
+              className="min-w-[9rem] justify-between rounded-full border border-border/60 bg-background/95 text-sm font-medium text-muted-foreground shadow-sm transition hover:border-border hover:text-foreground dark:border-border/40 dark:bg-slate-950/60"
               disabled={hasCategoryActive}
               title={
                 hasCategoryActive
@@ -207,7 +235,7 @@ export default function BrowseFilterBar({
               </span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-64 p-2">
+          <DropdownMenuContent className="w-64 rounded-2xl border border-border/60 bg-card/95 p-2 shadow-xl shadow-[rgba(7,58,104,0.18)] dark:border-border/40 dark:bg-slate-950/85">
             <DropdownMenuLabel>Use Case</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <ScrollArea className="max-h-64">
@@ -225,11 +253,12 @@ export default function BrowseFilterBar({
                         category: "__all__",
                       })}
                       data-testid={`use-case-option-${uc.slug}`}
+                      className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-sm"
                     >
-                      {uc.label}
+                      <span>{uc.label}</span>
                       {typeof uc.productCount === "number" && (
-                        <span className="ml-1 text-muted-foreground">
-                          ({uc.productCount})
+                        <span className="ml-2 rounded-full bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--brand-1)]">
+                          {uc.productCount}
                         </span>
                       )}
                     </Link>
@@ -246,7 +275,7 @@ export default function BrowseFilterBar({
             <Button
               variant="outline"
               size="sm"
-              className="min-w-[9rem] justify-between"
+              className="min-w-[9rem] justify-between rounded-full border border-border/60 bg-background/95 text-sm font-medium text-muted-foreground shadow-sm transition hover:border-border hover:text-foreground dark:border-border/40 dark:bg-slate-950/60"
               disabled={hasUseCaseActive}
               title={
                 hasUseCaseActive
@@ -260,7 +289,7 @@ export default function BrowseFilterBar({
               </span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-64 p-2">
+          <DropdownMenuContent className="w-64 rounded-2xl border border-border/60 bg-card/95 p-2 shadow-xl shadow-[rgba(7,58,104,0.18)] dark:border-border/40 dark:bg-slate-950/85">
             <DropdownMenuLabel>Category</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <ScrollArea className="max-h-64">
@@ -278,11 +307,12 @@ export default function BrowseFilterBar({
                         useCase: "__all__",
                       })}
                       data-testid={`category-option-${cat.slug}`}
+                      className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-sm"
                     >
-                      {cat.name}
+                      <span>{cat.name}</span>
                       {typeof cat._count?.products === "number" && (
-                        <span className="ml-1 text-muted-foreground">
-                          ({cat._count.products})
+                        <span className="ml-2 rounded-full bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-[11px] font-semibold text-[color:var(--brand-1)]">
+                          {cat._count.products}
                         </span>
                       )}
                     </Link>
@@ -299,31 +329,28 @@ export default function BrowseFilterBar({
           onValueChange={(val) => router.push(buildUrl("sort", val))}
           placeholder="Sort"
           options={sortOptions}
-          triggerClassName="h-8 min-w-[9rem]"
+          triggerClassName="h-8 min-w-[9rem] cursor-pointer rounded-full border border-border/60 bg-background/95 text-sm font-medium text-muted-foreground shadow-sm transition hover:border-border hover:bg-muted/60 hover:text-foreground dark:border-border/40 dark:bg-slate-950/60"
         />
 
         {/* Verified */}
-        <div className="inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5">
-          <span className="text-xs md:text-sm">Verified only</span>
+        <Label
+          htmlFor={verifiedSwitchId}
+          className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border/60 bg-background/95 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm transition hover:border-border hover:bg-muted/60 md:text-sm dark:border-border/40 dark:bg-slate-950/60"
+        >
+          <span className="select-none">Verified only</span>
           <Switch
-            checked={Boolean(current.verified)}
-            onCheckedChange={(checked) =>
-              router.push(
-                buildQuery(BROWSE_PATH, qs, {
-                  verified: checked ? "true" : undefined,
-                  page: "1",
-                }),
-              )
-            }
+            id={verifiedSwitchId}
+            checked={verifiedActive}
+            onCheckedChange={(checked) => setVerified(checked)}
           />
-        </div>
+        </Label>
 
         {hasActiveFilters && (
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => router.push(BROWSE_PATH)}
-            className="ml-auto"
+            className="ml-auto rounded-full border border-border/60 bg-background/95 px-4 py-1.5 text-sm font-semibold text-[color:var(--brand-1)] shadow-sm transition hover:border-border hover:bg-muted/60 dark:border-border/40 dark:bg-slate-950/60"
           >
             Clear all
           </Button>

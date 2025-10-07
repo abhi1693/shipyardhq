@@ -67,7 +67,7 @@ export function BrowseFeaturedCarousel({
   return (
     <div
       className={cn(
-        "flex w-full max-w-sm flex-col gap-4 rounded-3xl border border-border/70 bg-background/85 p-5 shadow-sm shadow-black/5",
+        "flex w-full flex-col gap-4 rounded-3xl border border-border/70 bg-background/85 p-5 shadow-sm shadow-black/5",
         className,
       )}
       onMouseEnter={() => onPause(true)}
