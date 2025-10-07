@@ -67,7 +67,7 @@ export function BrowseFeaturedCarousel({
   return (
     <div
       className={cn(
-        "flex h-full w-full max-w-sm flex-col gap-4 rounded-3xl border border-border/70 bg-background/85 p-5 shadow-sm shadow-black/5",
+        "flex w-full max-w-sm flex-col gap-4 rounded-3xl border border-border/70 bg-background/85 p-5 shadow-sm shadow-black/5",
         className,
       )}
       onMouseEnter={() => onPause(true)}
@@ -79,16 +79,20 @@ export function BrowseFeaturedCarousel({
         Featured spotlight
       </p>
 
-      <div className="relative" aria-live="polite" aria-atomic="true">
+      <div
+        className="relative h-[150px] overflow-hidden"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {items.map((item, itemIndex) => (
           <div
             key={item.id}
             className={cn(
-              "transition-all duration-500",
+              "absolute inset-0 transition-opacity duration-500",
               "rounded-2xl",
               itemIndex === index
-                ? "opacity-100"
-                : "pointer-events-none absolute inset-0 opacity-0",
+                ? "pointer-events-auto opacity-100"
+                : "pointer-events-none opacity-0",
             )}
             aria-hidden={itemIndex !== index}
           >
@@ -103,6 +107,7 @@ export function BrowseFeaturedCarousel({
               category={item.category?.name ?? null}
               upvotes={item.analytics?.upvotes ?? 0}
               imagePriority={itemIndex === index}
+              className="h-full"
             />
           </div>
         ))}
