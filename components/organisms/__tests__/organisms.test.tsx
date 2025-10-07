@@ -190,9 +190,11 @@ describe("Organisms", () => {
     ]
     rerender(<FeaturedHighlights products={items as any} />)
     expect(
-      screen.getByText("High-visibility placements across the fleet"),
+      screen.getByText("Marquee placements that keep your launch in view"),
     ).toBeInTheDocument()
-    expect(screen.getByText("Sponsored featured placements")).toBeInTheDocument()
-    expect(screen.getByText("Organic featured picks")).toBeInTheDocument()
+    expect(
+      screen.getByText("Sponsored featured spotlights"),
+    ).toBeInTheDocument()
+    expect(screen.getByText("Featured on merit")).toBeInTheDocument()
   })
 })

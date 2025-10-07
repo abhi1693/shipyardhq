@@ -29,16 +29,25 @@ export function DirectorySectionHeader({
     >
       <div className="space-y-2">
         {kicker ? (
-          <span className="inline-flex items-center gap-2 rounded-full bg-muted/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+          <span
+            data-slot="section-kicker"
+            className="inline-flex items-center gap-2 rounded-full bg-muted/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
+          >
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             {kicker}
           </span>
         ) : null}
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+        <h2
+          data-slot="section-title"
+          className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
+        >
           {title}
         </h2>
         {description ? (
-          <div className="max-w-3xl text-sm text-muted-foreground">
+          <div
+            data-slot="section-description"
+            className="max-w-3xl text-sm text-muted-foreground"
+          >
             {typeof description === "string" ? <p>{description}</p> : description}
           </div>
         ) : null}

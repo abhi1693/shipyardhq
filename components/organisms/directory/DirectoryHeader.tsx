@@ -1,7 +1,9 @@
 import Link from "next/link"
+import { Rocket } from "lucide-react"
 
-import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
+import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
+import { brandGradient, gradientTint } from "@/lib/ui/tints"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 type HeaderActionConfig = {
@@ -74,12 +76,12 @@ export function DirectoryHeader({
     "Shipyard is the launch directory built for builders, investors, and operator-fans to discover breakout products."
 
   const defaultPrimary: HeaderActionConfig = {
-    label: "Explore the full launch lineup",
-    href: BROWSE_PATH,
+    label: "Submit your product",
+    href: MEMBER_PRODUCTS_PATH,
   }
   const defaultSecondary: HeaderActionConfig = {
-    label: "Submit your launch",
-    href: MEMBER_PRODUCTS_PATH,
+    label: "Explore the full launch lineup",
+    href: BROWSE_PATH,
     variant: "outline",
   }
 
@@ -89,49 +91,41 @@ export function DirectoryHeader({
 
   const renderAction = (action: HeaderActionConfig, index: number) => {
     const variant = action.variant ?? (index === 0 ? "default" : "outline")
-    const buttonProps =
-      variant === "ghost"
-        ? {
-            variant: "ghost" as const,
-            className:
-              action.className ?? "hover:bg-muted/60 text-muted-foreground",
-          }
-        : variant === "outline"
-          ? {
-              variant: "outline" as const,
-              className:
-                action.className ??
-                "border-border/70 text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground",
-            }
-          : variant === "secondary"
-            ? {
-                variant: "secondary" as const,
-                className: action.className,
-              }
-            : {
-                variant: "default" as const,
-                className: action.className,
-              }
+    const composedClasses =
+      variant === "default"
+        ? launchPrimaryButton({ size: "lg", className: action.className })
+        : launchSecondaryButton({ size: "lg", className: action.className })
 
     return (
-      <Button key={action.href} asChild size="lg" {...buttonProps}>
-        <Link href={action.href}>{action.label}</Link>
-      </Button>
+      <Link key={action.href} href={action.href} className={composedClasses}>
+        {variant === "default" ? (
+          <Rocket className="h-4 w-4" aria-hidden="true" />
+        ) : null}
+        {action.label}
+      </Link>
     )
   }
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-border bg-white px-6 py-12 shadow-sm md:px-10">
+    <section
+      className={brandGradient(
+        "relative overflow-hidden rounded-3xl border border-border px-6 py-12 shadow-sm md:px-10",
+      )}
+    >
       <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="space-y-5">
-          <span className="inline-flex items-center gap-2 rounded-full bg-muted/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.26em] text-muted-foreground">
+          <span
+            className={gradientTint(
+              "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.26em] text-white/80",
+            )}
+          >
             {resolvedEyebrow}
           </span>
           <div className="space-y-3">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               {resolvedTitle}
             </h1>
-            <p className="max-w-xl text-base text-muted-foreground">
+            <p className="max-w-xl text-base text-white/80">
               {resolvedDescription}
             </p>
           </div>

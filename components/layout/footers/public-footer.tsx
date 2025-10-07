@@ -21,6 +21,7 @@ import {
   SHIPYARD_TWITTER_URL,
 } from "@/lib/routes"
 import { cn } from "@/lib/utils"
+import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 type UseCaseLink = { label: string; slug: string }
@@ -94,18 +95,13 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link
-                href={MEMBER_PRODUCTS_PATH}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[color:var(--brand-1)] shadow-lg transition hover:brightness-95"
-              >
+              <Link href={MEMBER_PRODUCTS_PATH} className={launchPrimaryButton()}>
                 <Rocket className="h-4 w-4" aria-hidden="true" />
                 Submit your launch
               </Link>
               <Link
                 href={PRICING_PATH}
-                className={gradientTint(
-                  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20",
-                )}
+                className={launchSecondaryButton()}
               >
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
                 Book a spotlight tour

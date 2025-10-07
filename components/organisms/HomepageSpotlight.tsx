@@ -1,5 +1,4 @@
 import type { HomepageFeaturePlacement } from "@/actions/public/products/featured"
-import { Sparkles } from "lucide-react"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 
@@ -30,15 +29,6 @@ function toSpotlightItem(
   }
 }
 
-const PlacementBadge = () => (
-  <span
-    className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-100/70 text-amber-600 shadow-sm"
-    aria-label="Sponsored placement"
-  >
-    <Sparkles className="h-3 w-3" aria-hidden />
-  </span>
-)
-
 export function HomepageSpotlight({
   placements,
 }: {
@@ -52,14 +42,12 @@ export function HomepageSpotlight({
   const sections: Array<{
     heading: string
     items: SpotlightListItem[]
-    showBadge?: boolean
   }> = []
 
   if (scheduled.length > 0) {
     sections.push({
       heading: "Scheduled homepage takeovers",
       items: scheduled.map(toSpotlightItem),
-      showBadge: true,
     })
   }
 
@@ -78,7 +66,6 @@ export function HomepageSpotlight({
           <div key={section.heading} className="space-y-4">
             <div className="flex flex-wrap items-center gap-2 text-base font-semibold text-foreground">
               <span>{section.heading}</span>
-              {section.showBadge ? <PlacementBadge /> : null}
             </div>
             <DirectoryProductList
               items={section.items.map((item) => ({ ...item, badges: [] }))}

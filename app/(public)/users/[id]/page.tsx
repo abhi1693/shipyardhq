@@ -14,6 +14,8 @@ import { DirectorySectionHeader } from "@/components/molecules/directory/Section
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { Badge } from "@/components/atoms/badge"
+import { Rocket } from "lucide-react"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
@@ -477,7 +479,11 @@ export default async function MakerProfilePage({ params }: PageProps) {
               eyebrow="Launch with Shipyard"
               title="Ready to publish your own product?"
               description="Join Shipyard to unlock homepage features, leaderboard visibility, and analytics that help your next launch go further."
-              cta={{ label: "Submit your launch", href: MEMBER_PRODUCTS_PATH }}
+              cta={{
+                label: "Submit your launch",
+                href: MEMBER_PRODUCTS_PATH,
+                icon: <Rocket className="h-4 w-4" aria-hidden="true" />,
+              }}
               subtleCta={{ label: "Browse the product directory", href: BROWSE_PATH }}
             />
 

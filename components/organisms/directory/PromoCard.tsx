@@ -1,7 +1,8 @@
 import Link from "next/link"
 import { ReactNode } from "react"
 
-import { Button } from "@/components/atoms/button"
+import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
+import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 interface DirectoryPromoCardProps {
   title: string
@@ -10,6 +11,7 @@ interface DirectoryPromoCardProps {
     label: string
     href: string
     variant?: "solid" | "ghost"
+    icon?: ReactNode
   }
   eyebrow?: string
   icon?: ReactNode
@@ -28,31 +30,42 @@ export function DirectoryPromoCard({
   subtleCta,
 }: DirectoryPromoCardProps) {
   return (
-    <section className="rounded-3xl border border-border bg-white p-6 shadow-sm">
+    <section
+      className={brandGradient(
+        "rounded-3xl border border-border p-6 shadow-sm text-white",
+      )}
+    >
       <div className="space-y-5">
         {eyebrow ? (
-          <span className="inline-flex items-center gap-2 rounded-full bg-muted/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          <span
+            className={gradientTint(
+              "inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80",
+            )}
+          >
             {icon}
             {eyebrow}
           </span>
         ) : null}
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <h3 className="text-lg font-semibold">{title}</h3>
+          <p className="text-sm text-white/90">{description}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <Button
-            asChild
-            size="sm"
-            className={cta.variant === "ghost" ? "bg-transparent hover:bg-muted/70" : undefined}
-            variant={cta.variant === "ghost" ? "ghost" : "default"}
+          <Link
+            href={cta.href}
+            className={
+              cta.variant === "ghost"
+                ? launchSecondaryButton({ size: "sm" })
+                : launchPrimaryButton({ size: "sm" })
+            }
           >
-            <Link href={cta.href}>{cta.label}</Link>
-          </Button>
+            {cta.icon ?? null}
+            {cta.label}
+          </Link>
           {subtleCta ? (
             <Link
               href={subtleCta.href}
-              className="text-xs font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              className="text-xs font-semibold text-white/80 underline-offset-4 hover:text-white hover:underline"
             >
               {subtleCta.label}
             </Link>
