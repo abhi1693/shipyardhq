@@ -207,6 +207,28 @@ export const getStickyBannerProducts = cached(
               slug: true,
               name: true,
               logo: true,
+              tagline: true,
+              category: {
+                select: {
+                  name: true,
+                },
+              },
+              organization: {
+                select: {
+                  name: true,
+                },
+              },
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+              analytics: {
+                select: {
+                  upvotes: true,
+                },
+              },
             },
           },
         },
@@ -241,6 +263,28 @@ export const getStickyBannerProducts = cached(
           slug: true,
           name: true,
           logo: true,
+          tagline: true,
+          category: {
+            select: {
+              name: true,
+            },
+          },
+          organization: {
+            select: {
+              name: true,
+            },
+          },
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
+          analytics: {
+            select: {
+              upvotes: true,
+            },
+          },
         },
         orderBy: { updatedAt: "desc" },
         take: limit,
@@ -271,7 +315,30 @@ export const getStickyBannerProducts = cached(
 
     const limitedPlan = uniquePlan.slice(0, Math.max(0, limit))
 
-    return [...limitedScheduled, ...limitedPlan]
+    const combined = [...limitedScheduled, ...limitedPlan]
+
+    return combined.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      logo: product.logo,
+      tagline: product.tagline ?? null,
+      category: product.category
+        ? { name: product.category.name ?? null }
+        : null,
+      organization: product.organization
+        ? { name: product.organization.name ?? null }
+        : null,
+      user: product.user
+        ? {
+            firstName: product.user.firstName ?? null,
+            lastName: product.user.lastName ?? null,
+          }
+        : null,
+      analytics: product.analytics
+        ? { upvotes: product.analytics.upvotes ?? null }
+        : null,
+    }))
   },
   "products:sticky-banner",
   {

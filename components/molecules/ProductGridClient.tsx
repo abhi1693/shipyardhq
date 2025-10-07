@@ -157,7 +157,7 @@ export default function ProductGridClient({
         />
       ) : (
         <p className="py-4 text-center text-sm text-muted-foreground">
-          You've reached the end of the directory.
+          You&apos;ve reached the end of the directory.
         </p>
       )}
     </section>
