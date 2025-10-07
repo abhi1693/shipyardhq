@@ -23,23 +23,22 @@ export function UpvoteSquare({
   return (
     <div
       className={clsx(
-        "inline-flex select-none items-center gap-2 rounded-xl bg-gradient-to-br from-[color:var(--brand-1)/0.18] via-background/80 to-background/75 px-3 py-1.5 text-[color:var(--brand-1)] shadow-[0px_18px_38px_-32px_rgba(7,58,104,0.75)] ring-1 ring-inset ring-white/10 transition-colors",
-        compact && "gap-1 rounded-lg px-2.5 py-1 text-xs",
+        "inline-flex select-none items-center gap-3 rounded-full border border-border bg-muted px-5 py-2 text-base font-semibold text-foreground shadow-sm transition-colors",
+        compact && "gap-2 rounded-full px-3.5 py-1.5 text-sm",
         pending && "opacity-70",
-        active &&
-          "text-[color:var(--brand-2)] ring-[color:var(--brand-2)/0.4]",
+        active && "border-foreground bg-white text-foreground shadow-md",
         className,
       )}
       aria-label="Upvotes"
       title={title ?? `${count} upvotes`}
     >
       <ChevronsUp
-        className={clsx(compact ? "h-3 w-3" : "h-4 w-4", pop && "animate-pop")}
+        className={clsx(compact ? "h-4 w-4" : "h-5 w-5", pop && "animate-pop")}
       />
       <span
         className={clsx(
           "font-semibold leading-none transition-transform duration-150",
-          compact ? "text-xs" : "text-base",
+          compact ? "text-xl" : "text-3xl",
           pop && "animate-count-bump",
         )}
       >
