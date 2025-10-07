@@ -1,10 +1,10 @@
 import Link from "next/link"
+
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
-import { CategoryCard } from "@/components/molecules/CategoryCard"
-import PublicContainer from "@/components/layout/PublicContainer"
-import { pluralize } from "@/lib/pluralize"
 import { Button } from "@/components/atoms/button"
+import { CategoryCard } from "@/components/molecules/CategoryCard"
 import { buildPageMetadata } from "@/lib/metadata"
+import { pluralize } from "@/lib/pluralize"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH, categoryPath } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
@@ -23,149 +23,161 @@ export default async function CategoriesPage() {
     (sum: number, cat: CategoryListItem) => sum + (cat.count ?? 0),
     0,
   )
+  const averagePerCategory =
+    categories.length > 0 ? Math.max(1, Math.round(totalProducts / categories.length)) : 0
+  const highlightCategories = categories.slice(0, 4)
+  const busiestCategory = categories[0]
 
   return (
-    <main className="relative isolate overflow-hidden">
+    <main className="relative isolate bg-background">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(250,252,255,0.96),rgba(243,247,252,0.92)40%,rgba(233,243,251,0.9))] dark:bg-[linear-gradient(180deg,rgba(6,18,36,0.92),rgba(4,24,43,0.92)40%,rgba(9,32,55,0.92))]"
+        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(250,252,255,0.95),rgba(243,247,252,0.9)40%,rgba(233,243,251,0.88))] dark:bg-[linear-gradient(180deg,rgba(6,18,36,0.92),rgba(4,24,43,0.9)40%,rgba(9,32,55,0.92))]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_80%_at_0%_0%,var(--brand-2)/0.12,transparent_60%),radial-gradient(110%_120%_at_100%_10%,var(--brand-3)/0.14,transparent_72%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-30"
-        style={{
-          backgroundImage:
-            "linear-gradient(90deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-          backgroundSize: "160px 160px",
-          maskImage:
-            "radial-gradient(80% 110% at 50% 0%, rgba(0,0,0,0.9), transparent 70%)",
-        }}
+        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.08,transparent_60%),radial-gradient(110%_140%_at_100%_-10%,var(--brand-3)/0.08,transparent_70%)]"
       />
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-24"
-        fillScreen={false}
-        className="relative"
-      >
-        <div className="mx-auto max-w-3xl text-center space-y-8">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
-            Categories
-          </span>
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              Chart your course by category
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Explore curated lanes of the harbor to find launches tailored to
-              your interests, from productivity anchors to AI co-pilots.
-            </p>
-          </div>
-          <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Button
-              asChild
-              size="lg"
-              className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
-            >
-              <Link href={BROWSE_PATH}>Browse all products</Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-[color:var(--brand-1)/0.35] bg-background/80 text-[color:var(--brand-1)]"
-            >
-              <Link href={MEMBER_PRODUCTS_PATH}>Submit your launch</Link>
-            </Button>
-          </div>
+      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
+        <div className="space-y-16">
+          <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-12 shadow-[0_28px_90px_-50px_rgba(7,58,104,0.55)] backdrop-blur md:px-10">
+            <div className="grid gap-12 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)]">
+              <div className="space-y-6">
+                <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/90 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                  Category directory
+                </span>
+                <div className="space-y-4">
+                  <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                    Discover harbors built for every launch
+                  </h1>
+                  <p className="text-base text-muted-foreground">
+                    Scan the full taxonomy of Shipyard launches, find niche
+                    segments gaining momentum, and dive into the lanes that map
+                    closest to your product story.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                  <Button size="lg" asChild className="shadow-sm shadow-black/10">
+                    <Link href={BROWSE_PATH}>Browse every launch</Link>
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    asChild
+                    className="border-border/70 text-[color:var(--brand-1)] hover:border-border hover:bg-muted/60"
+                  >
+                    <Link href={MEMBER_PRODUCTS_PATH}>Submit your category launch</Link>
+                  </Button>
+                </div>
+                {highlightCategories.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {highlightCategories.map((cat) => (
+                      <Link
+                        key={cat.id}
+                        href={categoryPath(cat.slug)}
+                        className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-border hover:bg-muted/60 hover:text-foreground"
+                      >
+                        <span className="truncate">{cat.name}</span>
+                        {typeof cat.count === "number" ? (
+                          <span className="rounded-full bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--brand-1)]">
+                            {cat.count.toLocaleString()}
+                          </span>
+                        ) : null}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                  <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
+                    Active categories
+                  </p>
+                  <p className="mt-3 text-3xl font-semibold text-foreground">
+                    {categories.length}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {pluralize(categories.length, "category")} captaining the directory.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                  <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
+                    Launches cataloged
+                  </p>
+                  <p className="mt-3 text-3xl font-semibold text-foreground">
+                    {totalProducts.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {pluralize(totalProducts, "product")}{" "} charted across the fleet.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
+                  <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
+                    Momentum snapshot
+                  </p>
+                  <p className="mt-3 text-2xl font-semibold text-foreground">
+                    {averagePerCategory.toLocaleString()} avg / category
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {busiestCategory
+                      ? `${busiestCategory.count?.toLocaleString() ?? 0} launches currently live in ${busiestCategory.name}.`
+                      : "Keep an eye out for the next wave of launches."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
 
-          <div className="grid gap-4 rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-6 text-left shadow-[0px_25px_60px_-40px_rgba(7,58,104,0.6)] backdrop-blur sm:grid-cols-3">
-            <div>
-              <p className="text-sm font-semibold text-[color:var(--brand-1)]">
-                Active categories
-              </p>
-              <p className="mt-1 text-3xl font-semibold text-foreground">
-                {categories.length}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {pluralize(categories.length, "category")} to explore
+          <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-10 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur md:px-10">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+                  Explore every harbor
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {pluralize(categories.length, "category")} organized by traction,
+                  narrative, and community demand.
+                </p>
+              </div>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                {totalProducts.toLocaleString()} launches cataloged
               </p>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-[color:var(--brand-1)]">
-                Products listed
-              </p>
-              <p className="mt-1 text-3xl font-semibold text-foreground">
-                {totalProducts.toLocaleString()}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Makers shipping across the fleet
-              </p>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {categories.map((cat: CategoryListItem) => (
+                <CategoryCard
+                  key={cat.id}
+                  href={categoryPath(cat.slug)}
+                  name={cat.name}
+                  icon={cat.icon}
+                  description={cat.description}
+                  count={cat.count}
+                />
+              ))}
             </div>
-            <div>
-              <p className="text-sm font-semibold text-[color:var(--brand-1)]">
-                Fresh arrivals
+          </section>
+
+          <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-12 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur md:px-10">
+            <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                Help chart new lanes
+              </span>
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                Missing a category for your launch?
+              </h2>
+              <p className="max-w-xl text-sm text-muted-foreground">
+                Pitch a fresh harbor and we’ll spin up a scouting lane, signal it
+                to the community, and feature the first wave of builders ready to
+                dock.
               </p>
-              <p className="mt-1 text-3xl font-semibold text-foreground">
-                {categories
-                  .slice(0, 1)
-                  .map((cat: CategoryListItem) => cat.name)
-                  .join(" ") || "Daily"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Categories gaining new launches right now
-              </p>
+              <Button asChild size="lg" variant="secondary" className="border-border/70">
+                <a href="mailto:support@shipyardhq.dev">Suggest a new category</a>
+              </Button>
             </div>
-          </div>
+          </section>
         </div>
-      </PublicContainer>
-
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-      >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {categories.map((cat: CategoryListItem) => (
-            <CategoryCard
-              key={cat.id}
-              href={categoryPath(cat.slug)}
-              name={cat.name}
-              icon={cat.icon}
-              description={cat.description}
-              count={cat.count}
-            />
-          ))}
-        </div>
-      </PublicContainer>
-
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-      >
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/82 px-8 py-12 text-center shadow-[0px_32px_90px_-60px_rgba(7,58,104,0.55)] backdrop-blur">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">
-            Can’t find a harbor for your tool?
-          </h2>
-          <p className="text-muted-foreground">
-            Pitch us on a new category and we’ll chart a space for emerging
-            trends, then spotlight the first wave of launches.
-          </p>
-          <Button asChild size="lg" variant="secondary">
-            <a href="mailto:support@shipyardhq.dev">Suggest a category</a>
-          </Button>
-        </div>
-      </PublicContainer>
+      </div>
     </main>
   )
 }
