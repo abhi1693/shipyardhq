@@ -1,9 +1,7 @@
 import Link from "next/link"
 
-import {
-  ProductCompactGrid,
-  type CompactProductItem,
-} from "@/components/molecules/ProductCompactGrid"
+import { ProductCompactCard } from "@/components/molecules/ProductCompactCard"
+import { type CompactProductItem } from "@/components/molecules/ProductCompactGrid"
 import { productPageCopy } from "@/lib/copy/productPage"
 
 interface ProductSimilarVoyagesProps<T extends CompactProductItem> {
@@ -24,29 +22,45 @@ export function ProductSimilarVoyages<T extends CompactProductItem>({
   const { recommendations } = productPageCopy
 
   return (
-    <section className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
+    <section className="rounded-2xl border border-border/70 bg-card p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1">
+          <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
             {recommendations.eyebrow}
           </p>
-          <h2 className="text-2xl font-semibold text-foreground">
+          <h3 className="text-lg font-semibold text-foreground">
             {recommendations.headingPrefix} {headingSuffix ?? "explore"}
-          </h2>
+          </h3>
         </div>
         <Link
           href={browseHref}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[color:var(--brand-1)] ring-1 ring-slate-200/40 transition hover:ring-[color:var(--brand-1)/0.35] dark:bg-slate-900 dark:ring-slate-800/40"
+          className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background px-3 py-1 text-sm font-semibold text-muted-foreground transition hover:border-border hover:text-foreground"
         >
           {recommendations.ctaLabel}
           <span aria-hidden>↗</span>
         </Link>
       </div>
-      <ProductCompactGrid
-        items={items}
-        className="gap-4"
-        showCategory={false}
-      />
+
+      <div className="mt-4 space-y-3">
+        {items.slice(0, 4).map((item, index) => (
+          <ProductCompactCard
+            key={item.id}
+            product={{
+              id: item.id,
+              slug: item.slug,
+              name: item.name,
+              logo: item.logo,
+              tagline: item.tagline,
+            }}
+            upvotes={item.analytics?.upvotes ?? 0}
+            category={item.category?.name ?? null}
+            imagePriority={index === 0}
+            showCategory={false}
+            disableHoverEffects
+            className="border border-border/60 bg-background/90 p-3 shadow-none"
+          />
+        ))}
+      </div>
     </section>
   )
 }

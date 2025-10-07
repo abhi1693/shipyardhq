@@ -16,12 +16,6 @@ interface HeroBadge {
   className?: string
 }
 
-interface HeroLink {
-  href: string
-  label: string
-  icon: JSX.Element
-}
-
 interface HeroPlatform {
   id: string
   label: string
@@ -48,11 +42,9 @@ interface ProductDetailHeroProps {
   badges: HeroBadge[]
   isVerified: boolean
   primaryLinks: JSX.Element[]
-  secondaryLinks: HeroLink[]
   platforms: HeroPlatform[]
   tags: HeroTag[]
-  stats: HeroStat[]
-  supportCard: JSX.Element
+  stats?: HeroStat[]
   reviewPrompt?: {
     isSignedIn: boolean
     redirectUrl: string
@@ -69,213 +61,199 @@ export function ProductDetailHero({
   badges,
   isVerified,
   primaryLinks,
-  secondaryLinks,
   platforms,
   tags,
   stats,
-  supportCard,
   reviewPrompt,
 }: ProductDetailHeroProps) {
-  const { hero } = productPageCopy
-  const hasSecondaryLinks = secondaryLinks.length > 0
+  const { hero, reviewPrompt: reviewCopy } = productPageCopy
   const hasPlatforms = platforms.length > 0
   const hasTags = tags.length > 0
-  const hasStats = stats.length > 0
-  const reviewCopy = productPageCopy.reviewPrompt
+  const showOwner = owner.name.trim().length > 0
+  const hasBadgeContent = isVerified || badges.length > 0
+  const showReviewPrompt = Boolean(reviewPrompt)
+
+  const hasStats = Boolean(stats && stats.length)
 
   return (
-    <div className="relative overflow-hidden">
-      <div className="grid gap-14 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,360px)] lg:items-start">
-        <div className="space-y-10 lg:space-y-12">
-          <header className="space-y-6">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-3xl border border-white/30 bg-white shadow-[0_18px_45px_-30px_rgba(7,58,104,0.55)] ring-1 ring-slate-200/40 sm:h-24 sm:w-24 dark:border-slate-700/40 dark:bg-slate-900 dark:ring-slate-700/40">
-                <Image
-                  src={logo}
-                  alt={`${name} logo`}
-                  width={96}
-                  height={96}
-                  priority
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="min-w-0 space-y-5">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                    <span>{hero.chartedLabel}</span>
-                    <Link
-                      href={category.href}
-                      className="font-semibold tracking-[0.2em] text-foreground underline decoration-[color:var(--brand-1)/0.45] underline-offset-4 transition-colors hover:decoration-[color:var(--brand-1)/0.7]"
-                    >
-                      {category.label}
-                    </Link>
-                  </div>
-                  <h1 className="text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
-                    {name}
-                  </h1>
-                  {tagline ? (
-                    <p className="max-w-2xl text-base text-slate-600 sm:text-lg dark:text-slate-200/90">
-                      {tagline}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              {isVerified ? (
-                <Badge className="flex items-center gap-1 rounded-full border border-[color:var(--brand-2)/0.35] bg-[color:var(--brand-2)/0.12] px-3 py-1 text-[color:var(--brand-2)]">
-                  <CheckCircle className="size-3" aria-hidden /> Verified domain
-                </Badge>
-              ) : null}
-              {badges.map((badge) => (
-                <Badge
-                  key={badge.id}
-                  className={cn(
-                    "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold",
-                    badge.className,
-                  )}
-                >
-                  {badge.icon}
-                  {badge.label}
-                </Badge>
-              ))}
-            </div>
-
-            <div className="text-sm text-slate-600 dark:text-slate-200/90">
-              {hero.ownerPrefix}{" "}
-              <Link
-                href={owner.href}
-                className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition-colors hover:text-[color:var(--brand-1)]"
-              >
-                {owner.name}
-              </Link>
-            </div>
-
-            {primaryLinks.length > 0 ? (
-              <div className="flex flex-wrap gap-3">
-                {primaryLinks.map((link, index) => (
-                  <span key={`primary-${index}`} className="inline-flex">
-                    {link}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-          </header>
-
-          {hasPlatforms ? (
+    <div className="space-y-6 rounded-3xl border border-border/60 bg-card px-6 py-7 shadow-[0_22px_70px_-50px_rgba(15,36,72,0.24)]">
+      <header className="flex flex-col gap-6 sm:flex-row sm:items-start">
+        <div className="flex gap-5">
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-background shadow-sm shadow-black/5 sm:h-20 sm:w-20">
+            <Image
+              src={logo}
+              alt={`${name} logo`}
+              width={96}
+              height={96}
+              priority
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="min-w-0 space-y-4">
             <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                Sails hoisted for
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {platforms.map((platform) => (
+              <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
+                <span>{hero.chartedLabel}</span>
+                <Link
+                  href={category.href}
+                  className="font-semibold tracking-[0.24em] text-foreground underline decoration-border underline-offset-4 transition hover:text-[color:var(--brand-1)]"
+                >
+                  {category.label}
+                </Link>
+              </div>
+              <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                {name}
+              </h1>
+              {tagline ? (
+                <p className="max-w-2xl text-base text-muted-foreground">
+                  {tagline}
+                </p>
+              ) : null}
+            </div>
+
+            {hasBadgeContent ? (
+              <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
+                {isVerified ? (
+                  <Badge className="flex items-center gap-1 rounded-full border border-[color:var(--brand-2)/0.4] bg-[color:var(--brand-2)/0.08] px-3 py-1 text-[color:var(--brand-2)]">
+                    <CheckCircle className="size-3" aria-hidden />
+                    Verified launch
+                  </Badge>
+                ) : null}
+                {badges.map((badge) => (
                   <Badge
-                    key={platform.id}
-                    variant="outline"
-                    className="flex items-center gap-1 rounded-full border-slate-200/60 bg-white px-2.5 py-0.5 text-[11px] text-[color:var(--brand-1)] dark:border-slate-700/50 dark:bg-slate-900"
+                    key={badge.id}
+                    className={cn(
+                      "flex items-center gap-1 rounded-full border border-border/60 bg-background px-3 py-1 text-xs font-medium",
+                      badge.className,
+                    )}
                   >
-                    {platform.icon}
-                    {platform.label}
+                    {badge.icon}
+                    {badge.label}
                   </Badge>
                 ))}
               </div>
-            </div>
-          ) : null}
+            ) : null}
 
-          {hasTags ? (
-            <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                Tags
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {tags.map((tag) => (
-                  <Link key={tag.id} href={tag.href} className="inline-flex">
-                    <Badge className="rounded-full border border-slate-200/60 bg-white px-3 py-0.5 text-[11px] font-medium text-[color:var(--brand-1)] transition hover:border-[color:var(--brand-1)/0.4] dark:border-slate-700/50 dark:bg-slate-900 dark:text-slate-100">
-                      {tag.label}
-                    </Badge>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+              {showOwner ? (
+                <span>
+                  {hero.ownerPrefix}{" "}
+                  <Link
+                    href={owner.href}
+                    className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-[color:var(--brand-1)]"
+                  >
+                    {owner.name}
                   </Link>
-                ))}
-              </div>
+                </span>
+              ) : null}
+              <Link
+                href={category.href}
+                className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-[color:var(--brand-1)]"
+              >
+                Category: {category.label}
+              </Link>
             </div>
-          ) : null}
-
-          {reviewPrompt ? (
-            <div className="rounded-[28px] bg-white px-6 py-5 ring-1 ring-slate-200/70 shadow-[0_24px_70px_-55px_rgba(7,58,104,0.35)] dark:bg-slate-900 dark:ring-slate-800/50">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="space-y-1">
-                  <p className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
-                    {reviewCopy.heading}
-                  </p>
-                  <p className="text-sm text-slate-600 dark:text-slate-200/90">
-                    {reviewCopy.body}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  {reviewPrompt.isSignedIn ? (
-                    <Button asChild size="sm" className="px-4">
-                      <Link href="#product-review-form">
-                        {reviewPrompt.hasReviews
-                          ? reviewCopy.signedInCta
-                          : `Be the first to review ${name}`}
-                      </Link>
-                    </Button>
-                  ) : (
-                    <SignInButton
-                      mode="modal"
-                      forceRedirectUrl={reviewPrompt.redirectUrl}
-                      signUpForceRedirectUrl={reviewPrompt.redirectUrl}
-                    >
-                      <Button size="sm" className="px-4" variant="outline">
-                        {reviewCopy.signedOutCta}
-                      </Button>
-                    </SignInButton>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : null}
+          </div>
         </div>
+      </header>
 
-        <aside className="space-y-4 lg:sticky lg:top-28">
-          {supportCard}
-          {hasStats ? (
-            <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200/70 shadow-[0_24px_80px_-60px_rgba(7,58,104,0.35)] dark:bg-slate-900 dark:ring-slate-800/60">
-              <p className="text-[11px] uppercase tracking-[0.3em] text-slate-600 dark:text-slate-300">
-                {hero.statsLabel}
+      {primaryLinks.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-3">
+          {primaryLinks.map((link, index) => (
+            <span key={`primary-${index}`} className="inline-flex">
+              {link}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {hasPlatforms ? (
+        <div className="space-y-2">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
+            Available on
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {platforms.map((platform) => (
+              <Badge
+                key={platform.id}
+                variant="outline"
+                className="flex items-center gap-1 rounded-full border-border/70 bg-background px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground"
+              >
+                {platform.icon}
+                {platform.label}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {hasTags ? (
+        <div className="space-y-2">
+          <p className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
+            Tags
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <Link key={tag.id} href={tag.href} className="inline-flex">
+                <Badge className="rounded-full border border-border/70 bg-background px-3 py-0.5 text-[11px] font-medium text-muted-foreground transition hover:border-[color:var(--brand-1)/0.4]">
+                  {tag.label}
+                </Badge>
+              </Link>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {showReviewPrompt && reviewPrompt ? (
+        <div className="rounded-2xl border border-border/70 bg-card px-5 py-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
+                {reviewCopy.heading}
               </p>
-              <dl className="mt-4 space-y-3">
-                {stats.map((stat) => (
-                  <div key={stat.label} className="space-y-1">
-                    <dt className="text-[11px] uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300">
-                      {stat.label}
-                    </dt>
-                    <dd className="text-base font-semibold text-foreground">
-                      {stat.value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
+              <p className="text-sm text-muted-foreground">{reviewCopy.body}</p>
             </div>
-          ) : null}
-          {hasSecondaryLinks ? (
-            <div className="flex items-center justify-center gap-2 rounded-full bg-white p-1 ring-1 ring-slate-200/60 dark:bg-slate-900 dark:ring-slate-800/50">
-              {secondaryLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={link.label}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[color:var(--brand-1)] transition hover:bg-white hover:text-[color:var(--brand-2)] dark:hover:bg-slate-800"
+            <div className="flex flex-wrap items-center gap-3">
+              {reviewPrompt.isSignedIn ? (
+                <Button asChild size="sm" className="px-4">
+                  <Link href="#product-review-form">
+                    {reviewPrompt.hasReviews
+                      ? reviewCopy.signedInCta
+                      : `Be the first to review ${name}`}
+                  </Link>
+                </Button>
+              ) : (
+                <SignInButton
+                  mode="modal"
+                  forceRedirectUrl={reviewPrompt.redirectUrl}
+                  signUpForceRedirectUrl={reviewPrompt.redirectUrl}
                 >
-                  {link.icon}
-                </Link>
-              ))}
+                  <Button size="sm" className="px-4" variant="outline">
+                    {reviewCopy.signedOutCta}
+                  </Button>
+                </SignInButton>
+              )}
             </div>
-          ) : null}
-        </aside>
-      </div>
+          </div>
+        </div>
+      ) : null}
+
+      {hasStats ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {stats!.map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-2xl border border-border/70 bg-background px-4 py-3"
+            >
+              <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+                {stat.label}
+              </p>
+              <p className="mt-2 text-base font-semibold text-foreground">
+                {stat.value}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   )
 }

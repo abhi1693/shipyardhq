@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import { JSX } from "react"
@@ -10,8 +11,8 @@ import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import {
   getPublicProductBySlug,
   getPublicProductsByUseCase,
+  getPublicProductMetaBySlug,
 } from "@/actions/public/products/actions"
-import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
 import {
   ExternalLink,
   Github,
@@ -26,7 +27,7 @@ import {
   Chrome,
 } from "lucide-react"
 import { IconBrandFirefox } from "@tabler/icons-react"
-import PublicContainer from "@/components/layout/PublicContainer"
+import { productPageCopy } from "@/lib/copy/productPage"
 import ExternalBadgeLink from "@/components/molecules/ExternalBadgeLink"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
@@ -210,7 +211,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         follow={hasBacklinkFeature}
         target={hasBacklinkFeature ? "_blank" : undefined}
         rel={hasBacklinkFeature ? "noopener" : undefined}
-        className="inline-flex h-11 items-center gap-2 rounded-full bg-[color:var(--brand-2)] px-5 text-sm font-semibold text-white shadow-[0px_25px_70px_-40px_rgba(7,78,134,0.5)] transition hover:bg-[color:var(--brand-2)/0.9]"
+        className="inline-flex items-center gap-2 rounded-lg border border-[color:var(--brand-2)/0.3] bg-[color:var(--brand-2)/0.08] px-4 py-2 text-sm font-semibold text-[color:var(--brand-2)] transition hover:bg-[color:var(--brand-2)/0.12]"
       >
         {ctaLabel || `Get started with ${product.name}`}
       </ExternalBadgeLink>,
@@ -229,7 +230,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         follow={hasBacklinkFeature}
         target={hasBacklinkFeature ? "_blank" : undefined}
         rel={hasBacklinkFeature ? "noopener" : undefined}
-        className="inline-flex h-11 items-center gap-2 rounded-full bg-[color:var(--brand-1)]/90 px-5 text-sm font-semibold text-white shadow-[0px_22px_60px_-40px_rgba(7,58,104,0.55)] transition hover:bg-[color:var(--brand-1)]"
+        className="inline-flex items-center gap-2 rounded-lg border border-border/70 bg-background px-4 py-2 text-sm font-semibold text-foreground transition hover:border-border hover:bg-muted/70"
       >
         <span className="flex items-center gap-1">
           <ExternalLink size={14} /> Visit website
@@ -251,7 +252,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         target={hasBacklinkFeature ? "_blank" : undefined}
         rel={hasBacklinkFeature ? "noopener" : undefined}
         variant="outline"
-        className="inline-flex h-11 items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.25] bg-white/40 px-5 text-sm font-semibold text-[color:var(--brand-1)] transition hover:border-[color:var(--brand-1)/0.4] hover:bg-white/70"
+        className="inline-flex items-center gap-2 rounded-lg border border-border/70 bg-background px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:text-foreground"
       >
         Live demo
       </ExternalBadgeLink>,
@@ -277,11 +278,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ].filter(Boolean) as { href: string; label: string; icon: JSX.Element }[]
 
   const crewMembers = product.organization?.memberships || []
-
-  const hasBanner = Boolean(product.bannerImage)
-  const hasGallery = product.ProductMedia.length > 0
-  const hasMedia = hasBanner || hasGallery
-  const hasDescription = Boolean(product.description)
   const platforms = product.platforms || []
 
   const reviewSummaryPromise = getProductReviewSummary(product.id, 12)
@@ -398,8 +394,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     jobTitle: member.jobTitle,
   }))
 
+  const hasCrewDetails = crewRoster.length > 0 || Boolean(product.organization?.name)
+
   return (
-    <main className="relative isolate overflow-hidden">
+    <main className="relative isolate bg-background">
       {structuredData ? (
         <script
           type="application/ld+json"
@@ -410,113 +408,125 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         />
       ) : null}
       <ScrollReset triggerKey={product.slug} />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(180deg,#f6f9ff_0%,#e7f1fc_45%,#ffffff_100%)] dark:bg-[linear-gradient(180deg,#050c18_0%,#041226_45%,#081c34_100%)]"
-      />
-
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-        innerClassName="space-y-12"
-      >
+      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <ProductMetricsTracker productId={product.id} />
-        <ProductDetailHero
-          name={product.name}
-          tagline={product.tagline}
-          logo={product.logo}
-          category={{
-            label: product.category.name,
-            href: categoryPath(product.category.slug),
-          }}
-          owner={{
-            name: ownerName,
-            href: userPath(product.user.id),
-          }}
-          badges={heroBadges}
-          isVerified={Boolean(isVerified)}
-          primaryLinks={primaryLinks}
-          secondaryLinks={secondaryLinks}
-          platforms={heroPlatforms}
-          tags={signalTags}
-          stats={heroStats}
-          supportCard={supportCard}
-          reviewPrompt={{
-            isSignedIn: Boolean(userId),
-            redirectUrl: productPath(product.slug),
-            hasReviews: reviewSummary.totalReviews > 0,
-          }}
-        />
-      </PublicContainer>
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-10"
-        fillScreen={false}
-        className="relative"
-        innerClassName="space-y-10"
-      >
-        {hasMedia ? (
-          <ProductMediaGallery
-            bannerImage={product.bannerImage}
-            media={product.ProductMedia.map((m) => ({
-              id: m.id,
-              imageUrl: m.imageUrl,
-              altText: m.altText,
-            }))}
-            productName={product.name}
-          />
-        ) : null}
-        <ProductNarrative
-          description={hasDescription ? product.description : null}
-        />
-        <ProductReviewsSection
-          productId={product.id}
-          productName={product.name}
-          reviewSummary={reviewSummary}
-          viewerReview={
-            viewerReview
-              ? { rating: viewerReview.rating, message: viewerReview.message }
-              : null
-          }
-          isSignedIn={Boolean(userId)}
-          redirectUrl={productPath(product.slug)}
-        />
-        <ProductCrewRoster
-          members={crewRoster}
-          organizationName={product.organization?.name}
-        />
-      </PublicContainer>
+        <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,2.4fr)_minmax(260px,1fr)] xl:grid-cols-[minmax(0,2.8fr)_minmax(260px,1fr)]">
+          <div className="space-y-10">
+            <ProductDetailHero
+              name={product.name}
+              tagline={product.tagline}
+              logo={product.logo}
+              category={{
+                label: product.category.name,
+                href: categoryPath(product.category.slug),
+              }}
+              owner={{
+                name: ownerName,
+                href: userPath(product.user.id),
+              }}
+              badges={heroBadges}
+              isVerified={Boolean(isVerified)}
+              primaryLinks={primaryLinks}
+              platforms={heroPlatforms}
+              tags={signalTags}
+              stats={heroStats}
+              reviewPrompt={{
+                isSignedIn: Boolean(userId),
+                redirectUrl: productPath(product.slug),
+                hasReviews: reviewSummary.totalReviews > 0,
+              }}
+            />
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-        innerClassName="space-y-12"
-      >
-        <ProductSimilarVoyages
-          items={useCaseItems}
-          headingSuffix={useCase?.label || null}
-          browseHref={`${BROWSE_PATH}?useCase=${useCase?.slug || ""}`}
-        />
-      </PublicContainer>
+            <ProductMediaGallery
+              bannerImage={product.bannerImage}
+              media={product.ProductMedia.map((m) => ({
+                id: m.id,
+                imageUrl: m.imageUrl,
+                altText: m.altText,
+              }))}
+              productName={product.name}
+            />
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-        innerClassName="overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60"
-      >
-        <NewsletterSignupSection />
-      </PublicContainer>
+            <ProductNarrative description={product.description} />
+
+            <ProductReviewsSection
+              productId={product.id}
+              productName={product.name}
+              reviewSummary={reviewSummary}
+              viewerReview={
+                viewerReview
+                  ? { rating: viewerReview.rating, message: viewerReview.message }
+                  : null
+              }
+              isSignedIn={Boolean(userId)}
+              redirectUrl={productPath(product.slug)}
+            />
+          </div>
+
+          <aside className="space-y-6">
+            {supportCard}
+            {heroStats.length ? (
+              <section className="rounded-2xl border border-border/70 bg-card p-5">
+                <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                  {productPageCopy.hero.statsLabel}
+                </p>
+                <dl className="mt-4 space-y-3 text-sm">
+                  {heroStats.map((stat) => (
+                    <div key={stat.label} className="space-y-1">
+                      <dt className="uppercase tracking-[0.18em] text-[11px] text-muted-foreground">
+                        {stat.label}
+                      </dt>
+                      <dd className="text-sm font-semibold text-foreground">
+                        {stat.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            ) : null}
+
+            {secondaryLinks.length ? (
+              <section className="rounded-2xl border border-border/70 bg-card p-4">
+                <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                  Signal links
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {secondaryLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background px-3 py-1 text-sm font-medium text-muted-foreground transition hover:border-border hover:text-foreground"
+                    >
+                      {link.icon}
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {hasCrewDetails ? (
+              <ProductCrewRoster
+                members={crewRoster}
+                organizationName={product.organization?.name}
+              />
+            ) : null}
+
+            <ProductSimilarVoyages
+              items={useCaseItems}
+              headingSuffix={useCase?.label || null}
+              browseHref={`${BROWSE_PATH}?useCase=${useCase?.slug || ""}`}
+            />
+          </aside>
+        </div>
+
+        <div className="mt-12">
+          <NewsletterSignupSection className="rounded-3xl border border-border/70" />
+        </div>
+      </div>
     </main>
   )
 }
