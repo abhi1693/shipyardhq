@@ -7,7 +7,10 @@ import {
   getUseCasesWithCounts,
 } from "@/actions/admin/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
-import { getProducts, getTrendingProducts } from "@/actions/public/products/featured"
+import {
+  getProducts,
+  getTrendingProducts,
+} from "@/actions/public/products/featured"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
@@ -85,8 +88,7 @@ export default async function BrowsePage({
   const category = resolveSingle(params.category)
   const verified = resolveSingle(params.verified)
   const sort =
-    (resolveSingle(params.sort) as "new" | "trending" | "votes" | "az") ??
-    "new"
+    (resolveSingle(params.sort) as "new" | "trending" | "votes" | "az") ?? "new"
   const page = resolveSingle(params.page) ?? "1"
   const q = resolveSingle(params.q)?.trim()
 
@@ -97,33 +99,29 @@ export default async function BrowsePage({
     categories,
     stats,
     trendingForRadar,
-  ] =
-    await Promise.all([
-      getBrowseProducts({
-        useCaseSlug: useCase === "__all__" ? undefined : useCase,
-        categorySlug: category === "__all__" ? undefined : category,
-        verified: verified === "true",
-        sort,
-        page: parseInt(page, 10),
-        query: q || undefined,
-      }),
-      getProducts("featured"),
-      getUseCasesWithCounts(),
-      getCategories({
-        where: {
-          products: {
-            some: {},
-          },
+  ] = await Promise.all([
+    getBrowseProducts({
+      useCaseSlug: useCase === "__all__" ? undefined : useCase,
+      categorySlug: category === "__all__" ? undefined : category,
+      verified: verified === "true",
+      sort,
+      page: parseInt(page, 10),
+      query: q || undefined,
+    }),
+    getProducts("featured"),
+    getUseCasesWithCounts(),
+    getCategories({
+      where: {
+        products: {
+          some: {},
         },
-        include: { _count: { select: { products: true } } },
-        orderBy: [
-          { products: { _count: "desc" } },
-          { name: "asc" },
-        ],
-      }),
-      getLeaderboardStats(),
-      getTrendingProducts(8),
-    ])
+      },
+      include: { _count: { select: { products: true } } },
+      orderBy: [{ products: { _count: "desc" } }, { name: "asc" }],
+    }),
+    getLeaderboardStats(),
+    getTrendingProducts(8),
+  ])
 
   const { products, hasMore } = browseResult
   const sortLabel = sortLabelMap[sort] ?? sortLabelMap.new
@@ -183,13 +181,16 @@ export default async function BrowsePage({
     upvotes: item.product.analytics?.upvotes ?? null,
   }))
 
-  const radarData = computeTrendRadarMetrics(radarSourceCategories, radarTrending, {
-    totalProducts: stats.totalProducts,
-  })
+  const radarData = computeTrendRadarMetrics(
+    radarSourceCategories,
+    radarTrending,
+    {
+      totalProducts: stats.totalProducts,
+    },
+  )
 
   return (
     <main className="relative isolate bg-white">
-
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-12">
           <DirectoryHeader
@@ -259,8 +260,7 @@ export default async function BrowsePage({
                       initialPage={2}
                       searchParams={{
                         useCase: useCase === "__all__" ? undefined : useCase,
-                        category:
-                          category === "__all__" ? undefined : category,
+                        category: category === "__all__" ? undefined : category,
                         verified: verified === "true",
                         sort,
                         q: q || undefined,

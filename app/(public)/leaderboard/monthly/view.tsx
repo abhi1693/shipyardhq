@@ -45,7 +45,6 @@ export async function MonthlyLeaderboardView({
 
   return (
     <main className="relative isolate overflow-hidden bg-white">
-
       <PublicContainer
         as="section"
         max="marketing"

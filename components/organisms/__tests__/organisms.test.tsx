@@ -80,8 +80,14 @@ describe("Organisms", () => {
       homepagePlacement("1", "schedule", {
         product: {
           ProductBadge: [
-            { badge: "featured", expiresAt: new Date(now.getTime() + 3_600_000) },
-            { badge: "expired", expiresAt: new Date(now.getTime() - 3_600_000) },
+            {
+              badge: "featured",
+              expiresAt: new Date(now.getTime() + 3_600_000),
+            },
+            {
+              badge: "expired",
+              expiresAt: new Date(now.getTime() - 3_600_000),
+            },
           ],
         } as any,
       }),
@@ -95,9 +101,7 @@ describe("Organisms", () => {
     expect(
       screen.getByText("Scheduled homepage placements"),
     ).toBeInTheDocument()
-    expect(
-      screen.getByText("Reserved homepage placements"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("Reserved homepage placements")).toBeInTheDocument()
     expect(screen.queryByText("Plan placement")).not.toBeInTheDocument()
   })
 
@@ -180,9 +184,7 @@ describe("Organisms", () => {
         product: {
           ...featured("1").product,
           plan: {
-            assignments: [
-              { enabled: true, feature: { key: "featured" } },
-            ],
+            assignments: [{ enabled: true, feature: { key: "featured" } }],
           },
         },
       }),

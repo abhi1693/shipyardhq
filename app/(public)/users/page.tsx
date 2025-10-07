@@ -21,7 +21,8 @@ export const revalidate = 120
 
 const baseMetadata = buildPageMetadata({
   title: "Makers — Shipyard",
-  description: "Explore Shipyard makers, see what they have launched, and discover who is building momentum right now.",
+  description:
+    "Explore Shipyard makers, see what they have launched, and discover who is building momentum right now.",
   openGraph: {
     url: USERS_PATH,
     type: "website",
@@ -87,7 +88,6 @@ export default async function UsersIndexPage() {
 
   return (
     <main className="relative isolate bg-white">
-
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-12">
           <DirectoryHeader
@@ -173,7 +173,8 @@ export default async function UsersIndexPage() {
                 </section>
               ) : users.length === 0 ? (
                 <section className="rounded-3xl border border-dashed border-border/60 bg-background/78 p-6 text-center text-sm text-muted-foreground shadow-sm shadow-black/5 md:p-8">
-                  No profiles to show yet. Check back as new builders publish their first launch.
+                  No profiles to show yet. Check back as new builders publish
+                  their first launch.
                 </section>
               ) : null}
             </div>
@@ -183,8 +184,14 @@ export default async function UsersIndexPage() {
                 eyebrow="Shipyard for makers"
                 title="Ready to launch your next product?"
                 description="Publish on Shipyard to get on the maker directory, earn homepage placements, and rally upvotes from the community."
-                cta={{ label: "Submit your launch", href: MEMBER_PRODUCTS_PATH }}
-                subtleCta={{ label: "Browse the launch playbook", href: LEADERBOARD_PATH }}
+                cta={{
+                  label: "Submit your launch",
+                  href: MEMBER_PRODUCTS_PATH,
+                }}
+                subtleCta={{
+                  label: "Browse the launch playbook",
+                  href: LEADERBOARD_PATH,
+                }}
               />
 
               <DirectoryPromoCard
@@ -214,10 +221,11 @@ function resolveMakerMeta(maker: MakerWithAvatar) {
   const last = maker.lastName?.trim() ?? ""
   const name = `${first} ${last}`.trim() || "Shipyard maker"
   const initialsSource = name.split(/\s+/).slice(0, 2)
-  const initials = initialsSource
-    .map((segment) => segment.charAt(0).toUpperCase())
-    .join("")
-    .slice(0, 2) || "SY"
+  const initials =
+    initialsSource
+      .map((segment) => segment.charAt(0).toUpperCase())
+      .join("")
+      .slice(0, 2) || "SY"
   const launches = maker.products.length
 
   return { name, initials, launches, avatarUrl: maker.avatarUrl }

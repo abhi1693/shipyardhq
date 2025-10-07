@@ -79,7 +79,6 @@ export default async function PricingPage() {
 
   return (
     <main className="relative isolate overflow-hidden bg-white">
-
       <section
         className={brandGradient(
           "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
@@ -104,7 +103,10 @@ export default async function PricingPage() {
             </p>
           </div>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/register" className={launchPrimaryButton({ size: "lg" })}>
+            <Link
+              href="/register"
+              className={launchPrimaryButton({ size: "lg" })}
+            >
               Start for free
             </Link>
             <Link
@@ -119,13 +121,17 @@ export default async function PricingPage() {
           </div>
           <div className="grid gap-4 rounded-2xl border border-white/30 bg-white/10 px-6 py-6 text-left text-white shadow-[0px_25px_60px_-40px_rgba(7,58,104,0.6)] backdrop-blur sm:grid-cols-3">
             <div>
-              <p className="text-sm font-semibold text-white">Launch playbooks</p>
+              <p className="text-sm font-semibold text-white">
+                Launch playbooks
+              </p>
               <p className="mt-1 text-xs text-white/80">
                 Step-by-step checklists for every plan.
               </p>
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">Upgrade anytime</p>
+              <p className="text-sm font-semibold text-white">
+                Upgrade anytime
+              </p>
               <p className="mt-1 text-xs text-white/80">
                 Plans stack instantly—no downtime for your listing.
               </p>
@@ -146,16 +152,16 @@ export default async function PricingPage() {
 
       <section className="relative py-16">
         <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">
-            Choose your promotion tier
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Every plan includes verified launch tooling. Upgrade for additional
-            visibility across the harbor.
-          </p>
-        </div>
-        <PricingTable plans={plans} />
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+              Choose your promotion tier
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Every plan includes verified launch tooling. Upgrade for
+              additional visibility across the harbor.
+            </p>
+          </div>
+          <PricingTable plans={plans} />
         </div>
       </section>
 
@@ -176,44 +182,47 @@ export default async function PricingPage() {
       {subscriptionPlans.length > 0 && (
         <section className="relative py-16">
           <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">
-              Keep your crew connected
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              Subscriptions unlock shared organizations, advanced analytics,
-              recurring Insights credits, and dedicated collaboration resources.
-            </p>
-          </div>
-          <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
-            {subscriptionPlans.map((plan) => (
-              <div
-                key={plan.id}
-                className="flex w-full max-w-sm flex-1 basis-full sm:basis-[20rem]"
-              >
-                <SubscriptionPlanCard plan={plan} />
-              </div>
-            ))}
-          </div>
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">
+                Keep your crew connected
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                Subscriptions unlock shared organizations, advanced analytics,
+                recurring Insights credits, and dedicated collaboration
+                resources.
+              </p>
+            </div>
+            <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
+              {subscriptionPlans.map((plan) => (
+                <div
+                  key={plan.id}
+                  className="flex w-full max-w-sm flex-1 basis-full sm:basis-[20rem]"
+                >
+                  <SubscriptionPlanCard plan={plan} />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
       <section className="relative py-16">
         <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-        <div className="grid gap-6 rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/85 px-8 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.65)] backdrop-blur sm:grid-cols-3">
-          {CORE_PERKS.map(({ icon: Icon, title, body }) => (
-            <div key={title} className="space-y-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.1] text-[color:var(--brand-1)]">
-                <Icon className="h-5 w-5" />
-              </span>
-              <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {body}
-              </p>
-            </div>
-          ))}
-        </div>
+          <div className="grid gap-6 rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/85 px-8 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.65)] backdrop-blur sm:grid-cols-3">
+            {CORE_PERKS.map(({ icon: Icon, title, body }) => (
+              <div key={title} className="space-y-3">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.1] text-[color:var(--brand-1)]">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <h3 className="text-lg font-semibold text-foreground">
+                  {title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {body}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -247,7 +256,10 @@ export default async function PricingPage() {
               </div>
               <Accordion type="multiple" className="w-full" id="faq">
                 {PRICING_FAQS.map((faq, index) => (
-                  <AccordionItem key={faq.question} value={`pricing-faq-${index}`}>
+                  <AccordionItem
+                    key={faq.question}
+                    value={`pricing-faq-${index}`}
+                  >
                     <AccordionTrigger>{faq.question}</AccordionTrigger>
                     <AccordionContent>{faq.answer}</AccordionContent>
                   </AccordionItem>

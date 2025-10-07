@@ -24,13 +24,14 @@ export default async function CategoriesPage() {
     0,
   )
   const averagePerCategory =
-    categories.length > 0 ? Math.max(1, Math.round(totalProducts / categories.length)) : 0
+    categories.length > 0
+      ? Math.max(1, Math.round(totalProducts / categories.length))
+      : 0
   const highlightCategories = categories.slice(0, 4)
   const busiestCategory = categories[0]
 
   return (
     <main className="relative isolate bg-white">
-
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-16">
           <section className="rounded-3xl border border-border bg-white px-6 py-12 shadow-sm md:px-10">
@@ -50,7 +51,11 @@ export default async function CategoriesPage() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                  <Button size="lg" asChild className="shadow-sm shadow-black/10">
+                  <Button
+                    size="lg"
+                    asChild
+                    className="shadow-sm shadow-black/10"
+                  >
                     <Link href={BROWSE_PATH}>Browse every launch</Link>
                   </Button>
                   <Button
@@ -59,7 +64,9 @@ export default async function CategoriesPage() {
                     asChild
                     className="border-border text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
                   >
-                    <Link href={MEMBER_PRODUCTS_PATH}>Submit your category launch</Link>
+                    <Link href={MEMBER_PRODUCTS_PATH}>
+                      Submit your category launch
+                    </Link>
                   </Button>
                 </div>
                 {highlightCategories.length > 0 ? (
@@ -90,7 +97,8 @@ export default async function CategoriesPage() {
                     {categories.length}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {pluralize(categories.length, "category")} captaining the directory.
+                    {pluralize(categories.length, "category")} captaining the
+                    directory.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
@@ -101,7 +109,8 @@ export default async function CategoriesPage() {
                     {totalProducts.toLocaleString()}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {pluralize(totalProducts, "product")}{" "} charted across the fleet.
+                    {pluralize(totalProducts, "product")} charted across the
+                    fleet.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
@@ -128,8 +137,8 @@ export default async function CategoriesPage() {
                   Explore every harbor
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {pluralize(categories.length, "category")} organized by traction,
-                  narrative, and community demand.
+                  {pluralize(categories.length, "category")} organized by
+                  traction, narrative, and community demand.
                 </p>
               </div>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
@@ -159,12 +168,19 @@ export default async function CategoriesPage() {
                 Missing a category for your launch?
               </h2>
               <p className="max-w-xl text-sm text-muted-foreground">
-                Pitch a fresh harbor and we’ll spin up a scouting lane, signal it
-                to the community, and feature the first wave of builders ready to
-                dock.
+                Pitch a fresh harbor and we’ll spin up a scouting lane, signal
+                it to the community, and feature the first wave of builders
+                ready to dock.
               </p>
-              <Button asChild size="lg" variant="secondary" className="border-border/70">
-                <a href="mailto:support@shipyardhq.dev">Suggest a new category</a>
+              <Button
+                asChild
+                size="lg"
+                variant="secondary"
+                className="border-border/70"
+              >
+                <a href="mailto:support@shipyardhq.dev">
+                  Suggest a new category
+                </a>
               </Button>
             </div>
           </section>

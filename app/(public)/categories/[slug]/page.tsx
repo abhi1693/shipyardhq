@@ -60,7 +60,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     (acc, product) => acc + (product.analytics?.upvotes ?? 0),
     0,
   )
-  const averageUpvotes = totalProducts > 0 ? Math.round(totalUpvotes / totalProducts) : 0
+  const averageUpvotes =
+    totalProducts > 0 ? Math.round(totalUpvotes / totalProducts) : 0
   const latestLaunch = [...products]
     .sort(
       (a, b) =>
@@ -86,7 +87,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <main className="relative isolate bg-white">
-
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-16">
           <section
@@ -163,7 +163,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     {totalProducts.toLocaleString()}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {pluralize(totalProducts, "launch")} currently charted in this harbor.
+                    {pluralize(totalProducts, "launch")} currently charted in
+                    this harbor.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
@@ -211,7 +212,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   href={PRICING_PATH}
                   className={launchSecondaryButton({
                     size: "sm",
-                    className: "text-[color:var(--brand-1)] hover:text-[color:var(--brand-1)]",
+                    className:
+                      "text-[color:var(--brand-1)] hover:text-[color:var(--brand-1)]",
                   })}
                 >
                   Get featured

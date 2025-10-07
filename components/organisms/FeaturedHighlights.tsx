@@ -75,7 +75,12 @@ export function FeaturedHighlights({
         title="Marquee placements that keep your launch in view"
         description="Featured cards combine sponsored campaigns with editorial standouts. Sponsored spotlights lead the row, followed by organic highlights powered by community momentum."
         action={
-          <Button asChild variant="ghost" size="sm" className="hover:bg-muted/70">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="hover:bg-muted/70"
+          >
             <Link href={`${BROWSE_PATH}?badge=featured`}>
               See every featured product
             </Link>

@@ -3,7 +3,11 @@ import Image from "next/image"
 import { clickProductCardAction } from "@/actions/public/products/analytics"
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
 import { Badge } from "@/components/atoms/badge"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/atoms/tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
@@ -48,7 +52,9 @@ export function ProductCompactCard({
   const visibleBadges = resolvedBadges.slice(0, badgeLimit)
   const overflowBadges = resolvedBadges.slice(badgeLimit)
   const showDockLabel = showCategory && category
-  const dockLabel = showDockLabel ? category ?? "Launch ready" : "View details"
+  const dockLabel = showDockLabel
+    ? (category ?? "Launch ready")
+    : "View details"
 
   const baseClasses =
     "group relative block h-full w-full cursor-pointer overflow-hidden rounded-2xl border border-border/30 bg-background/95 p-4 text-left text-card-foreground shadow-[0_18px_46px_-52px_rgba(7,58,104,0.6)] ring-1 ring-inset ring-white/6 transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-[radial-gradient(120%_140%_at_50%_-10%,var(--brand-1)/0.16,transparent_70%)] before:opacity-0 before:transition-opacity before:duration-500 before:delay-100 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] dark:border-white/14"
@@ -67,11 +73,7 @@ export function ProductCompactCard({
       <input type="hidden" name="productSlug" value={product.slug} />
       <button
         type="submit"
-        className={cn(
-          baseClasses,
-          hoverClasses,
-          className,
-        )}
+        className={cn(baseClasses, hoverClasses, className)}
       >
         <div className="flex h-full flex-col gap-3">
           <div className="flex items-start gap-3">
@@ -101,7 +103,8 @@ export function ProductCompactCard({
             </div>
           </div>
 
-          {showBadges && (visibleBadges.length > 0 || overflowBadges.length > 0) ? (
+          {showBadges &&
+          (visibleBadges.length > 0 || overflowBadges.length > 0) ? (
             <div className="flex flex-wrap items-center gap-2">
               {visibleBadges.map((badge) => (
                 <Tooltip key={badge.value}>
@@ -128,7 +131,10 @@ export function ProductCompactCard({
                       +{overflowBadges.length}
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent sideOffset={6} className="max-w-[16rem] text-xs">
+                  <TooltipContent
+                    sideOffset={6}
+                    className="max-w-[16rem] text-xs"
+                  >
                     <div className="space-y-1">
                       {overflowBadges.map((badge) => (
                         <div key={badge.value}>{badge.label}</div>
@@ -142,9 +148,7 @@ export function ProductCompactCard({
 
           <div className="mt-auto pt-2">
             <div className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-muted/40 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors group-hover:border-[color:var(--brand-1)/0.24] group-hover:bg-muted/55">
-              <span className="line-clamp-1 leading-none">
-                {dockLabel}
-              </span>
+              <span className="line-clamp-1 leading-none">{dockLabel}</span>
               <UpvoteSquare
                 count={upvotes}
                 compact

@@ -33,7 +33,9 @@ export function DirectoryHowItWorks() {
             Get your launch in front of the Shipyard audience
           </h2>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Shipyard makes it simple to publish, promote, and analyze your launch. Work through the steps below and you will be visible across homepage spotlights, featured collections, and the live leaderboard.
+            Shipyard makes it simple to publish, promote, and analyze your
+            launch. Work through the steps below and you will be visible across
+            homepage spotlights, featured collections, and the live leaderboard.
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -48,7 +50,9 @@ export function DirectoryHowItWorks() {
               <h3 className="mt-4 text-base font-semibold text-foreground">
                 {step.title}
               </h3>
-              <p className="mt-2 text-sm text-muted-foreground">{step.description}</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {step.description}
+              </p>
             </div>
           ))}
         </div>

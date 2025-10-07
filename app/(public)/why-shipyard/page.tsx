@@ -159,7 +159,6 @@ export const metadata = buildPageMetadata({
 export default function WhyShipyardPage() {
   return (
     <main className="relative isolate overflow-hidden bg-white">
-
       <PublicContainer
         as="section"
         max="marketing"

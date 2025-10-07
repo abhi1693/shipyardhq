@@ -36,7 +36,10 @@ function featuredProduct(
   return {
     ...base,
     ...overrides,
-    product: { ...base.product, ...productOverrides } as FeaturedProduct["product"],
+    product: {
+      ...base.product,
+      ...productOverrides,
+    } as FeaturedProduct["product"],
   }
 }
 
@@ -88,7 +91,12 @@ describe("directory placements helpers", () => {
       {},
       {
         featureEntitlements: [
-          { id: "ent-1", featureKey: "featured", status: "active", expiresAt: null },
+          {
+            id: "ent-1",
+            featureKey: "featured",
+            status: "active",
+            expiresAt: null,
+          },
         ] as any,
       },
     )

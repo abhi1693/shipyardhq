@@ -85,7 +85,8 @@ export function DirectoryHeader({
     variant: "outline",
   }
 
-  const resolvedPrimary = primaryAction === undefined ? defaultPrimary : primaryAction
+  const resolvedPrimary =
+    primaryAction === undefined ? defaultPrimary : primaryAction
   const resolvedSecondary =
     secondaryAction === undefined ? defaultSecondary : secondaryAction
 
@@ -150,9 +151,10 @@ export function DirectoryHeader({
                   {metric.label}
                 </dt>
                 <dd className="mt-3 text-2xl font-semibold text-foreground">
-                  {(metric.formatter ?? ((value: number) => value.toLocaleString()))(
-                    rawValue,
-                  )}
+                  {(
+                    metric.formatter ??
+                    ((value: number) => value.toLocaleString())
+                  )(rawValue)}
                 </dd>
               </div>
             )

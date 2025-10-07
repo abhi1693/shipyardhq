@@ -38,7 +38,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { useRouter } from "next/navigation"
 import { StickyBannerCarousel } from "@/components/organisms/StickyBannerCarousel"
 
-type StickyBannerProducts = ComponentProps<typeof StickyBannerCarousel>["products"]
+type StickyBannerProducts = ComponentProps<
+  typeof StickyBannerCarousel
+>["products"]
 
 type PublicHeaderProps = {
   stickyBannerProducts?: StickyBannerProducts

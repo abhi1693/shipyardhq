@@ -154,9 +154,9 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
             {useCase.label}
           </h1>
           <p className="text-base text-white/85 sm:text-lg">
-            A curated fleet of tools designed for makers tackling {useCase.label}.
-            Explore what’s shipping, discover related categories, and find the
-            perfect fit for your workflow.
+            A curated fleet of tools designed for makers tackling{" "}
+            {useCase.label}. Explore what’s shipping, discover related
+            categories, and find the perfect fit for your workflow.
           </p>
         </div>
 
@@ -169,7 +169,9 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
             {productCount} {pluralize(productCount, "product")}
           </span>
           {categories.length > 0 && (
-            <span>{categories.length} {pluralize(categories.length, "category")}</span>
+            <span>
+              {categories.length} {pluralize(categories.length, "category")}
+            </span>
           )}
           {heroHighlight ? <span>Trending in {heroHighlight.name}</span> : null}
         </div>
@@ -188,7 +190,8 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
             href={MEMBER_PRODUCTS_PATH}
             className={launchSecondaryButton({
               size: "lg",
-              className: "w-full min-w-[200px] text-white/90 hover:text-white sm:w-auto",
+              className:
+                "w-full min-w-[200px] text-white/90 hover:text-white sm:w-auto",
             })}
           >
             Submit your launch

@@ -76,7 +76,8 @@ export default async function MakerProfilePage({ params }: PageProps) {
   if (!profile) return notFound()
 
   const fullName =
-    `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() || "Shipyard maker"
+    `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() ||
+    "Shipyard maker"
 
   let avatarUrl: string | null = null
   if (profile.clerkId) {
@@ -107,7 +108,10 @@ export default async function MakerProfilePage({ params }: PageProps) {
 
     const categoryName = product.category?.name
     if (categoryName) {
-      categoryCounts.set(categoryName, (categoryCounts.get(categoryName) ?? 0) + 1)
+      categoryCounts.set(
+        categoryName,
+        (categoryCounts.get(categoryName) ?? 0) + 1,
+      )
     }
 
     const activeBadges = (product.ProductBadge ?? [])
@@ -141,7 +145,10 @@ export default async function MakerProfilePage({ params }: PageProps) {
     (a, b) => b[1] - a[1],
   )
   const focusCategories = categoryEntries.slice(0, 4).map(([name]) => name)
-  const extraCategoryCount = Math.max(categoryEntries.length - focusCategories.length, 0)
+  const extraCategoryCount = Math.max(
+    categoryEntries.length - focusCategories.length,
+    0,
+  )
   const uniqueBadges = Array.from(badgeSet)
   const badgeShowcase = uniqueBadges.slice(0, 6)
   const badgeOverflow = Math.max(uniqueBadges.length - badgeShowcase.length, 0)
@@ -153,7 +160,8 @@ export default async function MakerProfilePage({ params }: PageProps) {
   })
   const recentLaunches = sortedByDate.slice(0, 5)
 
-  const earliestLaunch = sortedByDate[sortedByDate.length - 1]?.launchedAt ?? null
+  const earliestLaunch =
+    sortedByDate[sortedByDate.length - 1]?.launchedAt ?? null
 
   const stats = [
     { label: "Published launches", value: totalProducts },
@@ -168,7 +176,9 @@ export default async function MakerProfilePage({ params }: PageProps) {
 
   const summaryParts: string[] = []
   if (earliestLaunch) {
-    summaryParts.push(`Building on Shipyard since ${format(earliestLaunch, "MMMM yyyy")}.`)
+    summaryParts.push(
+      `Building on Shipyard since ${format(earliestLaunch, "MMMM yyyy")}.`,
+    )
   }
   if (focusCategories.length) {
     summaryParts.push(
@@ -199,10 +209,9 @@ export default async function MakerProfilePage({ params }: PageProps) {
       .join("")
       .slice(0, 2) || "SY"
 
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(
-    /\/$/,
-    "",
-  )
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  ).replace(/\/$/, "")
   const profilePath = userPath(profile.id)
   const profileUrl = `${baseUrl}${profilePath}`
 
@@ -249,7 +258,6 @@ export default async function MakerProfilePage({ params }: PageProps) {
 
   return (
     <main className="relative isolate bg-white">
-
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-14 md:px-8">
         <script
           type="application/ld+json"
@@ -272,13 +280,10 @@ export default async function MakerProfilePage({ params }: PageProps) {
         <div className="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
           <div className="flex flex-col gap-10">
             <section className="relative overflow-hidden rounded-3xl border border-border bg-white p-6 shadow-sm md:p-10">
-
               <div className="flex flex-col gap-8">
                 <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
                   <div className="flex items-start gap-5 md:items-center">
-                    <Avatar
-                      className="h-16 w-16 shrink-0 rounded-3xl bg-muted shadow-sm md:h-20 md:w-20"
-                    >
+                    <Avatar className="h-16 w-16 shrink-0 rounded-3xl bg-muted shadow-sm md:h-20 md:w-20">
                       {avatarUrl ? (
                         <AvatarImage
                           src={avatarUrl}
@@ -355,7 +360,6 @@ export default async function MakerProfilePage({ params }: PageProps) {
                     </div>
                   ))}
                 </div>
-
               </div>
             </section>
 
@@ -412,7 +416,9 @@ export default async function MakerProfilePage({ params }: PageProps) {
                         {launch.name}
                       </Link>
                       <span className="shrink-0 text-xs uppercase tracking-[0.28em] text-muted-foreground">
-                        {launch.launchedAt ? format(launch.launchedAt, "MMM d, yyyy") : "—"}
+                        {launch.launchedAt
+                          ? format(launch.launchedAt, "MMM d, yyyy")
+                          : "—"}
                       </span>
                     </li>
                   ))}
@@ -433,7 +439,9 @@ export default async function MakerProfilePage({ params }: PageProps) {
                   {categoryEntries.map(([name, count]) => (
                     <li key={name} className="flex justify-between gap-3">
                       <span className="text-foreground">{name}</span>
-                      <span className="text-xs uppercase tracking-[0.28em]">{count}</span>
+                      <span className="text-xs uppercase tracking-[0.28em]">
+                        {count}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -454,7 +462,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                     <Badge
                       key={badge}
                       variant="outline"
-                        className="rounded-full border-border bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
+                      className="rounded-full border-border bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
                     >
                       {badge}
                     </Badge>
@@ -484,7 +492,10 @@ export default async function MakerProfilePage({ params }: PageProps) {
                 href: MEMBER_PRODUCTS_PATH,
                 icon: <Rocket className="h-4 w-4" aria-hidden="true" />,
               }}
-              subtleCta={{ label: "Browse the product directory", href: BROWSE_PATH }}
+              subtleCta={{
+                label: "Browse the product directory",
+                href: BROWSE_PATH,
+              }}
             />
 
             <DirectoryPromoCard

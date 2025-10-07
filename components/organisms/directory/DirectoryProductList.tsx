@@ -32,7 +32,7 @@ type RankMetaConfig = {
 type MetaConfig = BadgeMetaConfig | RankMetaConfig
 
 interface DirectoryProductListProps<
-  T extends BaseProductListItem & { metaLabel?: string }
+  T extends BaseProductListItem & { metaLabel?: string },
 > {
   items: T[]
   columns?: string
@@ -42,7 +42,7 @@ interface DirectoryProductListProps<
 }
 
 export function DirectoryProductList<
-  T extends BaseProductListItem & { metaLabel?: string }
+  T extends BaseProductListItem & { metaLabel?: string },
 >({
   items,
   columns,

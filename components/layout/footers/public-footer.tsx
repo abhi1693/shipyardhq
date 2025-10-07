@@ -91,18 +91,20 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
                 Ready to put your next launch on the Shipyard spotlight?
               </h2>
               <p className="text-sm text-white/80 md:text-base">
-                Showcase your drop to thousands of engaged builders, investors, and operator-fans. Feature placements bundle homepage, leaderboard, and Insights signals in one launch console.
+                Showcase your drop to thousands of engaged builders, investors,
+                and operator-fans. Feature placements bundle homepage,
+                leaderboard, and Insights signals in one launch console.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link href={MEMBER_PRODUCTS_PATH} className={launchPrimaryButton()}>
+              <Link
+                href={MEMBER_PRODUCTS_PATH}
+                className={launchPrimaryButton()}
+              >
                 <Rocket className="h-4 w-4" aria-hidden="true" />
                 Submit your launch
               </Link>
-              <Link
-                href={PRICING_PATH}
-                className={launchSecondaryButton()}
-              >
+              <Link href={PRICING_PATH} className={launchSecondaryButton()}>
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
                 Book a spotlight tour
               </Link>
@@ -130,7 +132,9 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
               </span>
             </Link>
             <p className="max-w-xs text-sm text-muted-foreground lg:max-w-sm">
-              Shipyard is the launch directory built for founders shipping fast, investors watching the radar, and operator-fans who amplify breakout products.
+              Shipyard is the launch directory built for founders shipping fast,
+              investors watching the radar, and operator-fans who amplify
+              breakout products.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -179,7 +183,9 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
                     href={link.href}
                     className={navLinkBase}
                     target={link.href.startsWith("http") ? "_blank" : undefined}
-                    rel={link.href.startsWith("http") ? "noreferrer" : undefined}
+                    rel={
+                      link.href.startsWith("http") ? "noreferrer" : undefined
+                    }
                   >
                     {link.label}
                   </Link>
@@ -269,7 +275,8 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
               {!submitted ? (
                 <span className="inline-flex items-center gap-2">
                   <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                  Wednesday digest — launch signals, operator moves, highlights. No spam.
+                  Wednesday digest — launch signals, operator moves, highlights.
+                  No spam.
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-2 text-[color:var(--brand-1)] lg:hidden">
@@ -280,15 +287,26 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
             </div>
           </div>
         </section>
-
       </div>
 
       <div className="border-t border-border/30 bg-white/80">
         <div className="flex w-full flex-col gap-4 px-4 py-6 text-xs text-muted-foreground sm:px-6 lg:px-8 md:flex-row md:items-center md:justify-between">
-          <span>© {year} ShipYardHQ • Built for indie makers and operator-fans.</span>
+          <span>
+            © {year} ShipYardHQ • Built for indie makers and operator-fans.
+          </span>
           <div className="flex flex-wrap items-center gap-4">
-            <Link href="/legal/privacy-policy" className={cn(navLinkBase, "text-xs font-semibold")}>Privacy</Link>
-            <Link href="/legal/terms" className={cn(navLinkBase, "text-xs font-semibold")}>Terms</Link>
+            <Link
+              href="/legal/privacy-policy"
+              className={cn(navLinkBase, "text-xs font-semibold")}
+            >
+              Privacy
+            </Link>
+            <Link
+              href="/legal/terms"
+              className={cn(navLinkBase, "text-xs font-semibold")}
+            >
+              Terms
+            </Link>
           </div>
         </div>
       </div>

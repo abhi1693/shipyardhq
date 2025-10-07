@@ -14,11 +14,7 @@ import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { computeTrendRadarMetrics } from "@/lib/trend-radar"
 import { siteConfig } from "@/lib/siteConfig"
-import {
-  BROWSE_PATH,
-  MEMBER_PRODUCTS_PATH,
-  PRICING_PATH,
-} from "@/lib/routes"
+import { BROWSE_PATH, MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
 import { DirectoryRadarDigest } from "@/components/organisms/directory/RadarDigest"

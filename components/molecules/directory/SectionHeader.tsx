@@ -48,7 +48,11 @@ export function DirectorySectionHeader({
             data-slot="section-description"
             className="max-w-3xl text-sm text-muted-foreground"
           >
-            {typeof description === "string" ? <p>{description}</p> : description}
+            {typeof description === "string" ? (
+              <p>{description}</p>
+            ) : (
+              description
+            )}
           </div>
         ) : null}
       </div>

@@ -34,22 +34,28 @@ export function DirectoryRadarDigest({
         </h3>
         <p className="text-sm text-muted-foreground">
           A fast pulse on categories gaining steam in real time. Scores blend
-          fresh launches, catalog depth, and upvote velocity for a signal you can
-          act on.
+          fresh launches, catalog depth, and upvote velocity for a signal you
+          can act on.
         </p>
       </div>
       <ul className="space-y-4">
         {momentumLeaders.map((metric) => (
-          <li key={metric.id} className="rounded-2xl border border-transparent px-3 py-2 transition-colors hover:border-border/70 hover:bg-muted/60">
-            <Link href={categoryPath(metric.slug)} className="flex items-start justify-between gap-4">
+          <li
+            key={metric.id}
+            className="rounded-2xl border border-transparent px-3 py-2 transition-colors hover:border-border/70 hover:bg-muted/60"
+          >
+            <Link
+              href={categoryPath(metric.slug)}
+              className="flex items-start justify-between gap-4"
+            >
               <div>
                 <p className="text-sm font-semibold text-foreground">
                   {metric.name}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {numberFormatter.format(metric.trendingCount)} launches trending ·
-                  {" "}
-                  {numberFormatter.format(metric.trendingUpvotes)} upvotes in motion
+                  {numberFormatter.format(metric.trendingCount)} launches
+                  trending · {numberFormatter.format(metric.trendingUpvotes)}{" "}
+                  upvotes in motion
                 </p>
               </div>
               <div className="text-right">

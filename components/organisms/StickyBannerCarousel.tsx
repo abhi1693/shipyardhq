@@ -132,12 +132,12 @@ export function StickyBannerCarousel({
               {current.name}
             </span>
             {tagline ? (
-              <span className="hidden text-muted-foreground/70 sm:inline">•</span>
+              <span className="hidden text-muted-foreground/70 sm:inline">
+                •
+              </span>
             ) : null}
             {tagline ? (
-              <span className="truncate text-muted-foreground">
-                {tagline}
-              </span>
+              <span className="truncate text-muted-foreground">{tagline}</span>
             ) : null}
           </div>
           {hasMeta ? (

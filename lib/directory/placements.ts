@@ -17,7 +17,7 @@ const FEATURE_KEYS = {
   homepage: "homepage",
 } as const
 
-type SupportedFeatureKey = typeof FEATURE_KEYS[keyof typeof FEATURE_KEYS]
+type SupportedFeatureKey = (typeof FEATURE_KEYS)[keyof typeof FEATURE_KEYS]
 
 const nowWithin = (date?: { startsAt: Date; endsAt: Date }) => {
   if (!date) return false
@@ -67,9 +67,7 @@ export function resolveSponsoredPlacement(
   return { isSponsored: false, origin: null }
 }
 
-export function partitionFeaturedProducts(
-  products: FeaturedProduct[],
-): {
+export function partitionFeaturedProducts(products: FeaturedProduct[]): {
   sponsored: FeaturedProduct[]
   organic: FeaturedProduct[]
 } {

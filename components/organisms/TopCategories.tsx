@@ -53,7 +53,9 @@ export function TopCategories({
         <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
           Most-viewed categories
         </span>
-        <h3 className="text-lg font-semibold text-foreground md:text-xl">{title}</h3>
+        <h3 className="text-lg font-semibold text-foreground md:text-xl">
+          {title}
+        </h3>
         {description ? (
           <p className="text-sm text-muted-foreground">{description}</p>
         ) : null}

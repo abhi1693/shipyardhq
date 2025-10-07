@@ -40,7 +40,8 @@ export default function ProductReviewsSection({
               Reviews for {productName}
             </h2>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Hear how other builders experienced this product and add your take to help the next customer.
+              Hear how other builders experienced this product and add your take
+              to help the next customer.
             </p>
           </div>
           <div className="inline-flex flex-col gap-2 rounded-2xl border border-border bg-white px-5 py-4 shadow-sm">
@@ -75,7 +76,8 @@ export default function ProductReviewsSection({
                       Sign in to leave a review
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Join the community to rate this product and share your experience.
+                      Join the community to rate this product and share your
+                      experience.
                     </p>
                   </div>
                   <SignInButton

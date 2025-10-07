@@ -7,7 +7,10 @@ import { cn } from "@/lib/utils"
  * Useful for surfaces that need the brand gradient background.
  */
 export function brandGradient(...classes: ClassValue[]): string {
-  return cn("bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))]", classes)
+  return cn(
+    "bg-[linear-gradient(135deg,var(--brand-1),var(--brand-2))]",
+    classes,
+  )
 }
 
 /**

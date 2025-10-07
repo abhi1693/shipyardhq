@@ -64,7 +64,7 @@ export default function ProductList<T extends ProductListItem>({
           }}
           upvotes={p.analytics?.upvotes ?? 0}
           badges={p.badges}
-          category={showCategory ? p.category?.name ?? null : null}
+          category={showCategory ? (p.category?.name ?? null) : null}
           meta={
             topRight ? (
               topRight(p, i)

@@ -395,7 +395,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     jobTitle: member.jobTitle,
   }))
 
-  const hasCrewDetails = crewRoster.length > 0 || Boolean(product.organization?.name)
+  const hasCrewDetails =
+    crewRoster.length > 0 || Boolean(product.organization?.name)
 
   return (
     <main className="relative isolate bg-white">
@@ -463,7 +464,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               reviewSummary={reviewSummary}
               viewerReview={
                 viewerReview
-                  ? { rating: viewerReview.rating, message: viewerReview.message }
+                  ? {
+                      rating: viewerReview.rating,
+                      message: viewerReview.message,
+                    }
                   : null
               }
               isSignedIn={Boolean(userId)}

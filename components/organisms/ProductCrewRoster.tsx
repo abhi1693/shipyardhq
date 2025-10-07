@@ -56,9 +56,7 @@ export function ProductCrewRoster({
           </ul>
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          {crew.emptyState}
-        </p>
+        <p className="text-sm text-muted-foreground">{crew.emptyState}</p>
       )}
     </section>
   )

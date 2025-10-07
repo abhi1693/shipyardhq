@@ -66,7 +66,7 @@ export function DirectoryCategoryRail({
             </li>
           )
         })}
-     </ul>
+      </ul>
     </section>
   )
 }

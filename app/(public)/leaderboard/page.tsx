@@ -86,7 +86,6 @@ export default async function LeaderboardPage({
 
   return (
     <main className="relative isolate bg-white">
-
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-12">
           <DirectoryHeader
@@ -112,7 +111,7 @@ export default async function LeaderboardPage({
                 <section className="rounded-3xl border border-border/80 bg-background/75 p-6 shadow-sm shadow-black/5 md:p-8">
                   <DirectorySectionHeader
                     kicker="Leaderboard spotlight"
-                    title="Today&apos;s front-runners"
+                    title="Today's front-runners"
                     description="The top three launches right now—ranked by live upvotes and sustained momentum."
                   />
 
@@ -128,14 +127,18 @@ export default async function LeaderboardPage({
 
                     {runnerUps.length ? (
                       <div className="grid gap-6 md:grid-cols-2">
-                        {runnerUps.map((product: LeaderboardProduct, index: number) => (
-                          <TopPlacementCard
-                            key={product.id}
-                            product={product}
-                            rank={index + 2}
-                            label={rankLabels[index + 1] ?? `Top ${index + 2}`}
-                          />
-                        ))}
+                        {runnerUps.map(
+                          (product: LeaderboardProduct, index: number) => (
+                            <TopPlacementCard
+                              key={product.id}
+                              product={product}
+                              rank={index + 2}
+                              label={
+                                rankLabels[index + 1] ?? `Top ${index + 2}`
+                              }
+                            />
+                          ),
+                        )}
                       </div>
                     ) : null}
                   </div>
@@ -152,7 +155,12 @@ export default async function LeaderboardPage({
                       : "No additional contenders yet—check back as new launches climb the ranks."
                   }
                   action={
-                    <Button asChild variant="ghost" size="sm" className="hover:bg-muted/70">
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      className="hover:bg-muted/70"
+                    >
                       <Link href={LEADERBOARD_MONTHLY_PATH}>
                         View monthly champions
                       </Link>
@@ -199,7 +207,8 @@ export default async function LeaderboardPage({
                         No additional contenders yet.
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Invite your crew or explore another category to discover more launches.
+                        Invite your crew or explore another category to discover
+                        more launches.
                       </p>
                     </div>
                     <Button
@@ -223,7 +232,8 @@ export default async function LeaderboardPage({
                       Tune the leaderboard
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Filter by category or adjust how many launches you monitor at once.
+                      Filter by category or adjust how many launches you monitor
+                      at once.
                     </p>
                   </div>
                   <LeaderboardFilters
@@ -233,8 +243,12 @@ export default async function LeaderboardPage({
                   />
                   <div className="space-y-1 text-xs text-muted-foreground">
                     <p>
-                      Showing top {totalCount} launch{totalCount === 1 ? "" : "es"}
-                      {categoryName ? ` in ${categoryName}` : " across all categories"}.
+                      Showing top {totalCount} launch
+                      {totalCount === 1 ? "" : "es"}
+                      {categoryName
+                        ? ` in ${categoryName}`
+                        : " across all categories"}
+                      .
                     </p>
                     {categorySlug || limit !== 50 ? (
                       <Link
@@ -253,7 +267,10 @@ export default async function LeaderboardPage({
                 title="Secure premium visibility for your launch"
                 description="Guarantee homepage and leaderboard exposure by booking featured or sponsored placements with Shipyard."
                 cta={{ label: "Explore promotion plans", href: PRICING_PATH }}
-                subtleCta={{ label: "Submit your launch", href: MEMBER_PRODUCTS_PATH }}
+                subtleCta={{
+                  label: "Submit your launch",
+                  href: MEMBER_PRODUCTS_PATH,
+                }}
               />
 
               <TopCategories

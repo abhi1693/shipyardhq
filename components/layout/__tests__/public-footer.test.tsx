@@ -31,9 +31,10 @@ describe("PublicFooter", () => {
       "href",
       LEADERBOARD_PATH,
     )
-    expect(
-      screen.getByRole("link", { name: /Privacy/i }),
-    ).toHaveAttribute("href", "/legal/privacy-policy")
+    expect(screen.getByRole("link", { name: /Privacy/i })).toHaveAttribute(
+      "href",
+      "/legal/privacy-policy",
+    )
   })
 
   it("shows the current year in the copyright", () => {

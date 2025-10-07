@@ -187,7 +187,8 @@ export default function InteractiveTrendRadar({
           See which categories are heating up
         </h3>
         <p className="text-sm text-muted-foreground md:text-base">
-          Compare momentum, depth, and signal strength to spot where launches are gaining traction this week.
+          Compare momentum, depth, and signal strength to spot where launches
+          are gaining traction this week.
         </p>
       </div>
 
@@ -223,7 +224,9 @@ export default function InteractiveTrendRadar({
             </p>
           </div>
 
-          <p className="mt-2 text-sm text-muted-foreground">{mode.description}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {mode.description}
+          </p>
 
           <div className="mt-6 w-full">
             <ResponsiveContainer width="100%" height={340}>
@@ -266,11 +269,14 @@ export default function InteractiveTrendRadar({
         <aside className="space-y-6">
           <div className="rounded-2xl border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
             <p>
-              Tracking {categories.length} standout categories supported by {totals.trendingProducts} trending launches
-              and {numberFormatter.format(totals.upvotes)} upvotes in the last window.
+              Tracking {categories.length} standout categories supported by{" "}
+              {totals.trendingProducts} trending launches and{" "}
+              {numberFormatter.format(totals.upvotes)} upvotes in the last
+              window.
             </p>
             <p className="mt-2">
-              Use the view toggles to find fertile ground for your launch or discover new projects to follow.
+              Use the view toggles to find fertile ground for your launch or
+              discover new projects to follow.
             </p>
           </div>
 
@@ -288,7 +294,9 @@ export default function InteractiveTrendRadar({
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                      <span className="text-xs font-medium text-muted-foreground">#{index + 1}</span>
+                      <span className="text-xs font-medium text-muted-foreground">
+                        #{index + 1}
+                      </span>
                       <span className="transition-colors group-hover:text-foreground">
                         {category.name}
                       </span>

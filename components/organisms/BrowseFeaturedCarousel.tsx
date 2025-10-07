@@ -21,8 +21,8 @@ export function BrowseFeaturedCarousel({
     () =>
       products
         .map((entry) => entry.product)
-        .filter(
-          (product): product is NonNullable<typeof product> => Boolean(product),
+        .filter((product): product is NonNullable<typeof product> =>
+          Boolean(product),
         ),
     [products],
   )

@@ -44,8 +44,7 @@ export function Leaderboard({ products }: { products: FeaturedProduct[] }) {
           columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
           metaConfig={{
             type: "rank",
-            badgeClassName:
-              "border-primary/30 bg-primary/10 text-primary",
+            badgeClassName: "border-primary/30 bg-primary/10 text-primary",
           }}
         />
       </div>
