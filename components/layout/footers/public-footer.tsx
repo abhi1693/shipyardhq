@@ -105,191 +105,175 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
       </section>
 
       <div className="w-full px-4 pb-16 pt-12 sm:px-6 lg:px-8 lg:pb-20 lg:pt-16">
-        <section className="grid gap-12 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-          <div className="space-y-6">
-            <div className="space-y-4">
+        <section className="grid gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))_minmax(0,1.15fr)]">
+          <div className="space-y-5">
+            <Link
+              href={HOME_PATH}
+              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/80 px-3 py-2 shadow-sm"
+            >
+              <BrandLogo
+                width={28}
+                height={28}
+                sizes="(min-width: 768px) 28px, 24px"
+                className="h-7 w-7"
+                priority
+              />
+              <span className="text-lg font-semibold tracking-tight text-[color:var(--brand-1)]">
+                ShipYardHQ
+              </span>
+            </Link>
+            <p className="max-w-xs text-sm text-muted-foreground lg:max-w-sm">
+              Shipyard is the launch directory built for founders shipping fast, investors watching the radar, and operator-fans who amplify breakout products.
+            </p>
+            <div className="flex flex-wrap gap-3">
               <Link
-                href={HOME_PATH}
-                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/80 px-3 py-2 shadow-sm"
+                href="mailto:support@shipyardhq.dev"
+                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
               >
-                <BrandLogo
-                  width={28}
-                  height={28}
-                  sizes="(min-width: 768px) 28px, 24px"
-                  className="h-7 w-7"
-                  priority
-                />
-                <span className="text-lg font-semibold tracking-tight text-[color:var(--brand-1)]">
-                  ShipYardHQ
-                </span>
+                <Mail className="h-4 w-4" aria-hidden="true" />
+                Email the crew
               </Link>
-              <p className="max-w-sm text-sm text-muted-foreground">
-                Shipyard is the launch directory built for founders shipping fast, investors watching the radar, and operator-fans who amplify breakout products.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href="mailto:support@shipyardhq.dev"
-                  className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
-                >
-                  <Mail className="h-4 w-4" aria-hidden="true" />
-                  Email the crew
-                </Link>
-                <Link
-                  href={SHIPYARD_TWITTER_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
-                >
-                  <Twitter className="h-4 w-4" aria-hidden="true" />
-                  Follow on X
-                </Link>
-              </div>
-            </div>
-
-            <div className="space-y-3 max-w-xl">
-              <div className="flex items-center justify-between gap-6">
-                <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-1)]">
-                  Stay in the loop
-                </h3>
-                {submitted ? (
-                  <span className="hidden items-center gap-2 rounded-full bg-[color:var(--brand-1)/0.12] px-3 py-1 text-[11px] font-semibold text-[color:var(--brand-1)] sm:inline-flex">
-                    <Sparkles className="h-3 w-3" aria-hidden="true" />
-                    Subscribed!
-                  </span>
-                ) : null}
-              </div>
-              <form
-                className="flex w-full flex-col gap-3 rounded-2xl border border-border/60 bg-white/75 p-3 shadow-sm sm:flex-row sm:items-center sm:gap-3"
-                onSubmit={handleSubmit}
-                noValidate
+              <Link
+                href={SHIPYARD_TWITTER_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
               >
-                <div className="flex flex-1 items-center gap-2 rounded-full bg-white px-3 py-1.5 shadow-inner sm:min-w-[18rem]">
-                  <span className="text-xs font-semibold uppercase tracking-[0.26em] text-muted-foreground">
-                    Email
-                  </span>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(event) => {
-                      setEmail(event.target.value)
-                      if (submitted) setSubmitted(false)
-                    }}
-                    placeholder="you@startup.com"
-                    className="h-8 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none"
-                    aria-label="Email address"
-                    required
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--brand-1)] px-4 text-sm font-semibold text-white transition hover:brightness-105 sm:px-5"
-                >
-                  Join newsletter
-                </button>
-              </form>
-              <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                <p>Wednesday digest • Launch signals, operator moves, highlights.</p>
-                {!submitted ? (
-                  <span className="inline-flex items-center gap-2 text-[color:var(--brand-1)/0.8]">
-                    <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                    Zero fluff promise.
-                  </span>
-                ) : null}
-              </div>
-              <DomainRatingBadge className="pt-2" />
+                <Twitter className="h-4 w-4" aria-hidden="true" />
+                Follow on X
+              </Link>
+            </div>
+            <DomainRatingBadge className="pt-2" />
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
+              Discover
+            </h3>
+            <ul className="space-y-2">
+              {discoverLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className={navLinkBase}>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
+              Launch
+            </h3>
+            <ul className="space-y-2">
+              {launchLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className={navLinkBase}
+                    target={link.href.startsWith("http") ? "_blank" : undefined}
+                    rel={link.href.startsWith("http") ? "noreferrer" : undefined}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
+              Popular use cases
+            </h3>
+            {useCases.length ? (
+              <ul className="space-y-2">
+                {useCases.slice(0, 6).map((uc) => (
+                  <li key={uc.slug}>
+                    <Link href={usecasePath(uc.slug)} className={navLinkBase}>
+                      {uc.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-muted-foreground/80">
+                Explore the browse directory to see launches by problem space.
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
+              Company
+            </h3>
+            <ul className="space-y-2">
+              {companyLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className={navLinkBase}
+                    target={link.external ? "_blank" : undefined}
+                    rel={link.external ? "noreferrer" : undefined}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="space-y-3 max-w-sm lg:max-w-xs xl:max-w-sm">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.24em] text-[color:var(--brand-1)]">
+                Stay in the loop
+              </h3>
               {submitted ? (
-                <span className="inline-flex items-center gap-2 text-xs font-semibold text-[color:var(--brand-1)] sm:hidden">
+                <span className="hidden items-center gap-2 rounded-full bg-[color:var(--brand-1)/0.12] px-3 py-1 text-[11px] font-semibold text-[color:var(--brand-1)] lg:inline-flex">
+                  <Sparkles className="h-3 w-3" aria-hidden="true" />
+                  Subscribed!
+                </span>
+              ) : null}
+            </div>
+            <form
+              className="flex w-full flex-col gap-3 rounded-2xl border border-border/60 bg-white/75 p-3 shadow-sm"
+              onSubmit={handleSubmit}
+              noValidate
+            >
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value)
+                  if (submitted) setSubmitted(false)
+                }}
+                placeholder="you@startup.com"
+                className="h-10 w-full rounded-full border border-border/50 bg-white px-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.3]"
+                aria-label="Email address"
+                required
+              />
+              <button
+                type="submit"
+                className="inline-flex h-10 items-center justify-center rounded-full bg-[color:var(--brand-1)] px-4 text-sm font-semibold text-white transition hover:brightness-105"
+              >
+                Join newsletter
+              </button>
+            </form>
+            <div className="text-xs text-muted-foreground">
+              {!submitted ? (
+                <span className="inline-flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                  Wednesday digest — launch signals, operator moves, highlights. No spam.
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-2 text-[color:var(--brand-1)] lg:hidden">
                   <Sparkles className="h-3 w-3" aria-hidden="true" />
                   Thanks! You&apos;re subscribed.
                 </span>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="grid gap-y-8 gap-x-8 sm:grid-cols-2 lg:grid-cols-4 lg:[grid-template-columns:minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
-                Discover
-              </h3>
-              <ul className="space-y-2">
-                {discoverLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className={navLinkBase}>
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
-                Launch
-              </h3>
-              <ul className="space-y-2">
-                {launchLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className={navLinkBase}
-                      target={link.href.startsWith("http") ? "_blank" : undefined}
-                      rel={link.href.startsWith("http") ? "noreferrer" : undefined}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-
-              {useCases.length === 0 ? (
-                <p className="pt-4 text-xs text-muted-foreground/80">
-                  Feature your launch to appear across homepage spotlights.
-                </p>
-              ) : null}
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
-                Popular use cases
-              </h3>
-              {useCases.length ? (
-                <ul className="space-y-2">
-                  {useCases.slice(0, 6).map((uc) => (
-                    <li key={uc.slug}>
-                      <Link href={usecasePath(uc.slug)} className={navLinkBase}>
-                        {uc.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-xs text-muted-foreground/80">
-                  Explore the browse directory to see launches by problem space.
-                </p>
               )}
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--brand-1)]">
-                Company
-              </h3>
-              <ul className="space-y-2">
-                {companyLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className={navLinkBase}
-                      target={link.external ? "_blank" : undefined}
-                      rel={link.external ? "noreferrer" : undefined}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
         </section>
+
       </div>
 
       <div className="border-t border-border/30 bg-white/80">
