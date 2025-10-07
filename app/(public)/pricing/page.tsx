@@ -86,61 +86,60 @@ export default async function PricingPage() {
         )}
       >
         <div className="relative mx-auto flex max-w-[84rem] flex-col items-center gap-10 px-4 text-center text-white md:px-8">
-        <span
-          className={gradientTint(
-            "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
-          )}
-        >
-          Pricing
-        </span>
-        <div className="max-w-3xl space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Pricing built for every voyage
-          </h1>
-          <p className="text-lg text-white/85">
-            Pick the placement that fits your launch. Switch plans anytime,
-            keep full control of your product page, and tap Insights for
-            automated research—starting with weekly runs on the free plan.
-          </p>
-        </div>
-        <div className="flex flex-col justify-center gap-3 sm:flex-row">
-          <Link href="/register" className={launchPrimaryButton({ size: "lg" })}>
-            Start for free
-          </Link>
-          <Link
-            href={REWARDS_PATH}
-            className={launchSecondaryButton({
-              size: "lg",
-              className: "text-white/90 hover:text-white",
-            })}
+          <span
+            className={gradientTint(
+              "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
+            )}
           >
-            Explore rewards
-          </Link>
-        </div>
-        <div className="grid gap-4 rounded-2xl border border-white/30 bg-white/10 px-6 py-6 text-left text-white shadow-[0px_25px_60px_-40px_rgba(7,58,104,0.6)] backdrop-blur sm:grid-cols-3">
-          <div>
-            <p className="text-sm font-semibold text-white">Launch playbooks</p>
-            <p className="mt-1 text-xs text-white/80">
-              Step-by-step checklists for every plan.
+            Pricing
+          </span>
+          <div className="max-w-3xl space-y-4">
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              Pricing built for every voyage
+            </h1>
+            <p className="text-lg text-white/85">
+              Pick the placement that fits your launch. Switch plans anytime,
+              keep full control of your product page, and tap Insights for
+              automated research—starting with weekly runs on the free plan.
             </p>
           </div>
-          <div>
-            <p className="text-sm font-semibold text-white">Upgrade anytime</p>
-            <p className="mt-1 text-xs text-white/80">
-              Plans stack instantly—no downtime for your listing.
-            </p>
+          <div className="flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href="/register" className={launchPrimaryButton({ size: "lg" })}>
+              Start for free
+            </Link>
+            <Link
+              href={REWARDS_PATH}
+              className={launchSecondaryButton({
+                size: "lg",
+                className: "text-white/90 hover:text-white",
+              })}
+            >
+              Explore rewards
+            </Link>
           </div>
-          <div>
-            <p className="text-sm font-semibold text-white">
-              Analytics & insights
-            </p>
-            <p className="mt-1 text-xs text-white/80">
-              Track signal across every tier and trigger Insights runs for
-              competitive, community, and action reports—free includes one run
-              per week and upgrades add more credits.
-            </p>
-          </div>
-        </div>
+          <div className="grid gap-4 rounded-2xl border border-white/30 bg-white/10 px-6 py-6 text-left text-white shadow-[0px_25px_60px_-40px_rgba(7,58,104,0.6)] backdrop-blur sm:grid-cols-3">
+            <div>
+              <p className="text-sm font-semibold text-white">Launch playbooks</p>
+              <p className="mt-1 text-xs text-white/80">
+                Step-by-step checklists for every plan.
+              </p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">Upgrade anytime</p>
+              <p className="mt-1 text-xs text-white/80">
+                Plans stack instantly—no downtime for your listing.
+              </p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">
+                Analytics & insights
+              </p>
+              <p className="mt-1 text-xs text-white/80">
+                Track signal across every tier and trigger Insights runs for
+                competitive, community, and action reports—free includes one run
+                per week and upgrades add more credits.
+              </p>
+            </div>
           </div>
         </div>
       </section>
