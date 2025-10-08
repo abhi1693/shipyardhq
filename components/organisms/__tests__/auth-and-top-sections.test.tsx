@@ -142,11 +142,11 @@ describe("Top sections", () => {
       />,
     )
     expect(
-      screen.getByText("Community momentum from the leaderboard"),
+      screen.getByText("The community leaderboard with momentum to prove it"),
     ).toBeInTheDocument()
     expect(screen.getByText("Trending now")).toBeInTheDocument()
     expect(
-      screen.getByRole("link", { name: "View full leaderboard" }),
+      screen.getByRole("link", { name: "Open full leaderboard" }),
     ).toHaveAttribute("href", LEADERBOARD_PATH)
   })
 })

@@ -96,12 +96,12 @@ describe("Organisms", () => {
 
     rerender(<HomepageSpotlight placements={placements} />)
     expect(
-      screen.getByText("Sponsored products greeting every visitor"),
+      screen.getByText("Flagship homepage spotlight"),
     ).toBeInTheDocument()
     expect(
-      screen.getByText("Scheduled homepage placements"),
+      screen.getByText("Scheduled homepage takeovers"),
     ).toBeInTheDocument()
-    expect(screen.getByText("Reserved homepage placements")).toBeInTheDocument()
+    expect(screen.getByText("Plan upgrades in queue")).toBeInTheDocument()
     expect(screen.queryByText("Plan placement")).not.toBeInTheDocument()
   })
 
@@ -115,7 +115,7 @@ describe("Organisms", () => {
     expect(
       screen.getByText("Fresh launches in the last 24 hours"),
     ).toBeInTheDocument()
-    expect(screen.getByText("Latest arrivals")).toBeInTheDocument()
+    expect(screen.getByText("New today")).toBeInTheDocument()
     expect(screen.getByText("Name 1")).toBeInTheDocument()
   })
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest"
 import React from "react"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 
 vi.mock("next/navigation", () => ({
@@ -32,15 +32,21 @@ describe("BrowseFilterBar counts rendering", () => {
     // Open Use Case dropdown
     const useCaseBtn = screen.getByRole("button", { name: /use case/i })
     await user.click(useCaseBtn)
-    // Scoring shows (12)
-    expect(screen.getByText("(12)")).toBeInTheDocument()
-    // Alerts shows (0)
-    expect(screen.getByText("(0)")).toBeInTheDocument()
+    // Scoring shows count badge
+    expect(
+      within(screen.getByTestId("use-case-option-scoring")).getByText("12"),
+    ).toBeInTheDocument()
+    // Alerts shows 0 count badge
+    expect(
+      within(screen.getByTestId("use-case-option-alerts")).getByText("0"),
+    ).toBeInTheDocument()
 
     // Close menu then open Category dropdown
     await user.keyboard("{Escape}")
     const categoryBtn = screen.getByRole("button", { name: /category/i })
     await user.click(categoryBtn)
-    expect(screen.getByText("(5)")).toBeInTheDocument()
+    expect(
+      within(screen.getByTestId("category-option-analytics")).getByText("5"),
+    ).toBeInTheDocument()
   })
 })

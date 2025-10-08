@@ -30,7 +30,7 @@ describe("EditorsPick", () => {
     ]
     render(<EditorsPick products={items as any} />)
     expect(
-      screen.getByText("Crew-selected launches worth a closer look"),
+      screen.getByText("Launches our editorial team can't stop talking about"),
     ).toBeInTheDocument()
   })
 })
