@@ -53,6 +53,24 @@ type UseCaseProduct = Awaited<
   ReturnType<typeof getPublicProductsByUseCase>
 >[number]
 
+const PRODUCT_TYPE_LABELS: Record<string, string> = {
+  saas: "SaaS",
+  browser_extension: "Browser extension",
+  mobile_app: "Mobile app",
+  desktop_app: "Desktop app",
+  api: "API",
+  open_source: "Open source",
+  other: "Other",
+}
+
+const PRICING_MODEL_LABELS: Record<string, string> = {
+  free: "Free",
+  freemium: "Freemium",
+  subscription: "Subscription",
+  one_time: "One-time",
+  custom: "Custom",
+}
+
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
@@ -157,12 +175,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       : null
 
   const heroStats: { label: string; value: string }[] = [
-    { label: "Product type", value: formatStatValue(product.type) },
+    {
+      label: "Product type",
+      value: PRODUCT_TYPE_LABELS[product.type] || formatStatValue(product.type),
+    },
   ]
   if (product.pricingModel) {
     heroStats.push({
       label: "Pricing model",
-      value: formatStatValue(product.pricingModel),
+      value:
+        PRICING_MODEL_LABELS[product.pricingModel] ||
+        formatStatValue(product.pricingModel),
     })
   }
   if (pricingDisplay) {
