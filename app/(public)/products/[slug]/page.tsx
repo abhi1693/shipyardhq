@@ -36,6 +36,7 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { ScrollReset } from "@/components/atoms/scroll-reset"
 import { BROWSE_PATH, categoryPath, productPath, userPath } from "@/lib/routes"
 import { SupportHeroCard } from "@/components/molecules/SupportHeroCard"
+import { NewsletterSignupSidebarCard } from "@/components/molecules/NewsletterSignupSidebarCard"
 import ProductReviewsSection from "@/components/organisms/ProductReviewsSection"
 import { ProductDetailHero } from "@/components/organisms/ProductDetailHero"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
@@ -43,7 +44,6 @@ import { ProductNarrative } from "@/components/organisms/ProductNarrative"
 import { ProductCrewRoster } from "@/components/organisms/ProductCrewRoster"
 import { ProductSimilarVoyages } from "@/components/organisms/ProductSimilarVoyages"
 import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
-import { FeaturedOnSection } from "@/components/organisms/FeaturedOnSection"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -449,13 +449,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               productName={product.name}
             />
 
-            <FeaturedOnSection
-              align="left"
-              className="mt-6"
-              title="Signal boosted across the indie launch circuit"
-              description="Directories and discovery hubs keep surfacing this launch—explore a few of the places you might spot it next."
-            />
-
             <ProductNarrative description={product.description} />
 
             <ProductReviewsSection
@@ -525,6 +518,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 organizationName={product.organization?.name}
               />
             ) : null}
+
+            <NewsletterSignupSidebarCard />
 
             <ProductSimilarVoyages
               items={useCaseItems}

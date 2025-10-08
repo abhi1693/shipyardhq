@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useState, useTransition } from "react"
+import { FormEvent, useId, useState, useTransition } from "react"
 import { subscribeToNewsletterAction } from "@/actions/public/newsletter/actions"
 import { Button } from "@/components/atoms/button"
 import { Input } from "@/components/atoms/input"
@@ -23,6 +23,7 @@ export function NewsletterSignupSection({
   const [email, setEmail] = useState("")
   const [formState, setFormState] = useState<FormState>(INITIAL_STATE)
   const [isPending, startTransition] = useTransition()
+  const instanceId = useId().replace(/:/g, "")
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -52,8 +53,8 @@ export function NewsletterSignupSection({
     })
   }
 
-  const helperId = "newsletter-signup-feedback"
-  const inputId = "newsletter-signup-email"
+  const helperId = `${instanceId}-newsletter-feedback`
+  const inputId = `${instanceId}-newsletter-email`
 
   return (
     <section
