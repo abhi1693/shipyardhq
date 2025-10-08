@@ -92,9 +92,9 @@ export async function MonthlyLeaderboardView({
               Champions of {leaderboard.label}
             </h1>
             <p className="text-lg text-white/85">
-              Each reset captures the launches that earned the most support. Explore
-              the archive, benchmark results with Analytics, and plan your next
-              spotlight with Insights at the ready.
+              Each reset captures the launches that earned the most support.
+              Explore the archive, benchmark results with Analytics, and plan
+              your next spotlight with Insights at the ready.
             </p>
           </div>
           <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -244,8 +244,8 @@ export async function MonthlyLeaderboardView({
                   No rankings recorded yet.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  As soon as makers start earning placements this period, their victories
-                  will appear here.
+                  As soon as makers start earning placements this period, their
+                  victories will appear here.
                 </p>
               </div>
               <Button asChild variant="outline">

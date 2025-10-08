@@ -14,18 +14,15 @@ export function HeroStickyBanner({
 }: HeroStickyBannerProps) {
   return (
     <div
-      className={cn(
-        "mx-auto w-full px-4 sm:px-6 md:px-8",
-        wrapperClassName,
-      )}
+      className={cn("mx-auto w-full px-4 sm:px-6 md:px-8", wrapperClassName)}
     >
-  <StickyBannerRegion
-    priority={priority}
-    className={cn(
-      "mx-auto w-full max-w-[84rem] rounded-2xl",
-      innerClassName,
-    )}
-  />
+      <StickyBannerRegion
+        priority={priority}
+        className={cn(
+          "mx-auto w-full max-w-[84rem] rounded-2xl",
+          innerClassName,
+        )}
+      />
     </div>
   )
 }

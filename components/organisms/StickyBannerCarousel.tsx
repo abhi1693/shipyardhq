@@ -171,12 +171,12 @@ export function StickyBannerCarousel({
               </span>
             ) : null}
           </div>
-      </Link>
-    </div>
+        </Link>
+      </div>
 
-    <style
-      dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
             @keyframes ${animationId} {
               0% {
                 opacity: 0;

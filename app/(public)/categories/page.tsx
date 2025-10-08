@@ -9,8 +9,7 @@ import { BROWSE_PATH, MEMBER_PRODUCTS_PATH, categoryPath } from "@/lib/routes"
 
 export const metadata = buildPageMetadata({
   title: "Categories",
-  description:
-    "Browse Shipyard by category and discover innovative products.",
+  description: "Browse Shipyard by category and discover innovative products.",
 })
 
 type CategoryListItem = Awaited<
@@ -96,7 +95,7 @@ export default async function CategoriesPage() {
                   <p className="mt-3 text-3xl font-semibold text-foreground">
                     {categories.length}
                   </p>
-                <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {pluralize(categories.length, "category")} leading the
                     directory.
                   </p>
@@ -108,7 +107,7 @@ export default async function CategoriesPage() {
                   <p className="mt-3 text-3xl font-semibold text-foreground">
                     {totalProducts.toLocaleString()}
                   </p>
-                <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {pluralize(totalProducts, "product")} tracked across
                     Shipyard.
                   </p>

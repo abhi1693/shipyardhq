@@ -78,14 +78,14 @@ export function StickyBannerProvider({
       return null
     }
 
-    return regions
-      .slice()
-      .sort((a, b) => {
+    return (
+      regions.slice().sort((a, b) => {
         if (b.priority !== a.priority) {
           return b.priority - a.priority
         }
         return a.order - b.order
       })[0]?.id ?? null
+    )
   }, [regions, products])
 
   const value = useMemo<StickyBannerContextValue>(
@@ -157,12 +157,7 @@ export function StickyBannerRegion({
   }
 
   return (
-    <div
-      className={cn(
-        "bg-white",
-        className,
-      )}
-    >
+    <div className={cn("bg-white", className)}>
       <StickyBannerCarousel products={products} />
     </div>
   )

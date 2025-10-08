@@ -240,7 +240,8 @@ export default async function PricingPage() {
                 Featured success stories
               </h2>
               <p className="text-muted-foreground">
-                Makers who upgraded to featured placements and grew their audience.
+                Makers who upgraded to featured placements and grew their
+                audience.
               </p>
             </div>
             <div className="mt-10">

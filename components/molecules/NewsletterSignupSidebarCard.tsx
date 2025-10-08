@@ -109,7 +109,8 @@ export function NewsletterSignupSidebarCard({
           disabled={isPending}
           className={launchPrimaryButton({
             size: "sm",
-            className: "w-full disabled:pointer-events-none disabled:opacity-60",
+            className:
+              "w-full disabled:pointer-events-none disabled:opacity-60",
           })}
         >
           {isPending ? "Submitting..." : "Join the briefing"}

@@ -41,7 +41,10 @@ const PLATFORM_TONE_MAP: Record<string, string> = {
 }
 
 function platformToneClass(platformId: string) {
-  return PLATFORM_TONE_MAP[platformId] ?? "bg-muted/40 text-muted-foreground ring-border/60"
+  return (
+    PLATFORM_TONE_MAP[platformId] ??
+    "bg-muted/40 text-muted-foreground ring-border/60"
+  )
 }
 
 const TAG_TONE_CLASSES = [
@@ -158,19 +161,19 @@ export function ProductDetailHero({
               </div>
             ) : null}
 
-      {showOwnerMeta ? (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-          <span>
-            {hero.ownerPrefix}{" "}
-            <Link
-              href={owner.href}
-              className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-foreground"
-            >
-              {owner.name}
-            </Link>
-          </span>
-        </div>
-      ) : null}
+            {showOwnerMeta ? (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                <span>
+                  {hero.ownerPrefix}{" "}
+                  <Link
+                    href={owner.href}
+                    className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-foreground"
+                  >
+                    {owner.name}
+                  </Link>
+                </span>
+              </div>
+            ) : null}
           </div>
         </div>
       </header>
@@ -239,7 +242,10 @@ export function ProductDetailHero({
                       tagToneClass(index),
                     )}
                   >
-                    <span className="inline-flex size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+                    <span
+                      className="inline-flex size-1.5 rounded-full bg-current opacity-70"
+                      aria-hidden
+                    />
                     <span className="tracking-[0.02em]">{tag.label}</span>
                   </Link>
                 ))}

@@ -65,15 +65,11 @@ export function ProductMediaGallery({
   const totalAssets = mediaItems.length
 
   const goToPrevious = () => {
-    setCurrentIndex((prev) =>
-      prev === 0 ? mediaItems.length - 1 : prev - 1,
-    )
+    setCurrentIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1))
   }
 
   const goToNext = () => {
-    setCurrentIndex((prev) =>
-      prev === mediaItems.length - 1 ? 0 : prev + 1,
-    )
+    setCurrentIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1))
   }
 
   return (

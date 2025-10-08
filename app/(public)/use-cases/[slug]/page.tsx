@@ -200,10 +200,7 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
         </div>
       </PublicContainer>
 
-      <HeroStickyBanner
-        wrapperClassName="mt-6"
-        innerClassName="max-w-5xl"
-      />
+      <HeroStickyBanner wrapperClassName="mt-6" innerClassName="max-w-5xl" />
 
       {categories.length > 0 && (
         <PublicContainer
@@ -273,8 +270,8 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
             Building for {useCase.label}?
           </h2>
           <p className="text-muted-foreground">
-            Share your launch with the community and reach makers who need exactly
-            what you’re crafting.
+            Share your launch with the community and reach makers who need
+            exactly what you’re crafting.
           </p>
           <Link
             href={MEMBER_PRODUCTS_PATH}

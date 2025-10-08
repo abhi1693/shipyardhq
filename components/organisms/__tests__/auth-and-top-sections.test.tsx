@@ -60,7 +60,9 @@ describe("AuthMarketingPanel", () => {
     expect(screen.getByText("Build Momentum")).toBeInTheDocument()
     expect(screen.getByText("ShipYardHQ")).toBeInTheDocument()
     expect(screen.getByText("A launchpad for indie SaaS")).toBeInTheDocument()
-    expect(screen.getByText("Launch smarter. Build boldly.")).toBeInTheDocument()
+    expect(
+      screen.getByText("Launch smarter. Build boldly."),
+    ).toBeInTheDocument()
     expect(
       screen.getByText("Built for indie makers, by indie makers"),
     ).toBeInTheDocument()

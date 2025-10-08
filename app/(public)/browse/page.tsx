@@ -35,8 +35,7 @@ import {
 
 export const metadata = buildPageMetadata({
   title: "Browse Products",
-  description:
-    "Explore tools, startups, and products by use case or category.",
+  description: "Explore tools, startups, and products by use case or category.",
 })
 
 const browseMetrics = [

@@ -166,9 +166,9 @@ export default async function RewardsExplainerPage() {
               Turn authentic engagement into launch-grade visibility
             </h1>
             <p className="mx-auto max-w-3xl text-lg text-white/85">
-              Contribute reviews, verify traction, and keep streaks alive to bank
-              rewards. When you&apos;re ready, swap that momentum for homepage
-              features, analytics, and marquee placements.
+              Contribute reviews, verify traction, and keep streaks alive to
+              bank rewards. When you&apos;re ready, swap that momentum for
+              homepage features, analytics, and marquee placements.
             </p>
           </div>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
@@ -224,10 +224,7 @@ export default async function RewardsExplainerPage() {
         </div>
       </section>
 
-      <HeroStickyBanner
-        wrapperClassName="mt-6"
-        innerClassName="max-w-5xl"
-      />
+      <HeroStickyBanner wrapperClassName="mt-6" innerClassName="max-w-5xl" />
 
       <section className="relative overflow-hidden py-20">
         <div

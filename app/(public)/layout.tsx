@@ -1,6 +1,9 @@
 import PublicHeader from "@/components/layout/headers/public-header"
 import PublicFooter from "@/components/layout/footers/public-footer"
-import { StickyBannerProvider, StickyBannerRegion } from "@/components/layout/sticky-banner-context"
+import {
+  StickyBannerProvider,
+  StickyBannerRegion,
+} from "@/components/layout/sticky-banner-context"
 import { getPublicUseCasesWithCounts } from "@/actions/public/use-cases/actions"
 import { getStickyBannerProducts } from "@/actions/public/products/featured"
 import { buildSectionMetadata } from "@/lib/metadata"

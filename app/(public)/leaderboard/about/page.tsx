@@ -192,11 +192,11 @@ export default function LeaderboardGuidePage() {
                 </span>{" "}
                 + lifetime upvotes
               </p>
-                  <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-                    Monthly upvotes reset with each calendar month to capture
-                    campaign momentum. Lifetime upvotes never reset, rewarding
-                    long-term supporters and giving tie-breakers a clear rule.
-                  </p>
+              <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
+                Monthly upvotes reset with each calendar month to capture
+                campaign momentum. Lifetime upvotes never reset, rewarding
+                long-term supporters and giving tie-breakers a clear rule.
+              </p>
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 <div className="rounded-2xl border border-[color:var(--brand-1)/0.12] bg-background/80 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">

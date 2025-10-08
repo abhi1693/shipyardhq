@@ -47,7 +47,7 @@ export function NewsletterSignupSection({
 
       setFormState({
         status: "success",
-    message: "You're in! We'll ping you when the next launch goes live.",
+        message: "You're in! We'll ping you when the next launch goes live.",
       })
       setEmail("")
     })
