@@ -24,6 +24,7 @@ import InteractiveTrendRadar from "@/components/organisms/InteractiveTrendRadar"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
 import { computeTrendRadarMetrics } from "@/lib/trend-radar"
+import { Prisma } from "@/lib/vendor/prisma/client"
 import {
   BROWSE_PATH,
   LEADERBOARD_PATH,
@@ -78,6 +79,10 @@ interface BrowseSearchParams {
 const resolveSingle = (value: StrOrArr) =>
   Array.isArray(value) ? value[0] : value
 
+type CategoryWithProductCount = Prisma.CategoryGetPayload<{
+  include: { _count: { select: { products: true } } }
+}>
+
 export default async function BrowsePage({
   searchParams,
 }: {
@@ -118,7 +123,7 @@ export default async function BrowsePage({
       },
       include: { _count: { select: { products: true } } },
       orderBy: [{ products: { _count: "desc" } }, { name: "asc" }],
-    }),
+    }) as Promise<CategoryWithProductCount[]>,
     getLeaderboardStats(),
     getTrendingProducts(8),
   ])
