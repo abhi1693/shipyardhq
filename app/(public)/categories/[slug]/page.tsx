@@ -244,35 +244,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 ) ?? [],
             }))}
           />
-
-          <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-12 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur md:px-10">
-            <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                Elevate your launch
-              </span>
-              <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                Secure prime placement in {category.name}
-              </h2>
-              <p className="max-w-xl text-sm text-muted-foreground">
-                Book a featured slot or premium placement to get surfaced across
-                the directory, daily digest, and leaderboard pulses.
-              </p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Link
-                  href={PRICING_PATH}
-                  className={launchPrimaryButton({ size: "lg" })}
-                >
-                  View featured packages
-                </Link>
-                <Link
-                  href={MEMBER_PRODUCTS_PATH}
-                  className={launchSecondaryButton({ size: "lg" })}
-                >
-                  Submit your launch
-                </Link>
-              </div>
-            </div>
-          </section>
         </div>
       </div>
     </main>
