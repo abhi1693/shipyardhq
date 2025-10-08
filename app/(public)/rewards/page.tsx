@@ -147,92 +147,83 @@ export default async function RewardsExplainerPage() {
 
   return (
     <main className="relative isolate overflow-hidden bg-white">
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-24"
+      <section
         className={brandGradient(
-          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] shadow-[0px_70px_160px_-70px_rgba(18,66,112,0.75)]",
+          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_70px_160px_-70px_rgba(18,66,112,0.75)]",
         )}
-        fillScreen={false}
-        innerClassName="relative flex max-w-5xl flex-col items-center gap-10 text-center text-white"
       >
-        <span
-          className={gradientTint(
-            "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
-          )}
-        >
-          Shipyard Rewards
-        </span>
-        <div className="space-y-6 text-balance">
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Turn authentic engagement into launch-grade visibility
-          </h1>
-          <p className="mx-auto max-w-3xl text-lg text-white/85">
-            Contribute reviews, verify traction, and keep streaks alive to bank
-            rewards. When you&apos;re ready, swap that momentum for homepage
-            features, analytics, and marquee placements.
-          </p>
-        </div>
-        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
-          <Link
-            href={MEMBER_REWARDS_PATH}
-            className={launchPrimaryButton({ size: "lg" })}
-          >
-            Check your balance
-          </Link>
-          <Link
-            href="/register"
-            className={launchSecondaryButton({
-              size: "lg",
-              className: "text-white/90 hover:text-white",
-            })}
-          >
-            Join Shipyard
-          </Link>
-          <Link
-            href={LEADERBOARD_PATH}
+        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-10 px-4 text-center text-white md:px-8">
+          <span
             className={gradientTint(
-              "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white/85 transition hover:text-white",
+              "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
             )}
           >
-            See leaderboard
-          </Link>
-        </div>
-        <div className="mt-12 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((item) => (
-            <div
-              key={item.label}
-              className="relative overflow-hidden rounded-2xl border border-white/25 bg-white/92 px-5 py-5 text-foreground shadow-[0px_22px_48px_-38px_rgba(7,58,104,0.58)] backdrop-blur before:absolute before:inset-0 before:-z-10 before:bg-[radial-gradient(120%_120%_at_50%_-20%,var(--brand-1)/0.18,transparent)] before:content-['']"
+            Shipyard Rewards
+          </span>
+          <div className="space-y-6 text-balance">
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+              Turn authentic engagement into launch-grade visibility
+            </h1>
+            <p className="mx-auto max-w-3xl text-lg text-white/85">
+              Contribute reviews, verify traction, and keep streaks alive to bank
+              rewards. When you&apos;re ready, swap that momentum for homepage
+              features, analytics, and marquee placements.
+            </p>
+          </div>
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
+            <Link
+              href={MEMBER_REWARDS_PATH}
+              className={launchPrimaryButton({ size: "lg" })}
             >
-              <div className="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                <span className="line-clamp-2 min-h-[2.4em] leading-[1.2]">
-                  {item.label}
-                </span>
-                <span className="inline-flex h-1.5 w-6 shrink-0 rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2))]" />
-              </div>
-              <div className="mt-4 flex min-h-[3.6rem] flex-col justify-between gap-2">
-                <p className="text-2xl font-semibold tracking-tight text-foreground">
-                  {item.value}
-                </p>
-                {item.helper ? (
-                  <p className="text-xs text-muted-foreground/80">
-                    {item.helper}
+              Check your balance
+            </Link>
+            <Link
+              href="/register"
+              className={launchSecondaryButton({
+                size: "lg",
+                className: "text-white/90 hover:text-white",
+              })}
+            >
+              Join Shipyard
+            </Link>
+            <Link
+              href={LEADERBOARD_PATH}
+              className={gradientTint(
+                "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white/85 transition hover:text-white",
+              )}
+            >
+              See leaderboard
+            </Link>
+          </div>
+          <div className="mt-12 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((item) => (
+              <div
+                key={item.label}
+                className="relative overflow-hidden rounded-2xl border border-white/25 bg-white/92 px-5 py-5 text-foreground shadow-[0px_22px_48px_-38px_rgba(7,58,104,0.58)] backdrop-blur before:absolute before:inset-0 before:-z-10 before:bg-[radial-gradient(120%_120%_at_50%_-20%,var(--brand-1)/0.18,transparent)] before:content-['']"
+              >
+                <div className="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                  <span className="line-clamp-2 min-h-[2.4em] leading-[1.2]">
+                    {item.label}
+                  </span>
+                  <span className="inline-flex h-1.5 w-6 shrink-0 rounded-full bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2))]" />
+                </div>
+                <div className="mt-4 flex min-h-[3.6rem] flex-col justify-between gap-2">
+                  <p className="text-2xl font-semibold tracking-tight text-foreground">
+                    {item.value}
                   </p>
-                ) : null}
+                  {item.helper ? (
+                    <p className="text-xs text-muted-foreground/80">
+                      {item.helper}
+                    </p>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </PublicContainer>
+      </section>
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-20"
-        fillScreen={false}
-        className="relative overflow-hidden"
-      >
+      <section className="relative overflow-hidden py-20">
         <div
           aria-hidden
           className="absolute inset-0 -z-20 bg-[radial-gradient(120%_120%_at_0%_0%,var(--brand-1)/0.16,transparent_58%)]"
@@ -245,7 +236,7 @@ export default async function RewardsExplainerPage() {
           aria-hidden
           className="absolute inset-x-0 bottom-0 -z-10 h-64 bg-gradient-to-t from-[color:var(--brand-1)/0.08] via-transparent to-transparent"
         />
-        <div className="grid gap-10 lg:grid-cols-[1.05fr,0.95fr]">
+        <div className="mx-auto grid max-w-[84rem] gap-10 px-4 md:px-8 lg:grid-cols-[1.05fr,0.95fr]">
           <div className="space-y-6">
             <article className="relative overflow-hidden rounded-[32px] bg-white/70 p-6 shadow-[0px_40px_120px_-60px_rgba(7,58,104,0.55)] backdrop-blur md:p-8 ring-1 ring-[rgba(7,58,104,0.08)]">
               <div
