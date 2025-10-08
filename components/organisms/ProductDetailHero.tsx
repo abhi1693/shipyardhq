@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { JSX } from "react"
-import { CheckCircle } from "lucide-react"
+import { CheckCircle, Tag as TagIcon } from "lucide-react"
 import { SignInButton } from "@clerk/nextjs"
 
 import { Badge } from "@/components/atoms/badge"
@@ -27,6 +27,36 @@ interface HeroTag {
   id: string
   label: string
   href: string
+}
+
+const PLATFORM_TONE_MAP: Record<string, string> = {
+  web: "bg-sky-500/10 text-sky-700 ring-sky-500/30",
+  ios: "bg-slate-500/10 text-slate-700 ring-slate-500/30",
+  android: "bg-emerald-500/10 text-emerald-700 ring-emerald-500/30",
+  mac: "bg-zinc-500/10 text-zinc-700 ring-zinc-500/30",
+  windows: "bg-blue-500/10 text-blue-700 ring-blue-500/30",
+  linux: "bg-amber-500/10 text-amber-700 ring-amber-500/25",
+  chrome_extension: "bg-orange-500/10 text-orange-700 ring-orange-500/30",
+  firefox_extension: "bg-amber-500/10 text-amber-700 ring-amber-500/25",
+}
+
+function platformToneClass(platformId: string) {
+  return PLATFORM_TONE_MAP[platformId] ?? "bg-muted/40 text-muted-foreground ring-border/60"
+}
+
+const TAG_TONE_CLASSES = [
+  "bg-violet-500/12 text-violet-700 ring-violet-500/30",
+  "bg-rose-500/12 text-rose-700 ring-rose-500/30",
+  "bg-sky-500/12 text-sky-700 ring-sky-500/30",
+  "bg-emerald-500/12 text-emerald-700 ring-emerald-500/30",
+  "bg-amber-400/12 text-amber-700 ring-amber-500/25",
+]
+
+function tagToneClass(index: number) {
+  if (TAG_TONE_CLASSES.length === 0) {
+    return "bg-muted/40 text-muted-foreground ring-border/60"
+  }
+  return TAG_TONE_CLASSES[index % TAG_TONE_CLASSES.length]
 }
 
 interface ProductDetailHeroProps {
@@ -153,40 +183,67 @@ export function ProductDetailHero({
         </div>
       ) : null}
 
-      {hasPlatforms ? (
-        <div className="space-y-2">
-          <p className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
-            Available on
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {platforms.map((platform) => (
-              <Badge
-                key={platform.id}
-                variant="outline"
-                className="flex items-center gap-1 rounded-full border border-border bg-white bg-none px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground shadow-none"
-              >
-                {platform.icon}
-                {platform.label}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      ) : null}
+      {hasPlatforms || hasTags ? (
+        <div
+          className={cn(
+            "grid gap-4",
+            hasPlatforms && hasTags ? "md:grid-cols-2" : "md:grid-cols-1",
+          )}
+        >
+          {hasPlatforms ? (
+            <section className="rounded-2xl border border-border/60 bg-white/60 p-4 shadow-[0_12px_28px_-26px_rgba(15,23,42,0.35)] backdrop-blur">
+              <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted/40 text-[10px] font-semibold text-muted-foreground">
+                  ON
+                </span>
+                Available on
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {platforms.map((platform) => (
+                  <span
+                    key={platform.id}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset shadow-[0_10px_25px_-24px_rgba(15,23,42,0.45)] transition hover:-translate-y-px",
+                      platformToneClass(platform.id),
+                    )}
+                  >
+                    {platform.icon ? (
+                      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/70 text-muted-foreground">
+                        {platform.icon}
+                      </span>
+                    ) : null}
+                    <span className="tracking-[0.015em]">{platform.label}</span>
+                  </span>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
-      {hasTags ? (
-        <div className="space-y-2">
-          <p className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
-            Tags
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {tags.map((tag) => (
-              <Link key={tag.id} href={tag.href} className="inline-flex">
-                <Badge className="rounded-full border border-border bg-white bg-none px-3 py-0.5 text-[11px] font-medium text-muted-foreground shadow-none transition hover:border-border/70">
-                  {tag.label}
-                </Badge>
-              </Link>
-            ))}
-          </div>
+          {hasTags ? (
+            <section className="rounded-2xl border border-border/60 bg-white/70 p-4 shadow-[0_12px_28px_-26px_rgba(15,23,42,0.35)] backdrop-blur">
+              <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted/30 text-muted-foreground">
+                  <TagIcon className="size-3" aria-hidden />
+                </span>
+                Signal tags
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {tags.map((tag, index) => (
+                  <Link
+                    key={tag.id}
+                    href={tag.href}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset shadow-[0_10px_25px_-24px_rgba(15,23,42,0.45)] transition hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring/30",
+                      tagToneClass(index),
+                    )}
+                  >
+                    <span className="inline-flex size-1.5 rounded-full bg-current opacity-70" aria-hidden />
+                    <span className="tracking-[0.02em]">{tag.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </div>
       ) : null}
 
