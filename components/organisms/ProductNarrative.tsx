@@ -12,11 +12,6 @@ export function ProductNarrative({ description }: ProductNarrativeProps) {
 
   return (
     <section className="space-y-4">
-      <header className="space-y-2">
-        <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">
-          {narrative.heading}
-        </p>
-      </header>
       <div className="rounded-3xl border border-border bg-white p-6 shadow-sm">
         {description ? (
           <div className="prose max-w-none prose-neutral dark:prose-invert">

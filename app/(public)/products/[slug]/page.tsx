@@ -498,7 +498,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             {supportCard}
             {heroStats.length ? (
               <section className="rounded-2xl border border-border bg-white p-5 shadow-sm">
-                <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                  <span
+                    className="inline-flex h-1.5 w-1.5 rounded-full bg-muted-foreground/40"
+                    aria-hidden
+                  />
                   {productPageCopy.hero.statsLabel}
                 </p>
                 <dl className="mt-4 grid gap-3">
@@ -521,7 +525,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
             {secondaryLinks.length ? (
               <section className="rounded-2xl border border-border bg-white p-4 shadow-sm">
-                <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                  <span
+                    className="inline-flex h-1.5 w-1.5 rounded-full bg-muted-foreground/40"
+                    aria-hidden
+                  />
                   Signal links
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">

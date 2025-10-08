@@ -114,11 +114,13 @@ export function ProductDetailHero({
           </div>
           <div className="min-w-0 space-y-4">
             <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
-                <span>{hero.chartedLabel}</span>
+              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-foreground/80">
+                <span className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-muted/20 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground">
+                  {hero.chartedLabel}
+                </span>
                 <Link
                   href={category.href}
-                  className="font-semibold tracking-[0.24em] text-foreground underline decoration-border underline-offset-4 transition hover:text-foreground"
+                  className="inline-flex items-center gap-1 rounded-full border border-transparent bg-white px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground transition hover:border-border/70 hover:bg-white"
                 >
                   {category.label}
                 </Link>
@@ -192,8 +194,8 @@ export function ProductDetailHero({
         >
           {hasPlatforms ? (
             <section className="rounded-2xl border border-border/60 bg-white/60 p-4 shadow-[0_12px_28px_-26px_rgba(15,23,42,0.35)] backdrop-blur">
-              <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted/40 text-[10px] font-semibold text-muted-foreground">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                <span className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-muted/30 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground">
                   ON
                 </span>
                 Available on
@@ -221,8 +223,8 @@ export function ProductDetailHero({
 
           {hasTags ? (
             <section className="rounded-2xl border border-border/60 bg-white/70 p-4 shadow-[0_12px_28px_-26px_rgba(15,23,42,0.35)] backdrop-blur">
-              <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted/30 text-muted-foreground">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border/70 bg-muted/30 text-foreground/80">
                   <TagIcon className="size-3" aria-hidden />
                 </span>
                 Signal tags

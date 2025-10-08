@@ -27,7 +27,11 @@ export function SupportHeroCard({
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-3">
           <div className="space-y-1">
-            <span className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
+            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+              <span
+                className="inline-flex h-1.5 w-1.5 rounded-full bg-muted-foreground/40"
+                aria-hidden
+              />
               Support signal
             </span>
             <h3 className="text-xl font-semibold leading-tight text-foreground">
