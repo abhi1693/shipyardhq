@@ -8,6 +8,7 @@ import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
 import { productPageCopy } from "@/lib/copy/productPage"
+import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 interface HeroBadge {
   id: string
@@ -195,17 +196,32 @@ export function ProductDetailHero({
       ) : null}
 
       {showReviewPrompt && reviewPrompt ? (
-        <div className="rounded-2xl border border-border bg-white px-5 py-4 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-1">
-              <p className="text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
+        <div
+          className={brandGradient(
+            "relative overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.18] text-white shadow-[0_22px_48px_-32px_rgba(7,78,134,0.45)]",
+          )}
+        >
+          <div
+            aria-hidden
+            className={gradientTint(
+              "absolute inset-0 border-0 backdrop-blur-sm",
+            )}
+          />
+          <div className="relative z-10 flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1 text-white">
+              <p className="text-[11px] uppercase tracking-[0.32em] text-white">
                 {reviewCopy.heading}
               </p>
-              <p className="text-sm text-muted-foreground">{reviewCopy.body}</p>
+              <p className="text-sm text-white">{reviewCopy.body}</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               {reviewPrompt.isSignedIn ? (
-                <Button asChild size="sm" className="px-4">
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="border-white/70 bg-white/95 px-4 text-[color:var(--brand-1)] shadow-none transition hover:bg-white"
+                >
                   <Link href="#product-review-form">
                     {reviewPrompt.hasReviews
                       ? reviewCopy.signedInCta
@@ -218,7 +234,11 @@ export function ProductDetailHero({
                   forceRedirectUrl={reviewPrompt.redirectUrl}
                   signUpForceRedirectUrl={reviewPrompt.redirectUrl}
                 >
-                  <Button size="sm" className="px-4" variant="outline">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-white/60 bg-white/90 px-4 text-[color:var(--brand-1)] shadow-none transition hover:bg-white"
+                  >
                     {reviewCopy.signedOutCta}
                   </Button>
                 </SignInButton>
