@@ -1,5 +1,6 @@
 import PublicHeader from "@/components/layout/headers/public-header"
 import PublicFooter from "@/components/layout/footers/public-footer"
+import { StickyBannerProvider, StickyBannerRegion } from "@/components/layout/sticky-banner-context"
 import { getPublicUseCasesWithCounts } from "@/actions/public/use-cases/actions"
 import { getStickyBannerProducts } from "@/actions/public/products/featured"
 import { buildSectionMetadata } from "@/lib/metadata"
@@ -27,10 +28,13 @@ export default async function PublicLayout({
     .slice(0, 6)
     .map((useCase) => ({ label: useCase.label, slug: useCase.slug }))
   return (
-    <div className="min-h-screen flex flex-col">
-      <PublicHeader stickyBannerProducts={stickyBannerProducts} />
-      <main className="flex-1 bg-white">{children}</main>
-      <PublicFooter useCases={footerUseCases} />
-    </div>
+    <StickyBannerProvider products={stickyBannerProducts}>
+      <div className="min-h-screen flex flex-col bg-white">
+        <PublicHeader />
+        <StickyBannerRegion priority={0} mode="deferred" />
+        <main className="flex-1">{children}</main>
+        <PublicFooter useCases={footerUseCases} />
+      </div>
+    </StickyBannerProvider>
   )
 }

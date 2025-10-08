@@ -43,6 +43,7 @@ import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import { ProductNarrative } from "@/components/organisms/ProductNarrative"
 import { ProductCrewRoster } from "@/components/organisms/ProductCrewRoster"
 import { ProductSimilarVoyages } from "@/components/organisms/ProductSimilarVoyages"
+import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -462,6 +463,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 redirectUrl: productPath(product.slug),
                 hasReviews: reviewSummary.totalReviews > 0,
               }}
+            />
+
+            <HeroStickyBanner
+              wrapperClassName="px-0"
+              innerClassName="max-w-[120rem]"
             />
 
             <ProductMediaGallery

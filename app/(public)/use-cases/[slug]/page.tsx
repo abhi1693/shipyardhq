@@ -22,6 +22,7 @@ import {
 import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
+import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
@@ -198,6 +199,11 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
           </Link>
         </div>
       </PublicContainer>
+
+      <HeroStickyBanner
+        wrapperClassName="mt-6"
+        innerClassName="max-w-5xl"
+      />
 
       {categories.length > 0 && (
         <PublicContainer

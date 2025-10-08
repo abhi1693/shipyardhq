@@ -18,6 +18,7 @@ import {
 } from "@/lib/vendor/prisma/client"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
+import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
 const ruleCategoryLabels: Record<RewardRuleCategory, string> = {
   [RewardRuleCategory.engagement]: "Engagement",
@@ -223,6 +224,11 @@ export default async function RewardsExplainerPage() {
         </div>
       </section>
 
+      <HeroStickyBanner
+        wrapperClassName="mt-6"
+        innerClassName="max-w-5xl"
+      />
+
       <section className="relative overflow-hidden py-20">
         <div
           aria-hidden
@@ -420,7 +426,7 @@ export default async function RewardsExplainerPage() {
             </ul>
           </article>
         </div>
-      </PublicContainer>
+      </section>
 
       <PublicContainer
         as="section"

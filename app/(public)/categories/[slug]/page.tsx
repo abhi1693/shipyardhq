@@ -17,6 +17,7 @@ import { pluralize } from "@/lib/pluralize"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
+import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
@@ -196,6 +197,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               </div>
             </div>
           </section>
+
+          <HeroStickyBanner
+            wrapperClassName="px-0"
+            innerClassName="max-w-[120rem]"
+          />
 
           {featured.length > 0 ? (
             <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-10 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur md:px-10">

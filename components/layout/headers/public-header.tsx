@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState, type ComponentProps } from "react"
+import { useState } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
@@ -36,15 +36,6 @@ import {
 } from "@/components/atoms/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { useRouter } from "next/navigation"
-import { StickyBannerCarousel } from "@/components/organisms/StickyBannerCarousel"
-
-type StickyBannerProducts = ComponentProps<
-  typeof StickyBannerCarousel
->["products"]
-
-type PublicHeaderProps = {
-  stickyBannerProducts?: StickyBannerProducts
-}
 
 const navLinks = [
   { label: "Browse", href: BROWSE_PATH },
@@ -54,9 +45,7 @@ const navLinks = [
   { label: "Rewards", href: REWARDS_PATH },
 ]
 
-export default function PublicHeader({
-  stickyBannerProducts,
-}: PublicHeaderProps = {}) {
+export default function PublicHeader() {
   const pathname = usePathname() ?? "/"
   const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
@@ -332,10 +321,6 @@ export default function PublicHeader({
             </Sheet>
           </div>
         </div>
-
-        {stickyBannerProducts && stickyBannerProducts.length > 0 ? (
-          <StickyBannerCarousel products={stickyBannerProducts} />
-        ) : null}
       </div>
     </header>
   )

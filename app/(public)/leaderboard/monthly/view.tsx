@@ -23,6 +23,7 @@ import {
   IconTrophy,
   IconUsersGroup,
 } from "@tabler/icons-react"
+import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
 const rankLabels = ["Monthly Flagship", "First Mate", "Deckhand"]
 
@@ -135,6 +136,11 @@ export async function MonthlyLeaderboardView({
           </div>
         </div>
       </section>
+
+      <HeroStickyBanner
+        wrapperClassName="mt-6"
+        innerClassName="max-w-[84rem]"
+      />
 
       {hasRankings ? (
         <>

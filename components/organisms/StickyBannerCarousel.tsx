@@ -7,7 +7,7 @@ import Link from "next/link"
 import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
-type StickyBannerProduct = {
+export type StickyBannerProduct = {
   id: string
   slug: string
   name: string
@@ -84,7 +84,6 @@ export function StickyBannerCarousel({
   const showCategory = Boolean(categoryName)
   const showMaker = Boolean(makerName)
   const showUpvotes = Boolean(upvoteLabel)
-  const hasMeta = showCategory || showMaker || showUpvotes
 
   const handlePause = (next: boolean) => {
     if (total <= 1) return
@@ -93,38 +92,35 @@ export function StickyBannerCarousel({
 
   return (
     <div
-      className={cn(
-        "sticky top-[4.5rem] z-40 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70",
-        className,
-      )}
+      className={cn("w-full bg-white", className)}
       onMouseEnter={() => handlePause(true)}
       onMouseLeave={() => handlePause(false)}
       onFocusCapture={() => handlePause(true)}
       onBlurCapture={() => handlePause(false)}
     >
-      <div className="mx-auto flex h-12 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-6xl flex-col px-4 sm:px-6">
         <Link
           key={current.id}
           href={productPath(current.slug)}
-          className="relative flex h-9 w-full items-center gap-3 overflow-hidden rounded-full bg-white/70 px-3 text-sm font-medium text-foreground shadow-[0_24px_52px_-36px_rgba(18,66,112,0.42)] ring-1 ring-inset ring-white/35 transition hover:bg-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.28] lg:h-11 lg:gap-4 lg:px-4 before:absolute before:inset-[-1px] before:-z-10 before:rounded-full before:bg-[linear-gradient(125deg,rgba(23,115,230,0.18) 0%,rgba(119,91,255,0.16) 55%,rgba(255,255,255,0.9) 100%)] before:opacity-100 before:transition hover:before:opacity-100 after:pointer-events-none after:absolute after:inset-0 after:-z-20 after:rounded-full after:bg-[radial-gradient(160%_140%_at_10%_120%,rgba(23,115,230,0.22),rgba(255,255,255,0.05))]"
+          className="group relative flex w-full items-center gap-4 overflow-hidden rounded-xl border border-border/70 bg-white px-4 py-3 text-sm shadow-sm transition hover:border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.45]"
           style={{
-            animation: `${animationId} 520ms ease`,
+            animation: `${animationId} 320ms ease`,
             animationFillMode: "both",
           }}
           aria-label={`View ${current.name}`}
         >
-          <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/50 bg-background/90">
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-muted/20">
             <Image
               src={current.logo}
               alt={current.name}
-              width={28}
-              height={28}
+              width={40}
+              height={40}
               className="h-full w-full object-cover"
             />
           </span>
 
           <div
-            className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-xs text-muted-foreground sm:text-sm"
+            className="flex min-w-0 flex-1 items-center gap-2"
             role="status"
             aria-live="polite"
           >
@@ -132,60 +128,63 @@ export function StickyBannerCarousel({
               {current.name}
             </span>
             {tagline ? (
-              <span className="hidden text-muted-foreground/70 sm:inline">
+              <span className="hidden text-muted-foreground/60 sm:inline">
                 •
               </span>
             ) : null}
             {tagline ? (
-              <span className="truncate text-muted-foreground">{tagline}</span>
+              <span className="hidden truncate text-muted-foreground sm:inline">
+                {tagline}
+              </span>
             ) : null}
           </div>
-          {hasMeta ? (
-            <div className="hidden shrink-0 items-center gap-3 lg:flex">
-              <span className="hidden h-7 shrink-0 items-center rounded-full border border-white/60 bg-white/70 px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--brand-1)]/85 shadow-[0_6px_16px_-12px_rgba(18,66,112,0.45)] lg:inline-flex">
-                Spotlight
+
+          <div className="hidden items-center gap-2 lg:flex">
+            {showCategory ? (
+              <span className="inline-flex items-center gap-2 truncate rounded-full border border-border/60 bg-muted/20 px-2.5 py-1 text-xs text-muted-foreground/80">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
+                  Category
+                </span>
+                <span className="font-semibold text-foreground">
+                  {categoryName}
+                </span>
               </span>
-              <div className="flex items-center gap-2">
-                {showCategory ? (
-                  <span className="inline-flex max-w-[200px] items-center gap-2 rounded-full border border-white/60 bg-white/80 px-3 py-1 text-xs text-muted-foreground shadow-[0_6px_16px_-12px_rgba(18,66,112,0.35)]">
-                    <span className="text-muted-foreground/70">Category</span>
-                    <span className="font-semibold text-foreground">
-                      {categoryName}
-                    </span>
-                  </span>
-                ) : null}
-                {showMaker ? (
-                  <span className="inline-flex max-w-[220px] items-center gap-2 rounded-full border border-white/60 bg-white/80 px-3 py-1 text-xs text-muted-foreground shadow-[0_6px_16px_-12px_rgba(18,66,112,0.35)]">
-                    <span className="text-muted-foreground/70">Maker</span>
-                    <span className="font-semibold text-foreground">
-                      {makerName}
-                    </span>
-                  </span>
-                ) : null}
-                {showUpvotes ? (
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/80 px-3 py-1 text-xs text-muted-foreground shadow-[0_6px_16px_-12px_rgba(18,66,112,0.35)]">
-                    <span className="text-muted-foreground/70">Upvotes</span>
-                    <span className="font-semibold text-foreground">
-                      {upvoteLabel}
-                    </span>
-                  </span>
-                ) : null}
-              </div>
-            </div>
-          ) : null}
-        </Link>
-      </div>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
+            ) : null}
+            {showMaker ? (
+              <span className="inline-flex items-center gap-2 truncate rounded-full border border-border/60 bg-muted/20 px-2.5 py-1 text-xs text-muted-foreground/80">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
+                  Maker
+                </span>
+                <span className="font-semibold text-foreground">
+                  {makerName}
+                </span>
+              </span>
+            ) : null}
+            {showUpvotes ? (
+              <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-border/60 bg-muted/20 px-2.5 py-1 text-xs text-muted-foreground/80">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.26em] text-muted-foreground/70">
+                  Upvotes
+                </span>
+                <span className="font-semibold text-foreground">
+                  {upvoteLabel}
+                </span>
+              </span>
+            ) : null}
+          </div>
+      </Link>
+    </div>
+
+    <style
+      dangerouslySetInnerHTML={{
+        __html: `
             @keyframes ${animationId} {
               0% {
                 opacity: 0;
-                transform: translateX(32px);
+                transform: translateY(8px);
               }
               100% {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translateY(0);
               }
             }
           `,
