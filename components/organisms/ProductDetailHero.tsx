@@ -65,6 +65,7 @@ export function ProductDetailHero({
   const hasTags = tags.length > 0
   const showOwner = owner.name.trim().length > 0
   const hasBadgeContent = isVerified || badges.length > 0
+  const showOwnerMeta = showOwner
   const showReviewPrompt = Boolean(reviewPrompt)
 
   return (
@@ -125,25 +126,19 @@ export function ProductDetailHero({
               </div>
             ) : null}
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-              {showOwner ? (
-                <span>
-                  {hero.ownerPrefix}{" "}
-                  <Link
-                    href={owner.href}
-                    className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-foreground"
-                  >
-                    {owner.name}
-                  </Link>
-                </span>
-              ) : null}
-              <Link
-                href={category.href}
-                className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-foreground"
-              >
-                Category: {category.label}
-              </Link>
-            </div>
+      {showOwnerMeta ? (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          <span>
+            {hero.ownerPrefix}{" "}
+            <Link
+              href={owner.href}
+              className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-foreground"
+            >
+              {owner.name}
+            </Link>
+          </span>
+        </div>
+      ) : null}
           </div>
         </div>
       </header>
