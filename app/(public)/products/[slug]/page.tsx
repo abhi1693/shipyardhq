@@ -501,13 +501,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
                   {productPageCopy.hero.statsLabel}
                 </p>
-                <dl className="mt-4 space-y-3 text-sm">
+                <dl className="mt-4 grid gap-3">
                   {heroStats.map((stat) => (
-                    <div key={stat.label} className="space-y-1">
-                      <dt className="uppercase tracking-[0.18em] text-[11px] text-muted-foreground">
+                    <div
+                      key={stat.label}
+                      className="rounded-xl border border-border/70 bg-white px-4 py-3 shadow-sm"
+                    >
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
                         {stat.label}
                       </dt>
-                      <dd className="text-sm font-semibold text-foreground">
+                      <dd className="mt-1 text-lg font-semibold leading-tight text-foreground">
                         {stat.value}
                       </dd>
                     </div>
@@ -570,11 +573,13 @@ function formatStatValue(raw: string) {
   return normalized
     .split(/\s+/)
     .map((segment) => {
-      const upperSegment = segment.toUpperCase()
-      if (segment.length <= 3 && /^[A-Z0-9]+$/.test(segment)) {
-        return upperSegment
+      const trimmed = segment.trim()
+      if (!trimmed) return ""
+      const upper = trimmed.toUpperCase()
+      if (trimmed.length <= 3 && /^[A-Z0-9]+$/.test(upper)) {
+        return upper
       }
-      return upperSegment.charAt(0) + upperSegment.slice(1).toLowerCase()
+      return `${upper.charAt(0)}${upper.slice(1).toLowerCase()}`
     })
     .join(" ")
 }
