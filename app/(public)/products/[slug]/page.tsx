@@ -157,10 +157,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       : null
 
   const heroStats: { label: string; value: string }[] = [
-    { label: "Product type", value: product.type.replaceAll("_", " ") },
+    { label: "Product type", value: formatStatValue(product.type) },
   ]
   if (product.pricingModel) {
-    heroStats.push({ label: "Pricing model", value: product.pricingModel })
+    heroStats.push({
+      label: "Pricing model",
+      value: formatStatValue(product.pricingModel),
+    })
   }
   if (pricingDisplay) {
     heroStats.push({ label: "Starting at", value: pricingDisplay })
@@ -535,6 +538,22 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       </div>
     </main>
   )
+}
+
+function formatStatValue(raw: string) {
+  const normalized = raw.replace(/[-_]+/g, " ").trim()
+  if (!normalized) return raw
+
+  return normalized
+    .split(/\s+/)
+    .map((segment) => {
+      const upperSegment = segment.toUpperCase()
+      if (segment.length <= 3 && /^[A-Z0-9]+$/.test(segment)) {
+        return upperSegment
+      }
+      return upperSegment.charAt(0) + upperSegment.slice(1).toLowerCase()
+    })
+    .join(" ")
 }
 
 function platformIcon(platform: string) {
