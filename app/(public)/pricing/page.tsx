@@ -29,7 +29,7 @@ const CORE_PERKS = [
   {
     icon: IconFlag3,
     title: "Launch-ready guidance",
-    body: "Preflight checklists, asset templates, and launch-day reminders keep every release steady at the helm.",
+    body: "Preflight checklists, asset templates, and launch-day reminders keep every release on track.",
   },
   {
     icon: IconTargetArrow,
@@ -52,22 +52,22 @@ const PRICING_FAQS = [
   {
     question: "Which plans include Shipyard Insights?",
     answer:
-      "Every plan includes Insights. Free listings get one run per week, while paid placements and crew subscriptions add more credits so you can refresh findings whenever you need.",
+      "Every plan includes Insights. Free listings get one run per week, while paid placements and organization subscriptions add more credits so you can refresh findings whenever you need.",
   },
   {
     question: "Do plans renew automatically?",
     answer:
-      "Plans are purchased per launch window. When a term ends you decide whether to re-up. No surprise auto-renewals—just opt in when you’re ready for the next voyage.",
+      "Plans are purchased per launch window. When a term ends you decide whether to re-up. No surprise auto-renewals—just opt in when you’re ready for the next campaign.",
   },
   {
     question: "What level of support is included?",
     answer:
-      "All plans include launch guidance, template assets, and async crew support. Premium placements add one-on-one review sessions and priority feature requests.",
+      "All plans include launch guidance, template assets, and async support from our team. Premium placements add one-on-one review sessions and priority feature requests.",
   },
   {
     question: "Can my team collaborate on launches?",
     answer:
-      "Team access unlocks on plans that include organizations. Add your crew, assign roles, and manage launches together from a shared dashboard.",
+      "Team access unlocks on plans that include organizations. Add your team, assign roles, and manage launches together from a shared dashboard.",
   },
 ]
 
@@ -95,7 +95,7 @@ export default async function PricingPage() {
           </span>
           <div className="max-w-3xl space-y-4">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-              Pricing built for every voyage
+              Pricing built for every launch plan
             </h1>
             <p className="text-lg text-white/85">
               Pick the placement that fits your launch. Switch plans anytime,
@@ -164,7 +164,7 @@ export default async function PricingPage() {
             </h2>
             <p className="mt-3 text-muted-foreground">
               Every plan includes verified launch tooling. Upgrade for
-              additional visibility across the harbor.
+              additional visibility across Shipyard.
             </p>
           </div>
           <PricingTable plans={plans} />
@@ -190,7 +190,7 @@ export default async function PricingPage() {
           <div className="mx-auto max-w-[84rem] px-4 md:px-8">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight text-foreground">
-                Keep your crew connected
+                Keep your team connected
               </h2>
               <p className="mt-3 text-muted-foreground">
                 Subscriptions unlock shared organizations, advanced analytics,
@@ -240,7 +240,7 @@ export default async function PricingPage() {
                 Featured success stories
               </h2>
               <p className="text-muted-foreground">
-                Makers who upgraded to featured placements and found their crew.
+                Makers who upgraded to featured placements and grew their audience.
               </p>
             </div>
             <div className="mt-10">
@@ -257,7 +257,7 @@ export default async function PricingPage() {
               <div className="text-center">
                 <h2 className="text-3xl font-bold tracking-tight">FAQ</h2>
                 <p className="mt-2 text-muted-foreground">
-                  Answers to the questions launch captains ask most.
+                  Answers to the questions launch teams ask most.
                 </p>
               </div>
               <Accordion type="multiple" className="w-full" id="faq">

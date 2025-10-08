@@ -7,15 +7,15 @@ describe("Public catalog journey", () => {
     )
     cy.visit("/")
 
-    cy.contains("Set sail to your next product launch.").should("be.visible")
-    cy.contains("Submit Your Product").should("be.visible")
+    cy.contains("Shipyard launch directory").should("be.visible")
+    cy.contains("Submit your product").should("be.visible")
 
     cy.story("They decide to explore what's trending for dev-focused builders.")
     cy.contains("Explore Products").click()
     cy.waitForAppIdle()
 
     cy.url().should("include", BROWSE_PATH)
-    cy.contains("Chart your course through top startups.").should("be.visible")
+    cy.contains("Browse the Shipyard launch catalog").should("be.visible")
 
     cy.story(
       "Alex uses the search bar to pull up a launch a friend recommended.",
@@ -39,8 +39,8 @@ describe("Public catalog journey", () => {
     cy.url().should("include", "/products/shitposts")
 
     cy.story("On the product page they look for proof points and next steps.")
-    cy.contains("Charted for").should("be.visible")
-    cy.contains("Skippered by").should("be.visible")
+    cy.contains("Featured for").should("be.visible")
+    cy.contains("Published by").should("be.visible")
     cy.contains("Build and share your shitposts").should("be.visible")
     cy.contains("Support this product").should("be.visible")
     cy.contains("Product details").should("be.visible")

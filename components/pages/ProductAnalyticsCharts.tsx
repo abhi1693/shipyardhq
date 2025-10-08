@@ -145,7 +145,7 @@ export function ProductAnalyticsCharts({
     >
       {summary.deviceBreakdown.length === 0 ? (
         <p className="py-8 text-center text-base text-muted-foreground">
-          No device signals on the radar yet. Once traffic sets sail, this
+          No device signals on the radar yet. Once traffic picks up, this
           compass will light up.
         </p>
       ) : (
@@ -257,8 +257,8 @@ export function ProductAnalyticsCharts({
       >
         {topBrowsers.length === 0 ? (
           <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-3 py-10 text-center text-base text-muted-foreground">
-            No browser fleet on the horizon yet. When the crew grows, we’ll map
-            their vessels here.
+            No browser breakdown available yet. When traffic grows, we’ll map
+            each browser here.
           </p>
         ) : (
           <AnalyticsBarChart

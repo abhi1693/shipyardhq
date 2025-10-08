@@ -21,7 +21,7 @@ const HERO_HIGHLIGHTS = [
   {
     title: "Momentum is curated, not gamed",
     description:
-      "Our crew reviews every submission and elevates the launches that deliver value—not whoever spams the feed.",
+      "Our editorial team reviews every submission and elevates the launches that deliver value—not whoever spams the feed.",
   },
   {
     title: "Launch tooling built in",
@@ -31,12 +31,12 @@ const HERO_HIGHLIGHTS = [
   {
     title: "Community that converts",
     description:
-      "Shipyard’s audience is a tight harbor of builders, investors, and operators actively scouting new products to champion.",
+      "Shipyard’s audience is a focused community of builders, investors, and operators actively looking for new products to champion.",
   },
   {
     title: "Insights on autopilot",
     description:
-      "Spin up the Insights pipeline—free plans include one run every week to map competitors, community chatter, and recommended experiments without leaving the harbor.",
+      "Spin up the Insights pipeline—free plans include one run every week to map competitors, community chatter, and recommended experiments without leaving your dashboard.",
   },
 ]
 
@@ -45,7 +45,7 @@ const CORE_REASONS = [
     icon: <IconAnchor size={24} />,
     title: "Signal-first discovery",
     description:
-      "Human curation plus contextual tagging keep your product docked beside the right audience, not lost in a sea of noise.",
+      "Human curation plus contextual tagging keep your product in front of the right audience, not lost in a sea of noise.",
   },
   {
     icon: <IconChartArrows size={24} />,
@@ -55,7 +55,7 @@ const CORE_REASONS = [
   },
   {
     icon: <IconUsersGroup size={24} />,
-    title: "Crewed amplification",
+    title: "Launch specialists on call",
     description:
       "Dedicated launch specialists help you refine messaging, prep assets, and unlock promotions when you are ready to scale visibility.",
   },
@@ -113,14 +113,14 @@ const COMPARISON_POINTS = [
   {
     feature: "Launch preparation",
     shipyard:
-      "Structured playbooks, reminder sequences, and collaborative workspaces keep crews in sync.",
+      "Structured playbooks, reminder sequences, and collaborative workspaces keep teams in sync.",
     others:
       "DIY planning across docs and chats with no support if a step slips.",
   },
   {
     feature: "Growth intelligence",
     shipyard:
-      "Real-time analytics plus automated Insights reports that cover competitors, sentiment, and prioritized actions for your crew.",
+      "Real-time analytics plus automated Insights reports that cover competitors, sentiment, and prioritized actions for your team.",
     others:
       "Basic view counters—no intelligence on who showed up, what they said, or how to respond.",
   },
@@ -154,7 +154,7 @@ const MOMENTUM_STEPS = [
 export const metadata = buildPageMetadata({
   title: "Why Shipyard",
   description:
-    "List your product where builders, investors, and operators gather. Shipyard pairs curated discovery with analytics, insights, and crew support so every launch hits with purpose.",
+    "List your product where builders, investors, and operators gather. Shipyard pairs curated discovery with analytics, insights, and hands-on support so every launch hits with purpose.",
 })
 
 export default function WhyShipyardPage() {
@@ -222,7 +222,7 @@ export default function WhyShipyardPage() {
 
       <InsightsShowcase
         eyebrow="Shipyard Insights"
-        title="Insights keeps your crew aligned after launch day"
+        title="Insights keeps your team aligned after launch day"
         description="Request a run for any eligible product to blend analytics with competitor research, community sentiment, and prioritized plays in one briefing—free plans include a weekly run and higher tiers add more credits."
         primaryCta={{ label: "Start using insights", href: "/register" }}
         secondaryCta={{
@@ -424,10 +424,10 @@ export default function WhyShipyardPage() {
         <div className="relative mx-auto flex max-w-4xl flex-col gap-10 overflow-hidden rounded-3xl border border-[color:var(--brand-1)/0.25] bg-background/95 px-6 py-12 text-center shadow-[0px_50px_140px_-90px_rgba(7,58,104,0.85)] sm:px-12">
           <div className="space-y-5">
             <span className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
-              Stay the course
+              Keep momentum
             </span>
             <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              Ready to chart your next voyage?
+              Ready to plan your next launch?
             </h2>
             <p className="text-base text-muted-foreground sm:text-lg">
               Publish once, keep momentum rolling, and promote on your

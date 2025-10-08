@@ -164,8 +164,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     {totalProducts.toLocaleString()}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {pluralize(totalProducts, "launch")} currently charted in
-                    this harbor.
+                    {pluralize(totalProducts, "launch")} currently live in this
+                    category.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
@@ -177,7 +177,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {totalFeatured > 0
-                      ? "Spotlights anchored this week."
+                      ? "Spotlights featured this week."
                       : "Claim the next editorial spotlight."}
                   </p>
                 </div>
@@ -211,7 +211,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     Featured in {category.name}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    Spotlighted launches sailing ahead in this harbor.
+                    Spotlighted launches leading this category.
                   </p>
                 </div>
                 <Link

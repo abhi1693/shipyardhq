@@ -82,7 +82,7 @@ export default async function LeaderboardPage({
     : undefined
   const totalCount = products.length
   const restHasEntries = rest.length > 0
-  const rankLabels = ["Flagship", "First Mate", "Deckhand"]
+  const rankLabels = ["Top rank", "Second place", "Third place"]
 
   return (
     <main className="relative isolate bg-white">
@@ -207,7 +207,7 @@ export default async function LeaderboardPage({
                         No additional contenders yet.
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Invite your crew or explore another category to discover
+                        Invite your team or explore another category to discover
                         more launches.
                       </p>
                     </div>

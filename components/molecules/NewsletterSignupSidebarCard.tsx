@@ -52,7 +52,7 @@ export function NewsletterSignupSidebarCard({
 
       setFormState({
         status: "success",
-        message: "All hands! We'll ping you when the next launch sets sail.",
+        message: "You're in! We'll ping you when the next launch goes live.",
       })
       setEmail("")
     })
@@ -74,10 +74,10 @@ export function NewsletterSignupSidebarCard({
           Newsletter
         </span>
         <h3 className="text-lg font-semibold leading-tight">
-          Hop on the Captain&apos;s Log
+          Join the Launch Briefing
         </h3>
         <p className="text-sm text-white/85">
-          Indie launch debriefs, crew spotlights, and cargo holds of maker tips.
+          Indie launch debriefs, maker spotlights, and practical growth tips.
         </p>
       </div>
 
@@ -99,7 +99,7 @@ export function NewsletterSignupSidebarCard({
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@crewmail.com"
+          placeholder="you@workmail.com"
           autoComplete="email"
           required
           className="h-10 rounded-full border-white/40 bg-white text-foreground placeholder:text-muted-foreground/70 focus-visible:border-white focus-visible:ring-white/60"
@@ -112,7 +112,7 @@ export function NewsletterSignupSidebarCard({
             className: "w-full disabled:pointer-events-none disabled:opacity-60",
           })}
         >
-          {isPending ? "Hoisting sails..." : "Join the logbook"}
+          {isPending ? "Submitting..." : "Join the briefing"}
         </button>
         <p
           id={helperId}

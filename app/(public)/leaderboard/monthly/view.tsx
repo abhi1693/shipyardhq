@@ -25,14 +25,14 @@ import {
 } from "@tabler/icons-react"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
-const rankLabels = ["Monthly Flagship", "First Mate", "Deckhand"]
+const rankLabels = ["Top rank", "Second place", "Third place"]
 
 const MONTHLY_PILLARS = [
   {
     icon: IconTrophy,
     title: "Celebrate standout launches",
     description:
-      "Spotlight the flagship ship and rally the community around makers that resonated this month.",
+      "Highlight the leading launch and rally the community around makers that resonated this month.",
   },
   {
     icon: IconTrendingUp,
@@ -42,9 +42,9 @@ const MONTHLY_PILLARS = [
   },
   {
     icon: IconUsersGroup,
-    title: "Rally your crew",
+    title: "Rally your team",
     description:
-      "Share the recap, schedule Insights runs, and plan promotions so your team keeps hold of the deck next month.",
+      "Share the recap, schedule Insights runs, and plan promotions so your team stays on top next month.",
   },
 ]
 
@@ -92,7 +92,7 @@ export async function MonthlyLeaderboardView({
               Champions of {leaderboard.label}
             </h1>
             <p className="text-lg text-white/85">
-              Each reset captures the launches that rallied the fleet. Explore
+              Each reset captures the launches that earned the most support. Explore
               the archive, benchmark results with Analytics, and plan your next
               spotlight with Insights at the ready.
             </p>
@@ -244,7 +244,7 @@ export async function MonthlyLeaderboardView({
                   No rankings recorded yet.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  As soon as makers start charting this period, their victories
+                  As soon as makers start earning placements this period, their victories
                   will appear here.
                 </p>
               </div>

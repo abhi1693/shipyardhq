@@ -44,7 +44,7 @@ const SCORE_FACTS = [
   },
   {
     heading: "Fair tie handling",
-    copy: "If two products land on the same score, the one with more monthly upvotes holds the higher slot. If that’s also tied, we fall back to the earliest product ID — effectively alphabetical by the internal identifier — to keep the list deterministic.",
+    copy: "If two products land on the same score, the one with more monthly upvotes holds the higher slot. If that’s also tied, we fall back to the earliest product ID — effectively alphabetical by the internal identifier — to keep the list deterministic and transparent.",
   },
 ]
 
@@ -109,7 +109,7 @@ export default function LeaderboardGuidePage() {
             </h1>
             <p className="max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
               Learn how live rankings, monthly resets, and our score formula
-              work together so you can plan launches that climb the fleet—and
+              work together so you can plan launches that climb the rankings—and
               stay there.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
@@ -192,11 +192,11 @@ export default function LeaderboardGuidePage() {
                 </span>{" "}
                 + lifetime upvotes
               </p>
-              <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-                Monthly upvotes reset with each calendar month to capture
-                campaign momentum. Lifetime upvotes never reset, rewarding
-                long-term supporters and giving tie-breakers a fair anchor.
-              </p>
+                  <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
+                    Monthly upvotes reset with each calendar month to capture
+                    campaign momentum. Lifetime upvotes never reset, rewarding
+                    long-term supporters and giving tie-breakers a clear rule.
+                  </p>
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 <div className="rounded-2xl border border-[color:var(--brand-1)/0.12] bg-background/80 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
@@ -204,7 +204,7 @@ export default function LeaderboardGuidePage() {
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
                     Upvotes earned this calendar month multiplied by 100 keep
-                    rising launches at the top of the fleet.
+                    rising launches at the top of the board.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-[color:var(--brand-1)/0.12] bg-background/80 p-4">
@@ -322,7 +322,7 @@ export default function LeaderboardGuidePage() {
                       </p>
                       <p className="text-muted-foreground">
                         Appear above the fold on the leaderboard and homepage to
-                        catch investors and early adopters scanning the fleet.
+                        catch investors and early adopters scanning the board.
                       </p>
                     </div>
                   </div>
@@ -357,7 +357,7 @@ export default function LeaderboardGuidePage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="mt-1 h-2 w-2 rounded-full bg-[color:var(--brand-1)]" />
-                      Newsletter and social shout-outs to the fleet
+                      Newsletter and social shout-outs to the community
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="mt-1 h-2 w-2 rounded-full bg-[color:var(--brand-1)]" />
@@ -399,9 +399,9 @@ export default function LeaderboardGuidePage() {
                 Frequently asked questions
               </h2>
               <p className="text-base text-muted-foreground md:text-lg">
-                Still not sure how the fleet operates? Start here or reply to
-                any ShipYardHQ email and our crew will chart a personalized
-                course.
+                Still not sure how the leaderboard operates? Start here or reply
+                to any ShipYardHQ email and our team will put together a
+                personalized walkthrough.
               </p>
               <div className="hidden h-full w-px rounded-full bg-[color:var(--brand-1)/0.12] md:block" />
             </div>

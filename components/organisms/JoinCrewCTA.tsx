@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Anchor, Users2, Rocket, ThumbsUp } from "lucide-react"
+import { ArrowRight, Users2, Rocket, ThumbsUp } from "lucide-react"
 
 import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
@@ -59,7 +59,7 @@ export function JoinCrewCTA({ stats, className }: JoinCrewCTAProps) {
           <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
             <div className="max-w-xl space-y-4">
               <span className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-muted/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                Join the crew
+                Join the community
               </span>
               <div className="space-y-2">
                 <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
@@ -74,7 +74,7 @@ export function JoinCrewCTA({ stats, className }: JoinCrewCTAProps) {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Button asChild size="lg" className="w-full sm:w-auto">
                   <Link href={MEMBER_PRODUCTS_PATH}>
-                    <Anchor className="mr-2 h-4 w-4" /> Submit a launch
+                    <Rocket className="mr-2 h-4 w-4" /> Submit a launch
                   </Link>
                 </Button>
                 <Link

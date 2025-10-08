@@ -36,8 +36,8 @@ export function DirectoryCategoryRail({
           Browse by top categories
         </h3>
         <p className="text-sm text-muted-foreground">
-          Quick jumps into the busiest harbors on Shipyard. Use them as launch
-          points before dialing in filters on the full directory.
+          Quick jumps into the busiest categories on Shipyard. Use them as
+          starting points before dialing in filters on the full directory.
         </p>
       </div>
       <ul className="space-y-3">

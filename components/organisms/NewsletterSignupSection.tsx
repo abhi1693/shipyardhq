@@ -47,7 +47,7 @@ export function NewsletterSignupSection({
 
       setFormState({
         status: "success",
-        message: "All hands! We'll ping you when the next launch sets sail.",
+    message: "You're in! We'll ping you when the next launch goes live.",
       })
       setEmail("")
     })
@@ -95,7 +95,7 @@ export function NewsletterSignupSection({
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@crewmail.com"
+            placeholder="you@workmail.com"
             autoComplete="email"
             required
             className="h-11"
@@ -106,7 +106,7 @@ export function NewsletterSignupSection({
             variant="secondary"
             className="h-11 w-full text-sm font-semibold"
           >
-            {isPending ? "Hoisting sails..." : "Signal the lighthouse"}
+            {isPending ? "Submitting..." : "Subscribe"}
           </Button>
           <p
             id={helperId}
@@ -122,7 +122,7 @@ export function NewsletterSignupSection({
             )}
           >
             {formState.message ||
-              "No spam. Just charted course updates from the Shipyard crew."}
+              "No spam. Just launch and product updates from the Shipyard team."}
           </p>
         </form>
       </div>

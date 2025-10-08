@@ -374,7 +374,7 @@ export default async function RewardsExplainerPage() {
             <ul className="mt-6 space-y-4 text-sm text-muted-foreground">
               {heroRedemptions.length > 0 ? (
                 heroRedemptions.map((entry) => {
-                  const productLabel = entry.productName ?? "Private crew"
+                  const productLabel = entry.productName ?? "Private team"
                   const productHref = entry.productSlug
                     ? `/products/${entry.productSlug}`
                     : null
@@ -581,7 +581,7 @@ export default async function RewardsExplainerPage() {
             Premium exposure without a paid plan
           </h2>
           <p className="text-sm text-muted-foreground">
-            Catalog items mirror the perks available to Shipyard crews—homepage
+            Catalog items mirror the perks available to Shipyard teams—homepage
             features, analytics, promos, and utility boosts. Queue them up as
             soon as your balance is ready.
           </p>

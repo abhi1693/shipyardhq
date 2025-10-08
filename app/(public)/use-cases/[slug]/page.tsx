@@ -155,9 +155,9 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
             {useCase.label}
           </h1>
           <p className="text-base text-white/85 sm:text-lg">
-            A curated fleet of tools designed for makers tackling{" "}
+            A curated collection of tools designed for makers tackling{" "}
             {useCase.label}. Explore what’s shipping, discover related
-            categories, and find the perfect fit for your workflow.
+            categories, and find the best fit for your workflow.
           </p>
         </div>
 
@@ -216,11 +216,11 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
           <div className="mx-auto max-w-5xl space-y-8 text-center">
             <div className="space-y-3">
               <h2 className="text-3xl font-semibold text-foreground">
-                Ship-ready categories
+                Related categories
               </h2>
               <p className="text-muted-foreground">
-                Dive into the categories fueling this use case and spot where to
-                dock next.
+                Explore the categories fueling this use case and see where to
+                build next.
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-4">
@@ -273,7 +273,7 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
             Building for {useCase.label}?
           </h2>
           <p className="text-muted-foreground">
-            Share your launch with the fleet and reach makers who need exactly
+            Share your launch with the community and reach makers who need exactly
             what you’re crafting.
           </p>
           <Link

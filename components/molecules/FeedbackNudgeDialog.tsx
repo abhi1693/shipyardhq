@@ -45,11 +45,11 @@ export default function FeedbackNudgeDialog({
   const heading = title ?? "Have a few more thoughts?"
   const supporting =
     description ??
-    "We read every note. Extra context helps the crew chart improvements faster."
+    "We read every note. Extra context helps the team ship improvements faster."
   const bodyContent = body ?? (
     <p className="text-sm leading-relaxed text-slate-700">
       Tell us what&apos;s working, what&apos;s confusing, or what still feels
-      missing. Another quick entry keeps Shipyard evolving with your crew.
+      missing. Another quick entry keeps Shipyard evolving with your team.
     </p>
   )
   const primaryText = primaryLabel ?? "Share another idea"

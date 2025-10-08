@@ -113,7 +113,7 @@ describe("Organisms", () => {
     const items = [featured("1")]
     rerender(<LatestLaunches products={items as any} />)
     expect(
-      screen.getByText("Fresh launches docked in the last 24 hours"),
+      screen.getByText("Fresh launches in the last 24 hours"),
     ).toBeInTheDocument()
     expect(screen.getByText("Latest arrivals")).toBeInTheDocument()
     expect(screen.getByText("Name 1")).toBeInTheDocument()

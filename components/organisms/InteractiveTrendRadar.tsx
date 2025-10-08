@@ -43,7 +43,7 @@ const VIEW_MODES = [
   {
     key: "depth" as const,
     label: "Depth Focus",
-    description: "Shows the densest harbors on Shipyard right now.",
+    description: "Shows the most active categories on Shipyard right now.",
     metricKey: "normalizedDepth" as const,
     statKey: "productCount" as const,
     statFormatter: (value: number) =>
@@ -51,7 +51,7 @@ const VIEW_MODES = [
     secondary: (metric: TrendRadarCategoryMetrics) =>
       metric.catalogShare > 0
         ? `${percentFormatter.format(metric.catalogShare)} of catalog`
-        : "New waters",
+        : "Fresh territory",
     themeColor: "#0ea5e9",
   },
   {

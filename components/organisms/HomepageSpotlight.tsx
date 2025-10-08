@@ -77,7 +77,7 @@ export function HomepageSpotlight({
         {remaining.length > 0 ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between text-base font-semibold text-foreground">
-              <span>Plan upgrades on deck</span>
+              <span>Plan upgrades in queue</span>
             </div>
             <DirectoryProductList
               items={remaining.map((item) => ({ ...item, badges: [] }))}

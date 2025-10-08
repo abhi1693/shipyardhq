@@ -33,9 +33,6 @@ interface PublicFooterProps {
 const navLinkBase =
   "relative text-[15px] font-medium text-muted-foreground transition-colors hover:text-foreground after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:rounded-full after:bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))] after:opacity-0 hover:after:opacity-100 after:transition-opacity"
 
-const newsletterInputCls =
-  "h-11 w-full rounded-full border border-border/60 bg-white/80 px-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.35]"
-
 export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
   const year = new Date().getFullYear()
   const [email, setEmail] = useState("")
@@ -66,7 +63,7 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
 
   const companyLinks = [
     { label: "Why Shipyard", href: WHY_SHIPYARD_PATH },
-    { label: "Contact the crew", href: "mailto:support@shipyardhq.dev" },
+    { label: "Contact the team", href: "mailto:support@shipyardhq.dev" },
     { label: "Shipyard on X", href: SHIPYARD_TWITTER_URL, external: true },
   ]
 
@@ -142,7 +139,7 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
                 className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:text-foreground"
               >
                 <Mail className="h-4 w-4" aria-hidden="true" />
-                Email the crew
+                Email the team
               </Link>
               <Link
                 href={SHIPYARD_TWITTER_URL}

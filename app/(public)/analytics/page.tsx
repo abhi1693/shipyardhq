@@ -42,15 +42,15 @@ const PLAN_HIGHLIGHTS = [
     ],
   },
   {
-    tier: "Crew plan",
-    headline: "Command a fleet-wide view",
+    tier: "Organization plan",
+    headline: "Run analytics across every product",
     blurb:
-      "Give every organization a shared control tower. Crew plan dashboards centralize analytics for all products so teams can compare launches at a glance.",
+      "Give every organization a shared workspace. These dashboards centralize analytics for all products so teams can compare launches at a glance.",
     metrics: [
       "Organization-level rollups across every product",
       "Cross-team comparisons without switching accounts",
       "Shared context for planning the next release",
-      "Team-wide Insights credits that benchmark every product in your fleet",
+      "Organization-wide Insights credits that benchmark every product in your lineup",
     ],
   },
 ]
@@ -82,7 +82,7 @@ const HOW_IT_WORKS_STEPS = [
       "Choose the row you want, then select Analytics to open the detailed view—an AI summary now highlights the biggest shifts for you.",
   },
   {
-    title: "Share with your crew",
+    title: "Share with your team",
     detail:
       "Invite collaborators on eligible plans so everyone can review performance, plan experiments, and celebrate wins together.",
   },
@@ -138,7 +138,7 @@ const ANALYTICS_GALLERY: GalleryItem[] = [
 export const metadata = buildPageMetadata({
   title: "Analytics",
   description:
-    "Understand how builders engage with your products. Shipyard analytics now includes plan-specific dashboards for free, paid, and crew members.",
+    "Understand how builders engage with your products. Shipyard analytics now includes plan-specific dashboards for free, paid, and team members.",
 })
 
 export default function AnalyticsPage() {
@@ -163,7 +163,7 @@ export default function AnalyticsPage() {
             </h1>
             <p className="text-lg text-white/85">
               Whether you are launching your first product or managing an entire
-              fleet, the dashboards pair with Insights so you can understand
+              portfolio, the dashboards pair with Insights so you can understand
               traction, surface opportunities, and capture every conversation
               around your brand—starting with a weekly run on the free plan.
             </p>
@@ -291,7 +291,7 @@ export default function AnalyticsPage() {
         <div className="mx-auto max-w-[84rem] px-4 md:px-8 space-y-12">
           <div className="space-y-4 text-center">
             <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Choose the visibility that fits your crew
+              Choose the visibility that fits your team
             </h2>
             <p className="mx-auto max-w-3xl text-base text-muted-foreground">
               Every plan now includes tailored analytics. Start free, upgrade
@@ -372,7 +372,7 @@ export default function AnalyticsPage() {
             </ol>
             <p className="text-sm text-muted-foreground">
               Dashboards update continuously—refresh after a campaign push and
-              share highlights with your crew to keep momentum rolling.
+              share highlights with your team to keep momentum rolling.
             </p>
           </div>
         </div>

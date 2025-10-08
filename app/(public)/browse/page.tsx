@@ -35,7 +35,7 @@ import {
 export const metadata = buildPageMetadata({
   title: "Browse Products",
   description:
-    "Chart your course through tools, startups, and products by use case or category.",
+    "Explore tools, startups, and products by use case or category.",
 })
 
 const browseMetrics = [
@@ -196,7 +196,7 @@ export default async function BrowsePage({
           <DirectoryHeader
             stats={stats}
             eyebrow="Directory browse"
-            title="Navigate the Shipyard launch catalog"
+            title="Browse the Shipyard launch catalog"
             description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, and the live leaderboard."
             primaryAction={{
               label: "Submit your launch",
@@ -248,7 +248,7 @@ export default async function BrowsePage({
                     <div className="rounded-2xl border border-dashed border-border/70 bg-muted/20">
                       <EmptyState
                         title="No results in sight"
-                        description="Adjust filters or jump into another category to keep your scouting run going."
+                        description="Adjust filters or jump into another category to keep your search going."
                         actionLabel="Reset filters"
                         actionHref={BROWSE_PATH}
                       />

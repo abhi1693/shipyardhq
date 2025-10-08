@@ -12,7 +12,7 @@ const INSIGHT_STAGES = [
     Icon: Radar,
   },
   {
-    title: "Benchmark the competitive harbor",
+    title: "Benchmark the competitive landscape",
     description:
       "We assemble a living landscape of adjacent products, including differentiators, strengths, weaknesses, and direct links.",
     Icon: Target,
@@ -35,7 +35,7 @@ const INSIGHT_OUTCOMES = [
   "Executive summary that lands in your inbox when the pipeline wraps.",
   "Competitor dossiers you can share with product, marketing, and growth teams.",
   "Community plan with channel suggestions, angles, and proof points to test.",
-  "Action priorities ranked by impact so crews know what to ship next.",
+  "Action priorities ranked by impact so teams know what to ship next.",
 ] as const
 
 type CTAConfig = {

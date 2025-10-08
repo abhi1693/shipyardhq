@@ -24,7 +24,7 @@ export function LatestLaunches({ products }: { products: FeaturedProduct[] }) {
     <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
       <DirectorySectionHeader
         kicker="New today"
-        title="Fresh launches charted in the last 24 hours"
+        title="Fresh launches in the last 24 hours"
         description="Stay on the bleeding edge with products that just went live. Follow the momentum here, then dig deeper on /browse when you need full filters."
       />
       <div className="mt-8">

@@ -19,7 +19,7 @@ export function SupportHeroCard({
   isSignedIn,
 }: SupportHeroCardProps) {
   const supporterCopy = isSignedIn
-    ? "Cheer this crew on to keep their launch on the radar."
+    ? "Cheer this team on to keep their launch on the radar."
     : "Sign in to add your vote and help this launch get discovered."
 
   return (

@@ -10,7 +10,7 @@ import { BROWSE_PATH, MEMBER_PRODUCTS_PATH, categoryPath } from "@/lib/routes"
 export const metadata = buildPageMetadata({
   title: "Categories",
   description:
-    "Explore the harbor by category and discover innovative products.",
+    "Browse Shipyard by category and discover innovative products.",
 })
 
 type CategoryListItem = Awaited<
@@ -42,12 +42,12 @@ export default async function CategoriesPage() {
                 </span>
                 <div className="space-y-4">
                   <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                    Discover harbors built for every launch
+                    Discover categories built for every launch
                   </h1>
                   <p className="text-base text-muted-foreground">
-                    Scan the full taxonomy of Shipyard launches, find niche
-                    segments gaining momentum, and dive into the lanes that map
-                    closest to your product story.
+                    See the full taxonomy of Shipyard launches, spot niche
+                    segments gaining momentum, and jump into the categories that
+                    match your product story.
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
@@ -96,8 +96,8 @@ export default async function CategoriesPage() {
                   <p className="mt-3 text-3xl font-semibold text-foreground">
                     {categories.length}
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    {pluralize(categories.length, "category")} captaining the
+                <p className="text-sm text-muted-foreground">
+                    {pluralize(categories.length, "category")} leading the
                     directory.
                   </p>
                 </div>
@@ -108,9 +108,9 @@ export default async function CategoriesPage() {
                   <p className="mt-3 text-3xl font-semibold text-foreground">
                     {totalProducts.toLocaleString()}
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    {pluralize(totalProducts, "product")} charted across the
-                    fleet.
+                <p className="text-sm text-muted-foreground">
+                    {pluralize(totalProducts, "product")} tracked across
+                    Shipyard.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
@@ -123,7 +123,7 @@ export default async function CategoriesPage() {
                   <p className="text-sm text-muted-foreground">
                     {busiestCategory
                       ? `${busiestCategory.count?.toLocaleString() ?? 0} launches currently live in ${busiestCategory.name}.`
-                      : "Keep an eye out for the next wave of launches."}
+                      : "Keep an eye out for the next launches to go live."}
                   </p>
                 </div>
               </div>
@@ -134,7 +134,7 @@ export default async function CategoriesPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-1">
                 <h2 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-                  Explore every harbor
+                  Explore every category
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {pluralize(categories.length, "category")} organized by
@@ -162,15 +162,15 @@ export default async function CategoriesPage() {
           <section className="rounded-3xl border border-border/60 bg-card/95 px-6 py-12 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur md:px-10">
             <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                Help chart new lanes
+                Help shape new categories
               </span>
               <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
                 Missing a category for your launch?
               </h2>
               <p className="max-w-xl text-sm text-muted-foreground">
-                Pitch a fresh harbor and we’ll spin up a scouting lane, signal
-                it to the community, and feature the first wave of builders
-                ready to dock.
+                Pitch a new category and we’ll create a dedicated lane, signal
+                it to the community, and feature the first builders ready to
+                launch.
               </p>
               <Button
                 asChild

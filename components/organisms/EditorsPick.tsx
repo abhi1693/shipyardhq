@@ -29,9 +29,9 @@ export function EditorsPick({ products }: { products: FeaturedProduct[] }) {
   return (
     <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
       <DirectorySectionHeader
-        kicker="Crew spotlight"
-        title="Launches our editorial crew can't stop talking about"
-        description="Handpicked by the Shipyard team for narrative, polish, and traction. Use this mix to discover the story-driven ships poised for breakout growth."
+        kicker="Team spotlight"
+        title="Launches our editorial team can't stop talking about"
+        description="Handpicked by the Shipyard team for narrative, polish, and traction. Use this mix to discover the story-driven products poised for breakout growth."
       />
       <div className="mt-8">
         <ProductList

@@ -1,29 +1,29 @@
 import {
-  IconAnchor,
   IconCompass,
-  IconLifebuoy,
-  IconSailboat,
+  IconRocket,
+  IconTrendingUp,
+  IconUsersGroup,
 } from "@tabler/icons-react"
 
 const features = [
   {
-    icon: IconAnchor,
+    icon: IconRocket,
     label: "Built for indie makers, by indie makers",
   },
   {
-    icon: IconSailboat,
+    icon: IconUsersGroup,
     label: "Showcase your product and find early fans",
   },
   {
-    icon: IconLifebuoy,
-    label: "Friendly waters, honest feedback, real momentum",
+    icon: IconTrendingUp,
+    label: "Supportive community, honest feedback, real momentum",
   },
 ]
 
 export default function AuthMarketingPanel() {
   return (
     <div className="relative hidden overflow-hidden rounded-none bg-white/85 px-12 py-10 text-slate-900 shadow-[0_25px_60px_-35px_rgba(59,130,246,0.55)] ring-1 ring-sky-100/80 backdrop-blur lg:flex lg:flex-col">
-      {/* Layered gradient + wave backdrop to reinforce the nautical mood */}
+      {/* Layered gradient backdrop */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.25),_transparent_60%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(125,211,252,0.45),_transparent_72%)]" />
@@ -45,24 +45,24 @@ export default function AuthMarketingPanel() {
         <div className="space-y-8 pt-6">
           <span className="inline-flex items-center gap-2 rounded-full border border-sky-300/60 bg-sky-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-sky-700">
             <IconCompass aria-hidden className="size-3.5 text-sky-500" />
-            Chart Your Course
+            Build Momentum
           </span>
 
           <div className="space-y-3">
             <h1 className="text-4xl font-bold tracking-tight text-slate-900">
               ShipYardHQ
             </h1>
-            <p className="text-sm text-slate-600">A harbor for indie SaaS</p>
+            <p className="text-sm text-slate-600">A launchpad for indie SaaS</p>
           </div>
 
           <div className="space-y-4 text-slate-700">
             <h2 className="text-3xl font-semibold leading-tight text-slate-900">
-              Set sail. Build boldly.
+              Launch smarter. Build boldly.
             </h2>
             <p className="text-sm leading-relaxed">
-              ShipYardHQ is where indie products find their sea legs. Dock your
-              project, meet a helpful crew, and catch tailwinds toward your next
-              milestone. Calm waters today, brighter horizons tomorrow.
+              ShipYardHQ is where indie products accelerate momentum. Publish
+              your project, meet a supportive community, and find clear paths
+              toward your next milestone. No fluff—just practical growth.
             </p>
           </div>
         </div>

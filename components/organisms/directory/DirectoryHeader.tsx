@@ -46,7 +46,7 @@ const defaultMetrics: readonly MetricConfig[] = [
   },
   {
     key: "totalCreators",
-    label: "Builders on deck",
+    label: "Builders featured",
     formatter: (value: number) => value.toLocaleString(),
   },
   {

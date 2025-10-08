@@ -106,7 +106,7 @@ export default function MemberFeedback({
             Share feedback
           </CardTitle>
           <CardDescription className="text-sm text-muted-foreground">
-            Tell us what would make Shipyard more useful for you and your crew.
+            Tell us what would make Shipyard more useful for you and your team.
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -210,7 +210,7 @@ export default function MemberFeedback({
             <div className="rounded-lg border border-slate-200/70 bg-slate-50/60 p-6 text-center">
               <p className="text-sm text-muted-foreground">
                 You haven&apos;t shared any feedback yet. Send us a note to help
-                shape the harbor.
+                shape the platform.
               </p>
             </div>
           ) : (

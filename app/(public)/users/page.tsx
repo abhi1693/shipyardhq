@@ -112,7 +112,7 @@ export default async function UsersIndexPage() {
               {topMakers.length > 0 ? (
                 <section className="rounded-3xl border border-border/80 bg-background/78 p-6 shadow-sm shadow-black/5 md:p-8">
                   <DirectorySectionHeader
-                    kicker="Featured crew"
+                    kicker="Featured makers"
                     title="Makers leading the launch cadence"
                     description="These makers have shipped the most products on Shipyard. Explore their profiles to track what they launch next."
                   />

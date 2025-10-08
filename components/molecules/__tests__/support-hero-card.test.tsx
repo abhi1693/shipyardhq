@@ -29,7 +29,7 @@ describe("SupportHeroCard", () => {
 
     expect(screen.getByText(/support this product/i)).toBeInTheDocument()
     expect(
-      screen.getByText(/cheer this crew on to keep their launch on the radar/i),
+      screen.getByText(/cheer this team on to keep their launch on the radar/i),
     ).toBeInTheDocument()
     expect(screen.getByTestId("upvote-square-button")).toHaveTextContent(
       "button:prod_123",
