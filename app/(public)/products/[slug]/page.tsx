@@ -43,7 +43,6 @@ import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import { ProductNarrative } from "@/components/organisms/ProductNarrative"
 import { ProductCrewRoster } from "@/components/organisms/ProductCrewRoster"
 import { ProductSimilarVoyages } from "@/components/organisms/ProductSimilarVoyages"
-import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -564,10 +563,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               browseHref={`${BROWSE_PATH}?useCase=${useCase?.slug || ""}`}
             />
           </aside>
-        </div>
-
-        <div className="mt-12">
-          <NewsletterSignupSection className="rounded-3xl border border-border bg-white shadow-sm" />
         </div>
       </div>
     </main>

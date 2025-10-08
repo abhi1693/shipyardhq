@@ -13,7 +13,7 @@ export const productPageCopy = {
     emptyState: "The crew will be adding more visuals soon.",
   },
   narrative: {
-    heading: "Captain's log",
+    heading: "",
     placeholder:
       "The crew will be adding their story soon. Check back for their full log entry.",
   },
