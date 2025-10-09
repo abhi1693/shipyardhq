@@ -21,10 +21,10 @@ export default function TermsOfServicePage() {
 
           <p>
             These Terms of Service (the &quot;Terms&quot;) apply to your access
-            to and use of the ShipYardHQ website, applications, APIs, and related
-            services (collectively, the &quot;Service&quot;). By creating an
-            account or using the Service you agree to these Terms and our
-            Privacy Policy. If you are using the Service on behalf of an
+            to and use of the ShipYardHQ website, applications, APIs, and
+            related services (collectively, the &quot;Service&quot;). By
+            creating an account or using the Service you agree to these Terms
+            and our Privacy Policy. If you are using the Service on behalf of an
             organization, you represent that you have authority to bind that
             organization; in that case, &quot;you&quot; and &quot;your&quot;
             refer to both the organization and each individual who accesses the
@@ -111,9 +111,7 @@ export default function TermsOfServicePage() {
             </li>
           </ul>
 
-          <h2 className="text-2xl font-semibold mt-6">
-            4. Rewards and Perks
-          </h2>
+          <h2 className="text-2xl font-semibold mt-6">4. Rewards and Perks</h2>
           <ul className="list-disc list-inside space-y-2">
             <li>
               ShipYardHQ operates a rewards program that lets members earn and
@@ -210,8 +208,9 @@ export default function TermsOfServicePage() {
               content you publish complies with law and these Terms.
             </li>
             <li>
-              You may not use ShipYardHQ&apos;s automation to violate third-party
-              terms (for example, social platform rules or anti-spam laws).
+              You may not use ShipYardHQ&apos;s automation to violate
+              third-party terms (for example, social platform rules or anti-spam
+              laws).
             </li>
           </ul>
 
@@ -242,7 +241,8 @@ export default function TermsOfServicePage() {
             <li>
               Beta or pre-release features may be labeled as such and are
               provided &quot;as is&quot; for evaluation. We may discontinue them
-              at any time and make no commitments about launch timing or support.
+              at any time and make no commitments about launch timing or
+              support.
             </li>
           </ul>
 
@@ -273,9 +273,9 @@ export default function TermsOfServicePage() {
               you unless prohibited by law or security concerns.
             </li>
             <li>
-              Upon termination, sections that by nature should survive (including
-              payment obligations, content licenses, disclaimers, limitations of
-              liability, and indemnities) will remain in effect.
+              Upon termination, sections that by nature should survive
+              (including payment obligations, content licenses, disclaimers,
+              limitations of liability, and indemnities) will remain in effect.
             </li>
           </ul>
 
@@ -287,9 +287,9 @@ export default function TermsOfServicePage() {
             AVAILABLE&quot; BASIS. TO THE FULLEST EXTENT PERMITTED BY LAW, WE
             DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF
             MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE,
-            NON-INFRINGEMENT, AND ANY WARRANTIES ARISING OUT OF COURSE OF DEALING
-            OR USAGE OF TRADE. WE DO NOT WARRANT THAT THE SERVICE WILL BE
-            UNINTERRUPTED, SECURE, OR ERROR-FREE, OR THAT CONTENT WILL BE
+            NON-INFRINGEMENT, AND ANY WARRANTIES ARISING OUT OF COURSE OF
+            DEALING OR USAGE OF TRADE. WE DO NOT WARRANT THAT THE SERVICE WILL
+            BE UNINTERRUPTED, SECURE, OR ERROR-FREE, OR THAT CONTENT WILL BE
             ACCURATE OR RELIABLE.
           </p>
 
@@ -297,16 +297,16 @@ export default function TermsOfServicePage() {
             13. Limitation of Liability
           </h2>
           <p>
-            TO THE MAXIMUM EXTENT PERMITTED BY LAW, SHIPYARDHQ, ITS
-            AFFILIATES, AND THEIR RESPECTIVE DIRECTORS, OFFICERS, EMPLOYEES, AND
-            AGENTS WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
-            CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, INCLUDING LOSS OF
-            PROFITS, REVENUE, DATA, GOODWILL, OR BUSINESS INTERRUPTION. OUR
-            AGGREGATE LIABILITY FOR ALL CLAIMS RELATING TO THE SERVICE WILL NOT
-            EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID US FOR ACCESS TO THE
-            SERVICE IN THE 12 MONTHS BEFORE THE EVENT GIVING RISE TO LIABILITY OR
-            (B) USD $100. SOME JURISDICTIONS DO NOT ALLOW CERTAIN LIMITATIONS, SO
-            SOME OF THE ABOVE MAY NOT APPLY TO YOU.
+            TO THE MAXIMUM EXTENT PERMITTED BY LAW, SHIPYARDHQ, ITS AFFILIATES,
+            AND THEIR RESPECTIVE DIRECTORS, OFFICERS, EMPLOYEES, AND AGENTS WILL
+            NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL,
+            EXEMPLARY, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, REVENUE,
+            DATA, GOODWILL, OR BUSINESS INTERRUPTION. OUR AGGREGATE LIABILITY
+            FOR ALL CLAIMS RELATING TO THE SERVICE WILL NOT EXCEED THE GREATER
+            OF (A) THE AMOUNT YOU PAID US FOR ACCESS TO THE SERVICE IN THE 12
+            MONTHS BEFORE THE EVENT GIVING RISE TO LIABILITY OR (B) USD $100.
+            SOME JURISDICTIONS DO NOT ALLOW CERTAIN LIMITATIONS, SO SOME OF THE
+            ABOVE MAY NOT APPLY TO YOU.
           </p>
 
           <h2 className="text-2xl font-semibold mt-6">14. Indemnification</h2>
@@ -335,9 +335,10 @@ export default function TermsOfServicePage() {
           </h2>
           <p>
             We may modify these Terms at any time. If we make material changes,
-            we will provide notice (for example, by email or by updating the date
-            at the top of this page). Your continued use of the Service after the
-            changes become effective constitutes acceptance of the revised Terms.
+            we will provide notice (for example, by email or by updating the
+            date at the top of this page). Your continued use of the Service
+            after the changes become effective constitutes acceptance of the
+            revised Terms.
           </p>
 
           <h2 className="text-2xl font-semibold mt-6">17. Contact</h2>
