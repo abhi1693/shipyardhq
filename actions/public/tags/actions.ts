@@ -86,9 +86,7 @@ export const getKeywordTagSummaries = cached(
   {
     ttl: DEFAULT_TTL.slow,
     tags: () => accelerateTags([TAGS.keywords]),
-    keyParts: ([limit]) => [
-      String(sanitizeTagListLimit(limit)),
-    ],
+    keyParts: ([limit]) => [String(sanitizeTagListLimit(limit))],
   },
 )
 
