@@ -17,145 +17,332 @@ export default function TermsOfServicePage() {
           subtitle="Review the terms and conditions for using ShipYardHQ."
         />
         <div className="mt-6 space-y-6">
-          <p className="text-muted-foreground">Last updated: Sep 16, 2025</p>
+          <p className="text-muted-foreground">Last updated: Oct 9, 2025</p>
 
           <p>
-            ShipYardHQ is owned and operated by the Shipyard HQ team. These
-            Terms of Service (the &#34;Terms&#34;) govern your use of our
-            website and services at https://shipyardhq.dev (the
-            &#34;Service&#34;). By accessing or using the Service, you agree to
-            be bound by these Terms and our Privacy Policy. If you do not agree,
-            do not use the Service.
+            These Terms of Service (the &quot;Terms&quot;) apply to your access
+            to and use of the ShipYardHQ website, applications, APIs, and related
+            services (collectively, the &quot;Service&quot;). By creating an
+            account or using the Service you agree to these Terms and our
+            Privacy Policy. If you are using the Service on behalf of an
+            organization, you represent that you have authority to bind that
+            organization; in that case, &quot;you&quot; and &quot;your&quot;
+            refer to both the organization and each individual who accesses the
+            Service on its behalf.
           </p>
 
           <h2 className="text-2xl font-semibold mt-6">
-            Eligibility and Accounts
+            1. Eligibility and Accounts
           </h2>
-          <p>
-            You must be at least 18 years old (or the age of majority in your
-            jurisdiction) and have the authority to bind any organization you
-            represent. You are responsible for maintaining accurate account
-            information, safeguarding your credentials, and complying with
-            applicable laws when using the Service.
-          </p>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              You must be at least 18 years old (or the age of majority where
+              you live) to use the Service. Registration requires accurate
+              information and an active email address routed through our
+              identity provider, Clerk.
+            </li>
+            <li>
+              You are responsible for all activity under your account,
+              safeguarding credentials, and ensuring that teammates you invite
+              comply with these Terms.
+            </li>
+            <li>
+              We may suspend or terminate accounts, reclaim usernames, or
+              disable access if we detect misuse, inactivity, or violations of
+              these Terms.
+            </li>
+          </ul>
 
-          <h2 className="text-2xl font-semibold mt-6">Acceptable Use</h2>
+          <h2 className="text-2xl font-semibold mt-6">
+            2. The ShipYardHQ Service
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              ShipYardHQ provides a product discovery marketplace, maker
+              workspaces, analytics dashboards, rewards economies, and related
+              tools that help you launch and promote products.
+            </li>
+            <li>
+              Features may include product submissions, organization workspaces,
+              leaderboard placements, automated insights, AI-assisted content,
+              out-of-band notifications, and third-party integrations (such as
+              email or social sharing).
+            </li>
+            <li>
+              We may update or discontinue any feature, and we reserve the right
+              to impose limits or require eligibility (for example, paid plans
+              for advanced analytics or placements).
+            </li>
+            <li>
+              Analytics and insight features rely on aggregated data and may be
+              delayed or estimated. They are provided for informational purposes
+              only and should not be relied upon for legal or financial
+              decision-making.
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6">
+            3. Plans, Payments, and Taxes
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              Certain features (including featured placements, advanced
+              analytics, and organization access) require payment. Prices,
+              currency, and billing cadence are shown at checkout and may change
+              from time to time.
+            </li>
+            <li>
+              Payments are processed by Dodo Payments on our behalf. By
+              submitting a purchase you authorize Dodo to charge the payment
+              method you provide and to share transaction metadata with us so we
+              can provision features.
+            </li>
+            <li>
+              Fees are due immediately and, unless stated otherwise, are
+              non-refundable. We may issue refunds only where required by law.
+            </li>
+            <li>
+              You are responsible for any taxes, duties, or levies associated
+              with your purchase, except for taxes on ShipYardHQ&apos;s income.
+            </li>
+            <li>
+              We may suspend or revoke access to paid features for non-payment,
+              disputed charges, or suspected fraud.
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6">
+            4. Rewards and Perks
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              ShipYardHQ operates a rewards program that lets members earn and
+              redeem points for perks such as placements, feature unlocks, or
+              limited-time benefits.
+            </li>
+            <li>
+              Rewards have no cash value, are not transferable, and may expire
+              or be revoked at our discretion if we detect misuse or
+              ineligibility.
+            </li>
+            <li>
+              We may change redemption rules, costs, or availability without
+              notice. Some redemptions require an associated product or
+              schedule; failure to meet prerequisites can forfeit the reward.
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6">
+            5. User Content and License
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              You retain ownership of content you submit, including product
+              listings, media assets, reviews, feedback, and organization data.
+            </li>
+            <li>
+              You grant ShipYardHQ a worldwide, non-exclusive, royalty-free,
+              sublicensable, transferable license to host, reproduce, modify for
+              formatting, distribute, publicly display, and otherwise use that
+              content to operate and promote the Service.
+            </li>
+            <li>
+              You represent that your submissions are accurate, lawful, and do
+              not infringe third-party rights. You are responsible for securing
+              permissions (for example, from teammates or licensors) before
+              sharing content.
+            </li>
+            <li>
+              We may remove or decline to publish content that violates these
+              Terms or our policies.
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6">6. Acceptable Use</h2>
           <p>
-            You may not use the Service in any manner that violates these Terms
-            or applicable law. Without limiting the foregoing, you will not:
+            You may not use the Service in any manner that violates law,
+            interferes with others, or harms our community. Prohibited conduct
+            includes:
           </p>
-          <ul className="list-disc list-inside space-y-1">
+          <ul className="list-disc list-inside space-y-2">
             <li>
-              Post or promote pornography, sexually explicit content, or escort
-              services
+              Posting or promoting unlawful, deceptive, defamatory, obscene,
+              hateful, or discriminatory content.
             </li>
             <li>
-              Advertise alcohol, tobacco, or cannabis in violation of any law or
-              regulation
+              Advertising or facilitating regulated or high-risk activities
+              (including gambling, escort services, weapons sales, or illicit
+              substances) without our prior written consent.
             </li>
             <li>
-              Operate or advertise gambling, betting, or fantasy-sports services
+              Attempting to bypass security, scrape or harvest data without
+              permission, or reverse engineer protected portions of the Service.
             </li>
-            <li>Engage in illegal, harmful, deceptive, or abusive conduct</li>
-            <li>Infringe any intellectual property or proprietary rights</li>
-            <li>Attempt to gain unauthorized access to the Service</li>
+            <li>
+              Submitting malware, exploits, or content that overloads or
+              interferes with the Service.
+            </li>
+            <li>
+              Misrepresenting your affiliation, fraudulently manipulating
+              rankings, or engaging in reward abuse (for example, falsifying
+              traffic events or reviews).
+            </li>
           </ul>
           <p className="mt-2">
-            We reserve the right to suspend or terminate accounts, remove
-            content, or refuse service to anyone for any abusive or unlawful use
-            of the Service.
-          </p>
-
-          <h2 className="text-2xl font-semibold mt-6">Your Content</h2>
-          <p>
-            You retain ownership of the content you submit to the Service. By
-            posting or submitting content, you grant ShipYardHQ a worldwide,
-            non-exclusive, royalty-free, sublicensable, and transferable license
-            to host, store, reproduce, modify for formatting, publicly display,
-            distribute, and promote the content in connection with the Service.
-            You represent that you have all rights necessary to grant this
-            license and that your content does not violate any laws or
-            third-party rights.
-          </p>
-          <p className="mt-2">
-            You agree to indemnify and hold harmless the Shipyard HQ team and
-            ShipYardHQ from any claims, damages, liabilities, costs, and
-            expenses (including reasonable legal fees) arising out of or
-            relating to your content, your use of the Service, or your violation
-            of these Terms.
+            We reserve the right to investigate and take appropriate action,
+            including removing content, suspending accounts, revoking rewards,
+            or contacting authorities.
           </p>
 
           <h2 className="text-2xl font-semibold mt-6">
-            Paid Features and Payments
+            7. AI and Automation Features
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              Certain features use third-party AI models (currently OpenAI) to
+              draft product copy, analytics narratives, outreach messaging, or
+              similar content. Prompts may include product metadata or
+              aggregated usage statistics.
+            </li>
+            <li>
+              AI outputs can be inaccurate or incomplete. You are solely
+              responsible for reviewing, editing, and ensuring any AI-generated
+              content you publish complies with law and these Terms.
+            </li>
+            <li>
+              You may not use ShipYardHQ&apos;s automation to violate third-party
+              terms (for example, social platform rules or anti-spam laws).
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6">
+            8. Intellectual Property
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              ShipYardHQ, our logos, trademarks, code, and original content are
+              owned by us or our licensors and are protected by intellectual
+              property laws. Except for the rights expressly granted to you
+              herein, we reserve all rights.
+            </li>
+            <li>
+              You may not copy, modify, distribute, sell, or lease any part of
+              the Service without our prior written consent.
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6">
+            9. Feedback and Beta Features
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              If you provide feedback or ideas, you grant us a perpetual,
+              worldwide license to use that feedback without compensation.
+            </li>
+            <li>
+              Beta or pre-release features may be labeled as such and are
+              provided &quot;as is&quot; for evaluation. We may discontinue them
+              at any time and make no commitments about launch timing or support.
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6">
+            10. Third-Party Services
           </h2>
           <p>
-            Certain features, including the Adaptive Currency offerings, require
-            payment of fees (collectively, the &#34;Paid Features&#34;). Fees
-            are stated at the point of purchase and are processed through Stripe
-            Connect on behalf of ShipYardHQ. Charges are typically taken in the
-            currency presented at checkout; Stripe may convert payments when
-            required.
-          </p>
-          <p className="mt-2">
-            All fees must be paid in full when due. All sales are final and
-            non-refundable, and we do not offer free trials. You are responsible
-            for any taxes, levies, or duties associated with your purchases,
-            other than taxes on our income. We may suspend or terminate access
-            to Paid Features for non-payment, disputed charges, chargebacks, or
-            suspected fraud.
+            The Service may link to third-party websites or integrate with
+            vendors such as Clerk, Dodo Payments, Resend, OpenAI, or social
+            networks. Your use of those services is subject to their own terms
+            and privacy policies. We do not control and are not responsible for
+            third-party services.
           </p>
 
           <h2 className="text-2xl font-semibold mt-6">
-            Service Changes and Availability
+            11. Termination and Suspension
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              You may close your account at any time. Some content may remain
+              visible if it has been shared with others or is needed for legal
+              or operational reasons.
+            </li>
+            <li>
+              We may suspend or terminate access immediately for violation of
+              these Terms, suspected fraud, non-payment, or to protect the
+              Service or other users. We will make reasonable efforts to notify
+              you unless prohibited by law or security concerns.
+            </li>
+            <li>
+              Upon termination, sections that by nature should survive (including
+              payment obligations, content licenses, disclaimers, limitations of
+              liability, and indemnities) will remain in effect.
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6">
+            12. Disclaimer of Warranties
           </h2>
           <p>
-            We may modify, discontinue, or suspend any part of the Service at
-            any time, with or without notice. We are not liable for any loss you
-            incur due to such changes, provided we refund any fees paid for
-            unused Paid Features if required by law.
+            THE SERVICE IS PROVIDED ON AN &quot;AS IS&quot; AND &quot;AS
+            AVAILABLE&quot; BASIS. TO THE FULLEST EXTENT PERMITTED BY LAW, WE
+            DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF
+            MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE,
+            NON-INFRINGEMENT, AND ANY WARRANTIES ARISING OUT OF COURSE OF DEALING
+            OR USAGE OF TRADE. WE DO NOT WARRANT THAT THE SERVICE WILL BE
+            UNINTERRUPTED, SECURE, OR ERROR-FREE, OR THAT CONTENT WILL BE
+            ACCURATE OR RELIABLE.
           </p>
 
           <h2 className="text-2xl font-semibold mt-6">
-            Disclaimer of Warranties
+            13. Limitation of Liability
           </h2>
           <p>
-            THE SERVICE IS PROVIDED ON AN &#34;AS IS&#34; AND &#34;AS
-            AVAILABLE&#34; BASIS WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS
-            OR IMPLIED, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS
-            FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. WE DO NOT
-            WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, ERROR-FREE,
-            OR FREE OF HARMFUL COMPONENTS, NOR DO WE ENDORSE OR GUARANTEE ANY
-            USER CONTENT OR THIRD-PARTY SERVICES OR LINKS ACCESSED THROUGH THE
-            SERVICE. YOU USE THE SERVICE AT YOUR OWN RISK.
+            TO THE MAXIMUM EXTENT PERMITTED BY LAW, SHIPYARDHQ, ITS
+            AFFILIATES, AND THEIR RESPECTIVE DIRECTORS, OFFICERS, EMPLOYEES, AND
+            AGENTS WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+            CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, INCLUDING LOSS OF
+            PROFITS, REVENUE, DATA, GOODWILL, OR BUSINESS INTERRUPTION. OUR
+            AGGREGATE LIABILITY FOR ALL CLAIMS RELATING TO THE SERVICE WILL NOT
+            EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID US FOR ACCESS TO THE
+            SERVICE IN THE 12 MONTHS BEFORE THE EVENT GIVING RISE TO LIABILITY OR
+            (B) USD $100. SOME JURISDICTIONS DO NOT ALLOW CERTAIN LIMITATIONS, SO
+            SOME OF THE ABOVE MAY NOT APPLY TO YOU.
+          </p>
+
+          <h2 className="text-2xl font-semibold mt-6">14. Indemnification</h2>
+          <p>
+            You agree to indemnify, defend, and hold harmless ShipYardHQ and its
+            affiliates, officers, directors, employees, and agents from and
+            against any claims, liabilities, damages, losses, and expenses,
+            including reasonable legal fees, arising from or relating to your
+            content, your use of the Service, or your violation of these Terms
+            or applicable law.
           </p>
 
           <h2 className="text-2xl font-semibold mt-6">
-            Limitation of Liability
+            15. Governing Law and Dispute Resolution
           </h2>
           <p>
-            TO THE MAXIMUM EXTENT PERMITTED BY LAW, SHIPYARDHQ AND THE SHIPYARD
-            HQ TEAM WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
-            CONSEQUENTIAL, COVER, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS,
-            REVENUE, DATA, OR GOODWILL ARISING OUT OF OR RELATED TO YOUR USE OF
-            OR INABILITY TO USE THE SERVICE. OUR TOTAL LIABILITY FOR ALL CLAIMS
-            IN CONNECTION WITH THE SERVICE WILL NOT EXCEED THE AMOUNT YOU PAID
-            TO US FOR THE SERVICE IN THE 12 MONTHS BEFORE THE CLAIM AROSE.
+            These Terms are governed by the laws of the State of Delaware,
+            United States, without regard to conflict of law rules. You agree to
+            the exclusive jurisdiction and venue of the state and federal courts
+            located in Delaware for any dispute that is not subject to mandatory
+            arbitration or cannot be resolved informally.
           </p>
 
           <h2 className="text-2xl font-semibold mt-6">
-            Changes to These Terms
+            16. Changes to These Terms
           </h2>
           <p>
-            We may update these Terms from time to time. If we make material
-            changes, we will provide notice, such as by email or by updating the
-            date at the top of this page. Your continued use of the Service
-            after the revised Terms go into effect constitutes acceptance of the
-            changes.
+            We may modify these Terms at any time. If we make material changes,
+            we will provide notice (for example, by email or by updating the date
+            at the top of this page). Your continued use of the Service after the
+            changes become effective constitutes acceptance of the revised Terms.
           </p>
 
-          <h2 className="text-2xl font-semibold mt-6">Contact Us</h2>
+          <h2 className="text-2xl font-semibold mt-6">17. Contact</h2>
           <p>
-            If you have questions about these Terms, contact us at{" "}
+            Questions about these Terms? Email{" "}
             <a
               href="mailto:support@shipyardhq.dev"
               className="text-primary underline"
