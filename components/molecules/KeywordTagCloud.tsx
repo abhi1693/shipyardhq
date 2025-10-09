@@ -65,7 +65,12 @@ export function KeywordTagCloud({
       role="navigation"
     >
       {items.map((item) => {
-        const sizeIdx = scaleIndex(item.count, minCount, maxCount, SIZE_CLASSES.length)
+        const sizeIdx = scaleIndex(
+          item.count,
+          minCount,
+          maxCount,
+          SIZE_CLASSES.length,
+        )
         const opacityIdx = scaleIndex(
           item.count,
           minCount,

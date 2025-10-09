@@ -29,9 +29,7 @@ export async function generateMetadata({
   const summary = await getKeywordTagBySlug(slug)
   if (!summary) return {}
 
-  const label = formatTagLabel(
-    summary.canonical || summary.keyword,
-  )
+  const label = formatTagLabel(summary.canonical || summary.keyword)
   return buildPageMetadata({
     title: `${label} Tag`,
     description: `Discover Shipyard products tagged with “${label}”. Browse the latest launches and tools connected to this keyword.`,
@@ -138,7 +136,10 @@ export default async function TagDetailPage({
             {totalPages > 1 && (
               <div className="flex items-center justify-between border-t border-slate-200 pt-6 text-sm text-slate-600">
                 <Link
-                  href={buildPageHref(basePath, Math.max(1, pagination.page - 1))}
+                  href={buildPageHref(
+                    basePath,
+                    Math.max(1, pagination.page - 1),
+                  )}
                   aria-disabled={pagination.page === 1}
                   className={cn(
                     "rounded-full px-3 py-1.5 font-medium transition",

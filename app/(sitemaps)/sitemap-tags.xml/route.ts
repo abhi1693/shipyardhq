@@ -19,7 +19,10 @@ export async function GET() {
   const nowIso = new Date().toISOString()
   const lastmod = lastUpdated?.toISOString() ?? nowIso
 
-  const sitemapEntries = Array.from({ length: Math.max(chunks, 1) }, (_, i) => i + 1)
+  const sitemapEntries = Array.from(
+    { length: Math.max(chunks, 1) },
+    (_, i) => i + 1,
+  )
     .map(
       (n) =>
         xml`

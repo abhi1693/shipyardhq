@@ -40,10 +40,7 @@ export function extractKeywordHash(slug: string): string | null {
   const lastHyphen = slug.lastIndexOf("-")
   if (lastHyphen === -1) return null
   const hash = slug.slice(lastHyphen + 1)
-  if (
-    hash.length !== KEYWORD_SLUG_HASH_LENGTH ||
-    !HASH_HEX_REGEX.test(hash)
-  ) {
+  if (hash.length !== KEYWORD_SLUG_HASH_LENGTH || !HASH_HEX_REGEX.test(hash)) {
     return null
   }
   return hash.toLowerCase()

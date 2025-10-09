@@ -7,11 +7,7 @@ import {
   DEFAULT_TTL,
   TAGS,
 } from "@/lib/cache"
-import {
-  extractKeywordHash,
-  keywordToSlug,
-  normalizeKeyword,
-} from "@/lib/tags"
+import { extractKeywordHash, keywordToSlug, normalizeKeyword } from "@/lib/tags"
 
 const TAG_LIST_LIMIT = 200
 export const TAG_PRODUCTS_PAGE_SIZE = 24
@@ -345,10 +341,7 @@ export async function getKeywordTagSitemapStats(): Promise<{
   }
 }
 
-export async function getKeywordTagSitemapChunk(
-  offset: number,
-  limit: number,
-) {
+export async function getKeywordTagSitemapChunk(offset: number, limit: number) {
   const rows = await fetchKeywordTagChunk(offset, limit)
   return rows.map(mapTagRow)
 }

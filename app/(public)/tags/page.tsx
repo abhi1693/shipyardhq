@@ -59,7 +59,10 @@ export default async function TagsIndexPage({
     count: summary.productCount,
     href: `/tags/${summary.slug}`,
   }))
-  const tagData = await getKeywordTagProducts(activeSummary.slug, pagination.page)
+  const tagData = await getKeywordTagProducts(
+    activeSummary.slug,
+    pagination.page,
+  )
 
   const total = tagData?.total ?? activeSummary.productCount
   const totalPages = Math.max(1, Math.ceil(total / TAG_PRODUCTS_PAGE_SIZE))
@@ -140,7 +143,10 @@ export default async function TagsIndexPage({
             {totalPages > 1 && (
               <div className="flex items-center justify-between border-t border-slate-200 pt-6 text-sm text-slate-600">
                 <Link
-                  href={buildPageHref(basePath, Math.max(1, pagination.page - 1))}
+                  href={buildPageHref(
+                    basePath,
+                    Math.max(1, pagination.page - 1),
+                  )}
                   aria-disabled={pagination.page === 1}
                   className={cn(
                     "rounded-full px-3 py-1.5 font-medium transition",
