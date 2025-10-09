@@ -24,6 +24,10 @@ export async function GET() {
         <loc>${base}/sitemap-products.xml</loc>
         <lastmod>${now}</lastmod>
       </sitemap>
+      <sitemap>
+        <loc>${base}/sitemap-tags.xml</loc>
+        <lastmod>${now}</lastmod>
+      </sitemap>
     </sitemapindex>
   `.trim()
 

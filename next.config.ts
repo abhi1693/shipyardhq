@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         source: "/sitemap-products-:index(\\d+).xml",
         destination: "/sitemap-products/:index",
       },
+      {
+        source: "/sitemap-tags-:index(\\d+).xml",
+        destination: "/sitemap-tags/:index",
+      },
     ]
   },
   allowedDevOrigins: ["localhost", "192.168.1.101"],
