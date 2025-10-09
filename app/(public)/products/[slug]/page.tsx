@@ -71,6 +71,16 @@ const PRICING_MODEL_LABELS: Record<string, string> = {
   custom: "Custom",
 }
 
+const APPLICATION_CATEGORY_MAP: Record<string, string> = {
+  saas: "BusinessApplication",
+  browser_extension: "BrowserApplication",
+  mobile_app: "LifestyleApplication",
+  desktop_app: "DesktopEnhancementApplication",
+  api: "DeveloperApplication",
+  open_source: "DeveloperApplication",
+  other: "UtilitiesApplication",
+}
+
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
@@ -321,49 +331,75 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
   ).replace(/\/$/, "")
   const canonicalUrl = `${baseUrl}${productPath(product.slug)}`
-  const structuredData =
+  const schemaOperatingSystems = Array.from(
+    new Set(
+      platforms
+        .map((platform) => platformSchemaLabel(platform))
+        .filter((label): label is string => Boolean(label)),
+    ),
+  )
+
+  const aggregateRating =
     reviewSummary.totalReviews > 0
       ? {
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: product.name,
-          description: product.tagline || undefined,
-          image: [product.bannerImage, product.logo].filter(Boolean),
-          url: canonicalUrl,
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: reviewSummary.averageRating.toFixed(1),
-            reviewCount: reviewSummary.totalReviews,
+          "@type": "AggregateRating",
+          ratingValue: reviewSummary.averageRating.toFixed(1),
+          ratingCount: reviewSummary.totalReviews,
+          reviewCount: reviewSummary.totalReviews,
+          bestRating: 5,
+          worstRating: 0,
+        }
+      : null
+
+  const structuredData = aggregateRating
+    ? {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: product.name,
+        description: product.tagline || product.description || undefined,
+        image: [product.bannerImage, product.logo].filter(Boolean),
+        url: canonicalUrl,
+        applicationCategory: APPLICATION_CATEGORY_MAP[product.type] || undefined,
+        operatingSystem: schemaOperatingSystems.length
+          ? schemaOperatingSystems
+          : undefined,
+        offers:
+          product.startingPriceCents !== null &&
+          product.startingPriceCents !== undefined
+            ? {
+                "@type": "Offer",
+                price: (product.startingPriceCents / 100).toFixed(2),
+                priceCurrency: product.currencyCode || "USD",
+              }
+            : undefined,
+        aggregateRating,
+        review: reviewSummary.reviews.map((review) => ({
+          "@type": "Review",
+          author: {
+            "@type": "Person",
+            name: reviewerDisplayName(
+              review.user.firstName,
+              review.user.lastName,
+            ),
+          },
+          datePublished: (() => {
+            try {
+              return new Date(review.createdAt).toISOString()
+            } catch {
+              return undefined
+            }
+          })(),
+          reviewBody: review.message,
+          name: `Feedback for ${product.name}`,
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: review.rating,
             bestRating: 5,
             worstRating: 0,
           },
-          review: reviewSummary.reviews.map((review) => ({
-            "@type": "Review",
-            author: {
-              "@type": "Person",
-              name: reviewerDisplayName(
-                review.user.firstName,
-                review.user.lastName,
-              ),
-            },
-            datePublished: (() => {
-              try {
-                return new Date(review.createdAt).toISOString()
-              } catch {
-                return undefined
-              }
-            })(),
-            reviewBody: review.message,
-            name: `Feedback for ${product.name}`,
-            reviewRating: {
-              "@type": "Rating",
-              ratingValue: review.rating,
-              bestRating: 5,
-              worstRating: 0,
-            },
-          })),
-        }
-      : null
+        })),
+      }
+    : null
 
   const useCaseProducts = product.category.useCases?.length
     ? await getPublicProductsByUseCase(
@@ -591,6 +627,29 @@ function formatStatValue(raw: string) {
       return `${upper.charAt(0)}${upper.slice(1).toLowerCase()}`
     })
     .join(" ")
+}
+
+function platformSchemaLabel(platform: string): string | null {
+  switch (platform) {
+    case "web":
+      return "Web"
+    case "ios":
+      return "iOS"
+    case "android":
+      return "Android"
+    case "mac":
+      return "macOS"
+    case "windows":
+      return "Windows"
+    case "linux":
+      return "Linux"
+    case "chrome_extension":
+      return "Google Chrome"
+    case "firefox_extension":
+      return "Mozilla Firefox"
+    default:
+      return formatStatValue(platform)
+  }
 }
 
 function platformIcon(platform: string) {
