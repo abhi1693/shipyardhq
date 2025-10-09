@@ -307,7 +307,6 @@ export const getPublicRewardsStats = cached(
 
 export async function getPublicRewardsData(): Promise<PublicRewardsData> {
   const now = Date.now()
-  const thirtyDaysAgo = new Date(now - THIRTY_DAYS_MS)
   const ninetyDaysAgo = new Date(now - NINETY_DAYS_MS)
 
   const [
