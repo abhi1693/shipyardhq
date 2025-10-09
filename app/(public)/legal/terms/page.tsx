@@ -1,3 +1,4 @@
+import StickyBannerSuppressor from "@/components/layout/StickyBannerSuppressor"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { buildPageMetadata } from "@/lib/metadata"
 
@@ -9,6 +10,7 @@ export const metadata = buildPageMetadata({
 export default function TermsOfServicePage() {
   return (
     <div className="min-h-screen py-16">
+      <StickyBannerSuppressor />
       <div className="mx-auto max-w-3xl px-4 md:px-8">
         <PageHeader
           title="Terms of Service"
