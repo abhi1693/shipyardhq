@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import Link from "next/link"
-import PublicContainer from "@/components/layout/PublicContainer"
 import { CategoryCard } from "@/components/molecules/CategoryCard"
 import { CategoryProductsClient as UseCaseProductsClient } from "@/app/(public)/categories/[slug]/client-products"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -133,165 +132,149 @@ export default async function UseCasePage({ params }: UseCasePageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-20"
-        fillScreen={false}
+      <section
         className={brandGradient(
-          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] shadow-[0px_70px_160px_-70px_rgba(18,66,112,0.75)]",
+          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-20 shadow-[0px_70px_160px_-70px_rgba(18,66,112,0.75)]",
         )}
-        innerClassName="mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 text-center text-white"
       >
-        <div className="space-y-4">
-          <span
-            className={gradientTint(
-              "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/80",
-            )}
-          >
-            Use Case
-          </span>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            {useCase.label}
-          </h1>
-          <p className="text-base text-white/85 sm:text-lg">
-            A curated collection of tools designed for makers tackling{" "}
-            {useCase.label}. Explore what’s shipping, discover related
-            categories, and find the best fit for your workflow.
-          </p>
-        </div>
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+          <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 text-center text-white">
+            <div className="space-y-4">
+              <span
+                className={gradientTint(
+                  "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/80",
+                )}
+              >
+                Use Case
+              </span>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+                {useCase.label}
+              </h1>
+              <p className="text-base text-white/85 sm:text-lg">
+                A curated collection of tools designed for makers tackling{" "}
+                {useCase.label}. Explore what’s shipping, discover related
+                categories, and find the best fit for your workflow.
+              </p>
+            </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.28em] text-white/80">
-          <span
-            className={gradientTint(
-              "inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold",
-            )}
-          >
-            {productCount} {pluralize(productCount, "product")}
-          </span>
-          {categories.length > 0 && (
-            <span>
-              {categories.length} {pluralize(categories.length, "category")}
-            </span>
-          )}
-          {heroHighlight ? <span>Trending in {heroHighlight.name}</span> : null}
-        </div>
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.28em] text-white/80">
+              <span
+                className={gradientTint(
+                  "inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold",
+                )}
+              >
+                {productCount} {pluralize(productCount, "product")}
+              </span>
+              {categories.length > 0 && (
+                <span>
+                  {categories.length} {pluralize(categories.length, "category")}
+                </span>
+              )}
+              {heroHighlight ? (
+                <span>Trending in {heroHighlight.name}</span>
+              ) : null}
+            </div>
 
-        <div className="flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-          <Link
-            href={`${BROWSE_PATH}?useCase=${slug}`}
-            className={launchPrimaryButton({
-              size: "lg",
-              className: "w-full min-w-[200px] sm:w-auto",
-            })}
-          >
-            Explore in browse
-          </Link>
-          <Link
-            href={MEMBER_PRODUCTS_PATH}
-            className={launchSecondaryButton({
-              size: "lg",
-              className:
-                "w-full min-w-[200px] text-white/90 hover:text-white sm:w-auto",
-            })}
-          >
-            Submit your launch
-          </Link>
+            <div className="flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+              <Link
+                href={`${BROWSE_PATH}?useCase=${slug}`}
+                className={launchPrimaryButton({
+                  size: "lg",
+                  className: "w-full min-w-[200px] sm:w-auto",
+                })}
+              >
+                Explore in browse
+              </Link>
+              <Link
+                href={MEMBER_PRODUCTS_PATH}
+                className={launchSecondaryButton({
+                  size: "lg",
+                  className:
+                    "w-full min-w-[200px] text-white/90 hover:text-white sm:w-auto",
+                })}
+              >
+                Submit your launch
+              </Link>
+            </div>
+          </div>
         </div>
-      </PublicContainer>
+      </section>
 
       <HeroStickyBanner wrapperClassName="mt-6" innerClassName="max-w-5xl" />
 
       {categories.length > 0 && (
-        <PublicContainer
-          as="section"
-          max="marketing"
-          paddingY="py-16"
-          fillScreen={false}
-          className="relative"
-        >
-          <div className="mx-auto max-w-5xl space-y-8 text-center">
-            <div className="space-y-3">
-              <h2 className="text-3xl font-semibold text-foreground">
-                Related categories
-              </h2>
-              <p className="text-muted-foreground">
-                Explore the categories fueling this use case and see where to
-                build next.
-              </p>
-            </div>
-            <div className="flex flex-wrap justify-center gap-4">
-              {categories.map((category: UseCaseCategory) => (
-                <CategoryCard
-                  key={category.id}
-                  href={categoryPath(category.slug)}
-                  name={category.name}
-                  icon={category.icon}
-                  description={category.description}
-                  count={category.productCount}
-                  className="w-full max-w-xs"
-                />
-              ))}
+        <section className="relative py-16">
+          <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+            <div className="mx-auto max-w-5xl space-y-8 text-center">
+              <div className="space-y-3">
+                <h2 className="text-3xl font-semibold text-foreground">
+                  Related categories
+                </h2>
+                <p className="text-muted-foreground">
+                  Explore the categories fueling this use case and see where to
+                  build next.
+                </p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-4">
+                {categories.map((category: UseCaseCategory) => (
+                  <CategoryCard
+                    key={category.id}
+                    href={categoryPath(category.slug)}
+                    name={category.name}
+                    icon={category.icon}
+                    description={category.description}
+                    count={category.productCount}
+                    className="w-full max-w-xs"
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </PublicContainer>
+        </section>
       )}
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-      >
-        <UseCaseProductsClient
-          className="border-[color:var(--brand-1)/0.18]"
-          products={products.map((product: UseCaseProduct) => ({
-            ...product,
-            priority: productHasFeature(product, "priorityPlacement"),
-            badges:
-              product.ProductBadge?.filter(
-                (badge) =>
-                  !badge.expiresAt || new Date(badge.expiresAt) > new Date(),
-              ).map((badge) => badge.badge) ?? [],
-          }))}
-        />
-      </PublicContainer>
-
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-      >
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/82 px-8 py-12 text-center shadow-[0px_32px_90px_-60px_rgba(7,58,104,0.55)] backdrop-blur">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">
-            Building for {useCase.label}?
-          </h2>
-          <p className="text-muted-foreground">
-            Share your launch with the community and reach makers who need
-            exactly what you’re crafting.
-          </p>
-          <Link
-            href={MEMBER_PRODUCTS_PATH}
-            className={launchPrimaryButton({ size: "lg" })}
-          >
-            Add your product
-          </Link>
+      <section className="relative py-16">
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+          <UseCaseProductsClient
+            className="border-[color:var(--brand-1)/0.18]"
+            products={products.map((product: UseCaseProduct) => ({
+              ...product,
+              priority: productHasFeature(product, "priorityPlacement"),
+              badges:
+                product.ProductBadge?.filter(
+                  (badge) =>
+                    !badge.expiresAt || new Date(badge.expiresAt) > new Date(),
+                ).map((badge) => badge.badge) ?? [],
+            }))}
+          />
         </div>
-      </PublicContainer>
+      </section>
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-        innerClassName="overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60"
-      >
-        <NewsletterSignupSection />
-      </PublicContainer>
+      <section className="relative py-16">
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/82 px-8 py-12 text-center shadow-[0px_32px_90px_-60px_rgba(7,58,104,0.55)] backdrop-blur">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+              Building for {useCase.label}?
+            </h2>
+            <p className="text-muted-foreground">
+              Share your launch with the community and reach makers who need
+              exactly what you’re crafting.
+            </p>
+            <Link
+              href={MEMBER_PRODUCTS_PATH}
+              className={launchPrimaryButton({ size: "lg" })}
+            >
+              Add your product
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative py-16">
+        <div className="mx-auto max-w-[84rem] overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60">
+          <NewsletterSignupSection />
+        </div>
+      </section>
     </main>
   )
 }
