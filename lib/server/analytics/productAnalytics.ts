@@ -96,10 +96,9 @@ export function toProductAnalyticsViewProduct(product: ProductAnalyticsRecord) {
 }
 
 export function resolveProductAnalyticsAccess(
-  product: Pick<
-    ProductAnalyticsRecord,
-    "plan" | "featureEntitlements"
-  > & { plan?: ProductAnalyticsRecord["plan"] | null },
+  product: Pick<ProductAnalyticsRecord, "plan" | "featureEntitlements"> & {
+    plan?: ProductAnalyticsRecord["plan"] | null
+  },
 ) {
   const entitlementFeatures = new Set(
     (product.featureEntitlements ?? []).map((ent) => ent.featureKey),

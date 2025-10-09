@@ -138,13 +138,15 @@ export function ProductAnalyticsSkeleton({
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70">
             <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
-              <Link href={backHref}>
-                {resolvedBackLabel}
-              </Link>
+              <Link href={backHref}>{resolvedBackLabel}</Link>
             </Button>
             {publicHref ? (
               <Button variant="ghost" size="sm" className="h-8 px-3" asChild>
-                <Link href={publicHref} target="_blank" rel="noopener noreferrer">
+                <Link
+                  href={publicHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {resolvedPublicLabel}
                 </Link>
               </Button>
@@ -173,9 +175,7 @@ export function ProductAnalyticsSkeleton({
                 <p className="text-sm text-muted-foreground">
                   Engagement signals across your most recent reporting window.
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {rangeLabel}
-                </p>
+                <p className="text-xs text-muted-foreground">{rangeLabel}</p>
               </div>
             </div>
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -253,7 +253,10 @@ export function ProductAnalyticsSkeleton({
                 </CardHeader>
                 <CardContent className="space-y-3 px-5 pb-6">
                   {Array.from({ length: 3 }).map((_, index) => (
-                    <Skeleton key={`cta-${index}`} className="h-4 w-3/4 rounded" />
+                    <Skeleton
+                      key={`cta-${index}`}
+                      className="h-4 w-3/4 rounded"
+                    />
                   ))}
                   <Skeleton className="h-9 w-40 rounded-md" />
                 </CardContent>

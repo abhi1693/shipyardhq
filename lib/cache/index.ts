@@ -59,7 +59,9 @@ export function cached<F extends AnyAsyncFn>(
         : []
     const sanitizedKeyParts = dynamicKeyParts
       .map((part) => (part == null ? undefined : String(part)))
-      .filter((part): part is string => typeof part === "string" && part.length > 0)
+      .filter(
+        (part): part is string => typeof part === "string" && part.length > 0,
+      )
     const keyParts = [key, ...sanitizedKeyParts]
     const inner = nextCache(
       async (...innerArgs: any[]) => fn(...innerArgs),
