@@ -12,6 +12,11 @@ import { extractKeywordHash, keywordToSlug, normalizeKeyword } from "@/lib/tags"
 const TAG_LIST_LIMIT = 200
 export const TAG_PRODUCTS_PAGE_SIZE = 24
 
+function sanitizeTagListLimit(limit?: number): number {
+  const normalized = Math.trunc(limit ?? TAG_LIST_LIMIT) || TAG_LIST_LIMIT
+  return Math.min(Math.max(normalized, 1), TAG_LIST_LIMIT)
+}
+
 interface RawTagRow {
   keyword: string
   canonical: string
@@ -73,10 +78,7 @@ async function fetchKeywordTagSummaries(limit: number): Promise<RawTagRow[]> {
 
 export const getKeywordTagSummaries = cached(
   async (limit: number = TAG_LIST_LIMIT) => {
-    const safeLimit = Math.min(
-      Math.max(Math.trunc(limit) || TAG_LIST_LIMIT, 1),
-      TAG_LIST_LIMIT,
-    )
+    const safeLimit = sanitizeTagListLimit(limit)
     const rows = await fetchKeywordTagSummaries(safeLimit)
     return rows.map(mapTagRow)
   },
@@ -85,12 +87,7 @@ export const getKeywordTagSummaries = cached(
     ttl: DEFAULT_TTL.slow,
     tags: () => accelerateTags([TAGS.keywords]),
     keyParts: ([limit]) => [
-      String(
-        Math.min(
-          Math.max(Math.trunc(limit) || TAG_LIST_LIMIT, 1),
-          TAG_LIST_LIMIT,
-        ),
-      ),
+      String(sanitizeTagListLimit(limit)),
     ],
   },
 )
