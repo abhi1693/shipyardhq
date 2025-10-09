@@ -6,9 +6,15 @@ const isMemberRoute = createRouteMatcher([`${MEMBER_BASE_PATH}(.*)`])
 export default clerkMiddleware(async (auth, req) => {
   // Rewrite sitemap chunk URLs ending with .xml to existing handler
   const url = new URL(req.url)
-  const match = url.pathname.match(/^\/sitemap-products\/(\d+)\.xml$/)
-  if (match) {
-    url.pathname = `/sitemap-products/${match[1]}`
+  const productMatch = url.pathname.match(/^\/sitemap-products\/(\d+)\.xml$/)
+  if (productMatch) {
+    url.pathname = `/sitemap-products/${productMatch[1]}`
+    return NextResponse.rewrite(url)
+  }
+
+  const tagMatch = url.pathname.match(/^\/sitemap-tags\/(\d+)\.xml$/)
+  if (tagMatch) {
+    url.pathname = `/sitemap-tags/${tagMatch[1]}`
     return NextResponse.rewrite(url)
   }
 

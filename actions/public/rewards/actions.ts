@@ -193,6 +193,11 @@ export const getRewardsLeaderboardEntries = cached(
   },
   "rewards:leaderboard",
   {
+    keyParts: ([limit]) => [
+      `limit:${normalizeRewardsLeaderboardLimit(
+        typeof limit === "number" ? limit : REWARDS_LEADERBOARD_DEFAULT_LIMIT,
+      )}`,
+    ],
     ttl: DEFAULT_TTL.fast,
     tags: ([limit]) => [
       TAGS.rewards,

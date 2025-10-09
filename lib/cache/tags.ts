@@ -29,6 +29,8 @@ export const TAGS = {
   rewards: "rewards",
   rewardRule: (key: string) => `rewards:rule:${key}`,
   rewardCatalogItem: (key: string) => `rewards:catalog:${key}`,
+  keywords: "keywords",
+  keyword: (slug: string) => `keyword:${slug}`,
 } as const
 
 export type Tag = (typeof TAGS)[keyof typeof TAGS] | string

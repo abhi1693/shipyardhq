@@ -43,6 +43,7 @@ export function cached<F extends AnyAsyncFn>(
   opts?: {
     ttl?: number
     tags?: (args: Parameters<F>) => Tag[]
+    keyParts?: (args: Parameters<F>) => string | string[] | null | undefined
   },
 ) {
   return (async (...args: Parameters<F>): Promise<ReturnType<F>> => {
@@ -50,9 +51,21 @@ export function cached<F extends AnyAsyncFn>(
       new Set([key, ...(opts?.tags ? opts.tags(args) : [])]),
     ) as string[]
     const ttl = opts?.ttl ?? DEFAULT_TTL.fast
+    const extraKeyParts = opts?.keyParts?.(args)
+    const dynamicKeyParts = Array.isArray(extraKeyParts)
+      ? extraKeyParts
+      : extraKeyParts != null
+        ? [extraKeyParts]
+        : []
+    const sanitizedKeyParts = dynamicKeyParts
+      .map((part) => (part == null ? undefined : String(part)))
+      .filter(
+        (part): part is string => typeof part === "string" && part.length > 0,
+      )
+    const keyParts = [key, ...sanitizedKeyParts]
     const inner = nextCache(
       async (...innerArgs: any[]) => fn(...innerArgs),
-      [key],
+      keyParts,
       {
         revalidate: ttl,
         tags,

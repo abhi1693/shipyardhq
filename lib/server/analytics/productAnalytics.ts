@@ -1,6 +1,7 @@
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
 import prisma from "@/lib/prisma"
+import { hasPlanFeature } from "@/lib/features"
 import { buildCacheKey, cacheHit, cacheMiss } from "@/lib/server/cache"
 import { resolveCacheTtl } from "@/lib/server/cache/ttl"
 
@@ -92,4 +93,25 @@ export function toProductAnalyticsViewProduct(product: ProductAnalyticsRecord) {
     updatedAt: product.updatedAt,
     analytics: product.analytics,
   }
+}
+
+export function resolveProductAnalyticsAccess(
+  product: Pick<ProductAnalyticsRecord, "plan" | "featureEntitlements"> & {
+    plan?: ProductAnalyticsRecord["plan"] | null
+  },
+) {
+  const entitlementFeatures = new Set(
+    (product.featureEntitlements ?? []).map((ent) => ent.featureKey),
+  )
+
+  const hasAdvancedAnalytics =
+    hasPlanFeature(product.plan ?? null, "analytics.advanced") ||
+    entitlementFeatures.has("analytics.advanced")
+
+  const hasBasicAnalytics =
+    hasAdvancedAnalytics ||
+    hasPlanFeature(product.plan ?? null, "analytics.basic") ||
+    entitlementFeatures.has("analytics.basic")
+
+  return { hasAdvancedAnalytics, hasBasicAnalytics }
 }
