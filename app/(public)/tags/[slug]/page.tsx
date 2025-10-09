@@ -10,6 +10,7 @@ import {
 } from "@/actions/public/tags/actions"
 import ProductCompactGrid from "@/components/molecules/ProductCompactGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
+import KeywordTagCloud from "@/components/molecules/KeywordTagCloud"
 import { buildPageMetadata } from "@/lib/metadata"
 import { resolvePagination } from "@/lib/pagination"
 import { cn } from "@/lib/utils"
@@ -59,6 +60,12 @@ export default async function TagDetailPage({
     tagData.summary,
     ...summaries.filter((summary) => summary.slug !== tagData.summary.slug),
   ]
+  const cloudItems = navSummaries.map((summary) => ({
+    slug: summary.slug,
+    label: formatTagLabel(summary.canonical || summary.keyword),
+    count: summary.productCount,
+    href: `/tags/${summary.slug}`,
+  }))
 
   const total = tagData.total
   const totalPages = Math.max(1, Math.ceil(total / TAG_PRODUCTS_PAGE_SIZE))
@@ -83,44 +90,22 @@ export default async function TagDetailPage({
           </p>
         </header>
 
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,320px),1fr]">
-          <aside className="space-y-6 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-6 sm:px-6">
-            <div className="space-y-1">
+        <div className="space-y-10">
+          <section className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-6 sm:px-6">
+            <header className="mb-4 space-y-1">
               <h2 className="text-lg font-semibold text-slate-900">
-                Popular tags
+                Explore related tags
               </h2>
               <p className="text-sm text-slate-600">
-                Quickly jump between keyword clusters to discover kindred
-                products.
+                Jump to other high-signal keywords from this product cluster.
               </p>
-            </div>
-
-            <nav className="space-y-2">
-              {navSummaries.map((summary) => {
-                const isActive = summary.slug === tagData.summary.slug
-                return (
-                  <Link
-                    key={summary.slug}
-                    href={`/tags/${summary.slug}`}
-                    className={cn(
-                      "flex items-center justify-between rounded-xl px-4 py-3 transition",
-                      "hover:bg-white hover:shadow-sm",
-                      isActive
-                        ? "bg-white shadow-sm ring-1 ring-slate-200"
-                        : "bg-slate-100",
-                    )}
-                  >
-                    <span className="font-medium text-slate-900">
-                      {formatTagLabel(summary.canonical || summary.keyword)}
-                    </span>
-                    <span className="text-sm font-semibold text-slate-500">
-                      {summary.productCount}
-                    </span>
-                  </Link>
-                )
-              })}
-            </nav>
-          </aside>
+            </header>
+            <KeywordTagCloud
+              items={cloudItems}
+              activeSlug={tagData.summary.slug}
+              className="pt-2"
+            />
+          </section>
 
           <section className="space-y-6">
             <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-6">

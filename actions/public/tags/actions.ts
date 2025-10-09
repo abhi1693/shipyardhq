@@ -77,14 +77,25 @@ async function fetchKeywordTagSummaries(limit: number): Promise<RawTagRow[]> {
 
 export const getKeywordTagSummaries = cached(
   async (limit: number = TAG_LIST_LIMIT) => {
-    const rows = await fetchKeywordTagSummaries(limit)
+    const safeLimit = Math.min(
+      Math.max(Math.trunc(limit) || TAG_LIST_LIMIT, 1),
+      TAG_LIST_LIMIT,
+    )
+    const rows = await fetchKeywordTagSummaries(safeLimit)
     return rows.map(mapTagRow)
   },
   "tags:summaries",
   {
     ttl: DEFAULT_TTL.slow,
     tags: () => accelerateTags([TAGS.keywords]),
-    keyParts: ([limit]) => [String(limit)],
+    keyParts: ([limit]) => [
+      String(
+        Math.min(
+          Math.max(Math.trunc(limit) || TAG_LIST_LIMIT, 1),
+          TAG_LIST_LIMIT,
+        ),
+      ),
+    ],
   },
 )
 
