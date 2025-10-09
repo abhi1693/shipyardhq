@@ -1,7 +1,8 @@
 "use server"
 
-import { redirect } from "next/navigation"
 import { headers } from "next/headers"
+import { redirect } from "next/navigation"
+import { after } from "next/server"
 
 import { trackProductClicked } from "@/lib/server/analytics/productClicks"
 import "@/lib/server/analytics/productClicks" // ensure listeners are registered
@@ -48,8 +49,7 @@ export async function clickProductCardAction(formData: FormData) {
       const region = hdrs.get("x-vercel-ip-country-region")
       const city = decodeNullable(hdrs.get("x-vercel-ip-city"))
       const ipHash = hashIpAddress(ip)
-
-      await trackProductClicked(productId, {
+      const metadata = {
         referrer: sanitizeReferrer(referrerHeader),
         userAgent,
         device,
@@ -59,10 +59,18 @@ export async function clickProductCardAction(formData: FormData) {
         region,
         city,
         ipHash,
+      }
+
+      after(async () => {
+        try {
+          await trackProductClicked(productId, metadata)
+        } catch (err) {
+          console.error("click publish failed", err)
+        }
       })
     }
   } catch (err) {
-    console.error("click publish failed", err)
+    console.error("click publish scheduling failed", err)
   }
   redirect(productPath(productSlug))
 }
