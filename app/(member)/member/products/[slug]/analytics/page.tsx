@@ -1,8 +1,6 @@
+import { Suspense } from "react"
 import { notFound, redirect } from "next/navigation"
 import { requireManageableProduct } from "@/lib/server/productAccess"
-import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
-import { getProductAnalyticsNarrative } from "@/lib/server/analytics/productAnalyticsNarrative"
-import { hasPlanFeature } from "@/lib/features"
 import {
   MEMBER_PRODUCTS_PATH,
   memberProductPath,
@@ -10,12 +8,17 @@ import {
 } from "@/lib/routes"
 import {
   getProductAnalyticsRecord,
+  resolveProductAnalyticsAccess,
   toProductAnalyticsViewProduct,
 } from "@/lib/server/analytics/productAnalytics"
 import {
   ProductAnalyticsView,
   rangeToDays,
 } from "@/components/pages/ProductAnalyticsView"
+import { ProductAnalyticsSkeleton } from "@/components/pages/ProductAnalyticsSkeleton"
+import { getProductTrafficSummary } from "@/lib/server/analytics/productTrafficSummary"
+import { getProductAnalyticsNarrative } from "@/lib/server/analytics/productAnalyticsNarrative"
+
 export default async function ProductAnalyticsPage({
   params,
   searchParams,
@@ -38,49 +41,97 @@ export default async function ProductAnalyticsPage({
     return notFound()
   }
 
-  const entitlementFeatures = new Set(
-    (product.featureEntitlements ?? [])
-      .filter((ent) => ent.status === "active" || ent.status === "pending")
-      .map((ent) => ent.featureKey),
-  )
-
-  const hasAdvancedAnalytics =
-    hasPlanFeature(product.plan ?? null, "analytics.advanced") ||
-    entitlementFeatures.has("analytics.advanced")
-
-  const hasBasicAnalytics =
-    hasAdvancedAnalytics ||
-    hasPlanFeature(product.plan ?? null, "analytics.basic") ||
-    entitlementFeatures.has("analytics.basic")
+  const { hasAdvancedAnalytics, hasBasicAnalytics } =
+    resolveProductAnalyticsAccess(product)
   const accessLevel = hasAdvancedAnalytics ? "advanced" : "basic"
 
   if (!hasBasicAnalytics) {
     redirect(memberProductPath(product.slug))
   }
 
-  const summary = await getProductTrafficSummary(product.id, {
-    rangeDays,
-    includeAdvanced: hasAdvancedAnalytics,
-  })
   const publicPath = productPath(product.slug)
-  const narrative = await getProductAnalyticsNarrative(
-    product.id,
-    product.name,
-    summary,
-  )
-
   const viewProduct = toProductAnalyticsViewProduct(product)
 
   return (
+    <Suspense
+      fallback={
+        <ProductAnalyticsSkeleton
+          product={viewProduct}
+          basePath={MEMBER_PRODUCTS_PATH.slice(1)}
+          backHref={memberProductPath(product.slug)}
+          publicHref={publicPath}
+          headingId={product.slug}
+          headingSlug={product.id}
+          accessLevel={accessLevel}
+          rangeDays={rangeDays}
+        />
+      }
+    >
+      <AnalyticsContent
+        product={viewProduct}
+        productId={product.id}
+        productName={product.name}
+        accessLevel={accessLevel}
+        includeAdvanced={hasAdvancedAnalytics}
+        rangeDays={rangeDays}
+        basePath={MEMBER_PRODUCTS_PATH.slice(1)}
+        backHref={memberProductPath(product.slug)}
+        publicHref={publicPath}
+        headingId={product.slug}
+        headingSlug={product.id}
+      />
+    </Suspense>
+  )
+}
+
+type AnalyticsContentProps = {
+  product: Parameters<typeof ProductAnalyticsView>[0]["product"]
+  productId: string
+  productName: string
+  accessLevel: Parameters<typeof ProductAnalyticsView>[0]["accessLevel"]
+  includeAdvanced: boolean
+  rangeDays: number
+  basePath: string
+  backHref: string
+  publicHref?: string
+  headingId: string
+  headingSlug: string
+}
+
+async function AnalyticsContent({
+  product,
+  productId,
+  productName,
+  accessLevel,
+  includeAdvanced,
+  rangeDays,
+  basePath,
+  backHref,
+  publicHref,
+  headingId,
+  headingSlug,
+}: AnalyticsContentProps) {
+  const summary = await getProductTrafficSummary(productId, {
+    rangeDays,
+    includeAdvanced,
+  })
+
+  const narrative = await getProductAnalyticsNarrative(
+    productId,
+    productName,
+    summary,
+  )
+
+  return (
     <ProductAnalyticsView
-      product={viewProduct}
+      product={product}
       summary={summary}
       narrative={narrative}
-      basePath={MEMBER_PRODUCTS_PATH.slice(1)}
-      backHref={memberProductPath(product.slug)}
-      publicHref={publicPath}
-      headingId={product.slug}
-      headingSlug={product.id}
+      basePath={basePath}
+      backHref={backHref}
+      publicHref={publicHref}
+      headingId={headingId}
+      headingSlug={headingSlug}
       accessLevel={accessLevel}
     />
   )
