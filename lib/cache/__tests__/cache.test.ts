@@ -42,6 +42,7 @@ describe("cached", () => {
     const cachedFn = cached(baseFn, "greeting", {
       ttl: 120,
       tags: ([name]) => [`user:${name}`],
+      keyParts: ([name]) => `name:${name}`,
     })
 
     const result = await cachedFn("Ada")
@@ -51,7 +52,7 @@ describe("cached", () => {
     expect(unstableCacheMock).toHaveBeenCalledTimes(1)
 
     const call = unstableCacheMock.mock.calls[0]
-    expect(call[1]).toEqual(["greeting"])
+    expect(call[1]).toEqual(["greeting", "name:Ada"])
     expect(call[2]).toEqual({
       revalidate: 120,
       tags: ["greeting", "user:Ada"],
