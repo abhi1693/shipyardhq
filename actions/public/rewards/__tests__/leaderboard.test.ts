@@ -134,10 +134,7 @@ describe("rewards leaderboard actions", () => {
           lifetimeEarned: { gt: 0 },
           user: { status: "active" },
         }),
-        orderBy: [
-          { lifetimeEarned: "desc" },
-          { updatedAt: "desc" },
-        ],
+        orderBy: [{ lifetimeEarned: "desc" }, { updatedAt: "desc" }],
       }),
     )
 

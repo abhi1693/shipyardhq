@@ -95,12 +95,8 @@ describe("Organisms", () => {
     ]
 
     rerender(<HomepageSpotlight placements={placements} />)
-    expect(
-      screen.getByText("Flagship homepage spotlight"),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText("Scheduled homepage takeovers"),
-    ).toBeInTheDocument()
+    expect(screen.getByText("Flagship homepage spotlight")).toBeInTheDocument()
+    expect(screen.getByText("Scheduled homepage takeovers")).toBeInTheDocument()
     expect(screen.getByText("Plan upgrades in queue")).toBeInTheDocument()
     expect(screen.queryByText("Plan placement")).not.toBeInTheDocument()
   })

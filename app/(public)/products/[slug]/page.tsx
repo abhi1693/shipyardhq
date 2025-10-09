@@ -359,7 +359,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         description: product.tagline || product.description || undefined,
         image: [product.bannerImage, product.logo].filter(Boolean),
         url: canonicalUrl,
-        applicationCategory: APPLICATION_CATEGORY_MAP[product.type] || undefined,
+        applicationCategory:
+          APPLICATION_CATEGORY_MAP[product.type] || undefined,
         operatingSystem: schemaOperatingSystems.length
           ? schemaOperatingSystems
           : undefined,

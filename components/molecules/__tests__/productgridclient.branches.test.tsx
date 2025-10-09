@@ -1,10 +1,5 @@
 import React from "react"
-import {
-  render,
-  screen,
-  waitFor,
-  act,
-} from "@testing-library/react"
+import { render, screen, waitFor, act } from "@testing-library/react"
 import { vi } from "vitest"
 
 vi.mock("@/components/molecules/ProductCompactCard", () => ({
@@ -40,8 +35,9 @@ const baseProduct = (over: Partial<any> = {}) => ({
 })
 
 const getObservers = () =>
-  ((globalThis as any).__INTERSECTION_OBSERVER_INSTANCES__ ??
-    []) as Array<{ trigger: (entries?: any[]) => void }>
+  ((globalThis as any).__INTERSECTION_OBSERVER_INSTANCES__ ?? []) as Array<{
+    trigger: (entries?: any[]) => void
+  }>
 
 const triggerIntersection = async () => {
   await waitFor(() => {
@@ -104,9 +100,7 @@ describe("ProductGridClient", () => {
         document.querySelectorAll('[data-testid="product-card"]').length,
       ).toBe(2)
     })
-    expect(
-      screen.queryByTestId("browse-infinite-scroll-trigger"),
-    ).toBeNull()
+    expect(screen.queryByTestId("browse-infinite-scroll-trigger")).toBeNull()
     expect(
       screen.getByText(/reached the end of the directory/i),
     ).toBeInTheDocument()
@@ -200,13 +194,11 @@ describe("ProductGridClient", () => {
       document.querySelectorAll('[data-testid="product-card"]').length,
     ).toBe(1)
     expect(
-      document.querySelector('[data-testid="product-card"]')?.getAttribute(
-        "data-name",
-      ),
+      document
+        .querySelector('[data-testid="product-card"]')
+        ?.getAttribute("data-name"),
     ).toBe("Third")
-    expect(
-      screen.queryByTestId("browse-infinite-scroll-trigger"),
-    ).toBeNull()
+    expect(screen.queryByTestId("browse-infinite-scroll-trigger")).toBeNull()
     expect(
       screen.getByText(/reached the end of the directory/i),
     ).toBeInTheDocument()

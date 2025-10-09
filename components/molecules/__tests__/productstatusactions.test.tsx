@@ -51,9 +51,7 @@ describe("ProductStatusActions", () => {
     const user = userEvent.setup()
     await user.click(screen.getByRole("button", { name: /archive/i }))
     const dialog = screen.getByRole("dialog")
-    await user.click(
-      within(dialog).getByRole("button", { name: /archive/i }),
-    )
+    await user.click(within(dialog).getByRole("button", { name: /archive/i }))
     await waitFor(() =>
       expect(actions.setProductStatusAction).toHaveBeenCalledWith(
         "p1",
@@ -73,11 +71,12 @@ describe("ProductStatusActions", () => {
     ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: /unpublish/i }))
     const dialog = screen.getByRole("dialog")
-    await user.click(
-      within(dialog).getByRole("button", { name: /unpublish/i }),
-    )
+    await user.click(within(dialog).getByRole("button", { name: /unpublish/i }))
     await waitFor(() =>
-      expect(actions.setProductStatusAction).toHaveBeenCalledWith("p1", "draft"),
+      expect(actions.setProductStatusAction).toHaveBeenCalledWith(
+        "p1",
+        "draft",
+      ),
     )
     expect(toast.error).toHaveBeenCalled()
     expect(refresh).toHaveBeenCalled()
@@ -98,7 +97,10 @@ describe("ProductStatusActions", () => {
     const dialog = screen.getByRole("dialog")
     await user.click(within(dialog).getByRole("button", { name: /restore/i }))
     await waitFor(() =>
-      expect(actions.setProductStatusAction).toHaveBeenCalledWith("p1", "draft"),
+      expect(actions.setProductStatusAction).toHaveBeenCalledWith(
+        "p1",
+        "draft",
+      ),
     )
   })
 })

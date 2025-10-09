@@ -1,5 +1,11 @@
 import prisma from "@/lib/prisma"
-import { accelerateTags, cached, DEFAULT_SWR, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import {
+  accelerateTags,
+  cached,
+  DEFAULT_SWR,
+  DEFAULT_TTL,
+  TAGS,
+} from "@/lib/cache"
 import {
   RewardTransactionType,
   RedemptionStatus,
@@ -144,10 +150,7 @@ export const getRewardsLeaderboardEntries = cached(
         lifetimeEarned: { gt: 0 },
         user: { status: "active" },
       },
-      orderBy: [
-        { lifetimeEarned: "desc" },
-        { updatedAt: "desc" },
-      ],
+      orderBy: [{ lifetimeEarned: "desc" }, { updatedAt: "desc" }],
       cacheStrategy: {
         ttl: DEFAULT_TTL.fast,
         swr: DEFAULT_SWR.fast,
