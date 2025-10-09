@@ -6,7 +6,7 @@ import { Badge } from "@/components/atoms/badge"
 import PublicContainer from "@/components/layout/PublicContainer"
 import { buildPageMetadata } from "@/lib/metadata"
 import {
-  LEADERBOARD_PATH,
+  LEADERBOARD_REWARDS_PATH,
   MEMBER_REWARDS_PATH,
   MEMBER_PRODUCTS_PATH,
 } from "@/lib/routes"
@@ -188,7 +188,7 @@ export default async function RewardsExplainerPage() {
               Join Shipyard
             </Link>
             <Link
-              href={LEADERBOARD_PATH}
+              href={LEADERBOARD_REWARDS_PATH}
               className={gradientTint(
                 "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white/85 transition hover:text-white",
               )}

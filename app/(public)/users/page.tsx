@@ -11,6 +11,7 @@ import { buildPageMetadata } from "@/lib/metadata"
 import {
   BROWSE_PATH,
   LEADERBOARD_PATH,
+  LEADERBOARD_REWARDS_PATH,
   MEMBER_PRODUCTS_PATH,
   USERS_PATH,
   userPath,
@@ -146,7 +147,7 @@ export default async function UsersIndexPage() {
                     description={`Showing ${users.length.toLocaleString()} makers with published launches.`}
                     action={
                       <Link
-                        href={LEADERBOARD_PATH}
+                        href={LEADERBOARD_REWARDS_PATH}
                         className="text-sm font-semibold text-[color:var(--brand-1)] hover:underline"
                       >
                         Watch the leaderboard
@@ -205,7 +206,7 @@ export default async function UsersIndexPage() {
                 }}
                 subtleCta={{
                   label: "Track the leaderboard",
-                  href: LEADERBOARD_PATH,
+                  href: LEADERBOARD_REWARDS_PATH,
                 }}
               />
             </aside>

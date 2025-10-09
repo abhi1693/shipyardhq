@@ -17,6 +17,7 @@ export const TAGS = {
   monthlyLeaderboardMonth: (monthKey: string) =>
     `leaderboard:monthly:${monthKey}`,
   analytics: "analytics",
+  rewardsLeaderboard: "rewards:leaderboard",
   plans: "plans",
   planFeature: (key: string) => `plan-feature:${key}`,
   upvotes: "upvotes",
