@@ -62,7 +62,7 @@ export function CategoryProductsClient({ products, className }: Props) {
   return (
     <section
       className={cn(
-        "rounded-3xl border border-[color:var(--brand-1)/0.18] bg-background/88 px-6 py-6 shadow-[0px_28px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur",
+        "rounded-3xl border border-border/60 bg-card/95 px-6 py-8 shadow-[0_24px_80px_-50px_rgba(7,58,104,0.5)] backdrop-blur",
         className,
       )}
     >
@@ -86,7 +86,7 @@ export function CategoryProductsClient({ products, className }: Props) {
               { value: "clicks", label: "Most Clicked" },
               { value: "name", label: "Name (A–Z)" },
             ]}
-            triggerClassName="h-9 w-[180px]"
+            triggerClassName="h-9 w-[180px] cursor-pointer rounded-full border border-border/60 bg-background/95 text-sm font-medium text-muted-foreground shadow-sm transition hover:border-border hover:bg-muted/60 hover:text-foreground dark:border-border/40 dark:bg-slate-950/60"
           />
         </div>
       </div>

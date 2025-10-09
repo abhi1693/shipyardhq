@@ -7,7 +7,7 @@ import { LatestLaunches } from "@/components/organisms/LatestLaunches"
 import { PricingTable } from "@/components/organisms/PricingTable"
 import CategoryFeatured from "@/components/organisms/CategoryFeatured"
 import { FeaturedHighlights } from "@/components/organisms/FeaturedHighlights"
-import Hero from "@/components/organisms/LandingHero"
+import type { HomepageFeaturePlacement } from "@/actions/public/products/featured"
 
 function featured(id: string, overrides: Partial<any> = {}) {
   const base = {
@@ -23,43 +23,82 @@ function featured(id: string, overrides: Partial<any> = {}) {
       analytics: { upvotes: 3 },
       user: { firstName: "A", lastName: "Z" },
       category: { name: "AI" },
+      plan: { assignments: [] },
+      featureEntitlements: [],
+      placementSchedules: [],
     },
   }
   return { ...base, ...overrides }
 }
 
+function homepagePlacement(
+  id: string,
+  origin: HomepageFeaturePlacement["origin"],
+  overrides: Partial<HomepageFeaturePlacement> = {},
+): HomepageFeaturePlacement {
+  const placement: HomepageFeaturePlacement = {
+    id: `${origin}:${id}`,
+    origin,
+    product: {
+      id: `hp-${id}`,
+      slug: `slug-${id}`,
+      name: `Homepage ${id}`,
+      logo: `/logo-${id}.png`,
+      tagline: `Tagline ${id}`,
+      ProductBadge: [] as any[],
+      analytics: { upvotes: 2 },
+      user: { firstName: "A", lastName: "B" },
+      category: { name: "AI" },
+    } as any,
+  }
+
+  if (origin === "schedule") {
+    placement.schedule = {
+      id: `schedule-${id}`,
+      slotKey: "hero_slot",
+      startsAt: new Date(Date.now() - 60_000),
+      endsAt: new Date(Date.now() + 60_000),
+    }
+  }
+
+  return {
+    ...placement,
+    ...overrides,
+    product: { ...placement.product, ...(overrides.product as any) },
+  }
+}
+
 describe("Organisms", () => {
-  it("HomepageSpotlight returns null when empty, filters expired badges", () => {
-    const { container, rerender } = render(<HomepageSpotlight products={[]} />)
+  it("HomepageSpotlight returns null when empty, groups placements", () => {
+    const { container, rerender } = render(
+      <HomepageSpotlight placements={[]} />,
+    )
     expect(container.firstChild).toBeNull()
+
     const now = new Date()
-    const products = [
-      {
-        id: "1",
-        slug: "one",
-        name: "One",
-        logo: "/l1.png",
-        tagline: "T1",
-        analytics: { upvotes: 1 },
-        user: { firstName: "A", lastName: "B" },
-        category: { name: "AI" },
-        ProductBadge: [
-          {
-            badge: "featured",
-            expiresAt: new Date(now.getTime() + 86400000).toISOString(),
-          },
-          {
-            badge: "trending",
-            expiresAt: new Date(now.getTime() - 86400000).toISOString(),
-          },
-        ],
-      },
+    const placements: HomepageFeaturePlacement[] = [
+      homepagePlacement("1", "schedule", {
+        product: {
+          ProductBadge: [
+            {
+              badge: "featured",
+              expiresAt: new Date(now.getTime() + 3_600_000),
+            },
+            {
+              badge: "expired",
+              expiresAt: new Date(now.getTime() - 3_600_000),
+            },
+          ],
+        } as any,
+      }),
+      homepagePlacement("2", "plan"),
     ]
-    rerender(<HomepageSpotlight products={products as any} />)
-    expect(screen.getByText("Harbor Spotlight")).toBeInTheDocument()
-    expect(screen.getByText("Harbor Picks")).toBeInTheDocument()
-    // Only non-expired badge shown (compact ProductList uses title attr for badge)
-    expect(screen.getByTitle("Featured")).toBeInTheDocument()
+
+    rerender(<HomepageSpotlight placements={placements} />)
+    expect(screen.getByText("Flagship homepage spotlight")).toBeInTheDocument()
+    expect(screen.getByText("Scheduled homepage takeovers")).toBeInTheDocument()
+    expect(screen.getByText("Plan upgrades in queue")).toBeInTheDocument()
+    expect(screen.queryByText("Plan placement")).not.toBeInTheDocument()
   })
 
   it("LatestLaunches returns null when empty, otherwise renders grid", () => {
@@ -69,8 +108,10 @@ describe("Organisms", () => {
     expect(container.firstChild).toBeNull()
     const items = [featured("1")]
     rerender(<LatestLaunches products={items as any} />)
-    expect(screen.getByText("Fresh Off the Dock")).toBeInTheDocument()
-    expect(screen.getByText("Fresh Launches")).toBeInTheDocument()
+    expect(
+      screen.getByText("Fresh launches in the last 24 hours"),
+    ).toBeInTheDocument()
+    expect(screen.getByText("New today")).toBeInTheDocument()
     expect(screen.getByText("Name 1")).toBeInTheDocument()
   })
 
@@ -102,7 +143,6 @@ describe("Organisms", () => {
       },
     ]
     render(<PricingTable plans={plans as any} />)
-    // Popular appears at least for one of the max-count paid plans
     expect(screen.getAllByText("Most popular").length).toBeGreaterThan(0)
   })
 
@@ -126,28 +166,33 @@ describe("Organisms", () => {
     ]
     rerender(<CategoryFeatured products={products as any} categoryName="AI" />)
     expect(screen.getByText("Featured in AI")).toBeInTheDocument()
-    // Banner shows product name when no bannerImage (twice: overlay and fallback)
     expect(screen.getAllByText("Banner").length).toBeGreaterThan(1)
-    // Grid has the other product too
     expect(screen.getByText("Name 2")).toBeInTheDocument()
   })
 
-  it("FeaturedHighlights renders CTA extra and grid", () => {
-    const items = [featured("1")]
-    render(<FeaturedHighlights products={items as any} />)
-    expect(screen.getByText("Highlights From the Helm")).toBeInTheDocument()
-    expect(screen.getByText("Featured Fleet")).toBeInTheDocument()
-    // CTA card text
+  it("FeaturedHighlights returns null when empty and groups sponsored items", () => {
+    const { container, rerender } = render(
+      (<FeaturedHighlights products={[]} />) as any,
+    )
+    expect(container.firstChild).toBeNull()
+    const items = [
+      featured("1", {
+        product: {
+          ...featured("1").product,
+          plan: {
+            assignments: [{ enabled: true, feature: { key: "featured" } }],
+          },
+        },
+      }),
+      featured("2"),
+    ]
+    rerender(<FeaturedHighlights products={items as any} />)
     expect(
-      screen.getByText("Want to see your product featured here?"),
+      screen.getByText("Marquee placements that keep your launch in view"),
     ).toBeInTheDocument()
-  })
-
-  it("LandingHero renders hero content and CTA", () => {
-    render(<Hero />)
-    expect(screen.getByText(/Set sail/i)).toBeInTheDocument()
     expect(
-      screen.getByRole("button", { name: /submit your product/i }),
+      screen.getByText("Sponsored featured spotlights"),
     ).toBeInTheDocument()
+    expect(screen.getByText("Featured on merit")).toBeInTheDocument()
   })
 })

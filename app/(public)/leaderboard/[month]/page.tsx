@@ -21,7 +21,7 @@ export async function generateMetadata({
     return buildPageMetadata({
       title: "Monthly Product Winners",
       description:
-        "Browse the top-ranked products for each month and celebrate the makers leading the fleet.",
+        "Browse the top-ranked products for each month and celebrate the makers topping the leaderboard.",
     })
   }
 

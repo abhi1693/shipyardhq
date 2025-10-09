@@ -5,6 +5,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import InlineSelect from "@/components/molecules/InlineSelect"
 import { buildQuery } from "@/lib/urlParams"
 
+export const leaderboardSelectTriggerClasses =
+  "h-10 w-full sm:w-[220px] rounded-lg border border-border bg-white px-3 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[--ring]"
+
 export function LeaderboardMonthSelect({
   months,
   current,
@@ -46,7 +49,7 @@ export function LeaderboardMonthSelect({
       onValueChange={handleChange}
       options={options}
       placeholder="Select month"
-      triggerClassName="h-9 w-[220px] rounded-lg border border-[color:var(--brand-1)/0.3] bg-background/85 px-3 text-sm font-medium text-foreground shadow-[0px_18px_46px_-36px_rgba(7,78,134,0.42)]"
+      triggerClassName={leaderboardSelectTriggerClasses}
     />
   )
 }

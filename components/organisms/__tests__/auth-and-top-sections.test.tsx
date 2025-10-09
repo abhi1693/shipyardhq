@@ -57,15 +57,17 @@ describe("AuthFormPanel", () => {
 describe("AuthMarketingPanel", () => {
   it("shows brand, hero copy, features and testimonial", () => {
     render(<AuthMarketingPanel />)
-    expect(screen.getByText("Chart Your Course")).toBeInTheDocument()
+    expect(screen.getByText("Build Momentum")).toBeInTheDocument()
     expect(screen.getByText("ShipYardHQ")).toBeInTheDocument()
-    expect(screen.getByText("A harbor for indie SaaS")).toBeInTheDocument()
-    expect(screen.getByText("Set sail. Build boldly.")).toBeInTheDocument()
+    expect(screen.getByText("A launchpad for indie SaaS")).toBeInTheDocument()
+    expect(
+      screen.getByText("Launch smarter. Build boldly."),
+    ).toBeInTheDocument()
     expect(
       screen.getByText("Built for indie makers, by indie makers"),
     ).toBeInTheDocument()
     expect(
-      screen.getByText("Friendly waters, honest feedback, real momentum"),
+      screen.getByText("Supportive community, honest feedback, real momentum"),
     ).toBeInTheDocument()
   })
 })
@@ -139,10 +141,12 @@ describe("Top sections", () => {
         }
       />,
     )
-    expect(screen.getByText("Trending Fleet")).toBeInTheDocument()
-    expect(screen.getByText("Fleet Standings")).toBeInTheDocument()
     expect(
-      screen.getByRole("link", { name: "See leaderboard" }),
+      screen.getByText("The community leaderboard with momentum to prove it"),
+    ).toBeInTheDocument()
+    expect(screen.getByText("Trending now")).toBeInTheDocument()
+    expect(
+      screen.getByRole("link", { name: "Open full leaderboard" }),
     ).toHaveAttribute("href", LEADERBOARD_PATH)
   })
 })

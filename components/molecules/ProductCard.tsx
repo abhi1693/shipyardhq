@@ -40,7 +40,7 @@ export function ProductCard(props: ProductCardProps) {
       product={product}
       upvotes={upvotes}
       badges={badges}
-      category={showCategory ? category ?? null : null}
+      category={showCategory ? (category ?? null) : null}
       imagePriority={imagePriority}
       meta={topRight}
       showCategory={showCategory}

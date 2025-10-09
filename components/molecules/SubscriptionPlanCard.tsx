@@ -117,7 +117,7 @@ export function SubscriptionPlanCard({ plan }: { plan: PublicPlan }) {
           </ul>
         ) : (
           <p className="rounded-xl border border-dashed border-[color:var(--brand-1)/0.16] bg-background/60 px-3 py-3 text-sm text-muted-foreground">
-            Reach out to our crew for the full subscription lineup.
+            Reach out to our team for the full subscription lineup.
           </p>
         )}
       </div>

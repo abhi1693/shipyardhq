@@ -1,4 +1,4 @@
-import PublicContainer from "@/components/layout/PublicContainer"
+import StickyBannerSuppressor from "@/components/layout/StickyBannerSuppressor"
 import { PageHeader } from "@/components/molecules/PageHeader"
 import { buildPageMetadata } from "@/lib/metadata"
 
@@ -10,94 +10,291 @@ export const metadata = buildPageMetadata({
 
 export default function PrivacyPolicyPage() {
   return (
-    <PublicContainer max="3xl" paddingY="py-16">
-      <PageHeader
-        title="Privacy Policy"
-        subtitle="Learn how ShipYardHQ collects, uses, and protects your personal information."
-      />
-      <div className="space-y-6 mt-6">
-        <p className="text-muted-foreground">Last updated: Aug 1, 2025</p>
+    <div className="min-h-screen py-16">
+      <StickyBannerSuppressor />
+      <div className="mx-auto max-w-3xl px-4 md:px-8">
+        <PageHeader
+          title="Privacy Policy"
+          subtitle="Learn how ShipYardHQ collects, uses, and protects your personal information."
+        />
+        <div className="mt-6 space-y-6">
+          <p className="text-muted-foreground">Last updated: Oct 9, 2025</p>
 
-        <p>
-          Welcome to ShipYardHQ! This Privacy Policy explains how we collect,
-          use, and protect your personal information when you use our website
-          and services. By using our website, you agree to the collection and
-          use of information in accordance with this policy.
-        </p>
+          <p>
+            ShipYardHQ builds tools that help independent founders and product
+            teams launch, promote, and measure their products. This Privacy
+            Policy explains what information we collect, how we use and share
+            it, and the choices you have. By using ShipYardHQ, you agree to this
+            policy. If you do not agree, please do not access the service.
+          </p>
 
-        <h2 className="text-2xl font-semibold mt-6">
-          What Information We Collect
-        </h2>
-        <p>We collect information you provide directly to us, such as:</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>Name and email address when you create an account</li>
-          <li>Company information for product listings</li>
-          <li>Communications you send to us</li>
-        </ul>
-        <p className="mt-4">We also automatically collect:</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>Browser and device information</li>
-          <li>Usage data and website interactions</li>
-          <li>Cookies for website functionality</li>
-        </ul>
+          <h2 className="text-2xl font-semibold mt-6">
+            Information We Collect
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Information you provide</h3>
+              <ul className="list-disc list-inside space-y-2">
+                <li>
+                  <strong>Account and profile data:</strong> Name, email, photo,
+                  and authentication details supplied through Clerk, plus
+                  optional information such as job title, role preferences,
+                  organization membership, and onboarding responses.
+                </li>
+                <li>
+                  <strong>Product and workspace content:</strong> Product names,
+                  descriptions, categories, pricing details, media assets,
+                  metadata links, organization details, campaign notes, and
+                  other material you or your teammates submit to ShipYardHQ.
+                </li>
+                <li>
+                  <strong>Transactions and rewards:</strong> Plan selections,
+                  redemption activity, reward balances, feature entitlements,
+                  and limited billing metadata associated with purchases
+                  initiated through Dodo Payments. Card details are handled
+                  directly by Dodo—we do not store full payment instrument
+                  numbers.
+                </li>
+                <li>
+                  <strong>Community interactions:</strong> Reviews, upvotes,
+                  feedback messages, support requests, surveys, and newsletter
+                  subscriptions routed through Resend.
+                </li>
+              </ul>
+            </div>
 
-        <h2 className="text-2xl font-semibold mt-6">
-          How We Use Your Information
-        </h2>
-        <ul className="list-disc list-inside space-y-1">
-          <li>Provide and improve our services</li>
-          <li>Communicate with you about your account</li>
-          <li>Send you updates and marketing (with your consent)</li>
-          <li>Ensure platform security and prevent fraud</li>
-        </ul>
+            <div>
+              <h3 className="text-lg font-semibold">
+                Information collected automatically
+              </h3>
+              <ul className="list-disc list-inside space-y-2">
+                <li>
+                  <strong>Analytics signals:</strong> Page views, links you
+                  click, engagement with rewards and placements, and other
+                  in-product actions. Traffic events record device type,
+                  browser, operating system, referrer, and coarse geolocation
+                  (country, region, and city) derived from request headers.
+                </li>
+                <li>
+                  <strong>Network data:</strong> We hash IP addresses using a
+                  salted HMAC before storing them so we can detect abuse and
+                  build aggregate analytics without keeping plain IPs.
+                </li>
+                <li>
+                  <strong>Technical logs:</strong> Diagnostic log entries, error
+                  traces, and performance metrics generated by the hosted
+                  infrastructure we run on Vercel.
+                </li>
+              </ul>
+            </div>
 
-        <h2 className="text-2xl font-semibold mt-6">Information Sharing</h2>
-        <p>
-          We do not sell your personal information. We may share your
-          information only:
-        </p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>With service providers who help us operate our platform</li>
-          <li>When required by law or to protect our rights</li>
-          <li>With your consent for specific purposes</li>
-        </ul>
+            <div>
+              <h3 className="text-lg font-semibold">
+                Information from other sources
+              </h3>
+              <ul className="list-disc list-inside space-y-2">
+                <li>
+                  Authentication, profile, and security signals received from
+                  Clerk so we can verify your account.
+                </li>
+                <li>
+                  Billing status, checkout events, and payment confirmations
+                  provided by Dodo Payments when you purchase a plan or redeem a
+                  perk.
+                </li>
+                <li>
+                  AI service outputs from OpenAI when you opt into features such
+                  as product autofill, analytics narratives, or social copy
+                  generation. We send only the data required to fulfil the
+                  request.
+                </li>
+                <li>
+                  Publicly available information about your product gathered by
+                  ShipYardHQ for onboarding (for example, parsing a public
+                  marketing site you ask us to analyze).
+                </li>
+              </ul>
+            </div>
+          </div>
 
-        <h2 className="text-2xl font-semibold mt-6">Your Rights</h2>
-        <ul className="list-disc list-inside space-y-1">
-          <li>Access and update your personal information</li>
-          <li>Delete your account and personal data</li>
-          <li>Opt out of marketing communications</li>
-          <li>Control cookie preferences in your browser</li>
-        </ul>
+          <h2 className="text-2xl font-semibold mt-6">
+            How We Use Information
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>Operate, maintain, and secure the ShipYardHQ platform.</li>
+            <li>
+              Publish product listings, organization workspaces, and reward
+              dashboards you create.
+            </li>
+            <li>
+              Process transactions, deliver perks, and provide billing support.
+            </li>
+            <li>
+              Generate analytics, insights, and automated suggestions to help
+              you understand performance.
+            </li>
+            <li>
+              Communicate with you about your account, respond to requests, and
+              send optional marketing updates (you can opt out at any time).
+            </li>
+            <li>
+              Monitor usage, prevent fraud or abuse, and enforce our Terms of
+              Service.
+            </li>
+            <li>
+              Research, develop, and improve new products, features, and
+              automation tools.
+            </li>
+            <li>
+              Comply with applicable law, legal requests, and regulatory
+              obligations.
+            </li>
+          </ul>
 
-        <h2 className="text-2xl font-semibold mt-6">Data Security</h2>
-        <p>
-          We implement security measures to protect your information, but no
-          method of transmission over the internet is 100% secure.
-        </p>
+          <h2 className="text-2xl font-semibold mt-6">
+            Legal Bases (EEA &amp; UK Users)
+          </h2>
+          <p>
+            Where required, we rely on one or more of the following legal bases
+            to process personal data: (i) performance of a contract (providing
+            the service you signed up for); (ii) our legitimate interests (for
+            example, securing the platform, understanding product usage, and
+            improving features); (iii) your consent (for marketing messages or
+            optional AI features); and (iv) compliance with legal obligations.
+          </p>
 
-        <h2 className="text-2xl font-semibold mt-6">Changes</h2>
-        <p>
-          We may update this policy from time to time. We&#39;ll notify you of
-          any material changes by posting the updated policy here. Major changes
-          will also be announced by email.
-        </p>
+          <h2 className="text-2xl font-semibold mt-6">
+            How We Share Information
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              <strong>Service providers:</strong> We partner with vendors who
+              support hosting, authentication, email delivery, analytics, AI
+              processing, file storage, and payments. Key providers include
+              Vercel (infrastructure and storage), Clerk (identity management),
+              Resend (email), OpenAI (AI features), and Dodo Payments (billing).
+            </li>
+            <li>
+              <strong>Teams and community:</strong> Content you publish—such as
+              product listings, reviews, and leaderboard standings—is visible to
+              other users by design. Organization members may see shared
+              workspace data.
+            </li>
+            <li>
+              <strong>Business transfers:</strong> In connection with a merger,
+              acquisition, financing, or sale of assets, your information may be
+              disclosed as part of the transaction.
+            </li>
+            <li>
+              <strong>Legal obligations:</strong> We may disclose information if
+              we believe it is reasonably necessary to comply with law, protect
+              our rights, investigate fraud, or respond to lawful requests from
+              public authorities.
+            </li>
+          </ul>
+          <p>We never sell your personal information.</p>
 
-        <h2 className="text-2xl font-semibold mt-6">Contact Us</h2>
-        <p>
-          If you have questions about this privacy policy, contact us at{" "}
-          <a
-            href="mailto:support@shipyardhq.dev"
-            className="text-primary underline"
-          >
-            support@shipyardhq.dev
-          </a>
-        </p>
+          <h2 className="text-2xl font-semibold mt-6">
+            AI-Facilitated Features
+          </h2>
+          <p>
+            ShipYardHQ offers optional AI tooling (such as product autofill,
+            analytics narratives, and launch copy suggestions). When you use
+            these features we send the minimum viable prompt data—often product
+            metadata or aggregated analytics—to OpenAI. Outputs may contain
+            inaccuracies, so you should review them before publishing. We do not
+            permit OpenAI to train on your prompts or outputs.
+          </p>
 
-        <p className="mt-6">
-          Thank you for reading our privacy policy and using ShipYardHQ!
-        </p>
+          <h2 className="text-2xl font-semibold mt-6">
+            Your Rights and Choices
+          </h2>
+          <ul className="list-disc list-inside space-y-2">
+            <li>
+              Access, update, or delete profile information from your account
+              settings or by emailing{" "}
+              <a
+                href="mailto:support@shipyardhq.dev"
+                className="text-primary underline"
+              >
+                support@shipyardhq.dev
+              </a>
+              .
+            </li>
+            <li>
+              Export or delete your data by submitting a support request. We may
+              retain certain records where required by law or for legitimate
+              business purposes.
+            </li>
+            <li>
+              Manage marketing preferences using the unsubscribe link in any
+              email or by contacting us.
+            </li>
+            <li>
+              Adjust browser or device settings to control cookies and other
+              tracking technologies. Core functionality may require essential
+              cookies.
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mt-6">Data Retention</h2>
+          <p>
+            We keep personal information for as long as it is needed to deliver
+            the service, fulfill the purposes outlined above, or comply with
+            legal obligations. When data is no longer required, we delete or
+            de-identify it according to our retention schedules.
+          </p>
+
+          <h2 className="text-2xl font-semibold mt-6">Security</h2>
+          <p>
+            We use administrative, technical, and organizational measures to
+            protect your information, including account access controls,
+            encrypted transport (HTTPS), salted IP hashing, and restricted data
+            access for employees and contractors. No system is perfectly secure,
+            so please report suspected incidents to us immediately.
+          </p>
+
+          <h2 className="text-2xl font-semibold mt-6">
+            International Data Transfers
+          </h2>
+          <p>
+            ShipYardHQ operates from the United States. If you access the
+            service from another region, your information may be transferred to,
+            stored, and processed in the U.S. or other countries where our
+            vendors operate. We implement appropriate safeguards, such as
+            contractual data protection terms, for cross-border transfers.
+          </p>
+
+          <h2 className="text-2xl font-semibold mt-6">
+            Children&apos;s Privacy
+          </h2>
+          <p>
+            ShipYardHQ is not directed to children under 18, and we do not
+            knowingly collect personal information from them. If we learn that a
+            minor under 18 has provided personal data, we will delete it.
+          </p>
+
+          <h2 className="text-2xl font-semibold mt-6">Changes</h2>
+          <p>
+            We may update this Privacy Policy to reflect operational, legal, or
+            regulatory developments. When we make material changes we will
+            update the date at the top of this page and, where appropriate,
+            provide additional notice.
+          </p>
+
+          <h2 className="text-2xl font-semibold mt-6">Contact Us</h2>
+          <p>
+            Questions or requests? Email{" "}
+            <a
+              href="mailto:support@shipyardhq.dev"
+              className="text-primary underline"
+            >
+              support@shipyardhq.dev
+            </a>
+            .
+          </p>
+        </div>
       </div>
-    </PublicContainer>
+    </div>
   )
 }

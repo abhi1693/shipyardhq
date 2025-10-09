@@ -23,6 +23,7 @@ vi.mock("next/link", () => ({
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
   useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn() }),
 }))
 
 // Simplified Sheet mock with context to control open state
@@ -55,6 +56,13 @@ vi.mock("@clerk/nextjs", () => ({
   SignedOut: ({ children }: any) => <>{children}</>,
   SignOutButton: ({ children }: any) => <>{children}</>,
   SignInButton: ({ children }: any) => <>{children}</>,
+  useUser: () => ({
+    user: {
+      fullName: "Mobile Tester",
+      emailAddresses: [{ emailAddress: "tester@example.com" }],
+      imageUrl: "",
+    },
+  }),
 }))
 
 describe("PublicHeader mobile menu", () => {

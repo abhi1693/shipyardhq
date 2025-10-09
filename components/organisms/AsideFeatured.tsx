@@ -16,7 +16,7 @@ export default function AsideFeatured({
         title={title}
         subtitle={
           <>
-            <span>Curated picks</span> from the harbor
+            <span>Curated picks</span> from the Shipyard team
           </>
         }
       />

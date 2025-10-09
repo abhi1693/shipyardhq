@@ -10,6 +10,27 @@ import {
 import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
 
+type HomepageProduct = Prisma.ProductGetPayload<{
+  include: {
+    category: true
+    user: true
+    analytics: true
+    ProductBadge: true
+  }
+}>
+
+export type HomepageFeaturePlacement = {
+  id: string
+  product: HomepageProduct
+  origin: "schedule" | "plan"
+  schedule?: {
+    id: string
+    slotKey: string
+    startsAt: Date
+    endsAt: Date
+  }
+}
+
 export const getProducts = cached(
   async (badge: string): Promise<FeaturedProduct[]> => {
     const now = new Date()
@@ -186,6 +207,28 @@ export const getStickyBannerProducts = cached(
               slug: true,
               name: true,
               logo: true,
+              tagline: true,
+              category: {
+                select: {
+                  name: true,
+                },
+              },
+              organization: {
+                select: {
+                  name: true,
+                },
+              },
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+              analytics: {
+                select: {
+                  upvotes: true,
+                },
+              },
             },
           },
         },
@@ -220,6 +263,28 @@ export const getStickyBannerProducts = cached(
           slug: true,
           name: true,
           logo: true,
+          tagline: true,
+          category: {
+            select: {
+              name: true,
+            },
+          },
+          organization: {
+            select: {
+              name: true,
+            },
+          },
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
+          analytics: {
+            select: {
+              upvotes: true,
+            },
+          },
         },
         orderBy: { updatedAt: "desc" },
         take: limit,
@@ -250,7 +315,30 @@ export const getStickyBannerProducts = cached(
 
     const limitedPlan = uniquePlan.slice(0, Math.max(0, limit))
 
-    return [...limitedScheduled, ...limitedPlan]
+    const combined = [...limitedScheduled, ...limitedPlan]
+
+    return combined.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      logo: product.logo,
+      tagline: product.tagline ?? null,
+      category: product.category
+        ? { name: product.category.name ?? null }
+        : null,
+      organization: product.organization
+        ? { name: product.organization.name ?? null }
+        : null,
+      user: product.user
+        ? {
+            firstName: product.user.firstName ?? null,
+            lastName: product.user.lastName ?? null,
+          }
+        : null,
+      analytics: product.analytics
+        ? { upvotes: product.analytics.upvotes ?? null }
+        : null,
+    }))
   },
   "products:sticky-banner",
   {
@@ -329,24 +417,38 @@ export const getHomepageFeatureProducts = cached(
     ])
 
     const seen = new Set<string>()
-    const results: typeof planProducts = []
+    const placements: HomepageFeaturePlacement[] = []
 
     for (const entry of schedules) {
       const product = entry.product
       if (!product || seen.has(product.id)) continue
       seen.add(product.id)
-      results.push(product)
-      if (results.length >= limit) return results
+      placements.push({
+        id: `schedule:${entry.id}`,
+        product,
+        origin: "schedule",
+        schedule: {
+          id: entry.id,
+          slotKey: entry.slotKey,
+          startsAt: entry.startsAt,
+          endsAt: entry.endsAt,
+        },
+      })
+      if (placements.length >= limit) return placements
     }
 
     for (const product of planProducts) {
       if (seen.has(product.id)) continue
       seen.add(product.id)
-      results.push(product)
-      if (results.length >= limit) break
+      placements.push({
+        id: `plan:${product.id}`,
+        product,
+        origin: "plan",
+      })
+      if (placements.length >= limit) break
     }
 
-    return results
+    return placements
   },
   "products:homepage-feature",
   {

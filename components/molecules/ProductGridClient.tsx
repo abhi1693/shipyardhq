@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useState, useTransition, useRef } from "react"
-import { Button } from "@/components/atoms/button"
+import { useCallback, useEffect, useRef, useState, useTransition } from "react"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 
@@ -37,6 +36,7 @@ export default function ProductGridClient({
     products: ProductGridItem[]
     hasMore: boolean
   }>(null)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   // Reset state when server-provided props change (filters/sort updated)
   useEffect(() => {
@@ -45,12 +45,16 @@ export default function ProductGridClient({
     setPage(initialPage)
   }, [initialProducts, initialHasMore, initialPage])
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
+    if (isPending || !hasMore) return
+
     startTransition(async () => {
       if (prefetchedRef.current) {
         const result = prefetchedRef.current
         prefetchedRef.current = null
-        setProducts((prev) => [...prev, ...result.products])
+        if (result.products.length) {
+          setProducts((prev) => [...prev, ...result.products])
+        }
         setHasMore(result.hasMore)
         setPage((prev) => prev + 1)
       } else {
@@ -58,23 +62,66 @@ export default function ProductGridClient({
           ...searchParams,
           page,
         })
-        setProducts((prev) => [...prev, ...result.products])
+        if (result.products.length) {
+          setProducts((prev) => [...prev, ...result.products])
+        }
         setHasMore(result.hasMore)
         setPage((prev) => prev + 1)
       }
     })
-  }
+  }, [hasMore, isPending, page, searchParams, startTransition])
 
   // Prefetch next page on mount and when search params change
   useEffect(() => {
+    if (!hasMore) {
+      prefetchedRef.current = null
+      return
+    }
+
     prefetchedRef.current = null
+    let cancelled = false
+
     ;(async () => {
       try {
         const result = await loadMoreProducts({ ...searchParams, page })
-        prefetchedRef.current = result
-      } catch {}
+        if (!cancelled) {
+          prefetchedRef.current = result
+        }
+      } catch {
+        if (!cancelled) {
+          prefetchedRef.current = null
+        }
+      }
     })()
-  }, [page, searchParams])
+
+    return () => {
+      cancelled = true
+    }
+  }, [page, searchParams, hasMore])
+
+  useEffect(() => {
+    if (!hasMore) return
+    const node = sentinelRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const isIntersecting = entries.some((entry) => entry.isIntersecting)
+        if (isIntersecting) {
+          loadMore()
+        }
+      },
+      {
+        rootMargin: "400px 0px 200px 0px",
+      },
+    )
+
+    observer.observe(node)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [hasMore, loadMore])
 
   return (
     <section className="space-y-6">
@@ -101,12 +148,17 @@ export default function ProductGridClient({
         </div>
       )}
 
-      {hasMore && (
-        <div className="text-center pt-6">
-          <Button onClick={loadMore} disabled={isPending}>
-            {isPending ? "Loading..." : "Load More"}
-          </Button>
-        </div>
+      {hasMore ? (
+        <div
+          ref={sentinelRef}
+          aria-hidden="true"
+          className="h-1 w-full"
+          data-testid="browse-infinite-scroll-trigger"
+        />
+      ) : (
+        <p className="py-4 text-center text-sm text-muted-foreground">
+          You&apos;ve reached the end of the directory.
+        </p>
       )}
     </section>
   )

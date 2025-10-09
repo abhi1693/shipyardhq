@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import { JSX } from "react"
@@ -10,8 +11,8 @@ import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import {
   getPublicProductBySlug,
   getPublicProductsByUseCase,
+  getPublicProductMetaBySlug,
 } from "@/actions/public/products/actions"
-import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
 import {
   ExternalLink,
   Github,
@@ -26,7 +27,7 @@ import {
   Chrome,
 } from "lucide-react"
 import { IconBrandFirefox } from "@tabler/icons-react"
-import PublicContainer from "@/components/layout/PublicContainer"
+import { productPageCopy } from "@/lib/copy/productPage"
 import ExternalBadgeLink from "@/components/molecules/ExternalBadgeLink"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
@@ -35,13 +36,14 @@ import { buildPageMetadata } from "@/lib/metadata"
 import { ScrollReset } from "@/components/atoms/scroll-reset"
 import { BROWSE_PATH, categoryPath, productPath, userPath } from "@/lib/routes"
 import { SupportHeroCard } from "@/components/molecules/SupportHeroCard"
+import { NewsletterSignupSidebarCard } from "@/components/molecules/NewsletterSignupSidebarCard"
 import ProductReviewsSection from "@/components/organisms/ProductReviewsSection"
 import { ProductDetailHero } from "@/components/organisms/ProductDetailHero"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import { ProductNarrative } from "@/components/organisms/ProductNarrative"
 import { ProductCrewRoster } from "@/components/organisms/ProductCrewRoster"
 import { ProductSimilarVoyages } from "@/components/organisms/ProductSimilarVoyages"
-import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
+import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -50,6 +52,34 @@ interface ProductPageProps {
 type UseCaseProduct = Awaited<
   ReturnType<typeof getPublicProductsByUseCase>
 >[number]
+
+const PRODUCT_TYPE_LABELS: Record<string, string> = {
+  saas: "SaaS",
+  browser_extension: "Browser extension",
+  mobile_app: "Mobile app",
+  desktop_app: "Desktop app",
+  api: "API",
+  open_source: "Open source",
+  other: "Other",
+}
+
+const PRICING_MODEL_LABELS: Record<string, string> = {
+  free: "Free",
+  freemium: "Freemium",
+  subscription: "Subscription",
+  one_time: "One-time",
+  custom: "Custom",
+}
+
+const APPLICATION_CATEGORY_MAP: Record<string, string> = {
+  saas: "BusinessApplication",
+  browser_extension: "BrowserApplication",
+  mobile_app: "LifestyleApplication",
+  desktop_app: "DesktopEnhancementApplication",
+  api: "DeveloperApplication",
+  open_source: "DeveloperApplication",
+  other: "UtilitiesApplication",
+}
 
 export async function generateMetadata({
   params,
@@ -155,10 +185,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       : null
 
   const heroStats: { label: string; value: string }[] = [
-    { label: "Product type", value: product.type.replaceAll("_", " ") },
+    {
+      label: "Product type",
+      value: PRODUCT_TYPE_LABELS[product.type] || formatStatValue(product.type),
+    },
   ]
   if (product.pricingModel) {
-    heroStats.push({ label: "Pricing model", value: product.pricingModel })
+    heroStats.push({
+      label: "Pricing model",
+      value:
+        PRICING_MODEL_LABELS[product.pricingModel] ||
+        formatStatValue(product.pricingModel),
+    })
   }
   if (pricingDisplay) {
     heroStats.push({ label: "Starting at", value: pricingDisplay })
@@ -210,7 +248,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         follow={hasBacklinkFeature}
         target={hasBacklinkFeature ? "_blank" : undefined}
         rel={hasBacklinkFeature ? "noopener" : undefined}
-        className="inline-flex h-11 items-center gap-2 rounded-full bg-[color:var(--brand-2)] px-5 text-sm font-semibold text-white shadow-[0px_25px_70px_-40px_rgba(7,78,134,0.5)] transition hover:bg-[color:var(--brand-2)/0.9]"
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted"
       >
         {ctaLabel || `Get started with ${product.name}`}
       </ExternalBadgeLink>,
@@ -229,7 +267,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         follow={hasBacklinkFeature}
         target={hasBacklinkFeature ? "_blank" : undefined}
         rel={hasBacklinkFeature ? "noopener" : undefined}
-        className="inline-flex h-11 items-center gap-2 rounded-full bg-[color:var(--brand-1)]/90 px-5 text-sm font-semibold text-white shadow-[0px_22px_60px_-40px_rgba(7,58,104,0.55)] transition hover:bg-[color:var(--brand-1)]"
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted"
       >
         <span className="flex items-center gap-1">
           <ExternalLink size={14} /> Visit website
@@ -251,7 +289,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         target={hasBacklinkFeature ? "_blank" : undefined}
         rel={hasBacklinkFeature ? "noopener" : undefined}
         variant="outline"
-        className="inline-flex h-11 items-center gap-2 rounded-full border border-[color:var(--brand-1)/0.25] bg-white/40 px-5 text-sm font-semibold text-[color:var(--brand-1)] transition hover:border-[color:var(--brand-1)/0.4] hover:bg-white/70"
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-muted-foreground shadow-sm transition hover:text-foreground"
       >
         Live demo
       </ExternalBadgeLink>,
@@ -277,11 +315,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   ].filter(Boolean) as { href: string; label: string; icon: JSX.Element }[]
 
   const crewMembers = product.organization?.memberships || []
-
-  const hasBanner = Boolean(product.bannerImage)
-  const hasGallery = product.ProductMedia.length > 0
-  const hasMedia = hasBanner || hasGallery
-  const hasDescription = Boolean(product.description)
   const platforms = product.platforms || []
 
   const reviewSummaryPromise = getProductReviewSummary(product.id, 12)
@@ -298,49 +331,76 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
   ).replace(/\/$/, "")
   const canonicalUrl = `${baseUrl}${productPath(product.slug)}`
-  const structuredData =
+  const schemaOperatingSystems = Array.from(
+    new Set(
+      platforms
+        .map((platform) => platformSchemaLabel(platform))
+        .filter((label): label is string => Boolean(label)),
+    ),
+  )
+
+  const aggregateRating =
     reviewSummary.totalReviews > 0
       ? {
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: product.name,
-          description: product.tagline || undefined,
-          image: [product.bannerImage, product.logo].filter(Boolean),
-          url: canonicalUrl,
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: reviewSummary.averageRating.toFixed(1),
-            reviewCount: reviewSummary.totalReviews,
+          "@type": "AggregateRating",
+          ratingValue: reviewSummary.averageRating.toFixed(1),
+          ratingCount: reviewSummary.totalReviews,
+          reviewCount: reviewSummary.totalReviews,
+          bestRating: 5,
+          worstRating: 0,
+        }
+      : null
+
+  const structuredData = aggregateRating
+    ? {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: product.name,
+        description: product.tagline || product.description || undefined,
+        image: [product.bannerImage, product.logo].filter(Boolean),
+        url: canonicalUrl,
+        applicationCategory:
+          APPLICATION_CATEGORY_MAP[product.type] || undefined,
+        operatingSystem: schemaOperatingSystems.length
+          ? schemaOperatingSystems
+          : undefined,
+        offers:
+          product.startingPriceCents !== null &&
+          product.startingPriceCents !== undefined
+            ? {
+                "@type": "Offer",
+                price: (product.startingPriceCents / 100).toFixed(2),
+                priceCurrency: product.currencyCode || "USD",
+              }
+            : undefined,
+        aggregateRating,
+        review: reviewSummary.reviews.map((review) => ({
+          "@type": "Review",
+          author: {
+            "@type": "Person",
+            name: reviewerDisplayName(
+              review.user.firstName,
+              review.user.lastName,
+            ),
+          },
+          datePublished: (() => {
+            try {
+              return new Date(review.createdAt).toISOString()
+            } catch {
+              return undefined
+            }
+          })(),
+          reviewBody: review.message,
+          name: `Feedback for ${product.name}`,
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: review.rating,
             bestRating: 5,
             worstRating: 0,
           },
-          review: reviewSummary.reviews.map((review) => ({
-            "@type": "Review",
-            author: {
-              "@type": "Person",
-              name: reviewerDisplayName(
-                review.user.firstName,
-                review.user.lastName,
-              ),
-            },
-            datePublished: (() => {
-              try {
-                return new Date(review.createdAt).toISOString()
-              } catch {
-                return undefined
-              }
-            })(),
-            reviewBody: review.message,
-            name: `Feedback for ${product.name}`,
-            reviewRating: {
-              "@type": "Rating",
-              ratingValue: review.rating,
-              bestRating: 5,
-              worstRating: 0,
-            },
-          })),
-        }
-      : null
+        })),
+      }
+    : null
 
   const useCaseProducts = product.category.useCases?.length
     ? await getPublicProductsByUseCase(
@@ -398,8 +458,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     jobTitle: member.jobTitle,
   }))
 
+  const hasCrewDetails =
+    crewRoster.length > 0 || Boolean(product.organization?.name)
+
   return (
-    <main className="relative isolate overflow-hidden">
+    <main className="relative isolate bg-white">
       {structuredData ? (
         <script
           type="application/ld+json"
@@ -410,115 +473,184 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         />
       ) : null}
       <ScrollReset triggerKey={product.slug} />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(180deg,#f6f9ff_0%,#e7f1fc_45%,#ffffff_100%)] dark:bg-[linear-gradient(180deg,#050c18_0%,#041226_45%,#081c34_100%)]"
-      />
-
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-        innerClassName="space-y-12"
-      >
+      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <ProductMetricsTracker productId={product.id} />
-        <ProductDetailHero
-          name={product.name}
-          tagline={product.tagline}
-          logo={product.logo}
-          category={{
-            label: product.category.name,
-            href: categoryPath(product.category.slug),
-          }}
-          owner={{
-            name: ownerName,
-            href: userPath(product.user.id),
-          }}
-          badges={heroBadges}
-          isVerified={Boolean(isVerified)}
-          primaryLinks={primaryLinks}
-          secondaryLinks={secondaryLinks}
-          platforms={heroPlatforms}
-          tags={signalTags}
-          stats={heroStats}
-          supportCard={supportCard}
-          reviewPrompt={{
-            isSignedIn: Boolean(userId),
-            redirectUrl: productPath(product.slug),
-            hasReviews: reviewSummary.totalReviews > 0,
-          }}
-        />
-      </PublicContainer>
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-10"
-        fillScreen={false}
-        className="relative"
-        innerClassName="space-y-10"
-      >
-        {hasMedia ? (
-          <ProductMediaGallery
-            bannerImage={product.bannerImage}
-            media={product.ProductMedia.map((m) => ({
-              id: m.id,
-              imageUrl: m.imageUrl,
-              altText: m.altText,
-            }))}
-            productName={product.name}
-          />
-        ) : null}
-        <ProductNarrative
-          description={hasDescription ? product.description : null}
-        />
-        <ProductReviewsSection
-          productId={product.id}
-          productName={product.name}
-          reviewSummary={reviewSummary}
-          viewerReview={
-            viewerReview
-              ? { rating: viewerReview.rating, message: viewerReview.message }
-              : null
-          }
-          isSignedIn={Boolean(userId)}
-          redirectUrl={productPath(product.slug)}
-        />
-        <ProductCrewRoster
-          members={crewRoster}
-          organizationName={product.organization?.name}
-        />
-      </PublicContainer>
+        <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,2.4fr)_minmax(260px,1fr)] xl:grid-cols-[minmax(0,2.8fr)_minmax(260px,1fr)]">
+          <div className="space-y-10">
+            <ProductDetailHero
+              name={product.name}
+              tagline={product.tagline}
+              logo={product.logo}
+              category={{
+                label: product.category.name,
+                href: categoryPath(product.category.slug),
+              }}
+              owner={{
+                name: ownerName,
+                href: userPath(product.user.id),
+              }}
+              badges={heroBadges}
+              isVerified={Boolean(isVerified)}
+              primaryLinks={primaryLinks}
+              platforms={heroPlatforms}
+              tags={signalTags}
+              reviewPrompt={{
+                isSignedIn: Boolean(userId),
+                redirectUrl: productPath(product.slug),
+                hasReviews: reviewSummary.totalReviews > 0,
+              }}
+            />
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-        innerClassName="space-y-12"
-      >
-        <ProductSimilarVoyages
-          items={useCaseItems}
-          headingSuffix={useCase?.label || null}
-          browseHref={`${BROWSE_PATH}?useCase=${useCase?.slug || ""}`}
-        />
-      </PublicContainer>
+            <HeroStickyBanner
+              wrapperClassName="px-0"
+              innerClassName="max-w-[120rem]"
+            />
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        fillScreen={false}
-        className="relative"
-        innerClassName="overflow-hidden rounded-[46px] border border-primary/15 px-0 md:px-0 dark:border-slate-800/60"
-      >
-        <NewsletterSignupSection />
-      </PublicContainer>
+            <ProductMediaGallery
+              bannerImage={product.bannerImage}
+              media={product.ProductMedia.map((m) => ({
+                id: m.id,
+                imageUrl: m.imageUrl,
+                altText: m.altText,
+              }))}
+              productName={product.name}
+            />
+
+            <ProductNarrative description={product.description} />
+
+            <ProductReviewsSection
+              productId={product.id}
+              productName={product.name}
+              reviewSummary={reviewSummary}
+              viewerReview={
+                viewerReview
+                  ? {
+                      rating: viewerReview.rating,
+                      message: viewerReview.message,
+                    }
+                  : null
+              }
+              isSignedIn={Boolean(userId)}
+              redirectUrl={productPath(product.slug)}
+            />
+          </div>
+
+          <aside className="space-y-6">
+            {supportCard}
+            {heroStats.length ? (
+              <section className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+                <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                  <span
+                    className="inline-flex h-1.5 w-1.5 rounded-full bg-muted-foreground/40"
+                    aria-hidden
+                  />
+                  {productPageCopy.hero.statsLabel}
+                </p>
+                <dl className="mt-4 grid gap-3">
+                  {heroStats.map((stat) => (
+                    <div
+                      key={stat.label}
+                      className="rounded-xl border border-border/70 bg-white px-4 py-3 shadow-sm"
+                    >
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+                        {stat.label}
+                      </dt>
+                      <dd className="mt-1 text-lg font-semibold leading-tight text-foreground">
+                        {stat.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            ) : null}
+
+            {secondaryLinks.length ? (
+              <section className="rounded-2xl border border-border bg-white p-4 shadow-sm">
+                <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                  <span
+                    className="inline-flex h-1.5 w-1.5 rounded-full bg-muted-foreground/40"
+                    aria-hidden
+                  />
+                  Signal links
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {secondaryLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-1 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+                    >
+                      {link.icon}
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {hasCrewDetails ? (
+              <ProductCrewRoster
+                members={crewRoster}
+                organizationName={product.organization?.name}
+              />
+            ) : null}
+
+            <NewsletterSignupSidebarCard />
+
+            <ProductSimilarVoyages
+              items={useCaseItems}
+              headingSuffix={useCase?.label || null}
+              browseHref={`${BROWSE_PATH}?useCase=${useCase?.slug || ""}`}
+            />
+          </aside>
+        </div>
+      </div>
     </main>
   )
+}
+
+function formatStatValue(raw: string) {
+  const normalized = raw.replace(/[-_]+/g, " ").trim()
+  if (!normalized) return raw
+
+  return normalized
+    .split(/\s+/)
+    .map((segment) => {
+      const trimmed = segment.trim()
+      if (!trimmed) return ""
+      const upper = trimmed.toUpperCase()
+      if (trimmed.length <= 3 && /^[A-Z0-9]+$/.test(upper)) {
+        return upper
+      }
+      return `${upper.charAt(0)}${upper.slice(1).toLowerCase()}`
+    })
+    .join(" ")
+}
+
+function platformSchemaLabel(platform: string): string | null {
+  switch (platform) {
+    case "web":
+      return "Web"
+    case "ios":
+      return "iOS"
+    case "android":
+      return "Android"
+    case "mac":
+      return "macOS"
+    case "windows":
+      return "Windows"
+    case "linux":
+      return "Linux"
+    case "chrome_extension":
+      return "Google Chrome"
+    case "firefox_extension":
+      return "Mozilla Firefox"
+    default:
+      return formatStatValue(platform)
+  }
 }
 
 function platformIcon(platform: string) {

@@ -3,34 +3,34 @@ describe("Homepage discovery journey", () => {
     cy.story("Morgan lands on the homepage to gauge Shipyard HQ's momentum.")
     cy.visit("/")
 
-    cy.contains("Set sail to your next product launch.").should("be.visible")
-    cy.contains("Shipyard Fleet").should("be.visible")
+    cy.contains("Shipyard launch directory").should("be.visible")
+    cy.contains("Flagship homepage spotlight").should("be.visible")
 
     cy.story(
       "They scan the hero stats to see whether the platform has real traction.",
     )
-    cy.contains("Products Listed").should("be.visible")
-    cy.contains("Makers Onboard").should("be.visible")
+    cy.contains("Products launched").should("be.visible")
+    cy.contains("Builders featured").should("be.visible")
     cy.contains("Community Upvotes").should("be.visible")
 
-    cy.story("Morgan scrolls to the featured fleet for standout launches.")
-    cy.contains("Highlights From the Helm")
+    cy.story("Morgan scrolls to featured campaigns for standout launches.")
+    cy.contains("Marquee placements that keep your launch in view")
       .scrollIntoView()
       .should("be.visible")
     cy.contains("View all").should("exist")
 
-    cy.story("They continue to the spotlight carousel to spot rising ships.")
-    cy.contains("Harbor Spotlight").scrollIntoView().should("be.visible")
-    cy.contains("Harbor Picks").should("be.visible")
+    cy.story("They continue to the spotlight carousel to spot rising launches.")
 
-    cy.story("Morgan checks category guides to chart a research plan.")
-    cy.contains("Chart Your Course").scrollIntoView().should("be.visible")
+    cy.story("Morgan checks category guides to plan research.")
+    cy.contains("Browse by top categories")
+      .scrollIntoView()
+      .should("be.visible")
     cy.get('a[href^="/categories/"]').its("length").should("be.greaterThan", 0)
 
     cy.story("Before leaving, Morgan checks the onboarding call to action.")
-    cy.contains("Join the crew").scrollIntoView()
-    cy.contains("Ready to chart your next voyage?").should("be.visible")
+    cy.contains("Join the community").scrollIntoView()
+    cy.contains("Ready to plan your next launch?").should("be.visible")
     cy.contains("Submit a launch").should("be.visible")
-    cy.contains("Explore the fleet").should("be.visible")
+    cy.contains("Explore products").should("be.visible")
   })
 })

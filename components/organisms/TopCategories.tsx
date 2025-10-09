@@ -1,86 +1,96 @@
-import { CategoryCard } from "@/components/molecules/CategoryCard"
-import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
-import PublicContainer from "@/components/layout/PublicContainer"
-import { getWaveBackground } from "@/lib/nautical"
+import Link from "next/link"
+
+import { cn } from "@/lib/utils"
 import { categoryPath } from "@/lib/routes"
 
-interface CategoryWithCount {
+type CategoryWithCount = {
   id: string
   name: string
   slug: string
-  description: string
-  icon: string
-  _count: {
+  description?: string | null
+  icon?: string | null
+  _count?: {
     products: number
   }
+  count?: number
 }
 
 interface TopCategoriesProps {
   categories: CategoryWithCount[]
+  limit?: number
+  className?: string
+  title?: string
+  description?: string
 }
 
-export function TopCategories({ categories }: TopCategoriesProps) {
-  const nonEmpty = categories.filter((c) => (c?._count?.products ?? 0) > 0)
+export function TopCategories({
+  categories,
+  limit = 6,
+  className,
+  title = "Categories to watch",
+  description = "The Shipyard community spends the most time exploring these areas of the directory right now.",
+}: TopCategoriesProps) {
+  const nonEmpty = categories
+    .map((category) => ({
+      ...category,
+      productCount:
+        category._count?.products ??
+        (typeof category.count === "number" ? category.count : 0),
+    }))
+    .filter((category) => category.productCount > 0)
+    .slice(0, limit)
 
   if (nonEmpty.length === 0) return null
 
   return (
-    <PublicContainer
-      as="section"
-      max="7xl"
-      paddingY="py-20"
-      className="relative overflow-hidden border-b bg-background/85 shadow-[0px_45px_120px_-85px_rgba(7,58,104,0.95)] backdrop-blur"
-      innerClassName="relative"
-      fillScreen={false}
+    <section
+      className={cn(
+        "rounded-3xl border border-border bg-white px-6 py-6 shadow-sm md:px-8",
+        className,
+      )}
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-2)/0.35] to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30"
-        style={{
-          backgroundImage:
-            "radial-gradient(120%_90%_at_50%_-10%, rgba(8, 56, 102, 0.22), transparent 75%), radial-gradient(85%_70%_at_15%_25%, rgba(6, 28, 54, 0.2), transparent 72%)",
-          maskImage:
-            "radial-gradient(90%_100%_at_50%_0%, rgba(0,0,0,0.95), transparent 78%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 opacity-30"
-        style={{
-          ...getWaveBackground("240px 90px"),
-          backgroundPosition: "0 55%",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-[-30%] bottom-[-45px] -z-40 h-52 rounded-[50%] bg-[radial-gradient(78%_100%_at_50%_0%,var(--brand-2)/0.22,transparent_82%)] blur-3xl"
-      />
-
-      <div className="relative space-y-10">
-        <PageSectionHeader
-          align="center"
-          eyebrow="Navigation Charts"
-          title="Chart Your Course"
-          subtitle="Plot a heading by the categories captains visit most."
-        />
-
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-          {nonEmpty.map((cat) => (
-            <CategoryCard
-              key={cat.id}
-              href={categoryPath(cat.slug)}
-              name={cat.name}
-              icon={cat.icon}
-              description={cat.description}
-              count={cat._count.products}
-            />
-          ))}
-        </div>
+      <div className="space-y-2">
+        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+          Most-viewed categories
+        </span>
+        <h3 className="text-lg font-semibold text-foreground md:text-xl">
+          {title}
+        </h3>
+        {description ? (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        ) : null}
       </div>
-    </PublicContainer>
+
+      <ol className="mt-5 space-y-3">
+        {nonEmpty.map((category, index) => (
+          <li key={category.id}>
+            <Link
+              href={categoryPath(category.slug)}
+              className="group flex items-start justify-between gap-4 rounded-2xl border border-border/60 px-4 py-3 transition hover:border-border hover:bg-muted/40"
+            >
+              <div className="flex flex-1 flex-col gap-1">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    #{index + 1}
+                  </span>
+                  <span className="transition-colors group-hover:text-foreground">
+                    {category.name}
+                  </span>
+                </div>
+                {category.description ? (
+                  <p className="line-clamp-2 text-xs text-muted-foreground">
+                    {category.description}
+                  </p>
+                ) : null}
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                {category.productCount} launch
+                {category.productCount === 1 ? "" : "es"}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </section>
   )
 }

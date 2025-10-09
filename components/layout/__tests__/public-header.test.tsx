@@ -7,6 +7,7 @@ import { BROWSE_PATH } from "@/lib/routes"
 vi.mock("next/navigation", () => ({
   usePathname: () => BROWSE_PATH,
   useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn() }),
 }))
 
 // Minimal Clerk mocks: render children as-is
@@ -15,6 +16,13 @@ vi.mock("@clerk/nextjs", () => ({
   SignedOut: ({ children }: any) => <>{children}</>,
   SignOutButton: ({ children }: any) => <>{children}</>,
   SignInButton: ({ children }: any) => <>{children}</>,
+  useUser: () => ({
+    user: {
+      fullName: "Test User",
+      emailAddresses: [{ emailAddress: "test@example.com" }],
+      imageUrl: "",
+    },
+  }),
 }))
 
 describe("PublicHeader", () => {
@@ -32,9 +40,7 @@ describe("PublicHeader", () => {
     // Active class applied for current pathname
     expect(browse.className).toMatch(/text-foreground/)
 
-    expect(
-      screen.getAllByRole("link", { name: /Categories/i })[0],
-    ).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /Categories/i })).toBeNull()
     expect(
       screen.getAllByRole("link", { name: /Leaderboard/i })[0],
     ).toBeInTheDocument()
@@ -43,6 +49,9 @@ describe("PublicHeader", () => {
     ).toBeInTheDocument()
     expect(
       screen.getAllByRole("link", { name: /Pricing/i })[0],
+    ).toBeInTheDocument()
+    expect(
+      screen.getAllByRole("link", { name: /Rewards/i })[0],
     ).toBeInTheDocument()
   })
 })

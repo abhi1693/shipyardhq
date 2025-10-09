@@ -15,8 +15,6 @@ import {
 } from "recharts"
 
 import { ChartContainer } from "@/components/atoms/chart"
-import PublicContainer from "@/components/layout/PublicContainer"
-import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
 import { cn } from "@/lib/utils"
 import { categoryPath } from "@/lib/routes"
 import type { TrendRadarCategoryMetrics } from "@/lib/trend-radar"
@@ -40,12 +38,12 @@ const VIEW_MODES = [
       metric.momentumPerProduct > 0
         ? `${metric.momentumPerProduct} per launch`
         : "No fresh launches",
-    themeColor: "var(--brand-2)",
+    themeColor: "#2563eb",
   },
   {
     key: "depth" as const,
     label: "Depth Focus",
-    description: "Shows the densest harbors on Shipyard right now.",
+    description: "Shows the most active categories on Shipyard right now.",
     metricKey: "normalizedDepth" as const,
     statKey: "productCount" as const,
     statFormatter: (value: number) =>
@@ -53,8 +51,8 @@ const VIEW_MODES = [
     secondary: (metric: TrendRadarCategoryMetrics) =>
       metric.catalogShare > 0
         ? `${percentFormatter.format(metric.catalogShare)} of catalog`
-        : "New waters",
-    themeColor: "var(--brand-1)",
+        : "Fresh territory",
+    themeColor: "#0ea5e9",
   },
   {
     key: "signal" as const,
@@ -68,7 +66,7 @@ const VIEW_MODES = [
       metric.upvotesPerLaunch > 0
         ? `${metric.upvotesPerLaunch} upvotes / launch`
         : "Signal warming up",
-    themeColor: "var(--brand-3)",
+    themeColor: "#6366f1",
   },
 ]
 
@@ -139,11 +137,13 @@ interface InteractiveTrendRadarProps {
     trendingProducts: number
     upvotes: number
   }
+  className?: string
 }
 
 export default function InteractiveTrendRadar({
   categories,
   totals,
+  className,
 }: InteractiveTrendRadarProps) {
   const [modeKey, setModeKey] = useState<ViewModeKey>("momentum")
 
@@ -173,180 +173,155 @@ export default function InteractiveTrendRadar({
   }
 
   return (
-    <PublicContainer
-      as="section"
-      paddingY="py-20"
-      max="7xl"
-      className="relative overflow-hidden border-b bg-background/85 shadow-[0px_50px_120px_-90px_rgba(7,58,104,0.95)] backdrop-blur"
-      innerClassName="relative"
+    <section
+      className={cn(
+        "rounded-3xl border border-border bg-white px-6 py-8 shadow-sm md:px-8",
+        className,
+      )}
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-3)/0.35] to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20"
-        style={{
-          backgroundImage:
-            "radial-gradient(140%_90%_at_85%_110%, rgba(6, 38, 68, 0.24), transparent 78%), radial-gradient(95%_70%_at_10%_20%, rgba(5, 30, 54, 0.2), transparent 70%)",
-          maskImage:
-            "radial-gradient(90%_100%_at_50%_95%, rgba(0,0,0,0.95), transparent 78%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 opacity-25"
-        style={{
-          backgroundImage:
-            "radial-gradient(120%_120%_at_50%_0%, rgba(0, 53, 102, 0.25), transparent 75%)",
-        }}
-      />
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+          Trend radar
+        </span>
+        <h3 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+          See which categories are heating up
+        </h3>
+        <p className="text-sm text-muted-foreground md:text-base">
+          Compare momentum, depth, and signal strength to spot where launches
+          are gaining traction this week.
+        </p>
+      </div>
 
-      <div className="relative space-y-10">
-        <PageSectionHeader
-          eyebrow="Trend Radar"
-          title="Chart The Hottest Currents"
-          subtitle="Take a scan of where builders and upvotes are concentrating this week."
-        />
-
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <ChartContainer
-            config={{
-              momentum: { label: "Launch Momentum", color: "var(--brand-2)" },
-              depth: { label: "Fleet Depth", color: "var(--brand-1)" },
-              signal: { label: "Signal Strength", color: "var(--brand-3)" },
-            }}
-            className="h-full"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap gap-2">
-                {VIEW_MODES.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => setModeKey(item.key)}
-                    className={cn(
-                      "rounded-full border px-3 py-1.5 text-sm font-medium transition-all shadow-[0px_18px_40px_-32px_rgba(7,58,104,0.65)] backdrop-blur",
-                      mode.key === item.key
-                        ? "border-[color:var(--brand-3)/0.28] bg-[color:var(--brand-3)/0.12] text-[color:var(--brand-3)]"
-                        : "border-transparent bg-white/65 text-slate-500 hover:border-[color:var(--brand-3)/0.18] hover:bg-white",
-                    )}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-slate-500">
-                Scores scale relative to the hottest category in view.
-              </p>
+      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <ChartContainer
+          config={{
+            momentum: { label: "Launch Momentum", color: "#2563eb" },
+            depth: { label: "Catalog Depth", color: "#0ea5e9" },
+            signal: { label: "Signal Strength", color: "#6366f1" },
+          }}
+          className="border border-border/60 bg-muted/20 p-5 shadow-none"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              {VIEW_MODES.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setModeKey(item.key)}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                    mode.key === item.key
+                      ? "border-foreground/20 bg-foreground/[0.08] text-foreground"
+                      : "border-border bg-white text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
+            <p className="text-xs text-muted-foreground">
+              Scores scale to the strongest category in view.
+            </p>
+          </div>
 
-            <p className="mt-2 text-sm text-slate-600">{mode.description}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {mode.description}
+          </p>
 
-            <div className="mt-6 w-full">
-              <ResponsiveContainer width="100%" height={360}>
-                <RadarChart data={chartData} outerRadius="80%">
-                  <PolarGrid className="stroke-slate-200" />
-                  <PolarAngleAxis
-                    dataKey="label"
-                    tick={{ fill: "#475569", fontSize: 12 }}
-                  />
-                  <PolarRadiusAxis
-                    tick={{ fill: "#94a3b8", fontSize: 10 }}
-                    angle={90}
-                    domain={[0, 100]}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <RechartsTooltip
-                    cursor={false}
-                    content={<TrendRadarTooltip mode={mode} />}
-                  />
-                  <Radar
-                    name={mode.label}
-                    dataKey={
-                      mode.metricKey === "normalizedMomentum"
-                        ? "momentum"
-                        : mode.metricKey === "normalizedDepth"
-                          ? "depth"
-                          : "signal"
-                    }
-                    stroke={mode.themeColor}
-                    fill={mode.themeColor}
-                    fillOpacity={0.18}
-                    strokeWidth={2}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          </ChartContainer>
+          <div className="mt-6 w-full">
+            <ResponsiveContainer width="100%" height={340}>
+              <RadarChart data={chartData} outerRadius="78%">
+                <PolarGrid className="stroke-border/70" />
+                <PolarAngleAxis
+                  dataKey="label"
+                  tick={{ fill: "#4b5563", fontSize: 12 }}
+                />
+                <PolarRadiusAxis
+                  tick={{ fill: "#94a3b8", fontSize: 10 }}
+                  angle={90}
+                  domain={[0, 100]}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <RechartsTooltip
+                  cursor={false}
+                  content={<TrendRadarTooltip mode={mode} />}
+                />
+                <Radar
+                  name={mode.label}
+                  dataKey={
+                    mode.metricKey === "normalizedMomentum"
+                      ? "momentum"
+                      : mode.metricKey === "normalizedDepth"
+                        ? "depth"
+                        : "signal"
+                  }
+                  stroke={mode.themeColor}
+                  fill={mode.themeColor}
+                  fillOpacity={0.18}
+                  strokeWidth={2}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </ChartContainer>
 
-          <aside className="space-y-6">
-            <div className="relative space-y-2 pl-6 text-sm text-slate-600">
-              <span
-                aria-hidden
-                className="absolute left-0 top-0 h-full w-[2px] rounded-full bg-[linear-gradient(180deg,var(--brand-1),var(--brand-2))]"
-              />
-              <p>
-                Scanning {categories.length} standout categories fueled by {totals.trendingProducts} recent
-                trending launches and {numberFormatter.format(totals.upvotes)} upvotes.
-              </p>
-              <p>
-                Use the lenses to spot where to discover products, or which harbors are primed for your next
-                launch.
-              </p>
-            </div>
+        <aside className="space-y-6">
+          <div className="rounded-2xl border border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
+            <p>
+              Tracking {categories.length} standout categories supported by{" "}
+              {totals.trendingProducts} trending launches and{" "}
+              {numberFormatter.format(totals.upvotes)} upvotes in the last
+              window.
+            </p>
+            <p className="mt-2">
+              Use the view toggles to find fertile ground for your launch or
+              discover new projects to follow.
+            </p>
+          </div>
 
-            <div className="space-y-4">
-              {sortedByMode.map((category, index) => {
-                const normalizedValue = category[mode.metricKey]
-                const primaryStat = category[mode.statKey]
-                const secondaryLabel = mode.secondary(category)
+          <div className="space-y-4">
+            {sortedByMode.map((category, index) => {
+              const normalizedValue = category[mode.metricKey]
+              const primaryStat = category[mode.statKey]
+              const secondaryLabel = mode.secondary(category)
 
-                return (
-                  <Link
-                    key={category.id}
-                    href={categoryPath(category.slug)}
-                    className="group relative block overflow-hidden pl-6 transition-transform hover:translate-x-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-3)/0.45]"
-                  >
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-0 h-full w-[2px] rounded-full bg-[linear-gradient(180deg,var(--brand-2),var(--brand-3))] opacity-70 transition-opacity group-hover:opacity-100"
-                    />
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                          <span className="text-xs font-medium text-slate-400">#{index + 1}</span>
-                          <span className="transition-colors group-hover:text-[color:var(--brand-3)]">
-                            {category.name}
-                          </span>
-                        </div>
-                        <div className="mt-1 text-xs text-slate-500">
-                          {mode.statFormatter(primaryStat)} · {secondaryLabel}
-                        </div>
-                      </div>
-                      <span className="text-sm font-semibold text-slate-700">
-                        {Math.round(normalizedValue)}
+              return (
+                <Link
+                  key={category.id}
+                  href={categoryPath(category.slug)}
+                  className="group flex items-start justify-between gap-4 rounded-2xl border border-border/60 bg-white px-4 py-3 transition hover:border-border hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[--ring]"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        #{index + 1}
+                      </span>
+                      <span className="transition-colors group-hover:text-foreground">
+                        {category.name}
                       </span>
                     </div>
-                    <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-200/70">
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {mode.statFormatter(primaryStat)} · {secondaryLabel}
+                    </div>
+                    <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-muted">
                       <div
-                        className="h-full rounded-full"
+                        className="h-full rounded-full bg-foreground/40"
                         style={{
                           width: `${Math.max(6, Math.round(normalizedValue))}%`,
-                          background: mode.themeColor,
-                          opacity: 0.45,
                         }}
                       />
                     </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </aside>
-        </div>
+                  </div>
+                  <span className="text-sm font-semibold text-foreground/80">
+                    {Math.round(normalizedValue)}
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
+        </aside>
       </div>
-    </PublicContainer>
+    </section>
   )
 }

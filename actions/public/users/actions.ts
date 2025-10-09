@@ -11,6 +11,7 @@ import { Prisma } from "@/lib/vendor/prisma/client"
 type PublicUserProfile = Prisma.UserGetPayload<{
   select: {
     id: true
+    clerkId: true
     firstName: true
     lastName: true
     products: {
@@ -33,6 +34,7 @@ export const getPublicUsersWithCounts = cached(
       where: { products: { some: { status: "published" as any } } },
       select: {
         id: true,
+        clerkId: true,
         firstName: true,
         lastName: true,
         products: {
@@ -81,6 +83,7 @@ export const getPublicUserProfile = cached(
         id: true,
         firstName: true,
         lastName: true,
+        clerkId: true,
         products: {
           where: { status: "published" as any },
           orderBy: { createdAt: "desc" },

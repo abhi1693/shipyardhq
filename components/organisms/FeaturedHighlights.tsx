@@ -1,73 +1,129 @@
-import CTAFeatureYourProductCard from "@/components/molecules/CTAFeatureYourProductCard"
+import Link from "next/link"
+
 import { FeaturedProduct } from "@/types"
-import { PageSectionHeader } from "@/components/molecules/PageSectionHeader"
-import PublicContainer from "@/components/layout/PublicContainer"
-import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
-import { getWaveBackground } from "@/lib/nautical"
+import { Button } from "@/components/atoms/button"
+import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
+import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
+import {
+  partitionFeaturedProducts,
+  resolveSponsoredPlacement,
+} from "@/lib/directory/placements"
 import { BROWSE_PATH } from "@/lib/routes"
+
+interface FeaturedListItem {
+  id: string
+  slug: string
+  name: string
+  logo: string
+  tagline: string
+  badges?: string[]
+  analytics?: { upvotes?: number | null } | null
+  category?: { name?: string | null } | null
+  placementLabel?: string
+  isSponsored: boolean
+  metaLabel?: string
+}
+
+const toListItem = (entry: FeaturedProduct): FeaturedListItem => {
+  const { product } = entry
+  const activeBadges = (product.ProductBadge ?? []).filter((badge) => {
+    if (!badge.expiresAt) return true
+    return new Date(badge.expiresAt).getTime() > Date.now()
+  })
+
+  const placement = resolveSponsoredPlacement(entry, "featured")
+
+  const placementLabel =
+    placement.origin === "schedule"
+      ? "Scheduled placement"
+      : placement.origin === "entitlement"
+        ? "Reward placement"
+        : undefined
+
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    logo: product.logo,
+    tagline: product.tagline,
+    badges: activeBadges.map((badge) => badge.badge),
+    analytics: product.analytics ?? null,
+    category: product.category ?? undefined,
+    isSponsored: placement.isSponsored,
+    placementLabel,
+    metaLabel: placementLabel,
+  }
+}
 
 export function FeaturedHighlights({
   products,
 }: {
   products: FeaturedProduct[]
 }) {
+  if (!products || products.length === 0) {
+    return null
+  }
+
+  const { sponsored, organic } = partitionFeaturedProducts(products)
+  const sponsoredItems = sponsored.map(toListItem)
+  const organicItems = organic.map(toListItem)
+
   return (
-    <PublicContainer
-      as="section"
-      max="marketing"
-      paddingY="py-20"
-      className="relative overflow-hidden border-b bg-background/88 shadow-[0px_40px_110px_-70px_rgba(7,58,104,0.95)] backdrop-blur"
-      innerClassName="relative"
-      fillScreen={false}
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[color:var(--brand-1)/0.35] to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30"
-        style={{
-          backgroundImage:
-            "radial-gradient(110%_90%_at_85%_-10%, rgba(10, 64, 112, 0.26), transparent 75%), radial-gradient(90%_70%_at_10%_20%, rgba(6, 38, 73, 0.22), transparent 72%)",
-          maskImage:
-            "radial-gradient(78%_100%_at_50%_0%, rgba(0,0,0,0.95), transparent 75%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 opacity-30"
-        style={{
-          ...getWaveBackground("220px 85px"),
-          backgroundPosition: "0 55%",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-[-25%] bottom-[-50px] -z-40 h-52 rounded-[50%] bg-[radial-gradient(75%_100%_at_50%_0%,var(--brand-3)/0.2,transparent_80%)] blur-3xl"
+    <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
+      <DirectorySectionHeader
+        kicker="Featured showcase"
+        title="Marquee placements that keep your launch in view"
+        description="Featured cards combine sponsored campaigns with editorial standouts. Sponsored spotlights lead the row, followed by organic highlights powered by community momentum."
+        action={
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="hover:bg-muted/70"
+          >
+            <Link href={`${BROWSE_PATH}?badge=featured`}>
+              See every featured product
+            </Link>
+          </Button>
+        }
       />
 
-      <div className="relative space-y-10">
-        <PageSectionHeader
-          eyebrow="Featured Fleet"
-          title="Highlights From the Helm"
-          subtitle="Curated launches making waves across the community."
-          action={
-            <a
-              href={BROWSE_PATH}
-              className="hidden items-center rounded-md border border-[color:var(--brand-1)/0.35] px-3 py-1.5 text-sm text-[color:var(--brand-1)] shadow-[0px_15px_35px_-28px_rgba(7,58,104,0.9)] transition-colors hover:bg-[color:var(--brand-1)/0.05] md:inline-flex"
-            >
-              View all
-            </a>
-          }
-        />
+      <div className="mt-8 space-y-10">
+        {sponsoredItems.length > 0 ? (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-base font-semibold text-foreground">
+                Sponsored featured spotlights
+              </h3>
+            </div>
+            <DirectoryProductList
+              items={sponsoredItems}
+              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+              metaConfig={{
+                type: "badge",
+                badgeClassName:
+                  "border-sky-200 bg-sky-50 text-sky-800 shadow-sm",
+              }}
+            />
+          </div>
+        ) : null}
 
-        <FeaturedProductGrid
-          items={products}
-          filterExpiredBadges={false}
-          extra={<CTAFeatureYourProductCard />}
-        />
+        {organicItems.length > 0 ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-semibold text-foreground">
+                Featured on merit
+              </h3>
+            </div>
+            <DirectoryProductList
+              items={organicItems}
+              columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+            />
+          </div>
+        ) : null}
       </div>
-    </PublicContainer>
+    </section>
   )
 }
+
+export default FeaturedHighlights

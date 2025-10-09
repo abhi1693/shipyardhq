@@ -8,7 +8,7 @@ const highlights = [
     icon: IconCompass,
   },
   {
-    label: "Equip your crew",
+    label: "Equip your team",
     description:
       "Invite teammates, assign checklists, and share intel in a single member workspace.",
     icon: IconAnchor,

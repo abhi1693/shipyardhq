@@ -29,6 +29,7 @@ interface ProductListProps<T extends ProductListItem> {
   imagePriorityFirstN?: number
   showRank?: boolean
   rankStartAt?: number // used when showRank is true; defaults to 0
+  showBadges?: boolean
 }
 
 export default function ProductList<T extends ProductListItem>({
@@ -41,6 +42,7 @@ export default function ProductList<T extends ProductListItem>({
   imagePriorityFirstN = 4,
   showRank = false,
   rankStartAt = 0,
+  showBadges = false,
 }: ProductListProps<T>) {
   return (
     <div
@@ -62,7 +64,7 @@ export default function ProductList<T extends ProductListItem>({
           }}
           upvotes={p.analytics?.upvotes ?? 0}
           badges={p.badges}
-          category={showCategory ? p.category?.name ?? null : null}
+          category={showCategory ? (p.category?.name ?? null) : null}
           meta={
             topRight ? (
               topRight(p, i)
@@ -78,6 +80,7 @@ export default function ProductList<T extends ProductListItem>({
           }
           imagePriority={i < imagePriorityFirstN}
           showCategory={showCategory}
+          showBadges={showBadges}
         />
       ))}
     </div>

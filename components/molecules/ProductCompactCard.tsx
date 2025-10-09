@@ -3,7 +3,13 @@ import Image from "next/image"
 import { clickProductCardAction } from "@/actions/public/products/analytics"
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
 import { Badge } from "@/components/atoms/badge"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/atoms/tooltip"
 import { BADGE_OPTIONS } from "@/lib/constants"
+import { cn } from "@/lib/utils"
 
 interface ProductCompactCardProps {
   product: {
@@ -20,6 +26,8 @@ interface ProductCompactCardProps {
   showCategory?: boolean
   badges?: string[]
   showBadges?: boolean
+  className?: string
+  disableHoverEffects?: boolean
 }
 
 export function ProductCompactCard({
@@ -30,7 +38,9 @@ export function ProductCompactCard({
   meta,
   showCategory = true,
   badges = [],
-  showBadges = true,
+  showBadges = false,
+  className,
+  disableHoverEffects = false,
 }: ProductCompactCardProps) {
   const resolvedBadges = badges
     .map(
@@ -38,10 +48,20 @@ export function ProductCompactCard({
     )
     .filter((badge): badge is (typeof BADGE_OPTIONS)[number] => Boolean(badge))
 
-  const badgeLimit = 3
+  const badgeLimit = 2
   const visibleBadges = resolvedBadges.slice(0, badgeLimit)
-  const extraBadgeCount = Math.max(0, badges.length - visibleBadges.length)
-  const showMetaRow = showCategory && category
+  const overflowBadges = resolvedBadges.slice(badgeLimit)
+  const showDockLabel = showCategory && category
+  const dockLabel = showDockLabel
+    ? (category ?? "Launch ready")
+    : "View details"
+
+  const baseClasses =
+    "group relative block h-full w-full cursor-pointer overflow-hidden rounded-2xl border border-border/30 bg-background/95 p-4 text-left text-card-foreground shadow-[0_18px_46px_-52px_rgba(7,58,104,0.6)] ring-1 ring-inset ring-white/6 transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-[radial-gradient(120%_140%_at_50%_-10%,var(--brand-1)/0.16,transparent_70%)] before:opacity-0 before:transition-opacity before:duration-500 before:delay-100 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] dark:border-white/14"
+
+  const hoverClasses = disableHoverEffects
+    ? ""
+    : "hover:-translate-y-1 hover:scale-[1.015] hover:border-[color:var(--brand-1)/0.24] hover:bg-[color:var(--brand-1)/0.03] hover:shadow-[0_36px_110px_-62px_rgba(7,58,104,0.68)] hover:ring-[1.5px] hover:ring-[color:var(--brand-1)/0.22] group-hover:before:opacity-100"
 
   return (
     <form
@@ -53,11 +73,8 @@ export function ProductCompactCard({
       <input type="hidden" name="productSlug" value={product.slug} />
       <button
         type="submit"
-        className="group relative block h-full w-full cursor-pointer overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.1] bg-gradient-to-br from-background/98 via-background/92 to-[color:var(--brand-1)/0.04] p-4 text-left text-card-foreground shadow-[0px_18px_52px_-44px_rgba(7,58,104,0.5)] ring-1 ring-inset ring-white/12 transition-all duration-300 hover:-translate-y-1 hover:border-[color:var(--brand-1)/0.16] hover:shadow-[0px_24px_70px_-50px_rgba(7,58,104,0.64)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.22] dark:border-white/14"
+        className={cn(baseClasses, hoverClasses, className)}
       >
-        {meta ? (
-          <div className="absolute right-4 top-3 sm:top-4">{meta}</div>
-        ) : null}
         <div className="flex h-full flex-col gap-3">
           <div className="flex items-start gap-3">
             <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[color:var(--brand-1)/0.12] shadow-[0px_18px_38px_-30px_rgba(7,58,104,0.85)] ring-1 ring-inset ring-white/10">
@@ -72,49 +89,73 @@ export function ProductCompactCard({
               />
             </span>
             <div className="min-w-0 flex-1">
-              <h3 className="line-clamp-1 text-sm font-semibold leading-tight text-foreground">
-                {product.name}
-              </h3>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <h3 className="line-clamp-1 text-sm font-semibold leading-tight text-foreground">
+                    {product.name}
+                  </h3>
+                </div>
+                {meta ? <div className="shrink-0">{meta}</div> : null}
+              </div>
               <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                 {product.tagline}
               </p>
             </div>
           </div>
 
-          {showBadges && (visibleBadges.length > 0 || extraBadgeCount > 0) ? (
-            <div className="flex flex-wrap items-center gap-1.5">
-              {visibleBadges.map((badge, index) => (
-                <Badge
-                  key={`${badge.value}-${index}`}
-                  title={badge.label}
-                  className="rounded-full border-transparent bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-[10px] font-medium text-[color:var(--brand-1)] shadow-[0px_14px_28px_-26px_rgba(7,58,104,0.78)] ring-1 ring-inset ring-white/5"
-                  variant="outline"
-                >
-                  {badge.icon}
-                  <span className="ml-1 font-medium">{badge.label}</span>
-                </Badge>
+          {showBadges &&
+          (visibleBadges.length > 0 || overflowBadges.length > 0) ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {visibleBadges.map((badge) => (
+                <Tooltip key={badge.value}>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="outline"
+                      className="inline-flex h-7 w-9 items-center justify-center rounded-full border-[color:var(--brand-1)/0.22] bg-[color:var(--brand-1)/0.12] p-0 text-[color:var(--brand-1)] shadow-[0_16px_26px_-30px_rgba(7,58,104,0.75)] transition-colors hover:border-[color:var(--brand-1)/0.35]"
+                    >
+                      <span aria-hidden className="text-base leading-none">
+                        {badge.icon}
+                      </span>
+                      <span className="sr-only">{badge.label}</span>
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={6} className="text-xs">
+                    {badge.label}
+                  </TooltipContent>
+                </Tooltip>
               ))}
-              {extraBadgeCount > 0 ? (
-                <span className="text-xs font-medium text-muted-foreground">
-                  +{extraBadgeCount}
-                </span>
+              {overflowBadges.length > 0 ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex h-7 items-center justify-center rounded-full border border-border/50 bg-muted/50 px-3 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-border/70">
+                      +{overflowBadges.length}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    sideOffset={6}
+                    className="max-w-[16rem] text-xs"
+                  >
+                    <div className="space-y-1">
+                      {overflowBadges.map((badge) => (
+                        <div key={badge.value}>{badge.label}</div>
+                      ))}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
               ) : null}
             </div>
           ) : null}
 
-          <div className="mt-auto flex items-center justify-between pt-1">
-            <UpvoteSquare
-              count={upvotes}
-              compact
-              className="shrink-0"
-              title={`${upvotes} upvotes`}
-            />
-
-            {showMetaRow ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--brand-1)/0.12] px-2 py-0.5 text-[11px] font-medium text-[color:var(--brand-1)] shadow-[0px_12px_32px_-28px_rgba(7,58,104,0.75)] ring-1 ring-inset ring-white/10">
-                {category}
-              </span>
-            ) : null}
+          <div className="mt-auto pt-2">
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-muted/40 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors group-hover:border-[color:var(--brand-1)/0.24] group-hover:bg-muted/55">
+              <span className="line-clamp-1 leading-none">{dockLabel}</span>
+              <UpvoteSquare
+                count={upvotes}
+                compact
+                className="shrink-0"
+                title={`${upvotes} upvotes`}
+              />
+            </div>
           </div>
         </div>
       </button>

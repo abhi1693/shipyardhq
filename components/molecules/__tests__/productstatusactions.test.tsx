@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import React from "react"
-import { render, screen } from "@testing-library/react"
+import { render, screen, within, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 
 const refresh = vi.fn()
@@ -32,12 +32,16 @@ describe("ProductStatusActions", () => {
     expect(screen.getByRole("button", { name: /archive/i })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: /unpublish/i })).toBeNull()
     await user.click(screen.getByRole("button", { name: /publish/i }))
-    expect(actions.setProductStatusAction).toHaveBeenCalledWith(
-      "p1",
-      "published",
+    await waitFor(() =>
+      expect(actions.setProductStatusAction).toHaveBeenCalledWith(
+        "p1",
+        "published",
+      ),
     )
     // success toast and refresh called
-    expect(toast.success).toHaveBeenCalledWith("Status set to published")
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith("Status set to published"),
+    )
     expect(refresh).toHaveBeenCalled()
   })
 
@@ -46,9 +50,13 @@ describe("ProductStatusActions", () => {
     render(<ProductStatusActions productId="p1" status="draft" />)
     const user = userEvent.setup()
     await user.click(screen.getByRole("button", { name: /archive/i }))
-    expect(actions.setProductStatusAction).toHaveBeenCalledWith(
-      "p1",
-      "archived",
+    const dialog = screen.getByRole("dialog")
+    await user.click(within(dialog).getByRole("button", { name: /archive/i }))
+    await waitFor(() =>
+      expect(actions.setProductStatusAction).toHaveBeenCalledWith(
+        "p1",
+        "archived",
+      ),
     )
   })
 
@@ -62,7 +70,14 @@ describe("ProductStatusActions", () => {
       screen.getByRole("button", { name: /unpublish/i }),
     ).toBeInTheDocument()
     await user.click(screen.getByRole("button", { name: /unpublish/i }))
-    expect(actions.setProductStatusAction).toHaveBeenCalledWith("p1", "draft")
+    const dialog = screen.getByRole("dialog")
+    await user.click(within(dialog).getByRole("button", { name: /unpublish/i }))
+    await waitFor(() =>
+      expect(actions.setProductStatusAction).toHaveBeenCalledWith(
+        "p1",
+        "draft",
+      ),
+    )
     expect(toast.error).toHaveBeenCalled()
     expect(refresh).toHaveBeenCalled()
   })
@@ -79,6 +94,13 @@ describe("ProductStatusActions", () => {
 
     // Unarchive transitions back to draft
     await user.click(screen.getByRole("button", { name: /unarchive/i }))
-    expect(actions.setProductStatusAction).toHaveBeenCalledWith("p1", "draft")
+    const dialog = screen.getByRole("dialog")
+    await user.click(within(dialog).getByRole("button", { name: /restore/i }))
+    await waitFor(() =>
+      expect(actions.setProductStatusAction).toHaveBeenCalledWith(
+        "p1",
+        "draft",
+      ),
+    )
   })
 })

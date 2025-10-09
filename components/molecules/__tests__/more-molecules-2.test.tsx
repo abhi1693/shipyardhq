@@ -10,7 +10,6 @@ import UnarchiveButton from "@/components/molecules/UnarchiveButton"
 import PublishButton from "@/components/molecules/PublishButton"
 import UnpublishButton from "@/components/molecules/UnpublishButton"
 import SubmitProductButton from "@/components/molecules/SubmitProductButton"
-import CTAFeatureYourProductCard from "@/components/molecules/CTAFeatureYourProductCard"
 import UniformCard from "@/components/molecules/UniformCard"
 import { StatCard } from "@/components/molecules/StatCard"
 import { CategoryCard } from "@/components/molecules/CategoryCard"
@@ -52,13 +51,6 @@ describe("additional molecules (set 2)", () => {
     render(<SubmitProductButton />)
     expect(
       screen.getByRole("button", { name: /submit product/i }),
-    ).toBeInTheDocument()
-  })
-
-  it("CTAFeatureYourProductCard renders link and nested button", () => {
-    render(<CTAFeatureYourProductCard />)
-    expect(
-      screen.getByRole("link", { name: /submit your product/i }),
     ).toBeInTheDocument()
   })
 

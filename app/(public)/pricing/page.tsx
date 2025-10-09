@@ -1,13 +1,12 @@
 import Link from "next/link"
 import { IconFlag3, IconSparkles, IconTargetArrow } from "@tabler/icons-react"
+
 import { getPublicPlans } from "@/actions/public/plans/actions"
 import { PricingTable } from "@/components/organisms/PricingTable"
-import PublicContainer from "@/components/layout/PublicContainer"
 import { getProducts } from "@/actions/public/products/featured"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { SubscriptionPlanCard } from "@/components/molecules/SubscriptionPlanCard"
 import { PlanType } from "@/lib/vendor/prisma/client"
-import { Button } from "@/components/atoms/button"
 import {
   Accordion,
   AccordionContent,
@@ -17,6 +16,9 @@ import {
 import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, REWARDS_PATH } from "@/lib/routes"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
+import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
+import { brandGradient, gradientTint } from "@/lib/ui/tints"
+import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
 export const metadata = buildPageMetadata({
   title: "Pricing",
@@ -27,7 +29,7 @@ const CORE_PERKS = [
   {
     icon: IconFlag3,
     title: "Launch-ready guidance",
-    body: "Preflight checklists, asset templates, and launch-day reminders keep every release steady at the helm.",
+    body: "Preflight checklists, asset templates, and launch-day reminders keep every release on track.",
   },
   {
     icon: IconTargetArrow,
@@ -50,22 +52,22 @@ const PRICING_FAQS = [
   {
     question: "Which plans include Shipyard Insights?",
     answer:
-      "Every plan includes Insights. Free listings get one run per week, while paid placements and crew subscriptions add more credits so you can refresh findings whenever you need.",
+      "Every plan includes Insights. Free listings get one run per week, while paid placements and organization subscriptions add more credits so you can refresh findings whenever you need.",
   },
   {
     question: "Do plans renew automatically?",
     answer:
-      "Plans are purchased per launch window. When a term ends you decide whether to re-up. No surprise auto-renewals—just opt in when you’re ready for the next voyage.",
+      "Plans are purchased per launch window. When a term ends you decide whether to re-up. No surprise auto-renewals—just opt in when you’re ready for the next campaign.",
   },
   {
     question: "What level of support is included?",
     answer:
-      "All plans include launch guidance, template assets, and async crew support. Premium placements add one-on-one review sessions and priority feature requests.",
+      "All plans include launch guidance, template assets, and async support from our team. Premium placements add one-on-one review sessions and priority feature requests.",
   },
   {
     question: "Can my team collaborate on launches?",
     answer:
-      "Team access unlocks on plans that include organizations. Add your crew, assign roles, and manage launches together from a shared dashboard.",
+      "Team access unlocks on plans that include organizations. Add your team, assign roles, and manage launches together from a shared dashboard.",
   },
 ]
 
@@ -77,88 +79,69 @@ export default async function PricingPage() {
   ])
 
   return (
-    <main className="relative isolate overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(180deg,rgba(250,252,255,0.96),rgba(243,247,252,0.92)40%,rgba(233,243,251,0.9))] dark:bg-[linear-gradient(180deg,rgba(6,18,36,0.92),rgba(4,24,43,0.92)40%,rgba(9,32,55,0.92))]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(115%_85%_at_0%_0%,var(--brand-2)/0.12,transparent_65%),radial-gradient(110%_120%_at_100%_10%,var(--brand-3)/0.14,transparent_72%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-30"
-        style={{
-          backgroundImage:
-            "linear-gradient(90deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(11, 53, 94, 0.05) 1px, transparent 1px)",
-          backgroundSize: "160px 160px",
-          maskImage:
-            "radial-gradient(75% 110% at 50% 0%, rgba(0, 0, 0, 0.88), transparent 70%)",
-        }}
-      />
-
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-24"
-        className="relative"
-        fillScreen={false}
-        innerClassName="relative"
+    <main className="relative isolate overflow-hidden bg-white">
+      <section
+        className={brandGradient(
+          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
+        )}
       >
-        <div className="mx-auto max-w-3xl text-center space-y-8">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/80 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm backdrop-blur">
+        <div className="relative mx-auto flex max-w-[84rem] flex-col items-center gap-10 px-4 text-center text-white md:px-8">
+          <span
+            className={gradientTint(
+              "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
+            )}
+          >
             Pricing
           </span>
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              Pricing built for every voyage
+          <div className="max-w-3xl space-y-4">
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              Pricing built for every launch plan
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-white/85">
               Pick the placement that fits your launch. Switch plans anytime,
               keep full control of your product page, and tap Insights for
               automated research—starting with weekly runs on the free plan.
             </p>
           </div>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Button
-              asChild
-              size="lg"
-              className="shadow-[0px_25px_55px_-32px_rgba(7,58,104,0.6)]"
+            <Link
+              href="/register"
+              className={launchPrimaryButton({ size: "lg" })}
             >
-              <Link href="/register">Start for free</Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="ghost"
-              className="text-[color:var(--brand-1)] hover:text-[color:var(--brand-1)/0.75]"
+              Start for free
+            </Link>
+            <Link
+              href={REWARDS_PATH}
+              className={launchSecondaryButton({
+                size: "lg",
+                className: "text-white/90 hover:text-white",
+              })}
             >
-              <Link href={REWARDS_PATH}>Explore rewards</Link>
-            </Button>
+              Explore rewards
+            </Link>
           </div>
-          <div className="grid gap-4 rounded-2xl border border-[color:var(--brand-1)/0.2] bg-background/80 px-6 py-6 text-left shadow-[0px_25px_60px_-40px_rgba(7,58,104,0.6)] backdrop-blur sm:grid-cols-3">
+          <div className="grid gap-4 rounded-2xl border border-white/30 bg-white/10 px-6 py-6 text-left text-white shadow-[0px_25px_60px_-40px_rgba(7,58,104,0.6)] backdrop-blur sm:grid-cols-3">
             <div>
-              <p className="text-sm font-semibold text-[color:var(--brand-1)]">
+              <p className="text-sm font-semibold text-white">
                 Launch playbooks
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-xs text-white/80">
                 Step-by-step checklists for every plan.
               </p>
             </div>
             <div>
-              <p className="text-sm font-semibold text-[color:var(--brand-1)]">
+              <p className="text-sm font-semibold text-white">
                 Upgrade anytime
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-xs text-white/80">
                 Plans stack instantly—no downtime for your listing.
               </p>
             </div>
             <div>
-              <p className="text-sm font-semibold text-[color:var(--brand-1)]">
+              <p className="text-sm font-semibold text-white">
                 Analytics & insights
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-xs text-white/80">
                 Track signal across every tier and trigger Insights runs for
                 competitive, community, and action reports—free includes one run
                 per week and upgrades add more credits.
@@ -166,26 +149,27 @@ export default async function PricingPage() {
             </div>
           </div>
         </div>
-      </PublicContainer>
+      </section>
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        className="relative"
-        fillScreen={false}
-      >
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">
-            Choose your promotion tier
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Every plan includes verified launch tooling. Upgrade for additional
-            visibility across the harbor.
-          </p>
+      <HeroStickyBanner
+        wrapperClassName="mt-6"
+        innerClassName="max-w-[84rem]"
+      />
+
+      <section className="relative py-16">
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+              Choose your promotion tier
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Every plan includes verified launch tooling. Upgrade for
+              additional visibility across Shipyard.
+            </p>
+          </div>
+          <PricingTable plans={plans} />
         </div>
-        <PricingTable plans={plans} />
-      </PublicContainer>
+      </section>
 
       <InsightsShowcase
         eyebrow="Insights included"
@@ -202,104 +186,96 @@ export default async function PricingPage() {
       />
 
       {subscriptionPlans.length > 0 && (
-        <PublicContainer
-          as="section"
-          max="marketing"
-          paddingY="py-16"
-          className="relative"
-          fillScreen={false}
-        >
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">
-              Keep your crew connected
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              Subscriptions unlock shared organizations, advanced analytics,
-              recurring Insights credits, and dedicated collaboration resources.
-            </p>
+        <section className="relative py-16">
+          <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">
+                Keep your team connected
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                Subscriptions unlock shared organizations, advanced analytics,
+                recurring Insights credits, and dedicated collaboration
+                resources.
+              </p>
+            </div>
+            <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
+              {subscriptionPlans.map((plan) => (
+                <div
+                  key={plan.id}
+                  className="flex w-full max-w-sm flex-1 basis-full sm:basis-[20rem]"
+                >
+                  <SubscriptionPlanCard plan={plan} />
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
-            {subscriptionPlans.map((plan) => (
-              <div
-                key={plan.id}
-                className="flex w-full max-w-sm flex-1 basis-full sm:basis-[20rem]"
-              >
-                <SubscriptionPlanCard plan={plan} />
+        </section>
+      )}
+
+      <section className="relative py-16">
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+          <div className="grid gap-6 rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/85 px-8 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.65)] backdrop-blur sm:grid-cols-3">
+            {CORE_PERKS.map(({ icon: Icon, title, body }) => (
+              <div key={title} className="space-y-3">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.1] text-[color:var(--brand-1)]">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <h3 className="text-lg font-semibold text-foreground">
+                  {title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {body}
+                </p>
               </div>
             ))}
           </div>
-        </PublicContainer>
-      )}
-
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        className="relative"
-        fillScreen={false}
-      >
-        <div className="grid gap-6 rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/85 px-8 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.65)] backdrop-blur sm:grid-cols-3">
-          {CORE_PERKS.map(({ icon: Icon, title, body }) => (
-            <div key={title} className="space-y-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.1] text-[color:var(--brand-1)]">
-                <Icon className="h-5 w-5" />
-              </span>
-              <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {body}
-              </p>
-            </div>
-          ))}
         </div>
-      </PublicContainer>
+      </section>
 
       {featured.length > 0 && (
-        <PublicContainer
-          as="section"
-          max="marketing"
-          paddingY="py-16"
-          className="relative"
-          fillScreen={false}
-        >
-          <div className="mx-auto max-w-2xl text-center space-y-3">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">
-              Featured success stories
-            </h2>
-            <p className="text-muted-foreground">
-              Makers who upgraded to featured placements and found their crew.
-            </p>
+        <section className="relative py-16">
+          <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+            <div className="mx-auto max-w-2xl text-center space-y-3">
+              <h2 className="text-3xl font-bold tracking-tight text-foreground">
+                Featured success stories
+              </h2>
+              <p className="text-muted-foreground">
+                Makers who upgraded to featured placements and grew their
+                audience.
+              </p>
+            </div>
+            <div className="mt-10">
+              <FeaturedProductGrid items={featured.slice(0, 6)} />
+            </div>
           </div>
-          <div className="mt-10">
-            <FeaturedProductGrid items={featured.slice(0, 6)} />
-          </div>
-        </PublicContainer>
+        </section>
       )}
 
-      <PublicContainer
-        as="section"
-        max="marketing"
-        paddingY="py-16"
-        className="relative"
-        fillScreen={false}
-        innerClassName="max-w-3xl"
-      >
-        <div className="space-y-8 rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/85 px-6 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight">FAQ</h2>
-            <p className="mt-2 text-muted-foreground">
-              Answers to the questions launch captains ask most.
-            </p>
+      <section className="relative py-16">
+        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
+          <div className="max-w-3xl">
+            <div className="space-y-8 rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/85 px-6 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold tracking-tight">FAQ</h2>
+                <p className="mt-2 text-muted-foreground">
+                  Answers to the questions launch teams ask most.
+                </p>
+              </div>
+              <Accordion type="multiple" className="w-full" id="faq">
+                {PRICING_FAQS.map((faq, index) => (
+                  <AccordionItem
+                    key={faq.question}
+                    value={`pricing-faq-${index}`}
+                  >
+                    <AccordionTrigger>{faq.question}</AccordionTrigger>
+                    <AccordionContent>{faq.answer}</AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
           </div>
-          <Accordion type="multiple" className="w-full" id="faq">
-            {PRICING_FAQS.map((faq, index) => (
-              <AccordionItem key={faq.question} value={`pricing-faq-${index}`}>
-                <AccordionTrigger>{faq.question}</AccordionTrigger>
-                <AccordionContent>{faq.answer}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
         </div>
-      </PublicContainer>
+      </section>
     </main>
   )
 }

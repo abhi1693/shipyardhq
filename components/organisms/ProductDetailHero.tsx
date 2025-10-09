@@ -1,25 +1,20 @@
 import Image from "next/image"
 import Link from "next/link"
 import { JSX } from "react"
-import { CheckCircle } from "lucide-react"
+import { CheckCircle, Tag as TagIcon } from "lucide-react"
 import { SignInButton } from "@clerk/nextjs"
 
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { cn } from "@/lib/utils"
 import { productPageCopy } from "@/lib/copy/productPage"
+import { brandGradient, gradientTint } from "@/lib/ui/tints"
 
 interface HeroBadge {
   id: string
   label: string
   icon?: JSX.Element
   className?: string
-}
-
-interface HeroLink {
-  href: string
-  label: string
-  icon: JSX.Element
 }
 
 interface HeroPlatform {
@@ -34,9 +29,37 @@ interface HeroTag {
   href: string
 }
 
-interface HeroStat {
-  label: string
-  value: string
+const PLATFORM_TONE_MAP: Record<string, string> = {
+  web: "bg-sky-500/10 text-sky-700 ring-sky-500/30",
+  ios: "bg-slate-500/10 text-slate-700 ring-slate-500/30",
+  android: "bg-emerald-500/10 text-emerald-700 ring-emerald-500/30",
+  mac: "bg-zinc-500/10 text-zinc-700 ring-zinc-500/30",
+  windows: "bg-blue-500/10 text-blue-700 ring-blue-500/30",
+  linux: "bg-amber-500/10 text-amber-700 ring-amber-500/25",
+  chrome_extension: "bg-orange-500/10 text-orange-700 ring-orange-500/30",
+  firefox_extension: "bg-amber-500/10 text-amber-700 ring-amber-500/25",
+}
+
+function platformToneClass(platformId: string) {
+  return (
+    PLATFORM_TONE_MAP[platformId] ??
+    "bg-muted/40 text-muted-foreground ring-border/60"
+  )
+}
+
+const TAG_TONE_CLASSES = [
+  "bg-violet-500/12 text-violet-700 ring-violet-500/30",
+  "bg-rose-500/12 text-rose-700 ring-rose-500/30",
+  "bg-sky-500/12 text-sky-700 ring-sky-500/30",
+  "bg-emerald-500/12 text-emerald-700 ring-emerald-500/30",
+  "bg-amber-400/12 text-amber-700 ring-amber-500/25",
+]
+
+function tagToneClass(index: number) {
+  if (TAG_TONE_CLASSES.length === 0) {
+    return "bg-muted/40 text-muted-foreground ring-border/60"
+  }
+  return TAG_TONE_CLASSES[index % TAG_TONE_CLASSES.length]
 }
 
 interface ProductDetailHeroProps {
@@ -48,11 +71,8 @@ interface ProductDetailHeroProps {
   badges: HeroBadge[]
   isVerified: boolean
   primaryLinks: JSX.Element[]
-  secondaryLinks: HeroLink[]
   platforms: HeroPlatform[]
   tags: HeroTag[]
-  stats: HeroStat[]
-  supportCard: JSX.Element
   reviewPrompt?: {
     isSignedIn: boolean
     redirectUrl: string
@@ -69,213 +89,224 @@ export function ProductDetailHero({
   badges,
   isVerified,
   primaryLinks,
-  secondaryLinks,
   platforms,
   tags,
-  stats,
-  supportCard,
   reviewPrompt,
 }: ProductDetailHeroProps) {
-  const { hero } = productPageCopy
-  const hasSecondaryLinks = secondaryLinks.length > 0
+  const { hero, reviewPrompt: reviewCopy } = productPageCopy
   const hasPlatforms = platforms.length > 0
   const hasTags = tags.length > 0
-  const hasStats = stats.length > 0
-  const reviewCopy = productPageCopy.reviewPrompt
+  const showOwner = owner.name.trim().length > 0
+  const hasBadgeContent = isVerified || badges.length > 0
+  const showOwnerMeta = showOwner
+  const showReviewPrompt = Boolean(reviewPrompt)
 
   return (
-    <div className="relative overflow-hidden">
-      <div className="grid gap-14 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,360px)] lg:items-start">
-        <div className="space-y-10 lg:space-y-12">
-          <header className="space-y-6">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-3xl border border-white/30 bg-white shadow-[0_18px_45px_-30px_rgba(7,58,104,0.55)] ring-1 ring-slate-200/40 sm:h-24 sm:w-24 dark:border-slate-700/40 dark:bg-slate-900 dark:ring-slate-700/40">
-                <Image
-                  src={logo}
-                  alt={`${name} logo`}
-                  width={96}
-                  height={96}
-                  priority
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="min-w-0 space-y-5">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                    <span>{hero.chartedLabel}</span>
-                    <Link
-                      href={category.href}
-                      className="font-semibold tracking-[0.2em] text-foreground underline decoration-[color:var(--brand-1)/0.45] underline-offset-4 transition-colors hover:decoration-[color:var(--brand-1)/0.7]"
-                    >
-                      {category.label}
-                    </Link>
-                  </div>
-                  <h1 className="text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
-                    {name}
-                  </h1>
-                  {tagline ? (
-                    <p className="max-w-2xl text-base text-slate-600 sm:text-lg dark:text-slate-200/90">
-                      {tagline}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              {isVerified ? (
-                <Badge className="flex items-center gap-1 rounded-full border border-[color:var(--brand-2)/0.35] bg-[color:var(--brand-2)/0.12] px-3 py-1 text-[color:var(--brand-2)]">
-                  <CheckCircle className="size-3" aria-hidden /> Verified domain
-                </Badge>
-              ) : null}
-              {badges.map((badge) => (
-                <Badge
-                  key={badge.id}
-                  className={cn(
-                    "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold",
-                    badge.className,
-                  )}
-                >
-                  {badge.icon}
-                  {badge.label}
-                </Badge>
-              ))}
-            </div>
-
-            <div className="text-sm text-slate-600 dark:text-slate-200/90">
-              {hero.ownerPrefix}{" "}
-              <Link
-                href={owner.href}
-                className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition-colors hover:text-[color:var(--brand-1)]"
-              >
-                {owner.name}
-              </Link>
-            </div>
-
-            {primaryLinks.length > 0 ? (
-              <div className="flex flex-wrap gap-3">
-                {primaryLinks.map((link, index) => (
-                  <span key={`primary-${index}`} className="inline-flex">
-                    {link}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-          </header>
-
-          {hasPlatforms ? (
+    <div className="space-y-6 rounded-3xl border border-border bg-white px-6 py-7 shadow-sm">
+      <header className="flex flex-col gap-6 sm:flex-row sm:items-start">
+        <div className="flex gap-5">
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-border bg-white shadow-sm sm:h-20 sm:w-20">
+            <Image
+              src={logo}
+              alt={`${name} logo`}
+              width={96}
+              height={96}
+              priority
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="min-w-0 space-y-4">
             <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                Sails hoisted for
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {platforms.map((platform) => (
+              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-foreground/80">
+                <span className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-muted/20 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground">
+                  {hero.chartedLabel}
+                </span>
+                <Link
+                  href={category.href}
+                  className="inline-flex items-center gap-1 rounded-full border border-transparent bg-white px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground transition hover:border-border/70 hover:bg-white"
+                >
+                  {category.label}
+                </Link>
+              </div>
+              <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                {name}
+              </h1>
+              {tagline ? (
+                <p className="max-w-2xl text-base text-muted-foreground">
+                  {tagline}
+                </p>
+              ) : null}
+            </div>
+
+            {hasBadgeContent ? (
+              <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
+                {isVerified ? (
+                  <Badge className="flex items-center gap-1 rounded-full border border-border bg-white bg-none px-3 py-1 text-xs font-medium text-foreground shadow-none">
+                    <CheckCircle className="size-3" aria-hidden />
+                    Verified launch
+                  </Badge>
+                ) : null}
+                {badges.map((badge) => (
                   <Badge
-                    key={platform.id}
-                    variant="outline"
-                    className="flex items-center gap-1 rounded-full border-slate-200/60 bg-white px-2.5 py-0.5 text-[11px] text-[color:var(--brand-1)] dark:border-slate-700/50 dark:bg-slate-900"
+                    key={badge.id}
+                    className={cn(
+                      "flex items-center gap-1 rounded-full border border-border bg-white bg-none px-3 py-1 text-xs font-medium text-muted-foreground shadow-none",
+                      badge.className,
+                    )}
                   >
-                    {platform.icon}
-                    {platform.label}
+                    {badge.icon}
+                    {badge.label}
                   </Badge>
                 ))}
               </div>
-            </div>
+            ) : null}
+
+            {showOwnerMeta ? (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                <span>
+                  {hero.ownerPrefix}{" "}
+                  <Link
+                    href={owner.href}
+                    className="font-medium text-foreground underline decoration-dotted underline-offset-4 transition hover:text-foreground"
+                  >
+                    {owner.name}
+                  </Link>
+                </span>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </header>
+
+      {primaryLinks.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-3">
+          {primaryLinks.map((link, index) => (
+            <span key={`primary-${index}`} className="inline-flex">
+              {link}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {hasPlatforms || hasTags ? (
+        <div
+          className={cn(
+            "grid gap-4",
+            hasPlatforms && hasTags ? "md:grid-cols-2" : "md:grid-cols-1",
+          )}
+        >
+          {hasPlatforms ? (
+            <section className="rounded-2xl border border-border/60 bg-white/60 p-4 shadow-[0_12px_28px_-26px_rgba(15,23,42,0.35)] backdrop-blur">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                <span className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-muted/30 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground">
+                  ON
+                </span>
+                Available on
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {platforms.map((platform) => (
+                  <span
+                    key={platform.id}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset shadow-[0_10px_25px_-24px_rgba(15,23,42,0.45)] transition hover:-translate-y-px",
+                      platformToneClass(platform.id),
+                    )}
+                  >
+                    {platform.icon ? (
+                      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/70 text-muted-foreground">
+                        {platform.icon}
+                      </span>
+                    ) : null}
+                    <span className="tracking-[0.015em]">{platform.label}</span>
+                  </span>
+                ))}
+              </div>
+            </section>
           ) : null}
 
           {hasTags ? (
-            <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
-                Tags
+            <section className="rounded-2xl border border-border/60 bg-white/70 p-4 shadow-[0_12px_28px_-26px_rgba(15,23,42,0.35)] backdrop-blur">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border/70 bg-muted/30 text-foreground/80">
+                  <TagIcon className="size-3" aria-hidden />
+                </span>
+                Signal tags
               </p>
-              <div className="flex flex-wrap gap-1.5">
-                {tags.map((tag) => (
-                  <Link key={tag.id} href={tag.href} className="inline-flex">
-                    <Badge className="rounded-full border border-slate-200/60 bg-white px-3 py-0.5 text-[11px] font-medium text-[color:var(--brand-1)] transition hover:border-[color:var(--brand-1)/0.4] dark:border-slate-700/50 dark:bg-slate-900 dark:text-slate-100">
-                      {tag.label}
-                    </Badge>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {tags.map((tag, index) => (
+                  <Link
+                    key={tag.id}
+                    href={tag.href}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset shadow-[0_10px_25px_-24px_rgba(15,23,42,0.45)] transition hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring/30",
+                      tagToneClass(index),
+                    )}
+                  >
+                    <span
+                      className="inline-flex size-1.5 rounded-full bg-current opacity-70"
+                      aria-hidden
+                    />
+                    <span className="tracking-[0.02em]">{tag.label}</span>
                   </Link>
                 ))}
               </div>
-            </div>
-          ) : null}
-
-          {reviewPrompt ? (
-            <div className="rounded-[28px] bg-white px-6 py-5 ring-1 ring-slate-200/70 shadow-[0_24px_70px_-55px_rgba(7,58,104,0.35)] dark:bg-slate-900 dark:ring-slate-800/50">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="space-y-1">
-                  <p className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--brand-1)]">
-                    {reviewCopy.heading}
-                  </p>
-                  <p className="text-sm text-slate-600 dark:text-slate-200/90">
-                    {reviewCopy.body}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  {reviewPrompt.isSignedIn ? (
-                    <Button asChild size="sm" className="px-4">
-                      <Link href="#product-review-form">
-                        {reviewPrompt.hasReviews
-                          ? reviewCopy.signedInCta
-                          : `Be the first to review ${name}`}
-                      </Link>
-                    </Button>
-                  ) : (
-                    <SignInButton
-                      mode="modal"
-                      forceRedirectUrl={reviewPrompt.redirectUrl}
-                      signUpForceRedirectUrl={reviewPrompt.redirectUrl}
-                    >
-                      <Button size="sm" className="px-4" variant="outline">
-                        {reviewCopy.signedOutCta}
-                      </Button>
-                    </SignInButton>
-                  )}
-                </div>
-              </div>
-            </div>
+            </section>
           ) : null}
         </div>
+      ) : null}
 
-        <aside className="space-y-4 lg:sticky lg:top-28">
-          {supportCard}
-          {hasStats ? (
-            <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200/70 shadow-[0_24px_80px_-60px_rgba(7,58,104,0.35)] dark:bg-slate-900 dark:ring-slate-800/60">
-              <p className="text-[11px] uppercase tracking-[0.3em] text-slate-600 dark:text-slate-300">
-                {hero.statsLabel}
+      {showReviewPrompt && reviewPrompt ? (
+        <div
+          className={brandGradient(
+            "relative overflow-hidden rounded-2xl border border-[color:var(--brand-1)/0.18] text-white shadow-[0_22px_48px_-32px_rgba(7,78,134,0.45)]",
+          )}
+        >
+          <div
+            aria-hidden
+            className={gradientTint(
+              "absolute inset-0 border-0 backdrop-blur-sm",
+            )}
+          />
+          <div className="relative z-10 flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1 text-white">
+              <p className="text-[11px] uppercase tracking-[0.32em] text-white">
+                {reviewCopy.heading}
               </p>
-              <dl className="mt-4 space-y-3">
-                {stats.map((stat) => (
-                  <div key={stat.label} className="space-y-1">
-                    <dt className="text-[11px] uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300">
-                      {stat.label}
-                    </dt>
-                    <dd className="text-base font-semibold text-foreground">
-                      {stat.value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
+              <p className="text-sm text-white">{reviewCopy.body}</p>
             </div>
-          ) : null}
-          {hasSecondaryLinks ? (
-            <div className="flex items-center justify-center gap-2 rounded-full bg-white p-1 ring-1 ring-slate-200/60 dark:bg-slate-900 dark:ring-slate-800/50">
-              {secondaryLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={link.label}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[color:var(--brand-1)] transition hover:bg-white hover:text-[color:var(--brand-2)] dark:hover:bg-slate-800"
+            <div className="flex flex-wrap items-center gap-3">
+              {reviewPrompt.isSignedIn ? (
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="border-white/70 bg-white/95 px-4 text-[color:var(--brand-1)] shadow-none transition hover:bg-white"
                 >
-                  {link.icon}
-                </Link>
-              ))}
+                  <Link href="#product-review-form">
+                    {reviewPrompt.hasReviews
+                      ? reviewCopy.signedInCta
+                      : `Be the first to review ${name}`}
+                  </Link>
+                </Button>
+              ) : (
+                <SignInButton
+                  mode="modal"
+                  forceRedirectUrl={reviewPrompt.redirectUrl}
+                  signUpForceRedirectUrl={reviewPrompt.redirectUrl}
+                >
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-white/60 bg-white/90 px-4 text-[color:var(--brand-1)] shadow-none transition hover:bg-white"
+                  >
+                    {reviewCopy.signedOutCta}
+                  </Button>
+                </SignInButton>
+              )}
             </div>
-          ) : null}
-        </aside>
-      </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

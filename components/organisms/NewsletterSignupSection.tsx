@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useState, useTransition } from "react"
+import { FormEvent, useId, useState, useTransition } from "react"
 import { subscribeToNewsletterAction } from "@/actions/public/newsletter/actions"
 import { Button } from "@/components/atoms/button"
 import { Input } from "@/components/atoms/input"
@@ -23,6 +23,7 @@ export function NewsletterSignupSection({
   const [email, setEmail] = useState("")
   const [formState, setFormState] = useState<FormState>(INITIAL_STATE)
   const [isPending, startTransition] = useTransition()
+  const instanceId = useId().replace(/:/g, "")
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -46,41 +47,32 @@ export function NewsletterSignupSection({
 
       setFormState({
         status: "success",
-        message: "All hands! We'll ping you when the next launch sets sail.",
+        message: "You're in! We'll ping you when the next launch goes live.",
       })
       setEmail("")
     })
   }
 
-  const helperId = "newsletter-signup-feedback"
-  const inputId = "newsletter-signup-email"
+  const helperId = `${instanceId}-newsletter-feedback`
+  const inputId = `${instanceId}-newsletter-email`
 
   return (
     <section
       className={cn(
-        "relative overflow-hidden bg-gradient-to-br from-sky-50 via-white to-blue-100 px-8 py-12 shadow-[0_40px_120px_-60px_rgba(16,70,126,0.55)] dark:from-slate-900 dark:via-slate-950 dark:to-slate-900",
+        "rounded-3xl border border-border bg-white px-8 py-12 shadow-sm",
         "lg:px-12 lg:py-16",
         className,
       )}
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-10 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-[color:var(--brand-2)/0.18] blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-14 -top-10 h-64 w-64 rounded-full bg-[color:var(--brand-3)/0.22] blur-3xl"
-      />
-
-      <div className="relative grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)] lg:items-center">
-        <div className="space-y-5 text-slate-900 dark:text-slate-100">
-          <p className="inline-flex items-center rounded-full bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--brand-2)] shadow-sm backdrop-blur dark:bg-white/5 dark:text-[color:var(--brand-2)]">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)] lg:items-center">
+        <div className="space-y-5 text-foreground">
+          <p className="inline-flex items-center rounded-full border border-border bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Newsletter
           </p>
           <h2 className="text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl">
             Chart the course with the Captain&apos;s Log
           </h2>
-          <p className="max-w-2xl text-base text-slate-700 dark:text-slate-300">
+          <p className="max-w-2xl text-base text-muted-foreground">
             Shipyard highlights the freshest launches, behind-the-scenes maker
             stories, and featured opportunities. Drop your email and we&apos;ll
             make sure you never miss a signal flare.
@@ -88,12 +80,12 @@ export function NewsletterSignupSection({
         </div>
 
         <form
-          className="relative flex flex-col gap-4 rounded-[28px] bg-white/90 p-6 shadow-lg backdrop-blur dark:bg-slate-950/60"
+          className="relative flex flex-col gap-4 rounded-[28px] border border-border bg-white p-6 shadow-sm"
           onSubmit={handleSubmit}
           aria-describedby={helperId}
         >
           <label
-            className="text-sm font-medium text-slate-800 dark:text-slate-200"
+            className="text-sm font-medium text-foreground"
             htmlFor={inputId}
           >
             Email address
@@ -103,7 +95,7 @@ export function NewsletterSignupSection({
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@crewmail.com"
+            placeholder="you@workmail.com"
             autoComplete="email"
             required
             className="h-11"
@@ -111,9 +103,10 @@ export function NewsletterSignupSection({
           <Button
             type="submit"
             disabled={isPending}
-            className="h-11 w-full rounded-full bg-[color:var(--brand-2)] text-sm font-semibold tracking-wide text-white transition hover:bg-[color:var(--brand-2)/0.9]"
+            variant="secondary"
+            className="h-11 w-full text-sm font-semibold"
           >
-            {isPending ? "Hoisting sails..." : "Signal the lighthouse"}
+            {isPending ? "Submitting..." : "Subscribe"}
           </Button>
           <p
             id={helperId}
@@ -122,14 +115,14 @@ export function NewsletterSignupSection({
             className={cn(
               "text-xs transition-colors",
               formState.status === "error"
-                ? "text-red-600 dark:text-red-400"
+                ? "text-red-600"
                 : formState.status === "success"
-                  ? "text-emerald-600 dark:text-emerald-400"
+                  ? "text-emerald-600"
                   : "text-muted-foreground",
             )}
           >
             {formState.message ||
-              "No spam. Just charted course updates from the Shipyard crew."}
+              "No spam. Just launch and product updates from the Shipyard team."}
           </p>
         </form>
       </div>
