@@ -159,11 +159,10 @@ export async function awardRewards(
         )
       }
 
-      const lockedBalance = await lockRewardBalance(tx, userId)
-
       await enforceCaps(tx, userId, rule, rewardAmount, now)
       await enforceCooldowns(tx, userId, rule, payload, now)
 
+      const lockedBalance = await lockRewardBalance(tx, userId)
       const streakUpdate = resolveStreak(lockedBalance, payload.streak, now)
 
       const balance = await tx.rewardBalance.update({
