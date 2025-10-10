@@ -4,9 +4,9 @@ import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { MEMBER_PRODUCTS_PATH } from "@/lib/routes"
 
 export const BUILDER_OUTREACH_SUBJECT =
-  "Launch without the wait: Shipyard now pairs curated discovery with weekly insights"
+  "Shipyard team ready to help you launch with confidence"
 export const BUILDER_OUTREACH_PREVIEW_TEXT =
-  "Submit today to tap crew-reviewed exposure, weekly intelligence, and plan-level analytics."
+  "Prep with guided checklists, expert review, and weekly insights."
 export const BUILDER_OUTREACH_CTA_URL = `https://shipyardhq.dev${MEMBER_PRODUCTS_PATH}`
 
 const paragraphStyle: CSSProperties = {
@@ -53,47 +53,42 @@ export function BuilderOutreachEmail({
       renderMode={renderMode}
       title={BUILDER_OUTREACH_SUBJECT}
       previewText={BUILDER_OUTREACH_PREVIEW_TEXT}
-      heading="Launch without the wait"
-      intro={`Hey ${greeting}, I'm part of the Shipyard crew. We built Shipyard for builders who want momentum without the noise.`}
+      heading="Launch with support you can trust"
+      intro={`Hey ${greeting}, I'm part of the Shipyard team. We're here to help you fine-tune your launch story and feel confident when you share it.`}
       cta={{ label: "Start your listing", href: BUILDER_OUTREACH_CTA_URL }}
       footerNote={<BuilderOutreachSignature />}
     >
       <p style={paragraphStyle}>
-        Shipyard gives every launch a crew-reviewed runway. Submit when
-        you&#39;re ready and the team pairs your product with checklists,
-        templates, and a curated community of builders, investors, and operators
-        actively looking for what&#39;s next.
+        Shipyard pairs your launch with hands-on guidance. Submit when
+        you&#39;re ready and we&#39;ll help you gather the essentials, polish
+        your listing, and share it with builders, operators, and investors who
+        care about what&#39;s next.
       </p>
       <ul style={listStyle}>
         <li>
-          Launch instantly with no queues or pay-to-play fast passes, and keep
-          your crew aligned with built-in prep tools.
+          Work through guided checklists, templates, and examples so your
+          listing hits the moments people expect.
         </li>
         <li>
-          Stay in the spotlight with homepage showcases, editorial newsletters,
-          and leaderboard boosts you can unlock on your terms.
+          Share updates at your pace; when you&#39;re ready we can spotlight you
+          across the homepage, editorial newsletters, and community features.
         </li>
         <li>
-          See what converts using plan-specific analytics that track views,
-          referrers, devices, retention, and organization-wide rollups.
+          Review plan-specific analytics to understand what resonates and which
+          channels to lean on next.
         </li>
         <li>
-          Turn signal into strategy with Shipyard Insights; every plan starts
-          with a weekly report blending performance data, competitor research,
-          and community sentiment.
-        </li>
-        <li>
-          Scout what&#39;s trending next with the interactive Trend Radar
-          pointing to categories where momentum and upvotes are surging.
+          Get weekly Shipyard Insights distilling performance data, competitor
+          research, and community sentiment into next steps.
         </li>
       </ul>
       <p style={paragraphStyle}>
-        You can start free, upgrade placements only when you want extra reach,
-        and keep momentum compounding long after launch day.
+        Whether you&#39;re polishing your first draft or iterating after launch,
+        we stay alongside you with steady reminders and practical data.
       </p>
       <p style={paragraphStyle}>
-        Have questions or want a second set of eyes on your listing? Just reply
-        and I&#39;ll make sure you&#39;re set.
+        Want a walkthrough or have questions? Just reply and we&#39;ll connect
+        you with someone from the team.
       </p>
     </BaseEmailTemplate>
   )
@@ -102,9 +97,9 @@ export function BuilderOutreachEmail({
 function BuilderOutreachSignature() {
   return (
     <div style={footerParagraphStyle}>
-      <p style={paragraphStyle}>Fair winds,</p>
+      <p style={paragraphStyle}>All the best,</p>
       <p style={paragraphStyle}>
-        Shipyard Crew - Shipyard HQ
+        Shipyard Team - Shipyard HQ
         <br />
         <a
           href="https://shipyardhq.dev"
@@ -121,24 +116,23 @@ export function buildBuilderOutreachTextBody(firstName?: string | null) {
   const greeting = getGreeting(firstName)
 
   const lines = [
-    `Hey ${greeting}, I'm part of the Shipyard crew. We built Shipyard for builders who want momentum without the noise.`,
+    `Hey ${greeting}, I'm part of the Shipyard team. We're here to help you fine-tune your launch story and feel confident when you share it.`,
     "",
-    "Shipyard gives every launch a crew-reviewed runway. Submit when you're ready and the team pairs your product with prep tools plus a curated audience of builders, investors, and operators actively looking for what's next.",
+    "Shipyard pairs your launch with hands-on guidance. Submit when you're ready and we'll help you gather the essentials, polish your listing, and share it with builders, operators, and investors who care about what's next.",
     "",
-    "Here's what you unlock:",
-    "- Launch instantly with no queues or pay-to-play fast passes, and keep your crew aligned with built-in prep tools.",
-    "- Stay in the spotlight with homepage showcases, editorial newsletters, and leaderboard boosts you can unlock on your terms.",
-    "- See what converts using analytics that track views, referrers, devices, retention, and organization-wide rollups.",
-    "- Turn signal into strategy with Shipyard Insights; every plan starts with a weekly report blending performance data, competitor research, and community sentiment.",
-    "- Scout what's trending next with the interactive Trend Radar highlighting categories where momentum and upvotes are surging.",
+    "Here's how we help:",
+    "- Work through guided checklists, templates, and examples so your listing hits the moments people expect.",
+    "- Share updates at your pace; when you're ready we can spotlight you across the homepage, editorial newsletters, and community features.",
+    "- Review plan-specific analytics to understand what resonates and which channels to lean on next.",
+    "- Get weekly Shipyard Insights distilling performance data, competitor research, and community sentiment into next steps.",
     "",
-    "You can start free, upgrade placements only when you want extra reach, and keep momentum compounding long after launch day.",
+    "Whether you're polishing your first draft or iterating after launch, we stay alongside you with steady reminders and practical data.",
     `Start here: ${BUILDER_OUTREACH_CTA_URL}`,
     "",
-    "Have questions or want a second set of eyes on your listing? Just reply and I'll make sure you're set.",
+    "Want a walkthrough or have questions? Just reply and we'll connect you with someone from the team.",
     "",
-    "Fair winds,",
-    "Shipyard Crew - Shipyard HQ",
+    "All the best,",
+    "Shipyard Team - Shipyard HQ",
     "https://shipyardhq.dev",
   ]
 
