@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 const redisGetMock = vi.fn()
 const redisSetMock = vi.fn()
@@ -18,6 +18,8 @@ describe("discoverProductHuntLaunches", () => {
   const fetchMock = vi.fn()
 
   beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date("2024-07-15T00:00:00.000Z"))
     vi.clearAllMocks()
     fetchMock.mockReset()
     redisGetMock.mockReset()
@@ -28,6 +30,10 @@ describe("discoverProductHuntLaunches", () => {
       set: redisSetMock,
     })
     ;(globalThis as any).fetch = fetchMock
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it("fetches launches and stores them in cache", async () => {
@@ -120,6 +126,42 @@ describe("discoverProductHuntLaunches", () => {
     }
   })
 
+  it("filters out launches older than the max lookback window", async () => {
+    const oldHit = {
+      objectID: "launch_old",
+      name: "LegacyBoard",
+      slug: "legacyboard",
+      tagline: "Legacy entry",
+      url: "/posts/legacyboard",
+      vote_count: 120,
+      comments_count: 8,
+      featured_at: "2023-09-01T08:00:00.000Z",
+      created_at: "2023-09-01T08:00:00.000Z",
+    }
+
+    fetchMock.mockImplementation(async () => {
+      return new Response(JSON.stringify({ hits: [oldHit] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    })
+
+    const { discoverProductHuntLaunches } = await import(
+      "@/lib/server/productInsights/productHunt"
+    )
+
+    const result = await discoverProductHuntLaunches({
+      productId: "prod_old",
+      product: {
+        name: "LegacyBoard",
+      },
+    })
+
+    expect(result.data.launches).toHaveLength(0)
+    expect(result.data.similarLaunches).toBeNull()
+    expect(result.data.summary).toBeNull()
+  })
+
   it("returns cached payload when present", async () => {
     const cachedHit = {
       objectID: "launch_cached",
@@ -129,6 +171,8 @@ describe("discoverProductHuntLaunches", () => {
       url: "/posts/cached",
       vote_count: 100,
       comments_count: 10,
+      featured_at: "2024-06-01T00:00:00.000Z",
+      created_at: "2024-06-01T00:00:00.000Z",
     }
 
     redisGetMock.mockResolvedValue(

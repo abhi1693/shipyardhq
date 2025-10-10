@@ -27,6 +27,9 @@ const COMPETITOR_QUERY_LIMIT = 5
 const FEATURE_QUERY_LIMIT = 5
 const KEYWORD_RESULT_LIMIT = 6
 const MS_PER_DAY = 86_400_000
+const MAX_LAUNCH_AGE_DAYS = 183
+const MAX_LAUNCH_LOOKBACK_LABEL = "6 months"
+const MAX_LAUNCH_AGE_MS = MAX_LAUNCH_AGE_DAYS * MS_PER_DAY
 
 const STOPWORDS = new Set([
   "a",
@@ -197,6 +200,21 @@ function parseDate(value?: string | null): Date | null {
 
 function toDays(value: number): number {
   return value / MS_PER_DAY
+}
+
+function filterRecentLaunchHits(
+  launches: z.infer<typeof HitSchema>[],
+  now = Date.now(),
+): z.infer<typeof HitSchema>[] {
+  return launches.filter((launch) => {
+    const createdAt =
+      parseDate(launch.created_at ?? null) ??
+      parseDate(launch.featured_at ?? null)
+    if (!createdAt) return false
+    const ageMs = now - createdAt.getTime()
+    if (ageMs < 0) return true
+    return ageMs <= MAX_LAUNCH_AGE_MS
+  })
 }
 
 function roundNumber(value: number, decimals = 2): number {
@@ -468,7 +486,7 @@ function buildSummary(
     const createdAtValue = parseDate(launch.createdAt ?? null)
     if (createdAtValue) {
       const daysSince = toDays(now - createdAtValue.getTime())
-      if (daysSince <= 90) {
+      if (daysSince <= MAX_LAUNCH_AGE_DAYS) {
         recentLaunchCount += 1
       }
     }
@@ -505,7 +523,7 @@ function buildSummary(
   }
   if (recentLaunchCount > 0) {
     insights.push(
-      `${recentLaunchCount} similar launches hit Product Hunt in the last 90 days.`,
+      `${recentLaunchCount} similar launches hit Product Hunt in the last ${MAX_LAUNCH_LOOKBACK_LABEL}.`,
     )
   }
 
@@ -765,24 +783,36 @@ export async function discoverProductHuntLaunches(
       const cached = await redis.get(cacheKey)
       if (cached) {
         const parsed = CacheSchema.parse(JSON.parse(cached))
-        const sanitizedLaunches = parsed.launches.map((launch, index) =>
+        const cachedLaunches = filterRecentLaunchHits(parsed.launches)
+        const sanitizedLaunches = cachedLaunches.map((launch, index) =>
           sanitizeLaunch(launch, index),
         )
-        const sanitizedSimilar = (parsed.similarLaunches ?? []).map(
-          (launch, index) => sanitizeLaunch(launch, index),
+        const cachedSimilarLaunches = filterRecentLaunchHits(
+          parsed.similarLaunches ?? [],
+        )
+        const sanitizedSimilar = cachedSimilarLaunches.map((launch, index) =>
+          sanitizeLaunch(launch, index),
         )
         const computedSummary =
           buildSummary(sanitizedLaunches, sanitizedSimilar) ??
           parsed.summary ??
           null
+        const cachedMatchedLaunchId =
+          parsed.matchedLaunchId &&
+          sanitizedLaunches.some(
+            (launch) => launch.id === parsed.matchedLaunchId,
+          )
+            ? parsed.matchedLaunchId
+            : null
+        const matchedLaunchId =
+          cachedMatchedLaunchId ??
+          resolveMatchedLaunchId(sanitizedLaunches, product)
         return {
           data: {
             queries: parsed.queries,
             launches: sanitizedLaunches,
             similarLaunches: sanitizedSimilar.length ? sanitizedSimilar : null,
-            matchedLaunchId:
-              parsed.matchedLaunchId ??
-              resolveMatchedLaunchId(sanitizedLaunches, product),
+            matchedLaunchId,
             summary: computedSummary,
             model: PROVIDER_MODEL,
             fetchedAt: parsed.fetchedAt ?? new Date().toISOString(),
@@ -816,7 +846,8 @@ export async function discoverProductHuntLaunches(
 
   const seenIds = new Set<string>()
   const deduped = dedupeLaunches(results, seenIds)
-  const sanitizedLaunches = deduped.map((launch, index) =>
+  const recentLaunches = filterRecentLaunchHits(deduped)
+  const sanitizedLaunches = recentLaunches.map((launch, index) =>
     sanitizeLaunch(launch, index),
   )
 
@@ -834,7 +865,8 @@ export async function discoverProductHuntLaunches(
     seenIds,
   })
 
-  const sanitizedSimilar = similarHits.map((launch, index) =>
+  const recentSimilarLaunches = filterRecentLaunchHits(similarHits)
+  const sanitizedSimilar = recentSimilarLaunches.map((launch, index) =>
     sanitizeLaunch(launch, index),
   )
 
@@ -844,8 +876,8 @@ export async function discoverProductHuntLaunches(
   if (redis) {
     const payload: CachePayload = {
       queries,
-      launches: deduped,
-      similarLaunches: similarHits,
+      launches: recentLaunches,
+      similarLaunches: recentSimilarLaunches,
       matchedLaunchId,
       summary: summaryData,
       fetchedAt: new Date().toISOString(),
