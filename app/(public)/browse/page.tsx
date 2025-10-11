@@ -1,5 +1,6 @@
 export const revalidate = 60
 
+import type { Metadata } from "next"
 import Link from "next/link"
 
 import {
@@ -31,12 +32,38 @@ import {
   LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
+  usecasePath,
 } from "@/lib/routes"
+import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 
-export const metadata = buildPageMetadata({
+const baseMetadata = buildPageMetadata({
   title: "Browse Products",
   description: "Explore tools, startups, and products by use case or category.",
 })
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<BrowseSearchParams>
+}): Promise<Metadata> {
+  const params = await searchParams
+  const useCase = resolveSingle(params.useCase)
+
+  if (useCase && useCase !== "__all__") {
+    const useCaseMeta = await getPublicUseCaseMeta(useCase)
+    if (useCaseMeta && useCaseMeta.productCount > 0) {
+      return {
+        ...baseMetadata,
+        alternates: { canonical: usecasePath(useCaseMeta.slug) },
+      }
+    }
+  }
+
+  return {
+    ...baseMetadata,
+    alternates: { canonical: BROWSE_PATH },
+  }
+}
 
 const browseMetrics = [
   {
