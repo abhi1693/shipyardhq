@@ -7,6 +7,7 @@ import {
   getPublicUserMeta,
   getPublicUserProfile,
 } from "@/actions/public/users/actions"
+import { getRewardsLeaderboardPositionForUser } from "@/actions/public/rewards/actions"
 import CopyButton from "@/components/molecules/CopyButton"
 import ShareProfileButton from "@/components/molecules/ShareProfileButton"
 import { EmptyState } from "@/components/molecules/empty-state"
@@ -22,6 +23,7 @@ import {
   BROWSE_PATH,
   HOME_PATH,
   LEADERBOARD_PATH,
+  LEADERBOARD_REWARDS_PATH,
   MEMBER_PRODUCTS_PATH,
   USERS_PATH,
   productPath,
@@ -74,6 +76,19 @@ export default async function MakerProfilePage({ params }: PageProps) {
   const profile = await getPublicUserProfile(id)
 
   if (!profile) return notFound()
+
+  const leaderboardPosition = await getRewardsLeaderboardPositionForUser(
+    profile.id,
+  )
+
+  const leaderboardTitle =
+    leaderboardPosition && leaderboardPosition.totalEligible > 0
+      ? `Ranked #${leaderboardPosition.rank.toLocaleString(
+          "en-US",
+        )} of ${leaderboardPosition.totalEligible.toLocaleString(
+          "en-US",
+        )} eligible makers on the User Leaderboard`
+      : undefined
 
   const fullName =
     `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() ||
@@ -302,6 +317,17 @@ export default async function MakerProfilePage({ params }: PageProps) {
                       <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
                         {profileSummary}
                       </p>
+                      <Link
+                        href={LEADERBOARD_REWARDS_PATH}
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-[color:var(--brand-1)] hover:underline"
+                        title={leaderboardTitle}
+                      >
+                        {leaderboardPosition
+                          ? `Ranked #${leaderboardPosition.rank.toLocaleString(
+                              "en-US",
+                            )} on the User Leaderboard`
+                          : "View the User Leaderboard"}
+                      </Link>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">

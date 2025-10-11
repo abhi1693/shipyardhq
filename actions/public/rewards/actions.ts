@@ -118,6 +118,7 @@ export type RewardsLeaderboardEntry = Prisma.RewardBalanceGetPayload<{
     lifetimeSpent: true
     lifetimeAdjusted: true
     lifetimeRefunded: true
+    updatedAt: true
     currentStreakCount: true
     longestStreakCount: true
     lastEarnedAt: true
@@ -167,6 +168,7 @@ export const getRewardsLeaderboardEntries = cached(
         lifetimeSpent: true,
         lifetimeAdjusted: true,
         lifetimeRefunded: true,
+        updatedAt: true,
         currentStreakCount: true,
         longestStreakCount: true,
         lastEarnedAt: true,
@@ -205,6 +207,114 @@ export const getRewardsLeaderboardEntries = cached(
       `rewards:leaderboard:limit:${normalizeRewardsLeaderboardLimit(
         typeof limit === "number" ? limit : REWARDS_LEADERBOARD_DEFAULT_LIMIT,
       )}`,
+    ],
+  },
+)
+
+export type RewardsLeaderboardPosition = {
+  rank: number
+  totalEligible: number
+  lifetimeEarned: number
+  launchCount: number
+}
+
+export const getRewardsLeaderboardPositionForUser = cached(
+  async (userId: string): Promise<RewardsLeaderboardPosition | null> => {
+    if (!userId) return null
+
+    const balance = await prisma.rewardBalance.findUnique({
+      where: { userId },
+      select: {
+        lifetimeEarned: true,
+        updatedAt: true,
+        user: {
+          select: {
+            status: true,
+            _count: {
+              select: {
+                products: {
+                  where: { status: "published" },
+                },
+              },
+            },
+          },
+        },
+      },
+      cacheStrategy: {
+        ttl: DEFAULT_TTL.fast,
+        swr: DEFAULT_SWR.fast,
+        tags: accelerateTags([
+          TAGS.rewards,
+          TAGS.rewardsLeaderboard,
+          TAGS.user(String(userId)),
+        ]),
+      },
+    })
+
+    if (
+      !balance ||
+      balance.lifetimeEarned <= 0 ||
+      balance.user?.status !== "active"
+    ) {
+      return null
+    }
+
+    const [aheadCount, eligibleCount] = await Promise.all([
+      prisma.rewardBalance.count({
+        where: {
+          user: { status: "active" },
+          lifetimeEarned: { gt: 0 },
+          OR: [
+            { lifetimeEarned: { gt: balance.lifetimeEarned } },
+            {
+              AND: [
+                { lifetimeEarned: balance.lifetimeEarned },
+                { updatedAt: { gt: balance.updatedAt } },
+              ],
+            },
+          ],
+        },
+        cacheStrategy: {
+          ttl: DEFAULT_TTL.fast,
+          swr: DEFAULT_SWR.fast,
+          tags: accelerateTags([
+            TAGS.rewards,
+            TAGS.rewardsLeaderboard,
+            "rewards:leaderboard:ranks",
+          ]),
+        },
+      }),
+      prisma.rewardBalance.count({
+        where: {
+          user: { status: "active" },
+          lifetimeEarned: { gt: 0 },
+        },
+        cacheStrategy: {
+          ttl: DEFAULT_TTL.fast,
+          swr: DEFAULT_SWR.fast,
+          tags: accelerateTags([
+            TAGS.rewards,
+            TAGS.rewardsLeaderboard,
+            "rewards:leaderboard:ranks",
+          ]),
+        },
+      }),
+    ])
+
+    return {
+      rank: aheadCount + 1,
+      totalEligible: eligibleCount,
+      lifetimeEarned: balance.lifetimeEarned,
+      launchCount: balance.user?._count.products ?? 0,
+    }
+  },
+  "rewards:leaderboard:user-position",
+  {
+    ttl: DEFAULT_TTL.fast,
+    tags: ([userId]) => [
+      TAGS.rewards,
+      TAGS.rewardsLeaderboard,
+      TAGS.user(String(userId)),
     ],
   },
 )
