@@ -1,8 +1,8 @@
 export const siteConfig = {
   name: "ShipYardHQ",
-  tagline: "Launch faster. Get discovered sooner.",
+  tagline: "The Product Hunt alternative where builders ship together.",
   description:
-    "ShipYardHQ is a curated hub for micro-SaaS, indie tools, and early-stage products. Submit your product in minutes to reach builders and early adopters.",
+    "ShipYardHQ is the Product Hunt alternative for indie hackers and micro-SaaS teams to ship in public, share progress, and rally their first customers through ongoing launches.",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   ogImage: "/opengraph.png",
 }
