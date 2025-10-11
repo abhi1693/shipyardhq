@@ -26,6 +26,7 @@ import {
   IconBriefcase,
   IconWifi,
   IconScale,
+  IconChefHat,
   IconSpeakerphone,
   IconCar,
   IconMusic,
@@ -74,6 +75,7 @@ export type CategoryIconKey =
   | "music"
   | "handheart"
   | "checklist"
+  | "chefhat"
   | "building"
   | "rocket"
   | "share"
@@ -129,6 +131,11 @@ export const CATEGORY_ICON_OPTIONS: {
     value: "checklist",
     label: "Checklist / Productivity",
     Icon: IconChecklist,
+  },
+  {
+    value: "chefhat",
+    label: "Food & Beverage",
+    Icon: IconChefHat,
   },
   { value: "building", label: "Building / Real Estate", Icon: IconBuilding },
   { value: "rocket", label: "Rocket / Startup", Icon: IconRocket },

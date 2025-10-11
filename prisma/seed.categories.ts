@@ -178,6 +178,11 @@ export const CATEGORIES: SeedCategory[] = [
     description: "Trip planning, booking, and travel management.",
   },
   {
+    name: "Food & Beverage",
+    icon: "chefhat",
+    description: "Restaurants, delivery, kitchen ops, and hospitality tech.",
+  },
+  {
     name: "Web3 & Crypto",
     icon: "hexagon",
     description: "Crypto, wallets, on-chain data, and dApps.",
