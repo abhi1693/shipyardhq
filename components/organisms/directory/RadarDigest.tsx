@@ -72,7 +72,7 @@ export function DirectoryRadarDigest({
       </ul>
       <div className="mt-6 grid grid-cols-3 gap-3 text-center text-xs">
         <div className="rounded-2xl bg-muted/50 px-3 py-2">
-          <p className="font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          <p className="font-semibold uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.28em]">
             Catalog
           </p>
           <p className="mt-1 text-lg font-semibold text-foreground">
@@ -80,7 +80,7 @@ export function DirectoryRadarDigest({
           </p>
         </div>
         <div className="rounded-2xl bg-muted/50 px-3 py-2">
-          <p className="font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          <p className="font-semibold uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.28em]">
             Trending
           </p>
           <p className="mt-1 text-lg font-semibold text-foreground">
@@ -88,7 +88,7 @@ export function DirectoryRadarDigest({
           </p>
         </div>
         <div className="rounded-2xl bg-muted/50 px-3 py-2">
-          <p className="font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          <p className="font-semibold uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.28em]">
             Upvotes
           </p>
           <p className="mt-1 text-lg font-semibold text-foreground">
