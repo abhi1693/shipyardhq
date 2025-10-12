@@ -9,6 +9,39 @@ import { memberProductPath, productPath } from "@/lib/routes"
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000
 
+const REVIEW_DIGEST_SUBJECTS = [
+  "New reviews just docked for your Shipyard listings",
+  "Fresh Shipyard feedback: see what customers said today",
+  "Daily pulse: Shipyard reviewers left new signals",
+  "Your Shipyard review log just picked up fresh chatter",
+  "Shipyard spotlight: new customer reviews in the wild",
+  "Check the wake: new Shipyard reviews to respond to",
+  "Daily Shipyard haul: fresh reviews to navigate",
+  "Crew feedback alert: Shipyard reviews you should see",
+  "Product buzz update: Shipyard reviews ready for you",
+  "Fresh testimonials: Shipyard reviews that landed overnight",
+  "Feedback radar: Shipyard customers dropped new notes",
+  "Morning briefing: Shipyard reviews that surfaced today",
+  "Shipyard digest: see which products earned praise",
+  "Signals from the harbor: Shipyard reviews waiting",
+  "Time to engage: Shipyard reviewers shared updates",
+  "Review tracker: Shipyard feedback just came aboard",
+  "Shipyard sentiment: new customer stories inside",
+  "Daily download: Shipyard reviews to act on now",
+  "New voices: Shipyard reviewers weighed in today",
+  "Shipyard status: feedback highlights for your products",
+  "Heads-up: Shipyard reviews you might want to answer",
+  "Customer spotlight: Shipyard shoutouts worth a read",
+  "Fresh five-star findings: Shipyard reviews recap",
+  "Dock report: Shipyard reviews that deserve a reply",
+  "Actionable intel: Shipyard review digest just posted",
+  "Crew chatter: Shipyard customers left new notes",
+  "Keep momentum: Shipyard reviews ready for follow-up",
+  "Shipyard signals summary: feedback fresh off the press",
+  "Your Shipyard listings earned new reactions today",
+  "Daily Shipyard reviews: celebrate wins and reply fast",
+] as const
+
 function buildAbsoluteUrl(path: string) {
   const base = getAppBaseUrl()
   return `${base}${path.startsWith("/") ? path : `/${path}`}`
@@ -18,6 +51,11 @@ function formatName(firstName?: string | null, lastName?: string | null) {
   const parts = [firstName?.trim(), lastName?.trim()].filter(Boolean)
   if (parts.length === 0) return "Someone"
   return parts.join(" ")
+}
+
+function pickReviewDigestSubject() {
+  const index = Math.floor(Math.random() * REVIEW_DIGEST_SUBJECTS.length)
+  return REVIEW_DIGEST_SUBJECTS[index]
 }
 
 export async function sendProductReviewDigestEmails(now: Date = new Date()) {
@@ -125,7 +163,7 @@ export async function sendProductReviewDigestEmails(now: Date = new Date()) {
     try {
       await sendEmail({
         to: ownerData.ownerEmail,
-        subject: `Fresh reviews from Shipyard HQ`,
+        subject: pickReviewDigestSubject(),
         react: (
           <ProductReviewDigestEmail
             ownerName={ownerData.ownerName}
