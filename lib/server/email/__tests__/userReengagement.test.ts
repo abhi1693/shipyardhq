@@ -64,6 +64,11 @@ describe("sendUserReengagementEmails", () => {
     expect(result).toEqual({ sent: 1, skipped: 0 })
     expect(sendEmailMock).toHaveBeenCalledTimes(1)
     expect(sendEmailMock.mock.calls[0][0].to).toBe("sailor@example.com")
+    expect(redisSetMock).toHaveBeenCalledWith(
+      "test:user:reengagement:7:user-1",
+      now.toISOString(),
+      { NX: true, EX: 60 * 60 * 24 * 365 },
+    )
     expect(sendEmailMock.mock.calls[0][0].react.props.milestone).toBe(7)
     expect(sendEmailMock.mock.calls[0][0].react.props.memberRewardsUrl).toBe(
       "https://app.test/member/rewards",
