@@ -12,7 +12,6 @@ import { siteConfig } from "@/lib/siteConfig"
 import {
   BROWSE_PATH,
   TRENDS_EMBED_PATH,
-  TRENDS_PATH,
 } from "@/lib/routes"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"

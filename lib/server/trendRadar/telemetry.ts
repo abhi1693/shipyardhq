@@ -1,11 +1,42 @@
 import { getRedisClient } from "@/lib/server/redis"
 
-const EMBED_TOTAL_KEY = "trend-radar:embed:total"
-const EMBED_DAILY_KEY_PREFIX = "trend-radar:embed:daily:"
+const BASE_EMBED_TOTAL_KEY = "trend-radar:embed:total"
+const BASE_EMBED_DAILY_PREFIX = "trend-radar:embed:daily:"
+
+const namespacePrefix =
+  process.env.REDIS_ENV_NAMESPACE?.trim() || process.env.NODE_ENV?.trim() || ""
+
+const withNamespace = (key: string) =>
+  namespacePrefix ? `${namespacePrefix}:${key}` : key
+
+const namespacedTotalKey = withNamespace(BASE_EMBED_TOTAL_KEY)
+const buildDailyKey = (suffix: string) =>
+  withNamespace(`${BASE_EMBED_DAILY_PREFIX}${suffix}`)
 
 let missingRedisWarningIssued = false
 
-const formatDateKey = (date: Date) => date.toISOString().slice(0, 10)
+const formatDateKey = (date: Date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+const parseCount = (value: string | null) => {
+  if (!value) return 0
+  const parsed = Number.parseInt(value, 10)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0
+}
+
+export interface TrendRadarEmbedStats {
+  available: boolean
+  totalEmbeds: number
+  windowDays: number
+  windowTotal: number
+  daily: Array<{ date: string; count: number }>
+}
+
+const DEFAULT_WINDOW_DAYS = 7
 
 /**
  * Increment aggregate counters so we can monitor how often the public iframe
@@ -24,15 +55,78 @@ export async function recordTrendRadarEmbedView(date: Date = new Date()) {
     return
   }
 
-  const dailyKey = `${EMBED_DAILY_KEY_PREFIX}${formatDateKey(date)}`
+  const suffix = formatDateKey(date)
+  const dailyKey = buildDailyKey(suffix)
 
   try {
-    await redis
-      .multi()
-      .incr(EMBED_TOTAL_KEY)
-      .incr(dailyKey)
-      .exec()
+    const multi = redis.multi()
+    multi.incr(namespacedTotalKey)
+    multi.incr(dailyKey)
+    await multi.exec()
   } catch (error) {
     console.error("[trendRadar] failed to record embed view", error)
+  }
+}
+
+/**
+ * Fetch aggregate embed counts for the trend radar iframe.
+ * Returns a rolling daily breakdown plus total impressions.
+ */
+export async function getTrendRadarEmbedStats(
+  days = DEFAULT_WINDOW_DAYS,
+): Promise<TrendRadarEmbedStats> {
+  const redis = await getRedisClient()
+  if (!redis) {
+    return {
+      available: false,
+      totalEmbeds: 0,
+      windowDays: days,
+      windowTotal: 0,
+      daily: [],
+    }
+  }
+
+  try {
+    const windowDays = Math.max(1, days)
+    const totalEmbeds = parseCount(await redis.get(namespacedTotalKey))
+
+    const reference = new Date()
+    reference.setHours(0, 0, 0, 0)
+
+    const keys: string[] = []
+    const dateLabels: string[] = []
+
+    for (let offset = windowDays - 1; offset >= 0; offset--) {
+      const target = new Date(reference)
+      target.setDate(reference.getDate() - offset)
+      const dailyKey = formatDateKey(target)
+      keys.push(buildDailyKey(dailyKey))
+      dateLabels.push(dailyKey)
+    }
+
+    const results = keys.length > 0 ? await redis.mGet(keys) : []
+    const daily = dateLabels.map((label, index) => ({
+      date: label,
+      count: parseCount(results[index] ?? null),
+    }))
+
+    const windowTotal = daily.reduce((sum, entry) => sum + entry.count, 0)
+
+    return {
+      available: true,
+      totalEmbeds,
+      windowDays,
+      windowTotal,
+      daily,
+    }
+  } catch (error) {
+    console.error("[trendRadar] failed to fetch embed stats", error)
+    return {
+      available: false,
+      totalEmbeds: 0,
+      windowDays: days,
+      windowTotal: 0,
+      daily: [],
+    }
   }
 }

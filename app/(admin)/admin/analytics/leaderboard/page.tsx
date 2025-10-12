@@ -12,12 +12,20 @@ import RangeSelector from "@/components/molecules/RangeSelector"
 import { AnalyticsChartCard } from "@/components/molecules/AnalyticsChartCard"
 import { LeaderboardProgressionChart } from "@/components/pages/admin/analytics/LeaderboardProgressionChart"
 import { getLeaderboardRangeAnalytics } from "@/lib/server/analytics/leaderboardRange"
+import {
+  TrendRadarEmbedChart,
+  type TrendRadarChartPoint,
+} from "@/components/pages/admin/analytics/TrendRadarEmbedChart"
 import { productPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
+import { getTrendRadarEmbedStats } from "@/lib/server/trendRadar/telemetry"
 
 export const revalidate = 3600
 
 type SearchParams = { range?: string }
+type TrendRadarTelemetry = Awaited<
+  ReturnType<typeof getTrendRadarEmbedStats>
+>
 
 function rangeToDays(range?: string): number {
   switch (range) {
@@ -37,6 +45,11 @@ const numberFormatter = new Intl.NumberFormat("en-US")
 const percentFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 1,
 })
+const dayFormatter = new Intl.DateTimeFormat("en-US", {
+  weekday: "short",
+  month: "short",
+  day: "numeric",
+})
 
 function formatNumber(value: number) {
   return numberFormatter.format(Math.round(value))
@@ -49,6 +62,22 @@ function formatPercent(value: number) {
   }
   const prefix = value > 0 ? "+" : ""
   return `${prefix}${percentFormatter.format(value)}%`
+}
+
+function formatDayLabel(date: string) {
+  const [year, month, day] = date.split("-").map((segment) => Number(segment))
+  if (
+    !Number.isFinite(year) ||
+    !Number.isFinite(month) ||
+    !Number.isFinite(day)
+  ) {
+    return date
+  }
+  const parsed = new Date(year, month - 1, day)
+  if (Number.isNaN(parsed.getTime())) {
+    return date
+  }
+  return dayFormatter.format(parsed)
 }
 
 function ChangeBadge({
@@ -218,6 +247,67 @@ function MetricTile({
   )
 }
 
+function TrendRadarTelemetryCard({
+  stats,
+}: {
+  stats: TrendRadarTelemetry
+}) {
+  if (!stats.available) {
+    return (
+      <AnalyticsChartCard
+        title="Trend Radar reach"
+        description="Embed impressions captured from the public radar widget."
+        headerClassName="px-4 pb-0"
+        contentClassName="px-4 pb-5 pt-4"
+      >
+        <p className="text-sm text-muted-foreground">
+          Redis telemetry is unavailable. Set `REDIS_URL` to start tracking
+          radar impressions.
+        </p>
+      </AnalyticsChartCard>
+    )
+  }
+
+  const chartData: TrendRadarChartPoint[] = stats.daily.length
+    ? stats.daily.map((entry) => ({
+        label: formatDayLabel(entry.date),
+        embeds: entry.count,
+      }))
+    : [{ label: "No data", embeds: 0 }]
+
+  return (
+    <AnalyticsChartCard
+      title="Trend Radar reach"
+      description="Embed impressions captured from the public radar widget."
+      headerClassName="px-4 pb-0"
+      contentClassName="px-4 pb-5 pt-4"
+    >
+      <div className="space-y-5">
+        <div className="grid gap-3 rounded-2xl border border-slate-200/70 bg-slate-50 px-4 py-3 sm:grid-cols-2">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+              All-time embeds
+            </p>
+            <p className="text-xl font-semibold text-slate-900">
+              {formatNumber(stats.totalEmbeds)}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+              Last {stats.windowDays} days
+            </p>
+            <p className="text-xl font-semibold text-slate-900">
+              {formatNumber(stats.windowTotal)}
+            </p>
+          </div>
+        </div>
+
+        <TrendRadarEmbedChart data={chartData} />
+      </div>
+    </AnalyticsChartCard>
+  )
+}
+
 export default async function LeaderboardAnalyticsPage({
   searchParams,
 }: {
@@ -225,7 +315,10 @@ export default async function LeaderboardAnalyticsPage({
 }) {
   const sp = await searchParams
   const days = rangeToDays(sp?.range)
-  const analytics = await getLeaderboardRangeAnalytics(days, 25)
+  const [analytics, trendTelemetry] = await Promise.all([
+    getLeaderboardRangeAnalytics(days, 25),
+    getTrendRadarEmbedStats(7),
+  ])
   const { summary } = analytics
   const rangeLabel = `${analytics.rangeDays}d`
 
@@ -339,6 +432,19 @@ export default async function LeaderboardAnalyticsPage({
             </CardContent>
           </Card>
         </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+            Trend Radar
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            Monitor how often the public radar embed is loading across external
+            properties to gauge off-platform reach.
+          </p>
+        </div>
+        <TrendRadarTelemetryCard stats={trendTelemetry} />
       </section>
 
       <section className="space-y-4">
