@@ -124,9 +124,7 @@ describe("handleBacklinkVerifiedReward", () => {
       "https://app.test/member/products/wave-tracker",
     )
     expect(element.props.rewardsUrl).toBe("https://app.test/member/rewards")
-    expect(element.props.backlinkUrl).toBe(
-      "https://example.com/shipyard",
-    )
+    expect(element.props.backlinkUrl).toBe("https://example.com/shipyard")
     expect(element.props.verifiedAt).toBeInstanceOf(Date)
   })
 

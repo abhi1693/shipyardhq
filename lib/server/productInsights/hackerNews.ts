@@ -7,7 +7,10 @@ import {
   coerceJsonText,
   extractAssistantJson,
 } from "@/lib/server/openaiResponse"
-import { buildCacheKey as buildCompositeKey, namespaceCacheKey } from "@/lib/server/cache"
+import {
+  buildCacheKey as buildCompositeKey,
+  namespaceCacheKey,
+} from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import type {
   ProductInsightProductContext,
@@ -128,7 +131,13 @@ const SummarySchema = z.object({
 
 function buildHackerNewsCacheKey(productId: string, queryHash: string) {
   return namespaceCacheKey(
-    buildCompositeKey("productInsights", "hackerNews", "v1", productId, queryHash),
+    buildCompositeKey(
+      "productInsights",
+      "hackerNews",
+      "v1",
+      productId,
+      queryHash,
+    ),
   )
 }
 
@@ -416,10 +425,7 @@ export async function discoverProductHackerNewsMentions(
     }
   }
 
-  const cacheKey = buildHackerNewsCacheKey(
-    productId,
-    hashQueries(queries),
-  )
+  const cacheKey = buildHackerNewsCacheKey(productId, hashQueries(queries))
 
   if (!forceRefresh) {
     const cached = await readFromCache(cacheKey)

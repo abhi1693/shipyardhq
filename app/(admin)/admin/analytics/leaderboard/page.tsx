@@ -23,9 +23,7 @@ import { getTrendRadarEmbedStats } from "@/lib/server/trendRadar/telemetry"
 export const revalidate = 3600
 
 type SearchParams = { range?: string }
-type TrendRadarTelemetry = Awaited<
-  ReturnType<typeof getTrendRadarEmbedStats>
->
+type TrendRadarTelemetry = Awaited<ReturnType<typeof getTrendRadarEmbedStats>>
 
 function rangeToDays(range?: string): number {
   switch (range) {
@@ -247,11 +245,7 @@ function MetricTile({
   )
 }
 
-function TrendRadarTelemetryCard({
-  stats,
-}: {
-  stats: TrendRadarTelemetry
-}) {
+function TrendRadarTelemetryCard({ stats }: { stats: TrendRadarTelemetry }) {
   if (!stats.available) {
     return (
       <AnalyticsChartCard

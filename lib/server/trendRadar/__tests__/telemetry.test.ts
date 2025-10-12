@@ -14,7 +14,10 @@ vi.mock("@/lib/server/redis", () => ({
   getRedisClient: vi.fn(async () => redisClient),
 }))
 
-let currentMulti: { incr: ReturnType<typeof vi.fn>; exec: ReturnType<typeof vi.fn> }
+let currentMulti: {
+  incr: ReturnType<typeof vi.fn>
+  exec: ReturnType<typeof vi.fn>
+}
 
 function formatDateKey(date: Date) {
   const year = date.getFullYear()

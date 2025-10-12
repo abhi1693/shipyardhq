@@ -281,7 +281,8 @@ export default function BuilderOutreachCenter() {
                     </p>
                     <div className="rounded-md border border-slate-200 bg-white p-3">
                       <p className="text-xs font-medium text-slate-600">
-                        Sample subject lines that contrast Shipyard with Product Hunt
+                        Sample subject lines that contrast Shipyard with Product
+                        Hunt
                       </p>
                       <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-slate-500">
                         {SUBJECT_PREVIEW_LIST.map((subject) => (

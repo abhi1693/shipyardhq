@@ -6,9 +6,7 @@ const TOTAL_KEY = namespaceCacheKey(
 )
 
 const buildDailyKey = (suffix: string) =>
-  namespaceCacheKey(
-    buildCacheKey("trend-radar", "embed", "daily", suffix),
-  )
+  namespaceCacheKey(buildCacheKey("trend-radar", "embed", "daily", suffix))
 
 let missingRedisWarningIssued = false
 

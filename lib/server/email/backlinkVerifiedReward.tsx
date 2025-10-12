@@ -49,10 +49,7 @@ function buildAbsoluteUrl(path: string) {
   return `${base}${path.startsWith("/") ? path : `/${path}`}`
 }
 
-function coerceVerifiedAt(
-  metadataValue: string | null,
-  fallback: Date,
-): Date {
+function coerceVerifiedAt(metadataValue: string | null, fallback: Date): Date {
   if (!metadataValue) return fallback
   const timestamp = Date.parse(metadataValue)
   if (Number.isNaN(timestamp)) {

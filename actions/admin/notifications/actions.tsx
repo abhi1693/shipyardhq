@@ -685,9 +685,7 @@ export async function sendBuilderOutreachEmailsAction(
         to: email,
         subject,
         text: buildBuilderOutreachTextBody(firstName),
-        react: (
-          <BuilderOutreachEmail firstName={firstName} subject={subject} />
-        ),
+        react: <BuilderOutreachEmail firstName={firstName} subject={subject} />,
       })
       sent += 1
       successfullySent.push(email)

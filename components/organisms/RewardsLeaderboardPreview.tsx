@@ -3,10 +3,7 @@ import Link from "next/link"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { cn } from "@/lib/utils"
-import {
-  LEADERBOARD_REWARDS_PATH,
-  userPath,
-} from "@/lib/routes"
+import { LEADERBOARD_REWARDS_PATH, userPath } from "@/lib/routes"
 import type { RewardsLeaderboardDisplayEntry } from "@/lib/rewards/display"
 
 const numberFormatter = new Intl.NumberFormat("en-US")

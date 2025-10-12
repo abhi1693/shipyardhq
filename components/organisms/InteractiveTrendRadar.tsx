@@ -156,15 +156,17 @@ export default function InteractiveTrendRadar({
   useEffect(() => {
     if (!autoRotate) return
 
-    const timer = window.setInterval(() => {
-      setModeKey((current) => {
-        const index = VIEW_MODES.findIndex((item) => item.key === current)
-        const nextIndex =
-          index < 0 ? 0 : (index + 1) % VIEW_MODES.length
-        const next = VIEW_MODES[nextIndex]
-        return next.key
-      })
-    }, Math.max(1000, autoRotateIntervalMs))
+    const timer = window.setInterval(
+      () => {
+        setModeKey((current) => {
+          const index = VIEW_MODES.findIndex((item) => item.key === current)
+          const nextIndex = index < 0 ? 0 : (index + 1) % VIEW_MODES.length
+          const next = VIEW_MODES[nextIndex]
+          return next.key
+        })
+      },
+      Math.max(1000, autoRotateIntervalMs),
+    )
 
     return () => {
       window.clearInterval(timer)

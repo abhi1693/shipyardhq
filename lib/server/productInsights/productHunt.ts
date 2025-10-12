@@ -7,7 +7,10 @@ import {
   getProductHuntIndexName,
   getProductHuntSearchKey,
 } from "@/lib/server/productInsights/config"
-import { buildCacheKey as buildCompositeKey, namespaceCacheKey } from "@/lib/server/cache"
+import {
+  buildCacheKey as buildCompositeKey,
+  namespaceCacheKey,
+} from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import type {
   ProductInsightProductContext,

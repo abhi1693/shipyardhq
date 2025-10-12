@@ -9,10 +9,7 @@ import InteractiveTrendRadar from "@/components/organisms/InteractiveTrendRadar"
 import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
 import { buildPageMetadata } from "@/lib/metadata"
 import { siteConfig } from "@/lib/siteConfig"
-import {
-  BROWSE_PATH,
-  TRENDS_EMBED_PATH,
-} from "@/lib/routes"
+import { BROWSE_PATH, TRENDS_EMBED_PATH } from "@/lib/routes"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 import { fetchTrendRadarSnapshot } from "./trend-data"
@@ -130,14 +127,9 @@ export default async function TrendsPage() {
                           {category.name}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {numberFormatter.format(
-                            category.trendingCount,
-                          )}{" "}
+                          {numberFormatter.format(category.trendingCount)}{" "}
                           trending launches ·{" "}
-                          {numberFormatter.format(
-                            category.productCount,
-                          )}{" "}
-                          listed
+                          {numberFormatter.format(category.productCount)} listed
                         </span>
                       </div>
                       <span className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--brand-1)]">
@@ -165,9 +157,7 @@ export default async function TrendsPage() {
                           {category.name}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {numberFormatter.format(
-                            category.trendingUpvotes,
-                          )}{" "}
+                          {numberFormatter.format(category.trendingUpvotes)}{" "}
                           upvotes this week ·{" "}
                           {category.upvotesPerLaunch.toFixed(1)} per launch
                         </span>
