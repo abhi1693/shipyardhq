@@ -36,6 +36,7 @@ import { Separator } from "@/components/atoms/separator"
 import {
   BuilderOutreachEmail,
   BUILDER_OUTREACH_SUBJECT,
+  BUILDER_OUTREACH_SUBJECTS,
 } from "@/lib/email/templates/outreach/builderOutreach"
 import { parseEmailList } from "@/lib/email/list-parser"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
@@ -59,6 +60,13 @@ type EmailSendSummary = {
   sentPercentage: number
   failedPercentage: number
 }
+
+const SUBJECT_PREVIEW_COUNT = 5
+const SUBJECT_PREVIEW_LIST = BUILDER_OUTREACH_SUBJECTS.slice(
+  0,
+  SUBJECT_PREVIEW_COUNT,
+)
+const SUBJECTS_TOTAL = BUILDER_OUTREACH_SUBJECTS.length
 
 export default function BuilderOutreachCenter() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -266,9 +274,27 @@ export default function BuilderOutreachCenter() {
                       className="cursor-not-allowed border-slate-200 bg-slate-50 text-slate-600"
                     />
                     <p className="text-xs text-muted-foreground">
-                      The builder outreach template ships with this fixed
-                      subject line.
+                      We randomly pick one of {SUBJECTS_TOTAL} curated subject
+                      lines for each send. Each reinforces Shipyard as the
+                      smarter Product Hunt alternative. The example above
+                      matches the preview.
                     </p>
+                    <div className="rounded-md border border-slate-200 bg-white p-3">
+                      <p className="text-xs font-medium text-slate-600">
+                        Sample subject lines that contrast Shipyard with Product Hunt
+                      </p>
+                      <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-slate-500">
+                        {SUBJECT_PREVIEW_LIST.map((subject) => (
+                          <li key={subject}>{subject}</li>
+                        ))}
+                        {SUBJECTS_TOTAL > SUBJECT_PREVIEW_COUNT ? (
+                          <li className="italic text-slate-400">
+                            ...and {SUBJECTS_TOTAL - SUBJECT_PREVIEW_COUNT} more
+                            rotate automatically.
+                          </li>
+                        ) : null}
+                      </ul>
+                    </div>
                   </div>
 
                   <FormField
@@ -336,9 +362,11 @@ export default function BuilderOutreachCenter() {
                       Subject: {BUILDER_OUTREACH_SUBJECT}
                     </span>
                     <span>
+                      Rotates between {SUBJECTS_TOTAL} subject lines that keep
+                      the Product Hunt comparison front and center.{" "}
                       {previewRecipient?.email
                         ? `Previewing as ${previewRecipient.email}`
-                        : "Add at least one email to personalize the greeting"}
+                        : "Add at least one email to personalize the greeting."}
                     </span>
                   </div>
                 </div>
@@ -358,6 +386,7 @@ export default function BuilderOutreachCenter() {
                       <BuilderOutreachEmail
                         firstName={previewRecipient?.firstName ?? undefined}
                         renderMode="preview"
+                        subject={BUILDER_OUTREACH_SUBJECT}
                       />
                     </div>
                   )}

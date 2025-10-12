@@ -11,6 +11,7 @@ import {
   BUILDER_OUTREACH_SUBJECT,
   BuilderOutreachEmail,
   buildBuilderOutreachTextBody,
+  pickBuilderOutreachSubject,
 } from "@/lib/email/templates/outreach/builderOutreach"
 import { checkRole } from "@/lib/roles"
 import {
@@ -670,6 +671,7 @@ export async function sendBuilderOutreachEmailsAction(
   const failed: { email: string; error: string }[] = []
   let sent = 0
   const successfullySent: string[] = []
+  const subject = pickBuilderOutreachSubject()
 
   for (const [index, email] of recipients.entries()) {
     if (index > 0) {
@@ -681,9 +683,11 @@ export async function sendBuilderOutreachEmailsAction(
     try {
       await sendEmail({
         to: email,
-        subject: BUILDER_OUTREACH_SUBJECT,
+        subject,
         text: buildBuilderOutreachTextBody(firstName),
-        react: <BuilderOutreachEmail firstName={firstName} />,
+        react: (
+          <BuilderOutreachEmail firstName={firstName} subject={subject} />
+        ),
       })
       sent += 1
       successfullySent.push(email)
@@ -743,7 +747,10 @@ export async function renderBuilderOutreachEmailPreviewAction(params?: {
 
   try {
     return await renderAsync(
-      <BuilderOutreachEmail firstName={resolvedFirstName} />,
+      <BuilderOutreachEmail
+        firstName={resolvedFirstName}
+        subject={BUILDER_OUTREACH_SUBJECT}
+      />,
     )
   } catch (error) {
     console.error("Failed to render builder outreach email preview", error)
