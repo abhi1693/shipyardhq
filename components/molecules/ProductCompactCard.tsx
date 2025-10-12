@@ -57,7 +57,7 @@ export function ProductCompactCard({
     : "View details"
 
   const baseClasses =
-    "group relative block h-full w-full cursor-pointer overflow-hidden rounded-2xl border border-border/30 bg-background/95 p-4 text-left text-card-foreground shadow-[0_18px_46px_-52px_rgba(7,58,104,0.6)] ring-1 ring-inset ring-white/6 transition-all duration-300 before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-[radial-gradient(120%_140%_at_50%_-10%,var(--brand-1)/0.16,transparent_70%)] before:opacity-0 before:transition-opacity before:duration-500 before:delay-100 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] dark:border-white/14"
+    "group relative block h-full w-full cursor-pointer overflow-hidden rounded-2xl border border-border/30 bg-card/[0.98] p-4 text-left text-card-foreground shadow-[0_26px_70px_-48px_rgba(7,58,104,0.62)] ring-1 ring-inset ring-white/10 transition-all duration-300 before:absolute before:inset-[-12%] before:-z-10 before:rounded-[2rem] before:bg-[radial-gradient(160%_190%_at_32%_-28%,oklch(0.86_0.1_232_/0.6),transparent_66%),radial-gradient(140%_200%_at_88%_128%,oklch(0.93_0.08_45_/0.52),transparent_74%)] before:opacity-90 before:blur-[46px] before:transition-all before:duration-500 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-1)/0.18] dark:border-white/14"
 
   const hoverClasses = disableHoverEffects
     ? ""

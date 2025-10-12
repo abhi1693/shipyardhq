@@ -89,6 +89,15 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-color: var(--background);
+    background-image:
+      radial-gradient(160% 110% at 50% -12%, oklch(0.9 0.1 230 / 0.7), transparent 58%),
+      radial-gradient(120% 80% at 14% 28%, oklch(0.98 0.06 255 / 0.48), transparent 64%),
+      radial-gradient(130% 130% at 86% 118%, oklch(0.92 0.08 45 / 0.55), transparent 70%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: 135% 68%, 110% 60%, 120% 88%;
+    background-position: center top, left 6rem, right bottom;
   }
 }
 
