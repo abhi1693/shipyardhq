@@ -17,6 +17,7 @@ import {
   REWARDS_PATH,
   USERS_PATH,
   WHY_SHIPYARD_PATH,
+  TRENDS_PATH,
   usecasePath,
   SHIPYARD_TWITTER_URL,
 } from "@/lib/routes"
@@ -48,6 +49,7 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
   const discoverLinks = [
     { label: "All Products", href: BROWSE_PATH },
     { label: "Leaderboard", href: LEADERBOARD_PATH },
+    { label: "Trend Radar", href: TRENDS_PATH },
     { label: "Rewards", href: REWARDS_PATH },
     { label: "Analytics", href: ANALYTICS_PATH },
     { label: "Pricing", href: PRICING_PATH },

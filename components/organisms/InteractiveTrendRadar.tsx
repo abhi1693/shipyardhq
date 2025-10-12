@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 
 import {
@@ -138,16 +138,38 @@ interface InteractiveTrendRadarProps {
     upvotes: number
   }
   className?: string
+  autoRotate?: boolean
+  autoRotateIntervalMs?: number
 }
 
 export default function InteractiveTrendRadar({
   categories,
   totals,
   className,
+  autoRotate = false,
+  autoRotateIntervalMs = 5000,
 }: InteractiveTrendRadarProps) {
   const [modeKey, setModeKey] = useState<ViewModeKey>("momentum")
 
   const mode = VIEW_MODES.find((item) => item.key === modeKey) ?? VIEW_MODES[0]
+
+  useEffect(() => {
+    if (!autoRotate) return
+
+    const timer = window.setInterval(() => {
+      setModeKey((current) => {
+        const index = VIEW_MODES.findIndex((item) => item.key === current)
+        const nextIndex =
+          index < 0 ? 0 : (index + 1) % VIEW_MODES.length
+        const next = VIEW_MODES[nextIndex]
+        return next.key
+      })
+    }, Math.max(1000, autoRotateIntervalMs))
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [autoRotate, autoRotateIntervalMs])
 
   const chartData = useMemo<ChartDatum[]>(
     () =>

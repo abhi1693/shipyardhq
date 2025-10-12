@@ -12,7 +12,7 @@ import { DirectoryProductList } from "@/components/organisms/directory/Directory
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { TopPlacementCard } from "@/components/molecules/LeaderboardTopPlacement"
 import { LeaderboardFilters } from "./filters"
-import { IconAnchor, IconTargetArrow } from "@tabler/icons-react"
+import { IconAnchor, IconRadar, IconTargetArrow } from "@tabler/icons-react"
 import { buildPageMetadata } from "@/lib/metadata"
 import { TopCategories } from "@/components/organisms/TopCategories"
 import {
@@ -22,6 +22,7 @@ import {
   LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
+  TRENDS_PATH,
 } from "@/lib/routes"
 
 export const revalidate = 60
@@ -261,6 +262,21 @@ export default async function LeaderboardPage({
                   </div>
                 </div>
               </section>
+
+              <DirectoryPromoCard
+                eyebrow="Category momentum"
+                title="See the Trend Radar in motion"
+                description="Watch Shipyard categories heat up across momentum, catalog depth, and upvote signal—auto-refreshed and ready to embed."
+                cta={{
+                  label: "Open Trend Radar",
+                  href: TRENDS_PATH,
+                }}
+                icon={<IconRadar className="h-4 w-4" />}
+                subtleCta={{
+                  label: "Grab the embed",
+                  href: `${TRENDS_PATH}/embed`,
+                }}
+              />
 
               <DirectoryPromoCard
                 eyebrow="Placement perks"

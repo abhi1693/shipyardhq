@@ -45,6 +45,8 @@ export const LEADERBOARD_PATH = "/leaderboard" as const
 export const LEADERBOARD_MONTHLY_PATH = `${LEADERBOARD_PATH}/monthly` as const
 export const LEADERBOARD_GUIDE_PATH = `${LEADERBOARD_PATH}/about` as const
 export const LEADERBOARD_REWARDS_PATH = `${LEADERBOARD_PATH}/rewards` as const
+export const TRENDS_PATH = "/trends" as const
+export const TRENDS_EMBED_PATH = `${TRENDS_PATH}/embed` as const
 
 const MONTH_KEY_PATTERN = /^(\d{2})-(\d{2})-(\d{4})$/
 
