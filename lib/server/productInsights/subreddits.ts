@@ -10,6 +10,7 @@ import {
   coerceJsonText,
   extractAssistantJson,
 } from "@/lib/server/openaiResponse"
+import { buildCacheKey as buildCompositeKey, namespaceCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import type {
   ProductInsightSubreddit,
@@ -22,16 +23,6 @@ import {
 } from "./config"
 
 const REDDIT_CACHE_TTL_SECONDS = 60 * 60 * 6 // 6 hours
-
-function resolveCacheNamespace(base: string) {
-  const prefix =
-    process.env.REDIS_ENV_NAMESPACE?.trim() || process.env.NODE_ENV?.trim()
-  return prefix ? `${prefix}:${base}` : base
-}
-
-const REDDIT_CACHE_NAMESPACE = resolveCacheNamespace(
-  "productInsights:subreddits:v1",
-)
 const REDDIT_USER_AGENT = getRedditUserAgent()
 
 type SubredditSearchMode = "standard" | "deep" | "coverage"
@@ -548,8 +539,10 @@ function sanitizeAudienceValue(value?: string | null) {
   return trimmed ? trimmed : null
 }
 
-function buildCacheKey(productId: string) {
-  return `${REDDIT_CACHE_NAMESPACE}:${productId}`
+function buildSubredditCacheKey(productId: string) {
+  return namespaceCacheKey(
+    buildCompositeKey("productInsights", "subreddits", "v1", productId),
+  )
 }
 
 async function generateSearchQueries({
@@ -1116,7 +1109,7 @@ export async function discoverProductSubreddits(
 ): Promise<DiscoverProductSubredditsResult> {
   const { productId, product, summary, forceRefresh } = input
   const redis = await getRedisClient().catch(() => null)
-  const cacheKey = buildCacheKey(productId)
+  const cacheKey = buildSubredditCacheKey(productId)
 
   if (redis && !forceRefresh) {
     const cached = await redis.get(cacheKey)

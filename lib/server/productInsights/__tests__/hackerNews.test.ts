@@ -129,6 +129,10 @@ describe("discoverProductHackerNewsMentions", () => {
     expect(story.matchedQueries?.length).toBe(result.queries.length)
     expect(result.model).toBe("hn.algolia/v1")
     expect(redisSetMock).toHaveBeenCalledTimes(1)
+    const cacheKey = redisSetMock.mock.calls[0][0]
+    expect(cacheKey.startsWith("test:productInsights:hackerNews:v1:")).toBe(
+      true,
+    )
     expect(openaiResponsesCreateMock).toHaveBeenCalled()
     expect(result.summary?.highlights.length).toBeGreaterThan(0)
   })

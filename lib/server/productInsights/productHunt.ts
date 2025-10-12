@@ -7,6 +7,7 @@ import {
   getProductHuntIndexName,
   getProductHuntSearchKey,
 } from "@/lib/server/productInsights/config"
+import { buildCacheKey as buildCompositeKey, namespaceCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import type {
   ProductInsightProductContext,
@@ -173,8 +174,10 @@ export type DiscoverProductHuntLaunchesResult = {
   model: string
 }
 
-function buildCacheKey(productId: string, hash: string) {
-  return `productInsights:productHunt:v1:${productId}:${hash}`
+function buildProductHuntCacheKey(productId: string, hash: string) {
+  return namespaceCacheKey(
+    buildCompositeKey("productInsights", "productHunt", "v1", productId, hash),
+  )
 }
 
 function hashQueries(queries: string[]): string {
@@ -776,7 +779,7 @@ export async function discoverProductHuntLaunches(
 
   const redis = await getRedisClient().catch(() => null)
   const hash = hashQueries(queries)
-  const cacheKey = buildCacheKey(productId, hash)
+  const cacheKey = buildProductHuntCacheKey(productId, hash)
 
   if (!forceRefresh && redis) {
     try {

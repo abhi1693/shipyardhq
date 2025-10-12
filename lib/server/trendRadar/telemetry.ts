@@ -1,17 +1,14 @@
+import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 
-const BASE_EMBED_TOTAL_KEY = "trend-radar:embed:total"
-const BASE_EMBED_DAILY_PREFIX = "trend-radar:embed:daily:"
+const TOTAL_KEY = namespaceCacheKey(
+  buildCacheKey("trend-radar", "embed", "total"),
+)
 
-const namespacePrefix =
-  process.env.REDIS_ENV_NAMESPACE?.trim() || process.env.NODE_ENV?.trim() || ""
-
-const withNamespace = (key: string) =>
-  namespacePrefix ? `${namespacePrefix}:${key}` : key
-
-const namespacedTotalKey = withNamespace(BASE_EMBED_TOTAL_KEY)
 const buildDailyKey = (suffix: string) =>
-  withNamespace(`${BASE_EMBED_DAILY_PREFIX}${suffix}`)
+  namespaceCacheKey(
+    buildCacheKey("trend-radar", "embed", "daily", suffix),
+  )
 
 let missingRedisWarningIssued = false
 
@@ -60,7 +57,7 @@ export async function recordTrendRadarEmbedView(date: Date = new Date()) {
 
   try {
     const multi = redis.multi()
-    multi.incr(namespacedTotalKey)
+    multi.incr(TOTAL_KEY)
     multi.incr(dailyKey)
     await multi.exec()
   } catch (error) {
@@ -88,7 +85,7 @@ export async function getTrendRadarEmbedStats(
 
   try {
     const windowDays = Math.max(1, days)
-    const totalEmbeds = parseCount(await redis.get(namespacedTotalKey))
+    const totalEmbeds = parseCount(await redis.get(TOTAL_KEY))
 
     const reference = new Date()
     reference.setHours(0, 0, 0, 0)

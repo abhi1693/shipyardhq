@@ -15,6 +15,7 @@ import {
   coerceJsonText,
   extractAssistantJson,
 } from "@/lib/server/openaiResponse"
+import { buildCacheKey as buildCompositeKey, namespaceCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import type {
   ProductInsightProductContext,
@@ -27,15 +28,6 @@ import {
 } from "./config"
 
 const REDDIT_USER_AGENT = getRedditUserAgent()
-function resolveCacheNamespace(base: string) {
-  const prefix =
-    process.env.REDIS_ENV_NAMESPACE?.trim() || process.env.NODE_ENV?.trim()
-  return prefix ? `${prefix}:${base}` : base
-}
-
-const REDDIT_DISCUSSION_CACHE_NAMESPACE = resolveCacheNamespace(
-  "productInsights:redditDiscussions:v2",
-)
 const REDDIT_DISCUSSION_CACHE_TTL_SECONDS = 60 * 60 * 3
 const MAX_QUERIES = 6
 const MIN_QUERIES = 2
@@ -126,8 +118,19 @@ const CacheSchema = z.object({
   mode: HarvestModeSchema.optional(),
 })
 
-function buildCacheKey(productId: string, mode: ProductInsightHarvestMode) {
-  return `${REDDIT_DISCUSSION_CACHE_NAMESPACE}:${productId}:${mode}`
+function buildDiscussionCacheKey(
+  productId: string,
+  mode: ProductInsightHarvestMode,
+) {
+  return namespaceCacheKey(
+    buildCompositeKey(
+      "productInsights",
+      "redditDiscussions",
+      "v2",
+      productId,
+      mode,
+    ),
+  )
 }
 
 function sanitizeOptionalText(value?: string | null) {
@@ -1087,7 +1090,7 @@ export async function discoverProductDiscussions(
   } = input
 
   const redis = await getRedisClient().catch(() => null)
-  const cacheKey = buildCacheKey(productId, mode)
+  const cacheKey = buildDiscussionCacheKey(productId, mode)
 
   if (redis && !forceRefresh) {
     const cached = await redis.get(cacheKey)

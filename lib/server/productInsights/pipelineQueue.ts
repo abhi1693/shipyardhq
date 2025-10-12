@@ -1,4 +1,5 @@
 import type { RedisClient } from "@/lib/server/redis"
+import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import type {
   ProductInsightHarvestMode,
@@ -30,14 +31,12 @@ function normalizeStageSetId(
   return "default"
 }
 
-function resolveNamespace(base: string) {
-  const prefix =
-    process.env.REDIS_ENV_NAMESPACE?.trim() || process.env.NODE_ENV?.trim()
-  return prefix ? `${prefix}:${base}` : base
-}
-
-const QUEUE_KEY = resolveNamespace("productInsights:pipeline:v1:queue")
-const ACTIVE_KEY = resolveNamespace("productInsights:pipeline:v1:active")
+const QUEUE_KEY = namespaceCacheKey(
+  buildCacheKey("productInsights", "pipeline", "v1", "queue"),
+)
+const ACTIVE_KEY = namespaceCacheKey(
+  buildCacheKey("productInsights", "pipeline", "v1", "active"),
+)
 
 export async function enqueueProductInsightPipelineJob(job: {
   productId: string

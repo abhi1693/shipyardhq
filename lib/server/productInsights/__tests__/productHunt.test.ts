@@ -109,6 +109,10 @@ describe("discoverProductHuntLaunches", () => {
 
     expect(fetchMock).toHaveBeenCalled()
     expect(redisSetMock).toHaveBeenCalledTimes(1)
+    const cacheKey = redisSetMock.mock.calls[0][0]
+    expect(cacheKey.startsWith("test:productInsights:productHunt:v1:")).toBe(
+      true,
+    )
 
     expect(result.fromCache).toBe(false)
     expect(result.data.launches).toHaveLength(1)
