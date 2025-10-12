@@ -22,7 +22,6 @@ export async function runBacklinkReminder(
         isVerified: true,
         backlinkIsVerified: false,
         backlinkVerifiedAt: null,
-        backlinkLastCheckedAt: null,
       },
     },
     select: {
