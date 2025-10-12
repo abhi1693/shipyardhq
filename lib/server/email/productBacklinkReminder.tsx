@@ -1,11 +1,7 @@
 import { sendEmail } from "@/lib/email/resend"
 import ProductBacklinkReminderEmail from "@/lib/email/templates/product/productBacklinkReminder"
 import { getAppBaseUrl } from "@/lib/email/utils"
-import {
-  MEMBER_REWARDS_PATH,
-  memberProductEditPath,
-  productPath,
-} from "@/lib/routes"
+import { memberProductEditPath } from "@/lib/routes"
 
 type BacklinkReminderContext = {
   ownerEmail: string
@@ -35,8 +31,6 @@ export async function sendBacklinkReminderEmail({
 }: BacklinkReminderContext): Promise<void> {
   const ownerName = formatName(ownerFirstName, ownerLastName)
   const dashboardUrl = buildAbsoluteUrl(memberProductEditPath(productSlug))
-  const rewardsUrl = buildAbsoluteUrl(MEMBER_REWARDS_PATH)
-  const productUrl = buildAbsoluteUrl(productPath(productSlug))
 
   const subject = `${productName} can unlock rewards with a Shipyard backlink`
 
@@ -47,9 +41,7 @@ export async function sendBacklinkReminderEmail({
       <ProductBacklinkReminderEmail
         ownerName={ownerName}
         productName={productName}
-        productUrl={productUrl}
         dashboardUrl={dashboardUrl}
-        rewardsUrl={rewardsUrl}
       />
     ),
   })

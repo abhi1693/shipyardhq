@@ -3,9 +3,7 @@ import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 export type ProductBacklinkReminderEmailProps = {
   ownerName: string
   productName: string
-  productUrl: string
   dashboardUrl: string
-  rewardsUrl: string
 }
 
 const paragraph = {
@@ -61,19 +59,10 @@ const primaryButton = {
   color: "#ffffff",
 } as const
 
-const secondaryButton = {
-  ...button,
-  backgroundColor: "#f8fafc",
-  color: "#1f2937",
-  border: "1px solid #cbd5f5",
-} as const
-
 export default function ProductBacklinkReminderEmail({
   ownerName,
   productName,
-  productUrl,
   dashboardUrl,
-  rewardsUrl,
 }: ProductBacklinkReminderEmailProps) {
   return (
     <BaseEmailTemplate
@@ -102,30 +91,23 @@ export default function ProductBacklinkReminderEmail({
       </ul>
 
       <p style={paragraph}>
-        Drop a simple text link or use the Shipyard badge on your homepage. Once
-        the link is live, our backlink verifier will pick it up on the next run
-        and deliver the reward.
+        Add the <strong>Featured on Shipyard</strong> badge to your homepage so
+        our verifier can confirm the backlink and release the reward.
       </p>
 
       <p style={paragraph}>
-        Prefer a visual callout? Grab the{" "}
-        <strong>Featured on Shipyard</strong> badge from your{" "}
+        The badge lives on your{" "}
         <a href={dashboardUrl} style={{ color: "#2563eb" }}>
           member product page
         </a>{" "}
-        and drop it on your site so visitors can discover your listing while you
-        finish the reward checklist.
+        alongside copy-paste install instructions. Once it&#39;s live, we&#39;ll
+        detect it automatically and let you know when the reward hits your
+        account.
       </p>
 
       <div style={buttonRow}>
         <a href={dashboardUrl} style={primaryButton}>
-          Update product settings →
-        </a>
-        <a href={rewardsUrl} style={secondaryButton}>
-          View rewards →
-        </a>
-        <a href={productUrl} style={secondaryButton}>
-          Preview listing →
+          Grab the Shipyard badge →
         </a>
       </div>
     </BaseEmailTemplate>
