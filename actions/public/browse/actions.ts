@@ -159,23 +159,7 @@ export const getBrowseProducts = cached(
     }
 
     // Build where clauses for priority and regular products
-    const priorityWhere: Prisma.ProductWhereInput = {
-      ...baseWhere,
-      // product has a plan with an enabled assignment whose feature.key === PRIORITY_KEY
-      plan: {
-        is: {
-          assignments: {
-            some: {
-              enabled: true,
-              feature: { is: { key: PRIORITY_KEY } },
-            },
-          },
-        },
-      },
-    }
-
-    const regularWhere: Prisma.ProductWhereInput = {
-      ...baseWhere,
+    const planExclusionWhere: Prisma.ProductWhereInput = {
       // plan is null OR (plan exists AND it does NOT have the priority assignment enabled)
       OR: [
         { plan: null },
@@ -193,6 +177,29 @@ export const getBrowseProducts = cached(
         },
       ],
     }
+
+    const priorityWhere: Prisma.ProductWhereInput = {
+      ...baseWhere,
+      // product has a plan with an enabled assignment whose feature.key === PRIORITY_KEY
+      plan: {
+        is: {
+          assignments: {
+            some: {
+              enabled: true,
+              feature: { is: { key: PRIORITY_KEY } },
+            },
+          },
+        },
+      },
+    }
+
+    const hasBaseFilters = Object.keys(baseWhere).length > 0
+
+    const regularWhere: Prisma.ProductWhereInput = hasBaseFilters
+      ? {
+          AND: [baseWhere, planExclusionWhere],
+        }
+      : planExclusionWhere
 
     // Compute counts to perform correct merged pagination
     const browseTags = getBrowseTags()
