@@ -268,7 +268,7 @@ export default function PublicHeader() {
                   </div>
 
                   <div className="space-y-3 border-t border-border/60 pt-5">
-                    <span className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                    <span className="block pb-1 text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                       Launch with us
                     </span>
                     <Link
