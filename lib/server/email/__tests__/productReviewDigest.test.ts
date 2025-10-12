@@ -53,96 +53,103 @@ describe("sendProductReviewDigestEmails", () => {
   it("groups reviews by owner and sends digest", async () => {
     const now = new Date("2024-01-10T08:00:00Z")
     const createdAt = new Date("2024-01-09T16:00:00Z")
+    const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0)
 
-    getProductReviewsForDigestMock.mockResolvedValue([
-      {
-        id: "rev-1",
+    try {
+      getProductReviewsForDigestMock.mockResolvedValue([
+        {
+          id: "rev-1",
+          rating: 5,
+          message: "Fantastic",
+          createdAt,
+          product: {
+            id: "prod-1",
+            slug: "product-one",
+            name: "Product One",
+            ownerId: "owner-1",
+            owner: {
+              id: "owner-1",
+              email: "owner@example.com",
+              firstName: "Olivia",
+              lastName: "Builder",
+            },
+          },
+          reviewer: {
+            id: "user-1",
+            firstName: "Ada",
+            lastName: "Lovelace",
+          },
+        },
+        {
+          id: "rev-2",
+          rating: 4,
+          message: "Works well",
+          createdAt,
+          product: {
+            id: "prod-2",
+            slug: "product-two",
+            name: "Product Two",
+            ownerId: "owner-1",
+            owner: {
+              id: "owner-1",
+              email: "owner@example.com",
+              firstName: "Olivia",
+              lastName: "Builder",
+            },
+          },
+          reviewer: {
+            id: "user-2",
+            firstName: "Grace",
+            lastName: "Hopper",
+          },
+        },
+      ])
+
+      getProductReviewSummaryMock.mockImplementation(
+        async (productId: string) => {
+          return productId === "prod-1"
+            ? { averageRating: 4.8, totalReviews: 12, reviews: [] }
+            : { averageRating: 4.2, totalReviews: 5, reviews: [] }
+        },
+      )
+
+      const result = await sendProductReviewDigestEmails(now)
+
+      expect(result).toEqual({ sent: 1, skipped: 0 })
+      expect(sendEmailMock).toHaveBeenCalledTimes(1)
+
+      const payload = sendEmailMock.mock.calls[0][0]
+      expect(payload.to).toBe("owner@example.com")
+      expect(payload.subject).toBe(
+        "New reviews just docked for your Shipyard listings",
+      )
+
+      const element = payload.react
+      expect(element.props.ownerName).toBe("Olivia Builder")
+      expect(element.props.products).toHaveLength(2)
+
+      const firstProduct = element.props.products.find(
+        (p: any) => p.name === "Product One",
+      )
+      expect(firstProduct.averageRating).toBe(4.8)
+      expect(firstProduct.totalReviews).toBe(12)
+      expect(firstProduct.productUrl).toBe(
+        "https://app.test/products/product-one",
+      )
+      expect(firstProduct.dashboardUrl).toBe(
+        "https://app.test/member/products/product-one",
+      )
+      expect(firstProduct.reviews[0]).toMatchObject({
+        reviewerName: "Ada Lovelace",
         rating: 5,
         message: "Fantastic",
-        createdAt,
-        product: {
-          id: "prod-1",
-          slug: "product-one",
-          name: "Product One",
-          ownerId: "owner-1",
-          owner: {
-            id: "owner-1",
-            email: "owner@example.com",
-            firstName: "Olivia",
-            lastName: "Builder",
-          },
-        },
-        reviewer: {
-          id: "user-1",
-          firstName: "Ada",
-          lastName: "Lovelace",
-        },
-      },
-      {
-        id: "rev-2",
-        rating: 4,
-        message: "Works well",
-        createdAt,
-        product: {
-          id: "prod-2",
-          slug: "product-two",
-          name: "Product Two",
-          ownerId: "owner-1",
-          owner: {
-            id: "owner-1",
-            email: "owner@example.com",
-            firstName: "Olivia",
-            lastName: "Builder",
-          },
-        },
-        reviewer: {
-          id: "user-2",
-          firstName: "Grace",
-          lastName: "Hopper",
-        },
-      },
-    ])
+      })
 
-    getProductReviewSummaryMock.mockImplementation(
-      async (productId: string) => {
-        return productId === "prod-1"
-          ? { averageRating: 4.8, totalReviews: 12, reviews: [] }
-          : { averageRating: 4.2, totalReviews: 5, reviews: [] }
-      },
-    )
-
-    const result = await sendProductReviewDigestEmails(now)
-
-    expect(result).toEqual({ sent: 1, skipped: 0 })
-    expect(sendEmailMock).toHaveBeenCalledTimes(1)
-
-    const payload = sendEmailMock.mock.calls[0][0]
-    expect(payload.to).toBe("owner@example.com")
-    expect(payload.subject).toBe("Fresh reviews from Shipyard HQ")
-
-    const element = payload.react
-    expect(element.props.ownerName).toBe("Olivia Builder")
-    expect(element.props.products).toHaveLength(2)
-
-    const firstProduct = element.props.products.find(
-      (p: any) => p.name === "Product One",
-    )
-    expect(firstProduct.averageRating).toBe(4.8)
-    expect(firstProduct.totalReviews).toBe(12)
-    expect(firstProduct.productUrl).toBe(
-      "https://app.test/products/product-one",
-    )
-    expect(firstProduct.dashboardUrl).toBe(
-      "https://app.test/member/products/product-one",
-    )
-    expect(firstProduct.reviews[0]).toMatchObject({
-      reviewerName: "Ada Lovelace",
-      rating: 5,
-      message: "Fantastic",
-    })
-
-    expect(getProductReviewSummaryMock).toHaveBeenCalledWith("prod-1", 10)
-    expect(getProductReviewSummaryMock).toHaveBeenCalledWith("prod-2", 10)
+      expect(getProductReviewSummaryMock).toHaveBeenCalledWith("prod-1", 10)
+      expect(getProductReviewSummaryMock).toHaveBeenCalledWith("prod-2", 10)
+    } finally {
+      randomSpy.mockRestore()
+    }
   })
 
   it("skips owners missing email and continues", async () => {

@@ -68,9 +68,11 @@ export async function handleBacklinkVerifiedReward(
     return
   }
 
-  const { slug: metadataSlug, backlinkUrl, verifiedAt } = parseMetadata(
-    event.metadata,
-  )
+  const {
+    slug: metadataSlug,
+    backlinkUrl: metadataBacklinkUrl,
+    verifiedAt: metadataVerifiedAt,
+  } = parseMetadata(event.metadata)
 
   if (!event.productId) {
     console.warn("[email] backlink reward missing product context", {
@@ -120,8 +122,12 @@ export async function handleBacklinkVerifiedReward(
     return
   }
 
-  const backlinkTarget = backlinkUrl ?? buildAbsoluteUrl(productPath(productSlug))
-  const verifiedTimestamp = coerceVerifiedAt(verifiedAt, event.createdAt)
+  const backlinkTarget =
+    metadataBacklinkUrl ?? buildAbsoluteUrl(productPath(productSlug))
+  const verifiedTimestamp = coerceVerifiedAt(
+    metadataVerifiedAt ?? null,
+    event.createdAt,
+  )
   const ownerName = formatName(product.user?.firstName, product.user?.lastName)
   const productName = product.name ?? productSlug
 
