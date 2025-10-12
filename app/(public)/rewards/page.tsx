@@ -686,7 +686,11 @@ export default async function RewardsExplainerPage() {
                 </Link>
                 <Link
                   href={MEMBER_REWARDS_PATH}
-                  className={launchSecondaryButton({ size: "lg" })}
+                  className={launchSecondaryButton({
+                    size: "lg",
+                    className:
+                      "bg-[color:var(--brand-1)/0.08] text-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)/0.12] hover:text-[color:var(--brand-1)] focus-visible:ring-offset-white",
+                  })}
                 >
                   Review your ledger
                 </Link>
