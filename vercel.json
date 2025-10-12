@@ -41,6 +41,10 @@
       "schedule": "0 5 * * *"
     },
     {
+      "path": "/api/cron/rewards/backlinks/reminders",
+      "schedule": "0 9 1 * *"
+    },
+    {
       "path": "/api/cron/rewards/streak",
       "schedule": "0 4 * * *"
     },
