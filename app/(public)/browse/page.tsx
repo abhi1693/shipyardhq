@@ -8,10 +8,7 @@ import {
   getUseCasesWithCounts,
 } from "@/actions/admin/categories/actions"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
-import {
-  getProducts,
-  getTrendingProducts,
-} from "@/actions/public/products/featured"
+import { getProducts } from "@/actions/public/products/featured"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
@@ -21,10 +18,8 @@ import { DirectoryCategoryRail } from "@/components/organisms/directory/Category
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 import { BrowseFeaturedCarousel } from "@/components/organisms/BrowseFeaturedCarousel"
-import InteractiveTrendRadar from "@/components/organisms/InteractiveTrendRadar"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
-import { computeTrendRadarMetrics } from "@/lib/trend-radar"
 import { Prisma } from "@/lib/vendor/prisma/client"
 import {
   BROWSE_PATH,
@@ -123,14 +118,7 @@ export default async function BrowsePage({
   const page = resolveSingle(params.page) ?? "1"
   const q = resolveSingle(params.q)?.trim()
 
-  const [
-    browseResult,
-    featured,
-    useCases,
-    categories,
-    stats,
-    trendingForRadar,
-  ] = await Promise.all([
+  const [browseResult, featured, useCases, categories, stats] = await Promise.all([
     getBrowseProducts({
       useCaseSlug: useCase === "__all__" ? undefined : useCase,
       categorySlug: category === "__all__" ? undefined : category,
@@ -151,7 +139,6 @@ export default async function BrowsePage({
       orderBy: [{ products: { _count: "desc" } }, { name: "asc" }],
     }) as Promise<CategoryWithProductCount[]>,
     getLeaderboardStats(),
-    getTrendingProducts(8),
   ])
 
   const { products, hasMore } = browseResult
@@ -198,27 +185,6 @@ export default async function BrowsePage({
         : verified === "true"
           ? "Verified launches"
           : "Browse every Shipyard launch"
-
-  const radarSourceCategories = categories.slice(0, 8).map((entry) => ({
-    id: entry.id,
-    slug: entry.slug,
-    name: entry.name,
-    productCount: entry._count.products,
-    icon: entry.icon,
-  }))
-
-  const radarTrending = trendingForRadar.map((item) => ({
-    categoryName: item.product.category?.name ?? null,
-    upvotes: item.product.analytics?.upvotes ?? null,
-  }))
-
-  const radarData = computeTrendRadarMetrics(
-    radarSourceCategories,
-    radarTrending,
-    {
-      totalProducts: stats.totalProducts,
-    },
-  )
 
   return (
     <main className="relative isolate bg-white">
@@ -305,13 +271,6 @@ export default async function BrowsePage({
             <aside className="flex flex-col gap-8">
               <BrowseFeaturedCarousel products={featured} />
               <DirectoryCategoryRail categories={categories} />
-              {radarData.metrics.length ? (
-                <InteractiveTrendRadar
-                  categories={radarData.metrics}
-                  totals={radarData.totals}
-                  className="border-border/70"
-                />
-              ) : null}
               <DirectoryPromoCard
                 eyebrow="Need more reach?"
                 title="Secure premium placement before launch day"
