@@ -7,14 +7,17 @@ import {
   getTrendingProducts,
   getHomepageFeatureProducts,
 } from "@/actions/public/products/featured"
+import { getRewardsLeaderboardEntries } from "@/actions/public/rewards/actions"
 import { LatestLaunches } from "@/components/organisms/LatestLaunches"
 import { Leaderboard } from "@/components/organisms/Leaderboard"
 import { EditorsPick } from "@/components/organisms/EditorsPick"
 import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
+import { RewardsLeaderboardPreview } from "@/components/organisms/RewardsLeaderboardPreview"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { computeTrendRadarMetrics } from "@/lib/trend-radar"
 import { siteConfig } from "@/lib/siteConfig"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
+import { hydrateRewardsLeaderboardEntries } from "@/lib/rewards/display"
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
 import { DirectoryRadarDigest } from "@/components/organisms/directory/RadarDigest"
@@ -69,6 +72,7 @@ export default async function HomePage() {
     topCategories,
     homepagePlacements,
     stats,
+    rewardsLeaderboardEntries,
   ] = await Promise.all([
     getProducts("featured"),
     getProducts("editor-pick"),
@@ -77,7 +81,12 @@ export default async function HomePage() {
     getTopCategories(),
     getHomepageFeatureProducts(12),
     getLeaderboardStats(),
+    getRewardsLeaderboardEntries(3),
   ])
+
+  const rewardsLeaders = await hydrateRewardsLeaderboardEntries(
+    rewardsLeaderboardEntries,
+  )
 
   const radarSourceCategories = topCategories.map((category) => ({
     id: category.id,
@@ -117,6 +126,7 @@ export default async function HomePage() {
                 <EditorsPick products={editorsPick} />
                 <LatestLaunches products={latestLaunches} />
                 <Leaderboard products={trendingProducts} />
+                <RewardsLeaderboardPreview entries={rewardsLeaders} />
               </div>
               <aside className="flex flex-col gap-8">
                 <DirectoryCategoryRail categories={topCategories} />

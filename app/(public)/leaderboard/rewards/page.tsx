@@ -18,7 +18,10 @@ import {
   REWARDS_PATH,
   userPath,
 } from "@/lib/routes"
-import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import {
+  hydrateRewardsLeaderboardEntries,
+  type RewardsLeaderboardDisplayEntry,
+} from "@/lib/rewards/display"
 import { cn } from "@/lib/utils"
 import {
   normalizeRewardsLeaderboardLimit,
@@ -83,54 +86,7 @@ const leaderboardMetrics = [
   },
 ] as const
 
-type LeaderboardEntry = Awaited<
-  ReturnType<typeof getRewardsLeaderboardEntries>
->[number]
-
-type DisplayEntry = LeaderboardEntry & {
-  displayName: string
-  initials: string
-  avatarUrl: string | null
-  launchCount: number
-}
-
-function resolveEntryMeta(entry: LeaderboardEntry) {
-  const first = entry.user?.firstName?.trim() ?? ""
-  const last = entry.user?.lastName?.trim() ?? ""
-  const combined = `${first} ${last}`.trim() || "Shipyard member"
-
-  const initialsSource = combined.split(/\s+/).slice(0, 2)
-  const initials =
-    initialsSource
-      .map((segment) => segment.charAt(0).toUpperCase())
-      .join("")
-      .slice(0, 2) || "SY"
-
-  const launchCount = entry.user?._count.products ?? 0
-
-  return { displayName: combined, initials, launchCount }
-}
-
-async function withAvatar(entry: LeaderboardEntry): Promise<DisplayEntry> {
-  const meta = resolveEntryMeta(entry)
-  let avatarUrl: string | null = null
-
-  const clerkId = entry.user?.clerkId
-  if (clerkId) {
-    try {
-      const clerkUser = await getClerkUserByIdCached(clerkId)
-      avatarUrl = clerkUser.imageUrl ?? null
-    } catch {
-      avatarUrl = null
-    }
-  }
-
-  return {
-    ...entry,
-    ...meta,
-    avatarUrl,
-  }
-}
+type DisplayEntry = RewardsLeaderboardDisplayEntry
 
 export default async function RewardsLeaderboardPage({
   searchParams,
@@ -151,7 +107,7 @@ export default async function RewardsLeaderboardPage({
     getRewardsLeaderboardEntries(limit),
   ])
 
-  const entries = await Promise.all(leaderboard.map(withAvatar))
+  const entries = await hydrateRewardsLeaderboardEntries(leaderboard)
 
   const topThree = entries.slice(0, 3)
   const rest = entries.slice(3)
