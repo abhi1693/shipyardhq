@@ -35,7 +35,13 @@ import { hasPlanFeature } from "@/lib/features"
 import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
 import { buildPageMetadata } from "@/lib/metadata"
 import { ScrollReset } from "@/components/atoms/scroll-reset"
-import { BROWSE_PATH, categoryPath, productPath, userPath } from "@/lib/routes"
+import {
+  BROWSE_PATH,
+  categoryPath,
+  productPath,
+  productUpdatesPath,
+  userPath,
+} from "@/lib/routes"
 import { SupportHeroCard } from "@/components/molecules/SupportHeroCard"
 import { NewsletterSignupSidebarCard } from "@/components/molecules/NewsletterSignupSidebarCard"
 import ProductReviewsSection from "@/components/organisms/ProductReviewsSection"
@@ -323,13 +329,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const viewerReviewPromise = userId
     ? getUserProductReview(product.id, userId).catch(() => null)
     : Promise.resolve(null)
-  const productUpdatesPromise = getPublicProductUpdates(product.id)
+  const productUpdatesPromise = getPublicProductUpdates(product.id, {
+    limit: 4,
+  })
 
-  const [reviewSummary, viewerReview, productUpdates] = await Promise.all([
+  const [reviewSummary, viewerReview, previewUpdates] = await Promise.all([
     reviewSummaryPromise,
     viewerReviewPromise,
     productUpdatesPromise,
   ])
+
+  const hasAdditionalUpdates = previewUpdates.length > 3
+  const productUpdates = hasAdditionalUpdates
+    ? previewUpdates.slice(0, 3)
+    : previewUpdates
 
   const baseUrl = (
     process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
@@ -527,6 +540,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <ProductChangelog
                 productName={product.name}
                 updates={productUpdates}
+                footer={
+                  hasAdditionalUpdates ? (
+                    <Link
+                      href={productUpdatesPath(product.slug)}
+                      className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                    >
+                      View all updates
+                    </Link>
+                  ) : undefined
+                }
               />
             ) : null}
 

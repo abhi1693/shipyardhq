@@ -8,11 +8,13 @@ import { cn } from "@/lib/utils"
 type ProductChangelogProps = {
   productName: string
   updates: ProductUpdatePublicView[]
+  footer?: React.ReactNode
 }
 
 export function ProductChangelog({
   productName,
   updates,
+  footer,
 }: ProductChangelogProps) {
   if (!updates.length) return null
 
@@ -89,11 +91,9 @@ export function ProductChangelog({
             )
           })}
         </div>
-
-        <p className="mt-6 text-xs text-muted-foreground">
-          Looking for older releases? Follow the team&apos;s updates to stay in
-          the loop.
-        </p>
+        {footer ? (
+          <div className="mt-6 flex justify-end">{footer}</div>
+        ) : null}
       </div>
     </section>
   )

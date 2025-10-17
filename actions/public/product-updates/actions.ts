@@ -97,10 +97,20 @@ function formatFeedItem(
   }
 }
 
+type FetchOptions = {
+  limit?: number
+  skip?: number
+}
+
 async function fetchPublicProductUpdates(
   productId: string,
+  options: FetchOptions = {},
 ): Promise<ProductUpdatePublicView[]> {
-  const updates = await prisma.productUpdate.findMany({
+  const { limit, skip } = options
+
+  const query: Prisma.ProductUpdateFindManyArgs & {
+    cacheStrategy: any
+  } = {
     where: {
       productId,
       status: ProductUpdateStatus.published,
@@ -117,7 +127,17 @@ async function fetchPublicProductUpdates(
         TAGS.productUpdates(productId),
       ]),
     },
-  })
+  }
+
+  if (typeof skip === "number" && skip > 0) {
+    query.skip = skip
+  }
+
+  if (typeof limit === "number") {
+    query.take = limit
+  }
+
+  const updates = await prisma.productUpdate.findMany(query)
 
   return updates.map((update) =>
     formatPublicUpdate(update as unknown as PublicProductUpdate),
@@ -125,7 +145,8 @@ async function fetchPublicProductUpdates(
 }
 
 export const getPublicProductUpdates = cached(
-  async (productId: string) => fetchPublicProductUpdates(productId),
+  async (productId: string, options?: { limit?: number }) =>
+    fetchPublicProductUpdates(productId, options ?? {}),
   "product:public:updates",
   {
     ttl: DEFAULT_TTL.medium,
@@ -135,6 +156,8 @@ export const getPublicProductUpdates = cached(
         TAGS.product(productId),
         TAGS.productUpdates(productId),
       ]),
+    keyParts: ([, options]) =>
+      options?.limit != null ? [`limit:${options.limit}`] : [],
   },
 )
 
@@ -171,3 +194,31 @@ export const getLatestPublicProductUpdates = cached(
     keyParts: ([limit]) => [`limit:${limit}`],
   },
 )
+
+export async function getPublicProductUpdatesPage(
+  productId: string,
+  page: number,
+  pageSize: number,
+) {
+  const normalizedPage = Number.isFinite(page) ? Math.floor(page) : 0
+  const safePage = normalizedPage > 0 ? normalizedPage : 0
+  const normalizedSize = Number.isFinite(pageSize)
+    ? Math.floor(pageSize)
+    : 10
+  const safePageSize = Math.max(1, Math.min(normalizedSize, 20))
+  const skip = safePage * safePageSize
+
+  const updates = await fetchPublicProductUpdates(productId, {
+    limit: safePageSize + 1,
+    skip,
+  })
+
+  const hasMore = updates.length > safePageSize
+  const slice = hasMore ? updates.slice(0, safePageSize) : updates
+
+  return {
+    updates: slice,
+    hasMore,
+    nextPage: hasMore ? safePage + 1 : null,
+  }
+}
