@@ -8,10 +8,12 @@ import {
   getHomepageFeatureProducts,
 } from "@/actions/public/products/featured"
 import { getRewardsLeaderboardEntries } from "@/actions/public/rewards/actions"
+import { getVersusMatchup } from "@/actions/public/products/versus"
 import { LatestLaunches } from "@/components/organisms/LatestLaunches"
 import { Leaderboard } from "@/components/organisms/Leaderboard"
 import { EditorsPick } from "@/components/organisms/EditorsPick"
 import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
+import { VersusTeaser } from "@/components/organisms/versus/VersusTeaser"
 import { RewardsLeaderboardPreview } from "@/components/organisms/RewardsLeaderboardPreview"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { computeTrendRadarMetrics } from "@/lib/trend-radar"
@@ -78,6 +80,7 @@ export default async function HomePage() {
     homepagePlacements,
     stats,
     rewardsLeaderboardEntries,
+    versusMatchup,
   ] = await Promise.all([
     getProducts("featured"),
     getProducts("editor-pick"),
@@ -87,6 +90,7 @@ export default async function HomePage() {
     getHomepageFeatureProducts(12),
     getLeaderboardStats(),
     getRewardsLeaderboardEntries(3),
+    getVersusMatchup(),
   ])
 
   const rewardsLeaders = await hydrateRewardsLeaderboardEntries(
@@ -134,6 +138,7 @@ export default async function HomePage() {
               <div className="flex flex-col gap-10">
                 <HomepageSpotlight placements={homepagePlacements} />
                 <FeaturedHighlights products={featuredProducts} />
+                <VersusTeaser matchup={versusMatchup} />
                 <EditorsPick products={editorsPick} />
                 <LatestLaunches products={latestLaunches} />
                 <Leaderboard products={trendingProducts} />

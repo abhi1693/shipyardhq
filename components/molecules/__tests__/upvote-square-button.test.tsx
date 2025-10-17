@@ -15,9 +15,12 @@ describe("UpvoteSquareButton", () => {
     vi.unstubAllGlobals()
   })
 
-  it("wraps with tooltip and disables when signed out", async () => {
+  it("wraps with SignInButton and stays clickable when signed out", async () => {
     vi.doMock("@clerk/nextjs", () => ({
       useUser: () => ({ isSignedIn: false }),
+      SignInButton: ({ children }: any) => (
+        <div data-testid="sign-in-wrapper">{children}</div>
+      ),
     }))
     const { default: UpvoteSquareButton } = await import(
       "@/components/molecules/UpvoteSquareButton"
@@ -30,15 +33,16 @@ describe("UpvoteSquareButton", () => {
         title="Vote"
       />,
     )
-    // Wrapped with tooltip trigger wrapper
-    expect(document.querySelector('[data-slot="tooltip-trigger"]')).toBeTruthy()
-    // Button is disabled
-    expect(screen.getByRole("button")).toBeDisabled()
+    // Wrapped with sign-in handoff
+    expect(screen.getByTestId("sign-in-wrapper")).toBeInTheDocument()
+    // Button remains interactive (not disabled)
+    expect(screen.getByRole("button")).not.toBeDisabled()
   })
 
   it("submits form action and updates count when signed in", async () => {
     vi.doMock("@clerk/nextjs", () => ({
       useUser: () => ({ isSignedIn: true }),
+      SignInButton: ({ children }: any) => <>{children}</>,
     }))
     fetchMock.mockResolvedValue({
       ok: true,

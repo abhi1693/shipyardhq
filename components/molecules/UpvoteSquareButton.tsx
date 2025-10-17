@@ -1,12 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useUser } from "@clerk/nextjs"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/atoms/tooltip"
+import { SignInButton, useUser } from "@clerk/nextjs"
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
 
 interface Props {
@@ -129,7 +124,7 @@ export default function UpvoteSquareButton({
     <button
       type="button"
       onClick={handleClick}
-      disabled={pending || !isSignedIn}
+      disabled={pending}
       className="cursor-pointer disabled:opacity-70 disabled:cursor-pointer"
     >
       <UpvoteSquare
@@ -146,10 +141,13 @@ export default function UpvoteSquareButton({
 
   if (!isSignedIn) {
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
-        <TooltipContent sideOffset={6}>Sign in to upvote</TooltipContent>
-      </Tooltip>
+      <SignInButton
+        mode="modal"
+        forceRedirectUrl="/versus"
+        signUpForceRedirectUrl="/versus"
+      >
+        {button}
+      </SignInButton>
     )
   }
 
