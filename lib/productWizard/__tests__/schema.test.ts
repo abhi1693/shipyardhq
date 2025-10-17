@@ -87,6 +87,14 @@ describe("productWizard schema", () => {
     expect(parsed.websiteUrl).toBe("https://example.com/landing/page")
   })
 
+  it("disallows level-one markdown headings in description", () => {
+    const s = makeAddProductSchema()
+    const res = s.safeParse(
+      baseValid({ description: "# Heading not allowed\n\nMore copy." }),
+    )
+    expect(res.success).toBe(false)
+  })
+
   it("allows archived status in edit schema only", () => {
     const add = makeAddProductSchema()
     const edit = makeEditProductSchema()

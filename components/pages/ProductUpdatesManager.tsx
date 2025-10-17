@@ -35,7 +35,6 @@ import {
   FormMessage,
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
-import { Textarea } from "@/components/atoms/textarea"
 import {
   Select,
   SelectContent,
@@ -53,6 +52,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/atoms/dropdown-menu"
 import { AlertModal } from "@/components/atoms/alert-modal"
+import { MarkdownEditor } from "@/components/molecules/MarkdownEditor"
 
 type ProductUpdatesManagerProps = {
   product: {
@@ -306,11 +306,17 @@ export function ProductUpdatesManager({
                   <FormItem>
                     <FormLabel>Details</FormLabel>
                     <FormControl>
-                      <Textarea
-                        {...field}
+                      <MarkdownEditor
+                        ref={field.ref}
+                        value={(field.value as string) ?? ""}
+                        onChange={(val) => field.onChange(val)}
+                        onBlur={field.onBlur}
+                        name={field.name}
                         placeholder="Use Markdown to highlight what's new for your users..."
-                        className="min-h-[160px]"
                         disabled={isPending}
+                        rows={10}
+                        textareaClassName="min-h-[160px]"
+                        previewClassName="min-h-[160px]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -529,7 +535,6 @@ export function ProductUpdatesManager({
                   <CardContent className="prose prose-sm max-w-none">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
-                      disallowedElements={["h1"]}
                       unwrapDisallowed
                     >
                       {update.content}

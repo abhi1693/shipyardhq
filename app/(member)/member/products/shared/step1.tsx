@@ -3,8 +3,6 @@
 import { useFormContext } from "react-hook-form"
 import { ReactNode, useState } from "react"
 import { Sparkles } from "lucide-react"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
 import {
   FormField,
   FormItem,
@@ -15,7 +13,6 @@ import {
 } from "@/components/atoms/form"
 import { Input } from "@/components/atoms/input"
 import ImageUploadField from "@/components/molecules/ImageUploadField"
-import { Textarea } from "@/components/atoms/textarea"
 import {
   Select,
   SelectContent,
@@ -28,6 +25,7 @@ import { cleanWebsiteUrlInput } from "@/lib/productWizard/transform"
 import { Button } from "@/components/atoms/button"
 import { toast } from "sonner"
 import type { ProductAutofillSuggestion } from "@/lib/productWizard/autofill"
+import { MarkdownEditor } from "@/components/molecules/MarkdownEditor"
 
 type Props = {
   categories: { id: string; name: string }[]
@@ -49,7 +47,6 @@ export default function Step1({
   autofillNotice,
 }: Props) {
   const form = useFormContext()
-  const [previewDesc, setPreviewDesc] = useState(false)
   const [autofilling, setAutofilling] = useState(false)
 
   async function handleAutofill() {
@@ -333,31 +330,7 @@ export default function Step1({
         control={form.control}
         render={({ field }) => (
           <FormItem>
-            <div className="flex items-center justify-between">
-              <FormLabel>Description</FormLabel>
-              <div className="flex gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setPreviewDesc(false)}
-                  className={
-                    "px-2 py-1 rounded border " +
-                    (!previewDesc ? "bg-muted" : "opacity-60")
-                  }
-                >
-                  Write
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewDesc(true)}
-                  className={
-                    "px-2 py-1 rounded border " +
-                    (previewDesc ? "bg-muted" : "opacity-60")
-                  }
-                >
-                  Preview
-                </button>
-              </div>
-            </div>
+            <FormLabel>Description</FormLabel>
             <FormDescription>
               Supports Markdown formatting. Preview changes or revisit the{" "}
               <a
@@ -371,32 +344,17 @@ export default function Step1({
               .
             </FormDescription>
             <FormControl>
-              {previewDesc ? (
-                <div className="h-48 rounded border p-3 overflow-auto prose prose-sm max-w-none">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      a: (props) => (
-                        <a
-                          {...props}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline"
-                        />
-                      ),
-                    }}
-                  >
-                    {(form.watch("description") as string) || ""}
-                  </ReactMarkdown>
-                </div>
-              ) : (
-                <Textarea
-                  rows={10}
-                  className="h-48"
-                  placeholder="What does your product do?"
-                  {...field}
-                />
-              )}
+              <MarkdownEditor
+                ref={field.ref}
+                value={(field.value as string) ?? ""}
+                onChange={(val) => field.onChange(val)}
+                onBlur={field.onBlur}
+                name={field.name}
+                placeholder="What does your product do?"
+                rows={10}
+                textareaClassName="h-48"
+                previewClassName="h-48"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

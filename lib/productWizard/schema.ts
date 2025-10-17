@@ -11,7 +11,13 @@ export function makeProductSchema(opts: { allowArchived?: boolean } = {}) {
       // Basics
       name: z.string().min(1, "Name is required"),
       tagline: z.string().min(1, "Tagline is required"),
-      description: z.string().min(1, "Description is required"),
+      description: z
+        .string()
+        .min(1, "Description is required")
+        .refine(
+          (value) => !/(^|\n)\s*#(?!#)/.test(value),
+          "Use Heading 2 or smaller (##, ###, etc.) instead of level 1 headings.",
+        ),
       websiteUrl: z
         .preprocess(
           (v) => (typeof v === "string" ? v.replace(/^\/+/, "").trim() : v),
