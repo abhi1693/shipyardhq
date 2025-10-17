@@ -43,33 +43,33 @@ describe("getProductUpdateUsageSummary", () => {
       ])
       .mockResolvedValueOnce([
         {
-        id: "upd-1",
-        title: "Shipped new onboarding",
-        status: "published",
-        createdAt: new Date("2024-03-05T12:00:00Z"),
-        publishedAt: new Date("2024-03-06T09:00:00Z"),
-        productId: "prod-1",
-        product: { id: "prod-1", name: "Voyager", slug: "voyager" },
-      },
-      {
-        id: "upd-2",
-        title: "Improved dashboard",
-        status: "draft",
-        createdAt: new Date("2024-03-08T14:30:00Z"),
-        publishedAt: null,
-        productId: "prod-1",
-        product: { id: "prod-1", name: "Voyager", slug: "voyager" },
-      },
-      {
-        id: "upd-3",
-        title: "Billing revamp",
-        status: "published",
-        createdAt: new Date("2024-03-02T16:00:00Z"),
-        publishedAt: new Date("2024-03-09T10:15:00Z"),
-        productId: "prod-2",
-        product: { id: "prod-2", name: "Harbor", slug: "harbor" },
-      },
-    ])
+          id: "upd-1",
+          title: "Shipped new onboarding",
+          status: "published",
+          createdAt: new Date("2024-03-05T12:00:00Z"),
+          publishedAt: new Date("2024-03-06T09:00:00Z"),
+          productId: "prod-1",
+          product: { id: "prod-1", name: "Voyager", slug: "voyager" },
+        },
+        {
+          id: "upd-2",
+          title: "Improved dashboard",
+          status: "draft",
+          createdAt: new Date("2024-03-08T14:30:00Z"),
+          publishedAt: null,
+          productId: "prod-1",
+          product: { id: "prod-1", name: "Voyager", slug: "voyager" },
+        },
+        {
+          id: "upd-3",
+          title: "Billing revamp",
+          status: "published",
+          createdAt: new Date("2024-03-02T16:00:00Z"),
+          publishedAt: new Date("2024-03-09T10:15:00Z"),
+          productId: "prod-2",
+          product: { id: "prod-2", name: "Harbor", slug: "harbor" },
+        },
+      ])
 
     const summary = await getProductUpdateUsageSummary(7)
 
@@ -101,10 +101,7 @@ describe("getProductUpdateUsageSummary", () => {
     expect(summary.totals.allTime.productsWithUpdates).toBe(5)
 
     expect(summary.perProduct.activeProducts).toBe(2)
-    expect(summary.perProduct.averageCreatedPerActiveProduct).toBeCloseTo(
-      1,
-      5,
-    )
+    expect(summary.perProduct.averageCreatedPerActiveProduct).toBeCloseTo(1, 5)
 
     expect(summary.perProduct.topProducts[0]).toMatchObject({
       productId: "prod-1",

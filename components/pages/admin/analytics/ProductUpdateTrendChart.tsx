@@ -105,7 +105,9 @@ export function ProductUpdateTrendChart({
             <div className="mt-1 text-2xl font-semibold text-slate-900">
               {formatNumber(createdTotal)}
             </div>
-            <div className="mt-1">{formatDelta(createdTotal, createdPrevious)}</div>
+            <div className="mt-1">
+              {formatDelta(createdTotal, createdPrevious)}
+            </div>
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">

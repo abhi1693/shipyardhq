@@ -211,11 +211,15 @@ export default async function ProductUpdateAnalyticsPage({
                 <thead>
                   <tr className="text-xs text-muted-foreground">
                     <th className="py-2 pr-4 text-left font-medium">Product</th>
-                    <th className="py-2 pr-4 text-right font-medium">Created</th>
+                    <th className="py-2 pr-4 text-right font-medium">
+                      Created
+                    </th>
                     <th className="py-2 pr-4 text-right font-medium">
                       Published
                     </th>
-                    <th className="py-2 text-right font-medium">Last activity</th>
+                    <th className="py-2 text-right font-medium">
+                      Last activity
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200/70">

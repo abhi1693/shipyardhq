@@ -1,12 +1,7 @@
 import { addDays, format, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
-import {
-  accelerateTags,
-  DEFAULT_SWR,
-  DEFAULT_TTL,
-  TAGS,
-} from "@/lib/cache"
+import { accelerateTags, DEFAULT_SWR, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { ProductUpdateUsageSummary } from "@/types/analytics"
 import { Prisma, ProductUpdateStatus } from "@/lib/vendor/prisma/client"
 
@@ -24,11 +19,10 @@ const MAX_TOP_PRODUCTS = 8
 const MAX_RECENT_ACTIVITY = 12
 const MAX_RANGE_DAYS = 180
 
-const PRODUCT_UPDATE_USAGE_ARGS = Prisma.validator<
-  Prisma.ProductUpdateFindManyArgs
->()({
-  include: { product: { select: { id: true, name: true, slug: true } } },
-})
+const PRODUCT_UPDATE_USAGE_ARGS =
+  Prisma.validator<Prisma.ProductUpdateFindManyArgs>()({
+    include: { product: { select: { id: true, name: true, slug: true } } },
+  })
 
 type ProductUpdateRangeRecord = Prisma.ProductUpdateGetPayload<
   typeof PRODUCT_UPDATE_USAGE_ARGS
@@ -217,10 +211,7 @@ export async function getProductUpdateUsageSummary(
 
     if (wasPublishedInRange) {
       publishedInRange += 1
-      const key = format(
-        startOfDay(update.publishedAt as Date),
-        "yyyy-MM-dd",
-      )
+      const key = format(startOfDay(update.publishedAt as Date), "yyyy-MM-dd")
       const bucket = trendBuckets.get(key)
       if (bucket) {
         bucket.published += 1
@@ -245,10 +236,7 @@ export async function getProductUpdateUsageSummary(
 
       if (wasCreatedInRange) {
         stats.created += 1
-        if (
-          !stats.lastActivityAt ||
-          update.createdAt > stats.lastActivityAt
-        ) {
+        if (!stats.lastActivityAt || update.createdAt > stats.lastActivityAt) {
           stats.lastActivityAt = update.createdAt
         }
       }

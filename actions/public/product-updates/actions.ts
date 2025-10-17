@@ -165,10 +165,7 @@ export const getPublicProductUpdates = cached(
 async function fetchLatestPublishedUpdates(
   limit: number,
 ): Promise<ProductUpdateFeedItem[]> {
-  const safeLimit = Math.max(
-    1,
-    Number.isFinite(limit) ? Math.floor(limit) : 6,
-  )
+  const safeLimit = Math.max(1, Number.isFinite(limit) ? Math.floor(limit) : 6)
   const take = Math.min(Math.max(safeLimit * 3, safeLimit + 6), 60)
 
   const updates = await prisma.productUpdate.findMany({
