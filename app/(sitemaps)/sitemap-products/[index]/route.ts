@@ -50,6 +50,12 @@ export async function GET(
           <changefreq>${changefreq}</changefreq>
           <priority>${priority}</priority>
         </url>
+        <url>
+          <loc>${base}/products/${p.slug}/updates</loc>
+          <lastmod>${new Date(last).toISOString()}</lastmod>
+          <changefreq>${changefreq}</changefreq>
+          <priority>0.6</priority>
+        </url>
       `
     })
     .join("")
