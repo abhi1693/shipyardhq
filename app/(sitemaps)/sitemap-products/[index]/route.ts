@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
 
 type ProductSitemapEntry = Prisma.ProductGetPayload<{
-  select: { slug: true; updatedAt: true; publishedAt: true }
+  select: { id: true; slug: true; updatedAt: true; publishedAt: true }
 }>
 
 export const dynamic = "force-dynamic"
@@ -29,11 +29,31 @@ export async function GET(
   const skip = (page - 1) * CHUNK_SIZE
   const products = await prisma.product.findMany({
     where: { status: "published" as any },
-    select: { slug: true, updatedAt: true, publishedAt: true },
+    select: { id: true, slug: true, updatedAt: true, publishedAt: true },
     orderBy: { updatedAt: "desc" },
     skip,
     take: CHUNK_SIZE,
   })
+
+  const productIds = products.map((p) => p.id)
+  const updatesByProduct = await prisma.productUpdate.groupBy({
+    by: ["productId"],
+    where: {
+      productId: { in: productIds },
+      status: "published" as any,
+      publishedAt: { not: null },
+    },
+    _count: { _all: true },
+    orderBy: { productId: "asc" },
+  })
+
+  const updatesMap = new Map<string, number>()
+  for (const entry of updatesByProduct as Array<{
+    productId: string
+    _count: { _all: number }
+  }>) {
+    updatesMap.set(entry.productId, entry._count._all)
+  }
 
   const urls = products
     .map((p: ProductSitemapEntry) => {
@@ -43,20 +63,33 @@ export async function GET(
       )
       const changefreq = days <= 7 ? "daily" : days <= 60 ? "weekly" : "monthly"
       const priority = days <= 7 ? "0.9" : days <= 180 ? "0.8" : "0.7"
-      return xml`
+      const hasUpdates = updatesMap.has(p.id)
+
+      const entries = [
+        xml`
         <url>
           <loc>${base}/products/${p.slug}</loc>
           <lastmod>${new Date(last).toISOString()}</lastmod>
           <changefreq>${changefreq}</changefreq>
           <priority>${priority}</priority>
         </url>
-        <url>
-          <loc>${base}/products/${p.slug}/updates</loc>
-          <lastmod>${new Date(last).toISOString()}</lastmod>
-          <changefreq>${changefreq}</changefreq>
-          <priority>0.6</priority>
-        </url>
-      `
+      `,
+      ]
+
+      if (hasUpdates) {
+        entries.push(
+          xml`
+            <url>
+              <loc>${base}/products/${p.slug}/updates</loc>
+              <lastmod>${new Date(last).toISOString()}</lastmod>
+              <changefreq>${changefreq}</changefreq>
+              <priority>0.6</priority>
+            </url>
+          `,
+        )
+      }
+
+      return entries.join("")
     })
     .join("")
 

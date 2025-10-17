@@ -143,6 +143,7 @@ export type PageMetadataOptions = {
   title?: string
   section?: string
   description?: string
+  canonical?: string
   openGraph?: Metadata["openGraph"]
   twitter?: Metadata["twitter"]
 }
@@ -228,7 +229,7 @@ export function buildSectionMetadata(
 }
 
 export function buildPageMetadata(options: PageMetadataOptions = {}): Metadata {
-  const { title, section, description, openGraph, twitter } = options
+  const { title, section, description, canonical, openGraph, twitter } = options
 
   const sanitizedTitle = cleanupTitleInput(title)
   const sanitizedSection = cleanupTitleInput(section)
@@ -246,6 +247,11 @@ export function buildPageMetadata(options: PageMetadataOptions = {}): Metadata {
 
   if (descriptionValue) {
     metadata.description = descriptionValue
+  }
+
+  if (canonical) {
+    metadata.alternates = metadata.alternates || {}
+    metadata.alternates.canonical = canonical
   }
 
   if (pageTitle || descriptionValue || openGraph) {

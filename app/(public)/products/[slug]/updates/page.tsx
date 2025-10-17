@@ -1,15 +1,45 @@
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import type { Metadata } from "next"
 
 import prisma from "@/lib/prisma"
 import { ProductStatus } from "@/lib/vendor/prisma/client"
 import { getPublicProductUpdatesPage } from "@/actions/public/product-updates/actions"
 import { ProductUpdatesArchive } from "@/components/pages/ProductUpdatesArchive"
 import { Button } from "@/components/atoms/button"
-import { productPath } from "@/lib/routes"
+import { buildPageMetadata } from "@/lib/metadata"
+import { productPath, productUpdatesPath } from "@/lib/routes"
 
 const PAGE_SIZE = 10
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+
+  const product = await prisma.product.findFirst({
+    where: { slug, status: ProductStatus.published },
+    select: { name: true, tagline: true },
+  })
+
+  if (!product) {
+    return buildPageMetadata({
+      title: "Product updates",
+      description: "Latest product updates and release notes.",
+    })
+  }
+
+  return buildPageMetadata({
+    title: `${product.name} · Product updates`,
+    description:
+      product.tagline ??
+      `Latest announcements, improvements, and changelog for ${product.name}.`,
+    canonical: productUpdatesPath(slug),
+  })
+}
 
 export default async function ProductUpdatesArchivePage({
   params,
