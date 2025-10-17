@@ -22,6 +22,10 @@ describe("UpvoteSquareButton", () => {
         <div data-testid="sign-in-wrapper">{children}</div>
       ),
     }))
+    vi.doMock("next/navigation", () => ({
+      usePathname: () => "/browse",
+      useSearchParams: () => new URLSearchParams(),
+    }))
     const { default: UpvoteSquareButton } = await import(
       "@/components/molecules/UpvoteSquareButton"
     )
@@ -43,6 +47,10 @@ describe("UpvoteSquareButton", () => {
     vi.doMock("@clerk/nextjs", () => ({
       useUser: () => ({ isSignedIn: true }),
       SignInButton: ({ children }: any) => <>{children}</>,
+    }))
+    vi.doMock("next/navigation", () => ({
+      usePathname: () => "/products/p1",
+      useSearchParams: () => new URLSearchParams(),
     }))
     fetchMock.mockResolvedValue({
       ok: true,

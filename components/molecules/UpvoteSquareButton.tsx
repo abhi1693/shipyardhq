@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { SignInButton, useUser } from "@clerk/nextjs"
+import { usePathname, useSearchParams } from "next/navigation"
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
-import {RANK_IN_PUBLIC_PATH} from "@/lib/routes";
 
 interface Props {
   productId: string
@@ -27,6 +27,8 @@ export default function UpvoteSquareButton({
   onVoteChange,
 }: Props) {
   const { isSignedIn } = useUser()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const baseState = useMemo<State>(
     () => ({
       upvotes: initialCount,
@@ -38,6 +40,7 @@ export default function UpvoteSquareButton({
   const [state, setState] = useState<State>(baseState)
   const [pop, setPop] = useState(false)
   const [pending, setPending] = useState(false)
+  const [hash, setHash] = useState("")
   const prev = useRef<State>(baseState)
 
   useEffect(() => {
@@ -56,6 +59,22 @@ export default function UpvoteSquareButton({
       return () => clearTimeout(t)
     }
   }, [state])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    setHash(window.location.hash ?? "")
+  }, [])
+
+  const search = useMemo(() => {
+    if (!searchParams) return ""
+    const value = searchParams.toString()
+    return value ? `?${value}` : ""
+  }, [searchParams])
+
+  const redirectPath = useMemo(() => {
+    const basePath = pathname ?? "/"
+    return `${basePath}${search}${hash}`
+  }, [pathname, search, hash])
 
   async function handleClick() {
     if (pending || !isSignedIn) return
@@ -147,8 +166,8 @@ export default function UpvoteSquareButton({
     return (
       <SignInButton
         mode="modal"
-        forceRedirectUrl={RANK_IN_PUBLIC_PATH}
-        signUpForceRedirectUrl={RANK_IN_PUBLIC_PATH}
+        forceRedirectUrl={redirectPath}
+        signUpForceRedirectUrl={redirectPath}
       >
         {button}
       </SignInButton>
