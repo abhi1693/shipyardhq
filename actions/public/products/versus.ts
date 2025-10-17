@@ -6,7 +6,10 @@ import {
   DEFAULT_TTL,
   TAGS,
 } from "@/lib/cache"
-import { getLiveUpvoteCount, resolveVoteState } from "@/lib/server/productVotesStore"
+import {
+  getLiveUpvoteCount,
+  resolveVoteState,
+} from "@/lib/server/productVotesStore"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 const VERSUS_POOL_LIMIT = 48

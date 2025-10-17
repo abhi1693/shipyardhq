@@ -121,6 +121,9 @@ export const memberProductAnalyticsPath = (slug: string) =>
 export const memberProductInsightsPath = (slug: string) =>
   `${memberProductPath(slug)}/insights`
 
+export const memberProductUpdatesPath = (slug: string) =>
+  `${memberProductPath(slug)}/updates`
+
 export const memberProductDeletePath = (slug: string) =>
   `${memberProductPath(slug)}/delete`
 

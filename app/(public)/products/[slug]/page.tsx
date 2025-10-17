@@ -13,6 +13,7 @@ import {
   getPublicProductsByUseCase,
   getPublicProductMetaBySlug,
 } from "@/actions/public/products/actions"
+import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import {
   ExternalLink,
   Github,
@@ -41,6 +42,7 @@ import ProductReviewsSection from "@/components/organisms/ProductReviewsSection"
 import { ProductDetailHero } from "@/components/organisms/ProductDetailHero"
 import { ProductMediaGallery } from "@/components/organisms/ProductMediaGallery"
 import { ProductNarrative } from "@/components/organisms/ProductNarrative"
+import { ProductChangelog } from "@/components/organisms/ProductChangelog"
 import { ProductCrewRoster } from "@/components/organisms/ProductCrewRoster"
 import { ProductSimilarVoyages } from "@/components/organisms/ProductSimilarVoyages"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
@@ -321,10 +323,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const viewerReviewPromise = userId
     ? getUserProductReview(product.id, userId).catch(() => null)
     : Promise.resolve(null)
+  const productUpdatesPromise = getPublicProductUpdates(product.id)
 
-  const [reviewSummary, viewerReview] = await Promise.all([
+  const [reviewSummary, viewerReview, productUpdates] = await Promise.all([
     reviewSummaryPromise,
     viewerReviewPromise,
+    productUpdatesPromise,
   ])
 
   const baseUrl = (
@@ -518,6 +522,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             />
 
             <ProductNarrative description={product.description} />
+
+            {productUpdates.length ? (
+              <ProductChangelog
+                productName={product.name}
+                updates={productUpdates}
+              />
+            ) : null}
 
             <ProductReviewsSection
               productId={product.id}

@@ -54,6 +54,7 @@ model Product {
   ProductMedia          ProductMedia[]
   ProductUpvote         ProductUpvote[]
   ProductReview         ProductReview[]
+  ProductUpdate         ProductUpdate[]
   placementSchedules    PlacementSchedule[]
   clickEvents           ProductClickEvent[]
   trafficEvents         ProductTrafficEvent[]
@@ -122,6 +123,11 @@ enum ProductStatus {
   archived
 }
 
+enum ProductUpdateStatus {
+  draft
+  published
+}
+
 enum ProductInsightStatus {
   pending
   ready
@@ -149,6 +155,26 @@ model ProductMedia {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model ProductUpdate {
+  id          String              @id @default(cuid())
+  product     Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId   String
+  author      User?               @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId    String?
+  title       String
+  summary     String?
+  content     String
+  status      ProductUpdateStatus @default(published)
+  publishedAt DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([productId, status])
+  @@index([productId, createdAt])
   @@index([createdAt])
   @@index([updatedAt])
 }
@@ -370,6 +396,7 @@ model User {
   rewardTransactionsActed RewardTransaction[]      @relation("RewardTransactionActor")
   redemptions             Redemption[]
   featureEntitlements     FeatureEntitlement[]
+  productUpdates          ProductUpdate[]
 
   @@index([status])
   @@index([roleIntent])
