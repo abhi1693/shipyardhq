@@ -16,7 +16,12 @@ import { RewardsLeaderboardPreview } from "@/components/organisms/RewardsLeaderb
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { computeTrendRadarMetrics } from "@/lib/trend-radar"
 import { siteConfig } from "@/lib/siteConfig"
-import { BROWSE_PATH, MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
+import {
+  BROWSE_PATH,
+  MEMBER_PRODUCTS_PATH,
+  PRICING_PATH,
+  VERSUS_PATH,
+} from "@/lib/routes"
 import { hydrateRewardsLeaderboardEntries } from "@/lib/rewards/display"
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
@@ -118,7 +123,13 @@ export default async function HomePage() {
       <main className="relative isolate bg-white">
         <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
           <div className="space-y-12">
-            <DirectoryHeader stats={stats} />
+            <DirectoryHeader
+              stats={stats}
+              secondaryAction={{
+                label: "Enter the Battle Arena",
+                href: VERSUS_PATH,
+              }}
+            />
             <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
               <div className="flex flex-col gap-10">
                 <HomepageSpotlight placements={homepagePlacements} />
