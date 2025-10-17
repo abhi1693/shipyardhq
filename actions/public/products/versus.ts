@@ -6,10 +6,7 @@ import {
   DEFAULT_TTL,
   TAGS,
 } from "@/lib/cache"
-import {
-  getLiveUpvoteCount,
-  resolveVoteState,
-} from "@/lib/server/productVotesStore"
+import { getLiveUpvoteCount, resolveVoteState } from "@/lib/server/productVotesStore"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 const VERSUS_POOL_LIMIT = 48
@@ -98,59 +95,40 @@ export const getVersusCandidatePool = cached(
   },
 )
 
-function pickRandomPair(
-  pool: VersusPoolProduct[],
-  excluded: Set<string>,
-): VersusPoolProduct[] {
-  if (pool.length === 0) return []
-
-  const available = pool.filter((product) => !excluded.has(product.id))
-  const candidates = available.length >= 2 ? available : pool
-
-  if (candidates.length === 1) {
-    return [candidates[0]]
+function shuffleProducts(products: VersusPoolProduct[]): VersusPoolProduct[] {
+  const array = [...products]
+  for (let index = array.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1))
+    ;[array[index], array[randomIndex]] = [array[randomIndex]!, array[index]!]
   }
-
-  const firstIndex = Math.floor(Math.random() * candidates.length)
-  let secondIndex = Math.floor(Math.random() * candidates.length)
-
-  if (candidates.length > 1) {
-    while (secondIndex === firstIndex) {
-      secondIndex = Math.floor(Math.random() * candidates.length)
-    }
-  }
-
-  return [candidates[firstIndex]!, candidates[secondIndex]!]
+  return array
 }
 
-async function buildUserVoteMap(
+async function getUserUpvoteSet(
   productIds: string[],
   clerkUserId?: string | null,
-): Promise<Map<string, boolean> | null> {
+): Promise<{ activeUserId: string | null; persistedUpvotes: Set<string> }> {
   if (!clerkUserId || productIds.length === 0) {
-    return null
+    return { activeUserId: null, persistedUpvotes: new Set<string>() }
   }
 
   const activeUser = await getActiveUserByClerkId(clerkUserId)
   if (!activeUser) {
-    return null
+    return { activeUserId: null, persistedUpvotes: new Set<string>() }
   }
 
-  const uniqueIds = Array.from(new Set(productIds))
-  const voteMap = new Map<string, boolean>()
-  let redisClient: Awaited<ReturnType<typeof resolveVoteState>>["client"] = null
+  const rows = await prisma.productUpvote.findMany({
+    where: {
+      userId: activeUser.id,
+      productId: { in: Array.from(new Set(productIds)) },
+    },
+    select: { productId: true },
+  })
 
-  for (const productId of uniqueIds) {
-    const resolution = await resolveVoteState(
-      productId,
-      activeUser.id,
-      redisClient ?? undefined,
-    )
-    redisClient = resolution.client ?? redisClient
-    voteMap.set(productId, resolution.currentState === "upvoted")
+  return {
+    activeUserId: activeUser.id,
+    persistedUpvotes: new Set(rows.map((row) => row.productId)),
   }
-
-  return voteMap
 }
 
 export async function getVersusMatchup(options?: {
@@ -160,37 +138,81 @@ export async function getVersusMatchup(options?: {
   const excludeIds = options?.excludeIds?.filter(Boolean) ?? []
   const excluded = new Set(excludeIds)
   const pool = await getVersusCandidatePool()
-  const userVoteMap =
-    (await buildUserVoteMap(
-      pool.map((product) => product.id),
-      options?.clerkUserId,
-    )) ?? null
 
-  const filterFreshCandidates = (products: VersusPoolProduct[]) =>
-    userVoteMap
-      ? products.filter((product) => !userVoteMap.get(product.id))
-      : products
+  if (pool.length < 2) {
+    return []
+  }
 
-  const filteredByExclusions = pool.filter(
-    (product) => !excluded.has(product.id),
+  const { activeUserId, persistedUpvotes } = await getUserUpvoteSet(
+    pool.map((product) => product.id),
+    options?.clerkUserId,
   )
 
-  let candidatePool =
-    filteredByExclusions.length >= 2 ? filteredByExclusions : pool
-  candidatePool = filterFreshCandidates(candidatePool)
+  const filterBy = (products: VersusPoolProduct[]) =>
+    products.filter((product) => !excluded.has(product.id))
 
-  if (candidatePool.length < 2 && userVoteMap) {
-    const freshFallback = filterFreshCandidates(pool)
-    if (freshFallback.length >= 2) {
-      candidatePool = freshFallback
-    }
+  const filterFresh = (products: VersusPoolProduct[]) =>
+    persistedUpvotes.size > 0
+      ? products.filter((product) => !persistedUpvotes.has(product.id))
+      : products
+
+  let candidatePool = filterFresh(filterBy(pool))
+  if (candidatePool.length < 2) {
+    candidatePool = filterFresh(pool)
   }
 
   if (candidatePool.length < 2) {
     return []
   }
 
-  const selected = pickRandomPair(candidatePool, excluded)
+  const shuffled = shuffleProducts(candidatePool)
+  const voteStateCache = new Map<string, boolean>()
+  type VoteResolution = Awaited<ReturnType<typeof resolveVoteState>>
+  let sharedClient: VoteResolution["client"] = null
+
+  const isCurrentlyUpvoted = async (productId: string) => {
+    if (!activeUserId) return false
+    if (voteStateCache.has(productId)) {
+      return voteStateCache.get(productId)!
+    }
+
+    const resolution = await resolveVoteState(
+      productId,
+      activeUserId,
+      sharedClient ?? undefined,
+    )
+
+    sharedClient = resolution.client ?? sharedClient
+    const flag = resolution.currentState === "upvoted"
+    voteStateCache.set(productId, flag)
+    return flag
+  }
+
+  let selected: VersusPoolProduct[] | null = null
+
+  for (let index = 0; index < shuffled.length; index += 1) {
+    const first = shuffled[index]!
+    if (await isCurrentlyUpvoted(first.id)) {
+      continue
+    }
+
+    for (let inner = index + 1; inner < shuffled.length; inner += 1) {
+      const second = shuffled[inner]!
+      if (await isCurrentlyUpvoted(second.id)) {
+        continue
+      }
+      selected = [first, second]
+      break
+    }
+
+    if (selected) {
+      break
+    }
+  }
+
+  if (!selected) {
+    return []
+  }
 
   const uniqueProducts = Array.from(
     new Map(selected.map((p) => [p.id, p])).values(),
@@ -226,6 +248,8 @@ export async function getVersusMatchup(options?: {
       ].filter(Boolean)
       return parts.length ? parts.join(" ") : null
     })(),
-    upvoted: userVoteMap?.get(product.id) ?? false,
+    upvoted:
+      voteStateCache.get(product.id) ??
+      (persistedUpvotes.size > 0 ? persistedUpvotes.has(product.id) : false),
   }))
 }

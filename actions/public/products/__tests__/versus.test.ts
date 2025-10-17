@@ -25,6 +25,9 @@ const prismaMock = vi.hoisted(() => ({
   product: {
     findMany: vi.fn(),
   },
+  productUpvote: {
+    findMany: vi.fn(),
+  },
 }))
 
 vi.mock("@/lib/prisma", () => ({
@@ -48,6 +51,8 @@ describe("getVersusMatchup", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     prismaMock.product.findMany.mockReset()
+    prismaMock.productUpvote.findMany.mockReset()
+    prismaMock.productUpvote.findMany.mockResolvedValue([])
     mockGetActiveUserByClerkId.mockResolvedValue(null)
     mockResolveVoteState.mockReset()
   })
@@ -99,13 +104,10 @@ describe("getVersusMatchup", () => {
     mockGetActiveUserByClerkId.mockResolvedValue({
       id: "user-123",
     } as any)
+    prismaMock.productUpvote.findMany.mockResolvedValue([
+      { productId: "prod-1" },
+    ])
     mockResolveVoteState
-      .mockResolvedValueOnce({
-        client: null,
-        currentState: "upvoted",
-        persistedState: "upvoted",
-        record: null,
-      })
       .mockResolvedValueOnce({
         client: null,
         currentState: "not_upvoted",
@@ -121,34 +123,27 @@ describe("getVersusMatchup", () => {
 
     const result = await getVersusMatchup({ clerkUserId: "clerk_123" })
 
-    expect(result).toEqual([
-      {
-        id: "prod-2",
-        slug: "beta",
-        name: "Beta",
-        tagline: "Second product",
-        logo: "/beta.png",
-        websiteUrl: "https://beta.example.com",
-        category: { name: "DevTools", slug: "devtools" },
-        upvotes: 42,
-        makerName: "Bailey",
-        upvoted: false,
-      },
-      {
-        id: "prod-3",
-        slug: "gamma",
-        name: "Gamma",
-        tagline: "Third product",
-        logo: "/gamma.png",
-        websiteUrl: null,
-        category: { name: "Ops", slug: "ops" },
-        upvotes: 7,
-        makerName: null,
-        upvoted: false,
-      },
-    ])
+    expect(result).toHaveLength(2)
+    expect(new Set(result.map((product) => product.id))).toEqual(
+      new Set(["prod-2", "prod-3"]),
+    )
+    expect(new Set(result.map((product) => product.upvotes))).toEqual(
+      new Set([42, 7]),
+    )
+    const beta = result.find((product) => product.id === "prod-2")
+    const gamma = result.find((product) => product.id === "prod-3")
+    expect(beta).toMatchObject({
+      name: "Beta",
+      upvoted: false,
+      makerName: "Bailey",
+    })
+    expect(gamma).toMatchObject({
+      name: "Gamma",
+      upvoted: false,
+      makerName: null,
+    })
 
-    expect(mockResolveVoteState).toHaveBeenCalledTimes(3)
+    expect(mockResolveVoteState).toHaveBeenCalledTimes(2)
     randomSpy.mockRestore()
   })
 
@@ -226,23 +221,15 @@ describe("getVersusMatchup", () => {
 
     prismaMock.product.findMany.mockResolvedValue(pool)
     mockGetActiveUserByClerkId.mockResolvedValue({ id: "user-999" } as any)
-    mockResolveVoteState
-      .mockResolvedValueOnce({
-        client: null,
-        currentState: "upvoted",
-        persistedState: "upvoted",
-        record: null,
-      })
-      .mockResolvedValueOnce({
-        client: null,
-        currentState: "upvoted",
-        persistedState: "upvoted",
-        record: null,
-      })
+    prismaMock.productUpvote.findMany.mockResolvedValue([
+      { productId: "prod-1" },
+      { productId: "prod-2" },
+    ])
 
     const result = await getVersusMatchup({ clerkUserId: "clerk_999" })
     expect(result).toEqual([])
     expect(mockGetLiveUpvoteCount).not.toHaveBeenCalled()
+    expect(mockResolveVoteState).not.toHaveBeenCalled()
   })
 
   it("returns empty when the pool cannot yield two distinct products", async () => {
