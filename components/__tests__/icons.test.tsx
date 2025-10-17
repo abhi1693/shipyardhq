@@ -23,6 +23,7 @@ describe("Icons mapping", () => {
         "member",
         "rewards",
         "product",
+        "updates",
         "settings",
         "user",
       ].sort(),
