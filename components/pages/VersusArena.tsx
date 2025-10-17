@@ -23,7 +23,10 @@ export function VersusArena({ initialMatchup }: VersusArenaProps) {
   const [error, setError] = useState<string | null>(null)
   const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const matchupIds = useMemo(() => matchup.map((product) => product.id), [matchup])
+  const matchupIds = useMemo(
+    () => matchup.map((product) => product.id),
+    [matchup],
+  )
 
   const fetchNextMatchup = useCallback(async () => {
     if (autoAdvanceRef.current) {
@@ -115,8 +118,8 @@ export function VersusArena({ initialMatchup }: VersusArenaProps) {
           Pick the launch you believe should climb the board
         </h2>
         <p className="mt-3 text-base text-muted-foreground md:text-lg">
-          Cast your vote to push a product ahead. Spin up fresh matchups to
-          keep the arena moving and help rank emerging launches.
+          Cast your vote to push a product ahead. Spin up fresh matchups to keep
+          the arena moving and help rank emerging launches.
         </p>
       </header>
 

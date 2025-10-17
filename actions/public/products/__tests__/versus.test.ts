@@ -87,9 +87,7 @@ describe("getVersusMatchup", () => {
     const randomSpy = vi.spyOn(Math, "random")
     randomSpy.mockReturnValueOnce(0).mockReturnValueOnce(0.9)
 
-    mockGetLiveUpvoteCount
-      .mockResolvedValueOnce(42)
-      .mockResolvedValueOnce(7)
+    mockGetLiveUpvoteCount.mockResolvedValueOnce(42).mockResolvedValueOnce(7)
 
     mockHasUserUpvoted.mockResolvedValueOnce(true).mockResolvedValueOnce(false)
 

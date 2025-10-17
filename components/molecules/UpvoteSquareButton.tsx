@@ -106,7 +106,10 @@ export default function UpvoteSquareButton({
         }
         if (onVoteChange) {
           queueMicrotask(() =>
-            onVoteChange({ upvotes: nextState.upvotes, upvoted: nextState.upvoted }),
+            onVoteChange({
+              upvotes: nextState.upvotes,
+              upvoted: nextState.upvoted,
+            }),
           )
         }
         return nextState

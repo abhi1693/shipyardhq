@@ -79,20 +79,13 @@ export const getVersusCandidatePool = cached(
       where: {
         status: "published",
       },
-      orderBy: [
-        { analytics: { upvotes: "desc" } },
-        { createdAt: "desc" },
-      ],
+      orderBy: [{ analytics: { upvotes: "desc" } }, { createdAt: "desc" }],
       take: limit,
       select: versusSelect,
       cacheStrategy: {
         ttl: DEFAULT_TTL.fast,
         swr: DEFAULT_SWR.fast,
-        tags: accelerateTags([
-          TAGS.products,
-          TAGS.leaderboard,
-          TAGS.analytics,
-        ]),
+        tags: accelerateTags([TAGS.products, TAGS.leaderboard, TAGS.analytics]),
       },
     }) as Promise<VersusPoolProduct[]>,
   "products:versus-pool",
@@ -136,7 +129,9 @@ export async function getVersusMatchup(options?: {
   const pool = await getVersusCandidatePool()
   const selected = pickRandomPair(pool, excluded)
 
-  const uniqueProducts = Array.from(new Map(selected.map((p) => [p.id, p])).values())
+  const uniqueProducts = Array.from(
+    new Map(selected.map((p) => [p.id, p])).values(),
+  )
 
   if (uniqueProducts.length < 2) {
     return []
