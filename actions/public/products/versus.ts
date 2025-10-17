@@ -37,9 +37,25 @@ const versusSelect = {
   },
 } as const
 
-type VersusPoolProduct = Awaited<
-  ReturnType<typeof getVersusCandidatePool>
->[number]
+type VersusPoolProduct = {
+  id: string
+  slug: string
+  name: string
+  tagline: string
+  logo: string
+  websiteUrl: string | null
+  category?: {
+    name: string | null
+    slug: string | null
+  } | null
+  analytics?: {
+    upvotes: number | null
+  } | null
+  user?: {
+    firstName: string | null
+    lastName: string | null
+  } | null
+} & Record<string, unknown>
 
 export interface VersusProduct {
   id: string
@@ -58,7 +74,7 @@ export interface VersusProduct {
 }
 
 export const getVersusCandidatePool = cached(
-  async (limit = VERSUS_POOL_LIMIT) =>
+  async (limit = VERSUS_POOL_LIMIT): Promise<VersusPoolProduct[]> =>
     prisma.product.findMany({
       where: {
         status: "published",
@@ -78,7 +94,7 @@ export const getVersusCandidatePool = cached(
           TAGS.analytics,
         ]),
       },
-    }),
+    }) as Promise<VersusPoolProduct[]>,
   "products:versus-pool",
   {
     ttl: DEFAULT_TTL.fast,
