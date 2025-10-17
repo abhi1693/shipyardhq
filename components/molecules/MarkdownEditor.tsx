@@ -21,6 +21,7 @@ type MarkdownEditorProps = {
   className?: string
   textareaClassName?: string
   previewClassName?: string
+  toolbarClassName?: string
   disallowedElements?: string[]
   remarkPlugins?: PluggableList
   markdownComponents?: Components
@@ -58,6 +59,7 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
       disallowedElements = defaultDisallowedElements,
       remarkPlugins,
       markdownComponents,
+      toolbarClassName,
     },
     ref,
   ) => {
@@ -66,7 +68,12 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
 
     return (
       <div className={cn("space-y-2", className)}>
-        <div className="flex items-center justify-end gap-2 text-xs">
+        <div
+          className={cn(
+            "flex items-center justify-end gap-2 text-xs",
+            toolbarClassName,
+          )}
+        >
           <button
             type="button"
             className={cn(

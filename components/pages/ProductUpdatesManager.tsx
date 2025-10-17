@@ -317,6 +317,7 @@ export function ProductUpdatesManager({
                         rows={10}
                         textareaClassName="min-h-[160px]"
                         previewClassName="min-h-[160px]"
+                        toolbarClassName="justify-start"
                       />
                     </FormControl>
                     <FormMessage />
