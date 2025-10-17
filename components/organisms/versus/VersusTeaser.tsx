@@ -26,10 +26,10 @@ export function VersusTeaser({ matchup }: VersusTeaserProps) {
     <section className="rounded-3xl border border-border/70 bg-white px-6 py-6 shadow-[0_28px_90px_-70px_rgba(7,58,104,0.55)] md:px-8 md:py-8">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary/70">
-          Rank in Public preview
+          Live launch battle preview
         </p>
         <h2 className="text-2xl font-semibold text-foreground md:text-3xl">
-          See who&apos;s heating up in Rank in Public
+          See who&apos;s heating up right now
         </h2>
         <p className="text-base text-muted-foreground md:text-lg">
           Catch a glimpse of the current contender, then dive into the live

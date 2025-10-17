@@ -50,7 +50,7 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
   const discoverLinks = [
     { label: "All Products", href: BROWSE_PATH },
     { label: "Leaderboard", href: LEADERBOARD_PATH },
-    { label: "Rank in Public", href: RANK_IN_PUBLIC_PATH },
+    { label: "Live Launch Battles", href: RANK_IN_PUBLIC_PATH },
     { label: "Trend Radar", href: TRENDS_PATH },
     { label: "Rewards", href: REWARDS_PATH },
     { label: "Analytics", href: ANALYTICS_PATH },

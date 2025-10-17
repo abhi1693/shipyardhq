@@ -33,7 +33,7 @@ describe("PublicFooter", () => {
       LEADERBOARD_PATH,
     )
     expect(
-      screen.getByRole("link", { name: /Rank in Public/i }),
+      screen.getByRole("link", { name: /Live Launch Battles/i }),
     ).toHaveAttribute("href", RANK_IN_PUBLIC_PATH)
     expect(screen.getByRole("link", { name: /Privacy/i })).toHaveAttribute(
       "href",
