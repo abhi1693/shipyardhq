@@ -1,8 +1,11 @@
 import { describe, expect, it, beforeEach, vi } from "vitest"
 
 import { getVersusMatchup } from "../versus"
-import { getLiveUpvoteCount } from "@/lib/server/productVotesStore"
-import { hasUserUpvoted } from "../actions"
+import {
+  getLiveUpvoteCount,
+  resolveVoteState,
+} from "@/lib/server/productVotesStore"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 const cacheMock = vi.hoisted(() => ({
   accelerateTags: vi.fn((tags: string[]) => tags),
@@ -30,19 +33,23 @@ vi.mock("@/lib/prisma", () => ({
 
 vi.mock("@/lib/server/productVotesStore", () => ({
   getLiveUpvoteCount: vi.fn(),
+  resolveVoteState: vi.fn(),
 }))
 
-vi.mock("../actions", () => ({
-  hasUserUpvoted: vi.fn(),
+vi.mock("@/lib/server/userStatus", () => ({
+  getActiveUserByClerkId: vi.fn(),
 }))
 
 const mockGetLiveUpvoteCount = vi.mocked(getLiveUpvoteCount)
-const mockHasUserUpvoted = vi.mocked(hasUserUpvoted)
+const mockResolveVoteState = vi.mocked(resolveVoteState)
+const mockGetActiveUserByClerkId = vi.mocked(getActiveUserByClerkId)
 
 describe("getVersusMatchup", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     prismaMock.product.findMany.mockReset()
+    mockGetActiveUserByClerkId.mockResolvedValue(null)
+    mockResolveVoteState.mockReset()
   })
 
   it("returns a pair decorated with live upvotes and user state", async () => {
@@ -89,22 +96,43 @@ describe("getVersusMatchup", () => {
 
     mockGetLiveUpvoteCount.mockResolvedValueOnce(42).mockResolvedValueOnce(7)
 
-    mockHasUserUpvoted.mockResolvedValueOnce(true).mockResolvedValueOnce(false)
+    mockGetActiveUserByClerkId.mockResolvedValue({
+      id: "user-123",
+    } as any)
+    mockResolveVoteState
+      .mockResolvedValueOnce({
+        client: null,
+        currentState: "upvoted",
+        persistedState: "upvoted",
+        record: null,
+      })
+      .mockResolvedValueOnce({
+        client: null,
+        currentState: "not_upvoted",
+        persistedState: "not_upvoted",
+        record: null,
+      })
+      .mockResolvedValueOnce({
+        client: null,
+        currentState: "not_upvoted",
+        persistedState: "not_upvoted",
+        record: null,
+      })
 
     const result = await getVersusMatchup({ clerkUserId: "clerk_123" })
 
     expect(result).toEqual([
       {
-        id: "prod-1",
-        slug: "alpha",
-        name: "Alpha",
-        tagline: "First product",
-        logo: "/alpha.png",
-        websiteUrl: "https://alpha.example.com",
-        category: { name: "AI", slug: "ai" },
+        id: "prod-2",
+        slug: "beta",
+        name: "Beta",
+        tagline: "Second product",
+        logo: "/beta.png",
+        websiteUrl: "https://beta.example.com",
+        category: { name: "DevTools", slug: "devtools" },
         upvotes: 42,
-        makerName: "Alex Maker",
-        upvoted: true,
+        makerName: "Bailey",
+        upvoted: false,
       },
       {
         id: "prod-3",
@@ -120,7 +148,7 @@ describe("getVersusMatchup", () => {
       },
     ])
 
-    expect(mockHasUserUpvoted).toHaveBeenCalledTimes(2)
+    expect(mockResolveVoteState).toHaveBeenCalledTimes(3)
     randomSpy.mockRestore()
   })
 
@@ -166,8 +194,55 @@ describe("getVersusMatchup", () => {
       new Set(["prod-1", "prod-2"]),
     )
 
-    expect(mockHasUserUpvoted).not.toHaveBeenCalled()
+    expect(mockResolveVoteState).not.toHaveBeenCalled()
     randomSpy.mockRestore()
+  })
+
+  it("returns an empty array when every candidate has already been upvoted by the user", async () => {
+    const pool = [
+      {
+        id: "prod-1",
+        slug: "alpha",
+        name: "Alpha",
+        tagline: "First product",
+        logo: "/alpha.png",
+        websiteUrl: null,
+        category: { name: "AI", slug: "ai" },
+        analytics: { upvotes: 5 },
+        user: null,
+      },
+      {
+        id: "prod-2",
+        slug: "beta",
+        name: "Beta",
+        tagline: "Second product",
+        logo: "/beta.png",
+        websiteUrl: null,
+        category: { name: "DevTools", slug: "devtools" },
+        analytics: { upvotes: 2 },
+        user: null,
+      },
+    ]
+
+    prismaMock.product.findMany.mockResolvedValue(pool)
+    mockGetActiveUserByClerkId.mockResolvedValue({ id: "user-999" } as any)
+    mockResolveVoteState
+      .mockResolvedValueOnce({
+        client: null,
+        currentState: "upvoted",
+        persistedState: "upvoted",
+        record: null,
+      })
+      .mockResolvedValueOnce({
+        client: null,
+        currentState: "upvoted",
+        persistedState: "upvoted",
+        record: null,
+      })
+
+    const result = await getVersusMatchup({ clerkUserId: "clerk_999" })
+    expect(result).toEqual([])
+    expect(mockGetLiveUpvoteCount).not.toHaveBeenCalled()
   })
 
   it("returns empty when the pool cannot yield two distinct products", async () => {
@@ -196,6 +271,6 @@ describe("getVersusMatchup", () => {
     const result = await getVersusMatchup()
     expect(result).toEqual([])
     expect(mockGetLiveUpvoteCount).not.toHaveBeenCalled()
-    expect(mockHasUserUpvoted).not.toHaveBeenCalled()
+    expect(mockResolveVoteState).not.toHaveBeenCalled()
   })
 })

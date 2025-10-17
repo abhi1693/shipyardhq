@@ -6,8 +6,11 @@ import {
   DEFAULT_TTL,
   TAGS,
 } from "@/lib/cache"
-import { getLiveUpvoteCount } from "@/lib/server/productVotesStore"
-import { hasUserUpvoted } from "./actions"
+import {
+  getLiveUpvoteCount,
+  resolveVoteState,
+} from "@/lib/server/productVotesStore"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 const VERSUS_POOL_LIMIT = 48
 
@@ -120,6 +123,36 @@ function pickRandomPair(
   return [candidates[firstIndex]!, candidates[secondIndex]!]
 }
 
+async function buildUserVoteMap(
+  productIds: string[],
+  clerkUserId?: string | null,
+): Promise<Map<string, boolean> | null> {
+  if (!clerkUserId || productIds.length === 0) {
+    return null
+  }
+
+  const activeUser = await getActiveUserByClerkId(clerkUserId)
+  if (!activeUser) {
+    return null
+  }
+
+  const uniqueIds = Array.from(new Set(productIds))
+  const voteMap = new Map<string, boolean>()
+  let redisClient: Awaited<ReturnType<typeof resolveVoteState>>["client"] = null
+
+  for (const productId of uniqueIds) {
+    const resolution = await resolveVoteState(
+      productId,
+      activeUser.id,
+      redisClient ?? undefined,
+    )
+    redisClient = resolution.client ?? redisClient
+    voteMap.set(productId, resolution.currentState === "upvoted")
+  }
+
+  return voteMap
+}
+
 export async function getVersusMatchup(options?: {
   excludeIds?: string[]
   clerkUserId?: string | null
@@ -127,7 +160,37 @@ export async function getVersusMatchup(options?: {
   const excludeIds = options?.excludeIds?.filter(Boolean) ?? []
   const excluded = new Set(excludeIds)
   const pool = await getVersusCandidatePool()
-  const selected = pickRandomPair(pool, excluded)
+  const userVoteMap =
+    (await buildUserVoteMap(
+      pool.map((product) => product.id),
+      options?.clerkUserId,
+    )) ?? null
+
+  const filterFreshCandidates = (products: VersusPoolProduct[]) =>
+    userVoteMap
+      ? products.filter((product) => !userVoteMap.get(product.id))
+      : products
+
+  const filteredByExclusions = pool.filter(
+    (product) => !excluded.has(product.id),
+  )
+
+  let candidatePool =
+    filteredByExclusions.length >= 2 ? filteredByExclusions : pool
+  candidatePool = filterFreshCandidates(candidatePool)
+
+  if (candidatePool.length < 2 && userVoteMap) {
+    const freshFallback = filterFreshCandidates(pool)
+    if (freshFallback.length >= 2) {
+      candidatePool = freshFallback
+    }
+  }
+
+  if (candidatePool.length < 2) {
+    return []
+  }
+
+  const selected = pickRandomPair(candidatePool, excluded)
 
   const uniqueProducts = Array.from(
     new Map(selected.map((p) => [p.id, p])).values(),
@@ -145,17 +208,7 @@ export async function getVersusMatchup(options?: {
     getLiveUpvoteCount(product.id),
   )
 
-  const upvotedPromises =
-    options?.clerkUserId && products.length > 0
-      ? products.map((product) =>
-          hasUserUpvoted(product.id, options.clerkUserId!),
-        )
-      : products.map(async () => false)
-
-  const [upvoteCounts, upvotedFlags] = await Promise.all([
-    Promise.all(upvotePromises),
-    Promise.all(upvotedPromises),
-  ])
+  const upvoteCounts = await Promise.all(upvotePromises)
 
   return products.map((product, index) => ({
     id: product.id,
@@ -173,6 +226,6 @@ export async function getVersusMatchup(options?: {
       ].filter(Boolean)
       return parts.length ? parts.join(" ") : null
     })(),
-    upvoted: upvotedFlags[index] ?? false,
+    upvoted: userVoteMap?.get(product.id) ?? false,
   }))
 }
