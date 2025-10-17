@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { SignInButton, useUser } from "@clerk/nextjs"
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
+import {RANK_IN_PUBLIC_PATH} from "@/lib/routes";
 
 interface Props {
   productId: string
@@ -146,8 +147,8 @@ export default function UpvoteSquareButton({
     return (
       <SignInButton
         mode="modal"
-        forceRedirectUrl="/versus"
-        signUpForceRedirectUrl="/versus"
+        forceRedirectUrl={RANK_IN_PUBLIC_PATH}
+        signUpForceRedirectUrl={RANK_IN_PUBLIC_PATH}
       >
         {button}
       </SignInButton>
