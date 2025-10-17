@@ -5,7 +5,7 @@ import {
   LEADERBOARD_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
-  VERSUS_PATH,
+  RANK_IN_PUBLIC_PATH,
 } from "@/lib/routes"
 
 describe("PublicFooter", () => {
@@ -32,10 +32,9 @@ describe("PublicFooter", () => {
       "href",
       LEADERBOARD_PATH,
     )
-    expect(screen.getByRole("link", { name: /VS Arena/i })).toHaveAttribute(
-      "href",
-      VERSUS_PATH,
-    )
+    expect(
+      screen.getByRole("link", { name: /Rank in Public/i }),
+    ).toHaveAttribute("href", RANK_IN_PUBLIC_PATH)
     expect(screen.getByRole("link", { name: /Privacy/i })).toHaveAttribute(
       "href",
       "/legal/privacy-policy",

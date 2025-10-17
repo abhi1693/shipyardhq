@@ -15,15 +15,13 @@ const SIDE_LABELS: Record<"left" | "right", string | null> = {
 const SIDE_STYLES = {
   left: {
     shadow: "shadow-[0_22px_70px_-40px_rgba(12,86,152,0.55)]",
-    glow:
-      "before:bg-[radial-gradient(circle_at_top,rgba(12,86,152,0.32),transparent_72%)]",
+    glow: "before:bg-[radial-gradient(circle_at_top,rgba(12,86,152,0.32),transparent_72%)]",
     upvote:
       "border-[color:var(--brand-1)/0.3] text-[color:var(--brand-1)] hover:bg-[color:var(--brand-1)/0.08]",
   },
   right: {
     shadow: "shadow-[0_24px_70px_-36px_rgba(155,93,229,0.52)]",
-    glow:
-      "before:bg-[radial-gradient(circle_at_top,rgba(155,93,229,0.36),transparent_70%)]",
+    glow: "before:bg-[radial-gradient(circle_at_top,rgba(155,93,229,0.36),transparent_70%)]",
     upvote:
       "border-[color:var(--brand-2)/0.3] text-[color:var(--brand-2)] hover:bg-[color:var(--brand-2)/0.08]",
   },
@@ -155,23 +153,24 @@ function LightningGlyph() {
   )
 }
 
-function resolveWebsite(url?: string | null):
-  | {
-      href: string
-      label: string
-    }
-  | null {
+function resolveWebsite(url?: string | null): {
+  href: string
+  label: string
+} | null {
   if (!url) return null
   try {
     const href = url.startsWith("http") ? url : `https://${url}`
     const target = new URL(href)
     target.searchParams.set("utm_source", "shipyardhq")
-    target.searchParams.set("utm_medium", "vs-arena")
-    target.searchParams.set("utm_campaign", "versus-battle")
+    target.searchParams.set("utm_medium", "rank-in-public")
+    target.searchParams.set("utm_campaign", "rank-in-public-battle")
     const host = target.hostname.replace(/^www\./, "")
     return { href: target.toString(), label: host }
   } catch (error) {
-    console.warn("Failed to resolve website URL for Versus card:", { url, error })
+    console.warn("Failed to resolve website URL for Versus card:", {
+      url,
+      error,
+    })
     return null
   }
 }

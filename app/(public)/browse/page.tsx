@@ -27,7 +27,7 @@ import {
   LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
-  VERSUS_PATH,
+  RANK_IN_PUBLIC_PATH,
   usecasePath,
 } from "@/lib/routes"
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
@@ -119,28 +119,29 @@ export default async function BrowsePage({
   const page = resolveSingle(params.page) ?? "1"
   const q = resolveSingle(params.q)?.trim()
 
-  const [browseResult, featured, useCases, categories, stats] = await Promise.all([
-    getBrowseProducts({
-      useCaseSlug: useCase === "__all__" ? undefined : useCase,
-      categorySlug: category === "__all__" ? undefined : category,
-      verified: verified === "true",
-      sort,
-      page: parseInt(page, 10),
-      query: q || undefined,
-    }),
-    getProducts("featured"),
-    getUseCasesWithCounts(),
-    getCategories({
-      where: {
-        products: {
-          some: {},
+  const [browseResult, featured, useCases, categories, stats] =
+    await Promise.all([
+      getBrowseProducts({
+        useCaseSlug: useCase === "__all__" ? undefined : useCase,
+        categorySlug: category === "__all__" ? undefined : category,
+        verified: verified === "true",
+        sort,
+        page: parseInt(page, 10),
+        query: q || undefined,
+      }),
+      getProducts("featured"),
+      getUseCasesWithCounts(),
+      getCategories({
+        where: {
+          products: {
+            some: {},
+          },
         },
-      },
-      include: { _count: { select: { products: true } } },
-      orderBy: [{ products: { _count: "desc" } }, { name: "asc" }],
-    }) as Promise<CategoryWithProductCount[]>,
-    getLeaderboardStats(),
-  ])
+        include: { _count: { select: { products: true } } },
+        orderBy: [{ products: { _count: "desc" } }, { name: "asc" }],
+      }) as Promise<CategoryWithProductCount[]>,
+      getLeaderboardStats(),
+    ])
 
   const { products, hasMore } = browseResult
   const sortLabel = sortLabelMap[sort] ?? sortLabelMap.new
@@ -195,14 +196,14 @@ export default async function BrowsePage({
             stats={stats}
             eyebrow="Directory browse"
             title="Browse the Shipyard launch catalog"
-            description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, the live leaderboard, and head-to-head VS matchups."
+            description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, the live leaderboard, and head-to-head Rank in Public matchups."
             primaryAction={{
               label: "Submit your launch",
               href: MEMBER_PRODUCTS_PATH,
             }}
             secondaryAction={{
-              label: "Battle in the VS arena",
-              href: VERSUS_PATH,
+              label: "Enter Rank in Public",
+              href: RANK_IN_PUBLIC_PATH,
               variant: "outline",
             }}
             metrics={browseMetrics}

@@ -10,16 +10,16 @@ import { buildPageMetadata } from "@/lib/metadata"
 export const dynamic = "force-dynamic"
 
 export const metadata = buildPageMetadata({
-  title: "Shipyard VS Arena — Head-to-head launch battles",
+  title: "Rank in Public — Head-to-head launch battles",
   description:
-    "Jump into Shipyard's VS arena to upvote competing launches in real time and help rank the community's top products.",
+    "Jump into Shipyard's Rank in Public arena to upvote competing launches in real time and help rank the community's top products.",
 })
 
 type LeaderboardProduct = Awaited<
   ReturnType<typeof getTopRankedProducts>
 >[number]
 
-export default async function VersusPage() {
+export default async function RankInPublicPage() {
   const authResult = await auth()
 
   const [initialMatchup, leaderboard] = await Promise.all([

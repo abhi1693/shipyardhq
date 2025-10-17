@@ -5,7 +5,7 @@ import {
   CATEGORIES_PATH,
   LEADERBOARD_PATH,
   PRICING_PATH,
-  VERSUS_PATH,
+  RANK_IN_PUBLIC_PATH,
   categoryPath,
   usecasePath,
 } from "@/lib/routes"
@@ -31,7 +31,7 @@ export async function GET() {
     "/",
     BROWSE_PATH,
     LEADERBOARD_PATH,
-    VERSUS_PATH,
+    RANK_IN_PUBLIC_PATH,
     PRICING_PATH,
     CATEGORIES_PATH,
     "/legal/terms",
@@ -63,7 +63,7 @@ export async function GET() {
           changefreq = "daily"
           priority = "0.8"
           break
-        case VERSUS_PATH:
+        case RANK_IN_PUBLIC_PATH:
           changefreq = "daily"
           priority = "0.75"
           break

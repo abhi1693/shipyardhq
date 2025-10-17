@@ -6,7 +6,7 @@ import {
   VersusCard,
   VersusDivider,
 } from "@/components/molecules/versus/VersusCard"
-import { VERSUS_PATH } from "@/lib/routes"
+import { RANK_IN_PUBLIC_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 interface VersusTeaserProps {
@@ -26,14 +26,14 @@ export function VersusTeaser({ matchup }: VersusTeaserProps) {
     <section className="rounded-3xl border border-border/70 bg-white px-6 py-6 shadow-[0_28px_90px_-70px_rgba(7,58,104,0.55)] md:px-8 md:py-8">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary/70">
-          VS Arena preview
+          Rank in Public preview
         </p>
         <h2 className="text-2xl font-semibold text-foreground md:text-3xl">
-          See who&apos;s heating up in the arena
+          See who&apos;s heating up in Rank in Public
         </h2>
         <p className="text-base text-muted-foreground md:text-lg">
-          Catch a glimpse of the current contender, then enter the arena to pick
-          their challenger and push a launch up the board.
+          Catch a glimpse of the current contender, then enter Rank in Public to
+          pick their challenger and push a launch up the board.
         </p>
       </header>
       <div className="relative mt-6 overflow-hidden rounded-[1.5rem] border border-border/60 bg-white/95 px-6 py-6 shadow-[0_28px_90px_-70px_rgba(7,58,104,0.45)] md:px-8 md:py-8">
@@ -65,12 +65,12 @@ export function VersusTeaser({ matchup }: VersusTeaserProps) {
               </h3>
               <p className="text-sm text-muted-foreground md:text-base">
                 {challenger
-                  ? `${featured.name} is headlining the battle. Enter the arena to pick the winner.`
-                  : `${featured.name} is waiting on a challenger. Enter the arena to spin up the matchup.`}
+                  ? `${featured.name} is headlining the battle. Enter Rank in Public to pick the winner.`
+                  : `${featured.name} is waiting on a challenger. Enter Rank in Public to spin up the matchup.`}
               </p>
             </div>
             <Button asChild size="lg">
-              <Link href={VERSUS_PATH}>Play the full battle</Link>
+              <Link href={RANK_IN_PUBLIC_PATH}>Enter Rank in Public</Link>
             </Button>
           </div>
         </div>

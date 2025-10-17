@@ -22,7 +22,7 @@ import {
   BROWSE_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
-  VERSUS_PATH,
+  RANK_IN_PUBLIC_PATH,
 } from "@/lib/routes"
 import { hydrateRewardsLeaderboardEntries } from "@/lib/rewards/display"
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
@@ -80,7 +80,7 @@ export default async function HomePage() {
     homepagePlacements,
     stats,
     rewardsLeaderboardEntries,
-    versusMatchup,
+    rankInPublicMatchup,
   ] = await Promise.all([
     getProducts("featured"),
     getProducts("editor-pick"),
@@ -130,15 +130,15 @@ export default async function HomePage() {
             <DirectoryHeader
               stats={stats}
               secondaryAction={{
-                label: "Enter the Battle Arena",
-                href: VERSUS_PATH,
+                label: "Enter Rank in Public",
+                href: RANK_IN_PUBLIC_PATH,
               }}
             />
             <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.1fr)]">
               <div className="flex flex-col gap-10">
                 <HomepageSpotlight placements={homepagePlacements} />
                 <FeaturedHighlights products={featuredProducts} />
-                <VersusTeaser matchup={versusMatchup} />
+                <VersusTeaser matchup={rankInPublicMatchup} />
                 <EditorsPick products={editorsPick} />
                 <LatestLaunches products={latestLaunches} />
                 <Leaderboard products={trendingProducts} />
