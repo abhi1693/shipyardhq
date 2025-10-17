@@ -65,8 +65,8 @@ export function VersusTeaser({ matchup }: VersusTeaserProps) {
               </h3>
               <p className="text-sm text-muted-foreground md:text-base">
                 {challenger
-                  ? `${featured.name} is eyeing a showdown with ${challenger.name}. Step into the arena to call the winner.`
-                  : `${featured.name} is waiting for a challenger. Step into the arena to spin the matchup and decide who advances.`}
+                  ? `${featured.name} is headlining the battle. Enter the arena to pick the winner.`
+                  : `${featured.name} is waiting on a challenger. Enter the arena to spin up the matchup.`}
               </p>
             </div>
             <Button asChild size="lg">
