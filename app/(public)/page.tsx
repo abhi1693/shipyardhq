@@ -130,7 +130,7 @@ export default async function HomePage() {
             <DirectoryHeader
               stats={stats}
               secondaryAction={{
-                label: "Enter Rank in Public",
+                label: "Join the live showdown",
                 href: RANK_IN_PUBLIC_PATH,
               }}
             />

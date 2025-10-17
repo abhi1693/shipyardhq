@@ -202,7 +202,7 @@ export default async function BrowsePage({
               href: MEMBER_PRODUCTS_PATH,
             }}
             secondaryAction={{
-              label: "Enter Rank in Public",
+              label: "Join the live showdown",
               href: RANK_IN_PUBLIC_PATH,
               variant: "outline",
             }}

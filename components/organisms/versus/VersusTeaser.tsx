@@ -32,8 +32,8 @@ export function VersusTeaser({ matchup }: VersusTeaserProps) {
           See who&apos;s heating up in Rank in Public
         </h2>
         <p className="text-base text-muted-foreground md:text-lg">
-          Catch a glimpse of the current contender, then enter Rank in Public to
-          pick their challenger and push a launch up the board.
+          Catch a glimpse of the current contender, then dive into the live
+          showdown to pick their challenger and push a launch up the board.
         </p>
       </header>
       <div className="relative mt-6 overflow-hidden rounded-[1.5rem] border border-border/60 bg-white/95 px-6 py-6 shadow-[0_28px_90px_-70px_rgba(7,58,104,0.45)] md:px-8 md:py-8">
@@ -65,12 +65,12 @@ export function VersusTeaser({ matchup }: VersusTeaserProps) {
               </h3>
               <p className="text-sm text-muted-foreground md:text-base">
                 {challenger
-                  ? `${featured.name} is headlining the battle. Enter Rank in Public to pick the winner.`
-                  : `${featured.name} is waiting on a challenger. Enter Rank in Public to spin up the matchup.`}
+                  ? `${featured.name} is headlining the battle. Step into the live showdown to pick the winner.`
+                  : `${featured.name} is waiting on a challenger. Step into the live showdown to spin up the matchup.`}
               </p>
             </div>
             <Button asChild size="lg">
-              <Link href={RANK_IN_PUBLIC_PATH}>Enter Rank in Public</Link>
+              <Link href={RANK_IN_PUBLIC_PATH}>Join the live showdown</Link>
             </Button>
           </div>
         </div>
