@@ -8,6 +8,7 @@ import {
   DEFAULT_TTL,
   TAGS,
 } from "@/lib/cache"
+import { selectBalancedProductUpdates } from "@/lib/product-updates/feed"
 import { Prisma, ProductUpdateStatus } from "@/lib/vendor/prisma/client"
 import type {
   ProductUpdateFeedItem,
@@ -164,6 +165,12 @@ export const getPublicProductUpdates = cached(
 async function fetchLatestPublishedUpdates(
   limit: number,
 ): Promise<ProductUpdateFeedItem[]> {
+  const safeLimit = Math.max(
+    1,
+    Number.isFinite(limit) ? Math.floor(limit) : 6,
+  )
+  const take = Math.min(Math.max(safeLimit * 3, safeLimit + 6), 60)
+
   const updates = await prisma.productUpdate.findMany({
     where: {
       status: ProductUpdateStatus.published,
@@ -171,7 +178,7 @@ async function fetchLatestPublishedUpdates(
       product: { status: { not: "archived" } },
     },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-    take: limit,
+    take,
     select: publicUpdateSelect,
     cacheStrategy: {
       ttl: DEFAULT_TTL.fast,
@@ -180,9 +187,11 @@ async function fetchLatestPublishedUpdates(
     },
   })
 
-  return updates
+  const feedItems = updates
     .map((update) => formatFeedItem(update as unknown as PublicProductUpdate))
     .filter((item): item is ProductUpdateFeedItem => Boolean(item))
+
+  return selectBalancedProductUpdates(feedItems, safeLimit)
 }
 
 export const getLatestPublicProductUpdates = cached(
