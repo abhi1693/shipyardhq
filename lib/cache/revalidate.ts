@@ -13,6 +13,7 @@ export function revalidateProduct(idOrSlug: string) {
 export function revalidateProductUpdates(idOrSlug: string) {
   revalidateTag(TAGS.productUpdates(idOrSlug))
   revalidateProduct(idOrSlug)
+  revalidateTag(TAGS.productUpdatesLatest)
 }
 
 export function revalidateProductUpdate(
@@ -23,6 +24,7 @@ export function revalidateProductUpdate(
   if (productIdOrSlug) {
     revalidateProductUpdates(productIdOrSlug)
   }
+  revalidateTag(TAGS.productUpdatesLatest)
 }
 
 export function revalidateProductReviews(idOrSlug: string) {

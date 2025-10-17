@@ -5,6 +5,7 @@ import {
   getTopRankedProducts,
 } from "@/actions/public/leaderboard/actions"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
+import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import { Button } from "@/components/atoms/button"
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
@@ -15,6 +16,7 @@ import { LeaderboardFilters } from "./filters"
 import { IconAnchor, IconRadar, IconTargetArrow } from "@tabler/icons-react"
 import { buildPageMetadata } from "@/lib/metadata"
 import { TopCategories } from "@/components/organisms/TopCategories"
+import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
 import {
   BROWSE_PATH,
   LEADERBOARD_MONTHLY_PATH,
@@ -68,11 +70,14 @@ export default async function LeaderboardPage({
   const limit = Number(sp?.limit || 50)
   const categorySlug = sp?.category || undefined
 
-  const [stats, categories, products] = await Promise.all([
-    getLeaderboardStats(),
-    getCategoriesWithCounts(),
-    getTopRankedProducts({ limit, categorySlug }),
-  ])
+  const [stats, categories, products, latestProductUpdates] = await Promise.all(
+    [
+      getLeaderboardStats(),
+      getCategoriesWithCounts(),
+      getTopRankedProducts({ limit, categorySlug }),
+      getLatestPublicProductUpdates(6),
+    ],
+  )
 
   const topThree = products.slice(0, 3)
   const firstPlacement = topThree[0]
@@ -298,6 +303,8 @@ export default async function LeaderboardPage({
                 className="border-border/70"
                 description="Browse the leaderboard by the categories with the highest launch volume this week."
               />
+
+              <ProductUpdatesFeed updates={latestProductUpdates} />
 
               <DirectoryPromoCard
                 eyebrow="Ranking transparency"

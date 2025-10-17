@@ -28,4 +28,26 @@ export type ProductUpdatePublicView = {
   createdAt: string
   updatedAt: string
   author: ProductUpdateAuthor
+  product?: {
+    id: string
+    name: string
+    slug: string
+    logo: string | null
+    tagline: string | null
+  } | null
+}
+
+export type ProductUpdateFeedItem = {
+  id: string
+  title: string
+  summary: string | null
+  publishedAt: string | null
+  createdAt: string
+  product: {
+    id: string
+    name: string
+    slug: string
+    logo: string | null
+    tagline: string | null
+  }
 }

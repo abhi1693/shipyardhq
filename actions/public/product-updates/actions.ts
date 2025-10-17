@@ -9,7 +9,10 @@ import {
   TAGS,
 } from "@/lib/cache"
 import { Prisma, ProductUpdateStatus } from "@/lib/vendor/prisma/client"
-import type { ProductUpdatePublicView } from "@/types/product-updates"
+import type {
+  ProductUpdateFeedItem,
+  ProductUpdatePublicView,
+} from "@/types/product-updates"
 
 const publicUpdateSelect = {
   id: true,
@@ -24,6 +27,15 @@ const publicUpdateSelect = {
       id: true,
       firstName: true,
       lastName: true,
+    },
+  },
+  product: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      logo: true,
+      tagline: true,
     },
   },
 } as const
@@ -58,6 +70,30 @@ function formatPublicUpdate(
           displayName: authorName || null,
         }
       : null,
+    product: update.product
+      ? {
+          id: update.product.id,
+          name: update.product.name,
+          slug: update.product.slug,
+          logo: update.product.logo,
+          tagline: update.product.tagline,
+        }
+      : null,
+  }
+}
+
+function formatFeedItem(
+  update: PublicProductUpdate,
+): ProductUpdateFeedItem | null {
+  const formatted = formatPublicUpdate(update)
+  if (!formatted.product) return null
+  return {
+    id: formatted.id,
+    title: formatted.title,
+    summary: formatted.summary,
+    publishedAt: formatted.publishedAt,
+    createdAt: formatted.createdAt,
+    product: formatted.product,
   }
 }
 
@@ -99,5 +135,39 @@ export const getPublicProductUpdates = cached(
         TAGS.product(productId),
         TAGS.productUpdates(productId),
       ]),
+  },
+)
+
+async function fetchLatestPublishedUpdates(
+  limit: number,
+): Promise<ProductUpdateFeedItem[]> {
+  const updates = await prisma.productUpdate.findMany({
+    where: {
+      status: ProductUpdateStatus.published,
+      publishedAt: { not: null },
+      product: { status: { not: "archived" } },
+    },
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    take: limit,
+    select: publicUpdateSelect,
+    cacheStrategy: {
+      ttl: DEFAULT_TTL.fast,
+      swr: DEFAULT_SWR.fast,
+      tags: accelerateTags([TAGS.productUpdatesLatest, TAGS.products]),
+    },
+  })
+
+  return updates
+    .map((update) => formatFeedItem(update as unknown as PublicProductUpdate))
+    .filter((item): item is ProductUpdateFeedItem => Boolean(item))
+}
+
+export const getLatestPublicProductUpdates = cached(
+  async (limit: number) => fetchLatestPublishedUpdates(limit),
+  "product:public:updates:latest",
+  {
+    ttl: DEFAULT_TTL.fast,
+    tags: () => accelerateTags([TAGS.productUpdatesLatest]),
+    keyParts: ([limit]) => [`limit:${limit}`],
   },
 )

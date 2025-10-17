@@ -533,10 +533,7 @@ export function ProductUpdatesManager({
                     </DropdownMenu>
                   </CardHeader>
                   <CardContent className="prose prose-sm max-w-none">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      unwrapDisallowed
-                    >
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} unwrapDisallowed>
                       {update.content}
                     </ReactMarkdown>
                   </CardContent>

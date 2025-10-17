@@ -10,6 +10,7 @@ import {
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { getProducts } from "@/actions/public/products/featured"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
+import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
@@ -18,6 +19,7 @@ import { DirectoryCategoryRail } from "@/components/organisms/directory/Category
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 import { BrowseFeaturedCarousel } from "@/components/organisms/BrowseFeaturedCarousel"
+import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
 import { Prisma } from "@/lib/vendor/prisma/client"
@@ -119,29 +121,36 @@ export default async function BrowsePage({
   const page = resolveSingle(params.page) ?? "1"
   const q = resolveSingle(params.q)?.trim()
 
-  const [browseResult, featured, useCases, categories, stats] =
-    await Promise.all([
-      getBrowseProducts({
-        useCaseSlug: useCase === "__all__" ? undefined : useCase,
-        categorySlug: category === "__all__" ? undefined : category,
-        verified: verified === "true",
-        sort,
-        page: parseInt(page, 10),
-        query: q || undefined,
-      }),
-      getProducts("featured"),
-      getUseCasesWithCounts(),
-      getCategories({
-        where: {
-          products: {
-            some: {},
-          },
+  const [
+    browseResult,
+    featured,
+    useCases,
+    categories,
+    stats,
+    latestProductUpdates,
+  ] = await Promise.all([
+    getBrowseProducts({
+      useCaseSlug: useCase === "__all__" ? undefined : useCase,
+      categorySlug: category === "__all__" ? undefined : category,
+      verified: verified === "true",
+      sort,
+      page: parseInt(page, 10),
+      query: q || undefined,
+    }),
+    getProducts("featured"),
+    getUseCasesWithCounts(),
+    getCategories({
+      where: {
+        products: {
+          some: {},
         },
-        include: { _count: { select: { products: true } } },
-        orderBy: [{ products: { _count: "desc" } }, { name: "asc" }],
-      }) as Promise<CategoryWithProductCount[]>,
-      getLeaderboardStats(),
-    ])
+      },
+      include: { _count: { select: { products: true } } },
+      orderBy: [{ products: { _count: "desc" } }, { name: "asc" }],
+    }) as Promise<CategoryWithProductCount[]>,
+    getLeaderboardStats(),
+    getLatestPublicProductUpdates(6),
+  ])
 
   const { products, hasMore } = browseResult
   const sortLabel = sortLabelMap[sort] ?? sortLabelMap.new
@@ -300,6 +309,7 @@ export default async function BrowsePage({
                   href: LEADERBOARD_PATH,
                 }}
               />
+              <ProductUpdatesFeed updates={latestProductUpdates} />
             </aside>
           </div>
 

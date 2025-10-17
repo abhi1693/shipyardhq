@@ -30,6 +30,8 @@ import { DirectoryCategoryRail } from "@/components/organisms/directory/Category
 import { DirectoryRadarDigest } from "@/components/organisms/directory/RadarDigest"
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
+import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/actions"
+import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
 
 const siteUrl = siteConfig.url.replace(/\/$/, "")
 const homepageTitle = `Launch Faster, Get Discovered. Submit Your Product | ${siteConfig.name}`
@@ -81,6 +83,7 @@ export default async function HomePage() {
     stats,
     rewardsLeaderboardEntries,
     rankInPublicMatchup,
+    latestProductUpdates,
   ] = await Promise.all([
     getProducts("featured"),
     getProducts("editor-pick"),
@@ -91,6 +94,7 @@ export default async function HomePage() {
     getLeaderboardStats(),
     getRewardsLeaderboardEntries(3),
     getVersusMatchup(),
+    getLatestPublicProductUpdates(6),
   ])
 
   const rewardsLeaders = await hydrateRewardsLeaderboardEntries(
@@ -171,6 +175,7 @@ export default async function HomePage() {
                     icon: <LineChart className="h-4 w-4" aria-hidden="true" />,
                   }}
                 />
+                <ProductUpdatesFeed updates={latestProductUpdates} />
               </aside>
             </div>
             <DirectoryHowItWorks />
