@@ -91,9 +91,7 @@ export function ProductChangelog({
             )
           })}
         </div>
-        {footer ? (
-          <div className="mt-6 flex justify-end">{footer}</div>
-        ) : null}
+        {footer ? <div className="mt-6 flex justify-end">{footer}</div> : null}
       </div>
     </section>
   )

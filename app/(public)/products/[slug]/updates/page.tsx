@@ -76,10 +76,65 @@ export default async function ProductUpdatesArchivePage({
     }
   }
 
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
+  ).replace(/\/$/, "")
+
+  const structuredData = updates.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: `${product.name} product updates`,
+        description:
+          product.tagline ||
+          `Latest announcements, improvements, and changelog for ${product.name}.`,
+        itemListElement: updates.map((update, index) => {
+          const article: Record<string, any> = {
+            "@type": "Article",
+            headline: update.title,
+            datePublished: update.publishedAt ?? update.createdAt,
+            dateModified: update.updatedAt,
+            description:
+              update.summary ||
+              product.tagline ||
+              `Recent update for ${product.name}.`,
+            url: `${baseUrl}${productUpdatesPath(product.slug)}#update-${update.id}`,
+            about: {
+              "@type": "Product",
+              name: product.name,
+              url: `${baseUrl}${productPath(product.slug)}`,
+            },
+          }
+
+          if (update.author?.displayName) {
+            article.author = {
+              "@type": "Person",
+              name: update.author.displayName,
+            }
+          }
+
+          return {
+            "@type": "ListItem",
+            position: index + 1,
+            url: `${baseUrl}${productUpdatesPath(product.slug)}#update-${update.id}`,
+            item: article,
+          }
+        }),
+      }
+    : null
+
   return (
     <main className="relative isolate bg-white">
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-10">
+          {structuredData ? (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(structuredData),
+              }}
+            />
+          ) : null}
           <header className="rounded-3xl border border-border/70 bg-white p-6 shadow-sm">
             <div className="flex items-start gap-4">
               {product.logo ? (

@@ -202,9 +202,7 @@ export async function getPublicProductUpdatesPage(
 ) {
   const normalizedPage = Number.isFinite(page) ? Math.floor(page) : 0
   const safePage = normalizedPage > 0 ? normalizedPage : 0
-  const normalizedSize = Number.isFinite(pageSize)
-    ? Math.floor(pageSize)
-    : 10
+  const normalizedSize = Number.isFinite(pageSize) ? Math.floor(pageSize) : 10
   const safePageSize = Math.max(1, Math.min(normalizedSize, 20))
   const skip = safePage * safePageSize
 

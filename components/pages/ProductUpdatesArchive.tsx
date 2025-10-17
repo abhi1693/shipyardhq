@@ -20,9 +20,8 @@ export function ProductUpdatesArchive({
     hasMore: boolean
   }>
 }) {
-  const [updates, setUpdates] = useState<ProductUpdatePublicView[]>(
-    initialUpdates,
-  )
+  const [updates, setUpdates] =
+    useState<ProductUpdatePublicView[]>(initialUpdates)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [loading, setLoading] = useState(false)
