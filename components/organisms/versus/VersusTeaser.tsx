@@ -23,7 +23,7 @@ export function VersusTeaser({ matchup }: VersusTeaserProps) {
   const upvoteLabel = `${featured.upvotes.toLocaleString()} upvotes`
 
   return (
-    <section className="rounded-3xl border border-border/70 bg-white p-6 shadow-[0_28px_90px_-70px_rgba(7,58,104,0.55)] md:p-10">
+    <section className="rounded-3xl border border-border/70 bg-white px-6 py-6 shadow-[0_28px_90px_-70px_rgba(7,58,104,0.55)] md:px-8 md:py-8">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary/70">
           VS Arena preview
@@ -36,8 +36,8 @@ export function VersusTeaser({ matchup }: VersusTeaserProps) {
           their challenger and push a launch up the board.
         </p>
       </header>
-      <div className="relative mt-6 overflow-hidden rounded-[1.5rem] border border-border/60 bg-white/95 p-6 shadow-[0_28px_90px_-70px_rgba(7,58,104,0.45)] md:p-8">
-        <div className="relative z-10 flex flex-col items-center gap-6 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,0.85fr)] md:items-stretch md:gap-0">
+      <div className="relative mt-6 overflow-hidden rounded-[1.5rem] border border-border/60 bg-white/95 px-6 py-6 shadow-[0_28px_90px_-70px_rgba(7,58,104,0.45)] md:px-8 md:py-8">
+        <div className="relative z-10 flex flex-col items-center gap-6 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-stretch md:gap-8">
           <VersusCard
             product={featured}
             side="left"
@@ -58,7 +58,7 @@ export function VersusTeaser({ matchup }: VersusTeaserProps) {
             )}
           />
           <VersusDivider />
-          <div className="flex h-full w-full max-w-[22rem] flex-col justify-between gap-4 rounded-2xl border border-dashed border-border/60 bg-white/85 p-6 text-center shadow-[0_28px_80px_-68px_rgba(7,58,104,0.32)] md:max-w-none md:justify-center md:text-left">
+          <div className="flex h-full w-full max-w-[24rem] flex-col justify-between gap-4 rounded-2xl border border-dashed border-border/60 bg-white/85 p-6 text-center shadow-[0_28px_80px_-68px_rgba(7,58,104,0.32)] md:mx-auto md:max-w-[24rem] md:justify-center md:text-left">
             <div className="space-y-3">
               <h3 className="text-xl font-semibold text-foreground">
                 Play the full battle
