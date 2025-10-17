@@ -5,6 +5,7 @@ import {
   LEADERBOARD_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
+  VERSUS_PATH,
 } from "@/lib/routes"
 
 describe("PublicFooter", () => {
@@ -30,6 +31,10 @@ describe("PublicFooter", () => {
     expect(screen.getByRole("link", { name: /Leaderboard/i })).toHaveAttribute(
       "href",
       LEADERBOARD_PATH,
+    )
+    expect(screen.getByRole("link", { name: /VS Arena/i })).toHaveAttribute(
+      "href",
+      VERSUS_PATH,
     )
     expect(screen.getByRole("link", { name: /Privacy/i })).toHaveAttribute(
       "href",

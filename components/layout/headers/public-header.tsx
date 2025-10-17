@@ -26,6 +26,7 @@ import {
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   REWARDS_PATH,
+  VERSUS_PATH,
 } from "@/lib/routes"
 import {
   DropdownMenu,
@@ -40,6 +41,7 @@ import { useRouter } from "next/navigation"
 const navLinks = [
   { label: "Browse", href: BROWSE_PATH },
   { label: "Leaderboard", href: LEADERBOARD_PATH },
+  { label: "VS Arena", href: VERSUS_PATH },
   { label: "Analytics", href: ANALYTICS_PATH },
   { label: "Pricing", href: PRICING_PATH },
   { label: "Rewards", href: REWARDS_PATH },

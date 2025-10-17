@@ -15,6 +15,8 @@ interface Props {
   initialUpvoted?: boolean
   title?: string
   className?: string
+  compact?: boolean
+  onVoteChange?: (state: { upvotes: number; upvoted: boolean }) => void
 }
 
 type State = { upvotes: number; upvoted: boolean; error?: string }
@@ -25,6 +27,8 @@ export default function UpvoteSquareButton({
   initialUpvoted = false,
   title,
   className,
+  compact = false,
+  onVoteChange,
 }: Props) {
   const { isSignedIn } = useUser()
   const baseState = useMemo<State>(
@@ -91,17 +95,27 @@ export default function UpvoteSquareButton({
         )
       }
 
-      setState((current) => ({
-        upvotes:
+      setState((current) => {
+        const nextUpvotes =
           typeof payload.upvotes === "number"
             ? payload.upvotes
-            : current.upvotes,
-        upvoted:
+            : current.upvotes
+        const nextUpvoted =
           typeof payload.upvoted === "boolean"
             ? payload.upvoted
-            : current.upvoted,
-        error: undefined,
-      }))
+            : current.upvoted
+        const nextState: State = {
+          upvotes: nextUpvotes,
+          upvoted: nextUpvoted,
+          error: undefined,
+        }
+        if (onVoteChange) {
+          queueMicrotask(() =>
+            onVoteChange({ upvotes: nextState.upvotes, upvoted: nextState.upvoted }),
+          )
+        }
+        return nextState
+      })
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to update upvote"
@@ -125,6 +139,7 @@ export default function UpvoteSquareButton({
         active={state.upvoted}
         pending={pending}
         pop={pop}
+        compact={compact}
       />
     </button>
   )

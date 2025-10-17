@@ -27,6 +27,7 @@ import {
   LEADERBOARD_GUIDE_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
+  VERSUS_PATH,
   usecasePath,
 } from "@/lib/routes"
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
@@ -194,14 +195,14 @@ export default async function BrowsePage({
             stats={stats}
             eyebrow="Directory browse"
             title="Browse the Shipyard launch catalog"
-            description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, and the live leaderboard."
+            description="We run the homepage spotlight, curate featured campaigns, and track momentum across editor picks, new arrivals, the live leaderboard, and head-to-head VS matchups."
             primaryAction={{
               label: "Submit your launch",
               href: MEMBER_PRODUCTS_PATH,
             }}
             secondaryAction={{
-              label: "Watch the leaderboard",
-              href: LEADERBOARD_PATH,
+              label: "Battle in the VS arena",
+              href: VERSUS_PATH,
               variant: "outline",
             }}
             metrics={browseMetrics}

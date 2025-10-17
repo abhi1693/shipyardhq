@@ -15,6 +15,7 @@ import {
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   REWARDS_PATH,
+  VERSUS_PATH,
   USERS_PATH,
   WHY_SHIPYARD_PATH,
   TRENDS_PATH,
@@ -49,6 +50,7 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
   const discoverLinks = [
     { label: "All Products", href: BROWSE_PATH },
     { label: "Leaderboard", href: LEADERBOARD_PATH },
+    { label: "VS Arena", href: VERSUS_PATH },
     { label: "Trend Radar", href: TRENDS_PATH },
     { label: "Rewards", href: REWARDS_PATH },
     { label: "Analytics", href: ANALYTICS_PATH },
