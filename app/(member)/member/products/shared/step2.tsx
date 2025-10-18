@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import {
   FormField,
@@ -24,9 +24,47 @@ export default function Step2() {
     control: form.control,
     name: "pricingModel",
   }) as string
+  const startingPriceCents = useWatch({
+    control: form.control,
+    name: "startingPriceCents",
+  }) as number | string | undefined
+  const currencyCode = useWatch({
+    control: form.control,
+    name: "currencyCode",
+  }) as string | undefined
   const disablePrice = pricingModel === "free" || pricingModel === "custom"
   const requirePrice =
     pricingModel === "subscription" || pricingModel === "one_time"
+  const formattedPrice = useMemo(() => {
+    if (
+      disablePrice ||
+      currencyCode == null ||
+      currencyCode === "" ||
+      startingPriceCents == null ||
+      startingPriceCents === ""
+    ) {
+      return null
+    }
+
+    const numericPrice =
+      typeof startingPriceCents === "string"
+        ? Number(startingPriceCents)
+        : startingPriceCents
+    if (typeof numericPrice !== "number" || !Number.isFinite(numericPrice)) {
+      return null
+    }
+
+    const amount = numericPrice / 100
+
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: currencyCode,
+      }).format(amount)
+    } catch {
+      return `${currencyCode} ${amount.toFixed(2)}`
+    }
+  }, [currencyCode, disablePrice, startingPriceCents])
 
   useEffect(() => {
     // Clear stale pricing values when the pricing model does not allow them
@@ -155,6 +193,12 @@ export default function Step2() {
           )}
         />
       </div>
+
+      {formattedPrice ? (
+        <p className="text-sm text-muted-foreground">
+          Price Preview: {formattedPrice}
+        </p>
+      ) : null}
     </div>
   )
 }
