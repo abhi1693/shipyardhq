@@ -64,14 +64,20 @@ export default async function MemberOrganizationsPage({
   const subscriptionId = (params["subscription_id"] as string) || ""
 
   if (paymentId && status) {
-    await validateOrgPaymentAction(paymentId)
-    redirect(MEMBER_ORGANIZATIONS_PATH)
+    const result = await validateOrgPaymentAction(paymentId)
+    if (result && "error" in result && result.error) {
+      redirect(`${MEMBER_ORGANIZATIONS_PATH}?error=${encodeURIComponent(result.error)}`)
+    }
+    redirect(MEMBER_ORGANIZATIONS_ADD_PATH)
   }
 
   // Handle subscription-based redirects: status=active&subscription_id=...
   if (subscriptionId && status) {
-    await validateOrgSubscriptionAction(subscriptionId, status)
-    redirect(MEMBER_ORGANIZATIONS_PATH)
+    const result = await validateOrgSubscriptionAction(subscriptionId, status)
+    if (result && "error" in result && result.error) {
+      redirect(`${MEMBER_ORGANIZATIONS_PATH}?error=${encodeURIComponent(result.error)}`)
+    }
+    redirect(MEMBER_ORGANIZATIONS_ADD_PATH)
   }
 
   const hasOrgs = await memberHasFeature("organization")
