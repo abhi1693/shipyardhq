@@ -10,7 +10,7 @@ vi.mock("@/lib/dodo", () => ({
   },
 }))
 
-let createPlanCheckout: typeof import("@/lib/server/dodoCheckout")["createPlanCheckout"]
+let createPlanCheckout: (typeof import("@/lib/server/dodoCheckout"))["createPlanCheckout"]
 
 describe("createPlanCheckout", () => {
   beforeEach(async () => {

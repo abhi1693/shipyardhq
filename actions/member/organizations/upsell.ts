@@ -66,7 +66,10 @@ export async function startOrgCheckoutAction(formData: FormData) {
 
     redirect(checkout.url)
   } catch (error) {
-    if ((error as any)?.digest && String((error as any).digest).startsWith("NEXT_REDIRECT")) {
+    if (
+      (error as any)?.digest &&
+      String((error as any).digest).startsWith("NEXT_REDIRECT")
+    ) {
       throw error
     }
     console.error("startOrgCheckoutAction failed", error)

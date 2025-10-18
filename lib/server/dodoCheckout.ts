@@ -18,8 +18,7 @@ type CheckoutOptions = {
   returnUrl?: string
 }
 
-export type CheckoutResult =
-  | { url: string; kind: "checkout_session" }
+export type CheckoutResult = { url: string; kind: "checkout_session" }
 
 export async function createPlanCheckout({
   plan,

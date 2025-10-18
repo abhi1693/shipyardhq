@@ -66,7 +66,9 @@ export default async function MemberOrganizationsPage({
   if (paymentId && status) {
     const result = await validateOrgPaymentAction(paymentId)
     if (result && "error" in result && result.error) {
-      redirect(`${MEMBER_ORGANIZATIONS_PATH}?error=${encodeURIComponent(result.error)}`)
+      redirect(
+        `${MEMBER_ORGANIZATIONS_PATH}?error=${encodeURIComponent(result.error)}`,
+      )
     }
     redirect(MEMBER_ORGANIZATIONS_ADD_PATH)
   }
@@ -75,7 +77,9 @@ export default async function MemberOrganizationsPage({
   if (subscriptionId && status) {
     const result = await validateOrgSubscriptionAction(subscriptionId, status)
     if (result && "error" in result && result.error) {
-      redirect(`${MEMBER_ORGANIZATIONS_PATH}?error=${encodeURIComponent(result.error)}`)
+      redirect(
+        `${MEMBER_ORGANIZATIONS_PATH}?error=${encodeURIComponent(result.error)}`,
+      )
     }
     redirect(MEMBER_ORGANIZATIONS_ADD_PATH)
   }
