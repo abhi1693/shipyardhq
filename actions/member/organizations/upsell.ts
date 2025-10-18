@@ -10,6 +10,7 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
+import { createPlanCheckout } from "@/lib/server/dodoCheckout"
 
 // Start a user-level checkout for a plan that includes the organization feature
 export async function startOrgCheckoutAction(formData: FormData) {
@@ -24,7 +25,7 @@ export async function startOrgCheckoutAction(formData: FormData) {
 
   const plan = await prisma.plan.findUnique({
     where: { id: planId },
-    select: { id: true, externalId: true, price: true },
+    select: { id: true, externalId: true, price: true, type: true },
   })
   if (!plan) return
 
@@ -52,32 +53,29 @@ export async function startOrgCheckoutAction(formData: FormData) {
     if (host) returnUrl = `${proto}://${host}${MEMBER_ORGANIZATIONS_PATH}`
   } catch {}
 
-  const customer = {
-    email: user.email,
-    name: `${user.firstName} ${user.lastName}`.trim(),
-    create_new_customer: false,
-  } as any
+  try {
+    const checkout = await createPlanCheckout({
+      plan: { externalId: plan.externalId!, type: plan.type },
+      customer: {
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+      },
+      metadata: { feature: "organization", planId },
+      returnUrl,
+    })
 
-  const billing = {
-    street: "",
-    city: "",
-    state: "",
-    zipcode: "",
-    country: "US",
+    redirect(checkout.url)
+  } catch (error) {
+    if (
+      (error as any)?.digest &&
+      String((error as any).digest).startsWith("NEXT_REDIRECT")
+    ) {
+      throw error
+    }
+    console.error("startOrgCheckoutAction failed", error)
   }
 
-  const session = await dodoClient.payments.create({
-    billing,
-    customer,
-    product_cart: [{ product_id: plan.externalId, quantity: 1 }],
-    metadata: { feature: "organization", planId },
-    payment_link: true,
-    return_url: returnUrl,
-  } as any)
-  if ((session as any)?.payment_link) {
-    redirect((session as any).payment_link)
-  }
-  return
+  redirect(`${MEMBER_ORGANIZATIONS_PATH}?error=checkout_init_failed`)
 }
 
 // Validate return from Dodo and grant user-level entitlement

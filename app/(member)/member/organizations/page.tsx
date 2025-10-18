@@ -12,7 +12,6 @@ import {
   startOrgCheckoutAction,
   validateOrgSubscriptionAction,
 } from "@/actions/member/organizations/upsell"
-import { OrgPlanBuyButton } from "@/components/molecules/OrgPlanBuyButton"
 import { redirect } from "next/navigation"
 import { PlanType } from "@/lib/vendor/prisma/client"
 import { Badge } from "@/components/atoms/badge"
@@ -65,14 +64,24 @@ export default async function MemberOrganizationsPage({
   const subscriptionId = (params["subscription_id"] as string) || ""
 
   if (paymentId && status) {
-    await validateOrgPaymentAction(paymentId)
-    redirect(MEMBER_ORGANIZATIONS_PATH)
+    const result = await validateOrgPaymentAction(paymentId)
+    if (result && "error" in result && result.error) {
+      redirect(
+        `${MEMBER_ORGANIZATIONS_PATH}?error=${encodeURIComponent(result.error)}`,
+      )
+    }
+    redirect(MEMBER_ORGANIZATIONS_ADD_PATH)
   }
 
   // Handle subscription-based redirects: status=active&subscription_id=...
   if (subscriptionId && status) {
-    await validateOrgSubscriptionAction(subscriptionId, status)
-    redirect(MEMBER_ORGANIZATIONS_PATH)
+    const result = await validateOrgSubscriptionAction(subscriptionId, status)
+    if (result && "error" in result && result.error) {
+      redirect(
+        `${MEMBER_ORGANIZATIONS_PATH}?error=${encodeURIComponent(result.error)}`,
+      )
+    }
+    redirect(MEMBER_ORGANIZATIONS_ADD_PATH)
   }
 
   const hasOrgs = await memberHasFeature("organization")
@@ -297,16 +306,12 @@ function OrganizationPlanOptions({
                 ))}
             </ul>
             <div>
-              {plan.externalId && plan.price > 0 ? (
-                <OrgPlanBuyButton externalId={plan.externalId} />
-              ) : (
-                <form action={startOrgCheckoutAction} className="flex">
-                  <input type="hidden" name="planId" value={plan.id} />
-                  <Button type="submit" className="px-6">
-                    Get access
-                  </Button>
-                </form>
-              )}
+              <form action={startOrgCheckoutAction} className="flex">
+                <input type="hidden" name="planId" value={plan.id} />
+                <Button type="submit" className="px-6">
+                  {plan.price > 0 ? "Buy now" : "Get access"}
+                </Button>
+              </form>
             </div>
           </div>
         )

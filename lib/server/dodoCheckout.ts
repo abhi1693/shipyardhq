@@ -1,0 +1,56 @@
+import { dodoClient } from "@/lib/dodo"
+
+type CheckoutPlan = {
+  externalId: string
+  type?: string | null
+}
+
+type CheckoutCustomer = {
+  email: string
+  name?: string | null
+}
+
+type CheckoutOptions = {
+  plan: CheckoutPlan
+  customer: CheckoutCustomer
+  metadata?: Record<string, string>
+  returnUrl?: string
+}
+
+export type CheckoutResult = { url: string }
+
+export async function createPlanCheckout({
+  plan,
+  customer,
+  metadata,
+  returnUrl,
+}: CheckoutOptions): Promise<CheckoutResult> {
+  const planId = plan.externalId?.trim()
+  if (!planId) {
+    throw new Error("Missing plan external id for checkout")
+  }
+
+  const customerPayload: CheckoutCustomer = {
+    email: customer.email,
+  }
+  if (customer.name) {
+    customerPayload.name = customer.name
+  }
+
+  const isRecurring = (plan.type || "").toString() === "recurring_price"
+
+  const session = (await dodoClient.checkoutSessions.create({
+    product_cart: [{ product_id: planId, quantity: 1 }],
+    customer: customerPayload as any,
+    metadata,
+    return_url: returnUrl,
+    ...(isRecurring ? undefined : { subscription_data: null }),
+  } as any)) as { checkout_url?: string }
+
+  const url = session.checkout_url?.trim()
+  if (!url) {
+    throw new Error("Missing checkout URL from Dodo session response")
+  }
+
+  return { url }
+}
