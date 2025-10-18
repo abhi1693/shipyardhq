@@ -321,13 +321,6 @@ export async function startPlanCheckoutAction(
       },
       metadata: { productId, planId },
       returnUrl,
-      billing: {
-        street: "",
-        city: "",
-        state: "",
-        zipcode: "",
-        country: "US",
-      },
     })
     return { redirectUrl: checkout.url }
   } catch (e) {

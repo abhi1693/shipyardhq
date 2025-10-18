@@ -1,15 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const checkoutCreateMock = vi.fn()
-const paymentsCreateMock = vi.fn()
 
 vi.mock("@/lib/dodo", () => ({
   dodoClient: {
     checkoutSessions: {
       create: checkoutCreateMock,
-    },
-    payments: {
-      create: paymentsCreateMock,
     },
   },
 }))
@@ -20,7 +16,6 @@ describe("createPlanCheckout", () => {
   beforeEach(async () => {
     vi.resetModules()
     checkoutCreateMock.mockReset()
-    paymentsCreateMock.mockReset()
 
     const mod = await import("@/lib/server/dodoCheckout")
     createPlanCheckout = mod.createPlanCheckout
@@ -35,7 +30,7 @@ describe("createPlanCheckout", () => {
     ).rejects.toThrowError(/external id/)
   })
 
-  it("returns checkout url for recurring plans", async () => {
+  it("creates checkout session for recurring plans", async () => {
     checkoutCreateMock.mockResolvedValue({
       checkout_url: " https://checkout/session ",
     })
@@ -49,7 +44,7 @@ describe("createPlanCheckout", () => {
 
     expect(result).toEqual({
       url: "https://checkout/session",
-      kind: "subscription",
+      kind: "checkout_session",
     })
     expect(checkoutCreateMock).toHaveBeenCalledWith({
       product_cart: [{ product_id: "prod_123", quantity: 1 }],
@@ -59,9 +54,9 @@ describe("createPlanCheckout", () => {
     })
   })
 
-  it("returns payment link for one-time plans", async () => {
-    paymentsCreateMock.mockResolvedValue({
-      payment_link: "https://pay/link",
+  it("creates checkout session for one-time plans", async () => {
+    checkoutCreateMock.mockResolvedValue({
+      checkout_url: "https://checkout/one-time",
     })
 
     const result = await createPlanCheckout({
@@ -71,22 +66,15 @@ describe("createPlanCheckout", () => {
     })
 
     expect(result).toEqual({
-      url: "https://pay/link",
-      kind: "payment_link",
+      url: "https://checkout/one-time",
+      kind: "checkout_session",
     })
-    expect(paymentsCreateMock).toHaveBeenCalledWith({
-      billing: {
-        street: "",
-        city: "",
-        state: "",
-        zipcode: "",
-        country: "US",
-      },
-      customer: { email: "user@example.com" },
+    expect(checkoutCreateMock).toHaveBeenCalledWith({
       product_cart: [{ product_id: "prod_456", quantity: 1 }],
+      customer: { email: "user@example.com" },
       metadata: { planId: "plan_2" },
-      payment_link: true,
       return_url: undefined,
+      subscription_data: null,
     })
   })
 
@@ -101,14 +89,14 @@ describe("createPlanCheckout", () => {
     ).rejects.toThrowError(/Missing checkout URL/)
   })
 
-  it("throws when payment link missing", async () => {
-    paymentsCreateMock.mockResolvedValue({})
+  it("throws when checkout session missing url", async () => {
+    checkoutCreateMock.mockResolvedValue({})
 
     await expect(
       createPlanCheckout({
         plan: { externalId: "prod_456", type: "one_time_price" as any },
         customer: { email: "user@example.com" },
       }),
-    ).rejects.toThrowError(/Missing payment link/)
+    ).rejects.toThrowError(/Missing checkout URL/)
   })
 })
