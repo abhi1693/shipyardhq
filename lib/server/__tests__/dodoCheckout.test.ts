@@ -44,7 +44,6 @@ describe("createPlanCheckout", () => {
 
     expect(result).toEqual({
       url: "https://checkout/session",
-      kind: "checkout_session",
     })
     expect(checkoutCreateMock).toHaveBeenCalledWith({
       product_cart: [{ product_id: "prod_123", quantity: 1 }],
@@ -67,7 +66,6 @@ describe("createPlanCheckout", () => {
 
     expect(result).toEqual({
       url: "https://checkout/one-time",
-      kind: "checkout_session",
     })
     expect(checkoutCreateMock).toHaveBeenCalledWith({
       product_cart: [{ product_id: "prod_456", quantity: 1 }],

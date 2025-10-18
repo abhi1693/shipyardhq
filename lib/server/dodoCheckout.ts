@@ -1,9 +1,8 @@
 import { dodoClient } from "@/lib/dodo"
-import type { PlanType } from "@/lib/vendor/prisma/client"
 
 type CheckoutPlan = {
   externalId: string
-  type?: PlanType | null
+  type?: string | null
 }
 
 type CheckoutCustomer = {
@@ -18,7 +17,7 @@ type CheckoutOptions = {
   returnUrl?: string
 }
 
-export type CheckoutResult = { url: string; kind: "checkout_session" }
+export type CheckoutResult = { url: string }
 
 export async function createPlanCheckout({
   plan,
@@ -38,7 +37,7 @@ export async function createPlanCheckout({
     customerPayload.name = customer.name
   }
 
-  const isRecurring = plan.type === ("recurring_price" as PlanType)
+  const isRecurring = (plan.type || "").toString() === "recurring_price"
 
   const session = (await dodoClient.checkoutSessions.create({
     product_cart: [{ product_id: planId, quantity: 1 }],
@@ -53,5 +52,5 @@ export async function createPlanCheckout({
     throw new Error("Missing checkout URL from Dodo session response")
   }
 
-  return { url, kind: "checkout_session" }
+  return { url }
 }
