@@ -58,26 +58,25 @@ export async function startOrgCheckoutAction(formData: FormData) {
     create_new_customer: false,
   } as any
 
-  const billing = {
-    street: "",
-    city: "",
-    state: "",
-    zipcode: "",
-    country: "US",
+  try {
+    const session = await dodoClient.checkoutSessions.create({
+      product_cart: [{ product_id: plan.externalId, quantity: 1 }],
+      customer,
+      metadata: { feature: "organization", planId },
+      return_url: returnUrl,
+    } as any)
+
+    if ((session as any)?.checkout_url) {
+      redirect((session as any).checkout_url)
+    }
+  } catch (error) {
+    if ((error as any)?.digest && String((error as any).digest).startsWith("NEXT_REDIRECT")) {
+      throw error
+    }
+    console.error("startOrgCheckoutAction failed", error)
   }
 
-  const session = await dodoClient.payments.create({
-    billing,
-    customer,
-    product_cart: [{ product_id: plan.externalId, quantity: 1 }],
-    metadata: { feature: "organization", planId },
-    payment_link: true,
-    return_url: returnUrl,
-  } as any)
-  if ((session as any)?.payment_link) {
-    redirect((session as any).payment_link)
-  }
-  return
+  redirect(`${MEMBER_ORGANIZATIONS_PATH}?error=checkout_init_failed`)
 }
 
 // Validate return from Dodo and grant user-level entitlement

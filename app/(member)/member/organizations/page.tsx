@@ -12,7 +12,6 @@ import {
   startOrgCheckoutAction,
   validateOrgSubscriptionAction,
 } from "@/actions/member/organizations/upsell"
-import { OrgPlanBuyButton } from "@/components/molecules/OrgPlanBuyButton"
 import { redirect } from "next/navigation"
 import { PlanType } from "@/lib/vendor/prisma/client"
 import { Badge } from "@/components/atoms/badge"
@@ -297,16 +296,12 @@ function OrganizationPlanOptions({
                 ))}
             </ul>
             <div>
-              {plan.externalId && plan.price > 0 ? (
-                <OrgPlanBuyButton externalId={plan.externalId} />
-              ) : (
-                <form action={startOrgCheckoutAction} className="flex">
-                  <input type="hidden" name="planId" value={plan.id} />
-                  <Button type="submit" className="px-6">
-                    Get access
-                  </Button>
-                </form>
-              )}
+              <form action={startOrgCheckoutAction} className="flex">
+                <input type="hidden" name="planId" value={plan.id} />
+                <Button type="submit" className="px-6">
+                  {plan.price > 0 ? "Buy now" : "Get access"}
+                </Button>
+              </form>
             </div>
           </div>
         )
