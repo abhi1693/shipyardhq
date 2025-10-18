@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dodoClient } from "@/lib/dodo"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
+import { createPlanCheckout } from "@/lib/server/dodoCheckout"
 import {
   FeatureEntitlementStatus,
   Prisma,
@@ -295,7 +296,7 @@ export async function startPlanCheckoutAction(
 
   const plan = await prisma.plan.findUnique({
     where: { id: planId },
-    select: { id: true, externalId: true, price: true },
+    select: { id: true, externalId: true, price: true, type: true },
   })
   if (!plan) return { error: "Plan not found" }
   if (!plan.externalId || plan.price === 0) {
@@ -311,32 +312,24 @@ export async function startPlanCheckoutAction(
     if (host) returnUrl = `${proto}://${host}${memberProductPath(product.slug)}`
   } catch {}
 
-  const customer = {
-    email: user.email,
-    name: `${user.firstName} ${user.lastName}`.trim(),
-    create_new_customer: false,
-  } as any
-
-  // Minimal placeholder billing; hosted checkout will collect real details
-  const billing = {
-    street: "",
-    city: "",
-    state: "",
-    zipcode: "",
-    country: "US",
-  }
-
   try {
-    const session = await dodoClient.payments.create({
-      billing,
-      customer: customer || ({} as any),
-      product_cart: [{ product_id: plan.externalId, quantity: 1 }],
+    const checkout = await createPlanCheckout({
+      plan: { externalId: plan.externalId!, type: plan.type },
+      customer: {
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+      },
       metadata: { productId, planId },
-      payment_link: true,
-      return_url: returnUrl,
-    } as any)
-    if (session?.payment_link) return { paymentLink: session.payment_link }
-    return { error: "Failed to create payment checkout" }
+      returnUrl,
+      billing: {
+        street: "",
+        city: "",
+        state: "",
+        zipcode: "",
+        country: "US",
+      },
+    })
+    return { redirectUrl: checkout.url }
   } catch (e) {
     console.error("Failed to start checkout:", e)
     return { error: "Checkout initialization failed" }
@@ -431,8 +424,9 @@ export async function choosePlanAction(
 
   // Start hosted checkout for paid plans
   const session = await startPlanCheckoutAction(ctx.productId, planId)
-  if ((session as any)?.paymentLink) {
-    redirect((session as any).paymentLink)
+  const redirectUrl = (session as any)?.redirectUrl
+  if (redirectUrl) {
+    redirect(redirectUrl)
   }
 
   // If checkout couldn't be created, do NOT grant the plan

@@ -10,6 +10,7 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { MEMBER_ORGANIZATIONS_PATH } from "@/lib/routes"
+import { createPlanCheckout } from "@/lib/server/dodoCheckout"
 
 // Start a user-level checkout for a plan that includes the organization feature
 export async function startOrgCheckoutAction(formData: FormData) {
@@ -24,7 +25,7 @@ export async function startOrgCheckoutAction(formData: FormData) {
 
   const plan = await prisma.plan.findUnique({
     where: { id: planId },
-    select: { id: true, externalId: true, price: true },
+    select: { id: true, externalId: true, price: true, type: true },
   })
   if (!plan) return
 
@@ -52,23 +53,18 @@ export async function startOrgCheckoutAction(formData: FormData) {
     if (host) returnUrl = `${proto}://${host}${MEMBER_ORGANIZATIONS_PATH}`
   } catch {}
 
-  const customer = {
-    email: user.email,
-    name: `${user.firstName} ${user.lastName}`.trim(),
-    create_new_customer: false,
-  } as any
-
   try {
-    const session = await dodoClient.checkoutSessions.create({
-      product_cart: [{ product_id: plan.externalId, quantity: 1 }],
-      customer,
+    const checkout = await createPlanCheckout({
+      plan: { externalId: plan.externalId!, type: plan.type },
+      customer: {
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+      },
       metadata: { feature: "organization", planId },
-      return_url: returnUrl,
-    } as any)
+      returnUrl,
+    })
 
-    if ((session as any)?.checkout_url) {
-      redirect((session as any).checkout_url)
-    }
+    redirect(checkout.url)
   } catch (error) {
     if ((error as any)?.digest && String((error as any).digest).startsWith("NEXT_REDIRECT")) {
       throw error
