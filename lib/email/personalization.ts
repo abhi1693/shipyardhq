@@ -1,5 +1,3 @@
-export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i
-
 function capitalize(word: string) {
   if (!word) return word
   const lower = word.toLowerCase()
@@ -21,38 +19,4 @@ export function deriveFirstNameFromEmail(email: string): string | undefined {
   }
 
   return capitalize(cleaned[0])
-}
-
-export function parseEmailList(raw: string | null | undefined) {
-  if (!raw) {
-    return { valid: [] as string[], invalid: [] as string[] }
-  }
-
-  const candidates = raw
-    .split(/[\n,;\s]+/)
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-
-  const valid: string[] = []
-  const invalid: string[] = []
-  const seen = new Set<string>()
-  const invalidSeen = new Set<string>()
-
-  for (const email of candidates) {
-    const normalized = email.toLowerCase()
-    if (!EMAIL_PATTERN.test(email)) {
-      if (!invalidSeen.has(normalized)) {
-        invalid.push(email)
-        invalidSeen.add(normalized)
-      }
-      continue
-    }
-
-    if (!seen.has(normalized)) {
-      seen.add(normalized)
-      valid.push(email)
-    }
-  }
-
-  return { valid, invalid }
 }

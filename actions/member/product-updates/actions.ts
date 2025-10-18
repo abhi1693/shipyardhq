@@ -83,24 +83,6 @@ export async function getProductUpdatesForManage(
   return updates.map(formatManageableUpdate)
 }
 
-export async function getProductUpdateForManage(
-  slug: string,
-  updateId: string,
-): Promise<ProductUpdateManageView | null> {
-  const { product } = await requireManageableProduct(slug, {
-    unauthorizedRedirect: null,
-    missingRedirect: null,
-  })
-
-  const update = await prisma.productUpdate.findFirst({
-    where: { id: updateId, productId: product.id },
-    select: manageableUpdateSelect,
-  })
-
-  if (!update) return null
-  return formatManageableUpdate(update)
-}
-
 export async function createProductUpdateAction(slug: string, input: unknown) {
   const { product, currentUser } = await requireManageableProduct(slug, {
     unauthorizedRedirect: null,

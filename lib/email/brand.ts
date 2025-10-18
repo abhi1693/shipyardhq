@@ -8,5 +8,3 @@ export const EMAIL_BRAND = {
   logoAlt: "ShipyardHQ logo",
   logoUrl: "https://shipyardhq.dev/brand-white.png",
 }
-
-export type EmailBrand = typeof EMAIL_BRAND

@@ -67,8 +67,6 @@ export const PLATFORMS = [
   "firefox_extension",
 ] as const
 
-export type PlatformCode = (typeof PLATFORMS)[number]
-
 export const PLAN_FEATURE_KEYS = [
   "analytics.basic",
   "product.sitemap",

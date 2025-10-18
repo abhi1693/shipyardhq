@@ -52,8 +52,8 @@ export const REWARD_FEATURE_KEY_OPTIONS = Object.freeze(
   Object.values(REWARD_FEATURE_DEFINITIONS),
 ) as readonly RewardFeatureDefinition[]
 
-export type RewardFeatureKeyOption = (typeof REWARD_FEATURE_KEY_OPTIONS)[number]
-export type RewardFeatureKey = RewardFeatureKeyOption["value"]
+export type RewardFeatureKey =
+  (typeof REWARD_FEATURE_KEY_OPTIONS)[number]["value"]
 
 export const REWARD_FEATURE_KEYS = Object.freeze(
   REWARD_FEATURE_KEY_OPTIONS.map((option) => option.value),
@@ -66,11 +66,4 @@ export function isRewardFeatureKey(value: unknown): value is RewardFeatureKey {
     typeof value === "string" &&
     rewardFeatureKeySet.has(value as RewardFeatureKey)
   )
-}
-
-export function getRewardFeatureLabel(key: RewardFeatureKey): string {
-  const match = REWARD_FEATURE_KEY_OPTIONS.find(
-    (option) => option.value === key,
-  )
-  return match?.label ?? key
 }

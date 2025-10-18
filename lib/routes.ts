@@ -90,7 +90,6 @@ export const USE_CASES_PATH = "/use-cases" as const
 export const CATEGORIES_PATH = "/categories" as const
 export const USERS_PATH = "/users" as const
 export const REWARDS_PATH = "/rewards" as const
-export const TAGS_PATH = "/tags" as const
 
 export const SHIPYARD_TWITTER_URL = "https://x.com/shipyardhq" as const
 
@@ -100,7 +99,6 @@ export const productPath = (slug: string) => `/products/${slug}`
 export const productUpdatesPath = (slug: string) =>
   `${productPath(slug)}/updates`
 export const userPath = (id: string) => `${USERS_PATH}/${id}`
-export const tagPath = (slug: string) => `${TAGS_PATH}/${slug}`
 
 export const memberProductsStatusPath = (status: string) =>
   `${MEMBER_PRODUCTS_PATH}?status=${status}`

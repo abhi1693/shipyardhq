@@ -3,12 +3,14 @@
 import { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import InlineSelect from "@/components/molecules/InlineSelect"
-import { leaderboardSelectTriggerClasses } from "@/components/pages/admin/analytics/LeaderboardMonthSelect"
 import {
   LEADERBOARD_MONTHLY_PATH,
   monthlyLeaderboardArchivePath,
 } from "@/lib/routes"
 import type { MonthlyLeaderboardMonth } from "@/actions/public/leaderboard/actions"
+
+const leaderboardSelectTriggerClasses =
+  "h-10 w-full sm:w-[220px] rounded-lg border border-border bg-white px-3 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[--ring]"
 
 export function MonthlyLeaderboardMonthSelect({
   months,

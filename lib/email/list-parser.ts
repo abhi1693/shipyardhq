@@ -57,11 +57,6 @@ export function parseEmailList(raw: string): ParsedEmailList {
   return { valid, invalid }
 }
 
-export function extractFirstValidEmail(raw: string): string | undefined {
-  const { valid } = parseEmailList(raw)
-  return valid[0]
-}
-
 export function validateSingleEmail(email: string): boolean {
   return isValidEmail(email.trim())
 }

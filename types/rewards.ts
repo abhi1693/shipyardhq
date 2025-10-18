@@ -1,5 +1,3 @@
-import type { RewardTransactionType } from "@/lib/vendor/prisma/client"
-
 export interface RewardAnalyticsMetric {
   amount: number
   previousAmount: number
@@ -63,5 +61,3 @@ export interface RewardAnalyticsSummary {
     topSpenders: RewardAnalyticsUserEntry[]
   }
 }
-
-export type RewardAnalyticsTransactionType = RewardTransactionType

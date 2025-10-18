@@ -203,9 +203,3 @@ export async function postTweet(message: string): Promise<TwitterPostResult> {
     return info
   }
 }
-
-export function resetTwitterClientCache() {
-  cachedConfig = null
-  clientInstance = null
-  warnedMissing = false
-}

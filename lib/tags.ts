@@ -24,17 +24,6 @@ export function keywordToSlug(keyword: string): string {
   return base ? `${base}-${hash}` : hash
 }
 
-export function matchKeywordBySlug<T extends { keyword: string }>(
-  entries: T[],
-  slug: string,
-): T | undefined {
-  return entries.find((entry) => keywordToSlug(entry.keyword) === slug)
-}
-
-export function normalizedKeywordHash(normalizedKeyword: string): string {
-  return keywordHash(normalizedKeyword)
-}
-
 export function extractKeywordHash(slug: string): string | null {
   if (!slug) return null
   const lastHyphen = slug.lastIndexOf("-")

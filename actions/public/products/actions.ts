@@ -151,15 +151,6 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
   }
 }
 
-export const getPublicProduct = cached(
-  async (id: string) => fetchPublicProduct({ id }),
-  "product:public",
-  {
-    ttl: DEFAULT_TTL.medium,
-    tags: ([id]) => [TAGS.products, TAGS.product(String(id))],
-  },
-)
-
 export const getPublicProductBySlug = cached(
   async (slug: string) => fetchPublicProduct({ slug }),
   "product:public-by-slug",
@@ -211,29 +202,6 @@ const compactProductInclude = {
 type CompactProduct = Prisma.ProductGetPayload<{
   include: typeof compactProductInclude
 }>
-
-export const getRelatedProductsByCategory = cached(
-  async (categoryId: string, excludeId: string) =>
-    prisma.product.findMany({
-      where: { categoryId, NOT: { id: excludeId } },
-      orderBy: { createdAt: "desc" },
-      take: 6,
-      include: compactProductInclude,
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.medium,
-        swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([
-          TAGS.products,
-          TAGS.category(String(categoryId)),
-        ]),
-      },
-    }),
-  "products:related-by-category",
-  {
-    ttl: DEFAULT_TTL.medium,
-    tags: ([categoryId]) => [TAGS.products, TAGS.category(String(categoryId))],
-  },
-)
 
 export const getPublicProductsByUseCase = cached(
   async (useCaseSlug: string, excludeId: string): Promise<CompactProduct[]> =>

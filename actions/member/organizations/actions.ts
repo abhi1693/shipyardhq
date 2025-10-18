@@ -157,35 +157,6 @@ export async function getMyOrganizationMembers(orgId: string) {
   }))
 }
 
-export async function getMyOrganizationsWithProducts() {
-  const user = await requireActiveCurrentUser()
-  const gate = await requireMemberFeature("organization")
-  if (!gate.ok) redirect(MEMBER_ORGANIZATIONS_PATH)
-
-  return prisma.organization.findMany({
-    where: { memberships: { some: { userId: user.id } } },
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      name: true,
-      url: true,
-      ownerUserId: true,
-      Product: {
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          status: true,
-          createdAt: true,
-          updatedAt: true,
-          plan: { select: { id: true, name: true } },
-        },
-      },
-    },
-  })
-}
-
 export async function getMyOrganizationProducts(orgId: string) {
   const user = await requireActiveCurrentUser()
   const gate = await requireMemberFeature("organization")

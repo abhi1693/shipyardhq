@@ -1,10 +1,5 @@
 import { Icons } from "@/components/icons"
-import {
-  Category,
-  PlacementStatus,
-  Prisma,
-  UseCase,
-} from "@/lib/vendor/prisma/client"
+import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
 
 export interface NavItem {
   title: string
@@ -84,14 +79,3 @@ export const featuredProductSelect = {
 export type FeaturedProduct = Prisma.ProductBadgeGetPayload<{
   select: typeof featuredProductSelect
 }>
-
-export interface BrowseFiltersProps {
-  useCases: UseCase[]
-  categories: Category[]
-  current: {
-    useCase?: string
-    category?: string
-    verified?: boolean
-    sort?: string
-  }
-}

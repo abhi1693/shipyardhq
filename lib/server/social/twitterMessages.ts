@@ -483,14 +483,6 @@ export async function buildLeaderboardTweet(args: {
   })
 }
 
-export function _testHelpers() {
-  return {
-    truncateSegment,
-    appendSegment,
-    sanitizeHashtags,
-  }
-}
-
 const HANDLE_REGEX = /^[A-Za-z0-9_]{1,15}$/
 
 export function extractTwitterHandle(value?: string | null): string | null {

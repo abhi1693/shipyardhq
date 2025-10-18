@@ -306,5 +306,3 @@ export function buildPageMetadata(options: PageMetadataOptions = {}): Metadata {
 
   return metadata
 }
-
-export const siteMetadataDefaults = baseMetadata

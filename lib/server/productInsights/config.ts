@@ -78,6 +78,3 @@ export function getProductInsightSubredditModelLabel(): string {
     ? `${primary} → ${relevance}`
     : primary
 }
-
-export const DEFAULT_PUBLIC_SUBREDDIT_MODEL = DEFAULT_SUBREDDIT_MODEL
-export const DEFAULT_PUBLIC_DISCUSSION_MODEL = `${DEFAULT_DISCUSSION_QUERY_MODEL} → ${DEFAULT_DISCUSSION_INSIGHT_MODEL}`

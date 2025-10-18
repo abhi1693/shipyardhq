@@ -15,7 +15,6 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
 import { hasPlanFeature } from "@/lib/features"
-import { getRecentProductUpvoters } from "@/lib/server/productUpvotes"
 import { memberProductPath } from "@/lib/routes"
 
 import { headers } from "next/headers"
@@ -210,25 +209,6 @@ export async function getUserProducts(params?: ListParams) {
   })
 
   return { products: productsWithPermissions, total, page, limit }
-}
-
-export async function getRecentUpvoters(productId: string, limit = 5) {
-  const { userId } = await auth()
-  if (!userId) throw new Error("Unauthenticated")
-  const user = await getActiveUserByClerkId(userId)
-  if (!user) throw new Error(INACTIVE_ACCOUNT_MESSAGE)
-  const ok = await prisma.product.findFirst({
-    where: {
-      id: productId,
-      OR: [
-        { userId: user.id },
-        { organization: { memberships: { some: { userId: user.id } } } },
-      ],
-    },
-    select: { id: true },
-  })
-  if (!ok) throw new Error("Not found")
-  return getRecentProductUpvoters(productId, limit)
 }
 
 // Attach or remove a plan from a product owned by the current user
