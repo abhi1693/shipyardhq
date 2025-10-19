@@ -111,7 +111,15 @@ async function mutateVote({
           ? "not_upvoted"
           : "upvoted"
         : desiredState
-    const baseCount = await tx.productUpvote.count({ where: { productId } })
+    const analytics = await tx.productAnalytics.findUnique({
+      where: { productId },
+      select: { upvotes: true },
+    })
+    const baseCount =
+      analytics?.upvotes ??
+      (await tx.productUpvote.count({
+        where: { productId },
+      }))
 
     if (targetState === previousState) {
       return {
