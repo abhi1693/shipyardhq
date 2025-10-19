@@ -333,16 +333,16 @@ export async function getEventEnvelopeDetail(id: string) {
   })
 }
 
-export async function requeueEnvelopeAction(formData: FormData) {
+export async function requeueEnvelopeAction(formData: FormData): Promise<void> {
   try {
     const isAdmin = await checkRole("admin")
     if (!isAdmin) {
-      return { error: "Unauthorized" }
+      throw new Error("Unauthorized")
     }
 
     const envelopeId = String(formData.get("envelopeId") ?? "").trim()
     if (!envelopeId) {
-      return { error: "Missing envelope id" }
+      throw new Error("Missing envelope id")
     }
 
     const envelope = await prisma.eventEnvelope.findUnique({
@@ -354,7 +354,7 @@ export async function requeueEnvelopeAction(formData: FormData) {
     })
 
     if (!envelope) {
-      return { error: "Envelope not found" }
+      throw new Error("Envelope not found")
     }
 
     await prisma.eventEnvelope.update({
@@ -373,18 +373,17 @@ export async function requeueEnvelopeAction(formData: FormData) {
     revalidatePath(ADMIN_EVENTS_PATH)
     revalidatePath(ADMIN_EVENTS_LIST_PATH)
     revalidatePath(adminPath("operations", "events", envelopeId))
-    return { success: true }
   } catch (error) {
     console.error("requeueEnvelopeAction failed", error)
-    return { error: "Unable to requeue envelope" }
+    throw error
   }
 }
 
-export async function drainEventQueueAction() {
+export async function drainEventQueueAction(): Promise<void> {
   try {
     const isAdmin = await checkRole("admin")
     if (!isAdmin) {
-      return { error: "Unauthorized" }
+      throw new Error("Unauthorized")
     }
 
     const envelopeIds = await dequeueEnvelopeBatch()
@@ -403,10 +402,10 @@ export async function drainEventQueueAction() {
     }
 
     revalidatePath(ADMIN_EVENTS_PATH)
-    return { success: true, processed, failed, pulled: envelopeIds.length }
+    revalidatePath(ADMIN_EVENTS_LIST_PATH)
   } catch (error) {
     console.error("drainEventQueueAction failed", error)
-    return { error: "Unable to drain event queue" }
+    throw error
   }
 }
 
