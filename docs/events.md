@@ -6,7 +6,7 @@ Shipyard now routes non-critical product events through a durable outbox so UI c
 
 - **Dispatcher** – `dispatchEvent(event, payload)` (see `lib/server/events.ts`) now persists an `EventEnvelope` row for every handler and enqueues the envelope id onto the Redis queue `events:queue` (namespaced via `CACHE_ENV_PREFIX`); handlers are executed off-thread by the worker.
 - **Outbox** – Backed by the Prisma models `EventEnvelope` and `EventAttempt` (see migration `20251020120000_add_event_envelopes`). Each envelope stores the event payload, pending handler ids, status, attempt count, and timestamps for observability.
-- **Queue worker** – `app/api/events/drain/route.ts` pops batches from Redis, locks the envelope, hydrates the payload back into typed objects, and executes the pending handlers sequentially with retry/backoff semantics (`lib/server/events/worker.ts`). Trigger this endpoint via cron or a background job to keep the queue drained.
+- **Queue worker** – `app/api/events/drain/route.ts` pops batches from Redis, locks the envelope, hydrates the payload back into typed objects, and executes the pending handlers sequentially with retry/backoff semantics (`lib/server/events/worker.ts`). Each run drains up to 500 envelopes or 15 minutes of work—whichever comes first—while working in batches of 25. Trigger this endpoint via cron or a background job to keep the queue drained.
 - **Handler registry** – Modules register with `registerEventHandler({ event, id, handler })`. Use stable `id` strings so retries can resume partially processed envelopes. All handlers run asynchronously through the queue today.
 
 ## Adding / Updating Handlers
@@ -33,4 +33,4 @@ Shipyard now routes non-critical product events through a durable outbox so UI c
 
 - Ensure `REDIS_URL` (or `REDIS_TLS_URL`) is configured so the queue can push/pop envelopes.
 - Run `npm run prisma:migrate` to apply the new outbox tables, followed by `npm run prisma:generate`.
-- Schedule a cron (or background job) that calls `POST /api/events/drain` frequently enough to keep up with throughput (each invocation processes up to 25 envelopes).
+- Schedule a cron (or background job) that calls `POST /api/events/drain` frequently enough to keep up with throughput (each invocation processes up to 500 envelopes or 15 minutes of handler time, whichever arrives first).

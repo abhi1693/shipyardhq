@@ -3,7 +3,7 @@ import { getRedisClient } from "@/lib/server/redis"
 
 const RAW_EVENTS_QUEUE_KEY = buildCacheKey("events", "queue")
 const EVENTS_QUEUE_KEY = namespaceCacheKey(RAW_EVENTS_QUEUE_KEY)
-const MAX_BATCH_SIZE = 25
+export const MAX_BATCH_SIZE = 25
 
 export async function enqueueEvent(envelopeId: string): Promise<void> {
   const client = await getRedisClient()

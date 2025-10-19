@@ -5,13 +5,11 @@ import { checkRole } from "@/lib/roles"
 import { adminPath } from "@/lib/routes"
 import { revalidatePath } from "next/cache"
 import {
-  dequeueEnvelopeBatch,
   enqueueEvent,
   EVENTS_QUEUE_KEY,
-  requeueEnvelope,
 } from "@/lib/server/events/queueClient"
 import { getRedisClient } from "@/lib/server/redis"
-import { processEnvelope } from "@/lib/server/events/worker"
+import { drainEventQueue } from "@/lib/server/events/drain"
 import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
 
 const ADMIN_EVENTS_PATH = adminPath("operations", "events")
@@ -386,16 +384,7 @@ export async function drainEventQueueAction(): Promise<void> {
       throw new Error("Unauthorized")
     }
 
-    const envelopeIds = await dequeueEnvelopeBatch()
-
-    for (const id of envelopeIds) {
-      try {
-        await processEnvelope(id)
-      } catch (error) {
-        console.error("drainEventQueueAction failure", { id, error })
-        await requeueEnvelope(id)
-      }
-    }
+    await drainEventQueue()
 
     revalidatePath(ADMIN_EVENTS_PATH)
     revalidatePath(ADMIN_EVENTS_LIST_PATH)

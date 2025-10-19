@@ -1,29 +1,9 @@
 import { NextResponse } from "next/server"
 
-import { dequeueEnvelopeBatch, requeueEnvelope } from "@/lib/server/events/queueClient"
-import { processEnvelope } from "@/lib/server/events/worker"
-
-const BATCH_SIZE = 25
+import { drainEventQueue } from "@/lib/server/events/drain"
 
 async function drainOnce() {
-  const startedAt = Date.now()
-  const envelopeIds = await dequeueEnvelopeBatch(BATCH_SIZE)
-  let processed = 0
-  let failed = 0
-
-  for (const id of envelopeIds) {
-    try {
-      await processEnvelope(id)
-      processed += 1
-    } catch (error) {
-      failed += 1
-      console.error("[events] drain failure", { envelopeId: id, error })
-      await requeueEnvelope(id)
-    }
-  }
-
-  const durationMs = Date.now() - startedAt
-  const result = { processed, failed, pulled: envelopeIds.length, durationMs }
+  const result = await drainEventQueue()
 
   if (result.pulled === 0) {
     console.info("[events] drain noop", result)
