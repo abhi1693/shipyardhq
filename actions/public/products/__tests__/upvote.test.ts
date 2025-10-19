@@ -3,8 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const mocks = vi.hoisted(() => ({
   getActiveUser: vi.fn(),
   toggleVoteState: vi.fn(),
-  revalidateProduct: vi.fn(),
-  revalidateLeaderboard: vi.fn(),
 }))
 
 vi.mock("@/lib/server/userStatus", () => ({
@@ -14,11 +12,6 @@ vi.mock("@/lib/server/userStatus", () => ({
 
 vi.mock("@/lib/server/productVotesStore", () => ({
   toggleVoteState: mocks.toggleVoteState,
-}))
-
-vi.mock("@/lib/cache/revalidate", () => ({
-  revalidateProduct: mocks.revalidateProduct,
-  revalidateLeaderboard: mocks.revalidateLeaderboard,
 }))
 
 import { toggleProductUpvote } from "../upvote"
@@ -34,7 +27,7 @@ describe("toggleProductUpvote", () => {
     })
   })
 
-  it("returns mutation result and triggers revalidation when state changes", async () => {
+  it("returns mutation result when state changes", async () => {
     const result = await toggleProductUpvote({
       productId: "prod_123",
       clerkUserId: "clerk_123",
@@ -45,11 +38,9 @@ describe("toggleProductUpvote", () => {
       productId: "prod_123",
       userId: "user_123",
     })
-    expect(mocks.revalidateProduct).toHaveBeenCalledWith("prod_123")
-    expect(mocks.revalidateLeaderboard).toHaveBeenCalledTimes(1)
   })
 
-  it("skips revalidation when vote state does not change", async () => {
+  it("returns current state when vote state does not change", async () => {
     mocks.toggleVoteState.mockResolvedValueOnce({
       previousState: "upvoted",
       newState: "upvoted",
@@ -62,8 +53,6 @@ describe("toggleProductUpvote", () => {
     })
 
     expect(result).toEqual({ upvotes: 7, upvoted: true })
-    expect(mocks.revalidateProduct).not.toHaveBeenCalled()
-    expect(mocks.revalidateLeaderboard).not.toHaveBeenCalled()
   })
 
   it("throws when user is inactive", async () => {

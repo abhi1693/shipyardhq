@@ -1,7 +1,3 @@
-import {
-  revalidateLeaderboard,
-  revalidateProduct,
-} from "@/lib/cache/revalidate"
 import { toggleVoteState } from "@/lib/server/productVotesStore"
 import {
   getActiveUserByClerkId,
@@ -84,16 +80,10 @@ export async function toggleProductUpvote({
   }
 
   try {
-    const { previousState, newState, upvotes } = await toggleVoteState({
+    const { newState, upvotes } = await toggleVoteState({
       productId,
       userId: user.id,
     })
-
-    const stateChanged = newState !== previousState
-    if (stateChanged) {
-      revalidateProduct(productId)
-      revalidateLeaderboard()
-    }
 
     return { upvotes, upvoted: newState === "upvoted" }
   } catch (err: any) {

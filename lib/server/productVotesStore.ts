@@ -7,6 +7,7 @@ import {
 } from "@/lib/server/events"
 import "@/lib/server/rewards/listeners"
 import "@/lib/server/email/productVoteMilestone"
+import "@/lib/server/analytics/productVotes"
 
 export type VoteState = "upvoted" | "not_upvoted"
 
@@ -110,17 +111,13 @@ async function mutateVote({
           ? "not_upvoted"
           : "upvoted"
         : desiredState
+    const baseCount = await tx.productUpvote.count({ where: { productId } })
 
     if (targetState === previousState) {
-      const analytics = await tx.productAnalytics.findUnique({
-        where: { productId },
-        select: { upvotes: true },
-      })
-
       return {
         previousState,
         newState: previousState,
-        upvotes: analytics?.upvotes ?? 0,
+        upvotes: baseCount,
       }
     }
 
@@ -128,13 +125,6 @@ async function mutateVote({
       const created = await tx.productUpvote.create({
         data: { productId, userId },
         select: { id: true, createdAt: true },
-      })
-
-      const analytics = await tx.productAnalytics.upsert({
-        where: { productId },
-        update: { upvotes: { increment: 1 } },
-        create: { productId, upvotes: 1, clicks: 0 },
-        select: { upvotes: true },
       })
 
       createdEvent = {
@@ -147,32 +137,20 @@ async function mutateVote({
       return {
         previousState,
         newState: "upvoted" as VoteState,
-        upvotes: analytics.upvotes,
+        upvotes: baseCount + 1,
       }
     }
 
     if (!existing) {
-      const analytics = await tx.productAnalytics.findUnique({
-        where: { productId },
-        select: { upvotes: true },
-      })
-
       return {
         previousState,
         newState: previousState,
-        upvotes: analytics?.upvotes ?? 0,
+        upvotes: baseCount,
       }
     }
 
     await tx.productUpvote.delete({
       where: { productId_userId: { productId, userId } },
-    })
-
-    const analytics = await tx.productAnalytics.upsert({
-      where: { productId },
-      update: { upvotes: { decrement: 1 } },
-      create: { productId, upvotes: 0, clicks: 0 },
-      select: { upvotes: true },
     })
 
     removedEvent = {
@@ -185,7 +163,7 @@ async function mutateVote({
     return {
       previousState,
       newState: "not_upvoted" as VoteState,
-      upvotes: Math.max(analytics.upvotes, 0),
+      upvotes: Math.max(baseCount - 1, 0),
     }
   })
 

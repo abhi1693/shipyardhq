@@ -7,9 +7,9 @@ const prismaMock = vi.hoisted(() => ({
     findUnique: vi.fn(),
     create: vi.fn(),
     delete: vi.fn(),
+    count: vi.fn(),
   },
   productAnalytics: {
-    upsert: vi.fn(),
     findUnique: vi.fn(),
   },
   $transaction: vi.fn(),
@@ -79,11 +79,11 @@ describe("productVotesStore (direct)", () => {
 
   it("creates an upvote when target state is upvoted", async () => {
     prismaMock.productUpvote.findUnique.mockResolvedValueOnce(null)
+    prismaMock.productUpvote.count.mockResolvedValueOnce(4)
     prismaMock.productUpvote.create.mockResolvedValueOnce({
       id: "vote-1",
       createdAt: new Date("2024-01-01T00:00:00.000Z"),
     })
-    prismaMock.productAnalytics.upsert.mockResolvedValueOnce({ upvotes: 5 })
     prismaMock.$transaction.mockImplementation(async (cb) => cb(prismaMock))
 
     const state = await setDesiredVoteState({
@@ -111,7 +111,7 @@ describe("productVotesStore (direct)", () => {
       id: "vote-1",
       createdAt,
     })
-    prismaMock.productAnalytics.upsert.mockResolvedValueOnce({ upvotes: 4 })
+    prismaMock.productUpvote.count.mockResolvedValueOnce(5)
     prismaMock.$transaction.mockImplementation(async (cb) => cb(prismaMock))
 
     const result = await toggleVoteState({
