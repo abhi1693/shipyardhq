@@ -2,11 +2,7 @@ import {
   revalidateLeaderboard,
   revalidateProduct,
 } from "@/lib/cache/revalidate"
-import {
-  getLiveUpvoteCount,
-  resolveVoteState,
-  setDesiredVoteState,
-} from "@/lib/server/productVotesStore"
+import { toggleVoteState } from "@/lib/server/productVotesStore"
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
@@ -88,20 +84,12 @@ export async function toggleProductUpvote({
   }
 
   try {
-    const resolution = await resolveVoteState(productId, user.id)
-
-    const desiredState =
-      resolution.currentState === "upvoted" ? "not_upvoted" : "upvoted"
-
-    const newState = await setDesiredVoteState({
+    const { previousState, newState, upvotes } = await toggleVoteState({
       productId,
       userId: user.id,
-      desiredState,
     })
 
-    const upvotes = await getLiveUpvoteCount(productId)
-
-    const stateChanged = newState !== resolution.currentState
+    const stateChanged = newState !== previousState
     if (stateChanged) {
       revalidateProduct(productId)
       revalidateLeaderboard()

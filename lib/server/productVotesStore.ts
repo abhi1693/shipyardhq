@@ -14,6 +14,12 @@ export interface VoteResolution {
   persistedState: VoteState
 }
 
+export interface VoteMutationResult {
+  previousState: VoteState
+  newState: VoteState
+  upvotes: number
+}
+
 export async function resolveVoteState(
   productId: string,
   userId: string,
@@ -38,7 +44,22 @@ export async function setDesiredVoteState({
   userId: string
   desiredState: VoteState
 }): Promise<VoteState> {
-  return toggleVote({ productId, userId, desiredState })
+  const result = await mutateVote({
+    productId,
+    userId,
+    desiredState,
+  })
+  return result.newState
+}
+
+export async function toggleVoteState({
+  productId,
+  userId,
+}: {
+  productId: string
+  userId: string
+}): Promise<VoteMutationResult> {
+  return mutateVote({ productId, userId, desiredState: "toggle" })
 }
 
 export async function getLiveUpvoteCount(productId: string): Promise<number> {
@@ -49,34 +70,59 @@ export async function getLiveUpvoteCount(productId: string): Promise<number> {
   return record?.upvotes ?? 0
 }
 
-async function toggleVote({
+type VoteMutationTarget = VoteState | "toggle"
+
+async function mutateVote({
   productId,
   userId,
   desiredState,
 }: {
   productId: string
   userId: string
-  desiredState: VoteState
-}): Promise<VoteState> {
-  const shouldUpvote = desiredState === "upvoted"
+  desiredState: VoteMutationTarget
+}): Promise<VoteMutationResult> {
   const now = new Date()
   let createdEvent: ProductUpvotedEvent | null = null
   let removedEvent: ProductDownvotedEvent | null = null
 
-  const finalState = await prisma.$transaction(async (tx) => {
-    if (shouldUpvote) {
-      const existing = await tx.productUpvote.findUnique({
-        where: { productId_userId: { productId, userId } },
-        select: { id: true },
+  const mutation = await prisma.$transaction(async (tx) => {
+    const existing = await tx.productUpvote.findUnique({
+      where: { productId_userId: { productId, userId } },
+      select: { id: true, createdAt: true },
+    })
+
+    const previousState: VoteState = existing ? "upvoted" : "not_upvoted"
+    const targetState: VoteState =
+      desiredState === "toggle"
+        ? previousState === "upvoted"
+          ? "not_upvoted"
+          : "upvoted"
+        : desiredState
+
+    if (targetState === previousState) {
+      const analytics = await tx.productAnalytics.findUnique({
+        where: { productId },
+        select: { upvotes: true },
       })
 
-      if (existing) {
-        return "upvoted" as VoteState
+      return {
+        previousState,
+        newState: previousState,
+        upvotes: analytics?.upvotes ?? 0,
       }
+    }
 
+    if (targetState === "upvoted") {
       const created = await tx.productUpvote.create({
         data: { productId, userId },
         select: { id: true, createdAt: true },
+      })
+
+      const analytics = await tx.productAnalytics.upsert({
+        where: { productId },
+        update: { upvotes: { increment: 1 } },
+        create: { productId, upvotes: 1, clicks: 0 },
+        select: { upvotes: true },
       })
 
       createdEvent = {
@@ -86,33 +132,35 @@ async function toggleVote({
         occurredAt: created.createdAt,
       }
 
-      await tx.productAnalytics.upsert({
-        where: { productId },
-        update: { upvotes: { increment: 1 } },
-        create: { productId, upvotes: 1, clicks: 0 },
-        select: { productId: true },
-      })
-
-      return "upvoted" as VoteState
+      return {
+        previousState,
+        newState: "upvoted" as VoteState,
+        upvotes: analytics.upvotes,
+      }
     }
 
-    const existing = await tx.productUpvote.findUnique({
-      where: { productId_userId: { productId, userId } },
-      select: { id: true },
-    })
-
     if (!existing) {
-      return "not_upvoted" as VoteState
+      const analytics = await tx.productAnalytics.findUnique({
+        where: { productId },
+        select: { upvotes: true },
+      })
+
+      return {
+        previousState,
+        newState: previousState,
+        upvotes: analytics?.upvotes ?? 0,
+      }
     }
 
     await tx.productUpvote.delete({
       where: { productId_userId: { productId, userId } },
     })
 
-    await tx.productAnalytics.update({
+    const analytics = await tx.productAnalytics.upsert({
       where: { productId },
-      data: { upvotes: { decrement: 1 } },
-      select: { productId: true },
+      update: { upvotes: { decrement: 1 } },
+      create: { productId, upvotes: 0, clicks: 0 },
+      select: { upvotes: true },
     })
 
     removedEvent = {
@@ -122,7 +170,11 @@ async function toggleVote({
       occurredAt: now,
     }
 
-    return "not_upvoted" as VoteState
+    return {
+      previousState,
+      newState: "not_upvoted" as VoteState,
+      upvotes: Math.max(analytics.upvotes, 0),
+    }
   })
 
   const publishes: Promise<void>[] = []
@@ -134,5 +186,5 @@ async function toggleVote({
     await Promise.all(publishes)
   }
 
-  return finalState
+  return mutation
 }
