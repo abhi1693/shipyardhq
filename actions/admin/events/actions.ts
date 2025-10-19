@@ -133,9 +133,24 @@ export async function getEventStatusTrend(
     const label = formatDayLabel(row.day)
     const entry = byDay.get(label)
     if (!entry) continue
-    const key = row.status as keyof EventStatusTrendPoint
-    if (key in entry) {
-      entry[key] = Number(row.count)
+    switch (row.status) {
+      case "pending":
+        entry.pending = Number(row.count)
+        break
+      case "processing":
+        entry.processing = Number(row.count)
+        break
+      case "retrying":
+        entry.retrying = Number(row.count)
+        break
+      case "completed":
+        entry.completed = Number(row.count)
+        break
+      case "dead_letter":
+        entry.dead_letter = Number(row.count)
+        break
+      default:
+        break
     }
   }
 
