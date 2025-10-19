@@ -55,6 +55,10 @@ describe("getVersusMatchup", () => {
     prismaMock.productUpvote.findMany.mockResolvedValue([])
     mockGetActiveUserByClerkId.mockResolvedValue(null)
     mockResolveVoteState.mockReset()
+    mockResolveVoteState.mockResolvedValue({
+      currentState: "not_upvoted",
+      persistedState: "not_upvoted",
+    })
   })
 
   it("returns a pair decorated with live upvotes and user state", async () => {
@@ -109,16 +113,12 @@ describe("getVersusMatchup", () => {
     ])
     mockResolveVoteState
       .mockResolvedValueOnce({
-        client: null,
         currentState: "not_upvoted",
         persistedState: "not_upvoted",
-        record: null,
       })
       .mockResolvedValueOnce({
-        client: null,
         currentState: "not_upvoted",
         persistedState: "not_upvoted",
-        record: null,
       })
 
     const result = await getVersusMatchup({ clerkUserId: "clerk_123" })

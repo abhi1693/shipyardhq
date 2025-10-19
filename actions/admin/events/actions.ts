@@ -387,15 +387,11 @@ export async function drainEventQueueAction(): Promise<void> {
     }
 
     const envelopeIds = await dequeueEnvelopeBatch()
-    let processed = 0
-    let failed = 0
 
     for (const id of envelopeIds) {
       try {
         await processEnvelope(id)
-        processed += 1
       } catch (error) {
-        failed += 1
         console.error("drainEventQueueAction failure", { id, error })
         await requeueEnvelope(id)
       }

@@ -1,141 +1,16 @@
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest"
-
-const CACHE_PREFIX = "tests"
-const originalCachePrefix = process.env.CACHE_ENV_PREFIX
-process.env.CACHE_ENV_PREFIX = CACHE_PREFIX
-
-type RedisHash = Map<string, string>
-
-type RedisData = {
-  hashes: Map<string, RedisHash>
-  strings: Map<string, number>
-  sets: Map<string, Set<string>>
-}
-
-function createRedisData(): RedisData {
-  return {
-    hashes: new Map(),
-    strings: new Map(),
-    sets: new Map(),
-  }
-}
-
-function ensureHash(store: RedisData, key: string): RedisHash {
-  let hash = store.hashes.get(key)
-  if (!hash) {
-    hash = new Map()
-    store.hashes.set(key, hash)
-  }
-  return hash
-}
-
-function ensureSet(store: RedisData, key: string): Set<string> {
-  let set = store.sets.get(key)
-  if (!set) {
-    set = new Set()
-    store.sets.set(key, set)
-  }
-  return set
-}
-
-function createRedisClient(store: RedisData) {
-  return {
-    isOpen: true,
-    async hGet(key: string, field: string) {
-      return ensureHash(store, key).get(field) ?? null
-    },
-    async hSet(key: string, field: string, value: string) {
-      ensureHash(store, key).set(field, value)
-      return 1
-    },
-    async hDel(key: string, field: string) {
-      return ensureHash(store, key).delete(field) ? 1 : 0
-    },
-    async hLen(key: string) {
-      return ensureHash(store, key).size
-    },
-    async hGetAll(key: string) {
-      const entries = Object.fromEntries(ensureHash(store, key).entries())
-      return entries
-    },
-    async sAdd(key: string, value: string) {
-      ensureSet(store, key).add(value)
-      return 1
-    },
-    async sRem(key: string, value: string) {
-      ensureSet(store, key).delete(value)
-      return 1
-    },
-    async sMembers(key: string) {
-      return Array.from(ensureSet(store, key).values())
-    },
-    async get(key: string) {
-      const value = store.strings.get(key)
-      return typeof value === "number" ? String(value) : null
-    },
-    async incrBy(key: string, increment: number) {
-      const current = store.strings.get(key) ?? 0
-      const next = current + increment
-      store.strings.set(key, next)
-      return next
-    },
-    async del(key: string) {
-      store.hashes.delete(key)
-      store.strings.delete(key)
-      store.sets.delete(key)
-      return 1
-    },
-    multi() {
-      const commands: Array<() => Promise<any>> = []
-      const multiApi = {
-        hSet: (key: string, field: string, value: string) => {
-          commands.push(() => this.hSet(key, field, value))
-          return multiApi
-        },
-        hDel: (key: string, field: string) => {
-          commands.push(() => this.hDel(key, field))
-          return multiApi
-        },
-        incrBy: (key: string, value: number) => {
-          commands.push(() => this.incrBy(key, value))
-          return multiApi
-        },
-        sAdd: (key: string, value: string) => {
-          commands.push(() => this.sAdd(key, value))
-          return multiApi
-        },
-        exec: async () => {
-          const results: any[] = []
-          for (const command of commands) {
-            results.push(await command())
-          }
-          return results
-        },
-      }
-      return multiApi
-    },
-  }
-}
-
-const getRedisClientMock = vi.hoisted(() => vi.fn())
-
-vi.mock("@/lib/server/redis", () => ({
-  getRedisClient: getRedisClientMock,
-}))
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const prismaMock = vi.hoisted(() => ({
   productUpvote: {
     findUnique: vi.fn(),
-    createMany: vi.fn(),
-    deleteMany: vi.fn(),
     create: vi.fn(),
     delete: vi.fn(),
   },
   productAnalytics: {
     upsert: vi.fn(),
     update: vi.fn(),
+    findUnique: vi.fn(),
   },
-  $queryRaw: vi.fn(),
   $transaction: vi.fn(),
 }))
 
@@ -147,160 +22,86 @@ import {
   getLiveUpvoteCount,
   resolveVoteState,
   setDesiredVoteState,
-  getPendingVoteDelta,
 } from "@/lib/server/productVotesStore"
-import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
 
-let redisStore: RedisData
-let redisClient: ReturnType<typeof createRedisClient>
+const upsertResponse = { productId: "prod-1" }
+const updateResponse = { productId: "prod-1" }
 
-describe("productVotesStore", () => {
+describe("productVotesStore (direct)", () => {
   beforeEach(() => {
-    redisStore = createRedisData()
-    redisClient = createRedisClient(redisStore)
-
-    Object.values(prismaMock.productUpvote).forEach((value) =>
-      value.mockReset(),
-    )
+    Object.values(prismaMock.productUpvote).forEach((value) => value.mockReset())
     Object.values(prismaMock.productAnalytics).forEach((value) =>
       value.mockReset(),
     )
-    prismaMock.$queryRaw.mockReset()
     prismaMock.$transaction.mockReset()
-
-    getRedisClientMock.mockReset()
-    getRedisClientMock.mockResolvedValue(redisClient)
   })
 
-  it("queues a pending upvote when redis is available", async () => {
+  it("resolves upvoted state from database", async () => {
+    prismaMock.productUpvote.findUnique.mockResolvedValueOnce({ id: "vote-1" })
+
+    const result = await resolveVoteState("prod-1", "user-1")
+
+    expect(result.currentState).toBe("upvoted")
+    expect(result.persistedState).toBe("upvoted")
+  })
+
+  it("resolves non-upvoted state when no record", async () => {
     prismaMock.productUpvote.findUnique.mockResolvedValueOnce(null)
+
+    const result = await resolveVoteState("prod-1", "user-1")
+
+    expect(result.currentState).toBe("not_upvoted")
+    expect(result.persistedState).toBe("not_upvoted")
+  })
+
+  it("creates an upvote when desired", async () => {
+    prismaMock.productUpvote.findUnique.mockResolvedValueOnce(null)
+    prismaMock.productUpvote.create.mockResolvedValueOnce({
+      id: "vote-1",
+      createdAt: new Date("2024-01-01T00:00:00.000Z"),
+    })
+    prismaMock.productAnalytics.upsert.mockResolvedValueOnce(upsertResponse)
+    prismaMock.$transaction.mockImplementation(async (cb) => cb(prismaMock))
 
     const result = await setDesiredVoteState({
       productId: "prod-1",
       userId: "user-1",
       desiredState: "upvoted",
-      client: redisClient,
     })
 
-    const expectedHashKey = namespaceCacheKey(
-      buildCacheKey("product", "prod-1", "votes", "pending"),
-    )
-    const expectedDeltaKey = namespaceCacheKey(
-      buildCacheKey("product", "prod-1", "votes", "delta"),
-    )
-
-    expect(result.state).toBe("upvoted")
-    expect(await redisClient.hGet(expectedHashKey, "user-1")).toBeTruthy()
-    expect(await redisClient.get(expectedDeltaKey)).toBe("1")
+    expect(prismaMock.productUpvote.create).toHaveBeenCalledWith({
+      data: { productId: "prod-1", userId: "user-1" },
+      select: { id: true, createdAt: true },
+    })
+    expect(prismaMock.productAnalytics.upsert).toHaveBeenCalled()
+    expect(result).toBe("upvoted")
   })
 
-  it("supports multiple users upvoting the same product", async () => {
-    prismaMock.productUpvote.findUnique.mockResolvedValue(null)
-
-    await setDesiredVoteState({
-      productId: "prod-1",
-      userId: "user-1",
-      desiredState: "upvoted",
-      client: redisClient,
-    })
-
-    await setDesiredVoteState({
-      productId: "prod-1",
-      userId: "user-2",
-      desiredState: "upvoted",
-      client: redisClient,
-    })
-
-    const delta = await getPendingVoteDelta("prod-1", redisClient)
-    expect(delta).toBe(2)
-
-    const stateUser1 = await resolveVoteState("prod-1", "user-1", redisClient)
-    const stateUser2 = await resolveVoteState("prod-1", "user-2", redisClient)
-
-    expect(stateUser1.currentState).toBe("upvoted")
-    expect(stateUser2.currentState).toBe("upvoted")
-  })
-
-  it("removes pending data when toggling back to not upvoted", async () => {
-    prismaMock.productUpvote.findUnique.mockResolvedValue(null)
-
-    await setDesiredVoteState({
-      productId: "prod-1",
-      userId: "user-1",
-      desiredState: "upvoted",
-      client: redisClient,
-    })
+  it("removes an upvote when desired state is not_upvoted", async () => {
+    prismaMock.productUpvote.findUnique.mockResolvedValueOnce({ id: "vote-1" })
+    prismaMock.productAnalytics.update.mockResolvedValueOnce(updateResponse)
+    prismaMock.$transaction.mockImplementation(async (cb) => cb(prismaMock))
 
     const result = await setDesiredVoteState({
       productId: "prod-1",
       userId: "user-1",
       desiredState: "not_upvoted",
-      client: redisClient,
     })
 
-    const expectedHashKey = namespaceCacheKey(
-      buildCacheKey("product", "prod-1", "votes", "pending"),
-    )
-
-    expect(result.state).toBe("not_upvoted")
-    expect(await redisClient.hLen(expectedHashKey)).toBe(0)
+    expect(prismaMock.productUpvote.delete).toHaveBeenCalledWith({
+      where: { productId_userId: { productId: "prod-1", userId: "user-1" } },
+    })
+    expect(prismaMock.productAnalytics.update).toHaveBeenCalled()
+    expect(result).toBe("not_upvoted")
   })
 
-  it("falls back to database updates when redis is unavailable", async () => {
-    getRedisClientMock.mockResolvedValueOnce(null)
-
-    const txMocks = {
-      productUpvote: {
-        findUnique: vi.fn().mockResolvedValue(null),
-        create: vi.fn().mockResolvedValue({
-          id: "new",
-          createdAt: new Date("2023-01-01T00:00:00Z"),
-        }),
-        delete: vi.fn(),
-      },
-      productAnalytics: {
-        upsert: vi.fn(),
-        update: vi.fn(),
-      },
-      $executeRaw: vi.fn(),
-    }
-
-    prismaMock.$transaction.mockImplementation(async (handler) =>
-      handler(txMocks),
-    )
-    prismaMock.productUpvote.findUnique.mockResolvedValueOnce(null)
-
-    const result = await setDesiredVoteState({
-      productId: "prod-1",
-      userId: "user-1",
-      desiredState: "upvoted",
+  it("returns analytics upvote count", async () => {
+    prismaMock.productAnalytics.findUnique.mockResolvedValueOnce({
+      upvotes: 10,
     })
 
-    expect(result.state).toBe("upvoted")
-    expect(prismaMock.$transaction).toHaveBeenCalled()
-    expect(txMocks.productUpvote.create).toHaveBeenCalledWith({
-      data: { productId: "prod-1", userId: "user-1" },
-      select: { id: true, createdAt: true },
-    })
+    const count = await getLiveUpvoteCount("prod-1")
+    expect(count).toBe(10)
   })
 
-  it("returns live counts including pending delta", async () => {
-    prismaMock.productUpvote.findUnique.mockResolvedValue(null)
-    prismaMock.$queryRaw.mockResolvedValue([{ upvotes: 4 }])
-
-    await setDesiredVoteState({
-      productId: "prod-1",
-      userId: "user-1",
-      desiredState: "upvoted",
-      client: redisClient,
-    })
-
-    const total = await getLiveUpvoteCount("prod-1", redisClient)
-
-    expect(total).toBe(5)
-  })
-})
-
-afterAll(() => {
-  process.env.CACHE_ENV_PREFIX = originalCachePrefix
 })

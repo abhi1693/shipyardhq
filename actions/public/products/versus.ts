@@ -170,8 +170,6 @@ export async function getVersusMatchup(options?: {
 
   const shuffled = shuffleProducts(candidatePool)
   const voteStateCache = new Map<string, boolean>()
-  type VoteResolution = Awaited<ReturnType<typeof resolveVoteState>>
-  let sharedClient: VoteResolution["client"] = null
 
   const isCurrentlyUpvoted = async (productId: string) => {
     if (!activeUserId) return false
@@ -179,13 +177,7 @@ export async function getVersusMatchup(options?: {
       return voteStateCache.get(productId)!
     }
 
-    const resolution = await resolveVoteState(
-      productId,
-      activeUserId,
-      sharedClient ?? undefined,
-    )
-
-    sharedClient = resolution.client ?? sharedClient
+    const resolution = await resolveVoteState(productId, activeUserId)
     const flag = resolution.currentState === "upvoted"
     voteStateCache.set(productId, flag)
     return flag

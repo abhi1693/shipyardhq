@@ -93,24 +93,21 @@ export async function toggleProductUpvote({
     const desiredState =
       resolution.currentState === "upvoted" ? "not_upvoted" : "upvoted"
 
-    const updateResult = await setDesiredVoteState({
+    const newState = await setDesiredVoteState({
       productId,
       userId: user.id,
       desiredState,
-      client: resolution.client,
-      record: resolution.record,
-      persistedState: resolution.persistedState,
     })
 
-    const upvotes = await getLiveUpvoteCount(productId, updateResult.client)
+    const upvotes = await getLiveUpvoteCount(productId)
 
-    const stateChanged = updateResult.state !== resolution.currentState
+    const stateChanged = newState !== resolution.currentState
     if (stateChanged) {
       revalidateProduct(productId)
       revalidateLeaderboard()
     }
 
-    return { upvotes, upvoted: updateResult.state === "upvoted" }
+    return { upvotes, upvoted: newState === "upvoted" }
   } catch (err: any) {
     if (err?.code === "P2003") {
       throw new UpvoteError("Not Found", 404, err)
