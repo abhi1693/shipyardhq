@@ -140,6 +140,13 @@ export type RewardsRefundedEvent = {
   actorUserId?: string | null
 }
 
+export type RewardsDailyLoginEvent = {
+  userId: string
+  eventId: string
+  dayKey: string
+  awardedAt: string
+}
+
 type AppEvents = {
   "product.created": ProductCreatedEvent
   "product.updated": ProductUpdatedEvent
@@ -157,6 +164,7 @@ type AppEvents = {
   "rewards.redeemed": RewardsRedeemedEvent
   "rewards.adjusted": RewardsAdjustedEvent
   "rewards.refunded": RewardsRefundedEvent
+  "rewards.daily-login": RewardsDailyLoginEvent
 }
 
 type Handler<K extends keyof AppEvents> = (
