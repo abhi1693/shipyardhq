@@ -27,14 +27,12 @@ export async function getActiveUserByClerkId(clerkId: string) {
     return null
   }
 
-  try {
-    await ensureDailyLoginReward(user.id)
-  } catch (error) {
+  ensureDailyLoginReward(user.id).catch((error) => {
     console.error("Failed to ensure daily login reward", {
       error,
       userId: user.id,
     })
-  }
+  })
 
   return user
 }

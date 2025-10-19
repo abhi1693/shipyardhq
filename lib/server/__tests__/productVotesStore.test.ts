@@ -37,6 +37,11 @@ import {
   toggleVoteState,
 } from "@/lib/server/productVotesStore"
 
+async function flushMicrotasks() {
+  await Promise.resolve()
+  await Promise.resolve()
+}
+
 describe("productVotesStore (direct)", () => {
   beforeEach(() => {
     Object.values(prismaMock.productUpvote).forEach((value) => value.mockReset())
@@ -87,6 +92,8 @@ describe("productVotesStore (direct)", () => {
       desiredState: "upvoted",
     })
 
+    await flushMicrotasks()
+
     expect(state).toBe("upvoted")
     expect(dispatchEventMock).toHaveBeenCalledWith(
       "product.upvoted",
@@ -111,6 +118,8 @@ describe("productVotesStore (direct)", () => {
       productId: "prod-1",
       userId: "user-1",
     })
+
+    await flushMicrotasks()
 
     expect(result).toEqual({
       previousState: "upvoted",

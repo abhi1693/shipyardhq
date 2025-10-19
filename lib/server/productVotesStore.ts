@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import {
   dispatchEvent,
+  type AppEvents,
   type ProductDownvotedEvent,
   type ProductUpvotedEvent,
 } from "@/lib/server/events"
@@ -71,6 +72,17 @@ export async function getLiveUpvoteCount(productId: string): Promise<number> {
 }
 
 type VoteMutationTarget = VoteState | "toggle"
+
+function scheduleEvent<K extends keyof AppEvents>(
+  event: K,
+  payload: AppEvents[K],
+): void {
+  queueMicrotask(() => {
+    dispatchEvent(event, payload).catch((error) => {
+      console.error("[votes] event dispatch failed", { event, error })
+    })
+  })
+}
 
 async function mutateVote({
   productId,
@@ -177,13 +189,11 @@ async function mutateVote({
     }
   })
 
-  const publishes: Promise<void>[] = []
-  if (createdEvent)
-    publishes.push(dispatchEvent("product.upvoted", createdEvent))
-  if (removedEvent)
-    publishes.push(dispatchEvent("product.downvoted", removedEvent))
-  if (publishes.length) {
-    await Promise.all(publishes)
+  if (createdEvent) {
+    scheduleEvent("product.upvoted", createdEvent)
+  }
+  if (removedEvent) {
+    scheduleEvent("product.downvoted", removedEvent)
   }
 
   return mutation
