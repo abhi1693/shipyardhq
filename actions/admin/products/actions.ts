@@ -4,7 +4,7 @@ import { Resolver } from "node:dns/promises"
 import { createHash } from "crypto"
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
-import { publish } from "@/lib/server/events"
+import { dispatchEventAsync } from "@/lib/server/events"
 import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
@@ -246,9 +246,14 @@ export async function createProductAction(formData: FormData) {
         },
       },
     })
+    // Fire domain event for listeners (e.g., auto badges) without blocking the response
+    dispatchEventAsync(
+      "product.created",
+      { productId: created.id },
+      { context: { productId: created.id } },
+    )
+
     const sideEffects: Promise<unknown>[] = [
-      // Fire domain event for listeners (e.g., auto badges)
-      publish("product.created", { productId: created.id }),
       // Invalidate public caches affected by a new product
       Promise.resolve().then(() => revalidateProducts()),
       Promise.resolve().then(() => revalidateCategory(categoryId)),
@@ -256,7 +261,11 @@ export async function createProductAction(formData: FormData) {
     ]
 
     if (created.status === "published") {
-      sideEffects.push(publish("product.published", { productId: created.id }))
+      dispatchEventAsync(
+        "product.published",
+        { productId: created.id },
+        { context: { productId: created.id } },
+      )
       sideEffects.push(sendProductPublishedEmail(created.id))
     }
 
@@ -484,7 +493,11 @@ export async function updateProductAction(
     })
 
     // Fire update event (available for future listeners)
-    await publish("product.updated", { productId: id })
+    dispatchEventAsync(
+      "product.updated",
+      { productId: id },
+      { context: { productId: id } },
+    )
 
     // Cleanup old blobs if logo/banner changed and were hosted on Vercel Blob
     const isVercelBlobUrl = (u?: string | null) => {
@@ -520,10 +533,12 @@ export async function updateProductAction(
     revalidateLeaderboard()
 
     if (updated.status === "published" && current.status !== "published") {
-      await Promise.all([
-        sendProductPublishedEmail(updated.id),
-        publish("product.published", { productId: updated.id }),
-      ])
+      dispatchEventAsync(
+        "product.published",
+        { productId: updated.id },
+        { context: { productId: updated.id } },
+      )
+      await sendProductPublishedEmail(updated.id)
     }
 
     return updated
@@ -570,7 +585,11 @@ export async function deleteProductAction(id: string) {
 
     const result = await prisma.product.delete({ where: { id } })
     // Fire delete event (badges are cascaded in DB, but listeners may react)
-    await publish("product.deleted", { productId: id })
+    dispatchEventAsync(
+      "product.deleted",
+      { productId: id },
+      { context: { productId: id } },
+    )
     // Invalidate public caches heavily, product removed
     revalidateProducts()
     revalidateCategories()
@@ -755,10 +774,12 @@ export async function setProductStatusAction(
     })
 
     if (status === "published" && previous.status !== "published") {
-      await Promise.all([
-        sendProductPublishedEmail(id),
-        publish("product.published", { productId: id }),
-      ])
+      dispatchEventAsync(
+        "product.published",
+        { productId: id },
+        { context: { productId: id } },
+      )
+      await sendProductPublishedEmail(id)
     }
 
     return result

@@ -1,5 +1,10 @@
 import { awardRewards } from "@/lib/rewards/engine"
 import { RewardsError } from "@/lib/rewards/errors"
+import {
+  dispatchEventAsync,
+  registerEventHandler,
+  type RewardsDailyLoginEvent,
+} from "@/lib/server/events"
 
 const LOGIN_RULE_KEY = "rewards.login.daily"
 const NON_FATAL_CODES = new Set([
@@ -41,40 +46,65 @@ export async function ensureDailyLoginReward(
   }
 
   const eventId = `${dayKey}:login`
+  const payload: RewardsDailyLoginEvent = {
+    userId,
+    eventId,
+    dayKey,
+    awardedAt: now.toISOString(),
+  }
 
+  cache.set(userId, dayKey)
+
+  dispatchEventAsync("rewards.daily-login", payload, {
+    context: { userId, eventId },
+    onError: (error) => {
+      cache.delete(userId)
+      console.error("[rewards] Failed to enqueue daily login rewards", {
+        error,
+        userId,
+        eventId,
+      })
+    },
+  })
+}
+
+export async function handleDailyLoginRewardEvent(
+  payload: RewardsDailyLoginEvent,
+) {
   try {
-    await awardRewards(userId, LOGIN_RULE_KEY, {
-      eventId,
+    await awardRewards(payload.userId, LOGIN_RULE_KEY, {
+      eventId: payload.eventId,
       sourceType: "auth.login",
-      sourceId: eventId,
+      sourceId: payload.eventId,
       targetType: "user",
-      targetId: userId,
+      targetId: payload.userId,
       metadata: {
-        awardedAt: now.toISOString(),
-        dayKey,
+        awardedAt: payload.awardedAt,
+        dayKey: payload.dayKey,
       },
     })
-    cache.set(userId, dayKey)
   } catch (error) {
-    if (error instanceof RewardsError) {
-      if (NON_FATAL_CODES.has(error.code)) {
-        if (error.code === "COOLDOWN_ACTIVE" || error.code === "CAP_EXCEEDED") {
-          cache.set(userId, dayKey)
-        }
-        if (error.code === "RULE_NOT_FOUND" || error.code === "RULE_INACTIVE") {
-          console.warn("[rewards] Daily login rule unavailable", {
-            userId,
-            code: error.code,
-          })
-        }
-        return
+    if (error instanceof RewardsError && NON_FATAL_CODES.has(error.code)) {
+      if (error.code === "RULE_NOT_FOUND" || error.code === "RULE_INACTIVE") {
+        console.warn("[rewards] Daily login rule unavailable", {
+          userId: payload.userId,
+          code: error.code,
+        })
       }
+      return
     }
 
     console.error("[rewards] Failed to award daily login rewards", {
       error,
-      userId,
-      eventId,
+      userId: payload.userId,
+      eventId: payload.eventId,
     })
   }
 }
+
+registerEventHandler({
+  event: "rewards.daily-login",
+  id: "rewards.daily-login",
+  mode: "async",
+  handler: handleDailyLoginRewardEvent,
+})

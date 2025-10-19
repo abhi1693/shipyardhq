@@ -14,7 +14,7 @@ import {
 import { upsertProductReview } from "@/lib/server/productReviews"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
-import { publish } from "@/lib/server/events"
+import { dispatchEventAsync } from "@/lib/server/events"
 import "@/lib/server/rewards/listeners"
 
 export type SubmitReviewState = {
@@ -113,7 +113,7 @@ export async function submitProductReviewAction(
       message,
     })
 
-    await publish("product.reviewed", {
+    const eventPayload = {
       reviewId: review.id,
       productId: product.id,
       productOwnerId: product.userId,
@@ -122,6 +122,10 @@ export async function submitProductReviewAction(
       messageLength: review.message.length,
       createdAt: review.createdAt,
       updatedAt: review.updatedAt,
+    }
+
+    dispatchEventAsync("product.reviewed", eventPayload, {
+      context: { productId: product.id, reviewId: review.id },
     })
   } catch (error: any) {
     return {

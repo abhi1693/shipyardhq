@@ -14,8 +14,19 @@ vi.mock("@/lib/prisma", () => ({
   default: prismaMock,
 }))
 
-import { publish } from "@/lib/server/events"
+import { resolveRegisteredHandler } from "@/lib/server/events"
 import "@/lib/server/plans"
+
+async function runPlansHandler(payload: { productId: string }) {
+  const registration = resolveRegisteredHandler(
+    "product.created",
+    "plans.attach-default-plan",
+  )
+  if (!registration) {
+    throw new Error("plans.attach-default-plan handler not registered")
+  }
+  await registration.handler(payload as any)
+}
 
 describe("plans event listeners", () => {
   beforeEach(() => {
@@ -31,7 +42,7 @@ describe("plans event listeners", () => {
     })
     prismaMock.plan.findFirst.mockResolvedValue({ id: "plan-default" })
 
-    await publish("product.created", { productId: "prod-1" })
+    await runPlansHandler({ productId: "prod-1" })
 
     expect(prismaMock.product.update).toHaveBeenCalledWith({
       where: { id: "prod-1" },
@@ -46,7 +57,7 @@ describe("plans event listeners", () => {
     })
     prismaMock.plan.findFirst.mockResolvedValue({ id: "plan-default" })
 
-    await publish("product.created", { productId: "prod-2" })
+    await runPlansHandler({ productId: "prod-2" })
 
     expect(prismaMock.product.update).not.toHaveBeenCalled()
   })
@@ -54,7 +65,7 @@ describe("plans event listeners", () => {
   it("skips update when product is missing", async () => {
     prismaMock.product.findUnique.mockResolvedValue(null)
 
-    await publish("product.created", { productId: "missing" })
+    await runPlansHandler({ productId: "missing" })
 
     expect(prismaMock.product.update).not.toHaveBeenCalled()
     expect(prismaMock.plan.findFirst).not.toHaveBeenCalled()
@@ -69,7 +80,7 @@ describe("plans event listeners", () => {
     prismaMock.product.update.mockRejectedValueOnce(new Error("boom"))
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-    await publish("product.created", { productId: "prod-3" })
+    await runPlansHandler({ productId: "prod-3" })
 
     expect(errorSpy).toHaveBeenCalled()
     errorSpy.mockRestore()
@@ -82,7 +93,7 @@ describe("plans event listeners", () => {
     })
     prismaMock.plan.findFirst.mockResolvedValue(null)
 
-    await publish("product.created", { productId: "prod-4" })
+    await runPlansHandler({ productId: "prod-4" })
 
     expect(prismaMock.product.update).not.toHaveBeenCalled()
   })

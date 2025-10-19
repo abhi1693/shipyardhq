@@ -9,6 +9,7 @@ import { redirect } from "next/navigation"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { buildSectionMetadata } from "@/lib/metadata"
 import { getFeedbackCount } from "@/actions/admin/feedback/actions"
+import { getEventQueueSummary } from "@/actions/admin/events/actions"
 import {
   ADMIN_OVERVIEW_PATH,
   adminPath,
@@ -205,6 +206,23 @@ const baseNavItems: NavItem[] = [
     ],
   },
   {
+    title: "Operations",
+    url: "#",
+    icon: "operations",
+    items: [
+      {
+        title: "Event queue",
+        url: adminPath("operations", "events"),
+        icon: "queue",
+      },
+      {
+        title: "All events",
+        url: adminPath("operations", "events", "all"),
+        icon: "list",
+      },
+    ],
+  },
+  {
     title: "Member Area",
     url: MEMBER_OVERVIEW_PATH,
     icon: "member",
@@ -224,6 +242,7 @@ export default async function AdminLayout({
   const pendingFeedbackCountPromise = getFeedbackCount({
     status: "received",
   }).catch(() => 0)
+  const eventSummaryPromise = getEventQueueSummary().catch(() => null)
 
   const activeUser = await requireActiveUserOrRedirect(userId)
 
@@ -231,7 +250,10 @@ export default async function AdminLayout({
     redirect(MEMBER_OVERVIEW_PATH)
   }
 
-  const pendingFeedbackCount = await pendingFeedbackCountPromise
+  const [pendingFeedbackCount, eventSummary] = await Promise.all([
+    pendingFeedbackCountPromise,
+    eventSummaryPromise,
+  ])
 
   const navItems = baseNavItems.map((item) => {
     if (item.title !== "Feedback") return item
@@ -242,9 +264,30 @@ export default async function AdminLayout({
     }
   })
 
+  const navWithOperationsLabel = navItems.map((item) => {
+    if (item.title !== "Operations" || !item.items?.length) {
+      return item
+    }
+
+    const pendingTotal =
+      (eventSummary?.pending ?? 0) + (eventSummary?.retrying ?? 0)
+
+    return {
+      ...item,
+      items: item.items.map((subItem) =>
+        subItem.title === "Event queue"
+          ? {
+              ...subItem,
+              label: pendingTotal > 0 ? String(pendingTotal) : undefined,
+            }
+          : subItem,
+      ),
+    }
+  })
+
   return (
     <SidebarProvider defaultOpen>
-      <AppSidebar navItems={navItems} />
+      <AppSidebar navItems={navWithOperationsLabel} />
       <SidebarInset>
         <PrivateHeader />
         <div className="flex-1">

@@ -3,7 +3,7 @@ import ProductVoteMilestoneEmail from "@/lib/email/templates/product/productVote
 import { getAppBaseUrl } from "@/lib/email/utils"
 import prisma from "@/lib/prisma"
 import type { ProductUpvotedEvent } from "@/lib/server/events"
-import { on } from "@/lib/server/events"
+import { registerEventHandler } from "@/lib/server/events"
 import { memberProductPath, productPath } from "@/lib/routes"
 
 const VOTE_MILESTONES = [1, 10, 25, 50, 100, 250, 500, 1000]
@@ -106,11 +106,16 @@ export async function handleProductVoteMilestone(
   }
 }
 
-on("product.upvoted", (event) => {
-  handleProductVoteMilestone(event).catch((error) => {
-    console.error("[email] product vote milestone handler crashed", {
-      productId: event.productId,
-      error,
+registerEventHandler({
+  event: "product.upvoted",
+  id: "email.product-vote-milestone",
+  mode: "async",
+  handler: (event) => {
+    handleProductVoteMilestone(event).catch((error) => {
+      console.error("[email] product vote milestone handler crashed", {
+        productId: event.productId,
+        error,
+      })
     })
-  })
+  },
 })

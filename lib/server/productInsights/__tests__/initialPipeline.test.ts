@@ -24,7 +24,7 @@ describe("product.created initial pipeline listener", () => {
   })
 
   it("queues the default pipeline when no previous run exists", async () => {
-    const { publish } = await import("@/lib/server/events")
+    const { resolveRegisteredHandler } = await import("@/lib/server/events")
     await import("@/lib/server/productInsights/initialPipeline")
 
     prismaMock.product.findUnique.mockResolvedValueOnce({
@@ -35,7 +35,12 @@ describe("product.created initial pipeline listener", () => {
     })
     enqueueMock.mockResolvedValueOnce({ queued: true })
 
-    await publish("product.created", { productId: "prod_1" })
+    const registration = resolveRegisteredHandler(
+      "product.created",
+      "product-insights.initial-pipeline",
+    )
+    expect(registration).toBeDefined()
+    await registration?.handler({ productId: "prod_1" } as any)
 
     expect(prismaMock.product.findUnique).toHaveBeenCalledWith({
       where: { id: "prod_1" },
@@ -49,7 +54,7 @@ describe("product.created initial pipeline listener", () => {
   })
 
   it("skips queuing when the pipeline has already run", async () => {
-    const { publish } = await import("@/lib/server/events")
+    const { resolveRegisteredHandler } = await import("@/lib/server/events")
     await import("@/lib/server/productInsights/initialPipeline")
 
     prismaMock.product.findUnique.mockResolvedValueOnce({
@@ -61,7 +66,12 @@ describe("product.created initial pipeline listener", () => {
       },
     })
 
-    await publish("product.created", { productId: "prod_2" })
+    const registration = resolveRegisteredHandler(
+      "product.created",
+      "product-insights.initial-pipeline",
+    )
+    expect(registration).toBeDefined()
+    await registration?.handler({ productId: "prod_2" } as any)
 
     expect(enqueueMock).not.toHaveBeenCalled()
   })
