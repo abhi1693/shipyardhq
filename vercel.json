@@ -21,6 +21,10 @@
       "schedule": "*/15 * * * *"
     },
     {
+      "path": "/api/cron/events/drain",
+      "schedule": "*/5 * * * *"
+    },
+    {
       "path": "/api/cron/product-insight-refresh",
       "schedule": "0 8 * * *"
     },
