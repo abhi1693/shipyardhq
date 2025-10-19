@@ -121,6 +121,10 @@ export function ProductAnalyticsSkeleton({
   const resolvedBackLabel = backLabel ?? "Back to product"
   const resolvedPublicLabel = publicLabel ?? "View public page"
   const summaryCount = accessLevel === "advanced" ? 8 : 3
+  const topRowExtras =
+    accessLevel === "advanced"
+      ? [<NarrativeSkeleton key="narrative" />]
+      : undefined
 
   return (
     <ObjectPageLayout
@@ -133,7 +137,7 @@ export function ProductAnalyticsSkeleton({
       }}
       overview={[]}
       basePath={basePath}
-      topRowExtras={[<NarrativeSkeleton key="narrative" />]}
+      topRowExtras={topRowExtras}
       headingActionsLeft={
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-wrap items-center gap-2 rounded-full bg-white/80 px-2 py-1 shadow-sm ring-1 ring-slate-200/70">

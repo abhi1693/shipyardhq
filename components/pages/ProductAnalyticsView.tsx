@@ -506,7 +506,7 @@ export function ProductAnalyticsView({
     deviceConversionItems.length > 0 ||
     browserConversionItems.length > 0
 
-  const narrativeExtras = narrative
+  const narrativeExtras = isAdvanced && narrative
     ? [
         <section key="ai-brief" className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">

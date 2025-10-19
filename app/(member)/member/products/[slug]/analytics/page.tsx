@@ -116,11 +116,9 @@ async function AnalyticsContent({
     includeAdvanced,
   })
 
-  const narrative = await getProductAnalyticsNarrative(
-    productId,
-    productName,
-    summary,
-  )
+  const narrative = includeAdvanced
+    ? await getProductAnalyticsNarrative(productId, productName, summary)
+    : null
 
   return (
     <ProductAnalyticsView
