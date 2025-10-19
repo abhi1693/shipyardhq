@@ -6,44 +6,6 @@ import {
 
 export type UpvoteState = { upvotes: number; upvoted: boolean; error?: string }
 
-type CachedActiveUser = Awaited<ReturnType<typeof getActiveUserByClerkId>>
-
-type ActiveUserCacheEntry = {
-  value: CachedActiveUser
-  expiresAt: number
-}
-
-const ACTIVE_USER_CACHE_TTL = 120_000
-
-function getActiveUserCache(): Map<string, ActiveUserCacheEntry> {
-  const globalWithCache = globalThis as typeof globalThis & {
-    __shipyardActiveUserCache?: Map<string, ActiveUserCacheEntry>
-  }
-
-  if (!globalWithCache.__shipyardActiveUserCache) {
-    globalWithCache.__shipyardActiveUserCache = new Map()
-  }
-
-  return globalWithCache.__shipyardActiveUserCache
-}
-
-async function getCachedActiveUser(clerkId: string) {
-  if (!clerkId) return null
-  if (process.env.NODE_ENV === "test") return getActiveUserByClerkId(clerkId)
-
-  const cache = getActiveUserCache()
-  const cached = cache.get(clerkId)
-  const now = Date.now()
-
-  if (cached && cached.expiresAt > now) {
-    return cached.value
-  }
-
-  const result = await getActiveUserByClerkId(clerkId)
-  cache.set(clerkId, { value: result, expiresAt: now + ACTIVE_USER_CACHE_TTL })
-  return result
-}
-
 export interface ToggleProductUpvoteOptions {
   productId: string
   clerkUserId: string
@@ -74,7 +36,7 @@ export async function toggleProductUpvote({
     throw new UpvoteError("Unauthorized", 401)
   }
 
-  const user = await getCachedActiveUser(clerkUserId)
+  const user = await getActiveUserByClerkId(clerkUserId)
   if (!user) {
     throw new UpvoteError(INACTIVE_ACCOUNT_MESSAGE, 403)
   }

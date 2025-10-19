@@ -1,6 +1,8 @@
 import prisma from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { ensureDailyLoginReward } from "@/lib/server/rewards/loginReward"
+import { getRedisClient } from "@/lib/server/redis"
+import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
 
 export const INACTIVE_ACCOUNT_MESSAGE = "Account is not active"
 export const SUSPENDED_ACCOUNT_PATH = "/auth/suspended"
@@ -15,7 +17,17 @@ const activeUserSelect = {
   onboardedAt: true,
 } as const
 
-export async function getActiveUserByClerkId(clerkId: string) {
+const ACTIVE_USER_CACHE_TTL_SECONDS = 120
+const ACTIVE_USER_CACHE_NAMESPACE = "active-user"
+
+export type ActiveUser = Awaited<ReturnType<typeof loadActiveUser>>
+
+function buildActiveUserCacheKey(clerkId: string) {
+  const rawKey = buildCacheKey(ACTIVE_USER_CACHE_NAMESPACE, "clerk", clerkId)
+  return namespaceCacheKey(rawKey)
+}
+
+async function loadActiveUser(clerkId: string) {
   if (!clerkId) return null
 
   const user = await prisma.user.findUnique({
@@ -35,6 +47,47 @@ export async function getActiveUserByClerkId(clerkId: string) {
   })
 
   return user
+}
+
+export async function getActiveUserByClerkId(clerkId: string) {
+  if (!clerkId) return null
+  if (process.env.NODE_ENV === "test") {
+    return loadActiveUser(clerkId)
+  }
+
+  const cacheKey = buildActiveUserCacheKey(clerkId)
+  const client = await getRedisClient()
+  if (client) {
+    try {
+      const cached = await client.get(cacheKey)
+      if (cached) {
+        return JSON.parse(cached) as ActiveUser
+      }
+    } catch (error) {
+      console.error("[userStatus] Failed to read active user cache", {
+        error,
+        clerkId,
+      })
+    }
+  }
+
+  const value = await loadActiveUser(clerkId)
+
+  if (client) {
+    try {
+      const payload = JSON.stringify(value)
+      await client.set(cacheKey, payload, {
+        EX: ACTIVE_USER_CACHE_TTL_SECONDS,
+      })
+    } catch (error) {
+      console.error("[userStatus] Failed to write active user cache", {
+        error,
+        clerkId,
+      })
+    }
+  }
+
+  return value
 }
 
 export async function requireActiveUserOrRedirect(clerkId?: string | null) {

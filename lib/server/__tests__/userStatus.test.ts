@@ -10,6 +10,12 @@ vi.mock("@/lib/prisma", () => ({
   default: prismaMock,
 }))
 
+const ensureDailyLoginRewardMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+
+vi.mock("@/lib/server/rewards/loginReward", () => ({
+  ensureDailyLoginReward: ensureDailyLoginRewardMock,
+}))
+
 const redirectMock = vi.hoisted(() =>
   vi.fn((path: string) => {
     throw new Error(`redirect:${path}`)
