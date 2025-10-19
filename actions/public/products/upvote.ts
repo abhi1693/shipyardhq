@@ -21,7 +21,7 @@ type ActiveUserCacheEntry = {
   expiresAt: number
 }
 
-const ACTIVE_USER_CACHE_TTL = 30_000
+const ACTIVE_USER_CACHE_TTL = 120_000
 
 function getActiveUserCache(): Map<string, ActiveUserCacheEntry> {
   const globalWithCache = globalThis as typeof globalThis & {
