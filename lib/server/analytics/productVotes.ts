@@ -1,10 +1,5 @@
 import prisma from "@/lib/prisma"
-import {
-  registerEventHandler,
-  dispatchEventAsync,
-  type ProductDownvotedEvent,
-  type ProductUpvotedEvent,
-} from "@/lib/server/events"
+import { registerEventHandler } from "@/lib/server/events"
 import {
   revalidateLeaderboard,
   revalidateProduct,
@@ -48,16 +43,3 @@ registerEventHandler({
     }
   },
 })
-
-// Optional helpers to publish events
-export async function trackProductUpvoted(event: ProductUpvotedEvent) {
-  dispatchEventAsync("product.upvoted", event, {
-    context: { productId: event.productId, userId: event.userId },
-  })
-}
-
-export async function trackProductDownvoted(event: ProductDownvotedEvent) {
-  dispatchEventAsync("product.downvoted", event, {
-    context: { productId: event.productId, userId: event.userId },
-  })
-}
