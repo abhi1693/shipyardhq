@@ -4,7 +4,7 @@ import { Resolver } from "node:dns/promises"
 import { createHash } from "crypto"
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
-import { dispatchEvent } from "@/lib/server/events"
+import { dispatchEventAsync } from "@/lib/server/events"
 import "@/lib/server/badges" // register badge listeners
 import { deleteBlob, deleteBlobPrefix } from "@/lib/blob"
 import "@/lib/server/plans" // register default-plan listeners
@@ -247,13 +247,10 @@ export async function createProductAction(formData: FormData) {
       },
     })
     // Fire domain event for listeners (e.g., auto badges) without blocking the response
-    void dispatchEvent("product.created", { productId: created.id }).catch(
-      (error) => {
-        console.error("[products] failed to dispatch product.created event", {
-          productId: created.id,
-          error,
-        })
-      },
+    dispatchEventAsync(
+      "product.created",
+      { productId: created.id },
+      { context: { productId: created.id } },
     )
 
     const sideEffects: Promise<unknown>[] = [
@@ -264,17 +261,11 @@ export async function createProductAction(formData: FormData) {
     ]
 
     if (created.status === "published") {
-      void dispatchEvent("product.published", {
-        productId: created.id,
-      }).catch((error) => {
-        console.error(
-          "[products] failed to dispatch product.published event",
-          {
-            productId: created.id,
-            error,
-          },
-        )
-      })
+      dispatchEventAsync(
+        "product.published",
+        { productId: created.id },
+        { context: { productId: created.id } },
+      )
       sideEffects.push(sendProductPublishedEmail(created.id))
     }
 
@@ -502,12 +493,11 @@ export async function updateProductAction(
     })
 
     // Fire update event (available for future listeners)
-    void dispatchEvent("product.updated", { productId: id }).catch((error) => {
-      console.error("[products] failed to dispatch product.updated event", {
-        productId: id,
-        error,
-      })
-    })
+    dispatchEventAsync(
+      "product.updated",
+      { productId: id },
+      { context: { productId: id } },
+    )
 
     // Cleanup old blobs if logo/banner changed and were hosted on Vercel Blob
     const isVercelBlobUrl = (u?: string | null) => {
@@ -543,14 +533,11 @@ export async function updateProductAction(
     revalidateLeaderboard()
 
     if (updated.status === "published" && current.status !== "published") {
-      void dispatchEvent("product.published", {
-        productId: updated.id,
-      }).catch((error) => {
-        console.error("[products] failed to dispatch product.published event", {
-          productId: updated.id,
-          error,
-        })
-      })
+      dispatchEventAsync(
+        "product.published",
+        { productId: updated.id },
+        { context: { productId: updated.id } },
+      )
       await sendProductPublishedEmail(updated.id)
     }
 
@@ -598,12 +585,11 @@ export async function deleteProductAction(id: string) {
 
     const result = await prisma.product.delete({ where: { id } })
     // Fire delete event (badges are cascaded in DB, but listeners may react)
-    void dispatchEvent("product.deleted", { productId: id }).catch((error) => {
-      console.error("[products] failed to dispatch product.deleted event", {
-        productId: id,
-        error,
-      })
-    })
+    dispatchEventAsync(
+      "product.deleted",
+      { productId: id },
+      { context: { productId: id } },
+    )
     // Invalidate public caches heavily, product removed
     revalidateProducts()
     revalidateCategories()
@@ -788,14 +774,11 @@ export async function setProductStatusAction(
     })
 
     if (status === "published" && previous.status !== "published") {
-      void dispatchEvent("product.published", {
-        productId: id,
-      }).catch((error) => {
-        console.error("[products] failed to dispatch product.published event", {
-          productId: id,
-          error,
-        })
-      })
+      dispatchEventAsync(
+        "product.published",
+        { productId: id },
+        { context: { productId: id } },
+      )
       await sendProductPublishedEmail(id)
     }
 

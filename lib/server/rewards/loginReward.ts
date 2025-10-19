@@ -1,7 +1,7 @@
 import { awardRewards } from "@/lib/rewards/engine"
 import { RewardsError } from "@/lib/rewards/errors"
 import {
-  dispatchEvent,
+  dispatchEventAsync,
   registerEventHandler,
   type RewardsDailyLoginEvent,
 } from "@/lib/server/events"
@@ -55,13 +55,16 @@ export async function ensureDailyLoginReward(
 
   cache.set(userId, dayKey)
 
-  void dispatchEvent("rewards.daily-login", payload).catch((error) => {
-    cache.delete(userId)
-    console.error("[rewards] Failed to enqueue daily login rewards", {
-      error,
-      userId,
-      eventId,
-    })
+  dispatchEventAsync("rewards.daily-login", payload, {
+    context: { userId, eventId },
+    onError: (error) => {
+      cache.delete(userId)
+      console.error("[rewards] Failed to enqueue daily login rewards", {
+        error,
+        userId,
+        eventId,
+      })
+    },
   })
 }
 

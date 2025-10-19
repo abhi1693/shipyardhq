@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
 import {
-  dispatchEvent,
+  dispatchEventAsync,
   registerEventHandler,
   type ProductClickMetadata,
 } from "@/lib/server/events"
@@ -61,5 +61,9 @@ export async function trackProductClicked(
     productId,
     hasMetadata: Boolean(metadata && Object.keys(metadata).length),
   })
-  await dispatchEvent("product.clicked", { productId, metadata })
+  dispatchEventAsync(
+    "product.clicked",
+    { productId, metadata },
+    { context: { productId } },
+  )
 }

@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { dispatchEvent, registerEventHandler } from "@/lib/server/events"
+import { dispatchEventAsync, registerEventHandler } from "@/lib/server/events"
 import type { ProductTrafficPayload } from "@/types/analytics"
 
 // Registers a listener that persists product traffic payloads without blocking callers.
@@ -43,5 +43,9 @@ export async function trackProductTraffic(payload: ProductTrafficPayload) {
     productId: payload.productId,
     path: payload.path,
   })
-  await dispatchEvent("analytics.product-traffic", payload)
+  dispatchEventAsync(
+    "analytics.product-traffic",
+    payload,
+    { context: { productId: payload.productId, path: payload.path } },
+  )
 }

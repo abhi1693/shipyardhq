@@ -363,4 +363,31 @@ function toJsonValue(payload: unknown): Prisma.JsonValue {
   return JSON.parse(JSON.stringify(payload)) as Prisma.JsonValue
 }
 
-export type { AppEvents, HandlerMode, Handler, RegisterEventHandlerConfig }
+export type DispatchEventAsyncOptions = {
+  context?: Record<string, unknown>
+  onError?: (error: unknown) => void
+}
+
+export function dispatchEventAsync<K extends keyof AppEvents>(
+  event: K,
+  payload: AppEvents[K],
+  options: DispatchEventAsyncOptions = {},
+): void {
+  const { context, onError } = options
+  void dispatchEvent(event, payload).catch((error) => {
+    console.error("[events] async dispatch failed", {
+      event: String(event),
+      context,
+      error,
+    })
+    onError?.(error)
+  })
+}
+
+export type {
+  AppEvents,
+  HandlerMode,
+  Handler,
+  RegisterEventHandlerConfig,
+  DispatchEventAsyncOptions,
+}

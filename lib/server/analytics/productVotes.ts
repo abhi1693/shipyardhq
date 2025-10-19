@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 import {
   registerEventHandler,
-  dispatchEvent,
+  dispatchEventAsync,
   type ProductDownvotedEvent,
   type ProductUpvotedEvent,
 } from "@/lib/server/events"
@@ -51,9 +51,13 @@ registerEventHandler({
 
 // Optional helpers to publish events
 export async function trackProductUpvoted(event: ProductUpvotedEvent) {
-  await dispatchEvent("product.upvoted", event)
+  dispatchEventAsync("product.upvoted", event, {
+    context: { productId: event.productId, userId: event.userId },
+  })
 }
 
 export async function trackProductDownvoted(event: ProductDownvotedEvent) {
-  await dispatchEvent("product.downvoted", event)
+  dispatchEventAsync("product.downvoted", event, {
+    context: { productId: event.productId, userId: event.userId },
+  })
 }

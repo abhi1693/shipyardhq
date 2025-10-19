@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
 import {
-  dispatchEvent,
+  dispatchEventAsync,
   type AppEvents,
   type ProductDownvotedEvent,
   type ProductUpvotedEvent,
@@ -79,8 +79,8 @@ function scheduleEvent<K extends keyof AppEvents>(
   payload: AppEvents[K],
 ): void {
   queueMicrotask(() => {
-    dispatchEvent(event, payload).catch((error) => {
-      console.error("[votes] event dispatch failed", { event, error })
+    dispatchEventAsync(event, payload, {
+      context: { event },
     })
   })
 }

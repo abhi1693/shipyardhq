@@ -1,7 +1,7 @@
 import { Prisma } from "@/lib/vendor/prisma/client"
 import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
-import { dispatchEvent } from "@/lib/server/events"
+import { dispatchEventAsync } from "@/lib/server/events"
 import "@/lib/server/social/twitterBot"
 import { extractTwitterHandle } from "@/lib/server/social/twitterMessages"
 import MonthlyWinnerEmail from "@/lib/email/templates/leaderboard/monthlyWinner"
@@ -443,12 +443,16 @@ export async function notifyMonthlyWinners(
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
 
   if (winnersForEvent.length) {
-    await dispatchEvent("leaderboard.monthly.winners", {
-      monthKey: result.monthKey,
-      monthLabel,
-      leaderboardUrl,
-      winners: winnersForEvent,
-    })
+    dispatchEventAsync(
+      "leaderboard.monthly.winners",
+      {
+        monthKey: result.monthKey,
+        monthLabel,
+        leaderboardUrl,
+        winners: winnersForEvent,
+      },
+      { context: { monthKey: result.monthKey } },
+    )
   }
 
   await createNotificationRecord(result.month)

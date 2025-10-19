@@ -14,7 +14,7 @@ import {
 import { upsertProductReview } from "@/lib/server/productReviews"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
-import { dispatchEvent } from "@/lib/server/events"
+import { dispatchEventAsync } from "@/lib/server/events"
 import "@/lib/server/rewards/listeners"
 
 export type SubmitReviewState = {
@@ -124,12 +124,8 @@ export async function submitProductReviewAction(
       updatedAt: review.updatedAt,
     }
 
-    void dispatchEvent("product.reviewed", eventPayload).catch((error) => {
-      console.error("[reviews] failed to dispatch product.reviewed event", {
-        productId: product.id,
-        reviewId: review.id,
-        error,
-      })
+    dispatchEventAsync("product.reviewed", eventPayload, {
+      context: { productId: product.id, reviewId: review.id },
     })
   } catch (error: any) {
     return {
