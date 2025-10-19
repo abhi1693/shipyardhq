@@ -384,10 +384,4 @@ export function dispatchEventAsync<K extends keyof AppEvents>(
   })
 }
 
-export type {
-  AppEvents,
-  HandlerMode,
-  Handler,
-  RegisterEventHandlerConfig,
-  DispatchEventAsyncOptions,
-}
+export type { AppEvents, HandlerMode, Handler, RegisterEventHandlerConfig }
