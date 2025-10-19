@@ -246,9 +246,17 @@ export async function createProductAction(formData: FormData) {
         },
       },
     })
+    // Fire domain event for listeners (e.g., auto badges) without blocking the response
+    void dispatchEvent("product.created", { productId: created.id }).catch(
+      (error) => {
+        console.error("[products] failed to dispatch product.created event", {
+          productId: created.id,
+          error,
+        })
+      },
+    )
+
     const sideEffects: Promise<unknown>[] = [
-      // Fire domain event for listeners (e.g., auto badges)
-      dispatchEvent("product.created", { productId: created.id }),
       // Invalidate public caches affected by a new product
       Promise.resolve().then(() => revalidateProducts()),
       Promise.resolve().then(() => revalidateCategory(categoryId)),
@@ -256,9 +264,17 @@ export async function createProductAction(formData: FormData) {
     ]
 
     if (created.status === "published") {
-      sideEffects.push(
-        dispatchEvent("product.published", { productId: created.id }),
-      )
+      void dispatchEvent("product.published", {
+        productId: created.id,
+      }).catch((error) => {
+        console.error(
+          "[products] failed to dispatch product.published event",
+          {
+            productId: created.id,
+            error,
+          },
+        )
+      })
       sideEffects.push(sendProductPublishedEmail(created.id))
     }
 
@@ -486,7 +502,12 @@ export async function updateProductAction(
     })
 
     // Fire update event (available for future listeners)
-    await dispatchEvent("product.updated", { productId: id })
+    void dispatchEvent("product.updated", { productId: id }).catch((error) => {
+      console.error("[products] failed to dispatch product.updated event", {
+        productId: id,
+        error,
+      })
+    })
 
     // Cleanup old blobs if logo/banner changed and were hosted on Vercel Blob
     const isVercelBlobUrl = (u?: string | null) => {
@@ -522,10 +543,15 @@ export async function updateProductAction(
     revalidateLeaderboard()
 
     if (updated.status === "published" && current.status !== "published") {
-      await Promise.all([
-        sendProductPublishedEmail(updated.id),
-        dispatchEvent("product.published", { productId: updated.id }),
-      ])
+      void dispatchEvent("product.published", {
+        productId: updated.id,
+      }).catch((error) => {
+        console.error("[products] failed to dispatch product.published event", {
+          productId: updated.id,
+          error,
+        })
+      })
+      await sendProductPublishedEmail(updated.id)
     }
 
     return updated
@@ -572,7 +598,12 @@ export async function deleteProductAction(id: string) {
 
     const result = await prisma.product.delete({ where: { id } })
     // Fire delete event (badges are cascaded in DB, but listeners may react)
-    await dispatchEvent("product.deleted", { productId: id })
+    void dispatchEvent("product.deleted", { productId: id }).catch((error) => {
+      console.error("[products] failed to dispatch product.deleted event", {
+        productId: id,
+        error,
+      })
+    })
     // Invalidate public caches heavily, product removed
     revalidateProducts()
     revalidateCategories()
@@ -757,10 +788,15 @@ export async function setProductStatusAction(
     })
 
     if (status === "published" && previous.status !== "published") {
-      await Promise.all([
-        sendProductPublishedEmail(id),
-        dispatchEvent("product.published", { productId: id }),
-      ])
+      void dispatchEvent("product.published", {
+        productId: id,
+      }).catch((error) => {
+        console.error("[products] failed to dispatch product.published event", {
+          productId: id,
+          error,
+        })
+      })
+      await sendProductPublishedEmail(id)
     }
 
     return result

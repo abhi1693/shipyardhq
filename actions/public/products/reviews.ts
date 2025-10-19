@@ -113,7 +113,7 @@ export async function submitProductReviewAction(
       message,
     })
 
-    await dispatchEvent("product.reviewed", {
+    const eventPayload = {
       reviewId: review.id,
       productId: product.id,
       productOwnerId: product.userId,
@@ -122,6 +122,14 @@ export async function submitProductReviewAction(
       messageLength: review.message.length,
       createdAt: review.createdAt,
       updatedAt: review.updatedAt,
+    }
+
+    void dispatchEvent("product.reviewed", eventPayload).catch((error) => {
+      console.error("[reviews] failed to dispatch product.reviewed event", {
+        productId: product.id,
+        reviewId: review.id,
+        error,
+      })
     })
   } catch (error: any) {
     return {

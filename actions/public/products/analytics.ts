@@ -111,20 +111,26 @@ export async function clickExternalProductLinkAction(formData: FormData) {
       const city = decodeNullable(hdrs.get("x-vercel-ip-city"))
       const ipHash = hashIpAddress(ip)
 
-      await trackProductClicked(productId, {
-        referrer: sanitizeReferrer(referrerHeader),
-        userAgent,
-        device,
-        browser,
-        os,
-        country,
-        region,
-        city,
-        ipHash,
+      after(async () => {
+        try {
+          await trackProductClicked(productId, {
+            referrer: sanitizeReferrer(referrerHeader),
+            userAgent,
+            device,
+            browser,
+            os,
+            country,
+            region,
+            city,
+            ipHash,
+          })
+        } catch (err) {
+          console.error("click publish failed", err)
+        }
       })
     }
   } catch (err) {
-    console.error("click publish failed", err)
+    console.error("click publish scheduling failed", err)
   }
   redirect(to)
 }

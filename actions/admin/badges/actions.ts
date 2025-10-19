@@ -82,11 +82,17 @@ export async function assignBadgeToProduct(data: {
   })
 
   // Publish badge assignment event so listeners can enforce defaults
-  await dispatchEvent("badge.assigned", {
+  void dispatchEvent("badge.assigned", {
     id: created.id,
     productId,
     badge,
     expiresAt: created.expiresAt ?? undefined,
+  }).catch((error) => {
+    console.error("[badges] failed to dispatch badge.assigned event", {
+      productId,
+      badge,
+      error,
+    })
   })
 
   // Invalidate caches for product badge-related sections
@@ -120,7 +126,13 @@ export async function deleteProductBadgeAction(id: string) {
     })
     const result = await prisma.productBadge.delete({ where: { id } })
     if (existing) {
-      await dispatchEvent("badge.removed", existing)
+      void dispatchEvent("badge.removed", existing).catch((error) => {
+        console.error("[badges] failed to dispatch badge.removed event", {
+          badgeId: existing.id,
+          productId: existing.productId,
+          error,
+        })
+      })
     }
     if (existing?.productId) {
       revalidateProduct(existing.productId)
