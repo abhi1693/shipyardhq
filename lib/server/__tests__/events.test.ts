@@ -24,6 +24,9 @@ import {
   resetEventRegistryForTesting,
 } from "@/lib/server/events"
 
+const waitForAsyncHandlers = () =>
+  new Promise<void>((resolve) => setTimeout(resolve, 0))
+
 describe("event dispatcher", () => {
   const prismaExecuteRaw = prisma.$executeRaw as unknown as ReturnType<
     typeof vi.fn
@@ -70,6 +73,7 @@ describe("event dispatcher", () => {
     enqueueEventMock.mockRejectedValueOnce(new Error("queue unavailable"))
 
     await dispatchEvent("product.created", { productId: "fallback-1" })
+    await waitForAsyncHandlers()
 
     expect(asyncHandler).toHaveBeenCalledWith({ productId: "fallback-1" })
     expect(prismaExecuteRaw).toHaveBeenCalled()

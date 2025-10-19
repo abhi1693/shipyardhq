@@ -275,14 +275,13 @@ export async function dispatchEvent<K extends keyof AppEvents>(
     handlers: handlerIds,
   })
 
-  try {
-    await enqueueEvent(envelopeId)
-  } catch (error) {
+  void enqueueEvent(envelopeId).catch(async (error) => {
     console.error("[events] enqueue failed", {
       event: key,
       envelopeId,
       error,
     })
+    const failureTimestamp = new Date()
     await prisma.$executeRaw`
       UPDATE "EventEnvelope"
       SET "status" = ${"dead_letter"}::"EventEnvelopeStatus",
@@ -292,7 +291,7 @@ export async function dispatchEvent<K extends keyof AppEvents>(
                 ? error.message
                 : DEFAULT_DEAD_LETTER_MESSAGE
             },
-          "updatedAt" = ${new Date()}
+          "updatedAt" = ${failureTimestamp}
       WHERE "id" = ${envelopeId}
     `
     if (!IS_PROD) {
@@ -320,19 +319,18 @@ export async function dispatchEvent<K extends keyof AppEvents>(
           })
         }
       }
+      const completionTimestamp = new Date()
       await prisma.$executeRaw`
         UPDATE "EventEnvelope"
         SET "status" = ${"completed"}::"EventEnvelopeStatus",
             "pendingHandlers" = ${[] as string[]},
             "lastError" = NULL,
-            "processedAt" = ${new Date()},
-            "updatedAt" = ${new Date()}
+            "processedAt" = ${completionTimestamp},
+            "updatedAt" = ${completionTimestamp}
         WHERE "id" = ${envelopeId}
       `
-      return
     }
-    throw error
-  }
+  })
 }
 
 export function resolveRegisteredHandler(
