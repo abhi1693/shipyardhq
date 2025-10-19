@@ -409,16 +409,16 @@ export async function drainEventQueueAction(): Promise<void> {
   }
 }
 
-export async function deleteEnvelopeAction(formData: FormData) {
+export async function deleteEnvelopeAction(formData: FormData): Promise<void> {
   try {
     const isAdmin = await checkRole("admin")
     if (!isAdmin) {
-      return { error: "Unauthorized" }
+      throw new Error("Unauthorized")
     }
 
     const envelopeId = String(formData.get("envelopeId") ?? "").trim()
     if (!envelopeId) {
-      return { error: "Missing envelope id" }
+      throw new Error("Missing envelope id")
     }
 
     await prisma.eventEnvelope.delete({ where: { id: envelopeId } })
@@ -426,10 +426,8 @@ export async function deleteEnvelopeAction(formData: FormData) {
     revalidatePath(ADMIN_EVENTS_PATH)
     revalidatePath(ADMIN_EVENTS_LIST_PATH)
     revalidatePath(adminPath("operations", "events", envelopeId))
-
-    return { success: true }
   } catch (error) {
     console.error("deleteEnvelopeAction failed", error)
-    return { error: "Unable to delete envelope" }
+    throw error
   }
 }
