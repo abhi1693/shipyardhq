@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
 import {
-  publish,
+  dispatchEvent,
   type ProductDownvotedEvent,
   type ProductUpvotedEvent,
 } from "@/lib/server/events"
@@ -354,8 +354,10 @@ async function applyVoteDirectlyToDatabase({
   })
 
   const publishes: Promise<void>[] = []
-  if (createdEvent) publishes.push(publish("product.upvoted", createdEvent))
-  if (removedEvent) publishes.push(publish("product.downvoted", removedEvent))
+  if (createdEvent)
+    publishes.push(dispatchEvent("product.upvoted", createdEvent))
+  if (removedEvent)
+    publishes.push(dispatchEvent("product.downvoted", removedEvent))
   if (publishes.length) {
     await Promise.all(publishes)
   }
@@ -502,8 +504,12 @@ export async function flushPendingVotesToDatabase(): Promise<FlushVotesResult> {
     totalRemovals += removedEvents.length
 
     const publishCalls = [
-      ...createdEvents.map((event) => publish("product.upvoted", event)),
-      ...removedEvents.map((event) => publish("product.downvoted", event)),
+      ...createdEvents.map((event) =>
+        dispatchEvent("product.upvoted", event),
+      ),
+      ...removedEvents.map((event) =>
+        dispatchEvent("product.downvoted", event),
+      ),
     ]
     if (publishCalls.length) {
       await Promise.all(publishCalls)

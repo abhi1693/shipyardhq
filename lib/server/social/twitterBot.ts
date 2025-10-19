@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 import { getAppBaseUrl } from "@/lib/email/utils"
 import { productPath } from "@/lib/routes"
-import { on } from "@/lib/server/events"
+import { registerEventHandler } from "@/lib/server/events"
 
 import {
   isTwitterBotActive,
@@ -192,13 +192,25 @@ function registerTwitterBotListeners() {
     return
   }
 
-  on("product.published", ({ productId }) => handleProductPublished(productId))
-  on("badge.assigned", ({ productId, badge }) =>
-    handleBadgeAssigned(productId, badge),
-  )
-  on(
-    "leaderboard.monthly.winners",
-    ({ monthKey, monthLabel, leaderboardUrl, winners }) =>
+  registerEventHandler({
+    event: "product.published",
+    id: "twitter.product-published",
+    mode: "async",
+    handler: ({ productId }) => handleProductPublished(productId),
+  })
+
+  registerEventHandler({
+    event: "badge.assigned",
+    id: "twitter.badge-assigned",
+    mode: "async",
+    handler: ({ productId, badge }) => handleBadgeAssigned(productId, badge),
+  })
+
+  registerEventHandler({
+    event: "leaderboard.monthly.winners",
+    id: "twitter.leaderboard-winners",
+    mode: "async",
+    handler: ({ monthKey, monthLabel, leaderboardUrl, winners }) =>
       handleLeaderboardWinners(
         monthKey,
         monthLabel,
@@ -209,7 +221,7 @@ function registerTwitterBotListeners() {
           twitterHandle: winner.twitterHandle,
         })),
       ),
-  )
+  })
 }
 
 registerTwitterBotListeners()

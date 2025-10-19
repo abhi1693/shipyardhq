@@ -7,7 +7,10 @@ import {
   memberProductPath,
   productPath,
 } from "@/lib/routes"
-import { on, type RewardsAwardedEvent } from "@/lib/server/events"
+import {
+  registerEventHandler,
+  type RewardsAwardedEvent,
+} from "@/lib/server/events"
 
 const BACKLINK_REWARD_RULE = "rewards.backlink.verify"
 
@@ -159,11 +162,16 @@ export async function handleBacklinkVerifiedReward(
   }
 }
 
-on("rewards.awarded", (event) => {
-  handleBacklinkVerifiedReward(event).catch((error) => {
-    console.error("[email] backlink reward handler crashed", {
-      transactionId: event.transactionId,
-      error,
+registerEventHandler({
+  event: "rewards.awarded",
+  id: "email.backlink-verified-reward",
+  mode: "async",
+  handler: (event) => {
+    handleBacklinkVerifiedReward(event).catch((error) => {
+      console.error("[email] backlink reward handler crashed", {
+        transactionId: event.transactionId,
+        error,
+      })
     })
-  })
+  },
 })

@@ -1,7 +1,7 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { publish } from "@/lib/server/events"
+import { dispatchEvent } from "@/lib/server/events"
 import "@/lib/server/badges" // ensure listeners are registered
 import "@/lib/server/social/twitterBot"
 import {
@@ -82,7 +82,7 @@ export async function assignBadgeToProduct(data: {
   })
 
   // Publish badge assignment event so listeners can enforce defaults
-  await publish("badge.assigned", {
+  await dispatchEvent("badge.assigned", {
     id: created.id,
     productId,
     badge,
@@ -120,7 +120,7 @@ export async function deleteProductBadgeAction(id: string) {
     })
     const result = await prisma.productBadge.delete({ where: { id } })
     if (existing) {
-      await publish("badge.removed", existing)
+      await dispatchEvent("badge.removed", existing)
     }
     if (existing?.productId) {
       revalidateProduct(existing.productId)

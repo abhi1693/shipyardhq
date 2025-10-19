@@ -8,7 +8,7 @@ vi.mock("@/lib/prisma", () => ({
   },
 }))
 
-import { publish } from "@/lib/server/events"
+import { resolveRegisteredHandler } from "@/lib/server/events"
 import "@/lib/server/analytics/productVotes"
 import {
   trackProductUpvoted,
@@ -24,12 +24,19 @@ const voteEvent = {
 
 describe("productVotes helpers", () => {
   it("publish upvote/downvote events via helpers", async () => {
-    // Ensure no throw and handlers invoked
+    // Ensure no throw and handlers registered
     await trackProductUpvoted(voteEvent)
     await trackProductDownvoted(voteEvent)
-    // Also publish directly to ensure no-op
-    await publish("product.upvoted", voteEvent)
-    await publish("product.downvoted", voteEvent)
+    const upvoteHandler = resolveRegisteredHandler(
+      "product.upvoted",
+      "analytics.increment-upvotes",
+    )
+    const downvoteHandler = resolveRegisteredHandler(
+      "product.downvoted",
+      "analytics.decrement-upvotes",
+    )
+    expect(upvoteHandler).toBeDefined()
+    expect(downvoteHandler).toBeDefined()
     expect(true).toBe(true)
   })
 })

@@ -14,7 +14,7 @@ import {
 import { upsertProductReview } from "@/lib/server/productReviews"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
-import { publish } from "@/lib/server/events"
+import { dispatchEvent } from "@/lib/server/events"
 import "@/lib/server/rewards/listeners"
 
 export type SubmitReviewState = {
@@ -113,7 +113,7 @@ export async function submitProductReviewAction(
       message,
     })
 
-    await publish("product.reviewed", {
+    await dispatchEvent("product.reviewed", {
       reviewId: review.id,
       productId: product.id,
       productOwnerId: product.userId,

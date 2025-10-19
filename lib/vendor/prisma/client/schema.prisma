@@ -873,3 +873,55 @@ model PlacementSchedule {
   @@index([productId, startsAt])
   @@index([featureKey, status])
 }
+
+model EventEnvelope {
+  id                String              @id @default(cuid())
+  event             String
+  payload           Json
+  asyncHandlers     String[]
+  pendingHandlers   String[]
+  status            EventEnvelopeStatus @default(pending)
+  attempts          Int                 @default(0)
+  lastError         String?
+  enqueuedAt        DateTime            @default(now())
+  processingStarted DateTime?
+  processedAt       DateTime?
+  nextRunAt         DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  attemptsLog EventAttempt[]
+
+  @@index([status, nextRunAt])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model EventAttempt {
+  id         String             @id @default(cuid())
+  envelopeId String
+  handler    String
+  status     EventAttemptStatus
+  durationMs Int?
+  error      String?
+  attempt    Int
+  createdAt  DateTime           @default(now())
+
+  envelope EventEnvelope @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+
+  @@index([envelopeId, createdAt])
+}
+
+enum EventEnvelopeStatus {
+  pending
+  processing
+  retrying
+  completed
+  dead_letter
+}
+
+enum EventAttemptStatus {
+  succeeded
+  failed
+  timed_out
+}

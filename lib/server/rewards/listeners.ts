@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma"
 import { awardRewards } from "@/lib/rewards/engine"
 import { RewardsError } from "@/lib/rewards/errors"
-import { on } from "@/lib/server/events"
+import { registerEventHandler } from "@/lib/server/events"
 import type { AwardRewardsPayload } from "@/lib/rewards/types"
 
 const UPVOTE_RULE_KEY = "rewards.upvote.give"
@@ -40,69 +40,59 @@ async function safelyAwardRewards(
   }
 }
 
-on("product.upvoted", async (event) => {
-  try {
-    const ownerId = await getProductOwnerId(event.productId)
-    if (!ownerId) return
-    if (ownerId === event.userId) return
+registerEventHandler({
+  event: "product.upvoted",
+  id: "rewards.award-upvote",
+  handler: async (event) => {
+    try {
+      const ownerId = await getProductOwnerId(event.productId)
+      if (!ownerId) return
+      if (ownerId === event.userId) return
 
-    await safelyAwardRewards(
-      event.userId,
-      UPVOTE_RULE_KEY,
-      {
-        eventId: event.upvoteId,
-        productId: event.productId,
-        sourceType: "product.upvote",
-        sourceId: event.upvoteId,
-        targetType: "product",
-        targetId: event.productId,
-        actorUserId: event.userId,
-        metadata: {
-          occurredAt: event.occurredAt.toISOString(),
-        },
-      },
-      "award upvote rewards",
-    )
-  } catch (error) {
-    console.error("[rewards] upvote listener error", { error, event })
-  }
-})
-
-on("product.reviewed", async (event) => {
-  try {
-    const ownerId =
-      event.productOwnerId ?? (await getProductOwnerId(event.productId))
-    if (ownerId && ownerId === event.userId) return
-
-    const metadata = {
-      rating: event.rating,
-      messageLength: event.messageLength,
-      createdAt: event.createdAt.toISOString(),
-      updatedAt: event.updatedAt.toISOString(),
-    }
-
-    await safelyAwardRewards(
-      event.userId,
-      REVIEW_RULE_KEY,
-      {
-        eventId: event.reviewId,
-        productId: event.productId,
-        sourceType: "review",
-        sourceId: event.reviewId,
-        targetType: "product",
-        targetId: event.productId,
-        actorUserId: event.userId,
-        metadata,
-      },
-      "award review rewards",
-    )
-
-    if (event.messageLength > REVIEW_DEPTH_THRESHOLD) {
       await safelyAwardRewards(
         event.userId,
-        REVIEW_DEPTH_RULE_KEY,
+        UPVOTE_RULE_KEY,
         {
-          eventId: `${event.reviewId}:depth`,
+          eventId: event.upvoteId,
+          productId: event.productId,
+          sourceType: "product.upvote",
+          sourceId: event.upvoteId,
+          targetType: "product",
+          targetId: event.productId,
+          actorUserId: event.userId,
+          metadata: {
+            occurredAt: event.occurredAt.toISOString(),
+          },
+        },
+        "award upvote rewards",
+      )
+    } catch (error) {
+      console.error("[rewards] upvote listener error", { error, event })
+    }
+  },
+})
+
+registerEventHandler({
+  event: "product.reviewed",
+  id: "rewards.award-review",
+  handler: async (event) => {
+    try {
+      const ownerId =
+        event.productOwnerId ?? (await getProductOwnerId(event.productId))
+      if (ownerId && ownerId === event.userId) return
+
+      const metadata = {
+        rating: event.rating,
+        messageLength: event.messageLength,
+        createdAt: event.createdAt.toISOString(),
+        updatedAt: event.updatedAt.toISOString(),
+      }
+
+      await safelyAwardRewards(
+        event.userId,
+        REVIEW_RULE_KEY,
+        {
+          eventId: event.reviewId,
           productId: event.productId,
           sourceType: "review",
           sourceId: event.reviewId,
@@ -111,10 +101,28 @@ on("product.reviewed", async (event) => {
           actorUserId: event.userId,
           metadata,
         },
-        "award review depth bonus",
+        "award review rewards",
       )
+
+      if (event.messageLength > REVIEW_DEPTH_THRESHOLD) {
+        await safelyAwardRewards(
+          event.userId,
+          REVIEW_DEPTH_RULE_KEY,
+          {
+            eventId: `${event.reviewId}:depth`,
+            productId: event.productId,
+            sourceType: "review",
+            sourceId: event.reviewId,
+            targetType: "product",
+            targetId: event.productId,
+            actorUserId: event.userId,
+            metadata,
+          },
+          "award review depth bonus",
+        )
+      }
+    } catch (error) {
+      console.error("[rewards] review listener error", { error, event })
     }
-  } catch (error) {
-    console.error("[rewards] review listener error", { error, event })
-  }
+  },
 })

@@ -18,6 +18,8 @@ import {
   IconTrophy,
   IconSparkles,
   IconNotebook,
+  IconServer,
+  IconListDetails,
 } from "@tabler/icons-react"
 
 export const Icons = {
@@ -40,4 +42,7 @@ export const Icons = {
   leaderboard: IconTrophy,
   rewards: IconSparkles,
   updates: IconNotebook,
+  operations: IconServer,
+  queue: IconListDetails,
+  list: IconListDetails,
 }

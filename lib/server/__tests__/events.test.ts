@@ -1,37 +1,77 @@
-import { describe, it, expect, vi } from "vitest"
-import { on, publish } from "@/lib/server/events"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
-describe("events bus", () => {
-  it("invokes subscribed handlers with payload", async () => {
-    const payload = { productId: "p1" }
-    const fn1 = vi.fn()
-    const fn2 = vi.fn()
-    const off1 = on("product.clicked", fn1 as any)
-    const off2 = on("product.clicked", fn2 as any)
-    await publish("product.clicked", payload)
-    expect(fn1).toHaveBeenCalledWith(payload)
-    expect(fn2).toHaveBeenCalledWith(payload)
-    off1()
-    off2()
+vi.mock("@/lib/prisma", () => ({
+  default: {
+    $executeRaw: vi.fn().mockResolvedValue(undefined),
+  },
+}))
+
+vi.mock("@/lib/server/events/queueClient", () => ({
+  enqueueEvent: vi.fn().mockResolvedValue(undefined),
+  dequeueEnvelopeBatch: vi.fn(async () => []),
+  requeueEnvelope: vi.fn(async () => undefined),
+}))
+
+import prisma from "@/lib/prisma"
+import {
+  enqueueEvent,
+  dequeueEnvelopeBatch,
+  requeueEnvelope,
+} from "@/lib/server/events/queueClient"
+import {
+  dispatchEvent,
+  registerEventHandler,
+  resetEventRegistryForTesting,
+} from "@/lib/server/events"
+
+describe("event dispatcher", () => {
+  const prismaExecuteRaw = prisma.$executeRaw as unknown as ReturnType<
+    typeof vi.fn
+  >
+  const enqueueEventMock = enqueueEvent as unknown as ReturnType<typeof vi.fn>
+  const dequeueMock = dequeueEnvelopeBatch as unknown as ReturnType<
+    typeof vi.fn
+  >
+  const requeueMock = requeueEnvelope as unknown as ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    resetEventRegistryForTesting()
+    prismaExecuteRaw.mockClear()
+    enqueueEventMock.mockClear()
+    dequeueMock.mockClear()
+    requeueMock.mockClear()
   })
 
-  it("isolates handler errors and logs them", async () => {
-    const spy = vi.spyOn(console, "error").mockImplementation(() => {})
-    const good = vi.fn()
-    on("product.clicked", good as any)
-    on("product.clicked", () => {
-      throw new Error("boom")
+  it("persists envelope and enqueues when async handlers are present", async () => {
+    const asyncHandler = vi.fn()
+
+    registerEventHandler({
+      event: "product.created",
+      id: "test.async-handler",
+      handler: asyncHandler as any,
     })
-    await publish("product.clicked", { productId: "p2" })
-    expect(good).toHaveBeenCalled()
-    expect(spy).toHaveBeenCalled()
-    spy.mockRestore()
+
+    await dispatchEvent("product.created", { productId: "async-123" })
+
+    expect(asyncHandler).not.toHaveBeenCalled()
+    expect(prismaExecuteRaw).toHaveBeenCalled()
+    expect(enqueueEventMock).toHaveBeenCalledTimes(1)
   })
 
-  it("returns early when publishing with no listeners", async () => {
-    // There are currently no listeners for this custom event name
-    await expect(
-      publish("product.deleted", { productId: "none" }),
-    ).resolves.toBeUndefined()
+  it("falls back to inline execution when enqueue fails locally", async () => {
+    const asyncHandler = vi.fn()
+
+    registerEventHandler({
+      event: "product.created",
+      id: "test.async-handler",
+      handler: asyncHandler as any,
+    })
+
+    enqueueEventMock.mockRejectedValueOnce(new Error("queue unavailable"))
+
+    await dispatchEvent("product.created", { productId: "fallback-1" })
+
+    expect(asyncHandler).toHaveBeenCalledWith({ productId: "fallback-1" })
+    expect(prismaExecuteRaw).toHaveBeenCalled()
   })
 })

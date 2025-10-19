@@ -1,22 +1,37 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 
-vi.mock("@/lib/prisma", () => ({
-  default: {
-    $transaction: vi.fn(async (operations: any[]) => Promise.all(operations)),
-    productAnalytics: {
-      upsert: vi.fn(async () => ({})),
-    },
-    productClickEvent: {
-      create: vi.fn(async () => ({})),
-    },
-    productTrafficEvent: {
-      create: vi.fn(async () => ({})),
-    },
+const prismaMock = vi.hoisted(() => ({
+  $transaction: vi.fn(async (operations: any[]) => Promise.all(operations)),
+  $executeRaw: vi.fn(async () => undefined),
+  productAnalytics: {
+    upsert: vi.fn(async () => ({})),
+  },
+  productClickEvent: {
+    create: vi.fn(async () => ({})),
+  },
+  productTrafficEvent: {
+    create: vi.fn(async () => ({})),
   },
 }))
 
+const enqueueMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}))
+
+vi.mock("@/lib/server/events/queueClient", () => ({
+  enqueueEvent: enqueueMock,
+  dequeueEnvelopeBatch: vi.fn(async () => []),
+  requeueEnvelope: vi.fn(async () => undefined),
+}))
+
 import prisma from "@/lib/prisma"
-import { publish } from "@/lib/server/events"
+import {
+  dispatchEvent,
+  resolveRegisteredHandler,
+} from "@/lib/server/events"
+import * as eventsModule from "@/lib/server/events"
 import { trackProductClicked } from "@/lib/server/analytics/productClicks"
 import { trackProductTraffic } from "@/lib/server/analytics/productTraffic"
 import "@/lib/server/analytics/productClicks"
@@ -32,14 +47,22 @@ const makeVoteEvent = (productId: string, userId: string) => ({
 
 describe("analytics listeners", () => {
   beforeEach(() => {
-    ;(prisma.$transaction as any).mockClear()
-    ;(prisma.productAnalytics.upsert as any).mockClear()
-    ;(prisma.productClickEvent.create as any).mockClear()
-    ;(prisma.productTrafficEvent.create as any).mockClear()
+    prismaMock.$transaction.mockClear()
+    prismaMock.$executeRaw.mockClear()
+    prismaMock.productAnalytics.upsert.mockClear()
+    prismaMock.productClickEvent.create.mockClear()
+    prismaMock.productTrafficEvent.create.mockClear()
+    enqueueMock.mockClear()
   })
 
   it("increments clicks on product.clicked", async () => {
-    await publish("product.clicked", { productId: "p1" })
+    const handler = resolveRegisteredHandler(
+      "product.clicked",
+      "analytics.record-product-click",
+    )
+    expect(handler).toBeDefined()
+    await handler?.handler({ productId: "p1" } as any)
+
     expect(prisma.productClickEvent.create).toHaveBeenCalledWith({
       data: expect.objectContaining({ productId: "p1", device: "unknown" }),
     })
@@ -51,34 +74,63 @@ describe("analytics listeners", () => {
     })
   })
 
+  it("dispatching product.clicked enqueues async work", async () => {
+    await dispatchEvent("product.clicked", { productId: "async-1" } as any)
+    expect(enqueueMock).toHaveBeenCalledTimes(1)
+    expect(enqueueMock).toHaveBeenCalledWith(expect.any(String))
+  })
+
+  it("dispatching analytics.product-traffic enqueues async work", async () => {
+    await dispatchEvent("analytics.product-traffic", {
+      productId: "async-traffic",
+      path: "/test",
+      device: "desktop",
+    } as any)
+    expect(enqueueMock).toHaveBeenCalledTimes(1)
+    expect(enqueueMock).toHaveBeenCalledWith(expect.any(String))
+  })
+
   it("helper trackProductClicked publishes event", async () => {
-    ;(prisma.productAnalytics.upsert as any).mockClear()
+    const spy = vi
+      .spyOn(eventsModule, "dispatchEvent")
+      .mockResolvedValue(undefined)
+
     await trackProductClicked("p1", {
       device: "mobile",
       referrer: "https://example.com",
       browser: "Safari",
     })
-    expect(prisma.productAnalytics.upsert).toHaveBeenCalled()
-    expect(prisma.productClickEvent.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        productId: "p1",
+    expect(spy).toHaveBeenCalledWith("product.clicked", {
+      productId: "p1",
+      metadata: {
         device: "mobile",
         referrer: "https://example.com",
         browser: "Safari",
-      }),
+      },
     })
+    spy.mockRestore()
   })
 
   it("increments and decrements upvotes on (down)vote", async () => {
-    await publish("product.upvoted", makeVoteEvent("p2", "u"))
+    const upvoteHandler = resolveRegisteredHandler(
+      "product.upvoted",
+      "analytics.increment-upvotes",
+    )
+    expect(upvoteHandler).toBeDefined()
+    await upvoteHandler?.handler(makeVoteEvent("p2", "u") as any)
     expect(prisma.productAnalytics.upsert).toHaveBeenCalledWith({
       where: { productId: "p2" },
       update: { upvotes: { increment: 1 } },
       create: { productId: "p2", upvotes: 1, clicks: 0 },
       select: { productId: true },
     })
-    ;(prisma.productAnalytics.upsert as any).mockClear()
-    await publish("product.downvoted", makeVoteEvent("p2", "u"))
+    prismaMock.productAnalytics.upsert.mockClear()
+    const downvoteHandler = resolveRegisteredHandler(
+      "product.downvoted",
+      "analytics.decrement-upvotes",
+    )
+    expect(downvoteHandler).toBeDefined()
+    await downvoteHandler?.handler(makeVoteEvent("p2", "u") as any)
     expect(prisma.productAnalytics.upsert).toHaveBeenCalledWith({
       where: { productId: "p2" },
       update: { upvotes: { decrement: 1 } },
@@ -89,25 +141,37 @@ describe("analytics listeners", () => {
 
   it("logs errors when prisma upsert fails", async () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {})
-    ;(prisma.productAnalytics.upsert as any).mockRejectedValueOnce(
+    prismaMock.productAnalytics.upsert.mockRejectedValueOnce(
       new Error("x"),
     )
-    await publish("product.clicked", { productId: "p3" })
+    const clickHandler = resolveRegisteredHandler(
+      "product.clicked",
+      "analytics.record-product-click",
+    )
+    await clickHandler?.handler({ productId: "p3" } as any)
     expect(spy).toHaveBeenCalled()
     spy.mockRestore()
-    ;(prisma.productAnalytics.upsert as any).mockResolvedValue({})
+    prismaMock.productAnalytics.upsert.mockResolvedValue({})
   })
 
   it("logs error on upvote/downvote failure", async () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {})
-    ;(prisma.productAnalytics.upsert as any).mockRejectedValueOnce(
+    prismaMock.productAnalytics.upsert.mockRejectedValueOnce(
       new Error("x"),
     )
-    await publish("product.upvoted", makeVoteEvent("p4", "u"))
-    ;(prisma.productAnalytics.upsert as any).mockRejectedValueOnce(
+    const upvoteHandler = resolveRegisteredHandler(
+      "product.upvoted",
+      "analytics.increment-upvotes",
+    )
+    await upvoteHandler?.handler(makeVoteEvent("p4", "u") as any)
+    prismaMock.productAnalytics.upsert.mockRejectedValueOnce(
       new Error("y"),
     )
-    await publish("product.downvoted", makeVoteEvent("p4", "u"))
+    const downvoteHandler = resolveRegisteredHandler(
+      "product.downvoted",
+      "analytics.decrement-upvotes",
+    )
+    await downvoteHandler?.handler(makeVoteEvent("p4", "u") as any)
     expect(spy).toHaveBeenCalled()
     spy.mockRestore()
     ;(prisma.productAnalytics.upsert as any).mockResolvedValue({})
@@ -128,7 +192,12 @@ describe("analytics listeners", () => {
       ipHash: "hash",
     }
 
-    await publish("analytics.product-traffic", payload)
+    const handler = resolveRegisteredHandler(
+      "analytics.product-traffic",
+      "analytics.record-product-traffic",
+    )
+    expect(handler).toBeDefined()
+    await handler?.handler(payload as any)
     expect(prisma.productTrafficEvent.create).toHaveBeenCalledWith({
       data: {
         productId: payload.productId,
@@ -147,11 +216,20 @@ describe("analytics listeners", () => {
   })
 
   it("helper trackProductTraffic publishes event", async () => {
+    const spy = vi
+      .spyOn(eventsModule, "dispatchEvent")
+      .mockResolvedValue(undefined)
+
     await trackProductTraffic({
       productId: "p6",
       path: "/p",
       device: "mobile",
     })
-    expect(prisma.productTrafficEvent.create).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalledWith("analytics.product-traffic", {
+      productId: "p6",
+      path: "/p",
+      device: "mobile",
+    })
+    spy.mockRestore()
   })
 })

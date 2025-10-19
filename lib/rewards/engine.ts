@@ -1,7 +1,7 @@
 import crypto from "node:crypto"
 
 import prisma from "@/lib/prisma"
-import { publish } from "@/lib/server/events"
+import { dispatchEvent } from "@/lib/server/events"
 import {
   FeatureEntitlementStatus,
   PlacementStatus,
@@ -205,7 +205,7 @@ export async function awardRewards(
     })
 
     if (result.created) {
-      await publish("rewards.awarded", {
+      await dispatchEvent("rewards.awarded", {
         transactionId: result.transaction.id,
         userId,
         rewardAmount: result.transaction.rewardAmount,
@@ -459,7 +459,7 @@ export async function redeem(
   })
 
   if (result.created) {
-    await publish("rewards.redeemed", {
+    await dispatchEvent("rewards.redeemed", {
       transactionId: result.transaction.id,
       userId,
       featureKey,
@@ -624,7 +624,7 @@ export async function refundRedemption(
     }
   })
 
-  await publish("rewards.refunded", {
+  await dispatchEvent("rewards.refunded", {
     transactionId: result.transaction.id,
     redemptionId,
     userId: result.transaction.userId,
@@ -728,7 +728,7 @@ export async function adjustRewards(
   })
 
   if (result.created) {
-    await publish("rewards.adjusted", {
+    await dispatchEvent("rewards.adjusted", {
       transactionId: result.transaction.id,
       userId,
       amount,

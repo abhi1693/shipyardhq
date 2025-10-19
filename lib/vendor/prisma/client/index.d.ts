@@ -183,6 +183,16 @@ export type FeatureEntitlement = $Result.DefaultSelection<Prisma.$FeatureEntitle
  * 
  */
 export type PlacementSchedule = $Result.DefaultSelection<Prisma.$PlacementSchedulePayload>
+/**
+ * Model EventEnvelope
+ * 
+ */
+export type EventEnvelope = $Result.DefaultSelection<Prisma.$EventEnvelopePayload>
+/**
+ * Model EventAttempt
+ * 
+ */
+export type EventAttempt = $Result.DefaultSelection<Prisma.$EventAttemptPayload>
 
 /**
  * Enums
@@ -376,6 +386,26 @@ export const TimeInterval: {
 
 export type TimeInterval = (typeof TimeInterval)[keyof typeof TimeInterval]
 
+
+export const EventEnvelopeStatus: {
+  pending: 'pending',
+  processing: 'processing',
+  retrying: 'retrying',
+  completed: 'completed',
+  dead_letter: 'dead_letter'
+};
+
+export type EventEnvelopeStatus = (typeof EventEnvelopeStatus)[keyof typeof EventEnvelopeStatus]
+
+
+export const EventAttemptStatus: {
+  succeeded: 'succeeded',
+  failed: 'failed',
+  timed_out: 'timed_out'
+};
+
+export type EventAttemptStatus = (typeof EventAttemptStatus)[keyof typeof EventAttemptStatus]
+
 }
 
 export type ProductType = $Enums.ProductType
@@ -449,6 +479,14 @@ export const PlanType: typeof $Enums.PlanType
 export type TimeInterval = $Enums.TimeInterval
 
 export const TimeInterval: typeof $Enums.TimeInterval
+
+export type EventEnvelopeStatus = $Enums.EventEnvelopeStatus
+
+export const EventEnvelopeStatus: typeof $Enums.EventEnvelopeStatus
+
+export type EventAttemptStatus = $Enums.EventAttemptStatus
+
+export const EventAttemptStatus: typeof $Enums.EventAttemptStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -907,6 +945,26 @@ export class PrismaClient<
     * ```
     */
   get placementSchedule(): Prisma.PlacementScheduleDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.eventEnvelope`: Exposes CRUD operations for the **EventEnvelope** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EventEnvelopes
+    * const eventEnvelopes = await prisma.eventEnvelope.findMany()
+    * ```
+    */
+  get eventEnvelope(): Prisma.EventEnvelopeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.eventAttempt`: Exposes CRUD operations for the **EventAttempt** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EventAttempts
+    * const eventAttempts = await prisma.eventAttempt.findMany()
+    * ```
+    */
+  get eventAttempt(): Prisma.EventAttemptDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1380,7 +1438,9 @@ export namespace Prisma {
     RewardTransaction: 'RewardTransaction',
     Redemption: 'Redemption',
     FeatureEntitlement: 'FeatureEntitlement',
-    PlacementSchedule: 'PlacementSchedule'
+    PlacementSchedule: 'PlacementSchedule',
+    EventEnvelope: 'EventEnvelope',
+    EventAttempt: 'EventAttempt'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1399,7 +1459,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "product" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "productMedia" | "productUpdate" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule"
+      modelProps: "product" | "monthlyProductRanking" | "monthlyLeaderboardNotification" | "productMedia" | "productUpdate" | "productVerification" | "productMetadata" | "productAnalytics" | "productClickEvent" | "productTrafficEvent" | "productInsightProfile" | "productInsightStageResult" | "productUpvote" | "organization" | "organizationMembership" | "user" | "productReview" | "memberFeedback" | "newsletterSubscription" | "category" | "plan" | "planFeature" | "planFeatureAssignment" | "userPlanPurchase" | "productBadge" | "useCase" | "useCaseCategory" | "rewardBalance" | "rewardRule" | "rewardCatalogItem" | "rewardTransaction" | "redemption" | "featureEntitlement" | "placementSchedule" | "eventEnvelope" | "eventAttempt"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3919,6 +3979,154 @@ export namespace Prisma {
           }
         }
       }
+      EventEnvelope: {
+        payload: Prisma.$EventEnvelopePayload<ExtArgs>
+        fields: Prisma.EventEnvelopeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EventEnvelopeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EventEnvelopeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload>
+          }
+          findFirst: {
+            args: Prisma.EventEnvelopeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EventEnvelopeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload>
+          }
+          findMany: {
+            args: Prisma.EventEnvelopeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload>[]
+          }
+          create: {
+            args: Prisma.EventEnvelopeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload>
+          }
+          createMany: {
+            args: Prisma.EventEnvelopeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EventEnvelopeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload>[]
+          }
+          delete: {
+            args: Prisma.EventEnvelopeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload>
+          }
+          update: {
+            args: Prisma.EventEnvelopeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload>
+          }
+          deleteMany: {
+            args: Prisma.EventEnvelopeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EventEnvelopeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EventEnvelopeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload>[]
+          }
+          upsert: {
+            args: Prisma.EventEnvelopeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventEnvelopePayload>
+          }
+          aggregate: {
+            args: Prisma.EventEnvelopeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEventEnvelope>
+          }
+          groupBy: {
+            args: Prisma.EventEnvelopeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EventEnvelopeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EventEnvelopeCountArgs<ExtArgs>
+            result: $Utils.Optional<EventEnvelopeCountAggregateOutputType> | number
+          }
+        }
+      }
+      EventAttempt: {
+        payload: Prisma.$EventAttemptPayload<ExtArgs>
+        fields: Prisma.EventAttemptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EventAttemptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EventAttemptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload>
+          }
+          findFirst: {
+            args: Prisma.EventAttemptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EventAttemptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload>
+          }
+          findMany: {
+            args: Prisma.EventAttemptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload>[]
+          }
+          create: {
+            args: Prisma.EventAttemptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload>
+          }
+          createMany: {
+            args: Prisma.EventAttemptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EventAttemptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload>[]
+          }
+          delete: {
+            args: Prisma.EventAttemptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload>
+          }
+          update: {
+            args: Prisma.EventAttemptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload>
+          }
+          deleteMany: {
+            args: Prisma.EventAttemptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EventAttemptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EventAttemptUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload>[]
+          }
+          upsert: {
+            args: Prisma.EventAttemptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventAttemptPayload>
+          }
+          aggregate: {
+            args: Prisma.EventAttemptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEventAttempt>
+          }
+          groupBy: {
+            args: Prisma.EventAttemptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EventAttemptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EventAttemptCountArgs<ExtArgs>
+            result: $Utils.Optional<EventAttemptCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4049,6 +4257,8 @@ export namespace Prisma {
     redemption?: RedemptionOmit
     featureEntitlement?: FeatureEntitlementOmit
     placementSchedule?: PlacementScheduleOmit
+    eventEnvelope?: EventEnvelopeOmit
+    eventAttempt?: EventAttemptOmit
   }
 
   /* Types for Logging */
@@ -4781,6 +4991,37 @@ export namespace Prisma {
    */
   export type FeatureEntitlementCountOutputTypeCountPlacementSchedulesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PlacementScheduleWhereInput
+  }
+
+
+  /**
+   * Count Type EventEnvelopeCountOutputType
+   */
+
+  export type EventEnvelopeCountOutputType = {
+    attemptsLog: number
+  }
+
+  export type EventEnvelopeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    attemptsLog?: boolean | EventEnvelopeCountOutputTypeCountAttemptsLogArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * EventEnvelopeCountOutputType without action
+   */
+  export type EventEnvelopeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelopeCountOutputType
+     */
+    select?: EventEnvelopeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * EventEnvelopeCountOutputType without action
+   */
+  export type EventEnvelopeCountOutputTypeCountAttemptsLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EventAttemptWhereInput
   }
 
 
@@ -45114,6 +45355,2350 @@ export namespace Prisma {
 
 
   /**
+   * Model EventEnvelope
+   */
+
+  export type AggregateEventEnvelope = {
+    _count: EventEnvelopeCountAggregateOutputType | null
+    _avg: EventEnvelopeAvgAggregateOutputType | null
+    _sum: EventEnvelopeSumAggregateOutputType | null
+    _min: EventEnvelopeMinAggregateOutputType | null
+    _max: EventEnvelopeMaxAggregateOutputType | null
+  }
+
+  export type EventEnvelopeAvgAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type EventEnvelopeSumAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type EventEnvelopeMinAggregateOutputType = {
+    id: string | null
+    event: string | null
+    status: $Enums.EventEnvelopeStatus | null
+    attempts: number | null
+    lastError: string | null
+    enqueuedAt: Date | null
+    processingStarted: Date | null
+    processedAt: Date | null
+    nextRunAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EventEnvelopeMaxAggregateOutputType = {
+    id: string | null
+    event: string | null
+    status: $Enums.EventEnvelopeStatus | null
+    attempts: number | null
+    lastError: string | null
+    enqueuedAt: Date | null
+    processingStarted: Date | null
+    processedAt: Date | null
+    nextRunAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EventEnvelopeCountAggregateOutputType = {
+    id: number
+    event: number
+    payload: number
+    asyncHandlers: number
+    pendingHandlers: number
+    status: number
+    attempts: number
+    lastError: number
+    enqueuedAt: number
+    processingStarted: number
+    processedAt: number
+    nextRunAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EventEnvelopeAvgAggregateInputType = {
+    attempts?: true
+  }
+
+  export type EventEnvelopeSumAggregateInputType = {
+    attempts?: true
+  }
+
+  export type EventEnvelopeMinAggregateInputType = {
+    id?: true
+    event?: true
+    status?: true
+    attempts?: true
+    lastError?: true
+    enqueuedAt?: true
+    processingStarted?: true
+    processedAt?: true
+    nextRunAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EventEnvelopeMaxAggregateInputType = {
+    id?: true
+    event?: true
+    status?: true
+    attempts?: true
+    lastError?: true
+    enqueuedAt?: true
+    processingStarted?: true
+    processedAt?: true
+    nextRunAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EventEnvelopeCountAggregateInputType = {
+    id?: true
+    event?: true
+    payload?: true
+    asyncHandlers?: true
+    pendingHandlers?: true
+    status?: true
+    attempts?: true
+    lastError?: true
+    enqueuedAt?: true
+    processingStarted?: true
+    processedAt?: true
+    nextRunAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EventEnvelopeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EventEnvelope to aggregate.
+     */
+    where?: EventEnvelopeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventEnvelopes to fetch.
+     */
+    orderBy?: EventEnvelopeOrderByWithRelationInput | EventEnvelopeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EventEnvelopeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventEnvelopes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventEnvelopes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EventEnvelopes
+    **/
+    _count?: true | EventEnvelopeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EventEnvelopeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EventEnvelopeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EventEnvelopeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EventEnvelopeMaxAggregateInputType
+  }
+
+  export type GetEventEnvelopeAggregateType<T extends EventEnvelopeAggregateArgs> = {
+        [P in keyof T & keyof AggregateEventEnvelope]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEventEnvelope[P]>
+      : GetScalarType<T[P], AggregateEventEnvelope[P]>
+  }
+
+
+
+
+  export type EventEnvelopeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EventEnvelopeWhereInput
+    orderBy?: EventEnvelopeOrderByWithAggregationInput | EventEnvelopeOrderByWithAggregationInput[]
+    by: EventEnvelopeScalarFieldEnum[] | EventEnvelopeScalarFieldEnum
+    having?: EventEnvelopeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EventEnvelopeCountAggregateInputType | true
+    _avg?: EventEnvelopeAvgAggregateInputType
+    _sum?: EventEnvelopeSumAggregateInputType
+    _min?: EventEnvelopeMinAggregateInputType
+    _max?: EventEnvelopeMaxAggregateInputType
+  }
+
+  export type EventEnvelopeGroupByOutputType = {
+    id: string
+    event: string
+    payload: JsonValue
+    asyncHandlers: string[]
+    pendingHandlers: string[]
+    status: $Enums.EventEnvelopeStatus
+    attempts: number
+    lastError: string | null
+    enqueuedAt: Date
+    processingStarted: Date | null
+    processedAt: Date | null
+    nextRunAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: EventEnvelopeCountAggregateOutputType | null
+    _avg: EventEnvelopeAvgAggregateOutputType | null
+    _sum: EventEnvelopeSumAggregateOutputType | null
+    _min: EventEnvelopeMinAggregateOutputType | null
+    _max: EventEnvelopeMaxAggregateOutputType | null
+  }
+
+  type GetEventEnvelopeGroupByPayload<T extends EventEnvelopeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EventEnvelopeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EventEnvelopeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EventEnvelopeGroupByOutputType[P]>
+            : GetScalarType<T[P], EventEnvelopeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EventEnvelopeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event?: boolean
+    payload?: boolean
+    asyncHandlers?: boolean
+    pendingHandlers?: boolean
+    status?: boolean
+    attempts?: boolean
+    lastError?: boolean
+    enqueuedAt?: boolean
+    processingStarted?: boolean
+    processedAt?: boolean
+    nextRunAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    attemptsLog?: boolean | EventEnvelope$attemptsLogArgs<ExtArgs>
+    _count?: boolean | EventEnvelopeCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eventEnvelope"]>
+
+  export type EventEnvelopeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event?: boolean
+    payload?: boolean
+    asyncHandlers?: boolean
+    pendingHandlers?: boolean
+    status?: boolean
+    attempts?: boolean
+    lastError?: boolean
+    enqueuedAt?: boolean
+    processingStarted?: boolean
+    processedAt?: boolean
+    nextRunAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["eventEnvelope"]>
+
+  export type EventEnvelopeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event?: boolean
+    payload?: boolean
+    asyncHandlers?: boolean
+    pendingHandlers?: boolean
+    status?: boolean
+    attempts?: boolean
+    lastError?: boolean
+    enqueuedAt?: boolean
+    processingStarted?: boolean
+    processedAt?: boolean
+    nextRunAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["eventEnvelope"]>
+
+  export type EventEnvelopeSelectScalar = {
+    id?: boolean
+    event?: boolean
+    payload?: boolean
+    asyncHandlers?: boolean
+    pendingHandlers?: boolean
+    status?: boolean
+    attempts?: boolean
+    lastError?: boolean
+    enqueuedAt?: boolean
+    processingStarted?: boolean
+    processedAt?: boolean
+    nextRunAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EventEnvelopeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "event" | "payload" | "asyncHandlers" | "pendingHandlers" | "status" | "attempts" | "lastError" | "enqueuedAt" | "processingStarted" | "processedAt" | "nextRunAt" | "createdAt" | "updatedAt", ExtArgs["result"]["eventEnvelope"]>
+  export type EventEnvelopeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    attemptsLog?: boolean | EventEnvelope$attemptsLogArgs<ExtArgs>
+    _count?: boolean | EventEnvelopeCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type EventEnvelopeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type EventEnvelopeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $EventEnvelopePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EventEnvelope"
+    objects: {
+      attemptsLog: Prisma.$EventAttemptPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      event: string
+      payload: Prisma.JsonValue
+      asyncHandlers: string[]
+      pendingHandlers: string[]
+      status: $Enums.EventEnvelopeStatus
+      attempts: number
+      lastError: string | null
+      enqueuedAt: Date
+      processingStarted: Date | null
+      processedAt: Date | null
+      nextRunAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["eventEnvelope"]>
+    composites: {}
+  }
+
+  type EventEnvelopeGetPayload<S extends boolean | null | undefined | EventEnvelopeDefaultArgs> = $Result.GetResult<Prisma.$EventEnvelopePayload, S>
+
+  type EventEnvelopeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EventEnvelopeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EventEnvelopeCountAggregateInputType | true
+    }
+
+  export interface EventEnvelopeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EventEnvelope'], meta: { name: 'EventEnvelope' } }
+    /**
+     * Find zero or one EventEnvelope that matches the filter.
+     * @param {EventEnvelopeFindUniqueArgs} args - Arguments to find a EventEnvelope
+     * @example
+     * // Get one EventEnvelope
+     * const eventEnvelope = await prisma.eventEnvelope.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EventEnvelopeFindUniqueArgs>(args: SelectSubset<T, EventEnvelopeFindUniqueArgs<ExtArgs>>): Prisma__EventEnvelopeClient<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EventEnvelope that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EventEnvelopeFindUniqueOrThrowArgs} args - Arguments to find a EventEnvelope
+     * @example
+     * // Get one EventEnvelope
+     * const eventEnvelope = await prisma.eventEnvelope.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EventEnvelopeFindUniqueOrThrowArgs>(args: SelectSubset<T, EventEnvelopeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EventEnvelopeClient<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EventEnvelope that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventEnvelopeFindFirstArgs} args - Arguments to find a EventEnvelope
+     * @example
+     * // Get one EventEnvelope
+     * const eventEnvelope = await prisma.eventEnvelope.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EventEnvelopeFindFirstArgs>(args?: SelectSubset<T, EventEnvelopeFindFirstArgs<ExtArgs>>): Prisma__EventEnvelopeClient<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EventEnvelope that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventEnvelopeFindFirstOrThrowArgs} args - Arguments to find a EventEnvelope
+     * @example
+     * // Get one EventEnvelope
+     * const eventEnvelope = await prisma.eventEnvelope.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EventEnvelopeFindFirstOrThrowArgs>(args?: SelectSubset<T, EventEnvelopeFindFirstOrThrowArgs<ExtArgs>>): Prisma__EventEnvelopeClient<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EventEnvelopes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventEnvelopeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EventEnvelopes
+     * const eventEnvelopes = await prisma.eventEnvelope.findMany()
+     * 
+     * // Get first 10 EventEnvelopes
+     * const eventEnvelopes = await prisma.eventEnvelope.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const eventEnvelopeWithIdOnly = await prisma.eventEnvelope.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EventEnvelopeFindManyArgs>(args?: SelectSubset<T, EventEnvelopeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EventEnvelope.
+     * @param {EventEnvelopeCreateArgs} args - Arguments to create a EventEnvelope.
+     * @example
+     * // Create one EventEnvelope
+     * const EventEnvelope = await prisma.eventEnvelope.create({
+     *   data: {
+     *     // ... data to create a EventEnvelope
+     *   }
+     * })
+     * 
+     */
+    create<T extends EventEnvelopeCreateArgs>(args: SelectSubset<T, EventEnvelopeCreateArgs<ExtArgs>>): Prisma__EventEnvelopeClient<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EventEnvelopes.
+     * @param {EventEnvelopeCreateManyArgs} args - Arguments to create many EventEnvelopes.
+     * @example
+     * // Create many EventEnvelopes
+     * const eventEnvelope = await prisma.eventEnvelope.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EventEnvelopeCreateManyArgs>(args?: SelectSubset<T, EventEnvelopeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EventEnvelopes and returns the data saved in the database.
+     * @param {EventEnvelopeCreateManyAndReturnArgs} args - Arguments to create many EventEnvelopes.
+     * @example
+     * // Create many EventEnvelopes
+     * const eventEnvelope = await prisma.eventEnvelope.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EventEnvelopes and only return the `id`
+     * const eventEnvelopeWithIdOnly = await prisma.eventEnvelope.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EventEnvelopeCreateManyAndReturnArgs>(args?: SelectSubset<T, EventEnvelopeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EventEnvelope.
+     * @param {EventEnvelopeDeleteArgs} args - Arguments to delete one EventEnvelope.
+     * @example
+     * // Delete one EventEnvelope
+     * const EventEnvelope = await prisma.eventEnvelope.delete({
+     *   where: {
+     *     // ... filter to delete one EventEnvelope
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EventEnvelopeDeleteArgs>(args: SelectSubset<T, EventEnvelopeDeleteArgs<ExtArgs>>): Prisma__EventEnvelopeClient<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EventEnvelope.
+     * @param {EventEnvelopeUpdateArgs} args - Arguments to update one EventEnvelope.
+     * @example
+     * // Update one EventEnvelope
+     * const eventEnvelope = await prisma.eventEnvelope.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EventEnvelopeUpdateArgs>(args: SelectSubset<T, EventEnvelopeUpdateArgs<ExtArgs>>): Prisma__EventEnvelopeClient<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EventEnvelopes.
+     * @param {EventEnvelopeDeleteManyArgs} args - Arguments to filter EventEnvelopes to delete.
+     * @example
+     * // Delete a few EventEnvelopes
+     * const { count } = await prisma.eventEnvelope.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EventEnvelopeDeleteManyArgs>(args?: SelectSubset<T, EventEnvelopeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EventEnvelopes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventEnvelopeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EventEnvelopes
+     * const eventEnvelope = await prisma.eventEnvelope.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EventEnvelopeUpdateManyArgs>(args: SelectSubset<T, EventEnvelopeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EventEnvelopes and returns the data updated in the database.
+     * @param {EventEnvelopeUpdateManyAndReturnArgs} args - Arguments to update many EventEnvelopes.
+     * @example
+     * // Update many EventEnvelopes
+     * const eventEnvelope = await prisma.eventEnvelope.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EventEnvelopes and only return the `id`
+     * const eventEnvelopeWithIdOnly = await prisma.eventEnvelope.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EventEnvelopeUpdateManyAndReturnArgs>(args: SelectSubset<T, EventEnvelopeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EventEnvelope.
+     * @param {EventEnvelopeUpsertArgs} args - Arguments to update or create a EventEnvelope.
+     * @example
+     * // Update or create a EventEnvelope
+     * const eventEnvelope = await prisma.eventEnvelope.upsert({
+     *   create: {
+     *     // ... data to create a EventEnvelope
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EventEnvelope we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EventEnvelopeUpsertArgs>(args: SelectSubset<T, EventEnvelopeUpsertArgs<ExtArgs>>): Prisma__EventEnvelopeClient<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EventEnvelopes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventEnvelopeCountArgs} args - Arguments to filter EventEnvelopes to count.
+     * @example
+     * // Count the number of EventEnvelopes
+     * const count = await prisma.eventEnvelope.count({
+     *   where: {
+     *     // ... the filter for the EventEnvelopes we want to count
+     *   }
+     * })
+    **/
+    count<T extends EventEnvelopeCountArgs>(
+      args?: Subset<T, EventEnvelopeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EventEnvelopeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EventEnvelope.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventEnvelopeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EventEnvelopeAggregateArgs>(args: Subset<T, EventEnvelopeAggregateArgs>): Prisma.PrismaPromise<GetEventEnvelopeAggregateType<T>>
+
+    /**
+     * Group by EventEnvelope.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventEnvelopeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EventEnvelopeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EventEnvelopeGroupByArgs['orderBy'] }
+        : { orderBy?: EventEnvelopeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EventEnvelopeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEventEnvelopeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EventEnvelope model
+   */
+  readonly fields: EventEnvelopeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EventEnvelope.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EventEnvelopeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    attemptsLog<T extends EventEnvelope$attemptsLogArgs<ExtArgs> = {}>(args?: Subset<T, EventEnvelope$attemptsLogArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EventEnvelope model
+   */
+  interface EventEnvelopeFieldRefs {
+    readonly id: FieldRef<"EventEnvelope", 'String'>
+    readonly event: FieldRef<"EventEnvelope", 'String'>
+    readonly payload: FieldRef<"EventEnvelope", 'Json'>
+    readonly asyncHandlers: FieldRef<"EventEnvelope", 'String[]'>
+    readonly pendingHandlers: FieldRef<"EventEnvelope", 'String[]'>
+    readonly status: FieldRef<"EventEnvelope", 'EventEnvelopeStatus'>
+    readonly attempts: FieldRef<"EventEnvelope", 'Int'>
+    readonly lastError: FieldRef<"EventEnvelope", 'String'>
+    readonly enqueuedAt: FieldRef<"EventEnvelope", 'DateTime'>
+    readonly processingStarted: FieldRef<"EventEnvelope", 'DateTime'>
+    readonly processedAt: FieldRef<"EventEnvelope", 'DateTime'>
+    readonly nextRunAt: FieldRef<"EventEnvelope", 'DateTime'>
+    readonly createdAt: FieldRef<"EventEnvelope", 'DateTime'>
+    readonly updatedAt: FieldRef<"EventEnvelope", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EventEnvelope findUnique
+   */
+  export type EventEnvelopeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventEnvelopeInclude<ExtArgs> | null
+    /**
+     * Filter, which EventEnvelope to fetch.
+     */
+    where: EventEnvelopeWhereUniqueInput
+  }
+
+  /**
+   * EventEnvelope findUniqueOrThrow
+   */
+  export type EventEnvelopeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventEnvelopeInclude<ExtArgs> | null
+    /**
+     * Filter, which EventEnvelope to fetch.
+     */
+    where: EventEnvelopeWhereUniqueInput
+  }
+
+  /**
+   * EventEnvelope findFirst
+   */
+  export type EventEnvelopeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventEnvelopeInclude<ExtArgs> | null
+    /**
+     * Filter, which EventEnvelope to fetch.
+     */
+    where?: EventEnvelopeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventEnvelopes to fetch.
+     */
+    orderBy?: EventEnvelopeOrderByWithRelationInput | EventEnvelopeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EventEnvelopes.
+     */
+    cursor?: EventEnvelopeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventEnvelopes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventEnvelopes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EventEnvelopes.
+     */
+    distinct?: EventEnvelopeScalarFieldEnum | EventEnvelopeScalarFieldEnum[]
+  }
+
+  /**
+   * EventEnvelope findFirstOrThrow
+   */
+  export type EventEnvelopeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventEnvelopeInclude<ExtArgs> | null
+    /**
+     * Filter, which EventEnvelope to fetch.
+     */
+    where?: EventEnvelopeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventEnvelopes to fetch.
+     */
+    orderBy?: EventEnvelopeOrderByWithRelationInput | EventEnvelopeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EventEnvelopes.
+     */
+    cursor?: EventEnvelopeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventEnvelopes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventEnvelopes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EventEnvelopes.
+     */
+    distinct?: EventEnvelopeScalarFieldEnum | EventEnvelopeScalarFieldEnum[]
+  }
+
+  /**
+   * EventEnvelope findMany
+   */
+  export type EventEnvelopeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventEnvelopeInclude<ExtArgs> | null
+    /**
+     * Filter, which EventEnvelopes to fetch.
+     */
+    where?: EventEnvelopeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventEnvelopes to fetch.
+     */
+    orderBy?: EventEnvelopeOrderByWithRelationInput | EventEnvelopeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EventEnvelopes.
+     */
+    cursor?: EventEnvelopeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventEnvelopes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventEnvelopes.
+     */
+    skip?: number
+    distinct?: EventEnvelopeScalarFieldEnum | EventEnvelopeScalarFieldEnum[]
+  }
+
+  /**
+   * EventEnvelope create
+   */
+  export type EventEnvelopeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventEnvelopeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EventEnvelope.
+     */
+    data: XOR<EventEnvelopeCreateInput, EventEnvelopeUncheckedCreateInput>
+  }
+
+  /**
+   * EventEnvelope createMany
+   */
+  export type EventEnvelopeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EventEnvelopes.
+     */
+    data: EventEnvelopeCreateManyInput | EventEnvelopeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EventEnvelope createManyAndReturn
+   */
+  export type EventEnvelopeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * The data used to create many EventEnvelopes.
+     */
+    data: EventEnvelopeCreateManyInput | EventEnvelopeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EventEnvelope update
+   */
+  export type EventEnvelopeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventEnvelopeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EventEnvelope.
+     */
+    data: XOR<EventEnvelopeUpdateInput, EventEnvelopeUncheckedUpdateInput>
+    /**
+     * Choose, which EventEnvelope to update.
+     */
+    where: EventEnvelopeWhereUniqueInput
+  }
+
+  /**
+   * EventEnvelope updateMany
+   */
+  export type EventEnvelopeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EventEnvelopes.
+     */
+    data: XOR<EventEnvelopeUpdateManyMutationInput, EventEnvelopeUncheckedUpdateManyInput>
+    /**
+     * Filter which EventEnvelopes to update
+     */
+    where?: EventEnvelopeWhereInput
+    /**
+     * Limit how many EventEnvelopes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EventEnvelope updateManyAndReturn
+   */
+  export type EventEnvelopeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * The data used to update EventEnvelopes.
+     */
+    data: XOR<EventEnvelopeUpdateManyMutationInput, EventEnvelopeUncheckedUpdateManyInput>
+    /**
+     * Filter which EventEnvelopes to update
+     */
+    where?: EventEnvelopeWhereInput
+    /**
+     * Limit how many EventEnvelopes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EventEnvelope upsert
+   */
+  export type EventEnvelopeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventEnvelopeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EventEnvelope to update in case it exists.
+     */
+    where: EventEnvelopeWhereUniqueInput
+    /**
+     * In case the EventEnvelope found by the `where` argument doesn't exist, create a new EventEnvelope with this data.
+     */
+    create: XOR<EventEnvelopeCreateInput, EventEnvelopeUncheckedCreateInput>
+    /**
+     * In case the EventEnvelope was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EventEnvelopeUpdateInput, EventEnvelopeUncheckedUpdateInput>
+  }
+
+  /**
+   * EventEnvelope delete
+   */
+  export type EventEnvelopeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventEnvelopeInclude<ExtArgs> | null
+    /**
+     * Filter which EventEnvelope to delete.
+     */
+    where: EventEnvelopeWhereUniqueInput
+  }
+
+  /**
+   * EventEnvelope deleteMany
+   */
+  export type EventEnvelopeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EventEnvelopes to delete
+     */
+    where?: EventEnvelopeWhereInput
+    /**
+     * Limit how many EventEnvelopes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EventEnvelope.attemptsLog
+   */
+  export type EventEnvelope$attemptsLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+    where?: EventAttemptWhereInput
+    orderBy?: EventAttemptOrderByWithRelationInput | EventAttemptOrderByWithRelationInput[]
+    cursor?: EventAttemptWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EventAttemptScalarFieldEnum | EventAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * EventEnvelope without action
+   */
+  export type EventEnvelopeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventEnvelope
+     */
+    select?: EventEnvelopeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventEnvelope
+     */
+    omit?: EventEnvelopeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventEnvelopeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EventAttempt
+   */
+
+  export type AggregateEventAttempt = {
+    _count: EventAttemptCountAggregateOutputType | null
+    _avg: EventAttemptAvgAggregateOutputType | null
+    _sum: EventAttemptSumAggregateOutputType | null
+    _min: EventAttemptMinAggregateOutputType | null
+    _max: EventAttemptMaxAggregateOutputType | null
+  }
+
+  export type EventAttemptAvgAggregateOutputType = {
+    durationMs: number | null
+    attempt: number | null
+  }
+
+  export type EventAttemptSumAggregateOutputType = {
+    durationMs: number | null
+    attempt: number | null
+  }
+
+  export type EventAttemptMinAggregateOutputType = {
+    id: string | null
+    envelopeId: string | null
+    handler: string | null
+    status: $Enums.EventAttemptStatus | null
+    durationMs: number | null
+    error: string | null
+    attempt: number | null
+    createdAt: Date | null
+  }
+
+  export type EventAttemptMaxAggregateOutputType = {
+    id: string | null
+    envelopeId: string | null
+    handler: string | null
+    status: $Enums.EventAttemptStatus | null
+    durationMs: number | null
+    error: string | null
+    attempt: number | null
+    createdAt: Date | null
+  }
+
+  export type EventAttemptCountAggregateOutputType = {
+    id: number
+    envelopeId: number
+    handler: number
+    status: number
+    durationMs: number
+    error: number
+    attempt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type EventAttemptAvgAggregateInputType = {
+    durationMs?: true
+    attempt?: true
+  }
+
+  export type EventAttemptSumAggregateInputType = {
+    durationMs?: true
+    attempt?: true
+  }
+
+  export type EventAttemptMinAggregateInputType = {
+    id?: true
+    envelopeId?: true
+    handler?: true
+    status?: true
+    durationMs?: true
+    error?: true
+    attempt?: true
+    createdAt?: true
+  }
+
+  export type EventAttemptMaxAggregateInputType = {
+    id?: true
+    envelopeId?: true
+    handler?: true
+    status?: true
+    durationMs?: true
+    error?: true
+    attempt?: true
+    createdAt?: true
+  }
+
+  export type EventAttemptCountAggregateInputType = {
+    id?: true
+    envelopeId?: true
+    handler?: true
+    status?: true
+    durationMs?: true
+    error?: true
+    attempt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type EventAttemptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EventAttempt to aggregate.
+     */
+    where?: EventAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventAttempts to fetch.
+     */
+    orderBy?: EventAttemptOrderByWithRelationInput | EventAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EventAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EventAttempts
+    **/
+    _count?: true | EventAttemptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EventAttemptAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EventAttemptSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EventAttemptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EventAttemptMaxAggregateInputType
+  }
+
+  export type GetEventAttemptAggregateType<T extends EventAttemptAggregateArgs> = {
+        [P in keyof T & keyof AggregateEventAttempt]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEventAttempt[P]>
+      : GetScalarType<T[P], AggregateEventAttempt[P]>
+  }
+
+
+
+
+  export type EventAttemptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EventAttemptWhereInput
+    orderBy?: EventAttemptOrderByWithAggregationInput | EventAttemptOrderByWithAggregationInput[]
+    by: EventAttemptScalarFieldEnum[] | EventAttemptScalarFieldEnum
+    having?: EventAttemptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EventAttemptCountAggregateInputType | true
+    _avg?: EventAttemptAvgAggregateInputType
+    _sum?: EventAttemptSumAggregateInputType
+    _min?: EventAttemptMinAggregateInputType
+    _max?: EventAttemptMaxAggregateInputType
+  }
+
+  export type EventAttemptGroupByOutputType = {
+    id: string
+    envelopeId: string
+    handler: string
+    status: $Enums.EventAttemptStatus
+    durationMs: number | null
+    error: string | null
+    attempt: number
+    createdAt: Date
+    _count: EventAttemptCountAggregateOutputType | null
+    _avg: EventAttemptAvgAggregateOutputType | null
+    _sum: EventAttemptSumAggregateOutputType | null
+    _min: EventAttemptMinAggregateOutputType | null
+    _max: EventAttemptMaxAggregateOutputType | null
+  }
+
+  type GetEventAttemptGroupByPayload<T extends EventAttemptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EventAttemptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EventAttemptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EventAttemptGroupByOutputType[P]>
+            : GetScalarType<T[P], EventAttemptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EventAttemptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    envelopeId?: boolean
+    handler?: boolean
+    status?: boolean
+    durationMs?: boolean
+    error?: boolean
+    attempt?: boolean
+    createdAt?: boolean
+    envelope?: boolean | EventEnvelopeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eventAttempt"]>
+
+  export type EventAttemptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    envelopeId?: boolean
+    handler?: boolean
+    status?: boolean
+    durationMs?: boolean
+    error?: boolean
+    attempt?: boolean
+    createdAt?: boolean
+    envelope?: boolean | EventEnvelopeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eventAttempt"]>
+
+  export type EventAttemptSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    envelopeId?: boolean
+    handler?: boolean
+    status?: boolean
+    durationMs?: boolean
+    error?: boolean
+    attempt?: boolean
+    createdAt?: boolean
+    envelope?: boolean | EventEnvelopeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eventAttempt"]>
+
+  export type EventAttemptSelectScalar = {
+    id?: boolean
+    envelopeId?: boolean
+    handler?: boolean
+    status?: boolean
+    durationMs?: boolean
+    error?: boolean
+    attempt?: boolean
+    createdAt?: boolean
+  }
+
+  export type EventAttemptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "envelopeId" | "handler" | "status" | "durationMs" | "error" | "attempt" | "createdAt", ExtArgs["result"]["eventAttempt"]>
+  export type EventAttemptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    envelope?: boolean | EventEnvelopeDefaultArgs<ExtArgs>
+  }
+  export type EventAttemptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    envelope?: boolean | EventEnvelopeDefaultArgs<ExtArgs>
+  }
+  export type EventAttemptIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    envelope?: boolean | EventEnvelopeDefaultArgs<ExtArgs>
+  }
+
+  export type $EventAttemptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EventAttempt"
+    objects: {
+      envelope: Prisma.$EventEnvelopePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      envelopeId: string
+      handler: string
+      status: $Enums.EventAttemptStatus
+      durationMs: number | null
+      error: string | null
+      attempt: number
+      createdAt: Date
+    }, ExtArgs["result"]["eventAttempt"]>
+    composites: {}
+  }
+
+  type EventAttemptGetPayload<S extends boolean | null | undefined | EventAttemptDefaultArgs> = $Result.GetResult<Prisma.$EventAttemptPayload, S>
+
+  type EventAttemptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EventAttemptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EventAttemptCountAggregateInputType | true
+    }
+
+  export interface EventAttemptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EventAttempt'], meta: { name: 'EventAttempt' } }
+    /**
+     * Find zero or one EventAttempt that matches the filter.
+     * @param {EventAttemptFindUniqueArgs} args - Arguments to find a EventAttempt
+     * @example
+     * // Get one EventAttempt
+     * const eventAttempt = await prisma.eventAttempt.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EventAttemptFindUniqueArgs>(args: SelectSubset<T, EventAttemptFindUniqueArgs<ExtArgs>>): Prisma__EventAttemptClient<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EventAttempt that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EventAttemptFindUniqueOrThrowArgs} args - Arguments to find a EventAttempt
+     * @example
+     * // Get one EventAttempt
+     * const eventAttempt = await prisma.eventAttempt.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EventAttemptFindUniqueOrThrowArgs>(args: SelectSubset<T, EventAttemptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EventAttemptClient<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EventAttempt that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventAttemptFindFirstArgs} args - Arguments to find a EventAttempt
+     * @example
+     * // Get one EventAttempt
+     * const eventAttempt = await prisma.eventAttempt.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EventAttemptFindFirstArgs>(args?: SelectSubset<T, EventAttemptFindFirstArgs<ExtArgs>>): Prisma__EventAttemptClient<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EventAttempt that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventAttemptFindFirstOrThrowArgs} args - Arguments to find a EventAttempt
+     * @example
+     * // Get one EventAttempt
+     * const eventAttempt = await prisma.eventAttempt.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EventAttemptFindFirstOrThrowArgs>(args?: SelectSubset<T, EventAttemptFindFirstOrThrowArgs<ExtArgs>>): Prisma__EventAttemptClient<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EventAttempts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventAttemptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EventAttempts
+     * const eventAttempts = await prisma.eventAttempt.findMany()
+     * 
+     * // Get first 10 EventAttempts
+     * const eventAttempts = await prisma.eventAttempt.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const eventAttemptWithIdOnly = await prisma.eventAttempt.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EventAttemptFindManyArgs>(args?: SelectSubset<T, EventAttemptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EventAttempt.
+     * @param {EventAttemptCreateArgs} args - Arguments to create a EventAttempt.
+     * @example
+     * // Create one EventAttempt
+     * const EventAttempt = await prisma.eventAttempt.create({
+     *   data: {
+     *     // ... data to create a EventAttempt
+     *   }
+     * })
+     * 
+     */
+    create<T extends EventAttemptCreateArgs>(args: SelectSubset<T, EventAttemptCreateArgs<ExtArgs>>): Prisma__EventAttemptClient<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EventAttempts.
+     * @param {EventAttemptCreateManyArgs} args - Arguments to create many EventAttempts.
+     * @example
+     * // Create many EventAttempts
+     * const eventAttempt = await prisma.eventAttempt.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EventAttemptCreateManyArgs>(args?: SelectSubset<T, EventAttemptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EventAttempts and returns the data saved in the database.
+     * @param {EventAttemptCreateManyAndReturnArgs} args - Arguments to create many EventAttempts.
+     * @example
+     * // Create many EventAttempts
+     * const eventAttempt = await prisma.eventAttempt.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EventAttempts and only return the `id`
+     * const eventAttemptWithIdOnly = await prisma.eventAttempt.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EventAttemptCreateManyAndReturnArgs>(args?: SelectSubset<T, EventAttemptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EventAttempt.
+     * @param {EventAttemptDeleteArgs} args - Arguments to delete one EventAttempt.
+     * @example
+     * // Delete one EventAttempt
+     * const EventAttempt = await prisma.eventAttempt.delete({
+     *   where: {
+     *     // ... filter to delete one EventAttempt
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EventAttemptDeleteArgs>(args: SelectSubset<T, EventAttemptDeleteArgs<ExtArgs>>): Prisma__EventAttemptClient<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EventAttempt.
+     * @param {EventAttemptUpdateArgs} args - Arguments to update one EventAttempt.
+     * @example
+     * // Update one EventAttempt
+     * const eventAttempt = await prisma.eventAttempt.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EventAttemptUpdateArgs>(args: SelectSubset<T, EventAttemptUpdateArgs<ExtArgs>>): Prisma__EventAttemptClient<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EventAttempts.
+     * @param {EventAttemptDeleteManyArgs} args - Arguments to filter EventAttempts to delete.
+     * @example
+     * // Delete a few EventAttempts
+     * const { count } = await prisma.eventAttempt.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EventAttemptDeleteManyArgs>(args?: SelectSubset<T, EventAttemptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EventAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventAttemptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EventAttempts
+     * const eventAttempt = await prisma.eventAttempt.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EventAttemptUpdateManyArgs>(args: SelectSubset<T, EventAttemptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EventAttempts and returns the data updated in the database.
+     * @param {EventAttemptUpdateManyAndReturnArgs} args - Arguments to update many EventAttempts.
+     * @example
+     * // Update many EventAttempts
+     * const eventAttempt = await prisma.eventAttempt.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EventAttempts and only return the `id`
+     * const eventAttemptWithIdOnly = await prisma.eventAttempt.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EventAttemptUpdateManyAndReturnArgs>(args: SelectSubset<T, EventAttemptUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EventAttempt.
+     * @param {EventAttemptUpsertArgs} args - Arguments to update or create a EventAttempt.
+     * @example
+     * // Update or create a EventAttempt
+     * const eventAttempt = await prisma.eventAttempt.upsert({
+     *   create: {
+     *     // ... data to create a EventAttempt
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EventAttempt we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EventAttemptUpsertArgs>(args: SelectSubset<T, EventAttemptUpsertArgs<ExtArgs>>): Prisma__EventAttemptClient<$Result.GetResult<Prisma.$EventAttemptPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EventAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventAttemptCountArgs} args - Arguments to filter EventAttempts to count.
+     * @example
+     * // Count the number of EventAttempts
+     * const count = await prisma.eventAttempt.count({
+     *   where: {
+     *     // ... the filter for the EventAttempts we want to count
+     *   }
+     * })
+    **/
+    count<T extends EventAttemptCountArgs>(
+      args?: Subset<T, EventAttemptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EventAttemptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EventAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventAttemptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EventAttemptAggregateArgs>(args: Subset<T, EventAttemptAggregateArgs>): Prisma.PrismaPromise<GetEventAttemptAggregateType<T>>
+
+    /**
+     * Group by EventAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventAttemptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EventAttemptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EventAttemptGroupByArgs['orderBy'] }
+        : { orderBy?: EventAttemptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EventAttemptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEventAttemptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EventAttempt model
+   */
+  readonly fields: EventAttemptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EventAttempt.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EventAttemptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    envelope<T extends EventEnvelopeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EventEnvelopeDefaultArgs<ExtArgs>>): Prisma__EventEnvelopeClient<$Result.GetResult<Prisma.$EventEnvelopePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EventAttempt model
+   */
+  interface EventAttemptFieldRefs {
+    readonly id: FieldRef<"EventAttempt", 'String'>
+    readonly envelopeId: FieldRef<"EventAttempt", 'String'>
+    readonly handler: FieldRef<"EventAttempt", 'String'>
+    readonly status: FieldRef<"EventAttempt", 'EventAttemptStatus'>
+    readonly durationMs: FieldRef<"EventAttempt", 'Int'>
+    readonly error: FieldRef<"EventAttempt", 'String'>
+    readonly attempt: FieldRef<"EventAttempt", 'Int'>
+    readonly createdAt: FieldRef<"EventAttempt", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EventAttempt findUnique
+   */
+  export type EventAttemptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which EventAttempt to fetch.
+     */
+    where: EventAttemptWhereUniqueInput
+  }
+
+  /**
+   * EventAttempt findUniqueOrThrow
+   */
+  export type EventAttemptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which EventAttempt to fetch.
+     */
+    where: EventAttemptWhereUniqueInput
+  }
+
+  /**
+   * EventAttempt findFirst
+   */
+  export type EventAttemptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which EventAttempt to fetch.
+     */
+    where?: EventAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventAttempts to fetch.
+     */
+    orderBy?: EventAttemptOrderByWithRelationInput | EventAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EventAttempts.
+     */
+    cursor?: EventAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EventAttempts.
+     */
+    distinct?: EventAttemptScalarFieldEnum | EventAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * EventAttempt findFirstOrThrow
+   */
+  export type EventAttemptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which EventAttempt to fetch.
+     */
+    where?: EventAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventAttempts to fetch.
+     */
+    orderBy?: EventAttemptOrderByWithRelationInput | EventAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EventAttempts.
+     */
+    cursor?: EventAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EventAttempts.
+     */
+    distinct?: EventAttemptScalarFieldEnum | EventAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * EventAttempt findMany
+   */
+  export type EventAttemptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which EventAttempts to fetch.
+     */
+    where?: EventAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventAttempts to fetch.
+     */
+    orderBy?: EventAttemptOrderByWithRelationInput | EventAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EventAttempts.
+     */
+    cursor?: EventAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventAttempts.
+     */
+    skip?: number
+    distinct?: EventAttemptScalarFieldEnum | EventAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * EventAttempt create
+   */
+  export type EventAttemptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EventAttempt.
+     */
+    data: XOR<EventAttemptCreateInput, EventAttemptUncheckedCreateInput>
+  }
+
+  /**
+   * EventAttempt createMany
+   */
+  export type EventAttemptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EventAttempts.
+     */
+    data: EventAttemptCreateManyInput | EventAttemptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EventAttempt createManyAndReturn
+   */
+  export type EventAttemptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * The data used to create many EventAttempts.
+     */
+    data: EventAttemptCreateManyInput | EventAttemptCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EventAttempt update
+   */
+  export type EventAttemptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EventAttempt.
+     */
+    data: XOR<EventAttemptUpdateInput, EventAttemptUncheckedUpdateInput>
+    /**
+     * Choose, which EventAttempt to update.
+     */
+    where: EventAttemptWhereUniqueInput
+  }
+
+  /**
+   * EventAttempt updateMany
+   */
+  export type EventAttemptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EventAttempts.
+     */
+    data: XOR<EventAttemptUpdateManyMutationInput, EventAttemptUncheckedUpdateManyInput>
+    /**
+     * Filter which EventAttempts to update
+     */
+    where?: EventAttemptWhereInput
+    /**
+     * Limit how many EventAttempts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EventAttempt updateManyAndReturn
+   */
+  export type EventAttemptUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * The data used to update EventAttempts.
+     */
+    data: XOR<EventAttemptUpdateManyMutationInput, EventAttemptUncheckedUpdateManyInput>
+    /**
+     * Filter which EventAttempts to update
+     */
+    where?: EventAttemptWhereInput
+    /**
+     * Limit how many EventAttempts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EventAttempt upsert
+   */
+  export type EventAttemptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EventAttempt to update in case it exists.
+     */
+    where: EventAttemptWhereUniqueInput
+    /**
+     * In case the EventAttempt found by the `where` argument doesn't exist, create a new EventAttempt with this data.
+     */
+    create: XOR<EventAttemptCreateInput, EventAttemptUncheckedCreateInput>
+    /**
+     * In case the EventAttempt was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EventAttemptUpdateInput, EventAttemptUncheckedUpdateInput>
+  }
+
+  /**
+   * EventAttempt delete
+   */
+  export type EventAttemptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+    /**
+     * Filter which EventAttempt to delete.
+     */
+    where: EventAttemptWhereUniqueInput
+  }
+
+  /**
+   * EventAttempt deleteMany
+   */
+  export type EventAttemptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EventAttempts to delete
+     */
+    where?: EventAttemptWhereInput
+    /**
+     * Limit how many EventAttempts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EventAttempt without action
+   */
+  export type EventAttemptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventAttempt
+     */
+    select?: EventAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventAttempt
+     */
+    omit?: EventAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EventAttemptInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -45679,6 +48264,40 @@ export namespace Prisma {
   export type PlacementScheduleScalarFieldEnum = (typeof PlacementScheduleScalarFieldEnum)[keyof typeof PlacementScheduleScalarFieldEnum]
 
 
+  export const EventEnvelopeScalarFieldEnum: {
+    id: 'id',
+    event: 'event',
+    payload: 'payload',
+    asyncHandlers: 'asyncHandlers',
+    pendingHandlers: 'pendingHandlers',
+    status: 'status',
+    attempts: 'attempts',
+    lastError: 'lastError',
+    enqueuedAt: 'enqueuedAt',
+    processingStarted: 'processingStarted',
+    processedAt: 'processedAt',
+    nextRunAt: 'nextRunAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EventEnvelopeScalarFieldEnum = (typeof EventEnvelopeScalarFieldEnum)[keyof typeof EventEnvelopeScalarFieldEnum]
+
+
+  export const EventAttemptScalarFieldEnum: {
+    id: 'id',
+    envelopeId: 'envelopeId',
+    handler: 'handler',
+    status: 'status',
+    durationMs: 'durationMs',
+    error: 'error',
+    attempt: 'attempt',
+    createdAt: 'createdAt'
+  };
+
+  export type EventAttemptScalarFieldEnum = (typeof EventAttemptScalarFieldEnum)[keyof typeof EventAttemptScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -45693,6 +48312,13 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
@@ -46051,6 +48677,34 @@ export namespace Prisma {
    * Reference to a field of type 'PlacementStatus[]'
    */
   export type ListEnumPlacementStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PlacementStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'EventEnvelopeStatus'
+   */
+  export type EnumEventEnvelopeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EventEnvelopeStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'EventEnvelopeStatus[]'
+   */
+  export type ListEnumEventEnvelopeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EventEnvelopeStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'EventAttemptStatus'
+   */
+  export type EnumEventAttemptStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EventAttemptStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'EventAttemptStatus[]'
+   */
+  export type ListEnumEventAttemptStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EventAttemptStatus[]'>
     
   /**
    * Deep Input Types
@@ -49040,6 +51694,180 @@ export namespace Prisma {
     metadata?: JsonNullableWithAggregatesFilter<"PlacementSchedule">
     createdAt?: DateTimeWithAggregatesFilter<"PlacementSchedule"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PlacementSchedule"> | Date | string
+  }
+
+  export type EventEnvelopeWhereInput = {
+    AND?: EventEnvelopeWhereInput | EventEnvelopeWhereInput[]
+    OR?: EventEnvelopeWhereInput[]
+    NOT?: EventEnvelopeWhereInput | EventEnvelopeWhereInput[]
+    id?: StringFilter<"EventEnvelope"> | string
+    event?: StringFilter<"EventEnvelope"> | string
+    payload?: JsonFilter<"EventEnvelope">
+    asyncHandlers?: StringNullableListFilter<"EventEnvelope">
+    pendingHandlers?: StringNullableListFilter<"EventEnvelope">
+    status?: EnumEventEnvelopeStatusFilter<"EventEnvelope"> | $Enums.EventEnvelopeStatus
+    attempts?: IntFilter<"EventEnvelope"> | number
+    lastError?: StringNullableFilter<"EventEnvelope"> | string | null
+    enqueuedAt?: DateTimeFilter<"EventEnvelope"> | Date | string
+    processingStarted?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
+    processedAt?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
+    nextRunAt?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
+    createdAt?: DateTimeFilter<"EventEnvelope"> | Date | string
+    updatedAt?: DateTimeFilter<"EventEnvelope"> | Date | string
+    attemptsLog?: EventAttemptListRelationFilter
+  }
+
+  export type EventEnvelopeOrderByWithRelationInput = {
+    id?: SortOrder
+    event?: SortOrder
+    payload?: SortOrder
+    asyncHandlers?: SortOrder
+    pendingHandlers?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrderInput | SortOrder
+    enqueuedAt?: SortOrder
+    processingStarted?: SortOrderInput | SortOrder
+    processedAt?: SortOrderInput | SortOrder
+    nextRunAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    attemptsLog?: EventAttemptOrderByRelationAggregateInput
+  }
+
+  export type EventEnvelopeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EventEnvelopeWhereInput | EventEnvelopeWhereInput[]
+    OR?: EventEnvelopeWhereInput[]
+    NOT?: EventEnvelopeWhereInput | EventEnvelopeWhereInput[]
+    event?: StringFilter<"EventEnvelope"> | string
+    payload?: JsonFilter<"EventEnvelope">
+    asyncHandlers?: StringNullableListFilter<"EventEnvelope">
+    pendingHandlers?: StringNullableListFilter<"EventEnvelope">
+    status?: EnumEventEnvelopeStatusFilter<"EventEnvelope"> | $Enums.EventEnvelopeStatus
+    attempts?: IntFilter<"EventEnvelope"> | number
+    lastError?: StringNullableFilter<"EventEnvelope"> | string | null
+    enqueuedAt?: DateTimeFilter<"EventEnvelope"> | Date | string
+    processingStarted?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
+    processedAt?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
+    nextRunAt?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
+    createdAt?: DateTimeFilter<"EventEnvelope"> | Date | string
+    updatedAt?: DateTimeFilter<"EventEnvelope"> | Date | string
+    attemptsLog?: EventAttemptListRelationFilter
+  }, "id">
+
+  export type EventEnvelopeOrderByWithAggregationInput = {
+    id?: SortOrder
+    event?: SortOrder
+    payload?: SortOrder
+    asyncHandlers?: SortOrder
+    pendingHandlers?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrderInput | SortOrder
+    enqueuedAt?: SortOrder
+    processingStarted?: SortOrderInput | SortOrder
+    processedAt?: SortOrderInput | SortOrder
+    nextRunAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EventEnvelopeCountOrderByAggregateInput
+    _avg?: EventEnvelopeAvgOrderByAggregateInput
+    _max?: EventEnvelopeMaxOrderByAggregateInput
+    _min?: EventEnvelopeMinOrderByAggregateInput
+    _sum?: EventEnvelopeSumOrderByAggregateInput
+  }
+
+  export type EventEnvelopeScalarWhereWithAggregatesInput = {
+    AND?: EventEnvelopeScalarWhereWithAggregatesInput | EventEnvelopeScalarWhereWithAggregatesInput[]
+    OR?: EventEnvelopeScalarWhereWithAggregatesInput[]
+    NOT?: EventEnvelopeScalarWhereWithAggregatesInput | EventEnvelopeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EventEnvelope"> | string
+    event?: StringWithAggregatesFilter<"EventEnvelope"> | string
+    payload?: JsonWithAggregatesFilter<"EventEnvelope">
+    asyncHandlers?: StringNullableListFilter<"EventEnvelope">
+    pendingHandlers?: StringNullableListFilter<"EventEnvelope">
+    status?: EnumEventEnvelopeStatusWithAggregatesFilter<"EventEnvelope"> | $Enums.EventEnvelopeStatus
+    attempts?: IntWithAggregatesFilter<"EventEnvelope"> | number
+    lastError?: StringNullableWithAggregatesFilter<"EventEnvelope"> | string | null
+    enqueuedAt?: DateTimeWithAggregatesFilter<"EventEnvelope"> | Date | string
+    processingStarted?: DateTimeNullableWithAggregatesFilter<"EventEnvelope"> | Date | string | null
+    processedAt?: DateTimeNullableWithAggregatesFilter<"EventEnvelope"> | Date | string | null
+    nextRunAt?: DateTimeNullableWithAggregatesFilter<"EventEnvelope"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EventEnvelope"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EventEnvelope"> | Date | string
+  }
+
+  export type EventAttemptWhereInput = {
+    AND?: EventAttemptWhereInput | EventAttemptWhereInput[]
+    OR?: EventAttemptWhereInput[]
+    NOT?: EventAttemptWhereInput | EventAttemptWhereInput[]
+    id?: StringFilter<"EventAttempt"> | string
+    envelopeId?: StringFilter<"EventAttempt"> | string
+    handler?: StringFilter<"EventAttempt"> | string
+    status?: EnumEventAttemptStatusFilter<"EventAttempt"> | $Enums.EventAttemptStatus
+    durationMs?: IntNullableFilter<"EventAttempt"> | number | null
+    error?: StringNullableFilter<"EventAttempt"> | string | null
+    attempt?: IntFilter<"EventAttempt"> | number
+    createdAt?: DateTimeFilter<"EventAttempt"> | Date | string
+    envelope?: XOR<EventEnvelopeScalarRelationFilter, EventEnvelopeWhereInput>
+  }
+
+  export type EventAttemptOrderByWithRelationInput = {
+    id?: SortOrder
+    envelopeId?: SortOrder
+    handler?: SortOrder
+    status?: SortOrder
+    durationMs?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    attempt?: SortOrder
+    createdAt?: SortOrder
+    envelope?: EventEnvelopeOrderByWithRelationInput
+  }
+
+  export type EventAttemptWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EventAttemptWhereInput | EventAttemptWhereInput[]
+    OR?: EventAttemptWhereInput[]
+    NOT?: EventAttemptWhereInput | EventAttemptWhereInput[]
+    envelopeId?: StringFilter<"EventAttempt"> | string
+    handler?: StringFilter<"EventAttempt"> | string
+    status?: EnumEventAttemptStatusFilter<"EventAttempt"> | $Enums.EventAttemptStatus
+    durationMs?: IntNullableFilter<"EventAttempt"> | number | null
+    error?: StringNullableFilter<"EventAttempt"> | string | null
+    attempt?: IntFilter<"EventAttempt"> | number
+    createdAt?: DateTimeFilter<"EventAttempt"> | Date | string
+    envelope?: XOR<EventEnvelopeScalarRelationFilter, EventEnvelopeWhereInput>
+  }, "id">
+
+  export type EventAttemptOrderByWithAggregationInput = {
+    id?: SortOrder
+    envelopeId?: SortOrder
+    handler?: SortOrder
+    status?: SortOrder
+    durationMs?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    attempt?: SortOrder
+    createdAt?: SortOrder
+    _count?: EventAttemptCountOrderByAggregateInput
+    _avg?: EventAttemptAvgOrderByAggregateInput
+    _max?: EventAttemptMaxOrderByAggregateInput
+    _min?: EventAttemptMinOrderByAggregateInput
+    _sum?: EventAttemptSumOrderByAggregateInput
+  }
+
+  export type EventAttemptScalarWhereWithAggregatesInput = {
+    AND?: EventAttemptScalarWhereWithAggregatesInput | EventAttemptScalarWhereWithAggregatesInput[]
+    OR?: EventAttemptScalarWhereWithAggregatesInput[]
+    NOT?: EventAttemptScalarWhereWithAggregatesInput | EventAttemptScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EventAttempt"> | string
+    envelopeId?: StringWithAggregatesFilter<"EventAttempt"> | string
+    handler?: StringWithAggregatesFilter<"EventAttempt"> | string
+    status?: EnumEventAttemptStatusWithAggregatesFilter<"EventAttempt"> | $Enums.EventAttemptStatus
+    durationMs?: IntNullableWithAggregatesFilter<"EventAttempt"> | number | null
+    error?: StringNullableWithAggregatesFilter<"EventAttempt"> | string | null
+    attempt?: IntWithAggregatesFilter<"EventAttempt"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"EventAttempt"> | Date | string
   }
 
   export type ProductCreateInput = {
@@ -52340,6 +55168,205 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EventEnvelopeCreateInput = {
+    id?: string
+    event: string
+    payload: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeCreateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeCreatependingHandlersInput | string[]
+    status?: $Enums.EventEnvelopeStatus
+    attempts?: number
+    lastError?: string | null
+    enqueuedAt?: Date | string
+    processingStarted?: Date | string | null
+    processedAt?: Date | string | null
+    nextRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    attemptsLog?: EventAttemptCreateNestedManyWithoutEnvelopeInput
+  }
+
+  export type EventEnvelopeUncheckedCreateInput = {
+    id?: string
+    event: string
+    payload: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeCreateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeCreatependingHandlersInput | string[]
+    status?: $Enums.EventEnvelopeStatus
+    attempts?: number
+    lastError?: string | null
+    enqueuedAt?: Date | string
+    processingStarted?: Date | string | null
+    processedAt?: Date | string | null
+    nextRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    attemptsLog?: EventAttemptUncheckedCreateNestedManyWithoutEnvelopeInput
+  }
+
+  export type EventEnvelopeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeUpdateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeUpdatependingHandlersInput | string[]
+    status?: EnumEventEnvelopeStatusFieldUpdateOperationsInput | $Enums.EventEnvelopeStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attemptsLog?: EventAttemptUpdateManyWithoutEnvelopeNestedInput
+  }
+
+  export type EventEnvelopeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeUpdateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeUpdatependingHandlersInput | string[]
+    status?: EnumEventEnvelopeStatusFieldUpdateOperationsInput | $Enums.EventEnvelopeStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attemptsLog?: EventAttemptUncheckedUpdateManyWithoutEnvelopeNestedInput
+  }
+
+  export type EventEnvelopeCreateManyInput = {
+    id?: string
+    event: string
+    payload: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeCreateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeCreatependingHandlersInput | string[]
+    status?: $Enums.EventEnvelopeStatus
+    attempts?: number
+    lastError?: string | null
+    enqueuedAt?: Date | string
+    processingStarted?: Date | string | null
+    processedAt?: Date | string | null
+    nextRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EventEnvelopeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeUpdateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeUpdatependingHandlersInput | string[]
+    status?: EnumEventEnvelopeStatusFieldUpdateOperationsInput | $Enums.EventEnvelopeStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventEnvelopeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeUpdateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeUpdatependingHandlersInput | string[]
+    status?: EnumEventEnvelopeStatusFieldUpdateOperationsInput | $Enums.EventEnvelopeStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventAttemptCreateInput = {
+    id?: string
+    handler: string
+    status: $Enums.EventAttemptStatus
+    durationMs?: number | null
+    error?: string | null
+    attempt: number
+    createdAt?: Date | string
+    envelope: EventEnvelopeCreateNestedOneWithoutAttemptsLogInput
+  }
+
+  export type EventAttemptUncheckedCreateInput = {
+    id?: string
+    envelopeId: string
+    handler: string
+    status: $Enums.EventAttemptStatus
+    durationMs?: number | null
+    error?: string | null
+    attempt: number
+    createdAt?: Date | string
+  }
+
+  export type EventAttemptUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    handler?: StringFieldUpdateOperationsInput | string
+    status?: EnumEventAttemptStatusFieldUpdateOperationsInput | $Enums.EventAttemptStatus
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempt?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    envelope?: EventEnvelopeUpdateOneRequiredWithoutAttemptsLogNestedInput
+  }
+
+  export type EventAttemptUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    envelopeId?: StringFieldUpdateOperationsInput | string
+    handler?: StringFieldUpdateOperationsInput | string
+    status?: EnumEventAttemptStatusFieldUpdateOperationsInput | $Enums.EventAttemptStatus
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempt?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventAttemptCreateManyInput = {
+    id?: string
+    envelopeId: string
+    handler: string
+    status: $Enums.EventAttemptStatus
+    durationMs?: number | null
+    error?: string | null
+    attempt: number
+    createdAt?: Date | string
+  }
+
+  export type EventAttemptUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    handler?: StringFieldUpdateOperationsInput | string
+    status?: EnumEventAttemptStatusFieldUpdateOperationsInput | $Enums.EventAttemptStatus
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempt?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventAttemptUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    envelopeId?: StringFieldUpdateOperationsInput | string
+    handler?: StringFieldUpdateOperationsInput | string
+    status?: EnumEventAttemptStatusFieldUpdateOperationsInput | $Enums.EventAttemptStatus
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempt?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -54746,6 +57773,200 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPlacementStatusFilter<$PrismaModel>
     _max?: NestedEnumPlacementStatusFilter<$PrismaModel>
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type EnumEventEnvelopeStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventEnvelopeStatus | EnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventEnvelopeStatus[] | ListEnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventEnvelopeStatus[] | ListEnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventEnvelopeStatusFilter<$PrismaModel> | $Enums.EventEnvelopeStatus
+  }
+
+  export type EventAttemptListRelationFilter = {
+    every?: EventAttemptWhereInput
+    some?: EventAttemptWhereInput
+    none?: EventAttemptWhereInput
+  }
+
+  export type EventAttemptOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EventEnvelopeCountOrderByAggregateInput = {
+    id?: SortOrder
+    event?: SortOrder
+    payload?: SortOrder
+    asyncHandlers?: SortOrder
+    pendingHandlers?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrder
+    enqueuedAt?: SortOrder
+    processingStarted?: SortOrder
+    processedAt?: SortOrder
+    nextRunAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EventEnvelopeAvgOrderByAggregateInput = {
+    attempts?: SortOrder
+  }
+
+  export type EventEnvelopeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    event?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrder
+    enqueuedAt?: SortOrder
+    processingStarted?: SortOrder
+    processedAt?: SortOrder
+    nextRunAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EventEnvelopeMinOrderByAggregateInput = {
+    id?: SortOrder
+    event?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrder
+    enqueuedAt?: SortOrder
+    processingStarted?: SortOrder
+    processedAt?: SortOrder
+    nextRunAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EventEnvelopeSumOrderByAggregateInput = {
+    attempts?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type EnumEventEnvelopeStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventEnvelopeStatus | EnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventEnvelopeStatus[] | ListEnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventEnvelopeStatus[] | ListEnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventEnvelopeStatusWithAggregatesFilter<$PrismaModel> | $Enums.EventEnvelopeStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEventEnvelopeStatusFilter<$PrismaModel>
+    _max?: NestedEnumEventEnvelopeStatusFilter<$PrismaModel>
+  }
+
+  export type EnumEventAttemptStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventAttemptStatus | EnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventAttemptStatus[] | ListEnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventAttemptStatus[] | ListEnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventAttemptStatusFilter<$PrismaModel> | $Enums.EventAttemptStatus
+  }
+
+  export type EventEnvelopeScalarRelationFilter = {
+    is?: EventEnvelopeWhereInput
+    isNot?: EventEnvelopeWhereInput
+  }
+
+  export type EventAttemptCountOrderByAggregateInput = {
+    id?: SortOrder
+    envelopeId?: SortOrder
+    handler?: SortOrder
+    status?: SortOrder
+    durationMs?: SortOrder
+    error?: SortOrder
+    attempt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EventAttemptAvgOrderByAggregateInput = {
+    durationMs?: SortOrder
+    attempt?: SortOrder
+  }
+
+  export type EventAttemptMaxOrderByAggregateInput = {
+    id?: SortOrder
+    envelopeId?: SortOrder
+    handler?: SortOrder
+    status?: SortOrder
+    durationMs?: SortOrder
+    error?: SortOrder
+    attempt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EventAttemptMinOrderByAggregateInput = {
+    id?: SortOrder
+    envelopeId?: SortOrder
+    handler?: SortOrder
+    status?: SortOrder
+    durationMs?: SortOrder
+    error?: SortOrder
+    attempt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EventAttemptSumOrderByAggregateInput = {
+    durationMs?: SortOrder
+    attempt?: SortOrder
+  }
+
+  export type EnumEventAttemptStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventAttemptStatus | EnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventAttemptStatus[] | ListEnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventAttemptStatus[] | ListEnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventAttemptStatusWithAggregatesFilter<$PrismaModel> | $Enums.EventAttemptStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEventAttemptStatusFilter<$PrismaModel>
+    _max?: NestedEnumEventAttemptStatusFilter<$PrismaModel>
   }
 
   export type ProductCreatekeywordsInput = {
@@ -57600,6 +60821,88 @@ export namespace Prisma {
     update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutPlacementSchedulesInput, ProductUpdateWithoutPlacementSchedulesInput>, ProductUncheckedUpdateWithoutPlacementSchedulesInput>
   }
 
+  export type EventEnvelopeCreateasyncHandlersInput = {
+    set: string[]
+  }
+
+  export type EventEnvelopeCreatependingHandlersInput = {
+    set: string[]
+  }
+
+  export type EventAttemptCreateNestedManyWithoutEnvelopeInput = {
+    create?: XOR<EventAttemptCreateWithoutEnvelopeInput, EventAttemptUncheckedCreateWithoutEnvelopeInput> | EventAttemptCreateWithoutEnvelopeInput[] | EventAttemptUncheckedCreateWithoutEnvelopeInput[]
+    connectOrCreate?: EventAttemptCreateOrConnectWithoutEnvelopeInput | EventAttemptCreateOrConnectWithoutEnvelopeInput[]
+    createMany?: EventAttemptCreateManyEnvelopeInputEnvelope
+    connect?: EventAttemptWhereUniqueInput | EventAttemptWhereUniqueInput[]
+  }
+
+  export type EventAttemptUncheckedCreateNestedManyWithoutEnvelopeInput = {
+    create?: XOR<EventAttemptCreateWithoutEnvelopeInput, EventAttemptUncheckedCreateWithoutEnvelopeInput> | EventAttemptCreateWithoutEnvelopeInput[] | EventAttemptUncheckedCreateWithoutEnvelopeInput[]
+    connectOrCreate?: EventAttemptCreateOrConnectWithoutEnvelopeInput | EventAttemptCreateOrConnectWithoutEnvelopeInput[]
+    createMany?: EventAttemptCreateManyEnvelopeInputEnvelope
+    connect?: EventAttemptWhereUniqueInput | EventAttemptWhereUniqueInput[]
+  }
+
+  export type EventEnvelopeUpdateasyncHandlersInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type EventEnvelopeUpdatependingHandlersInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type EnumEventEnvelopeStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EventEnvelopeStatus
+  }
+
+  export type EventAttemptUpdateManyWithoutEnvelopeNestedInput = {
+    create?: XOR<EventAttemptCreateWithoutEnvelopeInput, EventAttemptUncheckedCreateWithoutEnvelopeInput> | EventAttemptCreateWithoutEnvelopeInput[] | EventAttemptUncheckedCreateWithoutEnvelopeInput[]
+    connectOrCreate?: EventAttemptCreateOrConnectWithoutEnvelopeInput | EventAttemptCreateOrConnectWithoutEnvelopeInput[]
+    upsert?: EventAttemptUpsertWithWhereUniqueWithoutEnvelopeInput | EventAttemptUpsertWithWhereUniqueWithoutEnvelopeInput[]
+    createMany?: EventAttemptCreateManyEnvelopeInputEnvelope
+    set?: EventAttemptWhereUniqueInput | EventAttemptWhereUniqueInput[]
+    disconnect?: EventAttemptWhereUniqueInput | EventAttemptWhereUniqueInput[]
+    delete?: EventAttemptWhereUniqueInput | EventAttemptWhereUniqueInput[]
+    connect?: EventAttemptWhereUniqueInput | EventAttemptWhereUniqueInput[]
+    update?: EventAttemptUpdateWithWhereUniqueWithoutEnvelopeInput | EventAttemptUpdateWithWhereUniqueWithoutEnvelopeInput[]
+    updateMany?: EventAttemptUpdateManyWithWhereWithoutEnvelopeInput | EventAttemptUpdateManyWithWhereWithoutEnvelopeInput[]
+    deleteMany?: EventAttemptScalarWhereInput | EventAttemptScalarWhereInput[]
+  }
+
+  export type EventAttemptUncheckedUpdateManyWithoutEnvelopeNestedInput = {
+    create?: XOR<EventAttemptCreateWithoutEnvelopeInput, EventAttemptUncheckedCreateWithoutEnvelopeInput> | EventAttemptCreateWithoutEnvelopeInput[] | EventAttemptUncheckedCreateWithoutEnvelopeInput[]
+    connectOrCreate?: EventAttemptCreateOrConnectWithoutEnvelopeInput | EventAttemptCreateOrConnectWithoutEnvelopeInput[]
+    upsert?: EventAttemptUpsertWithWhereUniqueWithoutEnvelopeInput | EventAttemptUpsertWithWhereUniqueWithoutEnvelopeInput[]
+    createMany?: EventAttemptCreateManyEnvelopeInputEnvelope
+    set?: EventAttemptWhereUniqueInput | EventAttemptWhereUniqueInput[]
+    disconnect?: EventAttemptWhereUniqueInput | EventAttemptWhereUniqueInput[]
+    delete?: EventAttemptWhereUniqueInput | EventAttemptWhereUniqueInput[]
+    connect?: EventAttemptWhereUniqueInput | EventAttemptWhereUniqueInput[]
+    update?: EventAttemptUpdateWithWhereUniqueWithoutEnvelopeInput | EventAttemptUpdateWithWhereUniqueWithoutEnvelopeInput[]
+    updateMany?: EventAttemptUpdateManyWithWhereWithoutEnvelopeInput | EventAttemptUpdateManyWithWhereWithoutEnvelopeInput[]
+    deleteMany?: EventAttemptScalarWhereInput | EventAttemptScalarWhereInput[]
+  }
+
+  export type EventEnvelopeCreateNestedOneWithoutAttemptsLogInput = {
+    create?: XOR<EventEnvelopeCreateWithoutAttemptsLogInput, EventEnvelopeUncheckedCreateWithoutAttemptsLogInput>
+    connectOrCreate?: EventEnvelopeCreateOrConnectWithoutAttemptsLogInput
+    connect?: EventEnvelopeWhereUniqueInput
+  }
+
+  export type EnumEventAttemptStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EventAttemptStatus
+  }
+
+  export type EventEnvelopeUpdateOneRequiredWithoutAttemptsLogNestedInput = {
+    create?: XOR<EventEnvelopeCreateWithoutAttemptsLogInput, EventEnvelopeUncheckedCreateWithoutAttemptsLogInput>
+    connectOrCreate?: EventEnvelopeCreateOrConnectWithoutAttemptsLogInput
+    upsert?: EventEnvelopeUpsertWithoutAttemptsLogInput
+    connect?: EventEnvelopeWhereUniqueInput
+    update?: XOR<XOR<EventEnvelopeUpdateToOneWithWhereWithoutAttemptsLogInput, EventEnvelopeUpdateWithoutAttemptsLogInput>, EventEnvelopeUncheckedUpdateWithoutAttemptsLogInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -58127,6 +61430,63 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPlacementStatusFilter<$PrismaModel>
     _max?: NestedEnumPlacementStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEventEnvelopeStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventEnvelopeStatus | EnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventEnvelopeStatus[] | ListEnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventEnvelopeStatus[] | ListEnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventEnvelopeStatusFilter<$PrismaModel> | $Enums.EventEnvelopeStatus
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumEventEnvelopeStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventEnvelopeStatus | EnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventEnvelopeStatus[] | ListEnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventEnvelopeStatus[] | ListEnumEventEnvelopeStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventEnvelopeStatusWithAggregatesFilter<$PrismaModel> | $Enums.EventEnvelopeStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEventEnvelopeStatusFilter<$PrismaModel>
+    _max?: NestedEnumEventEnvelopeStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEventAttemptStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventAttemptStatus | EnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventAttemptStatus[] | ListEnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventAttemptStatus[] | ListEnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventAttemptStatusFilter<$PrismaModel> | $Enums.EventAttemptStatus
+  }
+
+  export type NestedEnumEventAttemptStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventAttemptStatus | EnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventAttemptStatus[] | ListEnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventAttemptStatus[] | ListEnumEventAttemptStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventAttemptStatusWithAggregatesFilter<$PrismaModel> | $Enums.EventAttemptStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEventAttemptStatusFilter<$PrismaModel>
+    _max?: NestedEnumEventAttemptStatusFilter<$PrismaModel>
   }
 
   export type UserCreateWithoutProductsInput = {
@@ -67806,6 +71166,150 @@ export namespace Prisma {
     featureEntitlements?: FeatureEntitlementUncheckedUpdateManyWithoutProductNestedInput
   }
 
+  export type EventAttemptCreateWithoutEnvelopeInput = {
+    id?: string
+    handler: string
+    status: $Enums.EventAttemptStatus
+    durationMs?: number | null
+    error?: string | null
+    attempt: number
+    createdAt?: Date | string
+  }
+
+  export type EventAttemptUncheckedCreateWithoutEnvelopeInput = {
+    id?: string
+    handler: string
+    status: $Enums.EventAttemptStatus
+    durationMs?: number | null
+    error?: string | null
+    attempt: number
+    createdAt?: Date | string
+  }
+
+  export type EventAttemptCreateOrConnectWithoutEnvelopeInput = {
+    where: EventAttemptWhereUniqueInput
+    create: XOR<EventAttemptCreateWithoutEnvelopeInput, EventAttemptUncheckedCreateWithoutEnvelopeInput>
+  }
+
+  export type EventAttemptCreateManyEnvelopeInputEnvelope = {
+    data: EventAttemptCreateManyEnvelopeInput | EventAttemptCreateManyEnvelopeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type EventAttemptUpsertWithWhereUniqueWithoutEnvelopeInput = {
+    where: EventAttemptWhereUniqueInput
+    update: XOR<EventAttemptUpdateWithoutEnvelopeInput, EventAttemptUncheckedUpdateWithoutEnvelopeInput>
+    create: XOR<EventAttemptCreateWithoutEnvelopeInput, EventAttemptUncheckedCreateWithoutEnvelopeInput>
+  }
+
+  export type EventAttemptUpdateWithWhereUniqueWithoutEnvelopeInput = {
+    where: EventAttemptWhereUniqueInput
+    data: XOR<EventAttemptUpdateWithoutEnvelopeInput, EventAttemptUncheckedUpdateWithoutEnvelopeInput>
+  }
+
+  export type EventAttemptUpdateManyWithWhereWithoutEnvelopeInput = {
+    where: EventAttemptScalarWhereInput
+    data: XOR<EventAttemptUpdateManyMutationInput, EventAttemptUncheckedUpdateManyWithoutEnvelopeInput>
+  }
+
+  export type EventAttemptScalarWhereInput = {
+    AND?: EventAttemptScalarWhereInput | EventAttemptScalarWhereInput[]
+    OR?: EventAttemptScalarWhereInput[]
+    NOT?: EventAttemptScalarWhereInput | EventAttemptScalarWhereInput[]
+    id?: StringFilter<"EventAttempt"> | string
+    envelopeId?: StringFilter<"EventAttempt"> | string
+    handler?: StringFilter<"EventAttempt"> | string
+    status?: EnumEventAttemptStatusFilter<"EventAttempt"> | $Enums.EventAttemptStatus
+    durationMs?: IntNullableFilter<"EventAttempt"> | number | null
+    error?: StringNullableFilter<"EventAttempt"> | string | null
+    attempt?: IntFilter<"EventAttempt"> | number
+    createdAt?: DateTimeFilter<"EventAttempt"> | Date | string
+  }
+
+  export type EventEnvelopeCreateWithoutAttemptsLogInput = {
+    id?: string
+    event: string
+    payload: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeCreateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeCreatependingHandlersInput | string[]
+    status?: $Enums.EventEnvelopeStatus
+    attempts?: number
+    lastError?: string | null
+    enqueuedAt?: Date | string
+    processingStarted?: Date | string | null
+    processedAt?: Date | string | null
+    nextRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EventEnvelopeUncheckedCreateWithoutAttemptsLogInput = {
+    id?: string
+    event: string
+    payload: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeCreateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeCreatependingHandlersInput | string[]
+    status?: $Enums.EventEnvelopeStatus
+    attempts?: number
+    lastError?: string | null
+    enqueuedAt?: Date | string
+    processingStarted?: Date | string | null
+    processedAt?: Date | string | null
+    nextRunAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EventEnvelopeCreateOrConnectWithoutAttemptsLogInput = {
+    where: EventEnvelopeWhereUniqueInput
+    create: XOR<EventEnvelopeCreateWithoutAttemptsLogInput, EventEnvelopeUncheckedCreateWithoutAttemptsLogInput>
+  }
+
+  export type EventEnvelopeUpsertWithoutAttemptsLogInput = {
+    update: XOR<EventEnvelopeUpdateWithoutAttemptsLogInput, EventEnvelopeUncheckedUpdateWithoutAttemptsLogInput>
+    create: XOR<EventEnvelopeCreateWithoutAttemptsLogInput, EventEnvelopeUncheckedCreateWithoutAttemptsLogInput>
+    where?: EventEnvelopeWhereInput
+  }
+
+  export type EventEnvelopeUpdateToOneWithWhereWithoutAttemptsLogInput = {
+    where?: EventEnvelopeWhereInput
+    data: XOR<EventEnvelopeUpdateWithoutAttemptsLogInput, EventEnvelopeUncheckedUpdateWithoutAttemptsLogInput>
+  }
+
+  export type EventEnvelopeUpdateWithoutAttemptsLogInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeUpdateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeUpdatependingHandlersInput | string[]
+    status?: EnumEventEnvelopeStatusFieldUpdateOperationsInput | $Enums.EventEnvelopeStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventEnvelopeUncheckedUpdateWithoutAttemptsLogInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    asyncHandlers?: EventEnvelopeUpdateasyncHandlersInput | string[]
+    pendingHandlers?: EventEnvelopeUpdatependingHandlersInput | string[]
+    status?: EnumEventEnvelopeStatusFieldUpdateOperationsInput | $Enums.EventEnvelopeStatus
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ProductBadgeCreateManyProductInput = {
     id?: string
     badge: string
@@ -70610,6 +74114,46 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventAttemptCreateManyEnvelopeInput = {
+    id?: string
+    handler: string
+    status: $Enums.EventAttemptStatus
+    durationMs?: number | null
+    error?: string | null
+    attempt: number
+    createdAt?: Date | string
+  }
+
+  export type EventAttemptUpdateWithoutEnvelopeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    handler?: StringFieldUpdateOperationsInput | string
+    status?: EnumEventAttemptStatusFieldUpdateOperationsInput | $Enums.EventAttemptStatus
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempt?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventAttemptUncheckedUpdateWithoutEnvelopeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    handler?: StringFieldUpdateOperationsInput | string
+    status?: EnumEventAttemptStatusFieldUpdateOperationsInput | $Enums.EventAttemptStatus
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempt?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventAttemptUncheckedUpdateManyWithoutEnvelopeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    handler?: StringFieldUpdateOperationsInput | string
+    status?: EnumEventAttemptStatusFieldUpdateOperationsInput | $Enums.EventAttemptStatus
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    attempt?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
