@@ -506,29 +506,31 @@ export function ProductAnalyticsView({
     deviceConversionItems.length > 0 ||
     browserConversionItems.length > 0
 
-  const narrativeExtras = isAdvanced && narrative
-    ? [
-        <section key="ai-brief" className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="space-y-1">
-              <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
-                Action playbook
-              </span>
-              <p className="text-sm text-muted-foreground">
-                AI-curated next steps across traffic, engagement, and anomalies.
-              </p>
+  const narrativeExtras =
+    isAdvanced && narrative
+      ? [
+          <section key="ai-brief" className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="space-y-1">
+                <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                  Action playbook
+                </span>
+                <p className="text-sm text-muted-foreground">
+                  AI-curated next steps across traffic, engagement, and
+                  anomalies.
+                </p>
+              </div>
+              <RangeSelector className="shrink-0" />
             </div>
-            <RangeSelector className="shrink-0" />
-          </div>
-          <AnalyticsNarrativeCard
-            narrative={narrative}
-            summary={summary}
-            rangeLabel={rangeLabel}
-            variant="embedded"
-          />
-        </section>,
-      ]
-    : undefined
+            <AnalyticsNarrativeCard
+              narrative={narrative}
+              summary={summary}
+              rangeLabel={rangeLabel}
+              variant="embedded"
+            />
+          </section>,
+        ]
+      : undefined
 
   return (
     <ObjectPageLayout

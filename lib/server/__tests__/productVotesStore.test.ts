@@ -44,7 +44,9 @@ async function flushMicrotasks() {
 
 describe("productVotesStore (direct)", () => {
   beforeEach(() => {
-    Object.values(prismaMock.productUpvote).forEach((value) => value.mockReset())
+    Object.values(prismaMock.productUpvote).forEach((value) =>
+      value.mockReset(),
+    )
     Object.values(prismaMock.productAnalytics).forEach((value) =>
       value.mockReset(),
     )

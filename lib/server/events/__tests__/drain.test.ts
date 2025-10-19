@@ -1,18 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-const {
-  dequeueEnvelopeBatchMock,
-  requeueEnvelopeMock,
-  processEnvelopeMock,
-} = vi.hoisted(() => {
-  return {
-    dequeueEnvelopeBatchMock: vi.fn<
-      (batchSize?: number) => Promise<string[]>
-    >(),
-    requeueEnvelopeMock: vi.fn<(envelopeId: string) => Promise<void>>(),
-    processEnvelopeMock: vi.fn<(envelopeId: string) => Promise<void>>(),
-  }
-})
+const { dequeueEnvelopeBatchMock, requeueEnvelopeMock, processEnvelopeMock } =
+  vi.hoisted(() => {
+    return {
+      dequeueEnvelopeBatchMock:
+        vi.fn<(batchSize?: number) => Promise<string[]>>(),
+      requeueEnvelopeMock: vi.fn<(envelopeId: string) => Promise<void>>(),
+      processEnvelopeMock: vi.fn<(envelopeId: string) => Promise<void>>(),
+    }
+  })
 
 vi.mock("@/lib/server/events/queueClient", () => ({
   dequeueEnvelopeBatch: dequeueEnvelopeBatchMock,
@@ -37,13 +33,11 @@ describe("drainEventQueue", () => {
   it("processes up to the configured event limit", async () => {
     const now = () => 0
 
-    const batches: string[][] = [
-      ["a1", "a2", "a3"],
-      ["b1"],
-      [],
-    ]
+    const batches: string[][] = [["a1", "a2", "a3"], ["b1"], []]
 
-    dequeueEnvelopeBatchMock.mockImplementation(async () => batches.shift() ?? [])
+    dequeueEnvelopeBatchMock.mockImplementation(
+      async () => batches.shift() ?? [],
+    )
     processEnvelopeMock.mockImplementation(async () => {
       // No-op; leave time unchanged for this scenario.
     })
@@ -88,7 +82,10 @@ describe("drainEventQueue", () => {
     expect(result.limitHit.events).toBe(false)
 
     expect(requeueEnvelopeMock).toHaveBeenCalledTimes(2)
-    expect(requeueEnvelopeMock.mock.calls.map((call) => call[0])).toEqual(["e4", "e3"])
+    expect(requeueEnvelopeMock.mock.calls.map((call) => call[0])).toEqual([
+      "e4",
+      "e3",
+    ])
   })
 
   it("honors the default grace period before the 15 minute vercel timeout", async () => {

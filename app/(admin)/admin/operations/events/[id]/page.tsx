@@ -7,7 +7,12 @@ import {
   deleteEnvelopeAction,
 } from "@/actions/admin/events/actions"
 import { Badge } from "@/components/atoms/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Separator } from "@/components/atoms/separator"
 import { Button } from "@/components/atoms/button"
 import {
@@ -25,7 +30,10 @@ import type {
 
 export const dynamic = "force-dynamic"
 
-const statusVariantMap: Record<EventEnvelopeStatus, "default" | "secondary" | "outline" | "destructive" | "success"> = {
+const statusVariantMap: Record<
+  EventEnvelopeStatus,
+  "default" | "secondary" | "outline" | "destructive" | "success"
+> = {
   pending: "secondary",
   processing: "outline",
   retrying: "default",
@@ -33,7 +41,10 @@ const statusVariantMap: Record<EventEnvelopeStatus, "default" | "secondary" | "o
   dead_letter: "destructive",
 }
 
-const attemptVariantMap: Record<EventAttemptStatus, "success" | "destructive" | "secondary"> = {
+const attemptVariantMap: Record<
+  EventAttemptStatus,
+  "success" | "destructive" | "secondary"
+> = {
   succeeded: "success",
   failed: "destructive",
   timed_out: "secondary",
@@ -63,7 +74,9 @@ export default async function EventDetailPage({
           {envelope.event}
         </h1>
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <span className="font-mono text-[11px] text-slate-500">{envelope.id}</span>
+          <span className="font-mono text-[11px] text-slate-500">
+            {envelope.id}
+          </span>
           <Separator orientation="vertical" className="h-3" />
           <span>Enqueued {formatRelative(envelope.enqueuedAt)}</span>
           <Separator orientation="vertical" className="h-3" />
@@ -94,7 +107,8 @@ export default async function EventDetailPage({
                 Pending handlers
               </div>
               <div className="text-lg font-semibold text-slate-900">
-                {envelope.pendingHandlers.length}/{envelope.asyncHandlers.length}
+                {envelope.pendingHandlers.length}/
+                {envelope.asyncHandlers.length}
               </div>
             </div>
             <div>
@@ -160,7 +174,9 @@ export default async function EventDetailPage({
         </CardHeader>
         <CardContent>
           {envelope.attemptsLog.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No attempts recorded yet.</p>
+            <p className="text-sm text-muted-foreground">
+              No attempts recorded yet.
+            </p>
           ) : (
             <Table>
               <TableHeader>

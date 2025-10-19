@@ -66,7 +66,9 @@ describe("badges listeners", () => {
       productId: "pPlan",
     })
 
-    const createArgs = (prisma as any).productBadge.create.mock.calls.at(-1)?.[0]
+    const createArgs = (prisma as any).productBadge.create.mock.calls.at(
+      -1,
+    )?.[0]
     expect(createArgs?.data?.expiresAt?.toISOString()).toBe(
       new Date(createdAt.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString(),
     )

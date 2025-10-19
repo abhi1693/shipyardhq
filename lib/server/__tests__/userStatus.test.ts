@@ -10,7 +10,9 @@ vi.mock("@/lib/prisma", () => ({
   default: prismaMock,
 }))
 
-const ensureDailyLoginRewardMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+const ensureDailyLoginRewardMock = vi.hoisted(() =>
+  vi.fn().mockResolvedValue(undefined),
+)
 
 vi.mock("@/lib/server/rewards/loginReward", () => ({
   ensureDailyLoginReward: ensureDailyLoginRewardMock,

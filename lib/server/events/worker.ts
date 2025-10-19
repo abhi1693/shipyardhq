@@ -142,12 +142,12 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
       )
       const durationMs = Date.now() - handlerStart
       await recordAttempt(
-          envelopeId,
-          handlerId,
-          attemptNumber,
-          "succeeded",
-          durationMs,
-        )
+        envelopeId,
+        handlerId,
+        attemptNumber,
+        "succeeded",
+        durationMs,
+      )
       console.debug("[events] handler execution success", {
         envelopeId,
         event: envelope.event,

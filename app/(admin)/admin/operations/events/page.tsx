@@ -8,7 +8,12 @@ import {
   getRecentEventEnvelopes,
   requeueEnvelopeAction,
 } from "@/actions/admin/events/actions"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import {
@@ -30,7 +35,10 @@ import { EVENT_STATUS_KEYS } from "@/lib/server/events/constants"
 
 export const dynamic = "force-dynamic"
 
-const statusVariantMap: Record<EventEnvelopeStatus, "default" | "secondary" | "outline" | "destructive" | "success"> = {
+const statusVariantMap: Record<
+  EventEnvelopeStatus,
+  "default" | "secondary" | "outline" | "destructive" | "success"
+> = {
   pending: "secondary",
   processing: "outline",
   retrying: "default",
@@ -38,7 +46,10 @@ const statusVariantMap: Record<EventEnvelopeStatus, "default" | "secondary" | "o
   dead_letter: "destructive",
 }
 
-const attemptVariantMap: Record<EventAttemptStatus, "success" | "destructive" | "secondary"> = {
+const attemptVariantMap: Record<
+  EventAttemptStatus,
+  "success" | "destructive" | "secondary"
+> = {
   succeeded: "success",
   failed: "destructive",
   timed_out: "secondary",
@@ -262,7 +273,9 @@ export default async function EventQueuePage() {
                               {envelope.id}
                             </span>
                             <Separator orientation="vertical" className="h-3" />
-                            <span>Enqueued {formatRelativeDate(envelope.enqueuedAt)}</span>
+                            <span>
+                              Enqueued {formatRelativeDate(envelope.enqueuedAt)}
+                            </span>
                           </div>
                         </div>
                       </TableCell>
@@ -277,9 +290,8 @@ export default async function EventQueuePage() {
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {envelope.asyncHandlers.map((handler) => {
-                            const isPending = envelope.pendingHandlers.includes(
-                              handler,
-                            )
+                            const isPending =
+                              envelope.pendingHandlers.includes(handler)
                             return (
                               <Badge
                                 key={handler}
@@ -321,9 +333,7 @@ export default async function EventQueuePage() {
                             {envelope.lastError}
                           </div>
                         ) : (
-                          <span className="text-muted-foreground">
-                            —
-                          </span>
+                          <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">

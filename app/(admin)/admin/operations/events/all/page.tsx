@@ -21,7 +21,10 @@ import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
 
 export const dynamic = "force-dynamic"
 
-const statusVariantMap: Record<EventEnvelopeStatus, "default" | "secondary" | "outline" | "destructive" | "success"> = {
+const statusVariantMap: Record<
+  EventEnvelopeStatus,
+  "default" | "secondary" | "outline" | "destructive" | "success"
+> = {
   pending: "secondary",
   processing: "outline",
   retrying: "default",
@@ -52,8 +55,12 @@ export default async function EventsListPage({
   const sp = await searchParams
   const page = toInt(sp?.page, 1)
 
-  const { items, total, page: currentPage, pageSize } =
-    await getEventEnvelopesPaginated({ page })
+  const {
+    items,
+    total,
+    page: currentPage,
+    pageSize,
+  } = await getEventEnvelopesPaginated({ page })
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
   const prevPage = currentPage > 1 ? currentPage - 1 : null
@@ -86,7 +93,10 @@ export default async function EventsListPage({
           <TableBody>
             {items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-10 text-center text-sm text-muted-foreground">
+                <TableCell
+                  colSpan={6}
+                  className="py-10 text-center text-sm text-muted-foreground"
+                >
                   No envelopes found.
                 </TableCell>
               </TableRow>
@@ -116,7 +126,8 @@ export default async function EventsListPage({
                       {item.attempts}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {item.pendingHandlers.length}/{item.asyncHandlers.length} pending
+                      {item.pendingHandlers.length}/{item.asyncHandlers.length}{" "}
+                      pending
                     </div>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
@@ -128,13 +139,21 @@ export default async function EventsListPage({
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <form action={requeueEnvelopeAction}>
-                        <input type="hidden" name="envelopeId" value={item.id} />
+                        <input
+                          type="hidden"
+                          name="envelopeId"
+                          value={item.id}
+                        />
                         <Button type="submit" size="sm" variant="outline">
                           Requeue
                         </Button>
                       </form>
                       <form action={deleteEnvelopeAction}>
-                        <input type="hidden" name="envelopeId" value={item.id} />
+                        <input
+                          type="hidden"
+                          name="envelopeId"
+                          value={item.id}
+                        />
                         <Button type="submit" size="sm" variant="destructive">
                           Delete
                         </Button>
@@ -153,14 +172,13 @@ export default async function EventsListPage({
           Showing {items.length} of {total.toLocaleString()} envelopes
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            disabled={!prevPage}
-          >
+          <Button asChild variant="outline" size="sm" disabled={!prevPage}>
             <Link
-              href={prevPage ? `${adminPath("operations", "events", "all")}?page=${prevPage}` : "#"}
+              href={
+                prevPage
+                  ? `${adminPath("operations", "events", "all")}?page=${prevPage}`
+                  : "#"
+              }
               aria-disabled={!prevPage}
             >
               Previous
@@ -169,14 +187,13 @@ export default async function EventsListPage({
           <span>
             Page {currentPage} of {totalPages}
           </span>
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            disabled={!nextPage}
-          >
+          <Button asChild variant="outline" size="sm" disabled={!nextPage}>
             <Link
-              href={nextPage ? `${adminPath("operations", "events", "all")}?page=${nextPage}` : "#"}
+              href={
+                nextPage
+                  ? `${adminPath("operations", "events", "all")}?page=${nextPage}`
+                  : "#"
+              }
               aria-disabled={!nextPage}
             >
               Next

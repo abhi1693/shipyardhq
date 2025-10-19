@@ -29,7 +29,10 @@ const DEFAULT_MAX_EVENTS = 500
 const DEFAULT_MAX_DURATION_MS = 15 * 60 * 1000
 const DEFAULT_DURATION_GRACE_MS = 30 * 1000
 
-async function requeueRemaining(envelopeIds: string[], startIndex: number): Promise<number> {
+async function requeueRemaining(
+  envelopeIds: string[],
+  startIndex: number,
+): Promise<number> {
   let requeued = 0
 
   for (let index = envelopeIds.length - 1; index >= startIndex; index -= 1) {
@@ -52,7 +55,8 @@ export async function drainEventQueue(
   options: DrainEventQueueOptions = {},
 ): Promise<DrainEventQueueResult> {
   const maxEvents = options.maxEvents ?? DEFAULT_MAX_EVENTS
-  const configuredMaxDurationMs = options.maxDurationMs ?? DEFAULT_MAX_DURATION_MS
+  const configuredMaxDurationMs =
+    options.maxDurationMs ?? DEFAULT_MAX_DURATION_MS
   const gracePeriodMs = options.gracePeriodMs ?? DEFAULT_DURATION_GRACE_MS
   const maxDurationMs = Math.max(0, configuredMaxDurationMs - gracePeriodMs)
   const getNow = options.now ?? Date.now

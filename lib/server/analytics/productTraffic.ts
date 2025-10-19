@@ -43,9 +43,7 @@ export async function trackProductTraffic(payload: ProductTrafficPayload) {
     productId: payload.productId,
     path: payload.path,
   })
-  dispatchEventAsync(
-    "analytics.product-traffic",
-    payload,
-    { context: { productId: payload.productId, path: payload.path } },
-  )
+  dispatchEventAsync("analytics.product-traffic", payload, {
+    context: { productId: payload.productId, path: payload.path },
+  })
 }

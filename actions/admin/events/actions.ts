@@ -4,10 +4,7 @@ import prisma from "@/lib/prisma"
 import { checkRole } from "@/lib/roles"
 import { adminPath } from "@/lib/routes"
 import { revalidatePath } from "next/cache"
-import {
-  enqueueEvent,
-  EVENTS_QUEUE_KEY,
-} from "@/lib/server/events/queueClient"
+import { enqueueEvent, EVENTS_QUEUE_KEY } from "@/lib/server/events/queueClient"
 import { getRedisClient } from "@/lib/server/redis"
 import { drainEventQueue } from "@/lib/server/events/drain"
 import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
@@ -40,7 +37,9 @@ export type EventTypeTrendPoint = {
 }
 
 function startOfDay(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  )
 }
 
 function addDays(date: Date, days: number): Date {
@@ -267,7 +266,10 @@ export async function getEventEnvelopesPaginated({
   pageSize?: number
 }) {
   const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1
-  const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? Math.min(Math.floor(pageSize), 100) : 25
+  const safePageSize =
+    Number.isFinite(pageSize) && pageSize > 0
+      ? Math.min(Math.floor(pageSize), 100)
+      : 25
   const skip = (safePage - 1) * safePageSize
 
   const [items, total] = await Promise.all([

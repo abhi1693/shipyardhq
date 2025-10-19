@@ -190,18 +190,17 @@ export function registerEventHandler<K extends keyof AppEvents>({
 
   const key = String(event)
   const entry: RegisteredHandler<K> = { handler, id, mode }
-  const existing = LISTENERS.get(
-    key,
-  ) as Array<RegisteredHandler<K>> | undefined
+  const existing = LISTENERS.get(key) as Array<RegisteredHandler<K>> | undefined
 
   if (existing?.some((item) => item.id === id)) {
-    throw new Error(`Duplicate handler id "${id}" registered for event "${key}"`)
+    throw new Error(
+      `Duplicate handler id "${id}" registered for event "${key}"`,
+    )
   }
 
-  LISTENERS.set(
-    key,
-    [...(existing ?? []), entry] as Array<RegisteredHandler<keyof AppEvents>>,
-  )
+  LISTENERS.set(key, [...(existing ?? []), entry] as Array<
+    RegisteredHandler<keyof AppEvents>
+  >)
 
   return () => {
     const current = LISTENERS.get(key)
@@ -220,9 +219,9 @@ export async function dispatchEvent<K extends keyof AppEvents>(
   const key = String(event)
   const handlers = LISTENERS.get(key) ?? []
 
-  const syncHandlers = handlers.filter(
-    (item) => item.mode === "sync",
-  ) as Array<RegisteredHandler<K>>
+  const syncHandlers = handlers.filter((item) => item.mode === "sync") as Array<
+    RegisteredHandler<K>
+  >
   const asyncHandlers = handlers.filter(
     (item) => item.mode === "async",
   ) as Array<RegisteredHandler<K>>

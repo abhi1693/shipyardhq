@@ -27,10 +27,7 @@ vi.mock("@/lib/server/events/queueClient", () => ({
 }))
 
 import prisma from "@/lib/prisma"
-import {
-  dispatchEvent,
-  resolveRegisteredHandler,
-} from "@/lib/server/events"
+import { dispatchEvent, resolveRegisteredHandler } from "@/lib/server/events"
 import * as eventsModule from "@/lib/server/events"
 import { trackProductClicked } from "@/lib/server/analytics/productClicks"
 import { trackProductTraffic } from "@/lib/server/analytics/productTraffic"
@@ -141,9 +138,7 @@ describe("analytics listeners", () => {
 
   it("logs errors when prisma upsert fails", async () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {})
-    prismaMock.productAnalytics.upsert.mockRejectedValueOnce(
-      new Error("x"),
-    )
+    prismaMock.productAnalytics.upsert.mockRejectedValueOnce(new Error("x"))
     const clickHandler = resolveRegisteredHandler(
       "product.clicked",
       "analytics.record-product-click",
@@ -156,17 +151,13 @@ describe("analytics listeners", () => {
 
   it("logs error on upvote/downvote failure", async () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {})
-    prismaMock.productAnalytics.upsert.mockRejectedValueOnce(
-      new Error("x"),
-    )
+    prismaMock.productAnalytics.upsert.mockRejectedValueOnce(new Error("x"))
     const upvoteHandler = resolveRegisteredHandler(
       "product.upvoted",
       "analytics.increment-upvotes",
     )
     await upvoteHandler?.handler(makeVoteEvent("p4", "u") as any)
-    prismaMock.productAnalytics.upsert.mockRejectedValueOnce(
-      new Error("y"),
-    )
+    prismaMock.productAnalytics.upsert.mockRejectedValueOnce(new Error("y"))
     const downvoteHandler = resolveRegisteredHandler(
       "product.downvoted",
       "analytics.decrement-upvotes",
