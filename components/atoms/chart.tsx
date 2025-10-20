@@ -39,7 +39,10 @@ export const ChartContainer = React.forwardRef<
       return Object.fromEntries(
         entries
           .filter(([, value]) => value?.color)
-          .map(([key, value]) => [chartKeyToCssVar(key), value!.color as string]),
+          .map(([key, value]) => [
+            chartKeyToCssVar(key),
+            value!.color as string,
+          ]),
       )
     }, [config])
 
@@ -74,7 +77,8 @@ export const ChartContainer = React.forwardRef<
                   <span
                     className="inline-flex h-2.5 w-2.5 rounded-full"
                     style={{
-                      backgroundColor: item.color ?? `var(${chartKeyToCssVar(item.key)})`,
+                      backgroundColor:
+                        item.color ?? `var(${chartKeyToCssVar(item.key)})`,
                     }}
                     aria-hidden
                   />

@@ -47,8 +47,11 @@ export default async function EventsPage({
     },
   )
 
-  const { items, total, pageSize: effectivePageSize } =
-    await getEventEnvelopesPaginated({ page, pageSize })
+  const {
+    items,
+    total,
+    pageSize: effectivePageSize,
+  } = await getEventEnvelopesPaginated({ page, pageSize })
 
   const pageCount = Math.max(Math.ceil(total / effectivePageSize), 1)
 
@@ -63,11 +66,7 @@ export default async function EventsPage({
       title="Events"
       description="Browse asynchronous envelopes for troubleshooting and manual intervention."
     >
-      <EntityList
-        columns={columns}
-        data={rows}
-        pageCount={pageCount}
-      />
+      <EntityList columns={columns} data={rows} pageCount={pageCount} />
     </ListPageWrapper>
   )
 }

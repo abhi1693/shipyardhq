@@ -164,7 +164,8 @@ export default async function EventAnalyticsPage({
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            Oldest pending event: {formatRelativeForHelper(summary.oldestPendingAt)}
+            Oldest pending event:{" "}
+            {formatRelativeForHelper(summary.oldestPendingAt)}
           </p>
         </CardContent>
       </Card>

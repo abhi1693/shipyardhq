@@ -17,7 +17,11 @@ type JsonPreviewProps = {
   maxHeight?: number
 }
 
-function JsonPreviewComponent({ value, className, maxHeight = 320 }: JsonPreviewProps) {
+function JsonPreviewComponent({
+  value,
+  className,
+  maxHeight = 320,
+}: JsonPreviewProps) {
   return (
     <pre
       className={cn(

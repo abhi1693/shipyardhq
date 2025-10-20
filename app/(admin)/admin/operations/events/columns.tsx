@@ -73,7 +73,8 @@ export const columns: ColumnDef<EventEnvelopeTableRow>[] = [
       <div className="space-y-1 text-sm text-slate-900">
         <div>{row.original.attempts}</div>
         <div className="text-xs text-muted-foreground">
-          {row.original.pendingHandlers.length}/{row.original.asyncHandlers.length} pending
+          {row.original.pendingHandlers.length}/
+          {row.original.asyncHandlers.length} pending
         </div>
       </div>
     ),
@@ -101,7 +102,14 @@ export const columns: ColumnDef<EventEnvelopeTableRow>[] = [
             <RequeueSubmit disabled={disableRequeue} />
           </form>
           <Button asChild size="sm" variant="destructive">
-            <Link href={adminPath("operations", "events", row.original.id, "delete")}>
+            <Link
+              href={adminPath(
+                "operations",
+                "events",
+                row.original.id,
+                "delete",
+              )}
+            >
               Delete
             </Link>
           </Button>

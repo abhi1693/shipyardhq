@@ -5,7 +5,10 @@ import { JSX } from "react"
 
 import { auth } from "@clerk/nextjs/server"
 import { BADGE_OPTIONS } from "@/lib/constants"
-import { getLiveUpvoteCount, resolveVoteState } from "@/lib/server/productVotesStore"
+import {
+  getLiveUpvoteCount,
+  resolveVoteState,
+} from "@/lib/server/productVotesStore"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import {
   getPublicProductBySlug,
@@ -165,9 +168,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const authResult = await auth()
 
   const clerkUserId = authResult.userId
-  const viewer = clerkUserId
-    ? await getActiveUserByClerkId(clerkUserId)
-    : null
+  const viewer = clerkUserId ? await getActiveUserByClerkId(clerkUserId) : null
   const userId = viewer?.id ?? null
   const liveUpvotesPromise = getLiveUpvoteCount(product.id)
   const userUpvotedPromise = userId

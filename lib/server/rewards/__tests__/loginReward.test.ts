@@ -109,7 +109,9 @@ describe("ensureDailyLoginReward", () => {
 
   it("skips dispatch when rewards already granted for the day", async () => {
     const now = new Date("2025-03-15T08:30:00Z")
-    prismaMock.rewardTransaction.findFirst.mockResolvedValueOnce({ id: "txn-1" })
+    prismaMock.rewardTransaction.findFirst.mockResolvedValueOnce({
+      id: "txn-1",
+    })
 
     await ensureDailyLoginReward("user-123", { now })
 

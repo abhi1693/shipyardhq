@@ -38,7 +38,9 @@ registerEventHandler({
         region: metadata?.region ?? null,
         city: metadata?.city ?? null,
         ipHash: metadata?.ipHash ?? null,
-        createdAt: payload.__enqueuedAt ? new Date(payload.__enqueuedAt) : undefined,
+        createdAt: payload.__enqueuedAt
+          ? new Date(payload.__enqueuedAt)
+          : undefined,
       }
       await prisma.$transaction([
         prisma.productClickEvent.create({ data: createData }),

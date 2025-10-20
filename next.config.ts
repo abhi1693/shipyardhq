@@ -22,21 +22,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack(config) {
-    const matchesOtWarning = (warning: any) => {
-      if (!warning || typeof warning !== "object") return false
-      const resource: string | undefined = warning.module?.resource
-      if (!resource) return false
-      return (
-        resource.includes("@opentelemetry/instrumentation") ||
-        resource.includes("prisma-instrumentation-5-x")
-      )
-    }
-
-    config.ignoreWarnings = [...(config.ignoreWarnings || []), matchesOtWarning]
-
-    return config
-  },
+  poweredByHeader: false,
 }
 
 export default nextConfig

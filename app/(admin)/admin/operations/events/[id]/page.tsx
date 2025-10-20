@@ -12,10 +12,7 @@ import {
 } from "@/components/atoms/card"
 import { Badge } from "@/components/atoms/badge"
 import { JsonPreview } from "@/components/molecules/JsonPreview"
-import {
-  formatDate,
-  placeholder,
-} from "@/lib/ui/formatters"
+import { formatDate, placeholder } from "@/lib/ui/formatters"
 import type {
   EventAttemptStatus,
   EventEnvelopeStatus,
@@ -182,7 +179,9 @@ export default async function EventEnvelopePage({
         </CardHeader>
         <CardContent className="space-y-4">
           {envelope.attemptsLog.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No attempts recorded.</p>
+            <p className="text-sm text-muted-foreground">
+              No attempts recorded.
+            </p>
           ) : (
             <div className="space-y-3 text-sm">
               {envelope.attemptsLog.map((attempt) => (
@@ -201,13 +200,20 @@ export default async function EventEnvelopePage({
                   </div>
                   <div className="mt-2 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                     <p>
-                      <span className="font-medium text-slate-900">Handler:</span> {attempt.handler}
+                      <span className="font-medium text-slate-900">
+                        Handler:
+                      </span>{" "}
+                      {attempt.handler}
                     </p>
                     <p>
-                      <span className="font-medium text-slate-900">Duration:</span> {formatDuration(attempt.durationMs)}
+                      <span className="font-medium text-slate-900">
+                        Duration:
+                      </span>{" "}
+                      {formatDuration(attempt.durationMs)}
                     </p>
                     <p>
-                      <span className="font-medium text-slate-900">Error:</span> {attempt.error || "—"}
+                      <span className="font-medium text-slate-900">Error:</span>{" "}
+                      {attempt.error || "—"}
                     </p>
                   </div>
                 </div>
