@@ -10,12 +10,7 @@ import {
   resolveVoteState,
 } from "@/lib/server/productVotesStore"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
-import {
-  getPublicProductBySlug,
-  getPublicProductsByUseCase,
-  getPublicProductMetaBySlug,
-} from "@/actions/public/products/actions"
-import { getPublicProductUpdates } from "@/actions/public/product-updates/actions"
+import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
 import {
   ExternalLink,
   Github,
@@ -56,14 +51,14 @@ import { ProductSimilarVoyages } from "@/components/organisms/ProductSimilarVoya
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { queueProductViewReward } from "@/lib/server/rewards/engagement"
+import {
+  getProductPagePayload,
+  reviewerDisplayName,
+} from "@/lib/products/page-cache"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
-
-type UseCaseProduct = Awaited<
-  ReturnType<typeof getPublicProductsByUseCase>
->[number]
 
 const PRODUCT_TYPE_LABELS: Record<string, string> = {
   saas: "SaaS",
@@ -81,16 +76,6 @@ const PRICING_MODEL_LABELS: Record<string, string> = {
   subscription: "Subscription",
   one_time: "One-time",
   custom: "Custom",
-}
-
-const APPLICATION_CATEGORY_MAP: Record<string, string> = {
-  saas: "BusinessApplication",
-  browser_extension: "BrowserApplication",
-  mobile_app: "LifestyleApplication",
-  desktop_app: "DesktopEnhancementApplication",
-  api: "DeveloperApplication",
-  open_source: "DeveloperApplication",
-  other: "UtilitiesApplication",
 }
 
 export async function generateMetadata({
@@ -161,8 +146,18 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const product = await getPublicProductBySlug(slug)
-  if (!product) return notFound()
+  const payload = await getProductPagePayload(slug)
+  if (!payload) return notFound()
+
+  const {
+    product,
+    reviewSummary,
+    productUpdates,
+    hasAdditionalUpdates,
+    similarProducts,
+    similarUseCase,
+    structuredData,
+  } = payload
 
   const isVerified = product.verification?.isVerified
   const authResult = await auth()
@@ -339,120 +334,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const crewMembers = product.organization?.memberships || []
   const platforms = product.platforms || []
 
-  const reviewSummaryPromise = getProductReviewSummary(product.id, 12)
   const viewerReviewPromise = userId
     ? getUserProductReview(product.id, userId).catch(() => null)
     : Promise.resolve(null)
-  const productUpdatesPromise = getPublicProductUpdates(product.id, {
-    limit: 4,
-  })
+  const viewerReview = await viewerReviewPromise
 
-  const [reviewSummary, viewerReview, previewUpdates] = await Promise.all([
-    reviewSummaryPromise,
-    viewerReviewPromise,
-    productUpdatesPromise,
-  ])
-
-  const hasAdditionalUpdates = previewUpdates.length > 3
-  const productUpdates = hasAdditionalUpdates
-    ? previewUpdates.slice(0, 3)
-    : previewUpdates
-
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_APP_URL || "https://shipyardhq.dev"
-  ).replace(/\/$/, "")
-  const canonicalUrl = `${baseUrl}${productPath(product.slug)}`
-  const schemaOperatingSystems = Array.from(
-    new Set(
-      platforms
-        .map((platform) => platformSchemaLabel(platform))
-        .filter((label): label is string => Boolean(label)),
-    ),
-  )
-
-  const aggregateRating =
-    reviewSummary.totalReviews > 0
-      ? {
-          "@type": "AggregateRating",
-          ratingValue: reviewSummary.averageRating.toFixed(1),
-          ratingCount: reviewSummary.totalReviews,
-          reviewCount: reviewSummary.totalReviews,
-          bestRating: 5,
-          worstRating: 0,
-        }
-      : null
-
-  const structuredData = aggregateRating
-    ? {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        name: product.name,
-        description: product.tagline || product.description || undefined,
-        image: [product.bannerImage, product.logo].filter(Boolean),
-        url: canonicalUrl,
-        applicationCategory:
-          APPLICATION_CATEGORY_MAP[product.type] || undefined,
-        operatingSystem: schemaOperatingSystems.length
-          ? schemaOperatingSystems
-          : undefined,
-        offers:
-          product.startingPriceCents !== null &&
-          product.startingPriceCents !== undefined
-            ? {
-                "@type": "Offer",
-                price: (product.startingPriceCents / 100).toFixed(2),
-                priceCurrency: product.currencyCode || "USD",
-              }
-            : undefined,
-        aggregateRating,
-        review: reviewSummary.reviews.map((review) => ({
-          "@type": "Review",
-          author: {
-            "@type": "Person",
-            name: reviewerDisplayName(
-              review.user.firstName,
-              review.user.lastName,
-            ),
-          },
-          datePublished: (() => {
-            try {
-              return new Date(review.createdAt).toISOString()
-            } catch {
-              return undefined
-            }
-          })(),
-          reviewBody: review.message,
-          name: `Feedback for ${product.name}`,
-          reviewRating: {
-            "@type": "Rating",
-            ratingValue: review.rating,
-            bestRating: 5,
-            worstRating: 0,
-          },
-        })),
-      }
+  const structuredDataJson = structuredData
+    ? JSON.stringify(structuredData).replace(/</g, "\\u003c")
     : null
 
-  const useCaseProducts = product.category.useCases?.length
-    ? await getPublicProductsByUseCase(
-        product.category.useCases[0].useCase.slug,
-        product.id,
-      )
-    : []
-
-  const useCaseItems = useCaseProducts.map((item: UseCaseProduct) => ({
-    id: item.id,
-    slug: item.slug,
-    name: item.name,
-    logo: item.logo,
-    tagline: item.tagline,
-    analytics: item.analytics
-      ? {
-          upvotes: item.analytics.upvotes ?? 0,
-        }
-      : undefined,
-    category: item.category ?? undefined,
-  }))
+  const useCaseItems = similarProducts
 
   const ownerName = reviewerDisplayName(
     product.user?.firstName,
@@ -469,7 +360,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     />
   )
 
-  const useCase = product.category.useCases?.[0]?.useCase || null
+  const useCase = similarUseCase
 
   const heroPlatforms = platforms.map((p) => ({
     id: p,
@@ -494,12 +385,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   return (
     <main className="relative isolate bg-white">
-      {structuredData ? (
+      {structuredDataJson ? (
         <script
           type="application/ld+json"
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+            __html: structuredDataJson,
           }}
         />
       ) : null}
@@ -678,29 +569,6 @@ function formatStatValue(raw: string) {
     .join(" ")
 }
 
-function platformSchemaLabel(platform: string): string | null {
-  switch (platform) {
-    case "web":
-      return "Web"
-    case "ios":
-      return "iOS"
-    case "android":
-      return "Android"
-    case "mac":
-      return "macOS"
-    case "windows":
-      return "Windows"
-    case "linux":
-      return "Linux"
-    case "chrome_extension":
-      return "Google Chrome"
-    case "firefox_extension":
-      return "Mozilla Firefox"
-    default:
-      return formatStatValue(platform)
-  }
-}
-
 function platformIcon(platform: string) {
   switch (platform) {
     case "web":
@@ -724,19 +592,7 @@ function platformIcon(platform: string) {
   }
 }
 
-async function getProductReviewSummary(productId: string, take = 12) {
-  const { getProductReviewSummary } = await import(
-    "@/lib/server/productReviews"
-  )
-  return getProductReviewSummary(productId, take)
-}
-
 async function getUserProductReview(productId: string, userId: string) {
   const { getUserProductReview } = await import("@/lib/server/productReviews")
   return getUserProductReview(productId, userId)
-}
-
-function reviewerDisplayName(first?: string | null, last?: string | null) {
-  const parts = [first?.trim(), last?.trim()].filter(Boolean)
-  return parts.length ? parts.join(" ") : "Shipyard member"
 }
