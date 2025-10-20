@@ -1,11 +1,8 @@
-import Link from "next/link"
-
 import {
   getEventQueueSummary,
   getEventStatusTrend,
   getEventTypeTrend,
 } from "@/actions/admin/events/actions"
-import { Button } from "@/components/atoms/button"
 import {
   Card,
   CardContent,
@@ -13,10 +10,10 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import { Heading } from "@/components/atoms/heading"
+import RangeSelector from "@/components/molecules/RangeSelector"
 import { AnalyticsLineChart } from "@/components/molecules/AnalyticsLineChart"
 import type { ChartConfig } from "@/components/atoms/chart"
 import { EVENT_STATUS_KEYS } from "@/lib/server/events/constants"
-import { adminPath } from "@/lib/routes"
 
 export const dynamic = "force-dynamic"
 
@@ -48,11 +45,40 @@ const statusChartConfig: ChartConfig = {
 
 const eventLinePalette = ["#6366f1", "#0ea5e9", "#f97316", "#10b981", "#ec4899"]
 
-export default async function EventAnalyticsPage() {
+type SearchParams = {
+  range?: string | string[]
+}
+
+function rangeToDays(range?: string): number {
+  switch (range) {
+    case "7d":
+      return 7
+    case "14d":
+      return 14
+    case "90d":
+      return 90
+    case "30d":
+    default:
+      return 30
+  }
+}
+
+export default async function EventAnalyticsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const requestedRange = resolvedSearchParams?.range
+  const rangeValue = Array.isArray(requestedRange)
+    ? requestedRange[0]
+    : requestedRange
+  const days = rangeToDays(rangeValue)
+
   const [summary, statusTrend, typeTrend] = await Promise.all([
     getEventQueueSummary(),
-    getEventStatusTrend(30),
-    getEventTypeTrend(30, 5),
+    getEventStatusTrend(days),
+    getEventTypeTrend(days, 5),
   ])
 
   const metrics: SummaryMetric[] = [
@@ -105,11 +131,9 @@ export default async function EventAnalyticsPage() {
           title="Event analytics"
           description="Monitor queue health and understand which handlers drive workload."
         />
-        <Button asChild variant="outline">
-          <Link href={adminPath("operations", "events")}>
-            Manage queue
-          </Link>
-        </Button>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <RangeSelector className="self-start" />
+        </div>
       </div>
 
       <Card>
@@ -119,7 +143,7 @@ export default async function EventAnalyticsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
             {metrics.map((metric) => (
               <div
                 key={metric.label}

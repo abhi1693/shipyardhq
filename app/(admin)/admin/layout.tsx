@@ -81,6 +81,11 @@ const baseNavItems: NavItem[] = [
     ],
   },
   {
+    title: "Events",
+    url: adminPath("operations", "events"),
+    icon: "queue",
+  },
+  {
     title: "Users",
     url: adminPath("users"),
     icon: "user",
@@ -211,18 +216,6 @@ const baseNavItems: NavItem[] = [
     ],
   },
   {
-    title: "Operations",
-    url: "#",
-    icon: "operations",
-    items: [
-      {
-        title: "Events",
-        url: adminPath("operations", "events"),
-        icon: "queue",
-      },
-    ],
-  },
-  {
     title: "Member Area",
     url: MEMBER_OVERVIEW_PATH,
     icon: "member",
@@ -256,38 +249,30 @@ export default async function AdminLayout({
   ])
 
   const navItems = baseNavItems.map((item) => {
-    if (item.title !== "Feedback") return item
-    return {
-      ...item,
-      label:
-        pendingFeedbackCount > 0 ? String(pendingFeedbackCount) : undefined,
-    }
-  })
-
-  const navWithOperationsLabel = navItems.map((item) => {
-    if (item.title !== "Operations" || !item.items?.length) {
-      return item
+    if (item.title === "Feedback") {
+      return {
+        ...item,
+        label:
+          pendingFeedbackCount > 0 ? String(pendingFeedbackCount) : undefined,
+      }
     }
 
-    const pendingTotal =
-      (eventSummary?.pending ?? 0) + (eventSummary?.retrying ?? 0)
+    if (item.title === "Events") {
+      const pendingTotal =
+        (eventSummary?.pending ?? 0) + (eventSummary?.retrying ?? 0)
 
-    return {
-      ...item,
-      items: item.items.map((subItem) =>
-        subItem.title === "Event queue"
-          ? {
-              ...subItem,
-              label: pendingTotal > 0 ? String(pendingTotal) : undefined,
-            }
-          : subItem,
-      ),
+      return {
+        ...item,
+        label: pendingTotal > 0 ? String(pendingTotal) : undefined,
+      }
     }
+
+    return item
   })
 
   return (
     <SidebarProvider defaultOpen>
-      <AppSidebar navItems={navWithOperationsLabel} />
+      <AppSidebar navItems={navItems} />
       <SidebarInset>
         <PrivateHeader />
         <div className="flex-1">

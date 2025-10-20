@@ -16,6 +16,7 @@ import {
   ChartContainer,
   ChartTooltip,
   type ChartConfig,
+  chartKeyToCssVar,
 } from "@/components/atoms/chart"
 
 type LineChartProps = ComponentProps<typeof LineChart>
@@ -119,7 +120,7 @@ export function AnalyticsLineChart<DataPoint extends object>({
               key={line.dataKey}
               type={line.type ?? "monotone"}
               dataKey={line.dataKey}
-              stroke={line.stroke ?? `var(--chart-${line.dataKey})`}
+              stroke={line.stroke ?? `var(${chartKeyToCssVar(line.dataKey)})`}
               strokeWidth={line.strokeWidth ?? 2}
               dot={line.dot ?? false}
               activeDot={line.activeDot ?? { r: 4 }}
