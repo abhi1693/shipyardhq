@@ -47,22 +47,35 @@ const statusChartConfig: ChartConfig = {
 
 const eventLinePalette = ["#6366f1", "#0ea5e9", "#f97316", "#10b981", "#ec4899"]
 
+type RangeValue = "7d" | "14d" | "30d" | "90d"
+
+const EVENT_RANGE_OPTIONS: Array<{ label: string; value: RangeValue }> = [
+  { label: "7d", value: "7d" },
+  { label: "14d", value: "14d" },
+  { label: "30d", value: "30d" },
+  { label: "90d", value: "90d" },
+]
+
+const RANGE_TO_DAYS: Record<RangeValue, number> = {
+  "7d": 7,
+  "14d": 14,
+  "30d": 30,
+  "90d": 90,
+}
+
+const DEFAULT_RANGE: RangeValue = "7d"
+
 type SearchParams = {
   range?: string | string[]
 }
 
-function rangeToDays(range?: string): number {
-  switch (range) {
-    case "7d":
-      return 7
-    case "14d":
-      return 14
-    case "90d":
-      return 90
-    case "30d":
-    default:
-      return 30
-  }
+function isRangeValue(value?: string | null): value is RangeValue {
+  return (
+    value === "7d" ||
+    value === "14d" ||
+    value === "30d" ||
+    value === "90d"
+  )
 }
 
 export default async function EventAnalyticsPage({
@@ -75,7 +88,10 @@ export default async function EventAnalyticsPage({
   const rangeValue = Array.isArray(requestedRange)
     ? requestedRange[0]
     : requestedRange
-  const days = rangeToDays(rangeValue)
+  const selectedRange = isRangeValue(rangeValue)
+    ? rangeValue
+    : DEFAULT_RANGE
+  const days = RANGE_TO_DAYS[selectedRange]
 
   const [summary, statusTrend, typeTrend, queueLatencyStats, topEventVolumes] =
     await Promise.all([
@@ -198,69 +214,98 @@ export default async function EventAnalyticsPage({
           description="Monitor queue health and understand which handlers drive workload."
         />
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:gap-4">
-          <RangeSelector className="self-start" />
+          <RangeSelector
+            className="self-start"
+            ranges={EVENT_RANGE_OPTIONS}
+          />
         </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-semibold text-slate-900">
-            Queue distribution
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {totalPendingAcrossQueues > 0 ? (
-            <AnalyticsPieChart<QueuePieDatum>
-              data={queuePieData}
-              dataKey="value"
-              nameKey="label"
-              config={queueChartConfig}
-              height={280}
-              innerRadius={60}
-              cells={queuePieCells}
-              legend={
-                <dl className="grid grid-cols-1 gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
-                  {queueBreakdown.map((queue) => (
-                    <div key={queue.id} className="flex items-center gap-2">
-                      <span
-                        className="inline-block h-2 w-2 rounded-full"
-                        style={{
-                          backgroundColor:
-                            queueChartConfig[queue.id]?.color ?? "#0f172a",
-                        }}
-                      />
-                      <div className="flex flex-col">
-                        <span className="font-medium text-slate-900">
-                          {queue.label}
-                        </span>
-                        <span className="text-xs">
-                          {queue.pending.toLocaleString()} pending /{" "}
-                          {queue.processing.toLocaleString()} processing (interval{" "}
-                          {queue.intervalMinutes} min)
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </dl>
-              }
-            />
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              No pending envelopes across high, default, or low queues.
-            </p>
-          )}
-          <p className="text-xs text-muted-foreground">
-            Oldest pending event in range:{" "}
-            {formatRelativeForHelper(summary.oldestPendingAt)}
-          </p>
-        </CardContent>
-      </Card>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base font-semibold text-slate-900">
-              Status trend (30 days)
+              Queue distribution
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {totalPendingAcrossQueues > 0 ? (
+              <AnalyticsPieChart<QueuePieDatum>
+                data={queuePieData}
+                dataKey="value"
+                nameKey="label"
+                config={queueChartConfig}
+                height={280}
+                innerRadius={60}
+                cells={queuePieCells}
+                legend={
+                  <dl className="grid grid-cols-1 gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
+                    {queueBreakdown.map((queue) => (
+                      <div key={queue.id} className="flex items-center gap-2">
+                        <span
+                          className="inline-block h-2 w-2 rounded-full"
+                          style={{
+                            backgroundColor:
+                              queueChartConfig[queue.id]?.color ?? "#0f172a",
+                          }}
+                        />
+                        <div className="flex flex-col">
+                          <span className="font-medium text-slate-900">
+                            {queue.label}
+                          </span>
+                          <span className="text-xs">
+                            {queue.pending.toLocaleString()} pending /{" "}
+                            {queue.processing.toLocaleString()} processing (interval{" "}
+                            {queue.intervalMinutes} min)
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </dl>
+                }
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No pending envelopes across high, default, or low queues.
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Oldest pending event in range:{" "}
+              {formatRelativeForHelper(summary.oldestPendingAt)}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold text-slate-900">
+              Top event volume
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {hasTopEvents ? (
+              <AnalyticsBarChart
+                data={topEventData}
+                config={topEventConfig}
+                bars={[{ dataKey: "total" }]}
+                height={320}
+                layout="vertical"
+                xAxis={{ type: "number" }}
+                yAxis={{ type: "category", dataKey: "label", width: 180 }}
+                grid={{ strokeDasharray: "4 4" }}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No event activity recorded in the selected window.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold text-slate-900">
+              Status trend
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -279,7 +324,7 @@ export default async function EventAnalyticsPage({
         <Card className="overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base font-semibold text-slate-900">
-              Event distribution (30 days)
+              Event distribution
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -298,10 +343,8 @@ export default async function EventAnalyticsPage({
             )}
           </CardContent>
         </Card>
-      </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base font-semibold text-slate-900">
               Queue SLA
@@ -330,32 +373,6 @@ export default async function EventAnalyticsPage({
               Metrics represent minutes between enqueue and completion. Sample
               size: {totalLatencySamples.toLocaleString()} envelopes.
             </p>
-          </CardContent>
-        </Card>
-
-        <Card className="overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
-              Top event volume
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {hasTopEvents ? (
-              <AnalyticsBarChart
-                data={topEventData}
-                config={topEventConfig}
-                bars={[{ dataKey: "total" }]}
-                height={320}
-                layout="vertical"
-                xAxis={{ type: "number" }}
-                yAxis={{ type: "category", dataKey: "label", width: 180 }}
-                grid={{ strokeDasharray: "4 4" }}
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No event activity recorded in the selected window.
-              </p>
-            )}
           </CardContent>
         </Card>
       </div>

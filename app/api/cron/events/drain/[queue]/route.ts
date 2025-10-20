@@ -11,22 +11,24 @@ import {
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-type RouteParams = {
-  params: { queue: string }
-}
-
-function resolveQueueFromParams(params?: RouteParams["params"]): EventQueueName {
-  const rawQueue = params?.queue ?? ""
+async function resolveQueueFromParams(
+  params?: Promise<{ queue?: string }>,
+): Promise<EventQueueName> {
+  const resolved = params ? await params : undefined
+  const rawQueue = resolved?.queue ?? ""
   return assertEventQueue(rawQueue)
 }
 
-export async function GET(request: Request, context: RouteParams) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ queue?: string }> },
+) {
   const authResponse = ensureCronAuthorized(request)
   if (authResponse) return authResponse
 
   let queue: EventQueueName
   try {
-    queue = resolveQueueFromParams(context.params)
+    queue = await resolveQueueFromParams(params)
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Invalid queue identifier"
