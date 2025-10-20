@@ -1,11 +1,5 @@
 import Link from "next/link"
 
-import {
-  getLeaderboardStats,
-  getTopRankedProducts,
-} from "@/actions/public/leaderboard/actions"
-import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
-import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import { Button } from "@/components/atoms/button"
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
@@ -26,8 +20,10 @@ import {
   PRICING_PATH,
   TRENDS_PATH,
 } from "@/lib/routes"
-
-export const revalidate = 60
+import {
+  getLeaderboardPagePayload,
+  type LeaderboardPagePayload,
+} from "@/lib/leaderboard/cache"
 
 export const metadata = buildPageMetadata({
   title: "Shipyard Leaderboard — Track live launch momentum",
@@ -35,12 +31,7 @@ export const metadata = buildPageMetadata({
     "Monitor the Shipyard leaderboard to see which launches are earning the strongest community momentum right now.",
 })
 
-type CategoryListItem = Awaited<
-  ReturnType<typeof getCategoriesWithCounts>
->[number]
-type LeaderboardProduct = Awaited<
-  ReturnType<typeof getTopRankedProducts>
->[number]
+type LeaderboardProduct = LeaderboardPagePayload["products"][number]
 
 const leaderboardMetrics = [
   {
@@ -67,28 +58,27 @@ export default async function LeaderboardPage({
   searchParams: Promise<{ category?: string; limit?: string }>
 }) {
   const sp = await searchParams
-  const limit = Number(sp?.limit || 50)
-  const categorySlug = sp?.category || undefined
+  const filters = {
+    categorySlug: sp?.category,
+    limit: Number(sp?.limit ?? 50),
+  }
 
-  const [stats, categories, products, latestProductUpdates] = await Promise.all(
-    [
-      getLeaderboardStats(),
-      getCategoriesWithCounts(),
-      getTopRankedProducts({ limit, categorySlug }),
-      getLatestPublicProductUpdates(6),
-    ],
-  )
+  const {
+    filters: normalizedFilters,
+    stats,
+    categories,
+    products,
+    latestProductUpdates,
+    rankLabels,
+    firstPlacement,
+    runnerUps,
+    rest,
+    categoryName,
+  } = await getLeaderboardPagePayload(filters)
 
   const topThree = products.slice(0, 3)
-  const firstPlacement = topThree[0]
-  const runnerUps = topThree.slice(1)
-  const rest = products.slice(3)
-  const categoryName = categorySlug
-    ? categories.find((c: CategoryListItem) => c.slug === categorySlug)?.name
-    : undefined
   const totalCount = products.length
   const restHasEntries = rest.length > 0
-  const rankLabels = ["Top rank", "Second place", "Third place"]
 
   return (
     <main className="relative isolate bg-white">
@@ -244,24 +234,24 @@ export default async function LeaderboardPage({
                   </div>
                   <LeaderboardFilters
                     categories={categories}
-                    selected={categorySlug}
-                    limit={limit}
+                    selected={normalizedFilters.categorySlug}
+                    limit={normalizedFilters.limit}
                   />
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                    <p>
-                      Showing top {totalCount} launch
-                      {totalCount === 1 ? "" : "es"}
-                      {categoryName
-                        ? ` in ${categoryName}`
-                        : " across all categories"}
-                      .
-                    </p>
-                    {categorySlug || limit !== 50 ? (
-                      <Link
-                        href={LEADERBOARD_PATH}
-                        className="inline-flex items-center gap-1 font-semibold text-[color:var(--brand-1)] hover:underline"
-                      >
-                        Reset filters
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <p>
+                    Showing top {totalCount} launch
+                    {totalCount === 1 ? "" : "es"}
+                    {categoryName
+                      ? ` in ${categoryName}`
+                      : " across all categories"}
+                    .
+                  </p>
+                  {normalizedFilters.categorySlug || normalizedFilters.limit !== 50 ? (
+                    <Link
+                      href={LEADERBOARD_PATH}
+                      className="inline-flex items-center gap-1 font-semibold text-[color:var(--brand-1)] hover:underline"
+                    >
+                      Reset filters
                       </Link>
                     ) : null}
                   </div>
@@ -295,10 +285,7 @@ export default async function LeaderboardPage({
               />
 
               <TopCategories
-                categories={categories.map((category: CategoryListItem) => ({
-                  ...category,
-                  count: category.count,
-                }))}
+                categories={categories}
                 limit={6}
                 className="border-border/70"
                 description="Browse the leaderboard by the categories with the highest launch volume this week."

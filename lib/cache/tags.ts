@@ -6,6 +6,7 @@ export const TAGS = {
   productUpdatesLatest: "product-updates:latest",
   categories: "categories",
   category: (idOrSlug: string) => `category:${idOrSlug}`,
+  leaderboardPage: "leaderboard:page",
   useCases: "use-cases",
   usecase: (idOrSlug: string) => `use-case:${idOrSlug}`,
   users: "users",
