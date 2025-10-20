@@ -1,8 +1,13 @@
 import { revalidateTag } from "next/cache"
 import { TAGS } from "./tags"
 
+export function revalidateHomepage() {
+  revalidateTag(TAGS.homepage)
+}
+
 export function revalidateProducts() {
   revalidateTag(TAGS.products)
+  revalidateHomepage()
 }
 
 export function revalidateProduct(idOrSlug: string) {
@@ -25,6 +30,7 @@ export function revalidateProductUpdate(
     revalidateProductUpdates(productIdOrSlug)
   }
   revalidateTag(TAGS.productUpdatesLatest)
+  revalidateHomepage()
 }
 
 export function revalidateProductReviews(idOrSlug: string) {
@@ -34,6 +40,7 @@ export function revalidateProductReviews(idOrSlug: string) {
 
 export function revalidateCategories() {
   revalidateTag(TAGS.categories)
+  revalidateHomepage()
 }
 
 export function revalidateCategory(idOrSlug: string) {
@@ -45,6 +52,7 @@ export function revalidateLeaderboard() {
   revalidateTag(TAGS.leaderboard)
   revalidateTag(TAGS.trending)
   revalidateTag(TAGS.analytics)
+  revalidateHomepage()
 }
 
 export function revalidateMonthlyLeaderboard(monthKey?: string) {
@@ -68,4 +76,10 @@ export function revalidatePlanFeature(key: string) {
 export function revalidatePlacement(featureKey: string) {
   revalidateTag(TAGS.placement(featureKey))
   revalidateProducts()
+}
+
+export function revalidateRewardsLeaderboard() {
+  revalidateTag(TAGS.rewardsLeaderboard)
+  revalidateTag(TAGS.rewards)
+  revalidateHomepage()
 }

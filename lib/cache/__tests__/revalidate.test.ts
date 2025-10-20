@@ -10,11 +10,13 @@ import {
   revalidateBadges,
   revalidateCategories,
   revalidateCategory,
+  revalidateHomepage,
   revalidateLeaderboard,
   revalidateMonthlyLeaderboard,
   revalidatePlanFeature,
   revalidateProduct,
   revalidateProducts,
+  revalidateRewardsLeaderboard,
 } from "@/lib/cache/revalidate"
 
 beforeEach(() => {
@@ -24,31 +26,36 @@ beforeEach(() => {
 describe("revalidate helpers", () => {
   it("revalidates products collection", () => {
     revalidateProducts()
-    expect(revalidateTagMock).toHaveBeenCalledWith("products")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "products")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "homepage")
   })
 
   it("revalidates individual product and collection", () => {
     revalidateProduct("product-1")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "product:product-1")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "products")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "homepage")
   })
 
   it("revalidates category and categories", () => {
     revalidateCategory("category-2")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "category:category-2")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "categories")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "homepage")
   })
 
   it("revalidates categories collection", () => {
     revalidateCategories()
-    expect(revalidateTagMock).toHaveBeenCalledWith("categories")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "categories")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "homepage")
   })
 
   it("revalidates leaderboard family", () => {
     revalidateLeaderboard()
-    expect(revalidateTagMock).toHaveBeenCalledWith("leaderboard")
-    expect(revalidateTagMock).toHaveBeenCalledWith("trending")
-    expect(revalidateTagMock).toHaveBeenCalledWith("analytics")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "leaderboard")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "trending")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "analytics")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(4, "homepage")
   })
 
   it("revalidates monthly leaderboard tags with month key", () => {
@@ -70,6 +77,7 @@ describe("revalidate helpers", () => {
     revalidateBadges()
     expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "badges")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "products")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "homepage")
   })
 
   it("revalidates plan feature and associated entities", () => {
@@ -80,5 +88,18 @@ describe("revalidate helpers", () => {
     )
     expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "plans")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "products")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(4, "homepage")
+  })
+
+  it("revalidates homepage directly", () => {
+    revalidateHomepage()
+    expect(revalidateTagMock).toHaveBeenCalledWith("homepage")
+  })
+
+  it("revalidates rewards leaderboard with homepage", () => {
+    revalidateRewardsLeaderboard()
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "rewards:leaderboard")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "rewards")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "homepage")
   })
 })
