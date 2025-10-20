@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { drainEventQueue } from "@/lib/server/events/drain"
+import { ensureCronAuthorized } from "@/lib/server/cronAuth"
 
 async function drainOnce() {
   const result = await drainEventQueue()
@@ -14,7 +15,10 @@ async function drainOnce() {
   return result
 }
 
-export async function POST() {
+export async function POST(request: Request) {
+  const authResponse = ensureCronAuthorized(request)
+  if (authResponse) return authResponse
+
   try {
     const result = await drainOnce()
     return NextResponse.json(result)
@@ -24,7 +28,10 @@ export async function POST() {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const authResponse = ensureCronAuthorized(request)
+  if (authResponse) return authResponse
+
   try {
     const result = await drainOnce()
     return NextResponse.json(result)
