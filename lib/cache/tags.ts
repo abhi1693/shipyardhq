@@ -35,6 +35,8 @@ export const TAGS = {
   rewardCatalogItem: (key: string) => `rewards:catalog:${key}`,
   keywords: "keywords",
   keyword: (slug: string) => `keyword:${slug}`,
+  tagsPage: "tags:page",
+  tagDetail: (slug: string) => `tag:detail:${slug}`,
   homepage: "homepage",
   browse: "browse",
   categoryDirectory: "categories:directory",

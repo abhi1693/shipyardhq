@@ -17,11 +17,16 @@ export function revalidateLeaderboardPage() {
   revalidateTag(TAGS.leaderboardPage)
 }
 
+export function revalidateTagsPage() {
+  revalidateTag(TAGS.tagsPage)
+}
+
 export function revalidateProducts() {
   revalidateTag(TAGS.products)
   revalidateHomepage()
   revalidateBrowse()
   revalidateCategoryDirectory()
+  revalidateTagsPage()
   revalidateLeaderboardPage()
 }
 
@@ -48,6 +53,7 @@ export function revalidateProductUpdate(
   revalidateHomepage()
   revalidateBrowse()
   revalidateCategoryDirectory()
+  revalidateTagsPage()
   revalidateLeaderboardPage()
 }
 
@@ -61,6 +67,7 @@ export function revalidateCategories() {
   revalidateHomepage()
   revalidateBrowse()
   revalidateCategoryDirectory()
+  revalidateTagsPage()
   revalidateLeaderboardPage()
 }
 
