@@ -71,7 +71,12 @@ export function ExternalBadgeLink({
     )
   }
   return (
-    <Link href={href} target={linkTarget} rel={linkRel} className="cursor-pointer">
+    <Link
+      href={href}
+      target={linkTarget}
+      rel={linkRel}
+      className="cursor-pointer"
+    >
       <Badge variant={variant ?? "default"} className={badgeClass}>
         {children}
       </Badge>
