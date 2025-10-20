@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 
-import { getMonthlyTopRankedProducts } from "@/actions/public/leaderboard/actions"
 import { buildPageMetadata } from "@/lib/metadata"
 import { isMonthKey, monthlyLeaderboardArchivePath } from "@/lib/routes"
+import { getMonthlyLeaderboardPagePayload } from "@/lib/leaderboard/monthly-cache"
 
 import { MonthlyLeaderboardView } from "../monthly/view"
 
@@ -25,7 +25,7 @@ export async function generateMetadata({
     })
   }
 
-  const leaderboard = await getMonthlyTopRankedProducts({ month: monthKey })
+  const { leaderboard } = await getMonthlyLeaderboardPagePayload(monthKey)
 
   const metadata = buildPageMetadata({
     title: `${leaderboard.label} Product Winners`,
@@ -51,7 +51,8 @@ export default async function MonthlyLeaderboardArchivePage({
     notFound()
   }
 
-  const leaderboard = await getMonthlyTopRankedProducts({ month: monthKey })
+  const payload = await getMonthlyLeaderboardPagePayload(monthKey)
+  const { leaderboard, months } = payload
 
   if (leaderboard.month !== monthKey) {
     redirect(monthlyLeaderboardArchivePath(leaderboard.month))
@@ -61,6 +62,7 @@ export default async function MonthlyLeaderboardArchivePage({
     <MonthlyLeaderboardView
       monthParam={monthKey}
       initialLeaderboard={leaderboard}
+      initialMonths={months}
     />
   )
 }

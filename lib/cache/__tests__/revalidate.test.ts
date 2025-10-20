@@ -82,12 +82,14 @@ describe("revalidate helpers", () => {
       2,
       "leaderboard:monthly:30-04-2024",
     )
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "leaderboard:page")
   })
 
   it("revalidates monthly leaderboard base tag when no key provided", () => {
     revalidateMonthlyLeaderboard()
     expect(revalidateTagMock).toHaveBeenCalledWith("leaderboard:monthly")
-    expect(revalidateTagMock).toHaveBeenCalledTimes(1)
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "leaderboard:page")
+    expect(revalidateTagMock).toHaveBeenCalledTimes(2)
   })
 
   it("revalidates badges and products", () => {

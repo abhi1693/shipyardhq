@@ -83,6 +83,7 @@ export function revalidateMonthlyLeaderboard(monthKey?: string) {
   if (monthKey) {
     revalidateTag(TAGS.monthlyLeaderboardMonth(monthKey))
   }
+  revalidateLeaderboardPage()
 }
 
 export function revalidateBadges() {
