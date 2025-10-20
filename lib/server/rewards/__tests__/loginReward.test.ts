@@ -8,15 +8,45 @@ import { awardRewards } from "@/lib/rewards/engine"
 import { RewardsError } from "@/lib/rewards/errors"
 import { dispatchEvent } from "@/lib/server/events"
 
+const prismaMock = vi.hoisted(() => ({
+  $executeRaw: vi.fn(),
+  $queryRaw: vi.fn(),
+  eventEnvelope: {
+    findFirst: vi.fn(),
+  },
+  rewardTransaction: {
+    findFirst: vi.fn(),
+  },
+}))
+
+vi.mock("@/lib/prisma", () => ({
+  default: prismaMock,
+}))
+
 vi.mock("@/lib/rewards/engine", () => ({
   awardRewards: vi.fn(),
 }))
 
 vi.mock("@/lib/server/events", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/server/events")>()
+  const dispatchEventMock = vi.fn().mockResolvedValue(undefined)
+  const dispatchEventAsyncMock = vi.fn(
+    (
+      event: Parameters<typeof actual.dispatchEventAsync>[0],
+      payload: Parameters<typeof actual.dispatchEventAsync>[1],
+      options?: Parameters<typeof actual.dispatchEventAsync>[2],
+    ) => {
+      try {
+        dispatchEventMock(event, payload)
+      } catch (error) {
+        options?.onError?.(error)
+      }
+    },
+  )
   return {
     ...actual,
-    dispatchEvent: vi.fn().mockResolvedValue(undefined),
+    dispatchEvent: dispatchEventMock,
+    dispatchEventAsync: dispatchEventAsyncMock,
   }
 })
 
@@ -32,6 +62,14 @@ describe("ensureDailyLoginReward", () => {
       [CACHE_SYMBOL]?: Map<string, string>
     }
     delete globalWithCache[CACHE_SYMBOL]
+    prismaMock.eventEnvelope.findFirst.mockReset()
+    prismaMock.rewardTransaction.findFirst.mockReset()
+    prismaMock.$executeRaw.mockReset()
+    prismaMock.$queryRaw.mockReset()
+    prismaMock.eventEnvelope.findFirst.mockResolvedValue(null)
+    prismaMock.rewardTransaction.findFirst.mockResolvedValue(null)
+    prismaMock.$executeRaw.mockResolvedValue(undefined)
+    prismaMock.$queryRaw.mockResolvedValue([])
   })
 
   it("queues daily login reward once per day", async () => {
@@ -50,7 +88,30 @@ describe("ensureDailyLoginReward", () => {
 
     // subsequent call same day should short-circuit before hitting awardRewards
     mockedDispatchEvent.mockClear()
+    prismaMock.eventEnvelope.findFirst.mockClear()
+    prismaMock.rewardTransaction.findFirst.mockClear()
     await ensureDailyLoginReward("user-123", { now })
+    expect(mockedDispatchEvent).not.toHaveBeenCalled()
+    expect(prismaMock.eventEnvelope.findFirst).not.toHaveBeenCalled()
+    expect(prismaMock.rewardTransaction.findFirst).not.toHaveBeenCalled()
+  })
+
+  it("skips dispatch when an envelope is already queued", async () => {
+    const now = new Date("2025-03-15T08:30:00Z")
+    prismaMock.eventEnvelope.findFirst.mockResolvedValueOnce({ id: "env-1" })
+
+    await ensureDailyLoginReward("user-123", { now })
+
+    expect(mockedDispatchEvent).not.toHaveBeenCalled()
+    expect(prismaMock.rewardTransaction.findFirst).not.toHaveBeenCalled()
+  })
+
+  it("skips dispatch when rewards already granted for the day", async () => {
+    const now = new Date("2025-03-15T08:30:00Z")
+    prismaMock.rewardTransaction.findFirst.mockResolvedValueOnce({ id: "txn-1" })
+
+    await ensureDailyLoginReward("user-123", { now })
+
     expect(mockedDispatchEvent).not.toHaveBeenCalled()
   })
 

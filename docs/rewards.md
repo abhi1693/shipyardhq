@@ -30,7 +30,7 @@
 ### Automated earn sources
 
 - **Product engagement:** Listeners on the internal event bus award points for upvotes and reviews while ignoring self-awards and handling soft failures (`lib/server/rewards/listeners.ts:43`). A depth bonus fires when review bodies exceed 200 chars (`lib/server/rewards/listeners.ts:100`).
-- **Daily login:** `ensureDailyLoginReward` defends against duplicate grants with an in-memory cache and tolerant error handling (`lib/server/rewards/loginReward.ts:30`). Integrate this helper in auth flows to keep streaks alive.
+- **Daily login:** `ensureDailyLoginReward` now checks both pending envelopes and prior reward transactions before queueing work, then caches the day locally to avoid repeat grants (`lib/server/rewards/loginReward.ts:30`). Integrate this helper in auth flows to keep streaks alive without flooding the queue.
 - **Feedback closure:** Admins granting feedback rewards trigger `awardRewards` with feedback metadata when statuses transition to `closed` (`actions/admin/feedback/actions.ts:115`).
 - **Backlink verification:** The cron worker crawls member sites, validates backlinks, and awards the `rewards.backlink.verify` rule once per product using a deterministic `eventId` (`lib/server/rewards/backlinkVerification.ts:336`).
 

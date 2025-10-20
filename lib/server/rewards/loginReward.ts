@@ -1,3 +1,4 @@
+import prisma from "@/lib/prisma"
 import { awardRewards } from "@/lib/rewards/engine"
 import { RewardsError } from "@/lib/rewards/errors"
 import {
@@ -5,6 +6,7 @@ import {
   registerEventHandler,
   type RewardsDailyLoginEvent,
 } from "@/lib/server/events"
+import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
 
 const LOGIN_RULE_KEY = "rewards.login.daily"
 const NON_FATAL_CODES = new Set([
@@ -15,6 +17,11 @@ const NON_FATAL_CODES = new Set([
 ])
 
 const CACHE_SYMBOL = Symbol.for("__shipyard_login_reward_cache")
+const ACTIVE_ENVELOPE_STATUSES: EventEnvelopeStatus[] = [
+  "pending",
+  "processing",
+  "retrying",
+]
 
 type LoginRewardCache = Map<string, string>
 
@@ -53,12 +60,21 @@ export async function ensureDailyLoginReward(
     awardedAt: now.toISOString(),
   }
 
-  cache.set(userId, dayKey)
+  const alreadyQueued = await hasQueuedDailyLoginEvent(userId, eventId, dayKey)
+  if (alreadyQueued) {
+    cache.set(userId, dayKey)
+    return
+  }
+
+  const alreadyAwarded = await hasAwardedDailyLoginReward(userId, eventId)
+  if (alreadyAwarded) {
+    cache.set(userId, dayKey)
+    return
+  }
 
   dispatchEventAsync("rewards.daily-login", payload, {
     context: { userId, eventId },
     onError: (error) => {
-      cache.delete(userId)
       console.error("[rewards] Failed to enqueue daily login rewards", {
         error,
         userId,
@@ -83,6 +99,8 @@ export async function handleDailyLoginRewardEvent(
         dayKey: payload.dayKey,
       },
     })
+    const cache = getCache()
+    cache.set(payload.userId, payload.dayKey)
   } catch (error) {
     if (error instanceof RewardsError && NON_FATAL_CODES.has(error.code)) {
       if (error.code === "RULE_NOT_FOUND" || error.code === "RULE_INACTIVE") {
@@ -108,3 +126,53 @@ registerEventHandler({
   mode: "async",
   handler: handleDailyLoginRewardEvent,
 })
+
+async function hasAwardedDailyLoginReward(
+  userId: string,
+  eventId: string,
+): Promise<boolean> {
+  const existing = await prisma.rewardTransaction.findFirst({
+    where: {
+      userId,
+      ruleKey: LOGIN_RULE_KEY,
+      eventId,
+    },
+    select: { id: true },
+  })
+  return Boolean(existing)
+}
+
+async function hasQueuedDailyLoginEvent(
+  userId: string,
+  eventId: string,
+  dayKey: string,
+): Promise<boolean> {
+  const existing = await prisma.eventEnvelope.findFirst({
+    where: {
+      event: "rewards.daily-login",
+      status: { in: ACTIVE_ENVELOPE_STATUSES },
+      AND: [
+        {
+          payload: {
+            path: ["userId"],
+            equals: userId,
+          },
+        },
+        {
+          payload: {
+            path: ["eventId"],
+            equals: eventId,
+          },
+        },
+        {
+          payload: {
+            path: ["dayKey"],
+            equals: dayKey,
+          },
+        },
+      ],
+    },
+    select: { id: true },
+  })
+  return Boolean(existing)
+}
