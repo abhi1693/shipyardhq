@@ -5,7 +5,7 @@ type ProductSitemapEntry = Prisma.ProductGetPayload<{
   select: { id: true; slug: true; updatedAt: true; publishedAt: true }
 }>
 
-export const dynamic = "force-dynamic"
+export const revalidate = 3600
 
 function xml(parts: TemplateStringsArray, ...subs: any[]) {
   return parts.map((p, i) => p + (subs[i] ?? "")).join("")

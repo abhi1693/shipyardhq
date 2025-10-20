@@ -1,6 +1,7 @@
 import { getKeywordTagSitemapStats } from "@/actions/public/tags/actions"
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-static"
+export const revalidate = 3600
 
 const CHUNK_SIZE = 50000
 
