@@ -13,7 +13,7 @@ export const absoluteOgImageUrl = new URL(
 ).toString()
 
 export const buildSiteSeo = () => {
-  const defaultTitle = `${siteConfig.name} — ${siteConfig.tagline}`
+  const defaultTitle = siteConfig.tagline
 
   return {
     defaultTitle,
