@@ -1,21 +1,12 @@
+import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 
 import {
-  drainEventQueueAction,
-  getEventQueueSummary,
-  getEventStatusTrend,
-  getEventTypeTrend,
-  getRecentEventEnvelopes,
+  getEventEnvelopesPaginated,
   requeueEnvelopeAction,
+  deleteEnvelopeAction,
 } from "@/actions/admin/events/actions"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/atoms/card"
-import { Badge } from "@/components/atoms/badge"
-import { Button } from "@/components/atoms/button"
+import { adminPath } from "@/lib/routes"
 import {
   Table,
   TableBody,
@@ -24,14 +15,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/atoms/table"
-import { Separator } from "@/components/atoms/separator"
-import type {
-  EventAttemptStatus,
-  EventEnvelopeStatus,
-} from "@/lib/vendor/prisma/client"
-import { AnalyticsLineChart } from "@/components/molecules/AnalyticsLineChart"
-import type { ChartConfig } from "@/components/atoms/chart"
-import { EVENT_STATUS_KEYS } from "@/lib/server/events/constants"
+import { Badge } from "@/components/atoms/badge"
+import { Button } from "@/components/atoms/button"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/atoms/card"
+import { Heading } from "@/components/atoms/heading"
+import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
 
 export const dynamic = "force-dynamic"
 
@@ -46,314 +39,185 @@ const statusVariantMap: Record<
   dead_letter: "destructive",
 }
 
-const attemptVariantMap: Record<
-  EventAttemptStatus,
-  "success" | "destructive" | "secondary"
-> = {
-  succeeded: "success",
-  failed: "destructive",
-  timed_out: "secondary",
+type SearchParams = {
+  page?: string
 }
 
-type SummaryMetric = {
-  label: string
-  value: number
-  helper?: string
+function toInt(value: string | undefined, fallback: number): number {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback
+  return Math.floor(parsed)
 }
 
-function formatRelativeDate(value?: Date | null) {
-  if (!value) return "—"
-  return `${formatDistanceToNow(value, { addSuffix: true })}`
+function formatRelative(date?: Date | null) {
+  if (!date) return "—"
+  return formatDistanceToNow(date, { addSuffix: true })
 }
 
-function pluralize(count: number, noun: string) {
-  return `${count} ${count === 1 ? noun : `${noun}s`}`
-}
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>
+}) {
+  const sp = await searchParams
+  const page = toInt(sp?.page, 1)
 
-export default async function EventQueuePage() {
-  const [summary, envelopes, statusTrend, typeTrend] = await Promise.all([
-    getEventQueueSummary(),
-    getRecentEventEnvelopes(50),
-    getEventStatusTrend(30),
-    getEventTypeTrend(30, 5),
-  ])
+  const {
+    items,
+    total,
+    page: currentPage,
+    pageSize,
+  } = await getEventEnvelopesPaginated({ page })
 
-  const statusChartConfig: ChartConfig = {
-    pending: { label: "Pending", color: "#f97316" },
-    processing: { label: "Processing", color: "#3b82f6" },
-    retrying: { label: "Retrying", color: "#eab308" },
-    completed: { label: "Completed", color: "#10b981" },
-    dead_letter: { label: "Dead letter", color: "#f43f5e" },
-  }
-
-  const eventPalette = ["#6366f1", "#0ea5e9", "#f97316", "#10b981", "#ec4899"]
-  const eventChartConfig: ChartConfig = Object.fromEntries(
-    typeTrend.series.map((eventName, index) => [
-      eventName,
-      {
-        label: eventName,
-        color: eventPalette[index % eventPalette.length],
-      },
-    ]),
-  )
-
-  const eventLines = typeTrend.series.map((eventName) => ({
-    dataKey: eventName,
-    type: "monotone" as const,
-  }))
-
-  const metrics: SummaryMetric[] = [
-    {
-      label: "Pending",
-      value: summary.pending,
-      helper: "Awaiting worker execution",
-    },
-    {
-      label: "Retrying",
-      value: summary.retrying,
-      helper: "Scheduled for another attempt",
-    },
-    {
-      label: "Processing",
-      value: summary.processing,
-      helper: "Currently being handled",
-    },
-    {
-      label: "Completed",
-      value: summary.completed,
-      helper: "Finished envelopes",
-    },
-    {
-      label: "Dead letter",
-      value: summary.deadLetter,
-      helper: "Require manual intervention",
-    },
-  ]
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const prevPage = currentPage > 1 ? currentPage - 1 : null
+  const nextPage = currentPage < totalPages ? currentPage + 1 : null
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-            Event queue
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Monitor asynchronous handlers, inspect recent envelopes, and trigger
-            manual retries.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <form action={drainEventQueueAction}>
-            <Button type="submit" variant="default">
-              Drain queue (25)
-            </Button>
-          </form>
-          <p className="text-xs text-muted-foreground">
-            Oldest pending event: {formatRelativeDate(summary.oldestPendingAt)}
-          </p>
-        </div>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <Heading
+          title="Events"
+          description="Browse and manage asynchronous envelopes across the entire queue."
+        />
+        <Button asChild variant="outline">
+          <Link href={adminPath("analytics", "events")}>View analytics</Link>
+        </Button>
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-base font-semibold text-slate-900">
-            Queue health
+            Envelopes
           </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {metrics.map((metric) => (
-              <div
-                key={metric.label}
-                className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm"
-              >
-                <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  {metric.label}
-                </div>
-                <div className="mt-2 text-2xl font-semibold text-slate-900">
-                  {metric.value.toLocaleString()}
-                </div>
-                {metric.helper ? (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {metric.helper}
-                  </p>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card className="overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
-              Status trend (30 days)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AnalyticsLineChart
-              data={statusTrend}
-              config={statusChartConfig}
-              lines={EVENT_STATUS_KEYS.map((status) => ({
-                dataKey: status,
-              }))}
-              xKey="label"
-              height={280}
-            />
-          </CardContent>
-        </Card>
-
-        <Card className="overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">
-              Event distribution (30 days)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {typeTrend.series.length ? (
-              <AnalyticsLineChart
-                data={typeTrend.points}
-                config={eventChartConfig}
-                lines={eventLines}
-                xKey="label"
-                height={280}
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No event activity recorded in the selected window.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base font-semibold text-slate-900">
-            Recent envelopes
-          </CardTitle>
+          <span className="text-sm text-muted-foreground">
+            {total.toLocaleString()} total
+          </span>
         </CardHeader>
         <CardContent className="space-y-4">
-          {envelopes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No envelopes have been recorded yet.
-            </p>
-          ) : (
+          <div className="rounded-xl border border-slate-200/70 bg-white/80 shadow-sm">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Event</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Handlers</TableHead>
                   <TableHead>Attempts</TableHead>
-                  <TableHead>Last error</TableHead>
+                  <TableHead>Enqueued</TableHead>
+                  <TableHead>Updated</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {envelopes.map((envelope) => {
-                  const totalHandlers = envelope.asyncHandlers.length
-                  const pendingHandlers = envelope.pendingHandlers.length
-                  const lastAttempt = envelope.attemptsLog[0]
-                  return (
-                    <TableRow key={envelope.id}>
-                      <TableCell className="max-w-xs">
+                {items.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="py-10 text-center text-sm text-muted-foreground"
+                    >
+                      No envelopes found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  items.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="max-w-sm">
                         <div className="flex flex-col gap-1">
-                          <div className="text-sm font-semibold text-slate-900">
-                            {envelope.event}
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                            <span className="font-mono text-[11px] text-slate-500">
-                              {envelope.id}
-                            </span>
-                            <Separator orientation="vertical" className="h-3" />
-                            <span>
-                              Enqueued {formatRelativeDate(envelope.enqueuedAt)}
-                            </span>
-                          </div>
+                          <Link
+                            href={adminPath("operations", "events", item.id)}
+                            className="text-sm font-semibold text-slate-900 hover:underline"
+                          >
+                            {item.event}
+                          </Link>
+                          <span className="font-mono text-[11px] text-slate-500">
+                            {item.id}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={statusVariantMap[envelope.status]}>
-                          {envelope.status.replace(/_/g, " ")}
+                        <Badge variant={statusVariantMap[item.status]}>
+                          {item.status.replace(/_/g, " ")}
                         </Badge>
                       </TableCell>
-                      <TableCell className="space-y-1">
+                      <TableCell>
                         <div className="text-sm text-slate-900">
-                          {pendingHandlers}/{totalHandlers} pending
+                          {item.attempts}
                         </div>
-                        <div className="flex flex-wrap gap-1">
-                          {envelope.asyncHandlers.map((handler) => {
-                            const isPending =
-                              envelope.pendingHandlers.includes(handler)
-                            return (
-                              <Badge
-                                key={handler}
-                                variant={isPending ? "secondary" : "outline"}
-                                className="font-mono text-[11px]"
-                              >
-                                {handler}
-                              </Badge>
-                            )
-                          })}
+                        <div className="text-xs text-muted-foreground">
+                          {item.pendingHandlers.length}/
+                          {item.asyncHandlers.length} pending
                         </div>
                       </TableCell>
-                      <TableCell className="space-y-1">
-                        <div className="text-sm text-slate-900">
-                          {pluralize(envelope.attempts, "attempt")}
-                        </div>
-                        {lastAttempt ? (
-                          <div className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
-                            <Badge
-                              variant={attemptVariantMap[lastAttempt.status]}
-                            >
-                              {lastAttempt.status.replace(/_/g, " ")}
-                            </Badge>
-                            <span>{lastAttempt.handler}</span>
-                            <Separator orientation="vertical" className="h-3" />
-                            <span>
-                              {formatRelativeDate(lastAttempt.createdAt)}
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="text-xs text-muted-foreground">
-                            Not yet attempted
-                          </div>
-                        )}
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatRelative(item.enqueuedAt)}
                       </TableCell>
-                      <TableCell className="max-w-sm text-xs text-rose-600">
-                        {envelope.lastError ? (
-                          <div className="line-clamp-3 break-words">
-                            {envelope.lastError}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatRelative(item.updatedAt)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <form action={requeueEnvelopeAction} className="inline">
-                          <input
-                            type="hidden"
-                            name="envelopeId"
-                            value={envelope.id}
-                          />
-                          <Button
-                            type="submit"
-                            size="sm"
-                            variant="outline"
-                            disabled={envelope.status === "processing"}
-                          >
-                            Requeue
-                          </Button>
-                        </form>
+                        <div className="flex justify-end gap-2">
+                          <form action={requeueEnvelopeAction}>
+                            <input
+                              type="hidden"
+                              name="envelopeId"
+                              value={item.id}
+                            />
+                            <Button type="submit" size="sm" variant="outline">
+                              Requeue
+                            </Button>
+                          </form>
+                          <form action={deleteEnvelopeAction}>
+                            <input
+                              type="hidden"
+                              name="envelopeId"
+                              value={item.id}
+                            />
+                            <Button type="submit" size="sm" variant="destructive">
+                              Delete
+                            </Button>
+                          </form>
+                        </div>
                       </TableCell>
                     </TableRow>
-                  )
-                })}
+                  ))
+                )}
               </TableBody>
             </Table>
-          )}
+          </div>
+
+          <div className="flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              Showing {items.length} of {total.toLocaleString()} envelopes
+            </div>
+            <div className="flex items-center gap-3">
+              <Button asChild variant="outline" size="sm" disabled={!prevPage}>
+                <Link
+                  href={
+                    prevPage
+                      ? `${adminPath("operations", "events")}?page=${prevPage}`
+                      : "#"
+                  }
+                  aria-disabled={!prevPage}
+                >
+                  Previous
+                </Link>
+              </Button>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button asChild variant="outline" size="sm" disabled={!nextPage}>
+                <Link
+                  href={
+                    nextPage
+                      ? `${adminPath("operations", "events")}?page=${nextPage}`
+                      : "#"
+                  }
+                  aria-disabled={!nextPage}
+                >
+                  Next
+                </Link>
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

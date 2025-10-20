@@ -9,7 +9,7 @@ import { drainEventQueue } from "@/lib/server/events/drain"
 import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
 
 const ADMIN_EVENTS_PATH = adminPath("operations", "events")
-const ADMIN_EVENTS_LIST_PATH = adminPath("operations", "events", "all")
+const ADMIN_EVENTS_ANALYTICS_PATH = adminPath("analytics", "events")
 
 export type EventQueueSummary = {
   pending: number
@@ -360,7 +360,7 @@ export async function requeueEnvelopeAction(formData: FormData): Promise<void> {
 
     await enqueueEvent(envelopeId)
     revalidatePath(ADMIN_EVENTS_PATH)
-    revalidatePath(ADMIN_EVENTS_LIST_PATH)
+    revalidatePath(ADMIN_EVENTS_ANALYTICS_PATH)
     revalidatePath(adminPath("operations", "events", envelopeId))
   } catch (error) {
     console.error("requeueEnvelopeAction failed", error)
@@ -378,7 +378,7 @@ export async function drainEventQueueAction(): Promise<void> {
     await drainEventQueue()
 
     revalidatePath(ADMIN_EVENTS_PATH)
-    revalidatePath(ADMIN_EVENTS_LIST_PATH)
+    revalidatePath(ADMIN_EVENTS_ANALYTICS_PATH)
   } catch (error) {
     console.error("drainEventQueueAction failed", error)
     throw error
@@ -400,7 +400,7 @@ export async function deleteEnvelopeAction(formData: FormData): Promise<void> {
     await prisma.eventEnvelope.delete({ where: { id: envelopeId } })
 
     revalidatePath(ADMIN_EVENTS_PATH)
-    revalidatePath(ADMIN_EVENTS_LIST_PATH)
+    revalidatePath(ADMIN_EVENTS_ANALYTICS_PATH)
     revalidatePath(adminPath("operations", "events", envelopeId))
   } catch (error) {
     console.error("deleteEnvelopeAction failed", error)

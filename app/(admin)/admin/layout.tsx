@@ -73,6 +73,11 @@ const baseNavItems: NavItem[] = [
         url: adminPath("analytics", "rewards"),
         icon: "rewards",
       },
+      {
+        title: "Events",
+        url: adminPath("analytics", "events"),
+        icon: "queue",
+      },
     ],
   },
   {
@@ -211,14 +216,9 @@ const baseNavItems: NavItem[] = [
     icon: "operations",
     items: [
       {
-        title: "Event queue",
+        title: "Events",
         url: adminPath("operations", "events"),
         icon: "queue",
-      },
-      {
-        title: "All events",
-        url: adminPath("operations", "events", "all"),
-        icon: "list",
       },
     ],
   },
