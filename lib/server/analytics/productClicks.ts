@@ -19,6 +19,7 @@ registerEventHandler({
   event: "product.clicked",
   id: "analytics.record-product-click",
   mode: "async",
+  queue: "high",
   handler: async (payload: ProductClickedEventPayload) => {
     try {
       const { productId, metadata } = payload

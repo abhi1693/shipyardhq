@@ -48,6 +48,7 @@ function computeExpiry(anchor: Date, boostDays: number): Date | null {
 registerEventHandler({
   event: "product.created",
   id: "badges.auto-assign-new",
+  queue: "high",
   handler: async ({ productId }) => {
     const badge = "new"
 
@@ -84,6 +85,7 @@ registerEventHandler({
 registerEventHandler({
   event: "badge.assigned",
   id: "badges.apply-default-expiry",
+  queue: "default",
   handler: async ({ id, productId, badge, expiresAt }) => {
     try {
       // If an expiry was provided, respect it.
@@ -132,6 +134,7 @@ registerEventHandler({
 registerEventHandler({
   event: "product.updated",
   id: "badges.refresh-new-badge",
+  queue: "default",
   handler: async ({ productId }) => {
     // Ensure "new" badge exists if product is within the boost window
     try {
@@ -164,6 +167,7 @@ registerEventHandler({
   event: "product.deleted",
   id: "badges.deleted-cleanup",
   mode: "async",
+  queue: "default",
   handler: async () => {
     // Badges cascade delete with Prisma relation, but we could log/metrics here.
   },

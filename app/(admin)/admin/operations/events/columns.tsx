@@ -9,11 +9,13 @@ import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { adminPath } from "@/lib/routes"
 import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
+import type { EventQueueName } from "@/lib/server/events/queues"
 import { requeueEnvelopeAction } from "@/actions/admin/events/actions"
 
 export type EventEnvelopeTableRow = {
   id: string
   event: string
+  queue: EventQueueName
   status: EventEnvelopeStatus
   attempts: number
   asyncHandlers: string[]
@@ -55,6 +57,15 @@ export const columns: ColumnDef<EventEnvelopeTableRow>[] = [
           {row.original.id}
         </span>
       </div>
+    ),
+  },
+  {
+    accessorKey: "queue",
+    header: "Queue",
+    cell: ({ row }) => (
+      <Badge variant="outline" className="font-mono text-[11px] uppercase">
+        {row.original.queue}
+      </Badge>
     ),
   },
   {

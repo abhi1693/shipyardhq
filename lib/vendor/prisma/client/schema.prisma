@@ -886,6 +886,7 @@ model EventEnvelope {
   enqueuedAt        DateTime            @default(now())
   processingStarted DateTime?
   processedAt       DateTime?
+  queue             String              @default("default")
   nextRunAt         DateTime?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
@@ -893,6 +894,7 @@ model EventEnvelope {
   attemptsLog EventAttempt[]
 
   @@index([status, nextRunAt])
+  @@index([queue, status, nextRunAt])
   @@index([createdAt])
   @@index([updatedAt])
 }

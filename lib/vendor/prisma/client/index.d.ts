@@ -45383,6 +45383,7 @@ export namespace Prisma {
     enqueuedAt: Date | null
     processingStarted: Date | null
     processedAt: Date | null
+    queue: string | null
     nextRunAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -45397,6 +45398,7 @@ export namespace Prisma {
     enqueuedAt: Date | null
     processingStarted: Date | null
     processedAt: Date | null
+    queue: string | null
     nextRunAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -45414,6 +45416,7 @@ export namespace Prisma {
     enqueuedAt: number
     processingStarted: number
     processedAt: number
+    queue: number
     nextRunAt: number
     createdAt: number
     updatedAt: number
@@ -45438,6 +45441,7 @@ export namespace Prisma {
     enqueuedAt?: true
     processingStarted?: true
     processedAt?: true
+    queue?: true
     nextRunAt?: true
     createdAt?: true
     updatedAt?: true
@@ -45452,6 +45456,7 @@ export namespace Prisma {
     enqueuedAt?: true
     processingStarted?: true
     processedAt?: true
+    queue?: true
     nextRunAt?: true
     createdAt?: true
     updatedAt?: true
@@ -45469,6 +45474,7 @@ export namespace Prisma {
     enqueuedAt?: true
     processingStarted?: true
     processedAt?: true
+    queue?: true
     nextRunAt?: true
     createdAt?: true
     updatedAt?: true
@@ -45573,6 +45579,7 @@ export namespace Prisma {
     enqueuedAt: Date
     processingStarted: Date | null
     processedAt: Date | null
+    queue: string
     nextRunAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -45609,6 +45616,7 @@ export namespace Prisma {
     enqueuedAt?: boolean
     processingStarted?: boolean
     processedAt?: boolean
+    queue?: boolean
     nextRunAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -45628,6 +45636,7 @@ export namespace Prisma {
     enqueuedAt?: boolean
     processingStarted?: boolean
     processedAt?: boolean
+    queue?: boolean
     nextRunAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -45645,6 +45654,7 @@ export namespace Prisma {
     enqueuedAt?: boolean
     processingStarted?: boolean
     processedAt?: boolean
+    queue?: boolean
     nextRunAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -45662,12 +45672,13 @@ export namespace Prisma {
     enqueuedAt?: boolean
     processingStarted?: boolean
     processedAt?: boolean
+    queue?: boolean
     nextRunAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type EventEnvelopeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "event" | "payload" | "asyncHandlers" | "pendingHandlers" | "status" | "attempts" | "lastError" | "enqueuedAt" | "processingStarted" | "processedAt" | "nextRunAt" | "createdAt" | "updatedAt", ExtArgs["result"]["eventEnvelope"]>
+  export type EventEnvelopeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "event" | "payload" | "asyncHandlers" | "pendingHandlers" | "status" | "attempts" | "lastError" | "enqueuedAt" | "processingStarted" | "processedAt" | "queue" | "nextRunAt" | "createdAt" | "updatedAt", ExtArgs["result"]["eventEnvelope"]>
   export type EventEnvelopeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     attemptsLog?: boolean | EventEnvelope$attemptsLogArgs<ExtArgs>
     _count?: boolean | EventEnvelopeCountOutputTypeDefaultArgs<ExtArgs>
@@ -45692,6 +45703,7 @@ export namespace Prisma {
       enqueuedAt: Date
       processingStarted: Date | null
       processedAt: Date | null
+      queue: string
       nextRunAt: Date | null
       createdAt: Date
       updatedAt: Date
@@ -46130,6 +46142,7 @@ export namespace Prisma {
     readonly enqueuedAt: FieldRef<"EventEnvelope", 'DateTime'>
     readonly processingStarted: FieldRef<"EventEnvelope", 'DateTime'>
     readonly processedAt: FieldRef<"EventEnvelope", 'DateTime'>
+    readonly queue: FieldRef<"EventEnvelope", 'String'>
     readonly nextRunAt: FieldRef<"EventEnvelope", 'DateTime'>
     readonly createdAt: FieldRef<"EventEnvelope", 'DateTime'>
     readonly updatedAt: FieldRef<"EventEnvelope", 'DateTime'>
@@ -48276,6 +48289,7 @@ export namespace Prisma {
     enqueuedAt: 'enqueuedAt',
     processingStarted: 'processingStarted',
     processedAt: 'processedAt',
+    queue: 'queue',
     nextRunAt: 'nextRunAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -51711,6 +51725,7 @@ export namespace Prisma {
     enqueuedAt?: DateTimeFilter<"EventEnvelope"> | Date | string
     processingStarted?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
     processedAt?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
+    queue?: StringFilter<"EventEnvelope"> | string
     nextRunAt?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
     createdAt?: DateTimeFilter<"EventEnvelope"> | Date | string
     updatedAt?: DateTimeFilter<"EventEnvelope"> | Date | string
@@ -51729,6 +51744,7 @@ export namespace Prisma {
     enqueuedAt?: SortOrder
     processingStarted?: SortOrderInput | SortOrder
     processedAt?: SortOrderInput | SortOrder
+    queue?: SortOrder
     nextRunAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -51750,6 +51766,7 @@ export namespace Prisma {
     enqueuedAt?: DateTimeFilter<"EventEnvelope"> | Date | string
     processingStarted?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
     processedAt?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
+    queue?: StringFilter<"EventEnvelope"> | string
     nextRunAt?: DateTimeNullableFilter<"EventEnvelope"> | Date | string | null
     createdAt?: DateTimeFilter<"EventEnvelope"> | Date | string
     updatedAt?: DateTimeFilter<"EventEnvelope"> | Date | string
@@ -51768,6 +51785,7 @@ export namespace Prisma {
     enqueuedAt?: SortOrder
     processingStarted?: SortOrderInput | SortOrder
     processedAt?: SortOrderInput | SortOrder
+    queue?: SortOrder
     nextRunAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -51793,6 +51811,7 @@ export namespace Prisma {
     enqueuedAt?: DateTimeWithAggregatesFilter<"EventEnvelope"> | Date | string
     processingStarted?: DateTimeNullableWithAggregatesFilter<"EventEnvelope"> | Date | string | null
     processedAt?: DateTimeNullableWithAggregatesFilter<"EventEnvelope"> | Date | string | null
+    queue?: StringWithAggregatesFilter<"EventEnvelope"> | string
     nextRunAt?: DateTimeNullableWithAggregatesFilter<"EventEnvelope"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"EventEnvelope"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"EventEnvelope"> | Date | string
@@ -55180,6 +55199,7 @@ export namespace Prisma {
     enqueuedAt?: Date | string
     processingStarted?: Date | string | null
     processedAt?: Date | string | null
+    queue?: string
     nextRunAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55198,6 +55218,7 @@ export namespace Prisma {
     enqueuedAt?: Date | string
     processingStarted?: Date | string | null
     processedAt?: Date | string | null
+    queue?: string
     nextRunAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55216,6 +55237,7 @@ export namespace Prisma {
     enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    queue?: StringFieldUpdateOperationsInput | string
     nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55234,6 +55256,7 @@ export namespace Prisma {
     enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    queue?: StringFieldUpdateOperationsInput | string
     nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55252,6 +55275,7 @@ export namespace Prisma {
     enqueuedAt?: Date | string
     processingStarted?: Date | string | null
     processedAt?: Date | string | null
+    queue?: string
     nextRunAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55269,6 +55293,7 @@ export namespace Prisma {
     enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    queue?: StringFieldUpdateOperationsInput | string
     nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55286,6 +55311,7 @@ export namespace Prisma {
     enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    queue?: StringFieldUpdateOperationsInput | string
     nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57827,6 +57853,7 @@ export namespace Prisma {
     enqueuedAt?: SortOrder
     processingStarted?: SortOrder
     processedAt?: SortOrder
+    queue?: SortOrder
     nextRunAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -57845,6 +57872,7 @@ export namespace Prisma {
     enqueuedAt?: SortOrder
     processingStarted?: SortOrder
     processedAt?: SortOrder
+    queue?: SortOrder
     nextRunAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -57859,6 +57887,7 @@ export namespace Prisma {
     enqueuedAt?: SortOrder
     processingStarted?: SortOrder
     processedAt?: SortOrder
+    queue?: SortOrder
     nextRunAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -71238,6 +71267,7 @@ export namespace Prisma {
     enqueuedAt?: Date | string
     processingStarted?: Date | string | null
     processedAt?: Date | string | null
+    queue?: string
     nextRunAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -71255,6 +71285,7 @@ export namespace Prisma {
     enqueuedAt?: Date | string
     processingStarted?: Date | string | null
     processedAt?: Date | string | null
+    queue?: string
     nextRunAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -71288,6 +71319,7 @@ export namespace Prisma {
     enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    queue?: StringFieldUpdateOperationsInput | string
     nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -71305,6 +71337,7 @@ export namespace Prisma {
     enqueuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     processingStarted?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    queue?: StringFieldUpdateOperationsInput | string
     nextRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

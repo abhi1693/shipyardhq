@@ -6,10 +6,25 @@ import { adminPath } from "@/lib/routes"
 import { revalidatePath } from "next/cache"
 import { enqueueEvent } from "@/lib/server/events/queueClient"
 import { drainEventQueue } from "@/lib/server/events/drain"
+import {
+  DEFAULT_EVENT_QUEUE,
+  EVENT_QUEUE_NAMES,
+  isEventQueue,
+  type EventQueueName,
+} from "@/lib/server/events/queues"
 import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
 
 const ADMIN_EVENTS_PATH = adminPath("operations", "events")
 const ADMIN_EVENTS_ANALYTICS_PATH = adminPath("analytics", "events")
+
+type EventQueueBreakdown = {
+  pending: number
+  processing: number
+  retrying: number
+  deadLetter: number
+  completed: number
+  oldestPendingAt?: Date | null
+}
 
 export type EventQueueSummary = {
   pending: number
@@ -18,6 +33,7 @@ export type EventQueueSummary = {
   deadLetter: number
   completed: number
   oldestPendingAt?: Date | null
+  queues: Record<EventQueueName, EventQueueBreakdown>
 }
 
 export type EventStatusTrendPoint = {
@@ -32,6 +48,19 @@ export type EventStatusTrendPoint = {
 export type EventTypeTrendPoint = {
   label: string
   [eventName: string]: number | string
+}
+
+export type QueueLatencyStat = {
+  queue: EventQueueName
+  sampleCount: number
+  averageMinutes: number
+  p50Minutes: number
+  p95Minutes: number
+}
+
+export type TopEventVolume = {
+  event: string
+  total: number
 }
 
 function startOfDay(date: Date): Date {
@@ -50,38 +79,144 @@ function formatDayLabel(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
 
-export async function getEventQueueSummary(): Promise<EventQueueSummary> {
-  const [pending, processing, retrying, deadLetter, completed] =
-    await Promise.all([
-      prisma.eventEnvelope.count({ where: { status: "pending" } }),
-      prisma.eventEnvelope.count({ where: { status: "processing" } }),
-      prisma.eventEnvelope.count({ where: { status: "retrying" } }),
-      prisma.eventEnvelope.count({ where: { status: "dead_letter" } }),
-      prisma.eventEnvelope.count({ where: { status: "completed" } }),
-    ])
+export async function getEventQueueSummary(days: number): Promise<EventQueueSummary> {
+  type StatusRow = {
+    queue: string
+    status: EventEnvelopeStatus
+    count: bigint
+  }
 
-  const oldestPending = await prisma.eventEnvelope.findFirst({
-    where: { status: { in: ["pending", "retrying"] } },
-    orderBy: { enqueuedAt: "asc" },
-    select: { enqueuedAt: true },
+  type OldestRow = {
+    queue: string
+    oldest: Date | null
+  }
+
+  const nowUtc = new Date()
+  const endDay = startOfDay(nowUtc)
+  const startDay = addDays(endDay, -Math.max(days - 1, 0))
+  const endExclusive = addDays(endDay, 1)
+
+  const statusRowsPromise = prisma.$queryRaw<StatusRow[]>`
+    SELECT "queue", "status", COUNT(*)::bigint AS count
+    FROM "EventEnvelope"
+    WHERE "enqueuedAt" >= ${startDay}
+      AND "enqueuedAt" < ${endExclusive}
+    GROUP BY "queue", "status"
+  `
+
+  const oldestRowsPromise = prisma.$queryRaw<OldestRow[]>`
+    SELECT "queue", MIN("enqueuedAt") AS oldest
+    FROM "EventEnvelope"
+    WHERE "status" = ANY (${["pending", "retrying"]}::"EventEnvelopeStatus"[])
+      AND "enqueuedAt" >= ${startDay}
+      AND "enqueuedAt" < ${endExclusive}
+    GROUP BY "queue"
+  `
+
+  const [statusRows, oldestRows] = await Promise.all([
+    statusRowsPromise,
+    oldestRowsPromise,
+  ])
+
+  const createEmptyBreakdown = (): EventQueueBreakdown => ({
+    pending: 0,
+    processing: 0,
+    retrying: 0,
+    deadLetter: 0,
+    completed: 0,
+    oldestPendingAt: null,
   })
 
+  const totals = {
+    pending: 0,
+    processing: 0,
+    retrying: 0,
+    deadLetter: 0,
+    completed: 0,
+  }
+
+  const perQueue = new Map<EventQueueName, EventQueueBreakdown>()
+  for (const queue of EVENT_QUEUE_NAMES) {
+    perQueue.set(queue, createEmptyBreakdown())
+  }
+
+  for (const row of statusRows) {
+    if (!isEventQueue(row.queue)) continue
+    const queue = row.queue as EventQueueName
+    const breakdown = perQueue.get(queue)
+    if (!breakdown) continue
+
+    const count = Number(row.count)
+    switch (row.status) {
+      case "pending":
+        breakdown.pending = count
+        totals.pending += count
+        break
+      case "processing":
+        breakdown.processing = count
+        totals.processing += count
+        break
+      case "retrying":
+        breakdown.retrying = count
+        totals.retrying += count
+        break
+      case "completed":
+        breakdown.completed = count
+        totals.completed += count
+        break
+      case "dead_letter":
+        breakdown.deadLetter = count
+        totals.deadLetter += count
+        break
+      default:
+        break
+    }
+  }
+
+  let oldestPending: Date | null = null
+
+  for (const row of oldestRows) {
+    if (!isEventQueue(row.queue)) continue
+    const queue = row.queue as EventQueueName
+    const breakdown = perQueue.get(queue)
+    if (!breakdown) continue
+
+    const timestamp = row.oldest ? new Date(row.oldest) : null
+    breakdown.oldestPendingAt = timestamp
+
+    if (timestamp && (!oldestPending || timestamp < oldestPending)) {
+      oldestPending = timestamp
+    }
+  }
+
+  const queues = Object.fromEntries(
+    Array.from(perQueue.entries()).map(([queue, breakdown]) => [
+      queue,
+      {
+        ...breakdown,
+        oldestPendingAt: breakdown.oldestPendingAt ?? null,
+      },
+    ]),
+  ) as Record<EventQueueName, EventQueueBreakdown>
+
   return {
-    pending,
-    processing,
-    retrying,
-    deadLetter,
-    completed,
-    oldestPendingAt: oldestPending?.enqueuedAt ?? null,
+    pending: totals.pending,
+    processing: totals.processing,
+    retrying: totals.retrying,
+    deadLetter: totals.deadLetter,
+    completed: totals.completed,
+    oldestPendingAt: oldestPending,
+    queues,
   }
 }
 
 export async function getEventStatusTrend(
-  days = 30,
+  days: number,
 ): Promise<EventStatusTrendPoint[]> {
   const nowUtc = new Date()
   const endDay = startOfDay(nowUtc)
   const startDay = addDays(endDay, -Math.max(days - 1, 0))
+  const endExclusive = addDays(endDay, 1)
 
   type Row = {
     day: Date
@@ -96,6 +231,7 @@ export async function getEventStatusTrend(
       COUNT(*)::bigint AS count
     FROM "EventEnvelope"
     WHERE "enqueuedAt" >= ${startDay}::timestamp
+      AND "enqueuedAt" < ${endExclusive}::timestamp
     GROUP BY day, "status"
     ORDER BY day ASC
   `
@@ -144,7 +280,7 @@ export async function getEventStatusTrend(
 }
 
 export async function getEventTypeTrend(
-  days = 30,
+  days: number,
   maxSeries = 5,
 ): Promise<{
   points: EventTypeTrendPoint[]
@@ -153,6 +289,7 @@ export async function getEventTypeTrend(
   const nowUtc = new Date()
   const endDay = startOfDay(nowUtc)
   const startDay = addDays(endDay, -Math.max(days - 1, 0))
+  const endExclusive = addDays(endDay, 1)
 
   type TotalRow = {
     event: string
@@ -170,6 +307,7 @@ export async function getEventTypeTrend(
       SELECT "event", COUNT(*)::bigint AS total
       FROM "EventEnvelope"
       WHERE "enqueuedAt" >= ${startDay}::timestamp
+        AND "enqueuedAt" < ${endExclusive}::timestamp
       GROUP BY "event"
       ORDER BY total DESC
       LIMIT ${Math.max(maxSeries, 1)}
@@ -181,6 +319,7 @@ export async function getEventTypeTrend(
         COUNT(*)::bigint AS count
       FROM "EventEnvelope"
       WHERE "enqueuedAt" >= ${startDay}::timestamp
+        AND "enqueuedAt" < ${endExclusive}::timestamp
       GROUP BY day, "event"
       ORDER BY day ASC
     `,
@@ -213,6 +352,101 @@ export async function getEventTypeTrend(
     points: Array.from(byDay.values()),
     series,
   }
+}
+
+export async function getQueueLatencyStats(
+  days: number,
+): Promise<Record<EventQueueName, QueueLatencyStat>> {
+  const nowUtc = new Date()
+  const endDay = startOfDay(nowUtc)
+  const startDay = addDays(endDay, -Math.max(days - 1, 0))
+  const endExclusive = addDays(endDay, 1)
+
+  type Row = {
+    queue: string
+    sample_count: bigint
+    average_minutes: number | null
+    p50_minutes: number | null
+    p95_minutes: number | null
+  }
+
+  const rows = await prisma.$queryRaw<Row[]>`
+    SELECT
+      "queue",
+      COUNT(*)::bigint AS sample_count,
+      AVG(EXTRACT(EPOCH FROM ("processedAt" - "enqueuedAt")) / 60)::double precision AS average_minutes,
+      percentile_disc(0.5) WITHIN GROUP (
+        ORDER BY EXTRACT(EPOCH FROM ("processedAt" - "enqueuedAt")) / 60
+      )::double precision AS p50_minutes,
+      percentile_disc(0.95) WITHIN GROUP (
+        ORDER BY EXTRACT(EPOCH FROM ("processedAt" - "enqueuedAt")) / 60
+      )::double precision AS p95_minutes
+    FROM "EventEnvelope"
+    WHERE "processedAt" IS NOT NULL
+      AND "enqueuedAt" >= ${startDay}::timestamp
+      AND "enqueuedAt" < ${endExclusive}::timestamp
+    GROUP BY "queue"
+  `
+
+  const result = Object.fromEntries(
+    EVENT_QUEUE_NAMES.map((queue) => [
+      queue,
+      {
+        queue,
+        sampleCount: 0,
+        averageMinutes: 0,
+        p50Minutes: 0,
+        p95Minutes: 0,
+      } satisfies QueueLatencyStat,
+    ]),
+  ) as Record<EventQueueName, QueueLatencyStat>
+
+  const roundMinutes = (value: number) => Math.round(value * 10) / 10
+
+  for (const row of rows) {
+    if (!isEventQueue(row.queue)) continue
+    const queue = row.queue as EventQueueName
+    result[queue] = {
+      queue,
+      sampleCount: Number(row.sample_count ?? 0),
+      averageMinutes: roundMinutes(Number(row.average_minutes ?? 0)),
+      p50Minutes: roundMinutes(Number(row.p50_minutes ?? 0)),
+      p95Minutes: roundMinutes(Number(row.p95_minutes ?? 0)),
+    }
+  }
+
+  return result
+}
+
+export async function getTopEventVolumes(
+  days: number,
+  limit = 8,
+): Promise<TopEventVolume[]> {
+  const nowUtc = new Date()
+  const endDay = startOfDay(nowUtc)
+  const startDay = addDays(endDay, -Math.max(days - 1, 0))
+  const endExclusive = addDays(endDay, 1)
+
+  type Row = {
+    event: string
+    total: bigint
+  }
+
+  const rows = await prisma.$queryRaw<Row[]>`
+    SELECT "event", COUNT(*)::bigint AS total
+    FROM "EventEnvelope"
+    WHERE "enqueuedAt" >= ${startDay}::timestamp
+      AND "enqueuedAt" < ${endExclusive}::timestamp
+      AND "enqueuedAt" < ${endExclusive}::timestamp
+    GROUP BY "event"
+    ORDER BY total DESC
+    LIMIT ${Math.max(1, limit)}
+  `
+
+  return rows.map((row) => ({
+    event: row.event,
+    total: Number(row.total),
+  }))
 }
 
 export async function getRecentEventEnvelopes(limit = 25) {
@@ -277,6 +511,7 @@ export async function getEventEnvelopesPaginated({
         enqueuedAt: true,
         processedAt: true,
         updatedAt: true,
+        queue: true,
       },
     }),
     prisma.eventEnvelope.count(),
@@ -297,6 +532,7 @@ export async function getEventEnvelopeDetail(id: string) {
       id: true,
       event: true,
       status: true,
+      queue: true,
       attempts: true,
       asyncHandlers: true,
       pendingHandlers: true,
@@ -375,7 +611,7 @@ export async function drainEventQueueAction(): Promise<void> {
       throw new Error("Unauthorized")
     }
 
-    await drainEventQueue()
+    await drainEventQueue({ queue: DEFAULT_EVENT_QUEUE })
 
     revalidatePath(ADMIN_EVENTS_PATH)
     revalidatePath(ADMIN_EVENTS_ANALYTICS_PATH)

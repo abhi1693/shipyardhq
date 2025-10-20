@@ -3,6 +3,10 @@ import { randomUUID } from "crypto"
 import prisma from "@/lib/prisma"
 import { enqueueEvent } from "@/lib/server/events/queueClient"
 import { APP_EVENTS } from "@/lib/server/events/constants"
+import {
+  DEFAULT_EVENT_QUEUE,
+  type EventQueueName,
+} from "@/lib/server/events/queues"
 import type { RedemptionStatus, Prisma } from "@/lib/vendor/prisma/client"
 import type { DeviceCategory, ProductTrafficPayload } from "@/types/analytics"
 import { IS_PROD } from "@/lib/constants"
@@ -13,6 +17,7 @@ type RegisteredHandler<K extends keyof AppEvents> = {
   id: string
   mode: HandlerMode
   handler: Handler<K>
+  queue: EventQueueName
 }
 
 type ListenerRegistry = Map<string, Array<RegisteredHandler<keyof AppEvents>>>
@@ -184,6 +189,7 @@ type RegisterEventHandlerConfig<K extends keyof AppEvents> = {
   id: string
   handler: Handler<K>
   mode?: HandlerMode
+  queue?: EventQueueName
 }
 
 export function registerEventHandler<K extends keyof AppEvents>({
@@ -191,13 +197,16 @@ export function registerEventHandler<K extends keyof AppEvents>({
   handler,
   id,
   mode = DEFAULT_HANDLER_MODE,
+  queue,
 }: RegisterEventHandlerConfig<K>): () => void {
   if (!id) {
     throw new Error("Event handler registration requires a stable id")
   }
 
   const key = String(event)
-  const entry: RegisteredHandler<K> = { handler, id, mode }
+  const resolvedQueue =
+    mode === "async" ? queue ?? DEFAULT_EVENT_QUEUE : DEFAULT_EVENT_QUEUE
+  const entry: RegisteredHandler<K> = { handler, id, mode, queue: resolvedQueue }
   const existing = LISTENERS.get(key) as Array<RegisteredHandler<K>> | undefined
 
   if (existing?.some((item) => item.id === id)) {
@@ -245,107 +254,126 @@ export async function dispatchEvent<K extends keyof AppEvents>(
     return
   }
 
+  const asyncHandlersByQueue = asyncHandlers.reduce<
+    Map<EventQueueName, Array<RegisteredHandler<K>>>
+  >((map, handlerRegistration) => {
+    const handlers = map.get(handlerRegistration.queue)
+    if (handlers) {
+      handlers.push(handlerRegistration)
+    } else {
+      map.set(handlerRegistration.queue, [handlerRegistration])
+    }
+    return map
+  }, new Map())
+
   const now = new Date()
-  const handlerIds = asyncHandlers.map((item) => item.id)
   const serializedPayload = toJsonValue(payload)
 
-  const envelopeId = randomUUID()
+  for (const [queueName, handlers] of asyncHandlersByQueue) {
+    const handlerIds = handlers.map((item) => item.id)
+    const envelopeId = randomUUID()
 
-  await prisma.$executeRaw`
-    INSERT INTO "EventEnvelope" (
-      "id",
-      "event",
-      "payload",
-      "asyncHandlers",
-      "pendingHandlers",
-      "status",
-      "attempts",
-      "enqueuedAt",
-      "processingStarted",
-      "processedAt",
-      "nextRunAt",
-      "createdAt",
-      "updatedAt"
-    )
-    VALUES (
-      ${envelopeId},
-      ${key},
-      ${serializedPayload},
-      ${handlerIds},
-      ${handlerIds},
-      ${"pending"}::"EventEnvelopeStatus",
-      ${0},
-      ${now},
-      ${null},
-      ${null},
-      ${now},
-      ${now},
-      ${now}
-    )
-  `
+    await prisma.$executeRaw`
+      INSERT INTO "EventEnvelope" (
+        "id",
+        "event",
+        "payload",
+        "asyncHandlers",
+        "pendingHandlers",
+        "status",
+        "attempts",
+        "enqueuedAt",
+        "processingStarted",
+        "processedAt",
+        "nextRunAt",
+        "createdAt",
+        "updatedAt",
+        "queue"
+      )
+      VALUES (
+        ${envelopeId},
+        ${key},
+        ${serializedPayload},
+        ${handlerIds},
+        ${handlerIds},
+        ${"pending"}::"EventEnvelopeStatus",
+        ${0},
+        ${now},
+        ${null},
+        ${null},
+        ${now},
+        ${now},
+        ${now},
+        ${queueName}
+      )
+    `
 
-  console.debug("[events] async envelope created", {
-    event: key,
-    envelopeId,
-    handlers: handlerIds,
-  })
-
-  void enqueueEvent(envelopeId).catch(async (error) => {
-    console.error("[events] enqueue failed", {
+    console.debug("[events] async envelope created", {
       event: key,
       envelopeId,
-      error,
+      queue: queueName,
+      handlers: handlerIds,
     })
-    const failureTimestamp = new Date()
-    await prisma.$executeRaw`
-      UPDATE "EventEnvelope"
-      SET "status" = ${"dead_letter"}::"EventEnvelopeStatus",
-          "lastError" =
-            ${
-              error instanceof Error
-                ? error.message
-                : DEFAULT_DEAD_LETTER_MESSAGE
-            },
-          "updatedAt" = ${failureTimestamp}
-      WHERE "id" = ${envelopeId}
-    `
-    if (!IS_PROD) {
-      console.warn("[events] falling back to inline async execution", {
+
+    void enqueueEvent(envelopeId).catch(async (error) => {
+      console.error("[events] enqueue failed", {
         event: key,
         envelopeId,
-        asyncHandlers: handlerIds,
+        queue: queueName,
+        error,
       })
-      for (const { handler, id: handlerId } of asyncHandlers) {
-        try {
-          console.debug("[events] fallback async handler start", {
-            event: key,
-            handlerId,
-          })
-          await handler(payload)
-          console.debug("[events] fallback async handler end", {
-            event: key,
-            handlerId,
-          })
-        } catch (handlerError) {
-          console.error("[events] fallback handler error", {
-            event: key,
-            handlerId,
-            error: handlerError,
-          })
-        }
-      }
-      const completionTimestamp = new Date()
+      const failureTimestamp = new Date()
       await prisma.$executeRaw`
         UPDATE "EventEnvelope"
-        SET "status" = ${"completed"}::"EventEnvelopeStatus",
-            "pendingHandlers" = ${[] as string[]},
-            "lastError" = NULL,
-            "processedAt" = ${completionTimestamp},
-            "updatedAt" = ${completionTimestamp}
+        SET "status" = ${"dead_letter"}::"EventEnvelopeStatus",
+            "lastError" =
+              ${
+                error instanceof Error
+                  ? error.message
+                  : DEFAULT_DEAD_LETTER_MESSAGE
+              },
+            "updatedAt" = ${failureTimestamp}
         WHERE "id" = ${envelopeId}
       `
-    }
-  })
+      if (!IS_PROD) {
+        console.warn("[events] falling back to inline async execution", {
+          event: key,
+          envelopeId,
+          queue: queueName,
+          asyncHandlers: handlerIds,
+        })
+        for (const { handler, id: handlerId } of handlers) {
+          try {
+            console.debug("[events] fallback async handler start", {
+              event: key,
+              handlerId,
+            })
+            await handler(payload)
+            console.debug("[events] fallback async handler end", {
+              event: key,
+              handlerId,
+            })
+          } catch (handlerError) {
+            console.error("[events] fallback handler error", {
+              event: key,
+              handlerId,
+              error: handlerError,
+            })
+          }
+        }
+        const completionTimestamp = new Date()
+        await prisma.$executeRaw`
+          UPDATE "EventEnvelope"
+          SET "status" = ${"completed"}::"EventEnvelopeStatus",
+              "pendingHandlers" = ${[] as string[]},
+              "lastError" = NULL,
+              "processedAt" = ${completionTimestamp},
+              "updatedAt" = ${completionTimestamp}
+          WHERE "id" = ${envelopeId}
+        `
+      }
+    })
+  }
 }
 
 export function resolveRegisteredHandler(
@@ -392,3 +420,9 @@ export function dispatchEventAsync<K extends keyof AppEvents>(
 }
 
 export type { AppEvents, HandlerMode, Handler, RegisterEventHandlerConfig }
+export {
+  DEFAULT_EVENT_QUEUE,
+  EVENT_QUEUE_DEFINITIONS,
+  EVENT_QUEUE_NAMES,
+  type EventQueueName,
+} from "@/lib/server/events/queues"

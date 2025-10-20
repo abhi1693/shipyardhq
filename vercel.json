@@ -21,8 +21,16 @@
       "schedule": "*/15 * * * *"
     },
     {
-      "path": "/api/cron/events/drain",
+      "path": "/api/cron/events/drain/high",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/events/drain/default",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/events/drain/low",
+      "schedule": "*/30 * * * *"
     },
     {
       "path": "/api/cron/product-insight-refresh",

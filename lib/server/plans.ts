@@ -5,6 +5,7 @@ import { registerEventHandler } from "@/lib/server/events"
 registerEventHandler({
   event: "product.created",
   id: "plans.attach-default-plan",
+  queue: "default",
   handler: async ({ productId }) => {
     try {
       const product = await prisma.product.findUnique({

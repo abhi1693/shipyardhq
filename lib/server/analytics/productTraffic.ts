@@ -12,6 +12,7 @@ registerEventHandler({
   event: APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC,
   id: "analytics.record-product-traffic",
   mode: "async",
+  queue: "default",
   handler: async (payload: ProductTrafficEventPayload) => {
     try {
       console.debug("[analytics] product-traffic handler start", {

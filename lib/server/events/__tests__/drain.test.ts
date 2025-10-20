@@ -4,7 +4,7 @@ const { dequeueEnvelopeBatchMock, requeueEnvelopeMock, processEnvelopeMock } =
   vi.hoisted(() => {
     return {
       dequeueEnvelopeBatchMock:
-        vi.fn<(batchSize?: number) => Promise<string[]>>(),
+        vi.fn<(queue: string, batchSize?: number) => Promise<string[]>>(),
       requeueEnvelopeMock: vi.fn<(envelopeId: string) => Promise<void>>(),
       processEnvelopeMock: vi.fn<(envelopeId: string) => Promise<void>>(),
     }
@@ -53,9 +53,10 @@ describe("drainEventQueue", () => {
     expect(result.pulled).toBe(4)
     expect(result.limitHit.events).toBe(true)
     expect(result.limitHit.duration).toBe(false)
+    expect(result.queue).toBe("default")
     expect(processEnvelopeMock).toHaveBeenCalledTimes(4)
-    expect(dequeueEnvelopeBatchMock).toHaveBeenNthCalledWith(1, 4)
-    expect(dequeueEnvelopeBatchMock).toHaveBeenNthCalledWith(2, 1)
+    expect(dequeueEnvelopeBatchMock).toHaveBeenNthCalledWith(1, "default", 4)
+    expect(dequeueEnvelopeBatchMock).toHaveBeenNthCalledWith(2, "default", 1)
     expect(requeueEnvelopeMock).not.toHaveBeenCalled()
   })
 
@@ -80,6 +81,7 @@ describe("drainEventQueue", () => {
     expect(result.pulled).toBe(2)
     expect(result.limitHit.duration).toBe(true)
     expect(result.limitHit.events).toBe(false)
+    expect(result.queue).toBe("default")
 
     expect(requeueEnvelopeMock).toHaveBeenCalledTimes(2)
     expect(requeueEnvelopeMock.mock.calls.map((call) => call[0])).toEqual([
@@ -107,8 +109,18 @@ describe("drainEventQueue", () => {
     expect(result.limitHit.duration).toBe(true)
     expect(result.limitHit.events).toBe(false)
     expect(result.durationMs).toBe(15 * 60 * 1000)
+    expect(result.queue).toBe("default")
 
     expect(requeueEnvelopeMock).toHaveBeenCalledTimes(1)
     expect(requeueEnvelopeMock).toHaveBeenCalledWith("g4")
+  })
+
+  it("uses the queue provided in options", async () => {
+    dequeueEnvelopeBatchMock.mockResolvedValue([])
+
+    const result = await drainEventQueue({ queue: "high", now: () => 0 })
+
+    expect(result.queue).toBe("high")
+    expect(dequeueEnvelopeBatchMock).toHaveBeenCalledWith("high", 25)
   })
 })

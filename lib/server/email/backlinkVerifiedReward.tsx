@@ -166,6 +166,7 @@ registerEventHandler({
   event: "rewards.awarded",
   id: "email.backlink-verified-reward",
   mode: "async",
+  queue: "low",
   handler: (event) => {
     handleBacklinkVerifiedReward(event).catch((error) => {
       console.error("[email] backlink reward handler crashed", {

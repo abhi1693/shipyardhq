@@ -196,6 +196,7 @@ function registerTwitterBotListeners() {
     event: "product.published",
     id: "twitter.product-published",
     mode: "async",
+    queue: "low",
     handler: ({ productId }) => handleProductPublished(productId),
   })
 
@@ -203,6 +204,7 @@ function registerTwitterBotListeners() {
     event: "badge.assigned",
     id: "twitter.badge-assigned",
     mode: "async",
+    queue: "low",
     handler: ({ productId, badge }) => handleBadgeAssigned(productId, badge),
   })
 
@@ -210,6 +212,7 @@ function registerTwitterBotListeners() {
     event: "leaderboard.monthly.winners",
     id: "twitter.leaderboard-winners",
     mode: "async",
+    queue: "low",
     handler: ({ monthKey, monthLabel, leaderboardUrl, winners }) =>
       handleLeaderboardWinners(
         monthKey,

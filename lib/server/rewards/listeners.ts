@@ -13,6 +13,7 @@ const REVIEW_DEPTH_THRESHOLD = 200
 registerEventHandler({
   event: "product.upvoted",
   id: "rewards.award-upvote",
+  queue: "high",
   handler: async (event) => {
     try {
       const ownerId = await getProductOwnerId(event.productId)
@@ -45,6 +46,7 @@ registerEventHandler({
 registerEventHandler({
   event: "product.reviewed",
   id: "rewards.award-review",
+  queue: "default",
   handler: async (event) => {
     try {
       const ownerId =
@@ -100,6 +102,7 @@ registerEventHandler({
 registerEventHandler({
   event: "product.created",
   id: "rewards.award-product-created",
+  queue: "default",
   handler: async (event) => {
     try {
       const ownerId = await getProductOwnerId(event.productId)

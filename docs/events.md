@@ -4,10 +4,11 @@ Shipyard now routes non-critical product events through a durable outbox so UI c
 
 ## Anatomy
 
-- **Dispatcher** – `dispatchEvent(event, payload)` (see `lib/server/events.ts`) now persists an `EventEnvelope` row for every handler and enqueues the envelope id onto the Redis queue `events:queue` (namespaced via `CACHE_ENV_PREFIX`); handlers are executed off-thread by the worker.
-- **Outbox** – Backed by the Prisma models `EventEnvelope` and `EventAttempt` (see migration `20251020120000_add_event_envelopes`). Each envelope stores the event payload, pending handler ids, status, attempt count, and timestamps for observability.
-- **Queue worker** – `app/api/events/drain/route.ts` pops batches from Redis, locks the envelope, hydrates the payload back into typed objects, and executes the pending handlers sequentially with retry/backoff semantics (`lib/server/events/worker.ts`). Each run drains up to 500 envelopes or roughly 14.5 minutes of work (15 minute Vercel window with a 30 second buffer)—whichever comes first—while working in batches of 25. Trigger this endpoint via cron or a background job to keep the queue drained.
-- **Handler registry** – Modules register with `registerEventHandler({ event, id, handler })`. Use stable `id` strings so retries can resume partially processed envelopes. All handlers run asynchronously through the queue today.
+- **Dispatcher** – `dispatchEvent(event, payload)` (see `lib/server/events.ts`) persists an `EventEnvelope` row for every handler group and marks it ready for the worker.
+- **Outbox** – Backed by the Prisma models `EventEnvelope` and `EventAttempt` (see migration `20251020120000_add_event_envelopes`). Each envelope stores the event payload, pending handler ids, status, attempt count, queue assignment, and timestamps for observability.
+- **Priority queues** – Queue metadata lives in `lib/server/events/queues.ts`. Shipyard ships three tiers (`high` → 5 min, `default` → 15 min, `low` → 30 min) and envelopes land in the fastest tier referenced by their handlers. Add new queues by extending this config.
+- **Queue worker** – `app/api/events/drain/route.ts` and `app/api/cron/events/drain/[queue]/route.ts` claim pending envelopes for a specific queue, hydrate the payload back into typed objects, and execute the pending handlers sequentially with retry/backoff semantics (`lib/server/events/worker.ts`). Each run drains up to 500 envelopes or roughly 14.5 minutes of work—whichever comes first—while working in batches of 25.
+- **Handler registry** – Modules register with `registerEventHandler({ event, id, handler, queue })`. Use stable `id` strings so retries can resume partially processed envelopes and assign handlers to the queue that best matches their latency requirements (defaults to the `default` queue).
 
 ## Adding / Updating Handlers
 
@@ -33,4 +34,8 @@ Shipyard now routes non-critical product events through a durable outbox so UI c
 
 - Ensure `REDIS_URL` (or `REDIS_TLS_URL`) is configured so the queue can push/pop envelopes.
 - Run `npm run prisma:migrate` to apply the new outbox tables, followed by `npm run prisma:generate`.
-- Schedule a cron (or background job) that calls `POST /api/events/drain` frequently enough to keep up with throughput (each invocation processes up to 500 envelopes or ~14.5 minutes of handler time, whichever arrives first, leaving a 30 second safety window before Vercel’s 15 minute cap).
+- Schedule cron jobs (or background workers) per queue tier:
+  - `GET /api/cron/events/drain/high` every 5 minutes for cache revalidation and other fast-lane tasks.
+  - `GET /api/cron/events/drain/default` every 15 minutes for standard business logic.
+  - `GET /api/cron/events/drain/low` every 30 minutes for deferred notifications and side effects.
+  The generic `/api/events/drain?queue=<id>` endpoint remains available for ad-hoc invocations.

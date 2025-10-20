@@ -14,6 +14,7 @@ registerEventHandler({
   event: "product.created",
   id: "email.product-verification-reminder",
   mode: "async",
+  queue: "low",
   handler: async ({ productId }) => {
     try {
       const product = await prisma.product.findUnique({

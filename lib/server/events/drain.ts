@@ -4,12 +4,17 @@ import {
   requeueEnvelope,
 } from "@/lib/server/events/queueClient"
 import { processEnvelope } from "@/lib/server/events/worker"
+import {
+  DEFAULT_EVENT_QUEUE,
+  type EventQueueName,
+} from "@/lib/server/events/queues"
 
 export type DrainEventQueueOptions = {
   maxEvents?: number
   maxDurationMs?: number
   gracePeriodMs?: number
   now?: () => number
+  queue?: EventQueueName
 }
 
 export type DrainEventQueueResult = {
@@ -19,6 +24,7 @@ export type DrainEventQueueResult = {
   pulled: number
   batches: number
   durationMs: number
+  queue: EventQueueName
   limitHit: {
     events: boolean
     duration: boolean
@@ -60,6 +66,7 @@ export async function drainEventQueue(
   const gracePeriodMs = options.gracePeriodMs ?? DEFAULT_DURATION_GRACE_MS
   const maxDurationMs = Math.max(0, configuredMaxDurationMs - gracePeriodMs)
   const getNow = options.now ?? Date.now
+  const queue = options.queue ?? DEFAULT_EVENT_QUEUE
   const startedAt = getNow()
 
   let processed = 0
@@ -89,7 +96,7 @@ export async function drainEventQueue(
     }
 
     const batchSize = Math.min(MAX_BATCH_SIZE, remainingEvents)
-    const envelopeIds = await dequeueEnvelopeBatch(batchSize)
+    const envelopeIds = await dequeueEnvelopeBatch(queue, batchSize)
     if (envelopeIds.length === 0) break
 
     batches += 1
@@ -139,6 +146,7 @@ export async function drainEventQueue(
     pulled,
     batches,
     durationMs,
+    queue,
     limitHit: {
       events: eventLimitReached || attempted >= maxEvents,
       duration: durationExceeded || durationMs >= maxDurationMs,

@@ -9,6 +9,7 @@ import {
 registerEventHandler({
   event: "product.upvoted",
   id: "analytics.increment-upvotes",
+  queue: "high",
   handler: async ({ productId }) => {
     try {
       await prisma.productAnalytics.upsert({
@@ -28,6 +29,7 @@ registerEventHandler({
 registerEventHandler({
   event: "product.downvoted",
   id: "analytics.decrement-upvotes",
+  queue: "high",
   handler: async ({ productId }) => {
     try {
       await prisma.productAnalytics.upsert({

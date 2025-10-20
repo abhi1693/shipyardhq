@@ -110,6 +110,7 @@ registerEventHandler({
   event: "product.upvoted",
   id: "email.product-vote-milestone",
   mode: "async",
+  queue: "low",
   handler: (event) => {
     handleProductVoteMilestone(event).catch((error) => {
       console.error("[email] product vote milestone handler crashed", {

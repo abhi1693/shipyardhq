@@ -84,6 +84,14 @@ export default async function EventEnvelopePage({
       ),
     },
     {
+      label: "Queue",
+      value: (
+        <Badge variant="outline" className="font-mono text-[11px] uppercase">
+          {envelope.queue}
+        </Badge>
+      ),
+    },
+    {
       label: "Attempts",
       value: (
         <span className="text-sm text-foreground">{envelope.attempts}</span>

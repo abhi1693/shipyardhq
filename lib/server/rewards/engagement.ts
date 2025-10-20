@@ -71,6 +71,7 @@ registerEventHandler({
   event: APP_EVENTS.PRODUCT_VIEWED,
   id: "rewards.award-product-view",
   mode: "async",
+  queue: "default",
   handler: async (payload) => {
     await awardRewardsSafely(
       payload.viewerUserId,

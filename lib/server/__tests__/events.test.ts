@@ -78,4 +78,25 @@ describe("event dispatcher", () => {
     expect(asyncHandler).toHaveBeenCalledWith({ productId: "fallback-1" })
     expect(prismaExecuteRaw).toHaveBeenCalled()
   })
+
+  it("enqueues separate envelopes per queue group", async () => {
+    registerEventHandler({
+      event: "product.created",
+      id: "handler.high",
+      queue: "high",
+      handler: vi.fn() as any,
+    })
+
+    registerEventHandler({
+      event: "product.created",
+      id: "handler.low",
+      queue: "low",
+      handler: vi.fn() as any,
+    })
+
+    await dispatchEvent("product.created", { productId: "multi-queue" })
+
+    expect(prismaExecuteRaw).toHaveBeenCalledTimes(2)
+    expect(enqueueEventMock).toHaveBeenCalledTimes(2)
+  })
 })

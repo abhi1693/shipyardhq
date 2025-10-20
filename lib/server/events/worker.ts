@@ -5,6 +5,7 @@ import { randomUUID } from "crypto"
 import prisma from "@/lib/prisma"
 import { resolveRegisteredHandler, type AppEvents } from "@/lib/server/events"
 import type { Prisma } from "@/lib/vendor/prisma/client"
+import type { EventQueueName } from "@/lib/server/events/queues"
 
 const JOB_TIMEOUT_MS = 15 * 60 * 1000
 const MAX_ATTEMPTS = 5
@@ -25,6 +26,7 @@ type EventEnvelopeRow = {
   nextRunAt: Date | null
   createdAt: Date
   updatedAt: Date
+  queue: EventQueueName
 }
 
 type HandlerOutcome = "succeeded" | "failed" | "timed_out"
@@ -62,6 +64,7 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
     event: envelope.event,
     attemptNumber,
     pendingHandlers: envelope.pendingHandlers,
+    queue: envelope.queue,
   })
 
   const startTime = Date.now()
@@ -95,12 +98,13 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
   }
 
   for (const handlerId of pendingHandlers) {
-    console.debug("[events] handler execution start", {
-      envelopeId,
-      event: envelope.event,
-      handlerId,
-      attemptNumber,
-    })
+      console.debug("[events] handler execution start", {
+        envelopeId,
+        event: envelope.event,
+        handlerId,
+        attemptNumber,
+        queue: envelope.queue,
+      })
     const remainingMs = deadline - Date.now()
     if (remainingMs <= 0) {
       await recordAttempt(
@@ -165,6 +169,7 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
         event: envelope.event,
         handlerId,
         durationMs,
+        queue: envelope.queue,
       })
 
       pendingHandlers = pendingHandlers.slice(1)
@@ -202,6 +207,7 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
         handlerId,
         attemptNumber,
         error: errorMessage,
+        queue: envelope.queue,
       })
       throw error
     }
@@ -219,6 +225,7 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
     envelopeId,
     event: envelope.event,
     attempts: attemptNumber,
+    queue: envelope.queue,
   })
 }
 
@@ -240,7 +247,8 @@ async function fetchEnvelope(
       "processedAt",
       "nextRunAt",
       "createdAt",
-      "updatedAt"
+      "updatedAt",
+      "queue"
     FROM "EventEnvelope"
     WHERE "id" = ${envelopeId}
     LIMIT 1

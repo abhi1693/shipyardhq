@@ -1,3 +1,5 @@
+"use client"
+
 import type { ComponentProps, ReactNode } from "react"
 
 import {
@@ -46,10 +48,7 @@ export interface AnalyticsPieChartProps<DataPoint extends object> {
     valueFormatter?: (value: number) => string
     labelFormatter?: (label: unknown) => string
   }
-  getCellProps?: (
-    entry: DataPoint,
-    index: number,
-  ) => Partial<CellProps> | undefined
+  cells?: Array<Partial<CellProps>>
   legend?: ReactNode
 }
 
@@ -67,7 +66,7 @@ export function AnalyticsPieChart<DataPoint extends object>({
   chartProps,
   pieProps,
   tooltip,
-  getCellProps,
+  cells,
   legend,
 }: AnalyticsPieChartProps<DataPoint>) {
   const formatValue =
@@ -100,17 +99,16 @@ export function AnalyticsPieChart<DataPoint extends object>({
               strokeWidth={strokeWidth}
               {...(pieProps as Partial<PieProps>)}
             >
-              {getCellProps
-                ? data.map((entry, index) => {
-                    const cellProps = getCellProps(entry, index)
-                    return (
-                      <Cell
-                        key={`${String(dataKey)}-${index}`}
-                        {...(cellProps as CellProps)}
-                      />
-                    )
-                  })
-                : null}
+              {data.map((_, index) => {
+                const cellProps = cells?.[index]
+                if (!cellProps) return <Cell key={`${String(dataKey)}-${index}`} />
+                return (
+                  <Cell
+                    key={`${String(dataKey)}-${index}`}
+                    {...(cellProps as CellProps)}
+                  />
+                )
+              })}
             </Pie>
           </PieChart>
         </ResponsiveContainer>

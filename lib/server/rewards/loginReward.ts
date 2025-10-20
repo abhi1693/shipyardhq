@@ -125,6 +125,7 @@ registerEventHandler({
   event: APP_EVENTS.REWARDS_DAILY_LOGIN,
   id: "rewards.daily-login",
   mode: "async",
+  queue: "default",
   handler: handleDailyLoginRewardEvent,
 })
 

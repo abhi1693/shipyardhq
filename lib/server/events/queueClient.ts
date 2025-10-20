@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import type { EventQueueName } from "@/lib/server/events/queues"
 
 export const MAX_BATCH_SIZE = 25
 
@@ -16,6 +17,7 @@ export async function enqueueEvent(envelopeId: string): Promise<void> {
 }
 
 export async function dequeueEnvelopeBatch(
+  queue: EventQueueName,
   batchSize: number = MAX_BATCH_SIZE,
 ): Promise<string[]> {
   const now = new Date()
@@ -23,6 +25,7 @@ export async function dequeueEnvelopeBatch(
     SELECT "id"
     FROM "EventEnvelope"
     WHERE "status" = ANY (${CLAIMABLE_STATUSES}::"EventEnvelopeStatus"[])
+      AND "queue" = ${queue}
       AND ("nextRunAt" IS NULL OR "nextRunAt" <= ${now})
     ORDER BY "nextRunAt" NULLS FIRST, "createdAt"
     LIMIT ${batchSize}

@@ -8,6 +8,7 @@ const INITIAL_STAGE_SET: ProductInsightStageSetId = "default"
 registerEventHandler({
   event: "product.created",
   id: "product-insights.initial-pipeline",
+  queue: "low",
   handler: async ({ productId }) => {
     try {
       const product = await prisma.product.findUnique({
