@@ -43,6 +43,12 @@ export type ProductClickedEvent = {
   productId: string
   metadata?: ProductClickMetadata
 }
+export type ProductViewedEvent = {
+  productId: string
+  viewerUserId: string
+  rewardEventId: string
+  productSlug?: string
+}
 export type BadgeAssignedEvent = {
   id: string
   productId: string
@@ -154,6 +160,7 @@ type AppEvents = {
   [APP_EVENTS.PRODUCT_PUBLISHED]: ProductPublishedEvent
   [APP_EVENTS.PRODUCT_DELETED]: ProductDeletedEvent
   [APP_EVENTS.PRODUCT_CLICKED]: ProductClickedEvent
+  [APP_EVENTS.PRODUCT_VIEWED]: ProductViewedEvent
   [APP_EVENTS.PRODUCT_UPVOTED]: ProductUpvotedEvent
   [APP_EVENTS.PRODUCT_DOWNVOTED]: ProductDownvotedEvent
   [APP_EVENTS.PRODUCT_REVIEWED]: ProductReviewCreatedEvent

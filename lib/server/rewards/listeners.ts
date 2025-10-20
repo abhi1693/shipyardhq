@@ -1,44 +1,14 @@
-import prisma from "@/lib/prisma"
-import { awardRewards } from "@/lib/rewards/engine"
-import { RewardsError } from "@/lib/rewards/errors"
 import { registerEventHandler } from "@/lib/server/events"
-import type { AwardRewardsPayload } from "@/lib/rewards/types"
+import {
+  awardRewardsSafely,
+  getProductOwnerId,
+} from "@/lib/server/rewards/helpers"
 
 const UPVOTE_RULE_KEY = "rewards.upvote.give"
 const REVIEW_RULE_KEY = "rewards.review.publish"
 const REVIEW_DEPTH_RULE_KEY = "rewards.review.depth"
+const PRODUCT_CREATED_RULE_KEY = "rewards.product.create"
 const REVIEW_DEPTH_THRESHOLD = 200
-
-const IGNORED_ERROR_CODES = new Set(["COOLDOWN_ACTIVE", "CAP_EXCEEDED"])
-
-async function getProductOwnerId(productId: string): Promise<string | null> {
-  const record = await prisma.product.findUnique({
-    where: { id: productId },
-    select: { userId: true },
-  })
-  return record?.userId ?? null
-}
-
-async function safelyAwardRewards(
-  userId: string,
-  ruleKey: string,
-  payload: AwardRewardsPayload,
-  context: string,
-) {
-  try {
-    await awardRewards(userId, ruleKey, payload)
-  } catch (error) {
-    if (error instanceof RewardsError && IGNORED_ERROR_CODES.has(error.code)) {
-      return
-    }
-    console.error(`[rewards] ${context} failed`, {
-      error,
-      userId,
-      ruleKey,
-      payload,
-    })
-  }
-}
 
 registerEventHandler({
   event: "product.upvoted",
@@ -49,7 +19,7 @@ registerEventHandler({
       if (!ownerId) return
       if (ownerId === event.userId) return
 
-      await safelyAwardRewards(
+      await awardRewardsSafely(
         event.userId,
         UPVOTE_RULE_KEY,
         {
@@ -88,7 +58,7 @@ registerEventHandler({
         updatedAt: event.updatedAt.toISOString(),
       }
 
-      await safelyAwardRewards(
+      await awardRewardsSafely(
         event.userId,
         REVIEW_RULE_KEY,
         {
@@ -105,7 +75,7 @@ registerEventHandler({
       )
 
       if (event.messageLength > REVIEW_DEPTH_THRESHOLD) {
-        await safelyAwardRewards(
+        await awardRewardsSafely(
           event.userId,
           REVIEW_DEPTH_RULE_KEY,
           {
@@ -123,6 +93,37 @@ registerEventHandler({
       }
     } catch (error) {
       console.error("[rewards] review listener error", { error, event })
+    }
+  },
+})
+
+registerEventHandler({
+  event: "product.created",
+  id: "rewards.award-product-created",
+  handler: async (event) => {
+    try {
+      const ownerId = await getProductOwnerId(event.productId)
+      if (!ownerId) return
+
+      await awardRewardsSafely(
+        ownerId,
+        PRODUCT_CREATED_RULE_KEY,
+        {
+          eventId: `product.created:${event.productId}`,
+          productId: event.productId,
+          sourceType: "product",
+          sourceId: event.productId,
+          targetType: "product",
+          targetId: event.productId,
+          actorUserId: ownerId,
+        },
+        "award product creation rewards",
+      )
+    } catch (error) {
+      console.error("[rewards] product.created listener error", {
+        error,
+        event,
+      })
     }
   },
 })

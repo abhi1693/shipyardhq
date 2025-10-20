@@ -1,5 +1,6 @@
 "use server"
 
+import { auth } from "@clerk/nextjs/server"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { after } from "next/server"
@@ -16,6 +17,9 @@ import {
   parseOs,
   sanitizeReferrer,
 } from "@/lib/server/analytics/clientMetadata"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import { awardProductVisitReward } from "@/lib/server/rewards/engagement"
+import { getProductOwnerId } from "@/lib/server/rewards/helpers"
 
 function decodeNullable(value?: string | null) {
   if (!value) return null
@@ -97,6 +101,12 @@ export async function clickExternalProductLinkAction(formData: FormData) {
     const key = `click:${productId}:${ip}`
     const WINDOW_MS = 10_000
     if (allowOncePerWindow(key, WINDOW_MS)) {
+      const { userId: clerkUserId } = await auth()
+      const viewer = clerkUserId
+        ? await getActiveUserByClerkId(clerkUserId)
+        : null
+      const viewerId = viewer?.id ?? null
+
       const hdrs = await headers()
       const userAgent = hdrs.get("user-agent")
       const secChUaMobile = hdrs.get("sec-ch-ua-mobile")
@@ -126,6 +136,21 @@ export async function clickExternalProductLinkAction(formData: FormData) {
           })
         } catch (err) {
           console.error("click publish failed", err)
+        }
+
+        if (viewerId) {
+          try {
+            const ownerId = await getProductOwnerId(productId)
+            if (!ownerId || ownerId !== viewerId) {
+              await awardProductVisitReward({
+                userId: viewerId,
+                productId,
+                destination: to,
+              })
+            }
+          } catch (err) {
+            console.error("reward award failed for product CTA click", err)
+          }
         }
       })
     }

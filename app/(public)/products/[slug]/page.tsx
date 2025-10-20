@@ -3,10 +3,9 @@ import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import { JSX } from "react"
 
-import { hasUserUpvoted } from "@/actions/public/products/actions"
 import { auth } from "@clerk/nextjs/server"
 import { BADGE_OPTIONS } from "@/lib/constants"
-import { getLiveUpvoteCount } from "@/lib/server/productVotesStore"
+import { getLiveUpvoteCount, resolveVoteState } from "@/lib/server/productVotesStore"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
 import {
   getPublicProductBySlug,
@@ -52,6 +51,8 @@ import { ProductChangelog } from "@/components/organisms/ProductChangelog"
 import { ProductCrewRoster } from "@/components/organisms/ProductCrewRoster"
 import { ProductSimilarVoyages } from "@/components/organisms/ProductSimilarVoyages"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import { queueProductViewReward } from "@/lib/server/rewards/engagement"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -163,15 +164,29 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const isVerified = product.verification?.isVerified
   const authResult = await auth()
 
-  const userId = authResult.userId
+  const clerkUserId = authResult.userId
+  const viewer = clerkUserId
+    ? await getActiveUserByClerkId(clerkUserId)
+    : null
+  const userId = viewer?.id ?? null
   const liveUpvotesPromise = getLiveUpvoteCount(product.id)
   const userUpvotedPromise = userId
-    ? await hasUserUpvoted(product.id, userId)
+    ? resolveVoteState(product.id, userId).then(
+        ({ currentState }) => currentState === "upvoted",
+      )
     : Promise.resolve(false)
   const [upvoteCount, userUpvoted] = await Promise.all([
     liveUpvotesPromise,
     userUpvotedPromise,
   ])
+
+  if (userId && userId !== (product.user?.id ?? null)) {
+    queueProductViewReward({
+      userId,
+      productId: product.id,
+      productSlug: product.slug,
+    })
+  }
 
   const activeBadgeDefs = (product.badges || [])
     .map((b) => BADGE_OPTIONS.find((x) => x.value === b))

@@ -17,6 +17,7 @@ export const APP_EVENTS = {
   PRODUCT_UPVOTED: "product.upvoted",
   PRODUCT_DOWNVOTED: "product.downvoted",
   PRODUCT_REVIEWED: "product.reviewed",
+  PRODUCT_VIEWED: "product.viewed",
   BADGE_ASSIGNED: "badge.assigned",
   BADGE_REMOVED: "badge.removed",
   ANALYTICS_PRODUCT_TRAFFIC: "analytics.product-traffic",

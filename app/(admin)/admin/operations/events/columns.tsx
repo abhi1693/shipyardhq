@@ -3,11 +3,13 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { formatDistanceToNow } from "date-fns"
 import Link from "next/link"
+import { useFormStatus } from "react-dom"
 
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { adminPath } from "@/lib/routes"
 import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
+import { requeueEnvelopeAction } from "@/actions/admin/events/actions"
 
 export type EventEnvelopeTableRow = {
   id: string
@@ -89,14 +91,37 @@ export const columns: ColumnDef<EventEnvelopeTableRow>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <Button asChild size="sm" variant="destructive">
-          <Link href={adminPath("operations", "events", row.original.id, "delete")}>
-            Delete
-          </Link>
-        </Button>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const disableRequeue = row.original.status === "processing"
+
+      return (
+        <div className="flex items-center gap-2">
+          <form action={requeueEnvelopeAction} className="inline">
+            <input type="hidden" name="envelopeId" value={row.original.id} />
+            <RequeueSubmit disabled={disableRequeue} />
+          </form>
+          <Button asChild size="sm" variant="destructive">
+            <Link href={adminPath("operations", "events", row.original.id, "delete")}>
+              Delete
+            </Link>
+          </Button>
+        </div>
+      )
+    },
   },
 ]
+
+function RequeueSubmit({ disabled }: { disabled: boolean }) {
+  const { pending } = useFormStatus()
+  return (
+    <Button
+      size="sm"
+      variant="secondary"
+      type="submit"
+      disabled={disabled || pending}
+      title={disabled ? "Event is currently processing" : undefined}
+    >
+      {pending ? "Requeueing..." : "Requeue"}
+    </Button>
+  )
+}
