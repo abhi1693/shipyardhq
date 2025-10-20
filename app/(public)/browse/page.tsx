@@ -1,16 +1,6 @@
-export const revalidate = 60
-
 import type { Metadata } from "next"
 import Link from "next/link"
 
-import {
-  getCategories,
-  getUseCasesWithCounts,
-} from "@/actions/admin/categories/actions"
-import { getBrowseProducts } from "@/actions/public/browse/actions"
-import { getProducts } from "@/actions/public/products/featured"
-import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import { EmptyState } from "@/components/molecules/empty-state"
 import ProductGridClient from "@/components/molecules/ProductGridClient"
 import BrowseFilterBar from "@/components/molecules/BrowseFilterBar"
@@ -21,8 +11,6 @@ import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryH
 import { BrowseFeaturedCarousel } from "@/components/organisms/BrowseFeaturedCarousel"
 import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
 import { buildPageMetadata } from "@/lib/metadata"
-import { pluralize } from "@/lib/pluralize"
-import { Prisma } from "@/lib/vendor/prisma/client"
 import {
   BROWSE_PATH,
   LEADERBOARD_PATH,
@@ -33,6 +21,11 @@ import {
   usecasePath,
 } from "@/lib/routes"
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
+import {
+  getBrowsePagePayload,
+  type BrowseSort,
+  type BrowsePageFilters,
+} from "@/lib/browse/cache"
 
 const baseMetadata = buildPageMetadata({
   title: "Browse Products",
@@ -82,13 +75,6 @@ const browseMetrics = [
   },
 ] as const
 
-const sortLabelMap: Record<string, string> = {
-  new: "Newest",
-  trending: "Trending",
-  votes: "Most Upvoted",
-  az: "A–Z",
-}
-
 type StrOrArr = string | string[] | undefined
 
 interface BrowseSearchParams {
@@ -103,9 +89,32 @@ interface BrowseSearchParams {
 const resolveSingle = (value: StrOrArr) =>
   Array.isArray(value) ? value[0] : value
 
-type CategoryWithProductCount = Prisma.CategoryGetPayload<{
-  include: { _count: { select: { products: true } } }
-}>
+const isBrowseSort = (value: string | undefined): value is BrowseSort =>
+  value === "new" ||
+  value === "trending" ||
+  value === "votes" ||
+  value === "az"
+
+const parseSearchParams = (params: BrowseSearchParams): BrowsePageFilters => {
+  const useCaseRaw = resolveSingle(params.useCase)
+  const categoryRaw = resolveSingle(params.category)
+  const sortRaw = resolveSingle(params.sort)
+  const pageRaw = Number.parseInt(resolveSingle(params.page) ?? "1", 10)
+  const queryRaw = resolveSingle(params.q)?.trim()
+
+  return {
+    useCase:
+      useCaseRaw && useCaseRaw !== "__all__" ? useCaseRaw.trim() : undefined,
+    category:
+      categoryRaw && categoryRaw !== "__all__"
+        ? categoryRaw.trim()
+        : undefined,
+    verified: resolveSingle(params.verified) === "true",
+    sort: isBrowseSort(sortRaw) ? sortRaw : "new",
+    page: Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1,
+    query: queryRaw && queryRaw.length ? queryRaw : undefined,
+  }
+}
 
 export default async function BrowsePage({
   searchParams,
@@ -113,89 +122,21 @@ export default async function BrowsePage({
   searchParams: Promise<BrowseSearchParams>
 }) {
   const params = await searchParams
-  const useCase = resolveSingle(params.useCase)
-  const category = resolveSingle(params.category)
-  const verified = resolveSingle(params.verified)
-  const sort =
-    (resolveSingle(params.sort) as "new" | "trending" | "votes" | "az") ?? "new"
-  const page = resolveSingle(params.page) ?? "1"
-  const q = resolveSingle(params.q)?.trim()
+  const parsedFilters = parseSearchParams(params)
 
-  const [
-    browseResult,
+  const {
+    filters: normalizedFilters,
+    products,
+    hasMore,
     featured,
     useCases,
     categories,
     stats,
     latestProductUpdates,
-  ] = await Promise.all([
-    getBrowseProducts({
-      useCaseSlug: useCase === "__all__" ? undefined : useCase,
-      categorySlug: category === "__all__" ? undefined : category,
-      verified: verified === "true",
-      sort,
-      page: parseInt(page, 10),
-      query: q || undefined,
-    }),
-    getProducts("featured"),
-    getUseCasesWithCounts(),
-    getCategories({
-      where: {
-        products: {
-          some: {},
-        },
-      },
-      include: { _count: { select: { products: true } } },
-      orderBy: [{ products: { _count: "desc" } }, { name: "asc" }],
-    }) as Promise<CategoryWithProductCount[]>,
-    getLeaderboardStats(),
-    getLatestPublicProductUpdates(6),
-  ])
-
-  const { products, hasMore } = browseResult
-  const sortLabel = sortLabelMap[sort] ?? sortLabelMap.new
-
-  const selectedUseCaseLabel = useCases.find(
-    (entry) => entry.slug === useCase,
-  )?.label
-  const selectedCategoryLabel = categories.find(
-    (entry) => entry.slug === category,
-  )?.name
-
-  const hasActiveFilters = Boolean(
-    (useCase && useCase !== "__all__") ||
-      (category && category !== "__all__") ||
-      verified === "true" ||
-      (q && q.length > 0) ||
-      sort !== "new",
-  )
-
-  const filterSummary: string[] = [
-    `Showing ${products.length} ${pluralize(products.length, "result")}`,
-    `Sorted by ${sortLabel}`,
-  ]
-
-  if (selectedUseCaseLabel) {
-    filterSummary.push(`Use case: ${selectedUseCaseLabel}`)
-  }
-
-  if (selectedCategoryLabel) {
-    filterSummary.push(`Category: ${selectedCategoryLabel}`)
-  }
-
-  if (verified === "true") {
-    filterSummary.push("Verified makers only")
-  }
-
-  const headline = q
-    ? `Searching “${q}”`
-    : selectedCategoryLabel
-      ? `${selectedCategoryLabel} launches`
-      : selectedUseCaseLabel
-        ? `${selectedUseCaseLabel} playbook`
-        : verified === "true"
-          ? "Verified launches"
-          : "Browse every Shipyard launch"
+    filterSummary,
+    headline,
+    hasActiveFilters,
+  } = await getBrowsePagePayload(parsedFilters)
 
   return (
     <main className="relative isolate bg-white">
@@ -224,10 +165,10 @@ export default async function BrowsePage({
                 useCases={useCases}
                 categories={categories}
                 current={{
-                  useCase,
-                  category,
-                  sort,
-                  verified: verified === "true",
+                  useCase: normalizedFilters.useCase,
+                  category: normalizedFilters.category,
+                  sort: normalizedFilters.sort,
+                  verified: normalizedFilters.verified,
                 }}
               />
 
@@ -265,13 +206,13 @@ export default async function BrowsePage({
                     <ProductGridClient
                       initialProducts={products}
                       initialHasMore={hasMore}
-                      initialPage={2}
+                      initialPage={normalizedFilters.page + 1}
                       searchParams={{
-                        useCase: useCase === "__all__" ? undefined : useCase,
-                        category: category === "__all__" ? undefined : category,
-                        verified: verified === "true",
-                        sort,
-                        q: q || undefined,
+                        useCase: normalizedFilters.useCase,
+                        category: normalizedFilters.category,
+                        verified: normalizedFilters.verified,
+                        sort: normalizedFilters.sort,
+                        q: normalizedFilters.query,
                       }}
                     />
                   )}

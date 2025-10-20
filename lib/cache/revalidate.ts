@@ -5,9 +5,14 @@ export function revalidateHomepage() {
   revalidateTag(TAGS.homepage)
 }
 
+export function revalidateBrowse() {
+  revalidateTag(TAGS.browse)
+}
+
 export function revalidateProducts() {
   revalidateTag(TAGS.products)
   revalidateHomepage()
+  revalidateBrowse()
 }
 
 export function revalidateProduct(idOrSlug: string) {
@@ -31,6 +36,7 @@ export function revalidateProductUpdate(
   }
   revalidateTag(TAGS.productUpdatesLatest)
   revalidateHomepage()
+  revalidateBrowse()
 }
 
 export function revalidateProductReviews(idOrSlug: string) {
@@ -41,6 +47,7 @@ export function revalidateProductReviews(idOrSlug: string) {
 export function revalidateCategories() {
   revalidateTag(TAGS.categories)
   revalidateHomepage()
+  revalidateBrowse()
 }
 
 export function revalidateCategory(idOrSlug: string) {
@@ -53,6 +60,7 @@ export function revalidateLeaderboard() {
   revalidateTag(TAGS.trending)
   revalidateTag(TAGS.analytics)
   revalidateHomepage()
+  revalidateBrowse()
 }
 
 export function revalidateMonthlyLeaderboard(monthKey?: string) {
