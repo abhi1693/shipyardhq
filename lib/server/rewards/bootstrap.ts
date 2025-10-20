@@ -26,27 +26,25 @@ async function runProductLaunchBackfill() {
 
       if (!batch.length) break
 
-      await Promise.all(
-        batch.map(async ({ id, userId, slug }) => {
-          if (!userId) return
-          const eventId = `product.created:${id}`
-          await awardRewardsSafely(
-            userId,
-            PRODUCT_CREATED_RULE_KEY,
-            {
-              eventId,
-              productId: id,
-              sourceType: "product",
-              sourceId: id,
-              targetType: "product",
-              targetId: id,
-              actorUserId: userId,
-              metadata: slug ? { slug, bootstrap: true } : { bootstrap: true },
-            },
-            "bootstrap product launch rewards",
-          )
-        }),
-      )
+      for (const { id, userId, slug } of batch) {
+        if (!userId) continue
+        const eventId = `product.created:${id}`
+        await awardRewardsSafely(
+          userId,
+          PRODUCT_CREATED_RULE_KEY,
+          {
+            eventId,
+            productId: id,
+            sourceType: "product",
+            sourceId: id,
+            targetType: "product",
+            targetId: id,
+            actorUserId: userId,
+            metadata: slug ? { slug, bootstrap: true } : { bootstrap: true },
+          },
+          "bootstrap product launch rewards",
+        )
+      }
 
       processed += batch.length
       cursor = batch[batch.length - 1].id
