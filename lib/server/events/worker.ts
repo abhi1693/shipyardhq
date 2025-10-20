@@ -98,13 +98,13 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
   }
 
   for (const handlerId of pendingHandlers) {
-      console.debug("[events] handler execution start", {
-        envelopeId,
-        event: envelope.event,
-        handlerId,
-        attemptNumber,
-        queue: envelope.queue,
-      })
+    console.debug("[events] handler execution start", {
+      envelopeId,
+      event: envelope.event,
+      handlerId,
+      attemptNumber,
+      queue: envelope.queue,
+    })
     const remainingMs = deadline - Date.now()
     if (remainingMs <= 0) {
       await recordAttempt(

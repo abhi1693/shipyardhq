@@ -205,8 +205,13 @@ export function registerEventHandler<K extends keyof AppEvents>({
 
   const key = String(event)
   const resolvedQueue =
-    mode === "async" ? queue ?? DEFAULT_EVENT_QUEUE : DEFAULT_EVENT_QUEUE
-  const entry: RegisteredHandler<K> = { handler, id, mode, queue: resolvedQueue }
+    mode === "async" ? (queue ?? DEFAULT_EVENT_QUEUE) : DEFAULT_EVENT_QUEUE
+  const entry: RegisteredHandler<K> = {
+    handler,
+    id,
+    mode,
+    queue: resolvedQueue,
+  }
   const existing = LISTENERS.get(key) as Array<RegisteredHandler<K>> | undefined
 
   if (existing?.some((item) => item.id === id)) {

@@ -70,12 +70,7 @@ type SearchParams = {
 }
 
 function isRangeValue(value?: string | null): value is RangeValue {
-  return (
-    value === "7d" ||
-    value === "14d" ||
-    value === "30d" ||
-    value === "90d"
-  )
+  return value === "7d" || value === "14d" || value === "30d" || value === "90d"
 }
 
 export default async function EventAnalyticsPage({
@@ -88,9 +83,7 @@ export default async function EventAnalyticsPage({
   const rangeValue = Array.isArray(requestedRange)
     ? requestedRange[0]
     : requestedRange
-  const selectedRange = isRangeValue(rangeValue)
-    ? rangeValue
-    : DEFAULT_RANGE
+  const selectedRange = isRangeValue(rangeValue) ? rangeValue : DEFAULT_RANGE
   const days = RANGE_TO_DAYS[selectedRange]
 
   const [summary, statusTrend, typeTrend, queueLatencyStats, topEventVolumes] =
@@ -214,10 +207,7 @@ export default async function EventAnalyticsPage({
           description="Monitor queue health and understand which handlers drive workload."
         />
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:gap-4">
-          <RangeSelector
-            className="self-start"
-            ranges={EVENT_RANGE_OPTIONS}
-          />
+          <RangeSelector className="self-start" ranges={EVENT_RANGE_OPTIONS} />
         </div>
       </div>
 
@@ -255,8 +245,8 @@ export default async function EventAnalyticsPage({
                           </span>
                           <span className="text-xs">
                             {queue.pending.toLocaleString()} pending /{" "}
-                            {queue.processing.toLocaleString()} processing (interval{" "}
-                            {queue.intervalMinutes} min)
+                            {queue.processing.toLocaleString()} processing
+                            (interval {queue.intervalMinutes} min)
                           </span>
                         </div>
                       </div>
@@ -355,10 +345,7 @@ export default async function EventAnalyticsPage({
               <AnalyticsBarChart
                 data={queueLatencyData}
                 config={queueLatencyConfig}
-                bars={[
-                  { dataKey: "p50Minutes" },
-                  { dataKey: "p95Minutes" },
-                ]}
+                bars={[{ dataKey: "p50Minutes" }, { dataKey: "p95Minutes" }]}
                 showLegend
                 height={320}
                 xAxis={{ dataKey: "label", interval: 0 }}

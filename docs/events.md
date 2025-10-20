@@ -38,4 +38,4 @@ Shipyard now routes non-critical product events through a durable outbox so UI c
   - `GET /api/cron/events/drain/high` every 5 minutes for cache revalidation and other fast-lane tasks.
   - `GET /api/cron/events/drain/default` every 15 minutes for standard business logic.
   - `GET /api/cron/events/drain/low` every 30 minutes for deferred notifications and side effects.
-  The generic `/api/events/drain?queue=<id>` endpoint remains available for ad-hoc invocations.
+    The generic `/api/events/drain?queue=<id>` endpoint remains available for ad-hoc invocations.

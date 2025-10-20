@@ -101,7 +101,8 @@ export function AnalyticsPieChart<DataPoint extends object>({
             >
               {data.map((_, index) => {
                 const cellProps = cells?.[index]
-                if (!cellProps) return <Cell key={`${String(dataKey)}-${index}`} />
+                if (!cellProps)
+                  return <Cell key={`${String(dataKey)}-${index}`} />
                 return (
                   <Cell
                     key={`${String(dataKey)}-${index}`}

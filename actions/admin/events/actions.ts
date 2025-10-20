@@ -79,7 +79,9 @@ function formatDayLabel(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
 
-export async function getEventQueueSummary(days: number): Promise<EventQueueSummary> {
+export async function getEventQueueSummary(
+  days: number,
+): Promise<EventQueueSummary> {
   type StatusRow = {
     queue: string
     status: EventEnvelopeStatus

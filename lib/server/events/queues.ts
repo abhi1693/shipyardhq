@@ -69,5 +69,4 @@ export function getEventQueueDefinition(
   return EVENT_QUEUE_DEFINITIONS[queue]
 }
 
-export const EVENT_QUEUE_NAMES: ReadonlyArray<EventQueueName> =
-  EVENT_QUEUE_IDS
+export const EVENT_QUEUE_NAMES: ReadonlyArray<EventQueueName> = EVENT_QUEUE_IDS
