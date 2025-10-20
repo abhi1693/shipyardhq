@@ -94,7 +94,7 @@ export default async function TagDetailPage({
             </header>
             <KeywordTagCloud
               items={cloudItems}
-              activeSlug={tagData.summary.slug}
+              activeSlug={summary.slug}
               className="pt-2"
             />
           </section>

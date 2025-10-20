@@ -18,19 +18,19 @@ import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignup
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
-import { getUseCasePagePayload, getUseCaseStaticParams } from "@/lib/useCases/page-cache"
+import {
+  getUseCasePagePayload,
+  getUseCaseStaticParams,
+  type UseCasePagePayload,
+} from "@/lib/useCases/page-cache"
 
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
 }
 
-type UseCaseProduct = NonNullable<
-  Awaited<ReturnType<typeof getPublicUseCaseWithProducts>>
->["products"][number]
+type UseCaseProduct = NonNullable<UseCasePagePayload>["products"][number]
 
-type UseCaseCategory = NonNullable<
-  Awaited<ReturnType<typeof getPublicUseCaseWithProducts>>
->["categories"][number]
+type UseCaseCategory = NonNullable<UseCasePagePayload>["categories"][number]
 
 export async function generateStaticParams() {
   return getUseCaseStaticParams()

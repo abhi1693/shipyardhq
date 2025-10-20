@@ -11,8 +11,8 @@ type DirectoryProductItem = {
   id: string
   slug: string
   name: string
-  logo: string | null
-  tagline: string | null
+  logo: string
+  tagline: string
   analytics: PublicUserProfile["products"][number]["analytics"] | null
   category?: { name?: string | null }
   verification?: PublicUserProfile["products"][number]["verification"] | null
@@ -100,8 +100,8 @@ export const getUserProfilePayload = cached(
         id: product.id,
         slug: product.slug,
         name: product.name,
-        logo: product.logo,
-        tagline: product.tagline,
+        logo: product.logo ?? "",
+        tagline: product.tagline ?? "",
         analytics: product.analytics ?? null,
         category: product.category ? { name: product.category.name } : undefined,
         verification: product.verification ?? undefined,

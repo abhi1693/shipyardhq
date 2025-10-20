@@ -65,8 +65,8 @@ type SimilarProduct = {
   id: string
   slug: string
   name: string
-  logo: string | null
-  tagline: string | null
+  logo: string
+  tagline: string
   analytics?: { upvotes: number }
   category?: { name: string | null; slug: string | null }
 }
@@ -94,8 +94,8 @@ function mapUseCaseProducts(products: UseCaseProduct[]): SimilarProduct[] {
     id: item.id,
     slug: item.slug,
     name: item.name,
-    logo: item.logo,
-    tagline: item.tagline,
+    logo: item.logo ?? "",
+    tagline: item.tagline ?? "",
     analytics: item.analytics
       ? { upvotes: item.analytics.upvotes ?? 0 }
       : undefined,
