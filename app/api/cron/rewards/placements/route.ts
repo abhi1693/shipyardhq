@@ -1,24 +1,14 @@
 import { NextResponse } from "next/server"
 
+import { ensureCronAuthorized } from "@/lib/server/cronAuth"
 import { runPlacementScheduler } from "@/lib/server/rewards/placementScheduler"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-function isAuthorized(request: Request) {
-  const secret = process.env.CRON_SECRET
-  if (!secret) {
-    // Fail closed in production if the secret is missing
-    return process.env.NODE_ENV !== "production"
-  }
-  const authHeader = request.headers.get("authorization") || ""
-  return authHeader === `Bearer ${secret}`
-}
-
-export async function POST(request: Request) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+async function handle(request: Request) {
+  const authResponse = ensureCronAuthorized(request)
+  if (authResponse) return authResponse
 
   try {
     console.info("[cron.rewards.placements] run started")
@@ -49,5 +39,5 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  return POST(request)
+  return handle(request)
 }

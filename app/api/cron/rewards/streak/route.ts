@@ -6,7 +6,7 @@ import { runStreakMaintenance } from "@/lib/server/rewards/streakMaintenance"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-export async function POST(request: Request) {
+async function handle(request: Request) {
   const authResponse = ensureCronAuthorized(request)
   if (authResponse) return authResponse
 
@@ -36,5 +36,5 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  return POST(request)
+  return handle(request)
 }
