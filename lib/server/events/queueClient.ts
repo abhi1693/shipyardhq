@@ -1,37 +1,42 @@
-import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
-import { getRedisClient } from "@/lib/server/redis"
+import prisma from "@/lib/prisma"
 
-const RAW_EVENTS_QUEUE_KEY = buildCacheKey("events", "queue")
-const EVENTS_QUEUE_KEY = namespaceCacheKey(RAW_EVENTS_QUEUE_KEY)
 export const MAX_BATCH_SIZE = 25
 
+const CLAIMABLE_STATUSES = ["pending", "retrying"] as const
+
 export async function enqueueEvent(envelopeId: string): Promise<void> {
-  const client = await getRedisClient()
-  if (!client) {
-    throw new Error("Redis client unavailable for event queue")
-  }
-  await client.rPush(EVENTS_QUEUE_KEY, envelopeId)
+  const now = new Date()
+  await prisma.$executeRaw`
+    UPDATE "EventEnvelope"
+    SET "nextRunAt" = ${now},
+        "updatedAt" = ${now}
+    WHERE "id" = ${envelopeId}
+      AND "status" = ${"pending"}::"EventEnvelopeStatus"
+  `
 }
 
 export async function dequeueEnvelopeBatch(
   batchSize: number = MAX_BATCH_SIZE,
 ): Promise<string[]> {
-  const client = await getRedisClient()
-  if (!client) return []
-
-  const ids: string[] = []
-  for (let i = 0; i < batchSize; i += 1) {
-    const id = await client.lPop(EVENTS_QUEUE_KEY)
-    if (!id) break
-    ids.push(id)
-  }
-  return ids
+  const now = new Date()
+  const rows = await prisma.$queryRaw<Array<{ id: string }>>`
+    SELECT "id"
+    FROM "EventEnvelope"
+    WHERE "status" = ANY (${CLAIMABLE_STATUSES}::"EventEnvelopeStatus"[])
+      AND ("nextRunAt" IS NULL OR "nextRunAt" <= ${now})
+    ORDER BY "nextRunAt" NULLS FIRST, "createdAt"
+    LIMIT ${batchSize}
+  `
+  return rows.map((row) => row.id)
 }
 
 export async function requeueEnvelope(envelopeId: string): Promise<void> {
-  const client = await getRedisClient()
-  if (!client) return
-  await client.lPush(EVENTS_QUEUE_KEY, envelopeId)
+  const now = new Date()
+  await prisma.$executeRaw`
+    UPDATE "EventEnvelope"
+    SET "nextRunAt" = ${now},
+        "updatedAt" = ${now}
+    WHERE "id" = ${envelopeId}
+      AND "status" = ANY (${CLAIMABLE_STATUSES}::"EventEnvelopeStatus"[])
+  `
 }
-
-export { EVENTS_QUEUE_KEY }

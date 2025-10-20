@@ -104,11 +104,6 @@ export default async function EventQueuePage() {
 
   const metrics: SummaryMetric[] = [
     {
-      label: "Redis backlog",
-      value: summary.queueDepth,
-      helper: "Queued jobs waiting to be picked up",
-    },
-    {
       label: "Pending",
       value: summary.pending,
       helper: "Awaiting worker execution",

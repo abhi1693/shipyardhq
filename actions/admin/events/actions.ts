@@ -4,8 +4,7 @@ import prisma from "@/lib/prisma"
 import { checkRole } from "@/lib/roles"
 import { adminPath } from "@/lib/routes"
 import { revalidatePath } from "next/cache"
-import { enqueueEvent, EVENTS_QUEUE_KEY } from "@/lib/server/events/queueClient"
-import { getRedisClient } from "@/lib/server/redis"
+import { enqueueEvent } from "@/lib/server/events/queueClient"
 import { drainEventQueue } from "@/lib/server/events/drain"
 import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
 
@@ -18,7 +17,6 @@ export type EventQueueSummary = {
   retrying: number
   deadLetter: number
   completed: number
-  queueDepth: number
   oldestPendingAt?: Date | null
 }
 
@@ -68,21 +66,12 @@ export async function getEventQueueSummary(): Promise<EventQueueSummary> {
     select: { enqueuedAt: true },
   })
 
-  let queueDepth = 0
-  try {
-    const redis = await getRedisClient()
-    queueDepth = redis ? await redis.lLen(EVENTS_QUEUE_KEY) : 0
-  } catch (error) {
-    console.error("getEventQueueSummary queue depth failed", error)
-  }
-
   return {
     pending,
     processing,
     retrying,
     deadLetter,
     completed,
-    queueDepth,
     oldestPendingAt: oldestPending?.enqueuedAt ?? null,
   }
 }
