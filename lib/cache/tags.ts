@@ -36,6 +36,7 @@ export const TAGS = {
   keyword: (slug: string) => `keyword:${slug}`,
   homepage: "homepage",
   browse: "browse",
+  categoryDirectory: "categories:directory",
 } as const
 
 export type Tag = (typeof TAGS)[keyof typeof TAGS] | string

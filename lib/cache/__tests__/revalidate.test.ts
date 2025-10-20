@@ -11,6 +11,7 @@ import {
   revalidateCategories,
   revalidateCategory,
   revalidateBrowse,
+  revalidateCategoryDirectory,
   revalidateHomepage,
   revalidateLeaderboard,
   revalidateMonthlyLeaderboard,
@@ -30,6 +31,7 @@ describe("revalidate helpers", () => {
     expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "products")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "homepage")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "browse")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(4, "categories:directory")
   })
 
   it("revalidates individual product and collection", () => {
@@ -38,6 +40,7 @@ describe("revalidate helpers", () => {
     expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "products")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "homepage")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(4, "browse")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(5, "categories:directory")
   })
 
   it("revalidates category and categories", () => {
@@ -46,6 +49,7 @@ describe("revalidate helpers", () => {
     expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "categories")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "homepage")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(4, "browse")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(5, "categories:directory")
   })
 
   it("revalidates categories collection", () => {
@@ -53,6 +57,7 @@ describe("revalidate helpers", () => {
     expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "categories")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "homepage")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "browse")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(4, "categories:directory")
   })
 
   it("revalidates leaderboard family", () => {
@@ -85,6 +90,7 @@ describe("revalidate helpers", () => {
     expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "products")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "homepage")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(4, "browse")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(5, "categories:directory")
   })
 
   it("revalidates plan feature and associated entities", () => {
@@ -97,6 +103,7 @@ describe("revalidate helpers", () => {
     expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "products")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(4, "homepage")
     expect(revalidateTagMock).toHaveBeenNthCalledWith(5, "browse")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(6, "categories:directory")
   })
 
   it("revalidates homepage directly", () => {
@@ -107,6 +114,11 @@ describe("revalidate helpers", () => {
   it("revalidates browse directly", () => {
     revalidateBrowse()
     expect(revalidateTagMock).toHaveBeenCalledWith("browse")
+  })
+
+  it("revalidates category directory directly", () => {
+    revalidateCategoryDirectory()
+    expect(revalidateTagMock).toHaveBeenCalledWith("categories:directory")
   })
 
   it("revalidates rewards leaderboard with homepage", () => {

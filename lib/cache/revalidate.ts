@@ -9,10 +9,15 @@ export function revalidateBrowse() {
   revalidateTag(TAGS.browse)
 }
 
+export function revalidateCategoryDirectory() {
+  revalidateTag(TAGS.categoryDirectory)
+}
+
 export function revalidateProducts() {
   revalidateTag(TAGS.products)
   revalidateHomepage()
   revalidateBrowse()
+  revalidateCategoryDirectory()
 }
 
 export function revalidateProduct(idOrSlug: string) {
@@ -37,6 +42,7 @@ export function revalidateProductUpdate(
   revalidateTag(TAGS.productUpdatesLatest)
   revalidateHomepage()
   revalidateBrowse()
+  revalidateCategoryDirectory()
 }
 
 export function revalidateProductReviews(idOrSlug: string) {
@@ -48,6 +54,7 @@ export function revalidateCategories() {
   revalidateTag(TAGS.categories)
   revalidateHomepage()
   revalidateBrowse()
+  revalidateCategoryDirectory()
 }
 
 export function revalidateCategory(idOrSlug: string) {

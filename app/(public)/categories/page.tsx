@@ -1,33 +1,26 @@
 import Link from "next/link"
 
-import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { Button } from "@/components/atoms/button"
 import { CategoryCard } from "@/components/molecules/CategoryCard"
 import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH, categoryPath } from "@/lib/routes"
+import { getCategoriesPagePayload } from "@/lib/categories/cache"
 
 export const metadata = buildPageMetadata({
   title: "Categories",
   description: "Browse Shipyard by category and discover innovative products.",
 })
 
-type CategoryListItem = Awaited<
-  ReturnType<typeof getCategoriesWithCounts>
->[number]
-
 export default async function CategoriesPage() {
-  const categories = await getCategoriesWithCounts()
-  const totalProducts = categories.reduce(
-    (sum: number, cat: CategoryListItem) => sum + (cat.count ?? 0),
-    0,
-  )
-  const averagePerCategory =
-    categories.length > 0
-      ? Math.max(1, Math.round(totalProducts / categories.length))
-      : 0
-  const highlightCategories = categories.slice(0, 4)
-  const busiestCategory = categories[0]
+  const {
+    categories,
+    totalProducts,
+    averagePerCategory,
+    highlightCategories,
+    busiestCategory,
+    categoryCount,
+  } = await getCategoriesPagePayload()
 
   return (
     <main className="relative isolate bg-white">
@@ -93,10 +86,10 @@ export default async function CategoriesPage() {
                     Active categories
                   </p>
                   <p className="mt-3 text-3xl font-semibold text-foreground">
-                    {categories.length}
+                    {categoryCount}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {pluralize(categories.length, "category")} leading the
+                    {pluralize(categoryCount, "category")} leading the
                     directory.
                   </p>
                 </div>
