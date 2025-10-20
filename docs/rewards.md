@@ -74,7 +74,6 @@
 - `prisma/seed.rewards.ts` seeds canonical rules and catalog items, including priority placements and analytics perks. It links catalog entries to plan features when available and warns if plan keys are missing (`prisma/seed.rewards.ts:24`).
 - Seeded rules encode default caps/cooldowns (e.g., daily login, upvote, review depth) and can be extended without manual DB work.
 - The placement scheduler cron requires `CRON_SECRET` in the environment to reject unauthorized calls (`app/api/cron/rewards/placements/route.ts:9`).
-- A one-off product launch backfill can be triggered through the secured cron endpoint to grant any missing launch rewards after deploys (`app/api/cron/rewards/launch-backfill/route.ts:1`).
 - Rewards-specific events rely on the in-memory event bus; ensure listeners are registered during app bootstrap (`lib/server/rewards/listeners.ts:43`).
 
 ## Extending the system
