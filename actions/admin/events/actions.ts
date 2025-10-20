@@ -80,7 +80,7 @@ function formatDayLabel(date: Date): string {
 }
 
 export async function getEventQueueSummary(
-  days: number,
+  days: number = 7,
 ): Promise<EventQueueSummary> {
   type StatusRow = {
     queue: string
@@ -519,8 +519,15 @@ export async function getEventEnvelopesPaginated({
     prisma.eventEnvelope.count(),
   ])
 
+  const normalizedItems = items.map((item) => ({
+    ...item,
+    queue: isEventQueue(item.queue)
+      ? (item.queue as EventQueueName)
+      : DEFAULT_EVENT_QUEUE,
+  }))
+
   return {
-    items,
+    items: normalizedItems,
     total,
     page: safePage,
     pageSize: safePageSize,
