@@ -171,14 +171,17 @@ export const getBrowsePagePayload = cached(
   "browse:payload",
   {
     ttl: DEFAULT_TTL.medium,
-    keyParts: ([filters]) => [
-      `useCase:${filters.useCase ?? "all"}`,
-      `category:${filters.category ?? "all"}`,
-      `verified:${filters.verified ? "true" : "false"}`,
-      `sort:${filters.sort}`,
-      `page:${filters.page}`,
-      filters.query ? `q:${filters.query.toLowerCase()}` : null,
-    ],
+    keyParts: ([filters]) => {
+      const parts = [
+        `useCase:${filters.useCase ?? "all"}`,
+        `category:${filters.category ?? "all"}`,
+        `verified:${filters.verified ? "true" : "false"}`,
+        `sort:${filters.sort}`,
+        `page:${filters.page}`,
+        filters.query ? `q:${filters.query.toLowerCase()}` : null,
+      ].filter((value): value is string => Boolean(value))
+      return parts
+    },
     tags: () => [
       TAGS.browse,
       TAGS.products,

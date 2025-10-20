@@ -87,10 +87,11 @@ describe("revalidate helpers", () => {
   it("revalidates badges and products", () => {
     revalidateBadges()
     expect(revalidateTagMock).toHaveBeenNthCalledWith(1, "badges")
-    expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "products")
-    expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "homepage")
-    expect(revalidateTagMock).toHaveBeenNthCalledWith(4, "browse")
-    expect(revalidateTagMock).toHaveBeenNthCalledWith(5, "categories:directory")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(2, "featured")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(3, "products")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(4, "homepage")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(5, "browse")
+    expect(revalidateTagMock).toHaveBeenNthCalledWith(6, "categories:directory")
   })
 
   it("revalidates plan feature and associated entities", () => {

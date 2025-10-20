@@ -79,6 +79,7 @@ export function revalidateMonthlyLeaderboard(monthKey?: string) {
 
 export function revalidateBadges() {
   revalidateTag(TAGS.badges)
+  revalidateTag(TAGS.featured)
   revalidateProducts()
 }
 

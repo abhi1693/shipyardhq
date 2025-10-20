@@ -129,7 +129,7 @@ export default async function CategoriesPage() {
                   Explore every category
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {pluralize(categories.length, "category")} organized by
+                  {pluralize(categoryCount, "category")} organized by
                   traction, narrative, and community demand.
                 </p>
               </div>
@@ -138,7 +138,7 @@ export default async function CategoriesPage() {
               </p>
             </div>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {categories.map((cat: CategoryListItem) => (
+              {categories.map((cat) => (
                 <CategoryCard
                   key={cat.id}
                   href={categoryPath(cat.slug)}
