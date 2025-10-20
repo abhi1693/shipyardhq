@@ -166,10 +166,10 @@ export function ProductAnalyticsCharts({
               return `${formatNumber(value)} (${formatPercent(percent)})`
             },
           }}
-          getCellProps={(entry) => ({
+          cells={summary.deviceBreakdown.map((entry) => ({
             fill: getDeviceColor(entry.device),
             name: entry.label,
-          })}
+          }))}
           legend={
             <div className="grid grid-cols-2 gap-3">
               {summary.deviceBreakdown.map((entry) => (

@@ -2459,12 +2459,11 @@ export function ProductInsightsView({
                           return `${COUNT_FORMATTER.format(value)} (${PERCENT_FORMATTER.format(percent)}%)`
                         },
                       }}
-                      getCellProps={(entry) => ({
+                      cells={snapshotChart.data.map((entry) => ({
                         fill:
-                          snapshotChart.colors[entry.key as string] ??
-                          "var(--chart-2)",
+                          snapshotChart.colors[entry.key] ?? "var(--chart-2)",
                         stroke: "var(--card)",
-                      })}
+                      }))}
                     />
                     <div className="space-y-2 text-xs text-muted-foreground">
                       {snapshotChart.data.map((entry) => {
