@@ -83,6 +83,7 @@ export async function clickProductCardAction(formData: FormData) {
 export async function clickExternalProductLinkAction(formData: FormData) {
   const productId = String(formData.get("productId") || "")
   const to = String(formData.get("to") || "")
+  const skipRedirect = formData.get("skipRedirect") === "1"
   if (!productId || !to) return redirect("/")
 
   // Allow absolute http(s) or app-relative paths
@@ -157,5 +158,7 @@ export async function clickExternalProductLinkAction(formData: FormData) {
   } catch (err) {
     console.error("click publish scheduling failed", err)
   }
-  redirect(to)
+  if (!skipRedirect) {
+    redirect(to)
+  }
 }

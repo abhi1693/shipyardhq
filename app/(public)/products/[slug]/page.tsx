@@ -262,6 +262,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       ? withUtm(ctaUrl, "cta")
       : ctaUrl
     : null
+  const externalCtaTarget = "_blank" as const
   const primaryLinks: JSX.Element[] = []
   if (showProminentCta && normalizedCtaHref) {
     primaryLinks.push(
@@ -270,8 +271,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         href={normalizedCtaHref}
         productId={hasBacklinkFeature ? undefined : product.id}
         follow={hasBacklinkFeature}
-        target={hasBacklinkFeature ? "_blank" : undefined}
-        rel={hasBacklinkFeature ? "noopener" : undefined}
+        target={externalCtaTarget}
         className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted"
       >
         {ctaLabel || `Get started with ${product.name}`}
@@ -289,8 +289,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         }
         productId={hasBacklinkFeature ? undefined : product.id}
         follow={hasBacklinkFeature}
-        target={hasBacklinkFeature ? "_blank" : undefined}
-        rel={hasBacklinkFeature ? "noopener" : undefined}
+        target={externalCtaTarget}
         className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted"
       >
         <span className="flex items-center gap-1">
@@ -310,8 +309,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         }
         productId={hasBacklinkFeature ? undefined : product.id}
         follow={hasBacklinkFeature}
-        target={hasBacklinkFeature ? "_blank" : undefined}
-        rel={hasBacklinkFeature ? "noopener" : undefined}
+        target={externalCtaTarget}
         variant="outline"
         className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-muted-foreground shadow-sm transition hover:text-foreground"
       >
