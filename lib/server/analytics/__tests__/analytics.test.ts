@@ -28,6 +28,7 @@ vi.mock("@/lib/server/events/queueClient", () => ({
 
 import prisma from "@/lib/prisma"
 import { dispatchEvent, resolveRegisteredHandler } from "@/lib/server/events"
+import { APP_EVENTS } from "@/lib/server/events/constants"
 import * as eventsModule from "@/lib/server/events"
 import { trackProductClicked } from "@/lib/server/analytics/productClicks"
 import { trackProductTraffic } from "@/lib/server/analytics/productTraffic"
@@ -78,7 +79,7 @@ describe("analytics listeners", () => {
   })
 
   it("dispatching analytics.product-traffic enqueues async work", async () => {
-    await dispatchEvent("analytics.product-traffic", {
+    await dispatchEvent(APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC, {
       productId: "async-traffic",
       path: "/test",
       device: "desktop",
@@ -184,7 +185,7 @@ describe("analytics listeners", () => {
     }
 
     const handler = resolveRegisteredHandler(
-      "analytics.product-traffic",
+      APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC,
       "analytics.record-product-traffic",
     )
     expect(handler).toBeDefined()
@@ -216,7 +217,7 @@ describe("analytics listeners", () => {
       path: "/p",
       device: "mobile",
     })
-    expect(spy).toHaveBeenCalledWith("analytics.product-traffic", {
+    expect(spy).toHaveBeenCalledWith(APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC, {
       productId: "p6",
       path: "/p",
       device: "mobile",

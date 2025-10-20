@@ -1,29 +1,37 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import { APP_EVENTS } from "@/lib/server/events/constants"
+
 const EXPECTED_REGISTRATIONS = [
-  { event: "product.created", handlerId: "plans.attach-default-plan" },
-  { event: "product.created", handlerId: "badges.auto-assign-new" },
-  { event: "product.created", handlerId: "product-insights.initial-pipeline" },
+  { event: APP_EVENTS.PRODUCT_CREATED, handlerId: "plans.attach-default-plan" },
+  { event: APP_EVENTS.PRODUCT_CREATED, handlerId: "badges.auto-assign-new" },
   {
-    event: "product.created",
+    event: APP_EVENTS.PRODUCT_CREATED,
+    handlerId: "product-insights.initial-pipeline",
+  },
+  {
+    event: APP_EVENTS.PRODUCT_CREATED,
     handlerId: "email.product-verification-reminder",
   },
-  { event: "product.upvoted", handlerId: "rewards.award-upvote" },
-  { event: "product.upvoted", handlerId: "email.product-vote-milestone" },
-  { event: "product.upvoted", handlerId: "analytics.increment-upvotes" },
-  { event: "product.reviewed", handlerId: "rewards.award-review" },
-  { event: "product.downvoted", handlerId: "analytics.decrement-upvotes" },
-  { event: "badge.assigned", handlerId: "badges.apply-default-expiry" },
-  { event: "badge.assigned", handlerId: "twitter.badge-assigned" },
-  { event: "product.updated", handlerId: "badges.refresh-new-badge" },
-  { event: "product.deleted", handlerId: "badges.deleted-cleanup" },
-  { event: "product.published", handlerId: "twitter.product-published" },
-  { event: "product.clicked", handlerId: "analytics.record-product-click" },
-  { event: "analytics.product-traffic", handlerId: "analytics.record-product-traffic" },
-  { event: "rewards.awarded", handlerId: "email.backlink-verified-reward" },
-  { event: "rewards.daily-login", handlerId: "rewards.daily-login" },
+  { event: APP_EVENTS.PRODUCT_UPVOTED, handlerId: "rewards.award-upvote" },
+  { event: APP_EVENTS.PRODUCT_UPVOTED, handlerId: "email.product-vote-milestone" },
+  { event: APP_EVENTS.PRODUCT_UPVOTED, handlerId: "analytics.increment-upvotes" },
+  { event: APP_EVENTS.PRODUCT_REVIEWED, handlerId: "rewards.award-review" },
+  { event: APP_EVENTS.PRODUCT_DOWNVOTED, handlerId: "analytics.decrement-upvotes" },
+  { event: APP_EVENTS.BADGE_ASSIGNED, handlerId: "badges.apply-default-expiry" },
+  { event: APP_EVENTS.BADGE_ASSIGNED, handlerId: "twitter.badge-assigned" },
+  { event: APP_EVENTS.PRODUCT_UPDATED, handlerId: "badges.refresh-new-badge" },
+  { event: APP_EVENTS.PRODUCT_DELETED, handlerId: "badges.deleted-cleanup" },
+  { event: APP_EVENTS.PRODUCT_PUBLISHED, handlerId: "twitter.product-published" },
+  { event: APP_EVENTS.PRODUCT_CLICKED, handlerId: "analytics.record-product-click" },
   {
-    event: "leaderboard.monthly.winners",
+    event: APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC,
+    handlerId: "analytics.record-product-traffic",
+  },
+  { event: APP_EVENTS.REWARDS_AWARDED, handlerId: "email.backlink-verified-reward" },
+  { event: APP_EVENTS.REWARDS_DAILY_LOGIN, handlerId: "rewards.daily-login" },
+  {
+    event: APP_EVENTS.LEADERBOARD_MONTHLY_WINNERS,
     handlerId: "twitter.leaderboard-winners",
   },
 ]

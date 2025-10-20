@@ -2,6 +2,7 @@ import { randomUUID } from "crypto"
 
 import prisma from "@/lib/prisma"
 import { enqueueEvent } from "@/lib/server/events/queueClient"
+import { APP_EVENTS } from "@/lib/server/events/constants"
 import type { RedemptionStatus, Prisma } from "@/lib/vendor/prisma/client"
 import type { DeviceCategory, ProductTrafficPayload } from "@/types/analytics"
 import { IS_PROD } from "@/lib/constants"
@@ -148,23 +149,23 @@ export type RewardsDailyLoginEvent = {
 }
 
 type AppEvents = {
-  "product.created": ProductCreatedEvent
-  "product.updated": ProductUpdatedEvent
-  "product.published": ProductPublishedEvent
-  "product.deleted": ProductDeletedEvent
-  "product.clicked": ProductClickedEvent
-  "product.upvoted": ProductUpvotedEvent
-  "product.downvoted": ProductDownvotedEvent
-  "product.reviewed": ProductReviewCreatedEvent
-  "badge.assigned": BadgeAssignedEvent
-  "badge.removed": BadgeRemovedEvent
-  "analytics.product-traffic": ProductTrafficRecordedEvent
-  "leaderboard.monthly.winners": LeaderboardMonthlyWinnersEvent
-  "rewards.awarded": RewardsAwardedEvent
-  "rewards.redeemed": RewardsRedeemedEvent
-  "rewards.adjusted": RewardsAdjustedEvent
-  "rewards.refunded": RewardsRefundedEvent
-  "rewards.daily-login": RewardsDailyLoginEvent
+  [APP_EVENTS.PRODUCT_CREATED]: ProductCreatedEvent
+  [APP_EVENTS.PRODUCT_UPDATED]: ProductUpdatedEvent
+  [APP_EVENTS.PRODUCT_PUBLISHED]: ProductPublishedEvent
+  [APP_EVENTS.PRODUCT_DELETED]: ProductDeletedEvent
+  [APP_EVENTS.PRODUCT_CLICKED]: ProductClickedEvent
+  [APP_EVENTS.PRODUCT_UPVOTED]: ProductUpvotedEvent
+  [APP_EVENTS.PRODUCT_DOWNVOTED]: ProductDownvotedEvent
+  [APP_EVENTS.PRODUCT_REVIEWED]: ProductReviewCreatedEvent
+  [APP_EVENTS.BADGE_ASSIGNED]: BadgeAssignedEvent
+  [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent
+  [APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC]: ProductTrafficRecordedEvent
+  [APP_EVENTS.LEADERBOARD_MONTHLY_WINNERS]: LeaderboardMonthlyWinnersEvent
+  [APP_EVENTS.REWARDS_AWARDED]: RewardsAwardedEvent
+  [APP_EVENTS.REWARDS_REDEEMED]: RewardsRedeemedEvent
+  [APP_EVENTS.REWARDS_ADJUSTED]: RewardsAdjustedEvent
+  [APP_EVENTS.REWARDS_REFUNDED]: RewardsRefundedEvent
+  [APP_EVENTS.REWARDS_DAILY_LOGIN]: RewardsDailyLoginEvent
 }
 
 type Handler<K extends keyof AppEvents> = (

@@ -7,6 +7,7 @@ import {
 import { awardRewards } from "@/lib/rewards/engine"
 import { RewardsError } from "@/lib/rewards/errors"
 import { dispatchEvent } from "@/lib/server/events"
+import { APP_EVENTS } from "@/lib/server/events/constants"
 
 const prismaMock = vi.hoisted(() => ({
   $executeRaw: vi.fn(),
@@ -78,7 +79,7 @@ describe("ensureDailyLoginReward", () => {
     await ensureDailyLoginReward("user-123", { now })
 
     expect(mockedDispatchEvent).toHaveBeenCalledWith(
-      "rewards.daily-login",
+      APP_EVENTS.REWARDS_DAILY_LOGIN,
       expect.objectContaining({
         userId: "user-123",
         eventId: "2025-03-15:login",

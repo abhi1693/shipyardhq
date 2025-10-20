@@ -6,6 +6,7 @@ import {
   registerEventHandler,
   type RewardsDailyLoginEvent,
 } from "@/lib/server/events"
+import { APP_EVENTS } from "@/lib/server/events/constants"
 import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
 
 const LOGIN_RULE_KEY = "rewards.login.daily"
@@ -72,7 +73,7 @@ export async function ensureDailyLoginReward(
     return
   }
 
-  dispatchEventAsync("rewards.daily-login", payload, {
+  dispatchEventAsync(APP_EVENTS.REWARDS_DAILY_LOGIN, payload, {
     context: { userId, eventId },
     onError: (error) => {
       console.error("[rewards] Failed to enqueue daily login rewards", {
@@ -121,7 +122,7 @@ export async function handleDailyLoginRewardEvent(
 }
 
 registerEventHandler({
-  event: "rewards.daily-login",
+  event: APP_EVENTS.REWARDS_DAILY_LOGIN,
   id: "rewards.daily-login",
   mode: "async",
   handler: handleDailyLoginRewardEvent,
@@ -149,7 +150,7 @@ async function hasQueuedDailyLoginEvent(
 ): Promise<boolean> {
   const existing = await prisma.eventEnvelope.findFirst({
     where: {
-      event: "rewards.daily-login",
+      event: APP_EVENTS.REWARDS_DAILY_LOGIN,
       status: { in: ACTIVE_ENVELOPE_STATUSES },
       AND: [
         {

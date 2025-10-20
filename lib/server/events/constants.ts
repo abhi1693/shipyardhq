@@ -7,3 +7,25 @@ export const EVENT_STATUS_KEYS: ReadonlyArray<EventEnvelopeStatus> = [
   "completed",
   "dead_letter",
 ]
+
+export const APP_EVENTS = {
+  PRODUCT_CREATED: "product.created",
+  PRODUCT_UPDATED: "product.updated",
+  PRODUCT_PUBLISHED: "product.published",
+  PRODUCT_DELETED: "product.deleted",
+  PRODUCT_CLICKED: "product.clicked",
+  PRODUCT_UPVOTED: "product.upvoted",
+  PRODUCT_DOWNVOTED: "product.downvoted",
+  PRODUCT_REVIEWED: "product.reviewed",
+  BADGE_ASSIGNED: "badge.assigned",
+  BADGE_REMOVED: "badge.removed",
+  ANALYTICS_PRODUCT_TRAFFIC: "analytics.product-traffic",
+  LEADERBOARD_MONTHLY_WINNERS: "leaderboard.monthly.winners",
+  REWARDS_AWARDED: "rewards.awarded",
+  REWARDS_REDEEMED: "rewards.redeemed",
+  REWARDS_ADJUSTED: "rewards.adjusted",
+  REWARDS_REFUNDED: "rewards.refunded",
+  REWARDS_DAILY_LOGIN: "rewards.daily-login",
+} as const
+
+export type AppEventKey = (typeof APP_EVENTS)[keyof typeof APP_EVENTS]
