@@ -81,6 +81,18 @@ export async function processEnvelope(envelopeId: string): Promise<void> {
 
   let pendingHandlers = [...envelope.pendingHandlers]
   const payload = hydratePayload(envelope.event, envelope.payload)
+  try {
+    Object.defineProperty(payload as Record<string, unknown>, "__enqueuedAt", {
+      value: envelope.enqueuedAt,
+      enumerable: false,
+      configurable: true,
+    })
+  } catch (error) {
+    console.warn("[events] failed to attach enqueue metadata", {
+      envelopeId,
+      error,
+    })
+  }
 
   for (const handlerId of pendingHandlers) {
     console.debug("[events] handler execution start", {

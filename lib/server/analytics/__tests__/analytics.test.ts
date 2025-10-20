@@ -59,10 +59,20 @@ describe("analytics listeners", () => {
       "analytics.record-product-click",
     )
     expect(handler).toBeDefined()
-    await handler?.handler({ productId: "p1" } as any)
+    const enqueuedAt = new Date("2025-03-18T10:00:00.000Z")
+    const payload: any = { productId: "p1" }
+    Object.defineProperty(payload, "__enqueuedAt", {
+      value: enqueuedAt,
+      enumerable: false,
+    })
+    await handler?.handler(payload)
 
     expect(prisma.productClickEvent.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({ productId: "p1", device: "unknown" }),
+      data: expect.objectContaining({
+        productId: "p1",
+        device: "unknown",
+        createdAt: enqueuedAt,
+      }),
     })
     expect(prisma.productAnalytics.upsert).toHaveBeenCalledWith({
       where: { productId: "p1" },
@@ -189,6 +199,11 @@ describe("analytics listeners", () => {
       "analytics.record-product-traffic",
     )
     expect(handler).toBeDefined()
+    const enqueuedAt = new Date("2025-03-18T05:00:00.000Z")
+    Object.defineProperty(payload, "__enqueuedAt", {
+      value: enqueuedAt,
+      enumerable: false,
+    })
     await handler?.handler(payload as any)
     expect(prisma.productTrafficEvent.create).toHaveBeenCalledWith({
       data: {
@@ -203,6 +218,7 @@ describe("analytics listeners", () => {
         region: payload.region,
         city: payload.city,
         ipHash: payload.ipHash,
+        createdAt: enqueuedAt,
       },
     })
   })

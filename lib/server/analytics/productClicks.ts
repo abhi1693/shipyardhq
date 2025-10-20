@@ -9,12 +9,19 @@ import type { DeviceCategory } from "@/types/analytics"
 
 // Register listeners related to product click analytics.
 // Import this module anywhere server-side to ensure handlers are active.
+type ProductClickedEventPayload = {
+  productId: string
+  metadata?: ProductClickMetadata
+  __enqueuedAt?: Date
+}
+
 registerEventHandler({
   event: "product.clicked",
   id: "analytics.record-product-click",
   mode: "async",
-  handler: async ({ productId, metadata }) => {
+  handler: async (payload: ProductClickedEventPayload) => {
     try {
+      const { productId, metadata } = payload
       const device: DeviceCategory = metadata?.device ?? "unknown"
       console.debug("[analytics] product.clicked handler", {
         productId,
@@ -31,6 +38,7 @@ registerEventHandler({
         region: metadata?.region ?? null,
         city: metadata?.city ?? null,
         ipHash: metadata?.ipHash ?? null,
+        createdAt: payload.__enqueuedAt ? new Date(payload.__enqueuedAt) : undefined,
       }
       await prisma.$transaction([
         prisma.productClickEvent.create({ data: createData }),
