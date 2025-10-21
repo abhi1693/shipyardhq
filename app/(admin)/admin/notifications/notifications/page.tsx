@@ -5,8 +5,15 @@ import {
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
 import { buildPageMetadata } from "@/lib/metadata"
+import {
+  parseAdminNotificationStatusFilter,
+  parseAdminNotificationTypeFilter,
+} from "@/lib/notifications/admin"
+import { pickFirst } from "@/lib/urlParams"
 
 import { columns } from "./columns"
+import NotificationStatusFilter from "./status-filter"
+import NotificationTypeFilter from "./type-filter"
 
 export const metadata = buildPageMetadata({
   title: "All Notifications",
@@ -17,6 +24,8 @@ export const metadata = buildPageMetadata({
 type SearchParams = {
   page?: string | string[]
   limit?: string | string[]
+  status?: string | string[]
+  type?: string | string[]
 }
 
 const DEFAULT_PAGE = 1
@@ -59,9 +68,16 @@ export default async function AdminNotificationsIndexPage({
 
   const skip = (page - 1) * pageSize
 
+  const status = parseAdminNotificationStatusFilter(
+    pickFirst(resolvedSearchParams?.status) ?? null,
+  )
+  const type = parseAdminNotificationTypeFilter(
+    pickFirst(resolvedSearchParams?.type) ?? null,
+  )
+
   const [notifications, totalNotifications] = await Promise.all([
-    getAdminNotifications({ skip, take: pageSize }),
-    getAdminNotificationCount(),
+    getAdminNotifications({ skip, take: pageSize, status, type }),
+    getAdminNotificationCount({ status, type }),
   ])
 
   const pageCount = Math.max(Math.ceil(totalNotifications / pageSize), 1)
@@ -71,11 +87,17 @@ export default async function AdminNotificationsIndexPage({
       title="All Notifications"
       description="Audit in-app notifications across members."
     >
-      <EntityList
-        columns={columns}
-        data={notifications}
-        pageCount={pageCount}
-      />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap gap-4">
+          <NotificationStatusFilter status={status} />
+          <NotificationTypeFilter type={type} />
+        </div>
+        <EntityList
+          columns={columns}
+          data={notifications}
+          pageCount={pageCount}
+        />
+      </div>
     </ListPageWrapper>
   )
 }

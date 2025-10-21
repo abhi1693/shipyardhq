@@ -3,7 +3,7 @@
 import { renderAsync } from "@react-email/render"
 
 import prisma from "@/lib/prisma"
-import type { NotificationType } from "@/lib/vendor/prisma/client"
+import type { NotificationType, Prisma } from "@/lib/vendor/prisma/client"
 import { sendEmail } from "@/lib/email/resend"
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
@@ -22,6 +22,10 @@ import {
   renderEmailMarkdown,
 } from "@/lib/email/markdown"
 import type { NotificationMetadata } from "@/types/notifications"
+import type {
+  AdminNotificationStatusFilter,
+  AdminNotificationTypeFilter,
+} from "@/lib/notifications/admin"
 
 const BUILDER_INTENTS = ["launch-product", "manage-team"] as const
 const EXPLORER_INTENT = "explore" as const
@@ -359,10 +363,31 @@ export type AdminNotificationRecord = {
 export type GetAdminNotificationsOptions = {
   skip?: number
   take?: number
+  status?: AdminNotificationStatusFilter
+  type?: AdminNotificationTypeFilter
 }
 
 const DEFAULT_ADMIN_NOTIFICATION_TAKE = 25
 const MAX_ADMIN_NOTIFICATION_TAKE = 100
+
+function buildAdminNotificationWhere(
+  status: AdminNotificationStatusFilter,
+  type: AdminNotificationTypeFilter,
+): Prisma.NotificationWhereInput {
+  const where: Prisma.NotificationWhereInput = {}
+
+  if (status === "read") {
+    where.readAt = { not: null }
+  } else if (status === "unread") {
+    where.readAt = null
+  }
+
+  if (type !== "all") {
+    where.type = type
+  }
+
+  return where
+}
 
 export async function getAdminNotifications(
   options: GetAdminNotificationsOptions = {},
@@ -375,8 +400,12 @@ export async function getAdminNotifications(
     1,
     Math.min(rawTake > 0 ? rawTake : DEFAULT_ADMIN_NOTIFICATION_TAKE, MAX_ADMIN_NOTIFICATION_TAKE),
   )
+  const statusFilter = options.status ?? "all"
+  const typeFilter = options.type ?? "all"
+  const where = buildAdminNotificationWhere(statusFilter, typeFilter)
 
   const notifications = await prisma.notification.findMany({
+    where: Object.keys(where).length ? where : undefined,
     orderBy: { createdAt: "desc" },
     skip,
     take,
@@ -419,9 +448,17 @@ export async function getAdminNotifications(
   })
 }
 
-export async function getAdminNotificationCount(): Promise<number> {
+export async function getAdminNotificationCount(
+  options: Pick<GetAdminNotificationsOptions, "status" | "type"> = {},
+): Promise<number> {
   await requireAdmin()
-  return prisma.notification.count()
+  const statusFilter = options.status ?? "all"
+  const typeFilter = options.type ?? "all"
+  const where = buildAdminNotificationWhere(statusFilter, typeFilter)
+
+  return prisma.notification.count({
+    where: Object.keys(where).length ? where : undefined,
+  })
 }
 
 function buildUserDisplayName(

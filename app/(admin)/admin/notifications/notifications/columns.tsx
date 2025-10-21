@@ -6,20 +6,10 @@ import { ColumnDef } from "@tanstack/react-table"
 import type { AdminNotificationRecord } from "@/actions/admin/notifications/actions"
 import { Badge } from "@/components/atoms/badge"
 import { buildNotificationPresentation } from "@/lib/notifications/format"
+import { ADMIN_NOTIFICATION_TYPE_LABELS } from "@/lib/notifications/admin"
 import { adminPath } from "@/lib/routes"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
 import { formatDate } from "@/lib/ui/formatters"
-
-const NOTIFICATION_TYPE_LABELS: Record<
-  AdminNotificationRecord["type"],
-  string
-> = {
-  product_upvote: "Product Upvote",
-  product_review: "Product Review",
-  reward_awarded: "Reward Awarded",
-  system: "System",
-  product_update: "Product Update",
-}
 
 function resolveMemberName(notification: AdminNotificationRecord) {
   if (notification.userName && notification.userName.trim().length > 0) {
@@ -63,7 +53,8 @@ export const columns: ColumnDef<AdminNotificationRecord>[] = [
     header: "Type",
     cell: ({ row }) => (
       <Badge variant="secondary">
-        {NOTIFICATION_TYPE_LABELS[row.original.type] ?? row.original.type}
+        {ADMIN_NOTIFICATION_TYPE_LABELS[row.original.type] ??
+          row.original.type}
       </Badge>
     ),
   },
