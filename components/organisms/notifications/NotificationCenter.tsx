@@ -24,10 +24,7 @@ import type {
   NotificationItem,
   NotificationListResult,
 } from "@/types/notifications"
-import {
-  buildNotificationPresentation,
-  getTypePresentation,
-} from "@/lib/notifications/format"
+import { buildNotificationPresentation } from "@/lib/notifications/format"
 
 const FETCH_LIMIT = 25
 
@@ -285,7 +282,6 @@ function NotificationRow({
   const isUnread = !notification.readAt
   const presentation = buildNotificationPresentation(notification)
   const href = presentation.primaryHref
-  const typeMeta = getTypePresentation(notification.type)
   const viewLabel = resolveViewLabel(notification.type)
   const createdAt = formatRelative(notification.createdAt)
 
@@ -307,26 +303,14 @@ function NotificationRow({
               <span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-emerald-500/20" />
             )}
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-[11px]",
-                    typeMeta.className,
-                  )}
-                >
-                  {typeMeta.label}
-                </Badge>
-                <p className="text-sm font-medium text-slate-900">
-                  {notification.message}
-                </p>
-              </div>
+              <p className="text-sm font-medium text-slate-900">
+                {notification.message}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {createdAt}
               </p>
             </div>
           </div>
-          <NotificationMetadataChips chips={presentation.chips} />
         </div>
         <div className="flex items-center gap-2">
           {href ? (
@@ -364,53 +348,6 @@ function EmptyState() {
         Product upvotes, reviews, rewards, and other important
         activity will show up here as soon as they happen.
       </p>
-    </div>
-  )
-}
-
-function NotificationMetadataChips({
-  chips,
-}: {
-  chips: ReturnType<
-    typeof buildNotificationPresentation
-  >["chips"]
-}) {
-  if (!chips.length) return null
-
-  return (
-    <div className="flex flex-wrap gap-2 pl-6 pt-1">
-      {chips.map((chip, index) => {
-        if (chip.href) {
-          return (
-            <Link key={`${chip.label}-${index}`} href={chip.href}>
-              <Badge
-                variant="secondary"
-                className="h-5 rounded-full px-2 text-[11px]"
-              >
-                <span className="text-muted-foreground">
-                  {chip.label}:
-                </span>{" "}
-                <span className="font-medium text-slate-900">
-                  {chip.value}
-                </span>
-              </Badge>
-            </Link>
-          )
-        }
-
-        return (
-          <Badge
-            key={`${chip.label}-${chip.value}-${index}`}
-            variant="secondary"
-            className="h-5 rounded-full px-2 text-[11px]"
-          >
-            <span className="text-muted-foreground">{chip.label}:</span>{" "}
-            <span className="font-medium text-slate-900">
-              {chip.value}
-            </span>
-          </Badge>
-        )
-      })}
     </div>
   )
 }

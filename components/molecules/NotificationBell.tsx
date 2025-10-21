@@ -13,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/atoms/dropdown-menu"
-import { Badge } from "@/components/atoms/badge"
 import {
   fetchNotifications,
   markAllNotificationsReadClient,
@@ -25,7 +24,6 @@ import type {
 } from "@/types/notifications"
 import {
   buildNotificationPresentation,
-  getTypePresentation,
 } from "@/lib/notifications/format"
 import { MEMBER_NOTIFICATIONS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
@@ -235,53 +233,6 @@ export default function NotificationBell() {
   )
 }
 
-function NotificationPreviewChips({
-  chips,
-}: {
-  chips: ReturnType<
-    typeof buildNotificationPresentation
-  >["chips"]
-}) {
-  if (!chips.length) return null
-
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {chips.map((chip, index) => {
-        if (chip.href) {
-          return (
-            <Link key={`${chip.label}-${index}`} href={chip.href}>
-              <Badge
-                variant="secondary"
-                className="h-5 rounded-full px-2 text-[11px]"
-              >
-                <span className="text-muted-foreground">
-                  {chip.label}:
-                </span>{" "}
-                <span className="font-medium text-slate-900">
-                  {chip.value}
-                </span>
-              </Badge>
-            </Link>
-          )
-        }
-
-        return (
-          <Badge
-            key={`${chip.label}-${chip.value}-${index}`}
-            variant="secondary"
-            className="h-5 rounded-full px-2 text-[11px]"
-          >
-            <span className="text-muted-foreground">{chip.label}:</span>{" "}
-            <span className="font-medium text-slate-900">
-              {chip.value}
-            </span>
-          </Badge>
-        )
-      })}
-    </div>
-  )
-}
-
 function resolveViewLabel(type: NotificationItem["type"]) {
   switch (type) {
     case "product_upvote":
@@ -308,7 +259,6 @@ function NotificationPreviewItem({
   isPending: boolean
 }) {
   const presentation = buildNotificationPresentation(notification)
-  const typeMeta = getTypePresentation(notification.type)
 
   return (
     <div
@@ -319,21 +269,12 @@ function NotificationPreviewItem({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge
-              variant="outline"
-              className={cn("text-[11px]", typeMeta.className)}
-            >
-              {typeMeta.label}
-            </Badge>
-            <p className="text-sm font-medium text-slate-900">
-              {notification.message}
-            </p>
-          </div>
+          <p className="text-sm font-medium text-slate-900">
+            {notification.message}
+          </p>
           <p className="text-xs text-muted-foreground">
             {formatRelative(notification.createdAt)}
           </p>
-          <NotificationPreviewChips chips={presentation.chips} />
         </div>
         <Button
           size="icon"
