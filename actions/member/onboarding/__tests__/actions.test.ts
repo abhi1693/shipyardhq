@@ -10,6 +10,7 @@ const unsubscribeMock = vi.hoisted(() => vi.fn())
 const getActiveUserMock = vi.hoisted(() => vi.fn())
 const syncUserFromClerkMock = vi.hoisted(() => vi.fn())
 const sendEmailMock = vi.hoisted(() => vi.fn())
+const invalidateActiveUserCacheMock = vi.hoisted(() => vi.fn())
 
 vi.mock("@clerk/nextjs/server", () => ({
   auth: authMock,
@@ -39,6 +40,7 @@ vi.mock("@/actions/public/newsletter/actions", () => ({
 vi.mock("@/lib/server/userStatus", () => ({
   getActiveUserByClerkId: getActiveUserMock,
   INACTIVE_ACCOUNT_MESSAGE: "inactive",
+  invalidateActiveUserCache: invalidateActiveUserCacheMock,
 }))
 
 vi.mock("@/actions/member/users/actions", () => ({
@@ -78,6 +80,8 @@ describe("completeOnboarding", () => {
     })
     syncUserFromClerkMock.mockResolvedValue(undefined)
     sendEmailMock.mockResolvedValue({})
+    invalidateActiveUserCacheMock.mockClear()
+    invalidateActiveUserCacheMock.mockResolvedValue(undefined)
   })
 
   afterEach(() => {
@@ -118,6 +122,7 @@ describe("completeOnboarding", () => {
     expect(emailArgs.text).toContain("/rewards")
     expect(emailArgs.text).toContain("Shipyard Rewards powers placements")
     expect(emailArgs.text).toContain("Fleet Pulse tracks live balances")
+    expect(invalidateActiveUserCacheMock).toHaveBeenCalledWith("user_123")
   })
 
   it("sends an explorer welcome email without builder extras", async () => {
@@ -138,6 +143,7 @@ describe("completeOnboarding", () => {
     expect(emailArgs.text).toContain("/rewards")
     expect(emailArgs.text).toContain("Shipyard Rewards powers placements")
     expect(emailArgs.text).toContain("Fleet Pulse tracks live balances")
+    expect(invalidateActiveUserCacheMock).toHaveBeenCalledWith("user_123")
   })
 
   it("subscribes users by default when the opt-in flag is omitted", async () => {
@@ -153,6 +159,7 @@ describe("completeOnboarding", () => {
     expect(result).toEqual({ success: true })
     expect(subscribeMock).toHaveBeenCalledWith("crew@example.com")
     expect(unsubscribeMock).not.toHaveBeenCalled()
+    expect(invalidateActiveUserCacheMock).toHaveBeenCalledWith("user_123")
   })
 
   it("skips the welcome email when NEXT_PUBLIC_APP_URL is not set", async () => {
@@ -167,6 +174,7 @@ describe("completeOnboarding", () => {
 
     expect(result).toEqual({ success: true })
     expect(sendEmailMock).not.toHaveBeenCalled()
+    expect(invalidateActiveUserCacheMock).toHaveBeenCalledWith("user_123")
   })
 
   it("skips side effects when onboarding already completed", async () => {
@@ -182,5 +190,6 @@ describe("completeOnboarding", () => {
     expect(subscribeMock).not.toHaveBeenCalled()
     expect(unsubscribeMock).not.toHaveBeenCalled()
     expect(sendEmailMock).not.toHaveBeenCalled()
+    expect(invalidateActiveUserCacheMock).not.toHaveBeenCalled()
   })
 })

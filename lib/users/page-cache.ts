@@ -94,7 +94,9 @@ export const getUserProfilePayload = cached(
 
       const launchedAtRaw = product.publishedAt ?? product.createdAt ?? null
       const launchedAt = launchedAtRaw ? new Date(launchedAtRaw) : null
-      const metaLabel = launchedAt ? format(launchedAt, "MMM d, yyyy") : undefined
+      const metaLabel = launchedAt
+        ? format(launchedAt, "MMM d, yyyy")
+        : undefined
 
       return {
         id: product.id,
@@ -103,7 +105,9 @@ export const getUserProfilePayload = cached(
         logo: product.logo ?? "",
         tagline: product.tagline ?? "",
         analytics: product.analytics ?? null,
-        category: product.category ? { name: product.category.name } : undefined,
+        category: product.category
+          ? { name: product.category.name }
+          : undefined,
         verification: product.verification ?? undefined,
         badges: activeBadges,
         metaLabel,
@@ -116,7 +120,9 @@ export const getUserProfilePayload = cached(
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
 
-    const focusCategories = categoryEntries.slice(0, 4).map((entry) => entry.name)
+    const focusCategories = categoryEntries
+      .slice(0, 4)
+      .map((entry) => entry.name)
     const extraCategoryCount = Math.max(
       categoryEntries.length - focusCategories.length,
       0,
@@ -124,7 +130,10 @@ export const getUserProfilePayload = cached(
 
     const uniqueBadges = Array.from(badgeSet)
     const badgeShowcase = uniqueBadges.slice(0, BADGE_SHOWCASE_LIMIT)
-    const badgeOverflow = Math.max(uniqueBadges.length - badgeShowcase.length, 0)
+    const badgeOverflow = Math.max(
+      uniqueBadges.length - badgeShowcase.length,
+      0,
+    )
 
     const sortedByDate = [...products].sort((a, b) => {
       const aTime = a.launchedAt ? new Date(a.launchedAt).getTime() : 0

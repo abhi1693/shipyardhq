@@ -22,7 +22,19 @@ const EXPECTED_REGISTRATIONS = [
     event: APP_EVENTS.PRODUCT_UPVOTED,
     handlerId: "analytics.increment-upvotes",
   },
+  {
+    event: APP_EVENTS.PRODUCT_UPVOTED,
+    handlerId: "notifications.product-upvote",
+  },
   { event: APP_EVENTS.PRODUCT_REVIEWED, handlerId: "rewards.award-review" },
+  {
+    event: APP_EVENTS.PRODUCT_REVIEWED,
+    handlerId: "notifications.product-reviewed",
+  },
+  {
+    event: APP_EVENTS.PRODUCT_UPDATE_PUBLISHED,
+    handlerId: "notifications.product-update-published",
+  },
   {
     event: APP_EVENTS.PRODUCT_DOWNVOTED,
     handlerId: "analytics.decrement-upvotes",
@@ -49,6 +61,10 @@ const EXPECTED_REGISTRATIONS = [
   {
     event: APP_EVENTS.REWARDS_AWARDED,
     handlerId: "email.backlink-verified-reward",
+  },
+  {
+    event: APP_EVENTS.REWARDS_AWARDED,
+    handlerId: "notifications.rewards-awarded",
   },
   { event: APP_EVENTS.REWARDS_DAILY_LOGIN, handlerId: "rewards.daily-login" },
   {

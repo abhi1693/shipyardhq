@@ -2,6 +2,7 @@ import { SidebarTrigger } from "@/components/atoms/sidebar"
 import { Separator } from "@/components/atoms/separator"
 import { Breadcrumbs } from "@/components/molecules/BreadCrumbs"
 import { UserNav } from "@/components/layout/user-nav"
+import NotificationBell from "@/components/molecules/NotificationBell"
 
 export default function PrivateHeader() {
   return (
@@ -12,6 +13,7 @@ export default function PrivateHeader() {
         <Breadcrumbs />
       </div>
       <div className="flex items-center gap-2 px-4">
+        <NotificationBell />
         <UserNav />
       </div>
     </header>

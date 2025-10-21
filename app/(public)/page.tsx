@@ -14,7 +14,11 @@ import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
 import { getHomepagePayload } from "@/lib/homepage/cache"
-import { MEMBER_PRODUCTS_PATH, PRICING_PATH, RANK_IN_PUBLIC_PATH } from "@/lib/routes"
+import {
+  MEMBER_PRODUCTS_PATH,
+  PRICING_PATH,
+  RANK_IN_PUBLIC_PATH,
+} from "@/lib/routes"
 
 export default async function HomePage() {
   const {

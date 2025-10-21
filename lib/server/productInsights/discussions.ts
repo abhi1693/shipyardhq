@@ -15,10 +15,7 @@ import {
   coerceJsonText,
   extractAssistantJson,
 } from "@/lib/server/openaiResponse"
-import {
-  buildCacheKey as buildCompositeKey,
-  namespaceCacheKey,
-} from "@/lib/server/cache"
+import { buildCacheKey as buildCompositeKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import type {
   ProductInsightProductContext,
@@ -125,14 +122,12 @@ function buildDiscussionCacheKey(
   productId: string,
   mode: ProductInsightHarvestMode,
 ) {
-  return namespaceCacheKey(
-    buildCompositeKey(
-      "productInsights",
-      "redditDiscussions",
-      "v2",
-      productId,
-      mode,
-    ),
+  return buildCompositeKey(
+    "productInsights",
+    "redditDiscussions",
+    "v2",
+    productId,
+    mode,
   )
 }
 

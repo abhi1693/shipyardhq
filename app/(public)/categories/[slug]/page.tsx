@@ -131,8 +131,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     {metrics.totalProducts.toLocaleString()}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {pluralize(metrics.totalProducts, "launch")} currently live in this
-                    category.
+                    {pluralize(metrics.totalProducts, "launch")} currently live
+                    in this category.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-border/70 bg-background/90 p-5 shadow-sm">
@@ -204,9 +204,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             </section>
           ) : null}
 
-          <CategoryProductsClient
-            products={products}
-          />
+          <CategoryProductsClient products={products} />
         </div>
       </div>
     </main>

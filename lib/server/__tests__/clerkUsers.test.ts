@@ -23,10 +23,7 @@ import {
   invalidateClerkUserCache,
   CLERK_USER_CACHE_PREFIX,
 } from "@/lib/server/clerkUsers"
-import {
-  __resetCacheClientForTesting,
-  namespaceCacheKey,
-} from "@/lib/server/cache"
+import { __resetCacheClientForTesting } from "@/lib/server/cache"
 
 const redisClientStub = {
   get: redisGetMock,
@@ -81,7 +78,7 @@ describe("getClerkUserByIdCached", () => {
     expect(result).toEqual(remoteUser)
     expect(clerkUserFetchMock).toHaveBeenCalledWith("user_99")
     expect(redisSetMock).toHaveBeenCalledWith(
-      namespaceCacheKey(`${CLERK_USER_CACHE_PREFIX}user_99`),
+      `${CLERK_USER_CACHE_PREFIX}user_99`,
       JSON.stringify(remoteUser),
       { EX: 180 },
     )
@@ -142,7 +139,7 @@ describe("invalidateClerkUserCache", () => {
     await invalidateClerkUserCache("user_5")
 
     expect(redisDelMock).toHaveBeenCalledWith(
-      namespaceCacheKey(`${CLERK_USER_CACHE_PREFIX}user_5`),
+      `${CLERK_USER_CACHE_PREFIX}user_5`,
     )
   })
 

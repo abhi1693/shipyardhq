@@ -10,10 +10,7 @@ import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 
-export const browseSortLabelMap: Record<
-  BrowseSort,
-  string
-> = {
+export const browseSortLabelMap: Record<BrowseSort, string> = {
   new: "Newest",
   trending: "Trending",
   votes: "Most Upvoted",
@@ -65,7 +62,8 @@ const CATEGORY_QUERY = {
 } satisfies Prisma.CategoryFindManyArgs
 
 const normalizeFilters = (filters: BrowsePageFilters): BrowsePageFilters => {
-  const page = Number.isFinite(filters.page) && filters.page > 0 ? filters.page : 1
+  const page =
+    Number.isFinite(filters.page) && filters.page > 0 ? filters.page : 1
   const query = filters.query?.trim()
   return {
     useCase: filters.useCase || undefined,

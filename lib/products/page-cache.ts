@@ -77,12 +77,10 @@ export type ProductPagePayload = {
   productUpdates: ProductUpdatePublicView[]
   hasAdditionalUpdates: boolean
   similarProducts: SimilarProduct[]
-  similarUseCase:
-    | {
-        slug: string
-        label: string
-      }
-    | null
+  similarUseCase: {
+    slug: string
+    label: string
+  } | null
   structuredData: Record<string, unknown> | null
 }
 
@@ -153,8 +151,7 @@ function buildStructuredData(
     description: product.tagline || product.description || undefined,
     image: [product.bannerImage, product.logo].filter(Boolean),
     url: canonicalUrl,
-    applicationCategory:
-      APPLICATION_CATEGORY_MAP[product.type] || undefined,
+    applicationCategory: APPLICATION_CATEGORY_MAP[product.type] || undefined,
     operatingSystem: schemaOperatingSystems.length
       ? schemaOperatingSystems
       : undefined,
@@ -164,10 +161,7 @@ function buildStructuredData(
       "@type": "Review",
       author: {
         "@type": "Person",
-        name: reviewerDisplayName(
-          review.user.firstName,
-          review.user.lastName,
-        ),
+        name: reviewerDisplayName(review.user.firstName, review.user.lastName),
       },
       datePublished: (() => {
         try {
@@ -195,8 +189,7 @@ export const getProductPagePayload = cached(
       return null
     }
 
-    const useCaseSlug =
-      product.category.useCases?.[0]?.useCase?.slug ?? null
+    const useCaseSlug = product.category.useCases?.[0]?.useCase?.slug ?? null
 
     const [reviewSummary, productUpdatesRaw, similarProductsRaw] =
       await Promise.all([

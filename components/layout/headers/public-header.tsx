@@ -7,6 +7,7 @@ import { Button } from "@/components/atoms/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/atoms/sheet"
 import { Menu, LayoutDashboard, LogOut, UserRound, Rocket } from "lucide-react"
 import SignInCtaButton from "@/components/molecules/SignInCtaButton"
+import NotificationBell from "@/components/molecules/NotificationBell"
 import clsx from "clsx"
 import {
   SignOutButton,
@@ -23,6 +24,7 @@ import {
   LEADERBOARD_PATH,
   MEMBER_BASE_PATH,
   MEMBER_ACCOUNT_PROFILE_PATH,
+  MEMBER_NOTIFICATIONS_PATH,
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   REWARDS_PATH,
@@ -144,64 +146,67 @@ export default function PublicHeader() {
               </SignInButton>
             </SignedOut>
             <SignedIn>
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10 rounded-full border border-border/70 bg-white/80 p-0 shadow-sm transition hover:border-border"
-                      aria-label="Open account menu"
-                    >
-                      <Avatar className="h-full w-full">
-                        <AvatarImage
-                          src={user.imageUrl ?? ""}
-                          alt={user.fullName ?? "Account avatar"}
-                        />
-                        <AvatarFallback className="bg-muted text-xs font-semibold uppercase text-muted-foreground">
-                          {userInitials}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    sideOffset={10}
-                    className="w-52 rounded-xl border border-border/70 bg-white/95 shadow-lg"
-                  >
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onSelect={(event) => {
-                        event.preventDefault()
-                        router.push(MEMBER_BASE_PATH)
-                      }}
-                    >
-                      <LayoutDashboard className="h-4 w-4" />
-                      Dashboard
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onSelect={(event) => {
-                        event.preventDefault()
-                        router.push(MEMBER_ACCOUNT_PROFILE_PATH)
-                      }}
-                    >
-                      <UserRound className="h-4 w-4" />
-                      Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <SignOutButton>
-                      <DropdownMenuItem
-                        variant="destructive"
-                        className="cursor-pointer"
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10 rounded-full border border-border/70 bg-white/80 p-0 shadow-sm transition hover:border-border"
+                        aria-label="Open account menu"
                       >
-                        <LogOut className="h-4 w-4" />
-                        Sign out
+                        <Avatar className="h-full w-full">
+                          <AvatarImage
+                            src={user.imageUrl ?? ""}
+                            alt={user.fullName ?? "Account avatar"}
+                          />
+                          <AvatarFallback className="bg-muted text-xs font-semibold uppercase text-muted-foreground">
+                            {userInitials}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      sideOffset={10}
+                      className="w-52 rounded-xl border border-border/70 bg-white/95 shadow-lg"
+                    >
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onSelect={(event) => {
+                          event.preventDefault()
+                          router.push(MEMBER_BASE_PATH)
+                        }}
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        Dashboard
                       </DropdownMenuItem>
-                    </SignOutButton>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : null}
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onSelect={(event) => {
+                          event.preventDefault()
+                          router.push(MEMBER_ACCOUNT_PROFILE_PATH)
+                        }}
+                      >
+                        <UserRound className="h-4 w-4" />
+                        Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <SignOutButton>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          className="cursor-pointer"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Sign out
+                        </DropdownMenuItem>
+                      </SignOutButton>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : null}
+              </div>
             </SignedIn>
           </div>
 
@@ -290,6 +295,13 @@ export default function PublicHeader() {
                     </SignedOut>
                     <SignedIn>
                       <div className="flex flex-col gap-2">
+                        <Link
+                          href={MEMBER_NOTIFICATIONS_PATH}
+                          onClick={() => setOpen(false)}
+                          className="inline-flex w-full items-center justify-between rounded-xl border border-border/60 bg-white/80 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted/60"
+                        >
+                          Notifications
+                        </Link>
                         <Link
                           href={MEMBER_BASE_PATH}
                           onClick={() => setOpen(false)}

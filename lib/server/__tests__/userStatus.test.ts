@@ -6,6 +6,14 @@ const prismaMock = vi.hoisted(() => ({
   },
 }))
 
+const redisClientMock = vi.hoisted(() => ({
+  get: vi.fn(),
+  set: vi.fn(),
+  del: vi.fn(),
+}))
+
+const getRedisClientMock = vi.hoisted(() => vi.fn())
+
 vi.mock("@/lib/prisma", () => ({
   default: prismaMock,
 }))
@@ -24,6 +32,10 @@ const redirectMock = vi.hoisted(() =>
   }),
 )
 
+vi.mock("@/lib/server/redis", () => ({
+  getRedisClient: getRedisClientMock,
+}))
+
 vi.mock("next/navigation", () => ({
   redirect: redirectMock,
 }))
@@ -32,13 +44,26 @@ import {
   INACTIVE_ACCOUNT_MESSAGE,
   SUSPENDED_ACCOUNT_PATH,
   getActiveUserByClerkId,
+  invalidateActiveUserCache,
   requireActiveUserOrRedirect,
 } from "@/lib/server/userStatus"
+
+const originalEnv = process.env.NODE_ENV
 
 describe("userStatus", () => {
   beforeEach(() => {
     prismaMock.user.findUnique.mockReset()
+    getRedisClientMock.mockReset()
+    redisClientMock.get.mockReset()
+    redisClientMock.set.mockReset()
+    redisClientMock.del.mockReset()
+    redisClientMock.get.mockResolvedValue(null)
+    redisClientMock.set.mockResolvedValue("OK")
+    redisClientMock.del.mockResolvedValue(1)
+    getRedisClientMock.mockResolvedValue(null)
+    ensureDailyLoginRewardMock.mockClear()
     redirectMock.mockClear()
+    process.env.NODE_ENV = originalEnv
   })
 
   it("returns null when clerkId is missing", async () => {
@@ -99,6 +124,56 @@ describe("userStatus", () => {
 
     expect(result).toEqual(activeUser)
     expect(redirectMock).not.toHaveBeenCalled()
+  })
+
+  it("does not cache inactive results for newly created users", async () => {
+    process.env.NODE_ENV = "development"
+    getRedisClientMock.mockResolvedValue(redisClientMock as any)
+
+    const activeUser = {
+      id: "user-5",
+      email: "fresh@example.com",
+      role: "member",
+      status: "active",
+      firstName: "Fresh",
+      lastName: "User",
+      onboardedAt: null,
+    }
+
+    prismaMock.user.findUnique
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(activeUser)
+
+    const firstResult = await getActiveUserByClerkId("clerk-new")
+    expect(firstResult).toBeNull()
+    expect(redisClientMock.set).not.toHaveBeenCalled()
+    expect(redisClientMock.del).toHaveBeenCalledTimes(1)
+
+    redisClientMock.get.mockResolvedValueOnce(null)
+
+    const secondResult = await getActiveUserByClerkId("clerk-new")
+    expect(secondResult).toEqual(activeUser)
+    expect(redisClientMock.set).toHaveBeenCalledWith(
+      expect.any(String),
+      JSON.stringify(activeUser),
+      expect.objectContaining({ EX: expect.any(Number) }),
+    )
+  })
+
+  it("invalidates cached active users when redis client is available", async () => {
+    getRedisClientMock.mockResolvedValue(redisClientMock as any)
+
+    await invalidateActiveUserCache("clerk-valid")
+
+    expect(redisClientMock.del).toHaveBeenCalledWith(expect.any(String))
+  })
+
+  it("skips cache invalidation when redis client is unavailable", async () => {
+    getRedisClientMock.mockResolvedValue(null)
+
+    await invalidateActiveUserCache("clerk-missing")
+
+    expect(redisClientMock.del).not.toHaveBeenCalled()
   })
 })
 

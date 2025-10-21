@@ -12,7 +12,7 @@ describe("siteConfig", () => {
   it("builds SEO configuration with derived defaults", () => {
     const seo = buildSiteSeo()
 
-    expect(seo.defaultTitle).toContain(siteConfig.name)
+    expect(seo.defaultTitle).toBe(siteConfig.tagline)
     expect(seo.titleTemplate).toBe(`%s | ${siteConfig.name}`)
     expect(seo.openGraph?.images?.[0]?.url).toBe(absoluteOgImageUrl)
     expect(seo.twitter?.images?.[0]).toBe(absoluteOgImageUrl)

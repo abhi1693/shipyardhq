@@ -10,10 +10,7 @@ import {
   coerceJsonText,
   extractAssistantJson,
 } from "@/lib/server/openaiResponse"
-import {
-  buildCacheKey as buildCompositeKey,
-  namespaceCacheKey,
-} from "@/lib/server/cache"
+import { buildCacheKey as buildCompositeKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import type {
   ProductInsightSubreddit,
@@ -543,8 +540,11 @@ function sanitizeAudienceValue(value?: string | null) {
 }
 
 function buildSubredditCacheKey(productId: string) {
-  return namespaceCacheKey(
-    buildCompositeKey("productInsights", "subreddits", "v1", productId),
+  return buildCompositeKey(
+    "productInsights",
+    "subreddits",
+    "v1",
+    productId,
   )
 }
 

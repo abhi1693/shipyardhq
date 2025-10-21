@@ -66,9 +66,7 @@ export type HomepagePayload = {
   topCategories: AwaitedReturn<typeof getTopCategories>
   homepagePlacements: AwaitedReturn<typeof getHomepageFeatureProducts>
   stats: AwaitedReturn<typeof getLeaderboardStats>
-  rewardsLeaders: Awaited<
-    ReturnType<typeof hydrateRewardsLeaderboardEntries>
-  >
+  rewardsLeaders: Awaited<ReturnType<typeof hydrateRewardsLeaderboardEntries>>
   rankInPublicMatchup: AwaitedReturn<typeof getVersusMatchup>
   latestProductUpdates: AwaitedReturn<typeof getLatestPublicProductUpdates>
   radarData: ReturnType<typeof computeTrendRadarMetrics>

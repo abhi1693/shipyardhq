@@ -3,7 +3,7 @@ import UserReengagementEmail from "@/lib/email/templates/outreach/userReengageme
 import { getAppBaseUrl } from "@/lib/email/utils"
 import prisma from "@/lib/prisma"
 import { getRedisClient } from "@/lib/server/redis"
-import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
+import { buildCacheKey } from "@/lib/server/cache"
 import {
   LEADERBOARD_PATH,
   MEMBER_OVERVIEW_PATH,
@@ -43,9 +43,7 @@ function buildAbsoluteUrl(path: string) {
 }
 
 function buildRedisKey(userId: string, milestone: number) {
-  return namespaceCacheKey(
-    buildCacheKey("user", "reengagement", milestone, userId),
-  )
+  return buildCacheKey("user", "reengagement", milestone, userId)
 }
 
 export async function sendUserReengagementEmails(now: Date = new Date()) {

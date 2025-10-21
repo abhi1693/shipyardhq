@@ -46,7 +46,7 @@ describe("trend radar telemetry", () => {
   })
 
   it("namespaces embed counter keys when recording views", async () => {
-    const { buildCacheKey, namespaceCacheKey } = await import(
+    const { buildCacheKey } = await import(
       "@/lib/server/cache"
     )
     const { recordTrendRadarEmbedView } = await import(
@@ -54,11 +54,12 @@ describe("trend radar telemetry", () => {
     )
 
     const date = new Date("2024-05-01T12:00:00Z")
-    const expectedTotalKey = namespaceCacheKey(
-      buildCacheKey("trend-radar", "embed", "total"),
-    )
-    const expectedDailyKey = namespaceCacheKey(
-      buildCacheKey("trend-radar", "embed", "daily", formatDateKey(date)),
+    const expectedTotalKey = buildCacheKey("trend-radar", "embed", "total")
+    const expectedDailyKey = buildCacheKey(
+      "trend-radar",
+      "embed",
+      "daily",
+      formatDateKey(date),
     )
 
     await recordTrendRadarEmbedView(date)
@@ -73,16 +74,14 @@ describe("trend radar telemetry", () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date("2024-05-10T00:00:00Z"))
 
-    const { buildCacheKey, namespaceCacheKey } = await import(
+    const { buildCacheKey } = await import(
       "@/lib/server/cache"
     )
     const { getTrendRadarEmbedStats } = await import(
       "@/lib/server/trendRadar/telemetry"
     )
 
-    const expectedTotalKey = namespaceCacheKey(
-      buildCacheKey("trend-radar", "embed", "total"),
-    )
+    const expectedTotalKey = buildCacheKey("trend-radar", "embed", "total")
 
     const days = 3
     const reference = new Date()
@@ -93,8 +92,11 @@ describe("trend radar telemetry", () => {
       const target = new Date(reference)
       target.setDate(reference.getDate() - offset)
       expectedDailyKeys.push(
-        namespaceCacheKey(
-          buildCacheKey("trend-radar", "embed", "daily", formatDateKey(target)),
+        buildCacheKey(
+          "trend-radar",
+          "embed",
+          "daily",
+          formatDateKey(target),
         ),
       )
     }

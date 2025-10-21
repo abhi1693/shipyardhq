@@ -6,7 +6,7 @@ import {
 } from "../loginReward"
 import { awardRewards } from "@/lib/rewards/engine"
 import { RewardsError } from "@/lib/rewards/errors"
-import { dispatchEvent } from "@/lib/server/events"
+import { dispatchEventAsync } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 
 const prismaMock = vi.hoisted(() => ({
@@ -28,37 +28,24 @@ vi.mock("@/lib/rewards/engine", () => ({
   awardRewards: vi.fn(),
 }))
 
+const dispatchEventAsyncMock = vi.hoisted(() => vi.fn())
+
 vi.mock("@/lib/server/events", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/server/events")>()
-  const dispatchEventMock = vi.fn().mockResolvedValue(undefined)
-  const dispatchEventAsyncMock = vi.fn(
-    (
-      event: Parameters<typeof actual.dispatchEventAsync>[0],
-      payload: Parameters<typeof actual.dispatchEventAsync>[1],
-      options?: Parameters<typeof actual.dispatchEventAsync>[2],
-    ) => {
-      try {
-        dispatchEventMock(event, payload)
-      } catch (error) {
-        options?.onError?.(error)
-      }
-    },
-  )
   return {
     ...actual,
-    dispatchEvent: dispatchEventMock,
     dispatchEventAsync: dispatchEventAsyncMock,
   }
 })
 
 const mockedAwardRewards = vi.mocked(awardRewards)
-const mockedDispatchEvent = vi.mocked(dispatchEvent)
+const mockedDispatchEventAsync = vi.mocked(dispatchEventAsync)
 const CACHE_SYMBOL = Symbol.for("__shipyard_login_reward_cache")
 
 describe("ensureDailyLoginReward", () => {
   beforeEach(() => {
     mockedAwardRewards.mockReset()
-    mockedDispatchEvent.mockClear()
+    mockedDispatchEventAsync.mockClear()
     const globalWithCache = globalThis as typeof globalThis & {
       [CACHE_SYMBOL]?: Map<string, string>
     }
@@ -78,21 +65,24 @@ describe("ensureDailyLoginReward", () => {
 
     await ensureDailyLoginReward("user-123", { now })
 
-    expect(mockedDispatchEvent).toHaveBeenCalledWith(
+    expect(mockedDispatchEventAsync).toHaveBeenCalledWith(
       APP_EVENTS.REWARDS_DAILY_LOGIN,
       expect.objectContaining({
         userId: "user-123",
         eventId: "2025-03-15:login",
         dayKey: "2025-03-15",
       }),
+      expect.objectContaining({
+        context: { userId: "user-123", eventId: "2025-03-15:login" },
+      }),
     )
 
     // subsequent call same day should short-circuit before hitting awardRewards
-    mockedDispatchEvent.mockClear()
+    mockedDispatchEventAsync.mockClear()
     prismaMock.eventEnvelope.findFirst.mockClear()
     prismaMock.rewardTransaction.findFirst.mockClear()
     await ensureDailyLoginReward("user-123", { now })
-    expect(mockedDispatchEvent).not.toHaveBeenCalled()
+    expect(mockedDispatchEventAsync).not.toHaveBeenCalled()
     expect(prismaMock.eventEnvelope.findFirst).not.toHaveBeenCalled()
     expect(prismaMock.rewardTransaction.findFirst).not.toHaveBeenCalled()
   })
@@ -103,7 +93,7 @@ describe("ensureDailyLoginReward", () => {
 
     await ensureDailyLoginReward("user-123", { now })
 
-    expect(mockedDispatchEvent).not.toHaveBeenCalled()
+    expect(mockedDispatchEventAsync).not.toHaveBeenCalled()
     expect(prismaMock.rewardTransaction.findFirst).not.toHaveBeenCalled()
   })
 
@@ -115,7 +105,7 @@ describe("ensureDailyLoginReward", () => {
 
     await ensureDailyLoginReward("user-123", { now })
 
-    expect(mockedDispatchEvent).not.toHaveBeenCalled()
+    expect(mockedDispatchEventAsync).not.toHaveBeenCalled()
   })
 
   it("ignores cooldown and cap errors", async () => {

@@ -6,9 +6,7 @@ import KeywordTagCloud from "@/components/molecules/KeywordTagCloud"
 import { buildPageMetadata } from "@/lib/metadata"
 import { resolvePagination } from "@/lib/pagination"
 import { cn } from "@/lib/utils"
-import {
-  getTagsIndexPayload,
-} from "@/lib/tags/page-cache"
+import { getTagsIndexPayload } from "@/lib/tags/page-cache"
 import { TAG_PRODUCTS_PAGE_SIZE } from "@/actions/public/tags/actions"
 
 import { buildPageHref, formatTagLabel } from "./_utils"

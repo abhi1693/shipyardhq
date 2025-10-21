@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
 import ProductPublishedEmail from "@/lib/email/templates/product/productPublished"
 import { getAppBaseUrl } from "@/lib/email/utils"
-import { memberProductOverviewPath } from "@/lib/routes"
+import { memberProductPath } from "@/lib/routes"
 
 function getProductUrl(slug: string) {
   const base = getAppBaseUrl()
@@ -11,7 +11,7 @@ function getProductUrl(slug: string) {
 
 function getDashboardUrl(slug: string) {
   const base = getAppBaseUrl()
-  return `${base}${memberProductOverviewPath(slug)}`
+  return `${base}${memberProductPath(slug)}`
 }
 
 export async function sendProductPublishedEmail(productId: string) {

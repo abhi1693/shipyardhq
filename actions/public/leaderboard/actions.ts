@@ -16,10 +16,8 @@ export const getLeaderboardStats = cached(
   async () => {
     const [totalProducts, totalCreators, upvoteAgg, topProduct, insightsAgg] =
       await Promise.all([
-        prisma.product.count({
-        }),
-        prisma.user.count({
-        }),
+        prisma.product.count({}),
+        prisma.user.count({}),
         prisma.productAnalytics.aggregate({
           _sum: { upvotes: true },
         }),

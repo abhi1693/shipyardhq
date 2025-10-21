@@ -9,6 +9,7 @@ import {
 import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
+  invalidateActiveUserCache,
 } from "@/lib/server/userStatus"
 import { syncUserFromClerk } from "@/actions/member/users/actions"
 import { sendEmail } from "@/lib/email/resend"
@@ -137,6 +138,10 @@ export async function completeOnboarding(formData: FormData) {
           console.error("Failed to send onboarding welcome email:", error)
         }
       }
+    }
+
+    if (firstTimeOnboarding) {
+      await invalidateActiveUserCache(userId)
     }
 
     return { success: true }

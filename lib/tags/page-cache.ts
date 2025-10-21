@@ -42,10 +42,7 @@ type TagDetailPayload = {
 }
 
 export const getTagDetailPayload = cached(
-  async (
-    slug: string,
-    page: number = 1,
-  ): Promise<TagDetailPayload | null> => {
+  async (slug: string, page: number = 1): Promise<TagDetailPayload | null> => {
     const [summaries, products] = await Promise.all([
       getKeywordTagSummaries(),
       getKeywordTagProducts(slug, page),

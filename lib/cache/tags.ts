@@ -40,6 +40,8 @@ export const TAGS = {
   homepage: "homepage",
   browse: "browse",
   categoryDirectory: "categories:directory",
+  notifications: "notifications",
+  notificationsForUser: (userId: string) => `notifications:user:${userId}`,
 } as const
 
 export type Tag = (typeof TAGS)[keyof typeof TAGS] | string

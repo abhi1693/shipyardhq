@@ -7,10 +7,7 @@ import {
   getProductHuntIndexName,
   getProductHuntSearchKey,
 } from "@/lib/server/productInsights/config"
-import {
-  buildCacheKey as buildCompositeKey,
-  namespaceCacheKey,
-} from "@/lib/server/cache"
+import { buildCacheKey as buildCompositeKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 import type {
   ProductInsightProductContext,
@@ -178,8 +175,12 @@ export type DiscoverProductHuntLaunchesResult = {
 }
 
 function buildProductHuntCacheKey(productId: string, hash: string) {
-  return namespaceCacheKey(
-    buildCompositeKey("productInsights", "productHunt", "v1", productId, hash),
+  return buildCompositeKey(
+    "productInsights",
+    "productHunt",
+    "v1",
+    productId,
+    hash,
   )
 }
 
