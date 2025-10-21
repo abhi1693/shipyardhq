@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Toaster } from "@/components/atoms/sonner"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import Providers from "@/components/layout/providers"
-import { ClarityAnalytics } from "@/components/layout/ClarityAnalytics"
 import "./globals.css"
 import { HAS_APP_URL, IS_PROD } from "@/lib/constants"
 import "./theme.css"
@@ -61,7 +60,6 @@ export default function RootLayout({
         <link rel="preconnect" href="https://www.googletagmanager.com" />
       </head>
       <body className="min-h-screen antialiased bg-[var(--background)] text-[var(--foreground)]">
-        <ClarityAnalytics />
         <Providers>
           <Toaster position="top-right" />
           {children}
