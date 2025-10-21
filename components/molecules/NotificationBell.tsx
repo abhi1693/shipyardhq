@@ -204,7 +204,7 @@ export default function NotificationBell() {
         >
           <Bell className="h-5 w-5 text-slate-600" />
           {unreadCount > 0 ? (
-            <span className="absolute right-1 top-1 inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-[color:var(--brand-1)]" />
+            <span className="absolute right-1 top-1 inline-flex h-2.5 w-2.5 items-center justify-center rounded-full bg-destructive" />
           ) : null}
         </Button>
       </DropdownMenuTrigger>
