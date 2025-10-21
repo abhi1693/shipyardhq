@@ -170,7 +170,7 @@ export default function NotificationBell() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative h-9 w-9 rounded-full border border-border/40 bg-white/75 shadow-sm transition hover:border-border/70 hover:bg-white"
+          className="relative h-9 w-9 rounded-full border border-border/40 bg-white shadow-sm transition hover:border-border/70 hover:bg-white"
           aria-label={
             unreadCount
               ? `${unreadCount} unread notifications`
@@ -186,7 +186,7 @@ export default function NotificationBell() {
       <DropdownMenuContent
         align="end"
         forceMount
-        className="w-[21rem] overflow-hidden rounded-2xl border border-border/60 bg-white/95 p-0 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-white/80"
+        className="w-[21rem] overflow-hidden rounded-2xl border border-border/60 bg-white p-0 shadow-2xl"
       >
         <div className="flex items-center justify-between px-5 py-4">
           <div>
@@ -200,7 +200,7 @@ export default function NotificationBell() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 gap-1 rounded-full border border-border/60 bg-white/70 text-xs hover:bg-white"
+            className="h-7 gap-1 rounded-full border border-border/60 bg-white text-xs hover:bg-white"
             onClick={handleMarkAll}
             disabled={markingAll || unreadCount === 0}
           >
