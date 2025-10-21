@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useFormState, useFormStatus } from "react-dom"
 import { toast } from "sonner"
 
@@ -57,6 +57,24 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
     initialAdjustRewardsState,
   )
   const [selectedUserId, setSelectedUserId] = useState<string>("")
+  const [searchQuery, setSearchQuery] = useState<string>("")
+
+  const filteredUsers = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) {
+      return users
+    }
+
+    return users.filter((user) => {
+      const fullName = [user.firstName, user.lastName]
+        .filter(Boolean)
+        .join(" ")
+        .trim()
+      const haystack = `${fullName} ${user.email}`.toLowerCase()
+
+      return haystack.includes(query)
+    })
+  }, [searchQuery, users])
 
   useEffect(() => {
     if (state.status === "success") {
@@ -67,6 +85,7 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
       }
       formRef.current?.reset()
       setSelectedUserId("")
+      setSearchQuery("")
     } else if (state.status === "error" && state.message) {
       toast.error(state.message)
     }
@@ -90,8 +109,16 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
             <fieldset className="space-y-2">
               <Label htmlFor="userId">Select user</Label>
               <Select
-                value={selectedUserId}
-                onValueChange={setSelectedUserId}
+                value={selectedUserId === "" ? undefined : selectedUserId}
+                onValueChange={(value) => {
+                  setSelectedUserId(value)
+                  setSearchQuery("")
+                }}
+                onOpenChange={(open) => {
+                  if (!open) {
+                    setSearchQuery("")
+                  }
+                }}
                 name="userSelect"
               >
                 <SelectTrigger
@@ -101,24 +128,53 @@ export default function AdjustRewardsForm({ users }: AdjustRewardsFormProps) {
                 >
                   <SelectValue placeholder="Choose a user" />
                 </SelectTrigger>
-                <SelectContent className="max-h-64 w-72">
-                  {users.map((user) => {
-                    const name = [user.firstName, user.lastName]
-                      .filter(Boolean)
-                      .join(" ")
-                    const label = name ? `${name} • ${user.email}` : user.email
-                    return (
-                      <SelectItem key={user.id} value={user.id}>
-                        {label}
-                      </SelectItem>
-                    )
-                  })}
+                <SelectContent className="max-h-72 w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] max-w-none">
+                  <div className="sticky top-0 z-10 border-b border-border/60 bg-popover/95 px-3 pb-3 pt-2 backdrop-blur">
+                    <Input
+                      value={searchQuery}
+                      onChange={(event) => setSearchQuery(event.target.value)}
+                      placeholder="Search by name or email..."
+                      autoFocus
+                      className="h-9 w-full"
+                      aria-label="Search users"
+                    />
+                  </div>
+
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => {
+                      const name = [user.firstName, user.lastName]
+                        .filter(Boolean)
+                        .join(" ")
+                      const hasName = Boolean(name)
+
+                      return (
+                        <SelectItem key={user.id} value={user.id}>
+                          <span className="flex flex-col text-left">
+                            <span className="text-sm font-medium">
+                              {hasName ? name : user.email}
+                            </span>
+                            {hasName ? (
+                              <span className="text-xs text-muted-foreground">
+                                {user.email}
+                              </span>
+                            ) : null}
+                          </span>
+                        </SelectItem>
+                      )
+                    })
+                  ) : (
+                    <div className="px-3 py-4 text-sm text-muted-foreground">
+                      {searchQuery
+                        ? `No users match "${searchQuery}".`
+                        : "No users found."}
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
               <input type="hidden" name="userId" value={selectedUserId} />
               <p className="text-sm text-muted-foreground">
                 {users.length
-                  ? "Pick any active member from the list."
+                  ? "Start typing to filter members by name or email."
                   : "No users found."}
               </p>
             </fieldset>
