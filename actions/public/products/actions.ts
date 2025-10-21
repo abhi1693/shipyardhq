@@ -1,12 +1,6 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_TTL,
-  DEFAULT_SWR,
-  TAGS,
-} from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import { resolveVoteState } from "@/lib/server/productVotesStore"
 
@@ -69,10 +63,6 @@ type PublicProduct = Prisma.ProductGetPayload<{
 }>
 
 async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
-  const tagSet = new Set<string>([TAGS.products])
-  if (where.id) tagSet.add(TAGS.product(String(where.id)))
-  if (where.slug) tagSet.add(TAGS.product(String(where.slug)))
-
   const product = await prisma.product.findUnique({
     where,
     include: {
@@ -120,11 +110,6 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
         },
         select: { featureKey: true },
       },
-    },
-    cacheStrategy: {
-      ttl: DEFAULT_TTL.medium,
-      swr: DEFAULT_SWR.medium,
-      tags: accelerateTags(Array.from(tagSet)),
     },
   })
 
@@ -176,11 +161,6 @@ export const getPublicProductMetaBySlug = cached(
         category: { select: { name: true, slug: true } },
         user: { select: { firstName: true, lastName: true } },
       },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.medium,
-        swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([TAGS.products, TAGS.product(String(slug))]),
-      },
     }),
   "product:meta-by-slug",
   {
@@ -222,14 +202,6 @@ export const getPublicProductsByUseCase = cached(
       orderBy: { createdAt: "desc" },
       take: 6,
       include: compactProductInclude,
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.medium,
-        swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([
-          TAGS.products,
-          TAGS.category(String(useCaseSlug)),
-        ]),
-      },
     }),
   "products:public-by-usecase",
   {

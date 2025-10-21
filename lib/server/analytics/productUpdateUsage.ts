@@ -1,19 +1,8 @@
 import { addDays, format, startOfDay, subDays } from "date-fns"
 
 import prisma from "@/lib/prisma"
-import { accelerateTags, DEFAULT_SWR, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { ProductUpdateUsageSummary } from "@/types/analytics"
 import { Prisma, ProductUpdateStatus } from "@/lib/vendor/prisma/client"
-
-const ADMIN_ANALYTICS_TAG = "adminAnalytics"
-
-const adminSlowCache = {
-  ttl: DEFAULT_TTL.slowest,
-  swr: DEFAULT_SWR.slowest,
-}
-
-const adminTags = (...tags: string[]) =>
-  accelerateTags([ADMIN_ANALYTICS_TAG, ...tags])
 
 const MAX_TOP_PRODUCTS = 8
 const MAX_RECENT_ACTIVITY = 12
@@ -86,33 +75,16 @@ export async function getProductUpdateUsageSummary(
     previousCreated,
     previousPublished,
   ] = await Promise.all([
-    prisma.productUpdate.count({
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics, TAGS.products),
-      },
-    }),
+    prisma.productUpdate.count(),
     prisma.productUpdate.count({
       where: { status: ProductUpdateStatus.published },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics, TAGS.products),
-      },
     }),
     prisma.productUpdate.count({
       where: { status: ProductUpdateStatus.draft },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics, TAGS.products),
-      },
     }),
     prisma.productUpdate.findMany({
       distinct: ["productId"],
       select: { productId: true },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics, TAGS.products),
-      },
     }),
     prisma.productUpdate.count({
       where: {
@@ -120,10 +92,6 @@ export async function getProductUpdateUsageSummary(
           gte: previousRangeStart,
           lt: rangeStart,
         },
-      },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics, TAGS.products),
       },
     }),
     prisma.productUpdate.count({
@@ -133,10 +101,6 @@ export async function getProductUpdateUsageSummary(
           gte: previousRangeStart,
           lt: rangeStart,
         },
-      },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics, TAGS.products),
       },
     }),
   ])
@@ -158,10 +122,6 @@ export async function getProductUpdateUsageSummary(
           },
         },
       ],
-    },
-    cacheStrategy: {
-      ...adminSlowCache,
-      tags: adminTags(TAGS.analytics, TAGS.products),
     },
   })) as unknown as ProductUpdateRangeRecord[]
 

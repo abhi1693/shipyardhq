@@ -1,13 +1,7 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_SWR,
-  DEFAULT_TTL,
-  TAGS,
-} from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { selectBalancedProductUpdates } from "@/lib/product-updates/feed"
 import { Prisma, ProductUpdateStatus } from "@/lib/vendor/prisma/client"
 import type {
@@ -109,9 +103,7 @@ async function fetchPublicProductUpdates(
 ): Promise<ProductUpdatePublicView[]> {
   const { limit, skip } = options
 
-  const query: Prisma.ProductUpdateFindManyArgs & {
-    cacheStrategy: any
-  } = {
+  const query: Prisma.ProductUpdateFindManyArgs = {
     where: {
       productId,
       status: ProductUpdateStatus.published,
@@ -119,15 +111,6 @@ async function fetchPublicProductUpdates(
     },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     select: publicUpdateSelect,
-    cacheStrategy: {
-      ttl: DEFAULT_TTL.medium,
-      swr: DEFAULT_SWR.medium,
-      tags: accelerateTags([
-        TAGS.products,
-        TAGS.product(productId),
-        TAGS.productUpdates(productId),
-      ]),
-    },
   }
 
   if (typeof skip === "number" && skip > 0) {
@@ -151,12 +134,11 @@ export const getPublicProductUpdates = cached(
   "product:public:updates",
   {
     ttl: DEFAULT_TTL.medium,
-    tags: ([productId]) =>
-      accelerateTags([
-        TAGS.products,
-        TAGS.product(productId),
-        TAGS.productUpdates(productId),
-      ]),
+    tags: ([productId]) => [
+      TAGS.products,
+      TAGS.product(String(productId)),
+      TAGS.productUpdates(String(productId)),
+    ],
     keyParts: ([, options]) =>
       options?.limit != null ? [`limit:${options.limit}`] : [],
   },
@@ -177,11 +159,6 @@ async function fetchLatestPublishedUpdates(
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     take,
     select: publicUpdateSelect,
-    cacheStrategy: {
-      ttl: DEFAULT_TTL.fast,
-      swr: DEFAULT_SWR.fast,
-      tags: accelerateTags([TAGS.productUpdatesLatest, TAGS.products]),
-    },
   })
 
   const feedItems = updates
@@ -196,7 +173,7 @@ export const getLatestPublicProductUpdates = cached(
   "product:public:updates:latest",
   {
     ttl: DEFAULT_TTL.fast,
-    tags: () => accelerateTags([TAGS.productUpdatesLatest]),
+    tags: () => [TAGS.productUpdatesLatest],
     keyParts: ([limit]) => [`limit:${limit}`],
   },
 )

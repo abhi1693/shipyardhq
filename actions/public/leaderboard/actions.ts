@@ -1,11 +1,5 @@
 import prisma from "@/lib/prisma"
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_TTL,
-  DEFAULT_SWR,
-  TAGS,
-} from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   normalizeMonth,
   parseMonthKey,
@@ -18,55 +12,23 @@ const monthLabelFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 })
 
-const monthlyCacheTags = (monthKey?: string) =>
-  accelerateTags([
-    TAGS.leaderboard,
-    TAGS.monthlyLeaderboard,
-    ...(monthKey ? [TAGS.monthlyLeaderboardMonth(monthKey)] : []),
-  ])
-
 export const getLeaderboardStats = cached(
   async () => {
     const [totalProducts, totalCreators, upvoteAgg, topProduct, insightsAgg] =
       await Promise.all([
         prisma.product.count({
-          cacheStrategy: {
-            ttl: DEFAULT_TTL.fast,
-            swr: DEFAULT_SWR.fast,
-            tags: accelerateTags([TAGS.products, TAGS.leaderboard]),
-          },
         }),
         prisma.user.count({
-          cacheStrategy: {
-            ttl: DEFAULT_TTL.fast,
-            swr: DEFAULT_SWR.fast,
-            tags: accelerateTags([TAGS.users, TAGS.leaderboard]),
-          },
         }),
         prisma.productAnalytics.aggregate({
           _sum: { upvotes: true },
-          cacheStrategy: {
-            ttl: DEFAULT_TTL.fast,
-            swr: DEFAULT_SWR.fast,
-            tags: accelerateTags([TAGS.analytics, TAGS.leaderboard]),
-          },
         }),
         prisma.productAnalytics.findFirst({
           orderBy: { upvotes: "desc" },
           select: { upvotes: true },
-          cacheStrategy: {
-            ttl: DEFAULT_TTL.fast,
-            swr: DEFAULT_SWR.fast,
-            tags: accelerateTags([TAGS.analytics, TAGS.leaderboard]),
-          },
         }),
         prisma.productInsightProfile.aggregate({
           _sum: { insightsGeneratedCount: true },
-          cacheStrategy: {
-            ttl: DEFAULT_TTL.fast,
-            swr: DEFAULT_SWR.fast,
-            tags: accelerateTags([TAGS.leaderboard, TAGS.analytics]),
-          },
         }),
       ])
 
@@ -96,17 +58,6 @@ export const getTopRankedProducts = cached(
         analytics: {
           upvotes: "desc",
         },
-      },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.fast,
-        swr: DEFAULT_SWR.fast,
-        tags: accelerateTags([
-          TAGS.leaderboard,
-          TAGS.products,
-          TAGS.analytics,
-          TAGS.categories,
-          TAGS.category(String(categorySlug ?? "all")),
-        ]),
       },
       include: {
         category: true,
@@ -140,11 +91,6 @@ export const getMonthlyLeaderboardMonths = cached(
       distinct: ["month"],
       orderBy: { month: "desc" },
       select: { month: true },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.slow,
-        swr: DEFAULT_SWR.slow,
-        tags: monthlyCacheTags(),
-      },
     })
 
     return months.map(({ month }) => ({
@@ -166,11 +112,6 @@ const resolveTargetMonth = async (month?: string) => {
     const exists = await prisma.monthlyProductRanking.findFirst({
       where: { month: normalized },
       select: { month: true },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.slow,
-        swr: DEFAULT_SWR.slow,
-        tags: monthlyCacheTags(toMonthKey(normalized)),
-      },
     })
     if (exists) {
       return normalizeMonth(exists.month)
@@ -180,11 +121,6 @@ const resolveTargetMonth = async (month?: string) => {
   const latest = await prisma.monthlyProductRanking.findFirst({
     orderBy: { month: "desc" },
     select: { month: true },
-    cacheStrategy: {
-      ttl: DEFAULT_TTL.slow,
-      swr: DEFAULT_SWR.slow,
-      tags: monthlyCacheTags(),
-    },
   })
 
   if (latest) {
@@ -204,11 +140,6 @@ export const getMonthlyTopRankedProducts = cached(
       take: limit,
       where: { month: targetMonth },
       orderBy: { rank: "asc" },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.slow,
-        swr: DEFAULT_SWR.slow,
-        tags: monthlyCacheTags(monthKey),
-      },
       include: {
         product: {
           include: {

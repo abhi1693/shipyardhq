@@ -13,10 +13,8 @@ vi.mock("@/lib/prisma", () => ({
 }))
 
 const cacheMock = vi.hoisted(() => ({
-  accelerateTags: vi.fn((tags: string[]) => tags),
   cached: (fn: any) => fn,
-  DEFAULT_TTL: { short: 60, medium: 120 },
-  DEFAULT_SWR: { short: 60, medium: 120 },
+  DEFAULT_TTL: { fast: 60, medium: 120, slow: 300 },
   TAGS: {
     productReviews: "product-reviews",
     productReview: (id: string) => `product-review:${id}`,

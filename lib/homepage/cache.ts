@@ -1,9 +1,4 @@
-import {
-  cached,
-  DEFAULT_TTL,
-  TAGS,
-  accelerateTags,
-} from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { siteConfig } from "@/lib/siteConfig"
 import { BROWSE_PATH } from "@/lib/routes"
 import { computeTrendRadarMetrics } from "@/lib/trend-radar"
@@ -149,14 +144,13 @@ export const getHomepagePayload = cached(
   "homepage:payload",
   {
     ttl: DEFAULT_TTL.fast,
-    tags: () =>
-      accelerateTags([
-        TAGS.homepage,
-        TAGS.products,
-        TAGS.categories,
-        TAGS.rewards,
-        TAGS.leaderboard,
-        TAGS.productUpdatesLatest,
-      ]),
+    tags: () => [
+      TAGS.homepage,
+      TAGS.products,
+      TAGS.categories,
+      TAGS.rewards,
+      TAGS.leaderboard,
+      TAGS.productUpdatesLatest,
+    ],
   },
 )

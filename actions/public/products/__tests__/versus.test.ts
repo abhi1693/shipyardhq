@@ -8,10 +8,8 @@ import {
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
 const cacheMock = vi.hoisted(() => ({
-  accelerateTags: vi.fn((tags: string[]) => tags),
   cached: (fn: any) => fn,
   DEFAULT_TTL: { fast: 60, medium: 120, slow: 300 },
-  DEFAULT_SWR: { fast: 60, medium: 120, slow: 300 },
   TAGS: {
     products: "products",
     leaderboard: "leaderboard",

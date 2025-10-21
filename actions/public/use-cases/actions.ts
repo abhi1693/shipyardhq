@@ -1,11 +1,5 @@
 import prisma from "@/lib/prisma"
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_SWR,
-  DEFAULT_TTL,
-  TAGS,
-} from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
 
 const useCaseProductSelect = {
@@ -80,11 +74,6 @@ export const getPublicUseCasesWithCounts = cached(
         slug: true,
         updatedAt: true,
       },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.slow,
-        swr: DEFAULT_SWR.slow,
-        tags: accelerateTags([TAGS.useCases]),
-      },
     })
 
     if (useCases.length === 0) return []
@@ -99,15 +88,6 @@ export const getPublicUseCasesWithCounts = cached(
                 some: { useCaseId: useCase.id },
               },
             },
-          },
-          cacheStrategy: {
-            ttl: DEFAULT_TTL.medium,
-            swr: DEFAULT_SWR.medium,
-            tags: accelerateTags([
-              TAGS.products,
-              TAGS.useCases,
-              TAGS.usecase(useCase.slug),
-            ]),
           },
         })
 
@@ -141,11 +121,6 @@ export const getPublicUseCaseMeta = cached(
         createdAt: true,
         updatedAt: true,
       },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.medium,
-        swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([TAGS.useCases, TAGS.usecase(slug)]),
-      },
     })
 
     if (!useCase) return null
@@ -158,15 +133,6 @@ export const getPublicUseCaseMeta = cached(
             some: { useCaseId: useCase.id },
           },
         },
-      },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.medium,
-        swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([
-          TAGS.products,
-          TAGS.useCases,
-          TAGS.usecase(slug),
-        ]),
       },
     })
 
@@ -190,11 +156,6 @@ export const getPublicUseCaseWithProducts = cached(
         createdAt: true,
         updatedAt: true,
       },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.medium,
-        swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([TAGS.useCases, TAGS.usecase(slug)]),
-      },
     })
 
     if (!useCase) return null
@@ -210,15 +171,6 @@ export const getPublicUseCaseWithProducts = cached(
       },
       select: useCaseProductSelect,
       orderBy: { createdAt: "desc" },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.medium,
-        swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([
-          TAGS.products,
-          TAGS.useCases,
-          TAGS.usecase(slug),
-        ]),
-      },
     })
 
     if (products.length === 0) {
@@ -244,15 +196,6 @@ export const getPublicUseCaseWithProducts = cached(
         icon: true,
       },
       orderBy: { name: "asc" },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.medium,
-        swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([
-          TAGS.categories,
-          TAGS.useCases,
-          TAGS.usecase(slug),
-        ]),
-      },
     })
 
     const categories: UseCaseCategory[] = categoriesRaw

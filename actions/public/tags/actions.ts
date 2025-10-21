@@ -1,12 +1,6 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_SWR,
-  DEFAULT_TTL,
-  TAGS,
-} from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { extractKeywordHash, keywordToSlug, normalizeKeyword } from "@/lib/tags"
 
 const TAG_LIST_LIMIT = 200
@@ -85,7 +79,7 @@ export const getKeywordTagSummaries = cached(
   "tags:summaries",
   {
     ttl: DEFAULT_TTL.slow,
-    tags: () => accelerateTags([TAGS.keywords]),
+    tags: () => [TAGS.keywords],
     keyParts: ([limit]) => [String(sanitizeTagListLimit(limit))],
   },
 )
@@ -135,11 +129,10 @@ export const getKeywordTagBySlug = cached(
   "tags:by-slug",
   {
     ttl: DEFAULT_TTL.slow,
-    tags: ([slug]) =>
-      accelerateTags([
-        TAGS.keywords,
-        slug ? TAGS.keyword(slug) : TAGS.keywords,
-      ]),
+    tags: ([slug]) => [
+      TAGS.keywords,
+      slug ? TAGS.keyword(slug) : TAGS.keywords,
+    ],
     keyParts: ([slug]) => [slug],
   },
 )
@@ -223,15 +216,6 @@ export const getKeywordTagProducts = cached(
         analytics: { select: { upvotes: true } },
         category: { select: { name: true } },
       },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.medium,
-        swr: DEFAULT_SWR.medium,
-        tags: accelerateTags([
-          TAGS.products,
-          TAGS.keywords,
-          TAGS.keyword(slug),
-        ]),
-      },
     })
 
     const productMap = new Map(products.map((product) => [product.id, product]))
@@ -251,12 +235,11 @@ export const getKeywordTagProducts = cached(
   "tags:products-by-slug",
   {
     ttl: DEFAULT_TTL.medium,
-    tags: ([slug]) =>
-      accelerateTags([
-        TAGS.products,
-        TAGS.keywords,
-        slug ? TAGS.keyword(slug) : TAGS.keywords,
-      ]),
+    tags: ([slug]) => [
+      TAGS.products,
+      TAGS.keywords,
+      slug ? TAGS.keyword(slug) : TAGS.keywords,
+    ],
     keyParts: ([slug, page]) => [slug, String(page ?? 1)],
   },
 )
