@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-const dispatchEventMock = vi.hoisted(() => vi.fn())
+const dispatchEventAsyncMock = vi.hoisted(() => vi.fn())
 
 const prismaMock = vi.hoisted(() => ({
   productUpvote: {
@@ -25,7 +25,7 @@ vi.mock("@/lib/server/events", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/server/events")>()
   return {
     ...actual,
-    dispatchEvent: dispatchEventMock,
+    dispatchEventAsync: dispatchEventAsyncMock,
     registerEventHandler: registerEventHandlerMock,
   }
 })
@@ -51,8 +51,8 @@ describe("productVotesStore (direct)", () => {
       value.mockReset(),
     )
     prismaMock.$transaction.mockReset()
-    dispatchEventMock.mockReset()
-    dispatchEventMock.mockResolvedValue(undefined)
+    dispatchEventAsyncMock.mockReset()
+    dispatchEventAsyncMock.mockResolvedValue(undefined)
     registerEventHandlerMock.mockReset()
     registerEventHandlerMock.mockImplementation(() => vi.fn())
     prismaMock.productUpvote.count.mockResolvedValue(0)
@@ -101,12 +101,16 @@ describe("productVotesStore (direct)", () => {
     await flushMicrotasks()
 
     expect(state).toBe("upvoted")
-    expect(dispatchEventMock).toHaveBeenCalledWith(
+    expect(dispatchEventAsyncMock).toHaveBeenCalledWith(
       "product.upvoted",
-      expect.objectContaining({
+      {
         productId: "prod-1",
         userId: "user-1",
+        upvoteId: "vote-1",
         occurredAt: new Date("2024-01-01T00:00:00.000Z"),
+      },
+      expect.objectContaining({
+        context: { event: "product.upvoted" },
       }),
     )
   })
@@ -134,11 +138,16 @@ describe("productVotesStore (direct)", () => {
       newState: "not_upvoted",
       upvotes: 4,
     })
-    expect(dispatchEventMock).toHaveBeenCalledWith(
+    expect(dispatchEventAsyncMock).toHaveBeenCalledWith(
       "product.downvoted",
-      expect.objectContaining({
+      {
         productId: "prod-1",
         userId: "user-1",
+        upvoteId: "vote-1",
+        occurredAt: expect.any(Date),
+      },
+      expect.objectContaining({
+        context: { event: "product.downvoted" },
       }),
     )
   })

@@ -100,22 +100,26 @@ describe("analytics listeners", () => {
 
   it("helper trackProductClicked publishes event", async () => {
     const spy = vi
-      .spyOn(eventsModule, "dispatchEvent")
-      .mockResolvedValue(undefined)
+      .spyOn(eventsModule, "dispatchEventAsync")
+      .mockImplementation(() => undefined)
 
     await trackProductClicked("p1", {
       device: "mobile",
       referrer: "https://example.com",
       browser: "Safari",
     })
-    expect(spy).toHaveBeenCalledWith("product.clicked", {
-      productId: "p1",
-      metadata: {
-        device: "mobile",
-        referrer: "https://example.com",
-        browser: "Safari",
+    expect(spy).toHaveBeenCalledWith(
+      "product.clicked",
+      {
+        productId: "p1",
+        metadata: {
+          device: "mobile",
+          referrer: "https://example.com",
+          browser: "Safari",
+        },
       },
-    })
+      expect.objectContaining({ context: { productId: "p1" } }),
+    )
     spy.mockRestore()
   })
 
@@ -225,19 +229,25 @@ describe("analytics listeners", () => {
 
   it("helper trackProductTraffic publishes event", async () => {
     const spy = vi
-      .spyOn(eventsModule, "dispatchEvent")
-      .mockResolvedValue(undefined)
+      .spyOn(eventsModule, "dispatchEventAsync")
+      .mockImplementation(() => undefined)
 
     await trackProductTraffic({
       productId: "p6",
       path: "/p",
       device: "mobile",
     })
-    expect(spy).toHaveBeenCalledWith(APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC, {
-      productId: "p6",
-      path: "/p",
-      device: "mobile",
-    })
+    expect(spy).toHaveBeenCalledWith(
+      APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC,
+      {
+        productId: "p6",
+        path: "/p",
+        device: "mobile",
+      },
+      expect.objectContaining({
+        context: { productId: "p6", path: "/p" },
+      }),
+    )
     spy.mockRestore()
   })
 })

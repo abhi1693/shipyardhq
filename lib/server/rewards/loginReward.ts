@@ -83,6 +83,8 @@ export async function ensureDailyLoginReward(
       })
     },
   })
+
+  cache.set(userId, dayKey)
 }
 
 export async function handleDailyLoginRewardEvent(

@@ -20,11 +20,17 @@ const handlerStore = vi.hoisted(() => ({
   handlers: [] as Array<(payload: unknown) => void>,
 }))
 
-const onSpy = vi.hoisted(() =>
-  vi.fn((_event: string, handler: (payload: unknown) => void) => {
-    handlerStore.handlers.push(handler)
-    return () => {}
-  }),
+const registerEventHandlerMock = vi.hoisted(() =>
+  vi.fn(
+    (config: {
+      event: string
+      handler: (payload: unknown) => void
+      id: string
+    }) => {
+      handlerStore.handlers.push(config.handler)
+      return () => {}
+    },
+  ),
 )
 
 vi.mock("@/lib/email/resend", () => ({
@@ -51,7 +57,7 @@ vi.mock("@/lib/email/templates/product/productVoteMilestone", () => ({
 
 vi.mock("@/lib/server/events", () => ({
   __esModule: true,
-  on: onSpy,
+  registerEventHandler: registerEventHandlerMock,
 }))
 
 import { handleProductVoteMilestone } from "@/lib/server/email/productVoteMilestone"
@@ -69,7 +75,7 @@ describe("handleProductVoteMilestone", () => {
     getAppBaseUrlMock.mockClear()
     templateSpy.mockClear()
     handlerStore.handlers.length = 0
-    onSpy.mockClear()
+    registerEventHandlerMock.mockClear()
     Object.values(prismaMock).forEach((model) => {
       if (model && typeof model === "object") {
         Object.values(model).forEach((fn) => {
