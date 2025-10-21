@@ -218,7 +218,7 @@ export default function NotificationBell() {
             ))
           ) : (
             <div className="px-3 py-6 text-center text-sm text-muted-foreground">
-              You're all caught up!
+              You&#39;re all caught up!
             </div>
           )}
         </div>
