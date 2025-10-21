@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import {
   Bell,
@@ -38,6 +38,7 @@ import { MEMBER_NOTIFICATIONS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 const PREVIEW_LIMIT = 6
+const POLL_INTERVAL_MS = 20_000
 
 export default function NotificationBell() {
   const [state, setState] =
@@ -48,8 +49,11 @@ export default function NotificationBell() {
     () => new Set(),
   )
   const [markingAll, setMarkingAll] = useState(false)
+  const refreshInFlightRef = useRef(false)
 
   const refresh = useCallback(async () => {
+    if (refreshInFlightRef.current) return
+    refreshInFlightRef.current = true
     setLoading(true)
     try {
       const data = await fetchNotifications({
@@ -63,11 +67,44 @@ export default function NotificationBell() {
       )
     } finally {
       setLoading(false)
+      refreshInFlightRef.current = false
     }
   }, [])
 
   useEffect(() => {
     void refresh()
+  }, [refresh])
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void refresh()
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
+  }, [refresh])
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return
+    }
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return
+      void refresh()
+    }, POLL_INTERVAL_MS)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
   }, [refresh])
 
   const unreadCount = state?.unreadCount ?? 0
