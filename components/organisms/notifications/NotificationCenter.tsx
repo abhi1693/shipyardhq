@@ -23,8 +23,11 @@ import {
 import type {
   NotificationItem,
   NotificationListResult,
-  NotificationMetadata,
 } from "@/types/notifications"
+import {
+  buildNotificationPresentation,
+  getTypePresentation,
+} from "@/lib/notifications/format"
 
 const FETCH_LIMIT = 25
 
@@ -280,7 +283,10 @@ function NotificationRow({
   isPending: boolean
 }) {
   const isUnread = !notification.readAt
-  const href = resolveHref(notification.metadata)
+  const presentation = buildNotificationPresentation(notification)
+  const href = presentation.primaryHref
+  const typeMeta = getTypePresentation(notification.type)
+  const viewLabel = resolveViewLabel(notification.type)
   const createdAt = formatRelative(notification.createdAt)
 
   return (
@@ -301,20 +307,31 @@ function NotificationRow({
               <span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-emerald-500/20" />
             )}
             <div>
-              <p className="text-sm font-medium text-slate-900">
-                {notification.message}
-              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[11px]",
+                    typeMeta.className,
+                  )}
+                >
+                  {typeMeta.label}
+                </Badge>
+                <p className="text-sm font-medium text-slate-900">
+                  {notification.message}
+                </p>
+              </div>
               <p className="text-xs text-muted-foreground">
                 {createdAt}
               </p>
             </div>
           </div>
-          {renderMetadataSummary(notification.metadata)}
+          <NotificationMetadataChips chips={presentation.chips} />
         </div>
         <div className="flex items-center gap-2">
           {href ? (
             <Button asChild size="sm" variant="outline">
-              <Link href={href}>View</Link>
+              <Link href={href}>{viewLabel}</Link>
             </Button>
           ) : null}
           <Button
@@ -351,58 +368,65 @@ function EmptyState() {
   )
 }
 
-function renderMetadataSummary(metadata: NotificationMetadata) {
-  if (!metadata || Array.isArray(metadata)) return null
-  if (typeof metadata !== "object") return null
-
-  const details: string[] = []
-  const record = metadata as Record<string, unknown>
-
-  if (typeof record.productName === "string") {
-    details.push(record.productName)
-  }
-
-  if (typeof record.reviewerName === "string") {
-    details.push(`Reviewer: ${record.reviewerName}`)
-  }
-
-  if (typeof record.rewardAmount === "number") {
-    details.push(
-      `Reward: ${record.rewardAmount.toLocaleString("en-US")} pts`,
-    )
-  }
-
-  if (!details.length) return null
+function NotificationMetadataChips({
+  chips,
+}: {
+  chips: ReturnType<
+    typeof buildNotificationPresentation
+  >["chips"]
+}) {
+  if (!chips.length) return null
 
   return (
-    <p className="pl-6 text-xs text-muted-foreground">
-      {details.join(" • ")}
-    </p>
+    <div className="flex flex-wrap gap-2 pl-6 pt-1">
+      {chips.map((chip, index) => {
+        if (chip.href) {
+          return (
+            <Link key={`${chip.label}-${index}`} href={chip.href}>
+              <Badge
+                variant="secondary"
+                className="h-5 rounded-full px-2 text-[11px]"
+              >
+                <span className="text-muted-foreground">
+                  {chip.label}:
+                </span>{" "}
+                <span className="font-medium text-slate-900">
+                  {chip.value}
+                </span>
+              </Badge>
+            </Link>
+          )
+        }
+
+        return (
+          <Badge
+            key={`${chip.label}-${chip.value}-${index}`}
+            variant="secondary"
+            className="h-5 rounded-full px-2 text-[11px]"
+          >
+            <span className="text-muted-foreground">{chip.label}:</span>{" "}
+            <span className="font-medium text-slate-900">
+              {chip.value}
+            </span>
+          </Badge>
+        )
+      })}
+    </div>
   )
 }
 
-function resolveHref(metadata: NotificationMetadata): string | null {
-  if (!metadata || typeof metadata !== "object") {
-    return null
+function resolveViewLabel(
+  type: NotificationItem["type"],
+): string {
+  switch (type) {
+    case "product_upvote":
+    case "product_review":
+      return "View product"
+    case "reward_awarded":
+      return "View rewards"
+    default:
+      return "View details"
   }
-
-  if (Array.isArray(metadata)) return null
-
-  const record = metadata as Record<string, unknown>
-  const href = record.href
-  if (typeof href === "string" && href.trim().length > 0) {
-    return href
-  }
-
-  const publicHref = record.publicHref
-  if (
-    typeof publicHref === "string" &&
-    publicHref.trim().length > 0
-  ) {
-    return publicHref
-  }
-
-  return null
 }
 
 function formatRelative(value: string) {

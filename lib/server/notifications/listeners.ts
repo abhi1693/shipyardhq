@@ -57,7 +57,8 @@ registerEventHandler({
       if (product.userId === actor.id) return
 
       const actorName = formatUserName(actor)
-      const message = `${actorName} upvoted ${product.name}`
+      const productName = formatProductName(product)
+      const message = `${actorName} upvoted ${productName}`
 
       await createNotification({
         userId: product.userId,
@@ -68,7 +69,7 @@ registerEventHandler({
           actorName,
           productId: product.id,
           productSlug: product.slug,
-          productName: product.name,
+          productName,
           upvoteId: event.upvoteId,
           occurredAt: event.occurredAt.toISOString(),
           href: memberProductOverviewPath(product.slug),
@@ -104,7 +105,8 @@ registerEventHandler({
       if (ownerUserId === reviewer.id) return
 
       const reviewerName = formatUserName(reviewer)
-      const message = `New review on ${product.name} by ${reviewerName}`
+      const productName = formatProductName(product)
+      const message = `New review on ${productName} by ${reviewerName}`
 
       await createNotification({
         userId: ownerUserId,
@@ -113,7 +115,7 @@ registerEventHandler({
         metadata: {
           productId: product.id,
           productSlug: product.slug,
-          productName: product.name,
+          productName,
           reviewerUserId: reviewer.id,
           reviewerName,
           reviewId: event.reviewId,
@@ -140,27 +142,55 @@ registerEventHandler({
   queue: "low",
   handler: async (event) => {
     try {
+      const metadataRecord = toMetadataRecord(event.metadata)
+      const resolvedProductId =
+        event.productId ??
+        extractProductId(metadataRecord) ??
+        (event.targetType === "product" && typeof event.targetId === "string"
+          ? event.targetId
+          : null)
+
+      const product = resolvedProductId
+        ? await loadProduct(resolvedProductId)
+        : null
+      const productNameRaw = product ? formatProductName(product) : null
+      const productName =
+        productNameRaw && productNameRaw.toLowerCase() !== "your product"
+          ? productNameRaw
+          : null
+
       const pointsLabel =
         event.rewardAmount === 1
           ? "1 point"
           : `${event.rewardAmount} points`
-      const reason = event.ruleName?.trim() || "your activity"
-      const message = `You earned ${pointsLabel} for ${reason}.`
+      const reason = normalizeReason(event.ruleName)
+      const reasonIncludesProduct =
+        productName &&
+        reason.toLowerCase().includes(productName.toLowerCase())
+      const message = `You earned ${pointsLabel} for ${reason}${
+        productName && !reasonIncludesProduct ? ` on ${productName}` : ""
+      }.`
 
       const metadata: Record<string, unknown> = {
         transactionId: event.transactionId,
         ruleKey: event.ruleKey,
         ruleName: event.ruleName,
+        ruleDisplayName: reason,
         rewardAmount: event.rewardAmount,
         balanceAfter: event.balanceAfter,
         sourceType: event.sourceType ?? null,
         sourceId: event.sourceId ?? null,
         targetType: event.targetType ?? null,
         targetId: event.targetId ?? null,
-        productId: event.productId ?? null,
-        metadata: event.metadata ?? null,
+        productId: resolvedProductId ?? null,
+        productName,
+        productSlug: product?.slug ?? null,
+        href: product?.slug
+          ? memberProductOverviewPath(product.slug)
+          : MEMBER_REWARDS_PATH,
+        publicHref: product?.slug ? productPath(product.slug) : null,
+        eventMetadata: event.metadata ?? null,
         awardedAt: event.createdAt.toISOString(),
-        href: MEMBER_REWARDS_PATH,
       }
 
       await createNotification({
@@ -209,4 +239,43 @@ function formatUserName(
 
   if (!parts.length) return USER_NAME_FALLBACK
   return parts.join(" ")
+}
+
+function formatProductName(
+  product: BasicProduct | null,
+): string {
+  if (!product) return "your product"
+  const name = product.name?.trim()
+  if (name && name.length > 0) {
+    return name
+  }
+  return product.slug?.trim() || "your product"
+}
+
+function toMetadataRecord(
+  metadata: unknown,
+): Record<string, unknown> | null {
+  if (!metadata || typeof metadata !== "object") return null
+  if (Array.isArray(metadata)) return null
+  return metadata as Record<string, unknown>
+}
+
+function extractProductId(
+  metadata: Record<string, unknown> | null,
+): string | null {
+  if (!metadata) return null
+  const potentialKeys = ["productId", "targetId", "product_id"]
+  for (const key of potentialKeys) {
+    const value = metadata[key]
+    if (typeof value === "string" && value.trim()) {
+      return value
+    }
+  }
+  return null
+}
+
+function normalizeReason(reason?: string | null): string {
+  const trimmed = reason?.trim() ?? ""
+  if (!trimmed) return "your activity"
+  return trimmed.replace(/\.+$/, "")
 }

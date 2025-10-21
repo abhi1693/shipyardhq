@@ -22,8 +22,11 @@ import {
 import type {
   NotificationItem,
   NotificationListResult,
-  NotificationMetadata,
 } from "@/types/notifications"
+import {
+  buildNotificationPresentation,
+  getTypePresentation,
+} from "@/lib/notifications/format"
 import { MEMBER_NOTIFICATIONS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -208,58 +211,12 @@ export default function NotificationBell() {
             </div>
           ) : hasItems ? (
             notifications.map((notification) => (
-              <div
+              <NotificationPreviewItem
                 key={notification.id}
-                className={cn(
-                  "border-b border-slate-100 px-3 py-3 last:border-b-0",
-                  notification.readAt
-                    ? "bg-white"
-                    : "bg-sky-50/70",
-                )}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-slate-900">
-                      {notification.message}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatRelative(notification.createdAt)}
-                    </p>
-                    {renderMetadataPreview(notification.metadata)}
-                  </div>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7 flex-shrink-0"
-                    onClick={() =>
-                      handleMarkRead(notification.id)
-                    }
-                    disabled={
-                      !!notification.readAt ||
-                      pendingIds.has(notification.id)
-                    }
-                    aria-label="Mark notification read"
-                  >
-                    {pendingIds.has(notification.id) ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Check className="h-3.5 w-3.5" />
-                    )}
-                  </Button>
-                </div>
-                {resolveHref(notification.metadata) ? (
-                  <div className="mt-2">
-                    <Link
-                      href={
-                        resolveHref(notification.metadata) ?? "#"
-                      }
-                      className="text-xs font-medium text-sky-600 hover:underline"
-                    >
-                      View details
-                    </Link>
-                  </div>
-                ) : null}
-              </div>
+                notification={notification}
+                onMarkRead={handleMarkRead}
+                isPending={pendingIds.has(notification.id)}
+              />
             ))
           ) : (
             <div className="px-3 py-6 text-center text-sm text-muted-foreground">
@@ -278,57 +235,131 @@ export default function NotificationBell() {
   )
 }
 
-function renderMetadataPreview(metadata: NotificationMetadata) {
-  if (!metadata || typeof metadata !== "object") return null
-  if (Array.isArray(metadata)) return null
-
-  const record = metadata as Record<string, unknown>
-  const parts: string[] = []
-  if (typeof record.productName === "string") {
-    parts.push(record.productName)
-  }
-  if (typeof record.reviewerName === "string") {
-    parts.push(`Reviewer: ${record.reviewerName}`)
-  }
-  if (typeof record.rewardAmount === "number") {
-    parts.push(
-      `${record.rewardAmount.toLocaleString("en-US")} pts`,
-    )
-  }
-
-  if (!parts.length) return null
+function NotificationPreviewChips({
+  chips,
+}: {
+  chips: ReturnType<
+    typeof buildNotificationPresentation
+  >["chips"]
+}) {
+  if (!chips.length) return null
 
   return (
-    <Badge
-      variant="secondary"
-      className="h-5 gap-1 rounded-full px-2 text-[11px]"
-    >
-      {parts.join(" • ")}
-    </Badge>
+    <div className="flex flex-wrap gap-1.5">
+      {chips.map((chip, index) => {
+        if (chip.href) {
+          return (
+            <Link key={`${chip.label}-${index}`} href={chip.href}>
+              <Badge
+                variant="secondary"
+                className="h-5 rounded-full px-2 text-[11px]"
+              >
+                <span className="text-muted-foreground">
+                  {chip.label}:
+                </span>{" "}
+                <span className="font-medium text-slate-900">
+                  {chip.value}
+                </span>
+              </Badge>
+            </Link>
+          )
+        }
+
+        return (
+          <Badge
+            key={`${chip.label}-${chip.value}-${index}`}
+            variant="secondary"
+            className="h-5 rounded-full px-2 text-[11px]"
+          >
+            <span className="text-muted-foreground">{chip.label}:</span>{" "}
+            <span className="font-medium text-slate-900">
+              {chip.value}
+            </span>
+          </Badge>
+        )
+      })}
+    </div>
   )
 }
 
-function resolveHref(metadata: NotificationMetadata): string | null {
-  if (!metadata || typeof metadata !== "object") {
-    return null
+function resolveViewLabel(type: NotificationItem["type"]) {
+  switch (type) {
+    case "product_upvote":
+    case "product_review":
+      return "View product"
+    case "reward_awarded":
+      return "View rewards"
+    default:
+      return "View details"
   }
-
-  if (Array.isArray(metadata)) return null
-
-  const record = metadata as Record<string, unknown>
-  const href = record.href
-  if (typeof href === "string" && href.trim()) {
-    return href
-  }
-
-  const publicHref = record.publicHref
-  if (typeof publicHref === "string" && publicHref.trim()) {
-    return publicHref
-  }
-
-  return null
 }
 
 function formatRelative(value: string) {
   return formatDistanceToNow(new Date(value), { addSuffix: true })
+}
+
+function NotificationPreviewItem({
+  notification,
+  onMarkRead,
+  isPending,
+}: {
+  notification: NotificationItem
+  onMarkRead: (notificationId: string) => Promise<void>
+  isPending: boolean
+}) {
+  const presentation = buildNotificationPresentation(notification)
+  const typeMeta = getTypePresentation(notification.type)
+
+  return (
+    <div
+      className={cn(
+        "border-b border-slate-100 px-3 py-3 last:border-b-0",
+        notification.readAt ? "bg-white" : "bg-sky-50/70",
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="space-y-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge
+              variant="outline"
+              className={cn("text-[11px]", typeMeta.className)}
+            >
+              {typeMeta.label}
+            </Badge>
+            <p className="text-sm font-medium text-slate-900">
+              {notification.message}
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {formatRelative(notification.createdAt)}
+          </p>
+          <NotificationPreviewChips chips={presentation.chips} />
+        </div>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-7 w-7 flex-shrink-0"
+          onClick={() => onMarkRead(notification.id)}
+          disabled={!!notification.readAt || isPending}
+          aria-label="Mark notification read"
+        >
+          {isPending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Check className="h-3.5 w-3.5" />
+          )}
+        </Button>
+      </div>
+      {presentation.primaryHref ? (
+        <div className="mt-2">
+          <Link
+            href={presentation.primaryHref}
+            className="text-xs font-medium text-sky-600 hover:underline"
+          >
+            {resolveViewLabel(notification.type)}
+          </Link>
+        </div>
+      ) : null}
+    </div>
+  )
 }
