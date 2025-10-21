@@ -21,8 +21,12 @@ export function UserNav() {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <UserAvatarProfile user={user} />
+          <Button
+            variant="ghost"
+            className="relative h-[30px] w-[30px] rounded-full p-0"
+            style={{ width: 30, height: 30 }}
+          >
+            <UserAvatarProfile user={user} size={30} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

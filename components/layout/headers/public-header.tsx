@@ -154,15 +154,16 @@ export default function PublicHeader() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-10 w-10 rounded-full border border-border/70 bg-white/80 p-0 shadow-sm transition hover:border-border"
+                        className="h-[30px] w-[30px] rounded-full border border-border/70 bg-white/80 p-0 shadow-sm transition hover:border-border"
+                        style={{ width: 30, height: 30 }}
                         aria-label="Open account menu"
                       >
                         <Avatar className="h-full w-full">
                           <AvatarImage
                             src={user.imageUrl ?? ""}
                             alt={user.fullName ?? "Account avatar"}
-                            width={40}
-                            height={40}
+                            width={30}
+                            height={30}
                           />
                           <AvatarFallback className="bg-muted text-xs font-semibold uppercase text-muted-foreground">
                             {userInitials}

@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 
 interface UserAvatarProfileProps {
   className?: string
+  size?: number
   showInfo?: boolean
   user: {
     imageUrl?: string
@@ -12,17 +13,21 @@ interface UserAvatarProfileProps {
 
 export function UserAvatarProfile({
   className,
+  size = 48,
   showInfo = false,
   user,
 }: UserAvatarProfileProps) {
   return (
     <div className="flex items-center gap-2">
-      <Avatar className={className}>
+      <Avatar
+        className={className}
+        style={{ width: size, height: size }}
+      >
         <AvatarImage
           src={user?.imageUrl || ""}
           alt={user?.fullName || ""}
-          width={48}
-          height={48}
+          width={size}
+          height={size}
         />
         <AvatarFallback className="rounded-lg">
           {user?.fullName?.slice(0, 2)?.toUpperCase() || "CN"}
