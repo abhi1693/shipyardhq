@@ -16,17 +16,13 @@ export function buildNotificationPresentation(
   }
 }
 
-function toMetadataRecord(
-  metadata: unknown,
-): Record<string, unknown> {
+function toMetadataRecord(metadata: unknown): Record<string, unknown> {
   if (!metadata || typeof metadata !== "object") return {}
   if (Array.isArray(metadata)) return {}
   return metadata as Record<string, unknown>
 }
 
-function resolvePrimaryHref(
-  metadata: Record<string, unknown>,
-): string | null {
+function resolvePrimaryHref(metadata: Record<string, unknown>): string | null {
   const href = getString(metadata.href)
   if (href) return href
   const publicHref = getString(metadata.publicHref)

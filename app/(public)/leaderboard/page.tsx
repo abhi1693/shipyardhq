@@ -237,21 +237,22 @@ export default async function LeaderboardPage({
                     selected={normalizedFilters.categorySlug}
                     limit={normalizedFilters.limit}
                   />
-                <div className="space-y-1 text-xs text-muted-foreground">
-                  <p>
-                    Showing top {totalCount} launch
-                    {totalCount === 1 ? "" : "es"}
-                    {categoryName
-                      ? ` in ${categoryName}`
-                      : " across all categories"}
-                    .
-                  </p>
-                  {normalizedFilters.categorySlug || normalizedFilters.limit !== 50 ? (
-                    <Link
-                      href={LEADERBOARD_PATH}
-                      className="inline-flex items-center gap-1 font-semibold text-[color:var(--brand-1)] hover:underline"
-                    >
-                      Reset filters
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    <p>
+                      Showing top {totalCount} launch
+                      {totalCount === 1 ? "" : "es"}
+                      {categoryName
+                        ? ` in ${categoryName}`
+                        : " across all categories"}
+                      .
+                    </p>
+                    {normalizedFilters.categorySlug ||
+                    normalizedFilters.limit !== 50 ? (
+                      <Link
+                        href={LEADERBOARD_PATH}
+                        className="inline-flex items-center gap-1 font-semibold text-[color:var(--brand-1)] hover:underline"
+                      >
+                        Reset filters
                       </Link>
                     ) : null}
                   </div>

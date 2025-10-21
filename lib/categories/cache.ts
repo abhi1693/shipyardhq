@@ -39,10 +39,6 @@ export const getCategoriesPagePayload = cached(
   "categories:page:payload",
   {
     ttl: DEFAULT_TTL.slow,
-    tags: () => [
-      TAGS.categoryDirectory,
-      TAGS.categories,
-      TAGS.products,
-    ],
+    tags: () => [TAGS.categoryDirectory, TAGS.categories, TAGS.products],
   },
 )

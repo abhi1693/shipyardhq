@@ -131,9 +131,7 @@ describe("notifications service", () => {
     expect(result.notifications[0].metadata).toEqual({
       productName: "ShitPosts",
     })
-    expect(result.notifications[1].readAt).toBe(
-      now.toISOString(),
-    )
+    expect(result.notifications[1].readAt).toBe(now.toISOString())
     expect(result.unreadCount).toBe(2)
     expect(result.nextCursor).toBe("notif-2")
   })
@@ -150,10 +148,7 @@ describe("notifications service", () => {
 
   it("marks a notification as read", async () => {
     updateManyMock.mockResolvedValue({ count: 1 })
-    const result = await markNotificationRead(
-      "user-1",
-      "notif-1",
-    )
+    const result = await markNotificationRead("user-1", "notif-1")
     expect(updateManyMock).toHaveBeenCalledWith({
       where: { id: "notif-1", userId: "user-1" },
       data: expect.objectContaining({ readAt: expect.any(Date) }),
@@ -163,10 +158,7 @@ describe("notifications service", () => {
 
   it("returns false when notification not found", async () => {
     updateManyMock.mockResolvedValue({ count: 0 })
-    const result = await markNotificationRead(
-      "user-1",
-      "missing",
-    )
+    const result = await markNotificationRead("user-1", "missing")
     expect(result).toBe(false)
   })
 

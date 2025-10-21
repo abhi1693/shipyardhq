@@ -90,10 +90,7 @@ const resolveSingle = (value: StrOrArr) =>
   Array.isArray(value) ? value[0] : value
 
 const isBrowseSort = (value: string | undefined): value is BrowseSort =>
-  value === "new" ||
-  value === "trending" ||
-  value === "votes" ||
-  value === "az"
+  value === "new" || value === "trending" || value === "votes" || value === "az"
 
 const parseSearchParams = (params: BrowseSearchParams): BrowsePageFilters => {
   const useCaseRaw = resolveSingle(params.useCase)
@@ -106,9 +103,7 @@ const parseSearchParams = (params: BrowseSearchParams): BrowsePageFilters => {
     useCase:
       useCaseRaw && useCaseRaw !== "__all__" ? useCaseRaw.trim() : undefined,
     category:
-      categoryRaw && categoryRaw !== "__all__"
-        ? categoryRaw.trim()
-        : undefined,
+      categoryRaw && categoryRaw !== "__all__" ? categoryRaw.trim() : undefined,
     verified: resolveSingle(params.verified) === "true",
     sort: isBrowseSort(sortRaw) ? sortRaw : "new",
     page: Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1,

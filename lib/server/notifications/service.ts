@@ -1,10 +1,7 @@
 import prisma from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import type {
-  NotificationType,
-  Prisma,
-} from "@/lib/vendor/prisma/client"
+import type { NotificationType, Prisma } from "@/lib/vendor/prisma/client"
 import type {
   NotificationItem,
   NotificationListResult,
@@ -27,9 +24,7 @@ export type CreateNotificationInput = {
   metadata?: Prisma.InputJsonValue | null
 }
 
-export async function createNotification(
-  input: CreateNotificationInput,
-) {
+export async function createNotification(input: CreateNotificationInput) {
   const { userId, type, message, metadata } = input
   if (!userId) throw new Error("Notification userId is required")
   if (!type) throw new Error("Notification type is required")
@@ -82,8 +77,7 @@ const fetchNotificationsCached = cached(
   async (
     userId: string,
     options: ResolvedListOptions,
-  ): Promise<NotificationListResult> =>
-    queryNotifications(userId, options),
+  ): Promise<NotificationListResult> => queryNotifications(userId, options),
   NOTIFICATIONS_CACHE_KEY,
   {
     ttl: DEFAULT_TTL.slow,
@@ -148,46 +142,35 @@ export async function markAllNotificationsRead(
   return result.count
 }
 
-function serializeNotification(
-  notification: {
-    id: string
-    type: NotificationType
-    message: string
-    metadata: Prisma.JsonValue | null
-    readAt: Date | null
-    createdAt: Date
-    updatedAt: Date
-  },
-): NotificationItem {
+function serializeNotification(notification: {
+  id: string
+  type: NotificationType
+  message: string
+  metadata: Prisma.JsonValue | null
+  readAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+}): NotificationItem {
   return {
     id: notification.id,
     type: notification.type,
     message: notification.message,
     metadata: cloneJson(notification.metadata),
-    readAt: notification.readAt
-      ? notification.readAt.toISOString()
-      : null,
+    readAt: notification.readAt ? notification.readAt.toISOString() : null,
     createdAt: notification.createdAt.toISOString(),
     updatedAt: notification.updatedAt.toISOString(),
   }
 }
 
-function cloneJson(
-  value: Prisma.JsonValue | null,
-): NotificationMetadata {
+function cloneJson(value: Prisma.JsonValue | null): NotificationMetadata {
   if (value === null || value === undefined) {
     return null
   }
 
   try {
-    return JSON.parse(
-      JSON.stringify(value),
-    ) as Record<string, unknown>
+    return JSON.parse(JSON.stringify(value)) as Record<string, unknown>
   } catch (error) {
-    console.error(
-      "[notifications] Failed to clone metadata",
-      { error, value },
-    )
+    console.error("[notifications] Failed to clone metadata", { error, value })
     return null
   }
 }
@@ -198,15 +181,13 @@ function resolveListOptions(
   const rawLimit = Number.isFinite(options.limit)
     ? Number(options.limit)
     : DEFAULT_LIST_LIMIT
-  const limit = Math.max(
-    1,
-    Math.min(Math.trunc(rawLimit), MAX_LIST_LIMIT),
-  )
+  const limit = Math.max(1, Math.min(Math.trunc(rawLimit), MAX_LIST_LIMIT))
 
   const cursorValue = options.cursor
-  const cursor = typeof cursorValue === "string" && cursorValue.length > 0
-    ? cursorValue
-    : null
+  const cursor =
+    typeof cursorValue === "string" && cursorValue.length > 0
+      ? cursorValue
+      : null
 
   return { limit, cursor }
 }
@@ -235,24 +216,18 @@ async function queryNotifications(
   })
 
   const hasMore = notifications.length > limit
-  const items = hasMore
-    ? notifications.slice(0, limit)
-    : notifications
+  const items = hasMore ? notifications.slice(0, limit) : notifications
 
   const unreadCount = await prisma.notification.count({
     where: { userId, readAt: null },
   })
 
-  const serialized: NotificationItem[] = items.map(
-    serializeNotification,
-  )
+  const serialized: NotificationItem[] = items.map(serializeNotification)
 
   return {
     notifications: serialized,
     unreadCount,
-    nextCursor: hasMore
-      ? items[items.length - 1].id
-      : undefined,
+    nextCursor: hasMore ? items[items.length - 1].id : undefined,
   }
 }
 
@@ -271,7 +246,6 @@ function invalidateNotificationCache(userId: string) {
     for (const tag of baseTags) {
       revalidateTag(tag)
     }
-
   } catch (error) {
     console.error("[notifications] Failed to revalidate cache", {
       error,

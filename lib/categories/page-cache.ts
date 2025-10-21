@@ -4,7 +4,9 @@ import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
 import { productHasFeature } from "@/lib/features"
 import type { FeaturedProduct } from "@/types"
 
-type CategoryFull = NonNullable<Awaited<ReturnType<typeof getCategoryWithProducts>>>
+type CategoryFull = NonNullable<
+  Awaited<ReturnType<typeof getCategoryWithProducts>>
+>
 
 type CategoryProduct = CategoryFull["products"][number]
 

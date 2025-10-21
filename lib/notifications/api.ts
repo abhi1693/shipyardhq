@@ -9,10 +9,7 @@ export async function fetchNotifications(
   options: FetchOptions = {},
 ): Promise<NotificationListResult> {
   const params = new URLSearchParams()
-  if (
-    typeof options.limit === "number" &&
-    Number.isFinite(options.limit)
-  ) {
+  if (typeof options.limit === "number" && Number.isFinite(options.limit)) {
     params.set("limit", String(options.limit))
   }
   if (options.cursor) {
@@ -39,13 +36,10 @@ export async function fetchNotifications(
 export async function markNotificationReadClient(
   notificationId: string,
 ): Promise<void> {
-  const response = await fetch(
-    `/api/notifications/${notificationId}/read`,
-    {
-      method: "PATCH",
-      credentials: "same-origin",
-    },
-  )
+  const response = await fetch(`/api/notifications/${notificationId}/read`, {
+    method: "PATCH",
+    credentials: "same-origin",
+  })
 
   if (!response.ok) {
     throw new Error("Failed to mark notification read")

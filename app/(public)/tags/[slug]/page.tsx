@@ -2,7 +2,10 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 
-import { getKeywordTagBySlug, TAG_PRODUCTS_PAGE_SIZE } from "@/actions/public/tags/actions"
+import {
+  getKeywordTagBySlug,
+  TAG_PRODUCTS_PAGE_SIZE,
+} from "@/actions/public/tags/actions"
 import ProductCompactGrid from "@/components/molecules/ProductCompactGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
 import KeywordTagCloud from "@/components/molecules/KeywordTagCloud"

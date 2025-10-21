@@ -129,8 +129,8 @@ export default async function CategoriesPage() {
                   Explore every category
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {pluralize(categoryCount, "category")} organized by
-                  traction, narrative, and community demand.
+                  {pluralize(categoryCount, "category")} organized by traction,
+                  narrative, and community demand.
                 </p>
               </div>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">

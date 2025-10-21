@@ -130,9 +130,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
   })
 
   const summaryParts: string[] = []
-  const earliestLaunchDate = earliestLaunch
-    ? new Date(earliestLaunch)
-    : null
+  const earliestLaunchDate = earliestLaunch ? new Date(earliestLaunch) : null
 
   if (earliestLaunchDate) {
     summaryParts.push(

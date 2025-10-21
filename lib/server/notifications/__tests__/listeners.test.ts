@@ -28,9 +28,7 @@ vi.mock("@/lib/server/notifications/service", () => ({
 }))
 
 describe("notifications listeners", () => {
-  let handler:
-    | ((payload: any) => Promise<void> | void)
-    | undefined
+  let handler: ((payload: any) => Promise<void> | void) | undefined
 
   beforeEach(async () => {
     vi.resetModules()

@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma"
 import { sendEmail } from "@/lib/email/resend"
 import ProductPublishedEmail from "@/lib/email/templates/product/productPublished"
 import { getAppBaseUrl } from "@/lib/email/utils"
-import {memberProductPath} from "@/lib/routes";
+import { memberProductPath } from "@/lib/routes"
 
 function getProductUrl(slug: string) {
   const base = getAppBaseUrl()

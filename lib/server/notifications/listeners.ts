@@ -6,21 +6,18 @@ import {
   MEMBER_REWARDS_PATH,
   productPath,
 } from "@/lib/routes"
-import {
-  createNotification,
-} from "@/lib/server/notifications/service"
-import {
-  NotificationType,
-  type Prisma,
-} from "@/lib/vendor/prisma/client"
+import { createNotification } from "@/lib/server/notifications/service"
+import { NotificationType, type Prisma } from "@/lib/vendor/prisma/client"
 
 const USER_NAME_FALLBACK = "Shipyard member"
 
 const PRODUCT_UPDATE_NOTIFICATION_TYPE =
-  (NotificationType as Record<
-    string,
-    (typeof NotificationType)[keyof typeof NotificationType] | undefined
-  >).product_update ?? NotificationType.system
+  (
+    NotificationType as Record<
+      string,
+      (typeof NotificationType)[keyof typeof NotificationType] | undefined
+    >
+  ).product_update ?? NotificationType.system
 
 type BasicUser = {
   id: string
@@ -82,10 +79,10 @@ registerEventHandler({
         },
       })
     } catch (error) {
-      console.error(
-        "[notifications] failed to handle product.upvoted",
-        { error, event },
-      )
+      console.error("[notifications] failed to handle product.upvoted", {
+        error,
+        event,
+      })
     }
   },
 })
@@ -104,8 +101,7 @@ registerEventHandler({
       if (!product) return
       if (!reviewer) return
 
-      const ownerUserId =
-        event.productOwnerId ?? product.userId
+      const ownerUserId = event.productOwnerId ?? product.userId
       if (!ownerUserId) return
       if (ownerUserId === reviewer.id) return
 
@@ -132,10 +128,10 @@ registerEventHandler({
         },
       })
     } catch (error) {
-      console.error(
-        "[notifications] failed to handle product.reviewed",
-        { error, event },
-      )
+      console.error("[notifications] failed to handle product.reviewed", {
+        error,
+        event,
+      })
     }
   },
 })
@@ -164,13 +160,10 @@ registerEventHandler({
           : null
 
       const pointsLabel =
-        event.rewardAmount === 1
-          ? "1 point"
-          : `${event.rewardAmount} points`
+        event.rewardAmount === 1 ? "1 point" : `${event.rewardAmount} points`
       const reason = normalizeReason(event.ruleName)
       const reasonIncludesProduct =
-        productName &&
-        reason.toLowerCase().includes(productName.toLowerCase())
+        productName && reason.toLowerCase().includes(productName.toLowerCase())
       const message = `You earned ${pointsLabel} for ${reason}${
         productName && !reasonIncludesProduct ? ` on ${productName}` : ""
       }.`
@@ -201,10 +194,10 @@ registerEventHandler({
         metadata,
       })
     } catch (error) {
-      console.error(
-        "[notifications] failed to handle rewards.awarded",
-        { error, event },
-      )
+      console.error("[notifications] failed to handle rewards.awarded", {
+        error,
+        event,
+      })
     }
   },
 })
@@ -291,9 +284,7 @@ registerEventHandler({
   },
 })
 
-async function loadProduct(
-  productId: string,
-): Promise<BasicProduct | null> {
+async function loadProduct(productId: string): Promise<BasicProduct | null> {
   if (!productId) return null
   return prisma.product.findUnique({
     where: { id: productId },
@@ -301,9 +292,7 @@ async function loadProduct(
   })
 }
 
-async function loadUser(
-  userId: string,
-): Promise<BasicUser | null> {
+async function loadUser(userId: string): Promise<BasicUser | null> {
   if (!userId) return null
   return prisma.user.findUnique({
     where: { id: userId },
@@ -311,22 +300,17 @@ async function loadUser(
   })
 }
 
-function formatUserName(
-  user: BasicUser | null,
-): string {
+function formatUserName(user: BasicUser | null): string {
   if (!user) return USER_NAME_FALLBACK
-  const parts = [
-    user.firstName?.trim(),
-    user.lastName?.trim(),
-  ].filter(Boolean) as string[]
+  const parts = [user.firstName?.trim(), user.lastName?.trim()].filter(
+    Boolean,
+  ) as string[]
 
   if (!parts.length) return USER_NAME_FALLBACK
   return parts.join(" ")
 }
 
-function formatProductName(
-  product: BasicProduct | null,
-): string {
+function formatProductName(product: BasicProduct | null): string {
   if (!product) return "your product"
   const name = product.name?.trim()
   if (name && name.length > 0) {
@@ -335,9 +319,7 @@ function formatProductName(
   return product.slug?.trim() || "your product"
 }
 
-function toMetadataRecord(
-  metadata: unknown,
-): Record<string, unknown> | null {
+function toMetadataRecord(metadata: unknown): Record<string, unknown> | null {
   if (!metadata || typeof metadata !== "object") return null
   if (Array.isArray(metadata)) return null
   return metadata as Record<string, unknown>

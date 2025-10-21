@@ -31,9 +31,7 @@ import type {
   NotificationItem,
   NotificationListResult,
 } from "@/types/notifications"
-import {
-  buildNotificationPresentation,
-} from "@/lib/notifications/format"
+import { buildNotificationPresentation } from "@/lib/notifications/format"
 import { MEMBER_NOTIFICATIONS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
@@ -41,13 +39,10 @@ const PREVIEW_LIMIT = 6
 const POLL_INTERVAL_MS = 20_000
 
 export default function NotificationBell() {
-  const [state, setState] =
-    useState<NotificationListResult | null>(null)
+  const [state, setState] = useState<NotificationListResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
-  const [pendingIds, setPendingIds] = useState<Set<string>>(
-    () => new Set(),
-  )
+  const [pendingIds, setPendingIds] = useState<Set<string>>(() => new Set())
   const [markingAll, setMarkingAll] = useState(false)
   const refreshInFlightRef = useRef(false)
 
@@ -61,10 +56,7 @@ export default function NotificationBell() {
       })
       setState(data)
     } catch (err) {
-      console.error(
-        "[notifications] failed to fetch bell notifications",
-        err,
-      )
+      console.error("[notifications] failed to fetch bell notifications", err)
     } finally {
       setLoading(false)
       refreshInFlightRef.current = false
@@ -147,9 +139,7 @@ export default function NotificationBell() {
         return {
           notifications: nextNotifications,
           unreadCount:
-            prev.unreadCount > 0
-              ? prev.unreadCount - 1
-              : prev.unreadCount,
+            prev.unreadCount > 0 ? prev.unreadCount - 1 : prev.unreadCount,
           nextCursor: prev.nextCursor,
         }
       })
@@ -157,10 +147,10 @@ export default function NotificationBell() {
       try {
         await markNotificationReadClient(notificationId)
       } catch (err) {
-        console.error(
-          "[notifications] failed to mark bell notification read",
-          { err, notificationId },
-        )
+        console.error("[notifications] failed to mark bell notification read", {
+          err,
+          notificationId,
+        })
         await refresh()
       } finally {
         setPendingIds((prev) => {
@@ -191,10 +181,7 @@ export default function NotificationBell() {
     try {
       await markAllNotificationsReadClient()
     } catch (err) {
-      console.error(
-        "[notifications] failed to mark all from bell",
-        err,
-      )
+      console.error("[notifications] failed to mark all from bell", err)
       await refresh()
     } finally {
       setMarkingAll(false)

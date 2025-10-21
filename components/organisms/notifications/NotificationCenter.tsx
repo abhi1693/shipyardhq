@@ -74,13 +74,10 @@ type NotificationCenterProps = {
 export default function NotificationCenter({
   initialData,
 }: NotificationCenterProps) {
-  const [state, setState] =
-    useState<NotificationListResult>(initialData)
+  const [state, setState] = useState<NotificationListResult>(initialData)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [pendingIds, setPendingIds] = useState<Set<string>>(
-    () => new Set(),
-  )
+  const [pendingIds, setPendingIds] = useState<Set<string>>(() => new Set())
   const [markingAll, startMarkAllTransition] = useTransition()
 
   const hasNotifications = state.notifications.length > 0
@@ -95,10 +92,7 @@ export default function NotificationCenter({
       })
       setState(data)
     } catch (err) {
-      console.error(
-        "[notifications] failed to refresh notifications",
-        err,
-      )
+      console.error("[notifications] failed to refresh notifications", err)
       setError("Unable to refresh notifications right now.")
     } finally {
       setLoading(false)
@@ -115,14 +109,10 @@ export default function NotificationCenter({
         cursor: state.nextCursor,
       })
       setState((prev) => {
-        const existingIds = new Set(
-          prev.notifications.map((item) => item.id),
-        )
+        const existingIds = new Set(prev.notifications.map((item) => item.id))
         const merged = [
           ...prev.notifications,
-          ...data.notifications.filter(
-            (item) => !existingIds.has(item.id),
-          ),
+          ...data.notifications.filter((item) => !existingIds.has(item.id)),
         ]
         return {
           notifications: merged,
@@ -131,10 +121,7 @@ export default function NotificationCenter({
         }
       })
     } catch (err) {
-      console.error(
-        "[notifications] failed to load more notifications",
-        err,
-      )
+      console.error("[notifications] failed to load more notifications", err)
       setError("Unable to load more notifications.")
     } finally {
       setLoading(false)
@@ -169,19 +156,17 @@ export default function NotificationCenter({
           ...prev,
           notifications: nextNotifications,
           unreadCount:
-            prev.unreadCount > 0
-              ? prev.unreadCount - 1
-              : prev.unreadCount,
+            prev.unreadCount > 0 ? prev.unreadCount - 1 : prev.unreadCount,
         }
       })
 
       try {
         await markNotificationReadClient(notificationId)
       } catch (err) {
-        console.error(
-          "[notifications] failed to mark notification read",
-          { err, notificationId },
-        )
+        console.error("[notifications] failed to mark notification read", {
+          err,
+          notificationId,
+        })
         setError("Unable to update notification status.")
         await refresh()
       } finally {
@@ -211,10 +196,7 @@ export default function NotificationCenter({
       try {
         await markAllNotificationsReadClient()
       } catch (err) {
-        console.error(
-          "[notifications] failed to mark all read",
-          err,
-        )
+        console.error("[notifications] failed to mark all read", err)
         setError("Unable to mark notifications as read.")
         await refresh()
       }
@@ -292,11 +274,7 @@ export default function NotificationCenter({
 
         {state.nextCursor ? (
           <div className="pt-1">
-            <Button
-              variant="ghost"
-              onClick={handleLoadMore}
-              disabled={loading}
-            >
+            <Button variant="ghost" onClick={handleLoadMore} disabled={loading}>
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
@@ -390,8 +368,8 @@ function EmptyState() {
         No notifications yet
       </Badge>
       <p className="max-w-sm text-sm text-muted-foreground">
-        Product upvotes, reviews, rewards, and other important
-        activity will show up here as soon as they happen.
+        Product upvotes, reviews, rewards, and other important activity will
+        show up here as soon as they happen.
       </p>
     </div>
   )

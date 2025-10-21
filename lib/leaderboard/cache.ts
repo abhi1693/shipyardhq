@@ -1,5 +1,8 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
-import { getLeaderboardStats, getTopRankedProducts } from "@/actions/public/leaderboard/actions"
+import {
+  getLeaderboardStats,
+  getTopRankedProducts,
+} from "@/actions/public/leaderboard/actions"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
 import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/actions"
 
@@ -10,15 +13,21 @@ export type LeaderboardFilters = {
   limit: number
 }
 
-type LeaderboardProduct = Awaited<ReturnType<typeof getTopRankedProducts>>[number]
-type LeaderboardCategory = Awaited<ReturnType<typeof getCategoriesWithCounts>>[number]
+type LeaderboardProduct = Awaited<
+  ReturnType<typeof getTopRankedProducts>
+>[number]
+type LeaderboardCategory = Awaited<
+  ReturnType<typeof getCategoriesWithCounts>
+>[number]
 
 export type LeaderboardPagePayload = {
   filters: LeaderboardFilters
   stats: Awaited<ReturnType<typeof getLeaderboardStats>>
   categories: LeaderboardCategory[]
   products: LeaderboardProduct[]
-  latestProductUpdates: Awaited<ReturnType<typeof getLatestPublicProductUpdates>>
+  latestProductUpdates: Awaited<
+    ReturnType<typeof getLatestPublicProductUpdates>
+  >
   rankLabels: string[]
   firstPlacement: LeaderboardProduct | null
   runnerUps: LeaderboardProduct[]
@@ -42,22 +51,24 @@ export const getLeaderboardPagePayload = cached(
   async (input: LeaderboardFilters): Promise<LeaderboardPagePayload> => {
     const filters = normalizeFilters(input)
 
-    const [stats, categories, products, latestProductUpdates] = await Promise.all([
-      getLeaderboardStats(),
-      getCategoriesWithCounts(),
-      getTopRankedProducts({
-        limit: filters.limit,
-        categorySlug: filters.categorySlug,
-      }),
-      getLatestPublicProductUpdates(6),
-    ])
+    const [stats, categories, products, latestProductUpdates] =
+      await Promise.all([
+        getLeaderboardStats(),
+        getCategoriesWithCounts(),
+        getTopRankedProducts({
+          limit: filters.limit,
+          categorySlug: filters.categorySlug,
+        }),
+        getLatestPublicProductUpdates(6),
+      ])
 
     const topThree = products.slice(0, 3)
     const firstPlacement = topThree[0] ?? null
     const runnerUps = topThree.slice(1)
     const rest = products.slice(3)
     const categoryName = filters.categorySlug
-      ? categories.find((category) => category.slug === filters.categorySlug)?.name
+      ? categories.find((category) => category.slug === filters.categorySlug)
+          ?.name
       : undefined
 
     return {
