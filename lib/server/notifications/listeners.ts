@@ -73,7 +73,6 @@ registerEventHandler({
           upvoteId: event.upvoteId,
           occurredAt: event.occurredAt.toISOString(),
           href: memberProductOverviewPath(product.slug),
-          publicHref: productPath(product.slug),
         },
       })
     } catch (error) {
@@ -124,7 +123,6 @@ registerEventHandler({
           createdAt: event.createdAt.toISOString(),
           updatedAt: event.updatedAt.toISOString(),
           href: memberProductOverviewPath(product.slug),
-          publicHref: productPath(product.slug),
         },
       })
     } catch (error) {
@@ -185,10 +183,7 @@ registerEventHandler({
         productId: resolvedProductId ?? null,
         productName,
         productSlug: product?.slug ?? null,
-        href: product?.slug
-          ? memberProductOverviewPath(product.slug)
-          : MEMBER_REWARDS_PATH,
-        publicHref: product?.slug ? productPath(product.slug) : null,
+        href: MEMBER_REWARDS_PATH,
         eventMetadata: event.metadata ?? null,
         awardedAt: event.createdAt.toISOString(),
       }
