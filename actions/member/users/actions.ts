@@ -3,6 +3,7 @@
 import { type User as ClerkUser } from "@clerk/backend"
 import prisma from "@/lib/prisma"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { invalidateActiveUserCache } from "@/lib/server/userStatus"
 
 export async function syncUserFromClerk(clerkUser: ClerkUser) {
   const email = clerkUser.emailAddresses[0]?.emailAddress
@@ -28,6 +29,8 @@ export async function syncUserFromClerk(clerkUser: ClerkUser) {
       lastName,
     },
   })
+
+  await invalidateActiveUserCache(clerkUser.id)
 }
 
 export async function getUserByClerkId(clerkId: string) {

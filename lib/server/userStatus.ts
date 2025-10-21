@@ -61,7 +61,22 @@ export async function getActiveUserByClerkId(clerkId: string) {
     try {
       const cached = await client.get(cacheKey)
       if (cached) {
-        return JSON.parse(cached) as ActiveUser
+        const parsed = JSON.parse(cached) as ActiveUser | null
+        if (parsed) {
+          return parsed
+        }
+
+        try {
+          await client.del(cacheKey)
+        } catch (removeError) {
+          console.error(
+            "[userStatus] Failed to clear empty active user cache entry",
+            {
+              error: removeError,
+              clerkId,
+            },
+          )
+        }
       }
     } catch (error) {
       console.error("[userStatus] Failed to read active user cache", {
@@ -75,10 +90,14 @@ export async function getActiveUserByClerkId(clerkId: string) {
 
   if (client) {
     try {
-      const payload = JSON.stringify(value)
-      await client.set(cacheKey, payload, {
-        EX: ACTIVE_USER_CACHE_TTL_SECONDS,
-      })
+      if (value) {
+        const payload = JSON.stringify(value)
+        await client.set(cacheKey, payload, {
+          EX: ACTIVE_USER_CACHE_TTL_SECONDS,
+        })
+      } else {
+        await client.del(cacheKey)
+      }
     } catch (error) {
       console.error("[userStatus] Failed to write active user cache", {
         error,
@@ -88,6 +107,26 @@ export async function getActiveUserByClerkId(clerkId: string) {
   }
 
   return value
+}
+
+export async function invalidateActiveUserCache(clerkId?: string | null) {
+  if (!clerkId) return
+
+  const client = await getRedisClient()
+  if (!client) {
+    return
+  }
+
+  const cacheKey = buildActiveUserCacheKey(clerkId)
+
+  try {
+    await client.del(cacheKey)
+  } catch (error) {
+    console.error("[userStatus] Failed to invalidate active user cache", {
+      error,
+      clerkId,
+    })
+  }
 }
 
 export async function requireActiveUserOrRedirect(clerkId?: string | null) {
