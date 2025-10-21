@@ -3,7 +3,15 @@
 import { useCallback, useMemo, useState, useTransition } from "react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
-import { Check, Loader2, RefreshCcw } from "lucide-react"
+import {
+  Check,
+  Gift,
+  Info,
+  Loader2,
+  MessageSquare,
+  RefreshCcw,
+  Star,
+} from "lucide-react"
 
 import { Button } from "@/components/atoms/button"
 import {
@@ -27,6 +35,31 @@ import type {
 import { buildNotificationPresentation } from "@/lib/notifications/format"
 
 const FETCH_LIMIT = 25
+
+function getNotificationVisuals(type: NotificationItem["type"]) {
+  switch (type) {
+    case "product_upvote":
+      return {
+        icon: Star,
+        bg: "bg-amber-100 text-amber-600",
+      }
+    case "product_review":
+      return {
+        icon: MessageSquare,
+        bg: "bg-sky-100 text-sky-600",
+      }
+    case "reward_awarded":
+      return {
+        icon: Gift,
+        bg: "bg-emerald-100 text-emerald-600",
+      }
+    default:
+      return {
+        icon: Info,
+        bg: "bg-slate-100 text-slate-600",
+      }
+  }
+}
 
 type NotificationCenterProps = {
   initialData: NotificationListResult
@@ -283,6 +316,8 @@ function NotificationRow({
   const presentation = buildNotificationPresentation(notification)
   const href = presentation.primaryHref
   const createdAt = formatRelative(notification.createdAt)
+  const visuals = getNotificationVisuals(notification.type)
+  const IconComponent = visuals.icon
 
   const handleClick = () => {
     if (!isUnread || isPending) return
@@ -290,14 +325,17 @@ function NotificationRow({
   }
 
   const content = (
-    <div className="flex items-start gap-2">
-      {isUnread ? (
-        <span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-sky-500" />
-      ) : (
-        <span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-emerald-500/20" />
-      )}
+    <div className="flex items-start gap-3">
+      <span
+        className={cn(
+          "mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl",
+          visuals.bg,
+        )}
+      >
+        <IconComponent className="h-5 w-5" aria-hidden="true" />
+      </span>
       <div>
-        <p className="text-sm font-medium text-slate-900">
+        <p className="text-sm font-semibold text-slate-900">
           {notification.message}
         </p>
         <p className="text-xs text-muted-foreground">{createdAt}</p>
@@ -312,10 +350,10 @@ function NotificationRow({
           href={href}
           onClick={handleClick}
           className={cn(
-            "block rounded-lg border px-4 py-3 transition hover:border-sky-300 hover:bg-sky-50/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50",
+            "block border-l-4 px-5 py-4 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50",
             isUnread
-              ? "border-sky-200/70 bg-sky-50"
-              : "border-slate-200/70 bg-white",
+              ? "border-sky-400/80 bg-sky-50 hover:bg-sky-50/80"
+              : "border-transparent bg-white hover:bg-slate-50",
           )}
         >
           {content}
@@ -326,10 +364,10 @@ function NotificationRow({
           onClick={handleClick}
           disabled={isPending}
           className={cn(
-            "w-full rounded-lg border px-4 py-3 text-left transition hover:border-sky-300 hover:bg-sky-50/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50",
+            "w-full border-l-4 px-5 py-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50",
             isUnread
-              ? "border-sky-200/70 bg-sky-50"
-              : "border-slate-200/70 bg-white",
+              ? "border-sky-400/80 bg-sky-50 hover:bg-sky-50/80"
+              : "border-transparent bg-white hover:bg-slate-50",
           )}
         >
           {content}
