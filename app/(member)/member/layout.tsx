@@ -22,6 +22,7 @@ import {
   MEMBER_OVERVIEW_PATH,
   MEMBER_PRODUCTS_PATH,
   MEMBER_REWARDS_PATH,
+  MEMBER_NOTIFICATIONS_PATH,
 } from "@/lib/routes"
 import { redirect } from "next/navigation"
 
@@ -33,6 +34,11 @@ const navItems: NavItem[] = [
     url: MEMBER_OVERVIEW_PATH,
     icon: "dashboard",
     isActive: false,
+  },
+  {
+    title: "Notifications",
+    url: MEMBER_NOTIFICATIONS_PATH,
+    icon: "bell",
   },
   {
     title: "Rewards",

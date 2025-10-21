@@ -99,6 +99,24 @@ model MonthlyLeaderboardNotification {
   @@index([updatedAt])
 }
 
+model Notification {
+  id           String           @id @default(cuid())
+  userId       String
+  type         NotificationType
+  message      String
+  metadata     Json?
+  readAt       DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
 enum ProductType {
   saas
   browser_extension
@@ -397,6 +415,7 @@ model User {
   redemptions             Redemption[]
   featureEntitlements     FeatureEntitlement[]
   productUpdates          ProductUpdate[]
+  notifications           Notification[]
 
   @@index([status])
   @@index([roleIntent])
@@ -423,6 +442,13 @@ model ProductReview {
   @@index([userId, createdAt])
   @@index([createdAt])
   @@index([updatedAt])
+}
+
+enum NotificationType {
+  product_upvote
+  product_review
+  reward_awarded
+  system
 }
 
 enum UserStatus {

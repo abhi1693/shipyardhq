@@ -7,6 +7,8 @@ export const MEMBER_ONBOARDING_PATH = `${MEMBER_BASE_PATH}/onboarding` as const
 export const MEMBER_ACCOUNT_PROFILE_PATH =
   `${MEMBER_BASE_PATH}/account/profile` as const
 export const MEMBER_REWARDS_PATH = `${MEMBER_BASE_PATH}/rewards` as const
+export const MEMBER_NOTIFICATIONS_PATH =
+  `${MEMBER_BASE_PATH}/notifications` as const
 
 export const MEMBER_PRODUCTS_PATH = `${MEMBER_BASE_PATH}/products` as const
 export const MEMBER_PRODUCTS_ADD_PATH = `${MEMBER_PRODUCTS_PATH}/add` as const
