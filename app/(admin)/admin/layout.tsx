@@ -9,7 +9,6 @@ import { redirect } from "next/navigation"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { buildSectionMetadata } from "@/lib/metadata"
 import { getFeedbackCount } from "@/actions/admin/feedback/actions"
-import { getEventQueueSummary } from "@/actions/admin/events/actions"
 import {
   ADMIN_OVERVIEW_PATH,
   adminPath,
@@ -235,7 +234,6 @@ export default async function AdminLayout({
   const pendingFeedbackCountPromise = getFeedbackCount({
     status: "received",
   }).catch(() => 0)
-  const eventSummaryPromise = getEventQueueSummary().catch(() => null)
 
   const activeUser = await requireActiveUserOrRedirect(userId)
 
@@ -243,10 +241,7 @@ export default async function AdminLayout({
     redirect(MEMBER_OVERVIEW_PATH)
   }
 
-  const [pendingFeedbackCount, eventSummary] = await Promise.all([
-    pendingFeedbackCountPromise,
-    eventSummaryPromise,
-  ])
+  const pendingFeedbackCount = await pendingFeedbackCountPromise
 
   const navItems = baseNavItems.map((item) => {
     if (item.title === "Feedback") {
@@ -254,16 +249,6 @@ export default async function AdminLayout({
         ...item,
         label:
           pendingFeedbackCount > 0 ? String(pendingFeedbackCount) : undefined,
-      }
-    }
-
-    if (item.title === "Events") {
-      const pendingTotal =
-        (eventSummary?.pending ?? 0) + (eventSummary?.retrying ?? 0)
-
-      return {
-        ...item,
-        label: pendingTotal > 0 ? String(pendingTotal) : undefined,
       }
     }
 
