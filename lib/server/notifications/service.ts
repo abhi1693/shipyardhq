@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+import { revalidateTag, unstable_cache } from "next/cache"
 import type {
   NotificationType,
   Prisma,
@@ -11,6 +12,12 @@ import type {
 
 const DEFAULT_LIST_LIMIT = 20
 const MAX_LIST_LIMIT = 50
+const NOTIFICATION_CACHE_TAG_PREFIX = "notifications:user"
+
+type ResolvedListOptions = {
+  limit: number
+  cursor?: string | null
+}
 
 export type CreateNotificationInput = {
   userId: string
@@ -30,7 +37,7 @@ export async function createNotification(
     throw new Error("Notification message is required")
   }
 
-  return prisma.notification.create({
+  const notification = await prisma.notification.create({
     data: {
       userId,
       type,
@@ -47,6 +54,10 @@ export async function createNotification(
       updatedAt: true,
     },
   })
+
+  invalidateNotificationCache(userId)
+
+  return notification
 }
 
 export type ListNotificationsOptions = {
@@ -62,53 +73,29 @@ export async function listNotificationsForUser(
     throw new Error("listNotificationsForUser requires a userId")
   }
 
-  const rawLimit = Number.isFinite(options.limit)
-    ? Number(options.limit)
-    : DEFAULT_LIST_LIMIT
-  const limit = Math.max(
-    1,
-    Math.min(Math.trunc(rawLimit), MAX_LIST_LIMIT),
-  )
+  const resolved = resolveListOptions(options)
+  return queryNotifications(userId, resolved)
+}
 
-  const notifications = await prisma.notification.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    take: limit + 1,
-    cursor: options.cursor
-      ? { id: options.cursor }
-      : undefined,
-    skip: options.cursor ? 1 : 0,
-    select: {
-      id: true,
-      type: true,
-      message: true,
-      metadata: true,
-      readAt: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  })
-
-  const hasMore = notifications.length > limit
-  const items = hasMore
-    ? notifications.slice(0, limit)
-    : notifications
-
-  const unreadCount = await prisma.notification.count({
-    where: { userId, readAt: null },
-  })
-
-  const serialized: NotificationItem[] = items.map(
-    serializeNotification,
-  )
-
-  return {
-    notifications: serialized,
-    unreadCount,
-    nextCursor: hasMore
-      ? items[items.length - 1].id
-      : undefined,
+export async function listNotificationsForUserCached(
+  userId: string,
+  options: ListNotificationsOptions = {},
+): Promise<NotificationListResult> {
+  if (!userId) {
+    throw new Error("listNotificationsForUserCached requires a userId")
   }
+
+  const resolved = resolveListOptions(options)
+  const cursorKey = resolved.cursor ?? ""
+  const limitKey = `${resolved.limit}`
+
+  const fetcher = unstable_cache(
+    async () => queryNotifications(userId, resolved),
+    ["notifications", userId, limitKey, cursorKey],
+    { tags: [getNotificationCacheTag(userId)] },
+  )
+
+  return fetcher()
 }
 
 export async function markNotificationRead(
@@ -122,7 +109,12 @@ export async function markNotificationRead(
     data: { readAt: new Date() },
   })
 
-  return result.count > 0
+  if (result.count > 0) {
+    invalidateNotificationCache(userId)
+    return true
+  }
+
+  return false
 }
 
 export async function markAllNotificationsRead(
@@ -134,6 +126,10 @@ export async function markAllNotificationsRead(
     where: { userId, readAt: null },
     data: { readAt: new Date() },
   })
+
+  if (result.count > 0) {
+    invalidateNotificationCache(userId)
+  }
 
   return result.count
 }
@@ -179,5 +175,84 @@ function cloneJson(
       { error, value },
     )
     return null
+  }
+}
+
+function resolveListOptions(
+  options: ListNotificationsOptions = {},
+): ResolvedListOptions {
+  const rawLimit = Number.isFinite(options.limit)
+    ? Number(options.limit)
+    : DEFAULT_LIST_LIMIT
+  const limit = Math.max(
+    1,
+    Math.min(Math.trunc(rawLimit), MAX_LIST_LIMIT),
+  )
+
+  const cursorValue = options.cursor
+  const cursor = typeof cursorValue === "string" && cursorValue.length > 0
+    ? cursorValue
+    : null
+
+  return { limit, cursor }
+}
+
+async function queryNotifications(
+  userId: string,
+  options: ResolvedListOptions,
+): Promise<NotificationListResult> {
+  const { limit, cursor } = options
+
+  const notifications = await prisma.notification.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    take: limit + 1,
+    cursor: cursor ? { id: cursor } : undefined,
+    skip: cursor ? 1 : 0,
+    select: {
+      id: true,
+      type: true,
+      message: true,
+      metadata: true,
+      readAt: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  })
+
+  const hasMore = notifications.length > limit
+  const items = hasMore
+    ? notifications.slice(0, limit)
+    : notifications
+
+  const unreadCount = await prisma.notification.count({
+    where: { userId, readAt: null },
+  })
+
+  const serialized: NotificationItem[] = items.map(
+    serializeNotification,
+  )
+
+  return {
+    notifications: serialized,
+    unreadCount,
+    nextCursor: hasMore
+      ? items[items.length - 1].id
+      : undefined,
+  }
+}
+
+export function getNotificationCacheTag(userId: string): string {
+  return `${NOTIFICATION_CACHE_TAG_PREFIX}:${userId}`
+}
+
+function invalidateNotificationCache(userId: string) {
+  try {
+    revalidateTag(getNotificationCacheTag(userId))
+  } catch (error) {
+    console.error("[notifications] Failed to revalidate cache", {
+      error,
+      userId,
+    })
   }
 }

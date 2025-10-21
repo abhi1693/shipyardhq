@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server"
 
 import NotificationCenter from "@/components/organisms/notifications/NotificationCenter"
-import { listNotificationsForUser } from "@/lib/server/notifications/service"
+import { listNotificationsForUserCached } from "@/lib/server/notifications/service"
 import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
 import { buildPageMetadata } from "@/lib/metadata"
 
@@ -15,7 +15,7 @@ export const metadata = buildPageMetadata({
 export default async function MemberNotificationsPage() {
   const { userId: clerkUserId } = await auth()
   const activeUser = await requireActiveUserOrRedirect(clerkUserId)
-  const initialData = await listNotificationsForUser(activeUser.id, {
+  const initialData = await listNotificationsForUserCached(activeUser.id, {
     limit: 25,
   })
 
