@@ -300,7 +300,7 @@ function NotificationPreviewItem({
     <div className="flex items-start gap-3">
       <span
         className={cn(
-          "mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-xl text-sm",
+          "mt-0.5 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl text-sm",
           visuals.bg,
         )}
       >

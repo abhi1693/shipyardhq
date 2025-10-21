@@ -328,7 +328,7 @@ function NotificationRow({
     <div className="flex items-start gap-3">
       <span
         className={cn(
-          "mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl",
+          "mt-0.5 inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl",
           visuals.bg,
         )}
       >
