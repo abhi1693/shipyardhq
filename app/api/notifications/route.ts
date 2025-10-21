@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 import {
-  listNotificationsForUser,
+  listNotificationsForUserCached,
 } from "@/lib/server/notifications/service"
 
 export async function GET(request: Request) {
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
   const limit = limitParam ? Number(limitParam) : undefined
 
   try {
-    const result = await listNotificationsForUser(
+    const result = await listNotificationsForUserCached(
       activeUser.id,
       {
         limit: Number.isFinite(limit) ? limit : undefined,

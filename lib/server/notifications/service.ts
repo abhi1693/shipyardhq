@@ -1,5 +1,12 @@
 import prisma from "@/lib/prisma"
-import { revalidateTag, unstable_cache } from "next/cache"
+import { revalidateTag } from "next/cache"
+import {
+  accelerateTags,
+  cached,
+  DEFAULT_SWR,
+  DEFAULT_TTL,
+  TAGS,
+} from "@/lib/cache"
 import type {
   NotificationType,
   Prisma,
@@ -12,7 +19,7 @@ import type {
 
 const DEFAULT_LIST_LIMIT = 20
 const MAX_LIST_LIMIT = 50
-const NOTIFICATION_CACHE_TAG_PREFIX = "notifications:user"
+const NOTIFICATIONS_CACHE_KEY = "notifications:list"
 
 type ResolvedListOptions = {
   limit: number
@@ -77,6 +84,28 @@ export async function listNotificationsForUser(
   return queryNotifications(userId, resolved)
 }
 
+const fetchNotificationsCached = cached(
+  async (
+    userId: string,
+    options: ResolvedListOptions,
+  ): Promise<NotificationListResult> =>
+    queryNotifications(userId, options),
+  NOTIFICATIONS_CACHE_KEY,
+  {
+    ttl: DEFAULT_TTL.slow,
+    tags: ([userId]) => [
+      TAGS.notifications,
+      TAGS.notificationsForUser(userId),
+      TAGS.user(userId),
+    ],
+    keyParts: ([userId, options]) => [
+      userId,
+      String(options.limit),
+      options.cursor ?? "",
+    ],
+  },
+)
+
 export async function listNotificationsForUserCached(
   userId: string,
   options: ListNotificationsOptions = {},
@@ -86,16 +115,7 @@ export async function listNotificationsForUserCached(
   }
 
   const resolved = resolveListOptions(options)
-  const cursorKey = resolved.cursor ?? ""
-  const limitKey = `${resolved.limit}`
-
-  const fetcher = unstable_cache(
-    async () => queryNotifications(userId, resolved),
-    ["notifications", userId, limitKey, cursorKey],
-    { tags: [getNotificationCacheTag(userId)] },
-  )
-
-  return fetcher()
+  return fetchNotificationsCached(userId, resolved)
 }
 
 export async function markNotificationRead(
@@ -218,6 +238,15 @@ async function queryNotifications(
       createdAt: true,
       updatedAt: true,
     },
+    cacheStrategy: {
+      ttl: DEFAULT_TTL.slow,
+      swr: DEFAULT_SWR.slow,
+      tags: accelerateTags([
+        TAGS.notifications,
+        TAGS.notificationsForUser(userId),
+        TAGS.user(userId),
+      ]),
+    },
   })
 
   const hasMore = notifications.length > limit
@@ -243,12 +272,14 @@ async function queryNotifications(
 }
 
 export function getNotificationCacheTag(userId: string): string {
-  return `${NOTIFICATION_CACHE_TAG_PREFIX}:${userId}`
+  return TAGS.notificationsForUser(userId)
 }
 
 function invalidateNotificationCache(userId: string) {
   try {
     revalidateTag(getNotificationCacheTag(userId))
+    revalidateTag(TAGS.notifications)
+    revalidateTag(TAGS.user(userId))
   } catch (error) {
     console.error("[notifications] Failed to revalidate cache", {
       error,
