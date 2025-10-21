@@ -1,12 +1,6 @@
 import prisma from "@/lib/prisma"
 import { PlacementStatus, Prisma } from "@/lib/vendor/prisma/client"
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_TTL,
-  DEFAULT_SWR,
-  TAGS,
-} from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type { FeaturedProduct } from "@/types"
 import { featuredProductSelect } from "@/types"
 
@@ -40,11 +34,6 @@ export const getProducts = cached(
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
       take: 24,
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.fast,
-        swr: DEFAULT_SWR.fast,
-        tags: accelerateTags([TAGS.products, TAGS.badges, `badge:${badge}`]),
-      },
       select: featuredProductSelect,
       orderBy: { createdAt: "asc" },
     })
@@ -84,16 +73,6 @@ export const getTrendingProducts = cached(
           },
         },
       },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.fast,
-        swr: DEFAULT_SWR.fast,
-        tags: accelerateTags([
-          TAGS.products,
-          TAGS.trending,
-          TAGS.leaderboard,
-          TAGS.analytics,
-        ]),
-      },
       select: featuredProductSelect,
     })
 
@@ -120,11 +99,6 @@ export const getTopCategories = cached(
         products: {
           _count: "desc",
         },
-      },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.slow,
-        swr: DEFAULT_SWR.slow,
-        tags: accelerateTags([TAGS.categories]),
       },
       take: limit,
       select: {
@@ -153,16 +127,6 @@ export const getFeaturedByCategorySlug = cached(
         badge: "featured",
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
         product: { category: { slug } },
-      },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.fast,
-        swr: DEFAULT_SWR.fast,
-        tags: accelerateTags([
-          TAGS.products,
-          TAGS.featured,
-          TAGS.badges,
-          TAGS.category(String(slug)),
-        ]),
       },
       select: featuredProductSelect,
       orderBy: { createdAt: "desc" },
@@ -194,11 +158,6 @@ export const getStickyBannerProducts = cached(
           status: PlacementStatus.active,
           startsAt: { lte: now },
           endsAt: { gte: now },
-        },
-        cacheStrategy: {
-          ttl: DEFAULT_TTL.fast,
-          swr: DEFAULT_SWR.fast,
-          tags: accelerateTags([TAGS.products, TAGS.placement("stickyBanner")]),
         },
         include: {
           product: {
@@ -248,15 +207,6 @@ export const getStickyBannerProducts = cached(
               },
             },
           },
-        },
-        cacheStrategy: {
-          ttl: DEFAULT_TTL.fast,
-          swr: DEFAULT_SWR.fast,
-          tags: accelerateTags([
-            TAGS.products,
-            TAGS.planFeature("stickyBanner"),
-            TAGS.plans,
-          ]),
         },
         select: {
           id: true,
@@ -364,11 +314,6 @@ export const getHomepageFeatureProducts = cached(
           startsAt: { lte: now },
           endsAt: { gte: now },
         },
-        cacheStrategy: {
-          ttl: DEFAULT_TTL.fast,
-          swr: DEFAULT_SWR.fast,
-          tags: accelerateTags([TAGS.products, TAGS.placement("homepage")]),
-        },
         include: {
           product: {
             include: {
@@ -395,15 +340,6 @@ export const getHomepageFeatureProducts = cached(
               },
             },
           },
-        },
-        cacheStrategy: {
-          ttl: DEFAULT_TTL.fast,
-          swr: DEFAULT_SWR.fast,
-          tags: accelerateTags([
-            TAGS.products,
-            TAGS.planFeature("homepage"),
-            TAGS.plans,
-          ]),
         },
         include: {
           category: true,

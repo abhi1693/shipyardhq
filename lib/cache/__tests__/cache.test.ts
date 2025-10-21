@@ -6,31 +6,7 @@ vi.mock("next/cache", () => ({
   unstable_cache: unstableCacheMock,
 }))
 
-import { DEFAULT_TTL, accelerateTags, cached } from "@/lib/cache"
-
-describe("accelerateTags", () => {
-  it("sanitizes, deduplicates, and limits tags", () => {
-    const result = accelerateTags([
-      "products",
-      "products", // duplicate
-      " admin:analytics ", // sanitize
-      "",
-      "#extra",
-      "with spaces",
-      "more-than-five",
-      "sixth-entry",
-    ])
-
-    expect(result).toEqual([
-      "products",
-      "_admin_analytics_",
-      "_extra",
-      "with_spaces",
-      "more_than_five",
-      "sixth_entry",
-    ])
-  })
-})
+import { DEFAULT_TTL, cached } from "@/lib/cache"
 
 describe("cached", () => {
   beforeEach(() => {

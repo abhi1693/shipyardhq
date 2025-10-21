@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma"
 import { PlanType } from "@/lib/vendor/prisma/client"
 import type { Prisma } from "@/lib/vendor/prisma/client"
-import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 
 export type PublicPlan = Awaited<ReturnType<typeof getPublicPlans>>[number]
 
@@ -52,24 +51,11 @@ export async function getPublicPlans(opts?: { type?: PlanType }) {
     orderBy: [{ price: "asc" }],
     take: MAX_PUBLIC_PLANS,
     select: planSelect,
-    cacheStrategy: {
-      ttl: DEFAULT_TTL.slow,
-      swr: DEFAULT_SWR.slow,
-      tags: accelerateTags([
-        TAGS.plans,
-        opts?.type ? `plan-type:${opts.type}` : "plan-type:all",
-      ]),
-    },
   })
 
   const allFeaturesRaw = await prisma.planFeature.findMany({
     select: planFeatureSelect,
     orderBy: { name: "asc" },
-    cacheStrategy: {
-      ttl: DEFAULT_TTL.slow,
-      swr: DEFAULT_SWR.slow,
-      tags: accelerateTags([TAGS.plans]),
-    },
   })
 
   const planRecords = planRecordsRaw as unknown as PlanWithAssignments[]

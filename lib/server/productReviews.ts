@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
 import { Prisma } from "@/lib/vendor/prisma/client"
-import { accelerateTags, cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 
 const reviewSelection = {
   id: true,
@@ -93,11 +93,10 @@ export const getProductReviewSummary = cached(
   "product:review-summary",
   {
     ttl: DEFAULT_TTL.fast,
-    tags: ([productId]) =>
-      accelerateTags([
-        TAGS.productReviews,
-        TAGS.productReview(String(productId)),
-      ]),
+    tags: ([productId]) => [
+      TAGS.productReviews,
+      TAGS.productReview(String(productId)),
+    ],
   },
 )
 

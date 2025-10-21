@@ -138,9 +138,8 @@ describe("rewards leaderboard actions", () => {
       }),
     )
 
-    const cacheStrategy =
-      rewardBalanceFindManyMock.mock.calls[0]?.[0]?.cacheStrategy
-    expect(cacheStrategy?.tags).toContain("rewards_leaderboard_limit_75")
+    const callArgs = rewardBalanceFindManyMock.mock.calls[0]?.[0]
+    expect(callArgs?.cacheStrategy).toBeUndefined()
   })
 
   it("normalizes leaderboard limit to supported bounds", async () => {

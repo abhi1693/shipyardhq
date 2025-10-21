@@ -1,11 +1,5 @@
 import prisma from "@/lib/prisma"
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_SWR,
-  DEFAULT_TTL,
-  TAGS,
-} from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   RewardTransactionType,
   RedemptionStatus,
@@ -152,15 +146,6 @@ export const getRewardsLeaderboardEntries = cached(
         user: { status: "active" },
       },
       orderBy: [{ lifetimeEarned: "desc" }, { updatedAt: "desc" }],
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.fast,
-        swr: DEFAULT_SWR.fast,
-        tags: accelerateTags([
-          TAGS.rewards,
-          TAGS.rewardsLeaderboard,
-          `rewards:leaderboard:limit:${normalizedLimit}`,
-        ]),
-      },
       select: {
         userId: true,
         balance: true,
@@ -240,15 +225,6 @@ export const getRewardsLeaderboardPositionForUser = cached(
           },
         },
       },
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.fast,
-        swr: DEFAULT_SWR.fast,
-        tags: accelerateTags([
-          TAGS.rewards,
-          TAGS.rewardsLeaderboard,
-          TAGS.user(String(userId)),
-        ]),
-      },
     })
 
     if (
@@ -274,29 +250,11 @@ export const getRewardsLeaderboardPositionForUser = cached(
             },
           ],
         },
-        cacheStrategy: {
-          ttl: DEFAULT_TTL.fast,
-          swr: DEFAULT_SWR.fast,
-          tags: accelerateTags([
-            TAGS.rewards,
-            TAGS.rewardsLeaderboard,
-            "rewards:leaderboard:ranks",
-          ]),
-        },
       }),
       prisma.rewardBalance.count({
         where: {
           user: { status: "active" },
           lifetimeEarned: { gt: 0 },
-        },
-        cacheStrategy: {
-          ttl: DEFAULT_TTL.fast,
-          swr: DEFAULT_SWR.fast,
-          tags: accelerateTags([
-            TAGS.rewards,
-            TAGS.rewardsLeaderboard,
-            "rewards:leaderboard:ranks",
-          ]),
         },
       }),
     ])
@@ -326,12 +284,6 @@ export type PublicRewardsData = {
   recentRedemptions: PublicRewardsRedemption[]
 }
 
-const rewardsCache = {
-  ttl: DEFAULT_TTL.fast,
-  swr: DEFAULT_SWR.fast,
-  tags: accelerateTags([TAGS.rewards]),
-} as const
-
 export const getPublicRewardsStats = cached(
   async (): Promise<PublicRewardsStats> => {
     const now = Date.now()
@@ -346,17 +298,9 @@ export const getPublicRewardsStats = cached(
     ] = await Promise.all([
       prisma.rewardBalance.count({
         where: { lifetimeEarned: { gt: 0 } },
-        cacheStrategy: {
-          ...rewardsCache,
-          tags: accelerateTags([TAGS.rewards, "rewards:stats"]),
-        },
       }),
       prisma.rewardBalance.count({
         where: { balance: { gt: 0 } },
-        cacheStrategy: {
-          ...rewardsCache,
-          tags: accelerateTags([TAGS.rewards, "rewards:stats"]),
-        },
       }),
       prisma.rewardTransaction.aggregate({
         where: {
@@ -365,10 +309,6 @@ export const getPublicRewardsStats = cached(
         },
         _sum: { rewardAmount: true },
         _count: { _all: true },
-        cacheStrategy: {
-          ...rewardsCache,
-          tags: accelerateTags([TAGS.rewards, "rewards:earned:30d"]),
-        },
       }),
       prisma.rewardTransaction.aggregate({
         where: {
@@ -377,10 +317,6 @@ export const getPublicRewardsStats = cached(
         },
         _sum: { rewardAmount: true },
         _count: { _all: true },
-        cacheStrategy: {
-          ...rewardsCache,
-          tags: accelerateTags([TAGS.rewards, "rewards:spent:30d"]),
-        },
       }),
       prisma.redemption.count({
         where: {
@@ -392,10 +328,6 @@ export const getPublicRewardsStats = cached(
               RedemptionStatus.refunded,
             ],
           },
-        },
-        cacheStrategy: {
-          ...rewardsCache,
-          tags: accelerateTags([TAGS.rewards, "rewards:redemptions:30d"]),
         },
       }),
     ])
@@ -444,10 +376,6 @@ export async function getPublicRewardsData(): Promise<PublicRewardsData> {
       _count: { _all: true },
       orderBy: { _sum: { rewardAmount: "desc" } },
       take: 8,
-      cacheStrategy: {
-        ...rewardsCache,
-        tags: accelerateTags([TAGS.rewards, "rewards:rules"]),
-      },
     }),
     prisma.rewardRule.findMany({
       where: { isActive: true },
@@ -459,10 +387,6 @@ export async function getPublicRewardsData(): Promise<PublicRewardsData> {
         baseRewardAmount: true,
         dailyCap: true,
         lifetimeCap: true,
-      },
-      cacheStrategy: {
-        ...rewardsCache,
-        tags: accelerateTags([TAGS.rewards, "rewards:rules"]),
       },
     }),
     prisma.rewardCatalogItem.findMany({
@@ -479,10 +403,6 @@ export async function getPublicRewardsData(): Promise<PublicRewardsData> {
         maxPendingPerUser: true,
       },
       orderBy: [{ category: "asc" }, { baseCost: "asc" }, { name: "asc" }],
-      cacheStrategy: {
-        ...rewardsCache,
-        tags: accelerateTags([TAGS.rewards, "rewards:catalog"]),
-      },
     }),
     prisma.redemption.groupBy({
       by: ["featureKey"],
@@ -497,10 +417,6 @@ export async function getPublicRewardsData(): Promise<PublicRewardsData> {
         },
       },
       _count: { _all: true },
-      cacheStrategy: {
-        ...rewardsCache,
-        tags: accelerateTags([TAGS.rewards, "rewards:usage"]),
-      },
     }),
     prisma.redemption.findMany({
       where: {
@@ -522,10 +438,6 @@ export async function getPublicRewardsData(): Promise<PublicRewardsData> {
         createdAt: true,
         catalogItem: { select: { name: true } },
         product: { select: { name: true, slug: true } },
-      },
-      cacheStrategy: {
-        ...rewardsCache,
-        tags: accelerateTags([TAGS.rewards, "rewards:redemptions:recent"]),
       },
     }),
   ])

@@ -1,11 +1,5 @@
 import prisma from "@/lib/prisma"
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_SWR,
-  DEFAULT_TTL,
-  TAGS,
-} from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import {
   getLiveUpvoteCount,
   resolveVoteState,
@@ -85,11 +79,6 @@ export const getVersusCandidatePool = cached(
       orderBy: [{ analytics: { upvotes: "desc" } }, { createdAt: "desc" }],
       take: limit,
       select: versusSelect,
-      cacheStrategy: {
-        ttl: DEFAULT_TTL.fast,
-        swr: DEFAULT_SWR.fast,
-        tags: accelerateTags([TAGS.products, TAGS.leaderboard, TAGS.analytics]),
-      },
     }) as Promise<VersusPoolProduct[]>,
   "products:versus-pool",
   {

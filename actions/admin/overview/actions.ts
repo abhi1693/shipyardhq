@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma"
-import { accelerateTags, DEFAULT_TTL, DEFAULT_SWR, TAGS } from "@/lib/cache"
 import type { Prisma } from "@/lib/vendor/prisma/client"
 import { addDays, startOfDay, subDays } from "date-fns"
 
@@ -34,16 +33,6 @@ export interface DashboardStats {
   previousUpvotes: number
   upvotesDelta: number
 }
-
-const ADMIN_ANALYTICS_TAG = "adminAnalytics"
-
-const adminSlowCache = {
-  ttl: DEFAULT_TTL.slowest,
-  swr: DEFAULT_SWR.slowest,
-}
-
-const adminTags = (...tags: string[]) =>
-  accelerateTags([ADMIN_ANALYTICS_TAG, ...tags])
 
 type ProductWithPlanPrice = Prisma.ProductGetPayload<{
   select: { plan: { select: { price: true } } }
@@ -117,60 +106,25 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
     totalFeatures,
     usedFeatures,
   ] = await Promise.all([
-    prisma.product.count({
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.products),
-      },
-    }),
+    prisma.product.count(),
     prisma.product.count({
       where: { verification: { isVerified: true } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.products),
-      },
     }),
-    prisma.user.count({
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
-      },
-    }),
-    prisma.plan.count({
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.plans),
-      },
-    }),
+    prisma.user.count(),
+    prisma.plan.count(),
     prisma.product.count({
       where: { createdAt: { gte: since } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.products),
-      },
     }),
     prisma.user.count({
       where: { createdAt: { gte: since } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
-      },
     }),
     prisma.user.count({
       where: { role: "admin" },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
-      },
     }),
 
     prisma.plan.findFirst({
       orderBy: { products: { _count: "desc" } },
       include: { _count: { select: { products: true } } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.plans, TAGS.products),
-      },
     }),
 
     prisma.product.count({
@@ -179,25 +133,12 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
           isDefault: true,
         },
       },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.products, TAGS.plans),
-      },
     }),
 
-    prisma.planFeature.count({
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.plans),
-      },
-    }),
+    prisma.planFeature.count(),
 
     prisma.planFeatureAssignment.aggregate({
       _count: true,
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.plans),
-      },
     }),
   ])
 
@@ -215,10 +156,6 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
       dayRanges.map(({ start, end }) =>
         prisma.product.count({
           where: { createdAt: { gte: start, lt: end } },
-          cacheStrategy: {
-            ...adminSlowCache,
-            tags: adminTags(TAGS.products),
-          },
         }),
       ),
     ),
@@ -226,10 +163,6 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
       dayRanges.map(({ start, end }) =>
         prisma.user.count({
           where: { createdAt: { gte: start, lt: end } },
-          cacheStrategy: {
-            ...adminSlowCache,
-            tags: adminTags(TAGS.users),
-          },
         }),
       ),
     ),
@@ -245,20 +178,12 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
     _count: { planId: true },
     orderBy: { _count: { planId: "desc" } },
     take: 1,
-    cacheStrategy: {
-      ...adminSlowCache,
-      tags: adminTags(TAGS.products, TAGS.plans),
-    },
   })) as PlanIdGroup[]
 
   if (grouped.length > 0 && grouped[0]?.planId) {
     const top = grouped[0]
     const plan = await prisma.plan.findUnique({
       where: { id: top.planId! },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.plans),
-      },
     })
     if (plan) {
       mostPopularPlan = {
@@ -291,44 +216,19 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
   ] = await Promise.all([
     prisma.productAnalytics.aggregate({
       _sum: { clicks: true, upvotes: true },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics),
-      },
     }),
     prisma.productTrafficEvent.count({
       where: { createdAt: { gte: since } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics),
-      },
     }),
     prisma.productTrafficEvent.count({
       where: { createdAt: { gte: prevSince, lt: since } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics),
-      },
     }),
-    prisma.productTrafficEvent.count({
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics),
-      },
-    }),
+    prisma.productTrafficEvent.count(),
     prisma.productUpvote.count({
       where: { createdAt: { gte: since } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics, TAGS.products),
-      },
     }),
     prisma.productUpvote.count({
       where: { createdAt: { gte: prevSince, lt: since } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.analytics, TAGS.products),
-      },
     }),
   ])
 
@@ -343,17 +243,9 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
   const [prevProducts, prevUsers] = await Promise.all([
     prisma.product.count({
       where: { createdAt: { gte: prevSince, lt: since } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.products),
-      },
     }),
     prisma.user.count({
       where: { createdAt: { gte: prevSince, lt: since } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.users),
-      },
     }),
   ])
 
@@ -364,10 +256,6 @@ export async function getDashboardStats(days = 7): Promise<DashboardStats> {
   const productsForRevenue: ProductWithPlanPrice[] =
     await prisma.product.findMany({
       select: { plan: { select: { price: true } } },
-      cacheStrategy: {
-        ...adminSlowCache,
-        tags: adminTags(TAGS.products, TAGS.plans),
-      },
     })
   const estimatedRevenueCents = productsForRevenue.reduce<number>((sum, p) => {
     return sum + (p.plan?.price ?? 0)
