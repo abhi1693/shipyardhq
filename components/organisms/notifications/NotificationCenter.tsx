@@ -282,58 +282,59 @@ function NotificationRow({
   const isUnread = !notification.readAt
   const presentation = buildNotificationPresentation(notification)
   const href = presentation.primaryHref
-  const viewLabel = resolveViewLabel(notification.type)
   const createdAt = formatRelative(notification.createdAt)
 
-  return (
-    <li
-      className={cn(
-        "rounded-lg border px-4 py-3 transition",
-        isUnread
-          ? "border-sky-200/70 bg-sky-50"
-          : "border-slate-200/70 bg-white",
+  const handleClick = () => {
+    if (!isUnread || isPending) return
+    void onMarkRead(notification.id)
+  }
+
+  const content = (
+    <div className="flex items-start gap-2">
+      {isUnread ? (
+        <span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-sky-500" />
+      ) : (
+        <span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-emerald-500/20" />
       )}
-    >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1">
-          <div className="flex items-start gap-2">
-            {isUnread ? (
-              <span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-sky-500" />
-            ) : (
-              <span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-emerald-500/20" />
-            )}
-            <div>
-              <p className="text-sm font-medium text-slate-900">
-                {notification.message}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {createdAt}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {href ? (
-            <Button asChild size="sm" variant="outline">
-              <Link href={href}>{viewLabel}</Link>
-            </Button>
-          ) : null}
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-8 w-8"
-            onClick={() => onMarkRead(notification.id)}
-            disabled={!isUnread || isPending}
-            aria-label="Mark notification as read"
-          >
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Check className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
+      <div>
+        <p className="text-sm font-medium text-slate-900">
+          {notification.message}
+        </p>
+        <p className="text-xs text-muted-foreground">{createdAt}</p>
       </div>
+    </div>
+  )
+
+  return (
+    <li>
+      {href ? (
+        <Link
+          href={href}
+          onClick={handleClick}
+          className={cn(
+            "block rounded-lg border px-4 py-3 transition hover:border-sky-300 hover:bg-sky-50/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50",
+            isUnread
+              ? "border-sky-200/70 bg-sky-50"
+              : "border-slate-200/70 bg-white",
+          )}
+        >
+          {content}
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={handleClick}
+          disabled={isPending}
+          className={cn(
+            "w-full rounded-lg border px-4 py-3 text-left transition hover:border-sky-300 hover:bg-sky-50/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50",
+            isUnread
+              ? "border-sky-200/70 bg-sky-50"
+              : "border-slate-200/70 bg-white",
+          )}
+        >
+          {content}
+        </button>
+      )}
     </li>
   )
 }
@@ -350,20 +351,6 @@ function EmptyState() {
       </p>
     </div>
   )
-}
-
-function resolveViewLabel(
-  type: NotificationItem["type"],
-): string {
-  switch (type) {
-    case "product_upvote":
-    case "product_review":
-      return "View product"
-    case "reward_awarded":
-      return "View rewards"
-    default:
-      return "View details"
-  }
 }
 
 function formatRelative(value: string) {

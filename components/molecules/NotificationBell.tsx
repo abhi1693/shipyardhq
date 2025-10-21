@@ -233,18 +233,6 @@ export default function NotificationBell() {
   )
 }
 
-function resolveViewLabel(type: NotificationItem["type"]) {
-  switch (type) {
-    case "product_upvote":
-    case "product_review":
-      return "View product"
-    case "reward_awarded":
-      return "View rewards"
-    default:
-      return "View details"
-  }
-}
-
 function formatRelative(value: string) {
   return formatDistanceToNow(new Date(value), { addSuffix: true })
 }
@@ -259,48 +247,52 @@ function NotificationPreviewItem({
   isPending: boolean
 }) {
   const presentation = buildNotificationPresentation(notification)
+  const isUnread = !notification.readAt
+  const href = presentation.primaryHref
+
+  const handleClick = () => {
+    if (!isUnread || isPending) return
+    void onMarkRead(notification.id)
+  }
+
+  const content = (
+    <div className="space-y-1">
+      <p className="text-sm font-medium text-slate-900">
+        {notification.message}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        {formatRelative(notification.createdAt)}
+      </p>
+    </div>
+  )
 
   return (
-    <div
-      className={cn(
-        "border-b border-slate-100 px-3 py-3 last:border-b-0",
-        notification.readAt ? "bg-white" : "bg-sky-50/70",
-      )}
+    <div className={cn("border-b border-slate-100 last:border-b-0")}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-slate-900">
-            {notification.message}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {formatRelative(notification.createdAt)}
-          </p>
-        </div>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="h-7 w-7 flex-shrink-0"
-          onClick={() => onMarkRead(notification.id)}
-          disabled={!!notification.readAt || isPending}
-          aria-label="Mark notification read"
-        >
-          {isPending ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Check className="h-3.5 w-3.5" />
+      {href ? (
+        <Link
+          href={href}
+          onClick={handleClick}
+          className={cn(
+            "block rounded-md border px-3 py-3 transition hover:border-sky-300 hover:bg-sky-50/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50",
+            isUnread ? "border-sky-200/70 bg-sky-50" : "border-slate-200/70 bg-white",
           )}
-        </Button>
-      </div>
-      {presentation.primaryHref ? (
-        <div className="mt-2">
-          <Link
-            href={presentation.primaryHref}
-            className="text-xs font-medium text-sky-600 hover:underline"
-          >
-            {resolveViewLabel(notification.type)}
-          </Link>
-        </div>
-      ) : null}
+        >
+          {content}
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={handleClick}
+          disabled={isPending}
+          className={cn(
+            "w-full rounded-md border px-3 py-3 text-left transition hover:border-sky-300 hover:bg-sky-50/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50",
+            isUnread ? "border-sky-200/70 bg-sky-50" : "border-slate-200/70 bg-white",
+          )}
+        >
+          {content}
+        </button>
+      )}
     </div>
   )
 }
