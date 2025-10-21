@@ -175,7 +175,7 @@ registerEventHandler({
         productName && !reasonIncludesProduct ? ` on ${productName}` : ""
       }.`
 
-      const metadata: Record<string, unknown> = {
+      const metadata: Prisma.InputJsonValue = {
         transactionId: event.transactionId,
         ruleKey: event.ruleKey,
         ruleName: event.ruleName,
@@ -259,7 +259,7 @@ registerEventHandler({
         : publishedAtDate.toISOString()
       const message = `New update on ${productName}: ${updateTitle}`
 
-      const metadataBase: Record<string, unknown> = {
+      const metadataBase: Prisma.InputJsonValue = {
         productId: event.productId,
         productSlug: event.productSlug ?? null,
         productName: event.productName ?? null,
