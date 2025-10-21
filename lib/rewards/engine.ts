@@ -1,5 +1,6 @@
 import crypto from "node:crypto"
 
+import { revalidateRewardsLeaderboard } from "@/lib/cache/revalidate"
 import prisma from "@/lib/prisma"
 import { dispatchEvent } from "@/lib/server/events"
 import {
@@ -220,6 +221,7 @@ export async function awardRewards(
         targetId: result.transaction.targetId,
         productId: result.transaction.productId,
       })
+      revalidateRewardsLeaderboard()
     }
 
     return result
@@ -472,6 +474,7 @@ export async function redeem(
       autoActivated: result.redemption.status === RedemptionStatus.active,
       placementScheduleId: result.placementSchedule?.id ?? null,
     })
+    revalidateRewardsLeaderboard()
   }
 
   return result
@@ -636,6 +639,7 @@ export async function refundRedemption(
     productId: result.transaction.productId ?? null,
     actorUserId: result.transaction.actedByUserId ?? null,
   })
+  revalidateRewardsLeaderboard()
 
   return result
 }
@@ -738,6 +742,7 @@ export async function adjustRewards(
       metadata: result.transaction.metadata,
       notes: result.transaction.notes,
     })
+    revalidateRewardsLeaderboard()
   }
 
   return result

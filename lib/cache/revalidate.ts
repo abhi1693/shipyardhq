@@ -1,8 +1,33 @@
 import { revalidateTag } from "next/cache"
 import { TAGS } from "./tags"
 
+export function revalidateHomepage() {
+  revalidateTag(TAGS.homepage)
+}
+
+export function revalidateBrowse() {
+  revalidateTag(TAGS.browse)
+}
+
+export function revalidateCategoryDirectory() {
+  revalidateTag(TAGS.categoryDirectory)
+}
+
+export function revalidateLeaderboardPage() {
+  revalidateTag(TAGS.leaderboardPage)
+}
+
+export function revalidateTagsPage() {
+  revalidateTag(TAGS.tagsPage)
+}
+
 export function revalidateProducts() {
   revalidateTag(TAGS.products)
+  revalidateHomepage()
+  revalidateBrowse()
+  revalidateCategoryDirectory()
+  revalidateTagsPage()
+  revalidateLeaderboardPage()
 }
 
 export function revalidateProduct(idOrSlug: string) {
@@ -25,6 +50,11 @@ export function revalidateProductUpdate(
     revalidateProductUpdates(productIdOrSlug)
   }
   revalidateTag(TAGS.productUpdatesLatest)
+  revalidateHomepage()
+  revalidateBrowse()
+  revalidateCategoryDirectory()
+  revalidateTagsPage()
+  revalidateLeaderboardPage()
 }
 
 export function revalidateProductReviews(idOrSlug: string) {
@@ -34,6 +64,11 @@ export function revalidateProductReviews(idOrSlug: string) {
 
 export function revalidateCategories() {
   revalidateTag(TAGS.categories)
+  revalidateHomepage()
+  revalidateBrowse()
+  revalidateCategoryDirectory()
+  revalidateTagsPage()
+  revalidateLeaderboardPage()
 }
 
 export function revalidateCategory(idOrSlug: string) {
@@ -45,6 +80,9 @@ export function revalidateLeaderboard() {
   revalidateTag(TAGS.leaderboard)
   revalidateTag(TAGS.trending)
   revalidateTag(TAGS.analytics)
+  revalidateHomepage()
+  revalidateBrowse()
+  revalidateLeaderboardPage()
 }
 
 export function revalidateMonthlyLeaderboard(monthKey?: string) {
@@ -52,10 +90,12 @@ export function revalidateMonthlyLeaderboard(monthKey?: string) {
   if (monthKey) {
     revalidateTag(TAGS.monthlyLeaderboardMonth(monthKey))
   }
+  revalidateLeaderboardPage()
 }
 
 export function revalidateBadges() {
   revalidateTag(TAGS.badges)
+  revalidateTag(TAGS.featured)
   revalidateProducts()
 }
 
@@ -68,4 +108,10 @@ export function revalidatePlanFeature(key: string) {
 export function revalidatePlacement(featureKey: string) {
   revalidateTag(TAGS.placement(featureKey))
   revalidateProducts()
+}
+
+export function revalidateRewardsLeaderboard() {
+  revalidateTag(TAGS.rewardsLeaderboard)
+  revalidateTag(TAGS.rewards)
+  revalidateHomepage()
 }

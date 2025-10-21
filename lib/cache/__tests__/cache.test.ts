@@ -18,6 +18,7 @@ describe("accelerateTags", () => {
       "#extra",
       "with spaces",
       "more-than-five",
+      "sixth-entry",
     ])
 
     expect(result).toEqual([
@@ -26,6 +27,7 @@ describe("accelerateTags", () => {
       "_extra",
       "with_spaces",
       "more_than_five",
+      "sixth_entry",
     ])
   })
 })

@@ -1,126 +1,36 @@
 import { Rocket, LineChart } from "lucide-react"
 
 import { FeaturedHighlights } from "@/components/organisms/FeaturedHighlights"
-import {
-  getProducts,
-  getTopCategories,
-  getTrendingProducts,
-  getHomepageFeatureProducts,
-} from "@/actions/public/products/featured"
-import { getRewardsLeaderboardEntries } from "@/actions/public/rewards/actions"
-import { getVersusMatchup } from "@/actions/public/products/versus"
 import { LatestLaunches } from "@/components/organisms/LatestLaunches"
 import { Leaderboard } from "@/components/organisms/Leaderboard"
 import { EditorsPick } from "@/components/organisms/EditorsPick"
 import HomepageSpotlight from "@/components/organisms/HomepageSpotlight"
 import { VersusTeaser } from "@/components/organisms/versus/VersusTeaser"
 import { RewardsLeaderboardPreview } from "@/components/organisms/RewardsLeaderboardPreview"
-import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
-import { computeTrendRadarMetrics } from "@/lib/trend-radar"
-import { siteConfig } from "@/lib/siteConfig"
-import {
-  BROWSE_PATH,
-  MEMBER_PRODUCTS_PATH,
-  PRICING_PATH,
-  RANK_IN_PUBLIC_PATH,
-} from "@/lib/routes"
-import { hydrateRewardsLeaderboardEntries } from "@/lib/rewards/display"
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
 import { DirectoryRadarDigest } from "@/components/organisms/directory/RadarDigest"
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
-import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/actions"
 import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
-
-const siteUrl = siteConfig.url.replace(/\/$/, "")
-const homepageTitle = `Launch Faster, Get Discovered. Submit Your Product | ${siteConfig.name}`
-
-const jsonLd = JSON.stringify([
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: siteConfig.name,
-    description: siteConfig.description,
-    url: siteUrl,
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: siteConfig.name,
-    description: siteConfig.description,
-    url: siteUrl,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${siteUrl}${BROWSE_PATH}?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: homepageTitle,
-    description: siteConfig.description,
-    url: siteUrl,
-    publisher: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteUrl,
-    },
-    inLanguage: "en-US",
-    mainEntityOfPage: siteUrl,
-  },
-])
+import { getHomepagePayload } from "@/lib/homepage/cache"
+import { MEMBER_PRODUCTS_PATH, PRICING_PATH, RANK_IN_PUBLIC_PATH } from "@/lib/routes"
 
 export default async function HomePage() {
-  const [
+  const {
+    jsonLd,
+    stats,
     featuredProducts,
     editorsPick,
     latestLaunches,
     trendingProducts,
     topCategories,
     homepagePlacements,
-    stats,
-    rewardsLeaderboardEntries,
+    rewardsLeaders,
     rankInPublicMatchup,
     latestProductUpdates,
-  ] = await Promise.all([
-    getProducts("featured"),
-    getProducts("editor-pick"),
-    getProducts("new"),
-    getTrendingProducts(6),
-    getTopCategories(),
-    getHomepageFeatureProducts(12),
-    getLeaderboardStats(),
-    getRewardsLeaderboardEntries(3),
-    getVersusMatchup(),
-    getLatestPublicProductUpdates(6),
-  ])
-
-  const rewardsLeaders = await hydrateRewardsLeaderboardEntries(
-    rewardsLeaderboardEntries,
-  )
-
-  const radarSourceCategories = topCategories.map((category) => ({
-    id: category.id,
-    slug: category.slug,
-    name: category.name,
-    icon: category.icon,
-    productCount: category._count.products,
-  }))
-
-  const radarTrending = trendingProducts.map((entry) => ({
-    categoryName: entry.product.category?.name ?? null,
-    upvotes: entry.product.analytics?.upvotes ?? null,
-  }))
-
-  const radarData = computeTrendRadarMetrics(
-    radarSourceCategories,
-    radarTrending,
-    {
-      totalProducts: stats.totalProducts,
-    },
-  )
+    radarData,
+  } = await getHomepagePayload()
 
   return (
     <>

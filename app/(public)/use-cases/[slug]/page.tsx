@@ -13,33 +13,27 @@ import {
   usecasePath,
 } from "@/lib/routes"
 import { productHasFeature } from "@/lib/features"
-import {
-  getPublicUseCaseMeta,
-  getPublicUseCaseWithProducts,
-  getPublicUseCasesWithCounts,
-} from "@/actions/public/use-cases/actions"
+import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import {
+  getUseCasePagePayload,
+  getUseCaseStaticParams,
+  type UseCasePagePayload,
+} from "@/lib/useCases/page-cache"
 
 interface UseCasePageProps {
   params: Promise<{ slug: string }>
 }
 
-type UseCaseProduct = NonNullable<
-  Awaited<ReturnType<typeof getPublicUseCaseWithProducts>>
->["products"][number]
+type UseCaseProduct = NonNullable<UseCasePagePayload>["products"][number]
 
-type UseCaseCategory = NonNullable<
-  Awaited<ReturnType<typeof getPublicUseCaseWithProducts>>
->["categories"][number]
+type UseCaseCategory = NonNullable<UseCasePagePayload>["categories"][number]
 
 export async function generateStaticParams() {
-  const useCases = await getPublicUseCasesWithCounts()
-  return useCases
-    .filter((useCase) => useCase.productCount > 0)
-    .map((useCase) => ({ slug: useCase.slug }))
+  return getUseCaseStaticParams()
 }
 
 export async function generateMetadata({
@@ -63,7 +57,7 @@ export async function generateMetadata({
 
 export default async function UseCasePage({ params }: UseCasePageProps) {
   const { slug } = await params
-  const data = await getPublicUseCaseWithProducts(slug)
+  const data = await getUseCasePagePayload(slug)
 
   if (!data) notFound()
 

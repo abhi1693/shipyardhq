@@ -53,16 +53,21 @@ type MonthlyLeaderboardData = Awaited<
 >
 
 type MonthlyRanking = MonthlyLeaderboardData["rankings"][number]
+type MonthlyLeaderboardMonths = Awaited<
+  ReturnType<typeof getMonthlyLeaderboardMonths>
+>
 
 export async function MonthlyLeaderboardView({
   monthParam,
   initialLeaderboard,
+  initialMonths,
 }: {
   monthParam?: string
   initialLeaderboard?: MonthlyLeaderboardData
+  initialMonths?: MonthlyLeaderboardMonths
 }) {
   const [months, leaderboard] = await Promise.all([
-    getMonthlyLeaderboardMonths(),
+    initialMonths ?? getMonthlyLeaderboardMonths(),
     initialLeaderboard ?? getMonthlyTopRankedProducts({ month: monthParam }),
   ])
 

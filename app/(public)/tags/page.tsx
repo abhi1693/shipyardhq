@@ -1,16 +1,15 @@
 import Link from "next/link"
 
-import {
-  getKeywordTagProducts,
-  getKeywordTagSummaries,
-  TAG_PRODUCTS_PAGE_SIZE,
-} from "@/actions/public/tags/actions"
 import ProductCompactGrid from "@/components/molecules/ProductCompactGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
 import KeywordTagCloud from "@/components/molecules/KeywordTagCloud"
 import { buildPageMetadata } from "@/lib/metadata"
 import { resolvePagination } from "@/lib/pagination"
 import { cn } from "@/lib/utils"
+import {
+  getTagsIndexPayload,
+} from "@/lib/tags/page-cache"
+import { TAG_PRODUCTS_PAGE_SIZE } from "@/actions/public/tags/actions"
 
 import { buildPageHref, formatTagLabel } from "./_utils"
 
@@ -38,8 +37,10 @@ export default async function TagsIndexPage({
     maxPageSize: TAG_PRODUCTS_PAGE_SIZE,
   })
 
-  const summaries = await getKeywordTagSummaries()
-  if (!summaries.length) {
+  const payload = await getTagsIndexPayload(pagination.page)
+  const { summaries, activeSummary, activeProducts } = payload
+
+  if (!summaries.length || !activeSummary) {
     return (
       <main className="bg-white">
         <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-8 px-4 py-20 text-center">
@@ -52,17 +53,13 @@ export default async function TagsIndexPage({
     )
   }
 
-  const activeSummary = summaries[0]
   const cloudItems = summaries.map((summary) => ({
     slug: summary.slug,
     label: formatTagLabel(summary.canonical || summary.keyword),
     count: summary.productCount,
     href: `/tags/${summary.slug}`,
   }))
-  const tagData = await getKeywordTagProducts(
-    activeSummary.slug,
-    pagination.page,
-  )
+  const tagData = activeProducts
 
   const total = tagData?.total ?? activeSummary.productCount
   const totalPages = Math.max(1, Math.ceil(total / TAG_PRODUCTS_PAGE_SIZE))

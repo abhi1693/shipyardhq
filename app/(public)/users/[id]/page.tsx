@@ -3,11 +3,7 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { format } from "date-fns"
 
-import {
-  getPublicUserMeta,
-  getPublicUserProfile,
-} from "@/actions/public/users/actions"
-import { getRewardsLeaderboardPositionForUser } from "@/actions/public/rewards/actions"
+import { getPublicUserMeta } from "@/actions/public/users/actions"
 import CopyButton from "@/components/molecules/CopyButton"
 import ShareProfileButton from "@/components/molecules/ShareProfileButton"
 import { EmptyState } from "@/components/molecules/empty-state"
@@ -30,16 +26,13 @@ import {
   userPath,
 } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { getUserProfilePayload } from "@/lib/users/page-cache"
 
 export const revalidate = 120
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
-
-type PublicUserProduct = NonNullable<
-  Awaited<ReturnType<typeof getPublicUserProfile>>
->["products"][number]
 
 export async function generateMetadata({
   params,
@@ -73,13 +66,24 @@ export async function generateMetadata({
 
 export default async function MakerProfilePage({ params }: PageProps) {
   const { id } = await params
-  const profile = await getPublicUserProfile(id)
+  const payload = await getUserProfilePayload(id)
 
-  if (!profile) return notFound()
+  if (!payload) return notFound()
 
-  const leaderboardPosition = await getRewardsLeaderboardPositionForUser(
-    profile.id,
-  )
+  const {
+    profile,
+    leaderboardPosition,
+    products,
+    totalProducts,
+    totalUpvotes,
+    verifiedCount,
+    categories,
+    focusCategories,
+    extraCategoryCount,
+    badges,
+    recentLaunches,
+    earliestLaunch,
+  } = payload
 
   const leaderboardTitle =
     leaderboardPosition && leaderboardPosition.totalEligible > 0
@@ -104,85 +108,21 @@ export default async function MakerProfilePage({ params }: PageProps) {
     }
   }
 
-  const now = new Date()
-  let totalUpvotes = 0
-  let verifiedCount = 0
+  const directoryItems = products.map((product) => ({
+    ...product,
+    launchedAt: product.launchedAt ? new Date(product.launchedAt) : null,
+  }))
 
-  const categoryCounts = new Map<string, number>()
-  const badgeSet = new Set<string>()
-
-  const products = profile.products ?? []
-
-  const items = products.map((product: PublicUserProduct) => {
-    const upvotes = product.analytics?.upvotes ?? 0
-    totalUpvotes += upvotes
-
-    if (product.verification?.isVerified) {
-      verifiedCount += 1
-    }
-
-    const categoryName = product.category?.name
-    if (categoryName) {
-      categoryCounts.set(
-        categoryName,
-        (categoryCounts.get(categoryName) ?? 0) + 1,
-      )
-    }
-
-    const activeBadges = (product.ProductBadge ?? [])
-      .filter((badge) => !badge.expiresAt || new Date(badge.expiresAt) > now)
-      .map((badge) => {
-        badgeSet.add(badge.badge)
-        return badge.badge
-      })
-
-    const launchedAtRaw = product.publishedAt ?? product.createdAt ?? null
-    const launchedAt = launchedAtRaw ? new Date(launchedAtRaw) : null
-    const metaLabel = launchedAt ? format(launchedAt, "MMM d, yyyy") : undefined
-
-    return {
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      logo: product.logo,
-      tagline: product.tagline,
-      analytics: product.analytics ?? null,
-      category: product.category ? { name: product.category.name } : undefined,
-      verification: product.verification ?? undefined,
-      badges: activeBadges,
-      metaLabel,
-      launchedAt,
-    }
-  })
-
-  const totalProducts = items.length
-  const categoryEntries = Array.from(categoryCounts.entries()).sort(
-    (a, b) => b[1] - a[1],
-  )
-  const focusCategories = categoryEntries.slice(0, 4).map(([name]) => name)
-  const extraCategoryCount = Math.max(
-    categoryEntries.length - focusCategories.length,
-    0,
-  )
-  const uniqueBadges = Array.from(badgeSet)
-  const badgeShowcase = uniqueBadges.slice(0, 6)
-  const badgeOverflow = Math.max(uniqueBadges.length - badgeShowcase.length, 0)
-
-  const sortedByDate = [...items].sort((a, b) => {
-    const aTime = a.launchedAt ? a.launchedAt.getTime() : 0
-    const bTime = b.launchedAt ? b.launchedAt.getTime() : 0
-    return bTime - aTime
-  })
-  const recentLaunches = sortedByDate.slice(0, 5)
-
-  const earliestLaunch =
-    sortedByDate[sortedByDate.length - 1]?.launchedAt ?? null
+  const recentLaunchItems = recentLaunches.map((product) => ({
+    ...product,
+    launchedAt: product.launchedAt ? new Date(product.launchedAt) : null,
+  }))
 
   const stats = [
     { label: "Published launches", value: totalProducts },
     { label: "Community upvotes", value: totalUpvotes },
     { label: "Verified wins", value: verifiedCount },
-    { label: "Focus areas", value: categoryEntries.length },
+    { label: "Focus areas", value: categories.length },
   ]
   const statFormatter = new Intl.NumberFormat("en-US", {
     notation: "compact",
@@ -190,9 +130,13 @@ export default async function MakerProfilePage({ params }: PageProps) {
   })
 
   const summaryParts: string[] = []
-  if (earliestLaunch) {
+  const earliestLaunchDate = earliestLaunch
+    ? new Date(earliestLaunch)
+    : null
+
+  if (earliestLaunchDate) {
     summaryParts.push(
-      `Building on Shipyard since ${format(earliestLaunch, "MMMM yyyy")}.`,
+      `Building on Shipyard since ${format(earliestLaunchDate, "MMMM yyyy")}.`,
     )
   }
   if (focusCategories.length) {
@@ -202,9 +146,10 @@ export default async function MakerProfilePage({ params }: PageProps) {
       }.`,
     )
   }
-  if (uniqueBadges.length) {
+  const totalBadgeCount = badges.showcase.length + badges.overflow
+  if (totalBadgeCount) {
     summaryParts.push(
-      `Earned ${uniqueBadges.length} badge${uniqueBadges.length === 1 ? "" : "s"} across launches.`,
+      `Earned ${totalBadgeCount} badge${totalBadgeCount === 1 ? "" : "s"} across launches.`,
     )
   }
   if (!summaryParts.length) {
@@ -240,7 +185,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
   const ldItemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: items.map((item, index) => ({
+    itemListElement: directoryItems.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
       item: `${baseUrl}${productPath(item.slug)}`,
@@ -284,7 +229,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumb) }}
         />
-        {items.length > 0 ? (
+        {directoryItems.length > 0 ? (
           <script
             type="application/ld+json"
             suppressHydrationWarning
@@ -405,7 +350,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
               {totalProducts ? (
                 <div className="mt-8">
                   <DirectoryProductList
-                    items={items}
+                    items={directoryItems}
                     columns="grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
                     showBadges
                     metaConfig={{
@@ -431,9 +376,9 @@ export default async function MakerProfilePage({ params }: PageProps) {
               <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                 Launch cadence
               </h2>
-              {recentLaunches.length ? (
+              {recentLaunchItems.length ? (
                 <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-                  {recentLaunches.map((launch) => (
+                  {recentLaunchItems.map((launch) => (
                     <li key={launch.id} className="flex justify-between gap-3">
                       <Link
                         href={productPath(launch.slug)}
@@ -460,9 +405,9 @@ export default async function MakerProfilePage({ params }: PageProps) {
               <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                 Focus categories
               </h2>
-              {categoryEntries.length ? (
+              {categories.length ? (
                 <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                  {categoryEntries.map(([name, count]) => (
+                  {categories.map(({ name, count }) => (
                     <li key={name} className="flex justify-between gap-3">
                       <span className="text-foreground">{name}</span>
                       <span className="text-xs uppercase tracking-[0.28em]">
@@ -482,9 +427,9 @@ export default async function MakerProfilePage({ params }: PageProps) {
               <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                 Badges earned
               </h2>
-              {badgeShowcase.length ? (
+              {badges.showcase.length ? (
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {badgeShowcase.map((badge) => (
+                  {badges.showcase.map((badge) => (
                     <Badge
                       key={badge}
                       variant="outline"
@@ -493,12 +438,12 @@ export default async function MakerProfilePage({ params }: PageProps) {
                       {badge}
                     </Badge>
                   ))}
-                  {badgeOverflow > 0 ? (
+                  {badges.overflow > 0 ? (
                     <Badge
                       variant="outline"
                       className="rounded-full border-border/60 bg-background/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
                     >
-                      +{badgeOverflow} more
+                      +{badges.overflow} more
                     </Badge>
                   ) : null}
                 </div>

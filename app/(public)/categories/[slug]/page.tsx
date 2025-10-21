@@ -2,30 +2,22 @@ import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import Link from "next/link"
 
-import {
-  getCategoryMeta,
-  getCategoryWithProducts,
-} from "@/actions/public/categories/actions"
-import { getFeaturedByCategorySlug } from "@/actions/public/products/featured"
 import FeaturedBanner from "@/components/molecules/FeaturedBanner"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { CategoryProductsClient } from "./client-products"
 import { buildPageMetadata } from "@/lib/metadata"
-import { productHasFeature } from "@/lib/features"
 import { pluralize } from "@/lib/pluralize"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { getCategoryMeta } from "@/actions/public/categories/actions"
+import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
 }
-
-type CategoryProduct = NonNullable<
-  Awaited<ReturnType<typeof getCategoryWithProducts>>
->["products"][number]
 
 export async function generateMetadata({
   params,
@@ -43,46 +35,21 @@ export async function generateMetadata({
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params
-  const [data, featured] = await Promise.all([
-    getCategoryWithProducts(slug),
-    getFeaturedByCategorySlug(slug, 7),
-  ])
+  const data = await getCategoryDetailPayload(slug)
 
-  if (!data) notFound()
+  if (!data) {
+    notFound()
+  }
 
-  const { category, products } = data
-  const totalProducts = products.length
-  const totalFeatured = featured.length
-  const priorityPlacements = products.filter((product) =>
-    productHasFeature(product, "priorityPlacement"),
-  )
-  const totalPriority = priorityPlacements.length
-  const totalUpvotes = products.reduce(
-    (acc, product) => acc + (product.analytics?.upvotes ?? 0),
-    0,
-  )
-  const averageUpvotes =
-    totalProducts > 0 ? Math.round(totalUpvotes / totalProducts) : 0
-  const latestLaunch = [...products]
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    )
-    .at(0)
-  const latestLaunchDate = latestLaunch
-    ? new Date(latestLaunch.createdAt).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : null
+  const { category, products, metrics, featured } = data
+
   const heroHighlights = [
-    `${pluralize(totalProducts, "launch")} live`,
-    totalFeatured > 0
-      ? `${totalFeatured} featured spot${totalFeatured === 1 ? "" : "s"}`
+    `${pluralize(metrics.totalProducts, "launch")} live`,
+    metrics.totalFeatured > 0
+      ? `${metrics.totalFeatured} featured spot${metrics.totalFeatured === 1 ? "" : "s"}`
       : "Feature your launch",
-    totalPriority > 0
-      ? `${totalPriority} premium placement${totalPriority === 1 ? "" : "s"}`
+    metrics.totalPriority > 0
+      ? `${metrics.totalPriority} premium placement${metrics.totalPriority === 1 ? "" : "s"}`
       : "Premium slots open",
   ]
 
@@ -161,10 +128,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     Launches live
                   </p>
                   <p className="mt-3 text-3xl font-semibold text-foreground">
-                    {totalProducts.toLocaleString()}
+                    {metrics.totalProducts.toLocaleString()}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {pluralize(totalProducts, "launch")} currently live in this
+                    {pluralize(metrics.totalProducts, "launch")} currently live in this
                     category.
                   </p>
                 </div>
@@ -173,10 +140,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     Featured momentum
                   </p>
                   <p className="mt-3 text-3xl font-semibold text-foreground">
-                    {totalFeatured.toLocaleString()}
+                    {metrics.totalFeatured.toLocaleString()}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {totalFeatured > 0
+                    {metrics.totalFeatured > 0
                       ? "Spotlights featured this week."
                       : "Claim the next editorial spotlight."}
                   </p>
@@ -186,11 +153,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     Community signal
                   </p>
                   <p className="mt-3 text-3xl font-semibold text-foreground">
-                    {averageUpvotes.toLocaleString()} avg upvotes
+                    {metrics.averageUpvotes.toLocaleString()} avg upvotes
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {latestLaunch
-                      ? `Latest arrival ${latestLaunch.name} (${latestLaunchDate}).`
+                    {metrics.latestLaunchName
+                      ? `Latest arrival ${metrics.latestLaunchName} (${metrics.latestLaunchDate}).`
                       : "Be the first to launch and set the tone."}
                   </p>
                 </div>
@@ -238,17 +205,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           ) : null}
 
           <CategoryProductsClient
-            products={products.map((p: CategoryProduct) => ({
-              ...p,
-              priority: productHasFeature(p, "priorityPlacement"),
-              badges:
-                p.ProductBadge?.filter(
-                  (pb: CategoryProduct["ProductBadge"][number]) =>
-                    !pb.expiresAt || new Date(pb.expiresAt) > new Date(),
-                ).map(
-                  (pb: CategoryProduct["ProductBadge"][number]) => pb.badge,
-                ) ?? [],
-            }))}
+            products={products}
           />
         </div>
       </div>

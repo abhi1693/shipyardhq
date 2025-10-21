@@ -6,6 +6,7 @@ export const TAGS = {
   productUpdatesLatest: "product-updates:latest",
   categories: "categories",
   category: (idOrSlug: string) => `category:${idOrSlug}`,
+  leaderboardPage: "leaderboard:page",
   useCases: "use-cases",
   usecase: (idOrSlug: string) => `use-case:${idOrSlug}`,
   users: "users",
@@ -34,6 +35,11 @@ export const TAGS = {
   rewardCatalogItem: (key: string) => `rewards:catalog:${key}`,
   keywords: "keywords",
   keyword: (slug: string) => `keyword:${slug}`,
+  tagsPage: "tags:page",
+  tagDetail: (slug: string) => `tag:detail:${slug}`,
+  homepage: "homepage",
+  browse: "browse",
+  categoryDirectory: "categories:directory",
 } as const
 
 export type Tag = (typeof TAGS)[keyof typeof TAGS] | string

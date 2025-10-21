@@ -2,12 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 
-import {
-  getKeywordTagBySlug,
-  getKeywordTagProducts,
-  getKeywordTagSummaries,
-  TAG_PRODUCTS_PAGE_SIZE,
-} from "@/actions/public/tags/actions"
+import { getKeywordTagBySlug, TAG_PRODUCTS_PAGE_SIZE } from "@/actions/public/tags/actions"
 import ProductCompactGrid from "@/components/molecules/ProductCompactGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
 import KeywordTagCloud from "@/components/molecules/KeywordTagCloud"
@@ -16,6 +11,7 @@ import { resolvePagination } from "@/lib/pagination"
 import { cn } from "@/lib/utils"
 
 import { buildPageHref, formatTagLabel } from "../_utils"
+import { getTagDetailPayload } from "@/lib/tags/page-cache"
 
 interface TagPageProps {
   params: Promise<{ slug: string }>
@@ -48,15 +44,15 @@ export default async function TagDetailPage({
     maxPageSize: TAG_PRODUCTS_PAGE_SIZE,
   })
 
-  const tagData = await getKeywordTagProducts(slug, pagination.page)
-  if (!tagData) {
+  const payload = await getTagDetailPayload(slug, pagination.page)
+  if (!payload) {
     notFound()
   }
 
-  const summaries = await getKeywordTagSummaries()
+  const { summary, products, summaries } = payload
   const navSummaries = [
-    tagData.summary,
-    ...summaries.filter((summary) => summary.slug !== tagData.summary.slug),
+    summary,
+    ...summaries.filter((item) => item.slug !== summary.slug),
   ]
   const cloudItems = navSummaries.map((summary) => ({
     slug: summary.slug,
@@ -65,12 +61,10 @@ export default async function TagDetailPage({
     href: `/tags/${summary.slug}`,
   }))
 
-  const total = tagData.total
+  const total = products.total
   const totalPages = Math.max(1, Math.ceil(total / TAG_PRODUCTS_PAGE_SIZE))
-  const basePath = `/tags/${tagData.summary.slug}`
-  const activeLabel = formatTagLabel(
-    tagData.summary.canonical || tagData.summary.keyword,
-  )
+  const basePath = `/tags/${summary.slug}`
+  const activeLabel = formatTagLabel(summary.canonical || summary.keyword)
 
   return (
     <main className="bg-white">
@@ -100,7 +94,7 @@ export default async function TagDetailPage({
             </header>
             <KeywordTagCloud
               items={cloudItems}
-              activeSlug={tagData.summary.slug}
+              activeSlug={summary.slug}
               className="pt-2"
             />
           </section>
@@ -121,9 +115,9 @@ export default async function TagDetailPage({
               </div>
             </div>
 
-            {tagData.products.length > 0 ? (
+            {products.products.length > 0 ? (
               <ProductCompactGrid
-                items={tagData.products}
+                items={products.products}
                 columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
               />
             ) : (
