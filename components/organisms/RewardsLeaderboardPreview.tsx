@@ -61,6 +61,7 @@ function LeaderboardMemberRow({
   rank: number
 }) {
   const highlight = rank === 1
+  const avatarSize = highlight ? 48 : 44
 
   return (
     <Link
@@ -91,6 +92,8 @@ function LeaderboardMemberRow({
             <AvatarImage
               src={entry.avatarUrl}
               alt={entry.displayName}
+              width={avatarSize}
+              height={avatarSize}
               className="object-cover"
             />
           ) : null}

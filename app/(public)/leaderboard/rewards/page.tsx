@@ -279,6 +279,8 @@ function RewardLeaderRow({
             <AvatarImage
               src={entry.avatarUrl}
               alt={entry.displayName}
+              width={48}
+              height={48}
               className="object-cover"
             />
           ) : null}
@@ -328,6 +330,7 @@ function RewardLeaderCard({
   variant?: "default" | "highlight"
 }) {
   const highlight = variant === "highlight"
+  const avatarSize = highlight ? 56 : 48
 
   return (
     <Link
@@ -358,6 +361,8 @@ function RewardLeaderCard({
             <AvatarImage
               src={entry.avatarUrl}
               alt={entry.displayName}
+              width={avatarSize}
+              height={avatarSize}
               className="object-cover"
             />
           ) : null}

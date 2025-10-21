@@ -31,6 +31,7 @@ export function MakerCard({
   variant = "default",
 }: MakerCardProps) {
   const launchesLabel = `${launches} launch${launches === 1 ? "" : "es"}`
+  const avatarSize = variant === "highlight" ? 56 : 48
 
   return (
     <Link
@@ -55,7 +56,13 @@ export function MakerCard({
           )}
         >
           {avatarUrl ? (
-            <AvatarImage src={avatarUrl} alt={name} className="object-cover" />
+            <AvatarImage
+              src={avatarUrl}
+              alt={name}
+              width={avatarSize}
+              height={avatarSize}
+              className="object-cover"
+            />
           ) : null}
           <AvatarFallback className="flex h-full w-full items-center justify-center rounded-[inherit] bg-[color:var(--brand-1)/0.12] text-current">
             {initials}

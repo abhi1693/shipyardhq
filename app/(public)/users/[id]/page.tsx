@@ -246,6 +246,8 @@ export default async function MakerProfilePage({ params }: PageProps) {
                         <AvatarImage
                           src={avatarUrl}
                           alt={fullName}
+                          width={80}
+                          height={80}
                           className="object-cover"
                         />
                       ) : null}

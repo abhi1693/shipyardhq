@@ -161,6 +161,8 @@ export default function PublicHeader() {
                           <AvatarImage
                             src={user.imageUrl ?? ""}
                             alt={user.fullName ?? "Account avatar"}
+                            width={40}
+                            height={40}
                           />
                           <AvatarFallback className="bg-muted text-xs font-semibold uppercase text-muted-foreground">
                             {userInitials}
