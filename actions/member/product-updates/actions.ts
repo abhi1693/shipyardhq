@@ -3,12 +3,17 @@
 import prisma from "@/lib/prisma"
 import { ProductUpdateStatus, Prisma } from "@/lib/vendor/prisma/client"
 import { productUpdateInputSchema } from "@/lib/productUpdates/schema"
-import { requireManageableProduct } from "@/lib/server/productAccess"
+import {
+  requireManageableProduct,
+  type ManageableProductSummary,
+} from "@/lib/server/productAccess"
 import {
   revalidateProductUpdate,
   revalidateProductUpdates,
 } from "@/lib/cache/revalidate"
 import type { ProductUpdateManageView } from "@/types/product-updates"
+import { dispatchEventAsync } from "@/lib/server/events"
+import { APP_EVENTS } from "@/lib/server/events/constants"
 
 const manageableUpdateSelect = {
   id: true,
@@ -57,6 +62,39 @@ function formatManageableUpdate(
         }
       : null,
   }
+}
+
+type DispatchPublishedEventInput = {
+  product: ManageableProductSummary
+  update: ManageableProductUpdate
+}
+
+function dispatchProductUpdatePublishedEvent({
+  product,
+  update,
+}: DispatchPublishedEventInput) {
+  const publishedAt = update.publishedAt ?? new Date()
+
+  dispatchEventAsync(
+    APP_EVENTS.PRODUCT_UPDATE_PUBLISHED,
+    {
+      productId: product.id,
+      productSlug: product.slug,
+      productName: product.name,
+      productOwnerId: product.userId,
+      updateId: update.id,
+      updateTitle: update.title,
+      updateSummary: update.summary ?? null,
+      updatePublishedAt: publishedAt,
+      authorId: update.author?.id ?? null,
+    },
+    {
+      context: {
+        productId: product.id,
+        productUpdateId: update.id,
+      },
+    },
+  )
 }
 
 function extractFirstIssueMessage(error: any) {
@@ -123,6 +161,13 @@ export async function createProductUpdateAction(slug: string, input: unknown) {
 
     revalidateProductUpdates(product.slug)
     revalidateProductUpdate(created.id, product.slug)
+
+    if (status === ProductUpdateStatus.published) {
+      dispatchProductUpdatePublishedEvent({
+        product,
+        update: created,
+      })
+    }
 
     return {
       success: true as const,
@@ -195,6 +240,16 @@ export async function updateProductUpdateAction(
 
     revalidateProductUpdates(product.slug)
     revalidateProductUpdate(updated.id, product.slug)
+
+    if (
+      status === ProductUpdateStatus.published &&
+      existing.status !== ProductUpdateStatus.published
+    ) {
+      dispatchProductUpdatePublishedEvent({
+        product,
+        update: updated,
+      })
+    }
 
     return {
       success: true as const,

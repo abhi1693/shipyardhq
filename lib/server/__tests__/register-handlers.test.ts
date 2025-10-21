@@ -32,6 +32,10 @@ const EXPECTED_REGISTRATIONS = [
     handlerId: "notifications.product-reviewed",
   },
   {
+    event: APP_EVENTS.PRODUCT_UPDATE_PUBLISHED,
+    handlerId: "notifications.product-update-published",
+  },
+  {
     event: APP_EVENTS.PRODUCT_DOWNVOTED,
     handlerId: "analytics.decrement-upvotes",
   },

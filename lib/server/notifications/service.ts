@@ -277,9 +277,20 @@ export function getNotificationCacheTag(userId: string): string {
 
 function invalidateNotificationCache(userId: string) {
   try {
-    revalidateTag(getNotificationCacheTag(userId))
-    revalidateTag(TAGS.notifications)
-    revalidateTag(TAGS.user(userId))
+    const baseTags = [
+      getNotificationCacheTag(userId),
+      TAGS.notifications,
+      TAGS.user(userId),
+    ]
+
+    for (const tag of baseTags) {
+      revalidateTag(tag)
+    }
+
+    const accelerated = accelerateTags(baseTags)
+    for (const tag of accelerated) {
+      revalidateTag(tag)
+    }
   } catch (error) {
     console.error("[notifications] Failed to revalidate cache", {
       error,

@@ -85,6 +85,18 @@ export type ProductReviewCreatedEvent = {
 }
 export type ProductTrafficRecordedEvent = ProductTrafficPayload
 
+export type ProductUpdatePublishedEvent = {
+  productId: string
+  productSlug: string | null
+  productName: string | null
+  productOwnerId: string | null
+  updateId: string
+  updateTitle: string
+  updateSummary: string | null
+  updatePublishedAt: Date
+  authorId: string | null
+}
+
 export type LeaderboardMonthlyWinnersEvent = {
   monthKey: string
   monthLabel: string
@@ -169,6 +181,7 @@ type AppEvents = {
   [APP_EVENTS.PRODUCT_UPVOTED]: ProductUpvotedEvent
   [APP_EVENTS.PRODUCT_DOWNVOTED]: ProductDownvotedEvent
   [APP_EVENTS.PRODUCT_REVIEWED]: ProductReviewCreatedEvent
+  [APP_EVENTS.PRODUCT_UPDATE_PUBLISHED]: ProductUpdatePublishedEvent
   [APP_EVENTS.BADGE_ASSIGNED]: BadgeAssignedEvent
   [APP_EVENTS.BADGE_REMOVED]: BadgeRemovedEvent
   [APP_EVENTS.ANALYTICS_PRODUCT_TRAFFIC]: ProductTrafficRecordedEvent

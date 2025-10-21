@@ -281,7 +281,8 @@ export const NotificationType: {
   product_upvote: 'product_upvote',
   product_review: 'product_review',
   reward_awarded: 'reward_awarded',
-  system: 'system'
+  system: 'system',
+  product_update: 'product_update'
 };
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

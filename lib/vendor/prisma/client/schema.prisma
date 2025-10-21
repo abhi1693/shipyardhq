@@ -449,6 +449,7 @@ enum NotificationType {
   product_review
   reward_awarded
   system
+  product_update
 }
 
 enum UserStatus {

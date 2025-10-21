@@ -4,6 +4,7 @@ import { APP_EVENTS } from "@/lib/server/events/constants"
 import {
   memberProductPath,
   MEMBER_REWARDS_PATH,
+  productPath,
 } from "@/lib/routes"
 import {
   createNotification,
@@ -14,6 +15,12 @@ import {
 } from "@/lib/vendor/prisma/client"
 
 const USER_NAME_FALLBACK = "Shipyard member"
+
+const PRODUCT_UPDATE_NOTIFICATION_TYPE =
+  (NotificationType as Record<
+    string,
+    (typeof NotificationType)[keyof typeof NotificationType] | undefined
+  >).product_update ?? NotificationType.system
 
 type BasicUser = {
   id: string
@@ -196,6 +203,88 @@ registerEventHandler({
     } catch (error) {
       console.error(
         "[notifications] failed to handle rewards.awarded",
+        { error, event },
+      )
+    }
+  },
+})
+
+registerEventHandler({
+  event: APP_EVENTS.PRODUCT_UPDATE_PUBLISHED,
+  id: "notifications.product-update-published",
+  queue: "low",
+  handler: async (event) => {
+    try {
+      const upvotes = await prisma.productUpvote.findMany({
+        where: { productId: event.productId },
+        select: { userId: true },
+      })
+
+      if (!upvotes.length) return
+
+      const excludedUsers = new Set(
+        [event.productOwnerId, event.authorId].filter(
+          (id): id is string => typeof id === "string" && id.length > 0,
+        ),
+      )
+
+      const userIds = new Set<string>()
+      for (const vote of upvotes) {
+        const userId = vote.userId
+        if (!userId) continue
+        if (excludedUsers.has(userId)) continue
+        userIds.add(userId)
+      }
+
+      if (userIds.size === 0) return
+
+      const rawProductName = event.productName?.trim()
+      const productName =
+        rawProductName && rawProductName.length > 0
+          ? rawProductName
+          : "one of your upvoted products"
+      const rawTitle = event.updateTitle?.trim()
+      const updateTitle =
+        rawTitle && rawTitle.length > 0 ? rawTitle : "a new update"
+      const href =
+        event.productSlug && event.productSlug.trim().length > 0
+          ? productPath(event.productSlug)
+          : null
+      const publishedAtDate =
+        event.updatePublishedAt instanceof Date
+          ? event.updatePublishedAt
+          : new Date(event.updatePublishedAt ?? Date.now())
+      const publishedAtIso = Number.isNaN(publishedAtDate.getTime())
+        ? new Date().toISOString()
+        : publishedAtDate.toISOString()
+      const message = `New update on ${productName}: ${updateTitle}`
+
+      const metadataBase: Record<string, unknown> = {
+        productId: event.productId,
+        productSlug: event.productSlug ?? null,
+        productName: event.productName ?? null,
+        updateId: event.updateId,
+        updateTitle: event.updateTitle,
+        updateSummary: event.updateSummary ?? null,
+        publishedAt: publishedAtIso,
+        href,
+        publicHref: href,
+        notificationKind: "product_update",
+      }
+
+      await Promise.all(
+        Array.from(userIds).map((userId) =>
+          createNotification({
+            userId,
+            type: PRODUCT_UPDATE_NOTIFICATION_TYPE,
+            message,
+            metadata: metadataBase,
+          }),
+        ),
+      )
+    } catch (error) {
+      console.error(
+        "[notifications] failed to handle product.update.published",
         { error, event },
       )
     }

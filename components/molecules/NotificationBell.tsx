@@ -8,6 +8,7 @@ import {
   Gift,
   Info,
   Loader2,
+  Megaphone,
   MessageSquare,
   Star,
 } from "lucide-react"
@@ -267,6 +268,11 @@ function getNotificationVisuals(type: NotificationItem["type"]) {
       return {
         icon: Gift,
         bg: "bg-emerald-100 text-emerald-600",
+      }
+    case "product_update":
+      return {
+        icon: Megaphone,
+        bg: "bg-indigo-100 text-indigo-600",
       }
     default:
       return {
