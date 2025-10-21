@@ -1,12 +1,6 @@
 import prisma from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
-import {
-  accelerateTags,
-  cached,
-  DEFAULT_SWR,
-  DEFAULT_TTL,
-  TAGS,
-} from "@/lib/cache"
+import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import type {
   NotificationType,
   Prisma,
@@ -238,15 +232,6 @@ async function queryNotifications(
       createdAt: true,
       updatedAt: true,
     },
-    cacheStrategy: {
-      ttl: DEFAULT_TTL.slow,
-      swr: DEFAULT_SWR.slow,
-      tags: accelerateTags([
-        TAGS.notifications,
-        TAGS.notificationsForUser(userId),
-        TAGS.user(userId),
-      ]),
-    },
   })
 
   const hasMore = notifications.length > limit
@@ -287,10 +272,6 @@ function invalidateNotificationCache(userId: string) {
       revalidateTag(tag)
     }
 
-    const accelerated = accelerateTags(baseTags)
-    for (const tag of accelerated) {
-      revalidateTag(tag)
-    }
   } catch (error) {
     console.error("[notifications] Failed to revalidate cache", {
       error,
