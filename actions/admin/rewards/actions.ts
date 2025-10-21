@@ -372,16 +372,26 @@ export async function toggleRewardCatalogItemAction(
 }
 
 export async function getRewardTransactions(
-  args: PaginationArgs & { type?: RewardTransactionType | "all" } = {},
+  args: PaginationArgs & {
+    type?: RewardTransactionType | "all"
+    userId?: string
+  } = {},
 ) {
   await resolveAdminUser()
-  const { skip = 0, take = DEFAULT_LIMIT, type = "all" } = args
+  const { skip = 0, take = DEFAULT_LIMIT, type = "all", userId } = args
+  const where: Prisma.RewardTransactionWhereInput = {}
+  if (type !== "all") {
+    where.type = type
+  }
+  if (userId) {
+    where.userId = userId
+  }
   try {
     return await prisma.rewardTransaction.findMany({
       orderBy: { createdAt: "desc" },
       skip,
       take,
-      where: type === "all" ? undefined : { type },
+      where: Object.keys(where).length ? where : undefined,
       include: {
         user: {
           select: {
@@ -421,11 +431,19 @@ export async function getRewardTransactions(
 
 export async function getRewardTransactionsCount(
   type: RewardTransactionType | "all" = "all",
+  userId?: string,
 ) {
   await resolveAdminUser()
+  const where: Prisma.RewardTransactionWhereInput = {}
+  if (type !== "all") {
+    where.type = type
+  }
+  if (userId) {
+    where.userId = userId
+  }
   try {
     return await prisma.rewardTransaction.count({
-      where: type === "all" ? undefined : { type },
+      where: Object.keys(where).length ? where : undefined,
     })
   } catch (error) {
     console.error("Failed to count reward transactions", error)

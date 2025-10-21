@@ -13,13 +13,16 @@ export function Relationship<T>({
   columns,
   emptyMessage = "No related records found.",
   action,
+  pageCount,
 }: {
   title: string
   rows: T[]
   columns: ColumnDef<T>[]
   emptyMessage?: string
   action?: React.ReactNode
+  pageCount?: number
 }) {
+  const resolvedPageCount = pageCount ?? rows.length
   return (
     <Card>
       <CardHeader>
@@ -34,7 +37,11 @@ export function Relationship<T>({
             {emptyMessage}
           </div>
         ) : (
-          <DataTable columns={columns} data={rows} pageCount={rows.length} />
+          <DataTable
+            columns={columns}
+            data={rows}
+            pageCount={resolvedPageCount}
+          />
         )}
       </CardContent>
     </Card>
