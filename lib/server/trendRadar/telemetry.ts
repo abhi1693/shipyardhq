@@ -1,12 +1,10 @@
-import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
+import { buildCacheKey } from "@/lib/server/cache"
 import { getRedisClient } from "@/lib/server/redis"
 
-const TOTAL_KEY = namespaceCacheKey(
-  buildCacheKey("trend-radar", "embed", "total"),
-)
+const TOTAL_KEY = buildCacheKey("trend-radar", "embed", "total")
 
 const buildDailyKey = (suffix: string) =>
-  namespaceCacheKey(buildCacheKey("trend-radar", "embed", "daily", suffix))
+  buildCacheKey("trend-radar", "embed", "daily", suffix)
 
 let missingRedisWarningIssued = false
 

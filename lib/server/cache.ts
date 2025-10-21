@@ -53,7 +53,8 @@ export function namespaceCacheKey(key: string): string {
 export function buildCacheKey(
   ...parts: Array<CacheKeyPart | null | undefined>
 ): string {
-  return buildCacheKeyFromArray(parts)
+  const compositeKey = buildCacheKeyFromArray(parts)
+  return namespaceCacheKey(compositeKey)
 }
 
 function buildCacheKeyFromArray(parts: CacheKeyArray): string {
@@ -67,7 +68,11 @@ function buildCacheKeyFromArray(parts: CacheKeyArray): string {
 }
 
 function resolveCacheKeyInput(key: CacheKeyInput): string {
-  return typeof key === "string" ? key : buildCacheKeyFromArray(key)
+  if (typeof key === "string") {
+    return key
+  }
+
+  return buildCacheKey(...key)
 }
 
 async function resolveCacheClient(): Promise<CacheClient | null> {
@@ -247,8 +252,7 @@ async function resolveClientForOperation({
   client: CacheClient | null
   namespacedKey: string
 }> {
-  const rawKey = resolveCacheKeyInput(key)
-  const namespacedKey = namespaceCacheKey(rawKey)
+  const namespacedKey = resolveCacheKeyInput(key)
 
   let client = providedClient
   if (typeof client === "undefined") {

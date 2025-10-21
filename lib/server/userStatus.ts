@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { ensureDailyLoginReward } from "@/lib/server/rewards/loginReward"
 import { getRedisClient } from "@/lib/server/redis"
-import { buildCacheKey, namespaceCacheKey } from "@/lib/server/cache"
+import { buildCacheKey } from "@/lib/server/cache"
 
 export const INACTIVE_ACCOUNT_MESSAGE = "Account is not active"
 export const SUSPENDED_ACCOUNT_PATH = "/auth/suspended"
@@ -23,8 +23,7 @@ const ACTIVE_USER_CACHE_NAMESPACE = "active-user"
 export type ActiveUser = Awaited<ReturnType<typeof loadActiveUser>>
 
 function buildActiveUserCacheKey(clerkId: string) {
-  const rawKey = buildCacheKey(ACTIVE_USER_CACHE_NAMESPACE, "clerk", clerkId)
-  return namespaceCacheKey(rawKey)
+  return buildCacheKey(ACTIVE_USER_CACHE_NAMESPACE, "clerk", clerkId)
 }
 
 async function loadActiveUser(clerkId: string) {
