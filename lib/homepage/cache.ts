@@ -80,8 +80,6 @@ export type HomepagePayload = {
   jsonLd: string
 }
 
-export const HOMEPAGE_CACHE_TAG = TAGS.homepage
-
 export const getHomepagePayload = cached(
   async (): Promise<HomepagePayload> => {
     const [

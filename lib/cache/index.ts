@@ -16,7 +16,6 @@ export const DEFAULT_SWR = {
   slowest: 10800, // admin analytics can serve stale data for up to 3 hours
 } as const
 
-const ACCELERATE_TAG_LIMIT = 5
 const ACCELERATE_TAG_SANITIZE = /[^A-Za-z0-9_]/g
 
 export function accelerateTags(input: string[]): string[] {
@@ -27,7 +26,6 @@ export function accelerateTags(input: string[]): string[] {
     if (!sanitized) continue
     if (!unique.has(sanitized)) {
       unique.add(sanitized)
-      if (unique.size >= ACCELERATE_TAG_LIMIT) break
     }
   }
   return Array.from(unique)
