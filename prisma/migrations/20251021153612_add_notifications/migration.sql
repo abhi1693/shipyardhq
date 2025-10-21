@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "NotificationType" AS ENUM ('product_upvote', 'product_review', 'reward_awarded', 'system');
+CREATE TYPE "NotificationType" AS ENUM ('product_upvote', 'product_review', 'reward_awarded', 'system', 'product_update');
 
 -- CreateTable
 CREATE TABLE "Notification" (
