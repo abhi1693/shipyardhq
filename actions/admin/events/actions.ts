@@ -12,7 +12,7 @@ import {
   isEventQueue,
   type EventQueueName,
 } from "@/lib/server/events/queues"
-import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
+import type { Prisma, EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
 
 const ADMIN_EVENTS_PATH = adminPath("operations", "events")
 const ADMIN_EVENTS_ANALYTICS_PATH = adminPath("analytics", "events")
@@ -486,9 +486,13 @@ export async function getRecentEventEnvelopes(limit = 25) {
 export async function getEventEnvelopesPaginated({
   page = 1,
   pageSize = 25,
+  status = "all",
+  queue = "all",
 }: {
   page?: number
   pageSize?: number
+  status?: EventEnvelopeStatus | "all"
+  queue?: EventQueueName | "all"
 }) {
   const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1
   const safePageSize =
@@ -496,9 +500,17 @@ export async function getEventEnvelopesPaginated({
       ? Math.min(Math.floor(pageSize), 100)
       : 25
   const skip = (safePage - 1) * safePageSize
+  const where: Prisma.EventEnvelopeWhereInput = {}
+  if (status && status !== "all") {
+    where.status = status
+  }
+  if (queue && queue !== "all") {
+    where.queue = queue
+  }
 
   const [items, total] = await Promise.all([
     prisma.eventEnvelope.findMany({
+      where,
       orderBy: { enqueuedAt: "desc" },
       skip,
       take: safePageSize,
@@ -516,7 +528,7 @@ export async function getEventEnvelopesPaginated({
         queue: true,
       },
     }),
-    prisma.eventEnvelope.count(),
+    prisma.eventEnvelope.count({ where }),
   ])
 
   const normalizedItems = items.map((item) => ({
