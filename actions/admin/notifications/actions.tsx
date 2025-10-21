@@ -3,6 +3,7 @@
 import { renderAsync } from "@react-email/render"
 
 import prisma from "@/lib/prisma"
+import type { NotificationType } from "@/lib/vendor/prisma/client"
 import { sendEmail } from "@/lib/email/resend"
 import { BaseEmailTemplate } from "@/lib/email/templates/baseTemplate"
 import { deriveFirstNameFromEmail } from "@/lib/email/personalization"
@@ -20,6 +21,7 @@ import {
   markdownToPlainText,
   renderEmailMarkdown,
 } from "@/lib/email/markdown"
+import type { NotificationMetadata } from "@/types/notifications"
 
 const BUILDER_INTENTS = ["launch-product", "manage-team"] as const
 const EXPLORER_INTENT = "explore" as const
@@ -339,6 +341,114 @@ export async function getNotificationUsers(): Promise<NotificationUser[]> {
   })
 
   return users
+}
+
+export type AdminNotificationRecord = {
+  id: string
+  userId: string
+  userName: string | null
+  userEmail: string | null
+  type: NotificationType
+  message: string
+  metadata: NotificationMetadata
+  readAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type GetAdminNotificationsOptions = {
+  skip?: number
+  take?: number
+}
+
+const DEFAULT_ADMIN_NOTIFICATION_TAKE = 25
+const MAX_ADMIN_NOTIFICATION_TAKE = 100
+
+export async function getAdminNotifications(
+  options: GetAdminNotificationsOptions = {},
+): Promise<AdminNotificationRecord[]> {
+  await requireAdmin()
+
+  const skip = Math.max(0, Math.trunc(options.skip ?? 0))
+  const rawTake = Math.trunc(options.take ?? DEFAULT_ADMIN_NOTIFICATION_TAKE)
+  const take = Math.max(
+    1,
+    Math.min(rawTake > 0 ? rawTake : DEFAULT_ADMIN_NOTIFICATION_TAKE, MAX_ADMIN_NOTIFICATION_TAKE),
+  )
+
+  const notifications = await prisma.notification.findMany({
+    orderBy: { createdAt: "desc" },
+    skip,
+    take,
+    select: {
+      id: true,
+      type: true,
+      message: true,
+      metadata: true,
+      readAt: true,
+      createdAt: true,
+      updatedAt: true,
+      userId: true,
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+        },
+      },
+    },
+  })
+
+  return notifications.map((notification) => {
+    const user = notification.user
+    return {
+      id: notification.id,
+      userId: notification.userId,
+      userName: user
+        ? buildUserDisplayName(user.firstName, user.lastName)
+        : null,
+      userEmail: user?.email ?? null,
+      type: notification.type,
+      message: notification.message,
+      metadata: cloneNotificationMetadata(notification.metadata),
+      readAt: notification.readAt ? notification.readAt.toISOString() : null,
+      createdAt: notification.createdAt.toISOString(),
+      updatedAt: notification.updatedAt.toISOString(),
+    }
+  })
+}
+
+export async function getAdminNotificationCount(): Promise<number> {
+  await requireAdmin()
+  return prisma.notification.count()
+}
+
+function buildUserDisplayName(
+  firstName: string | null | undefined,
+  lastName: string | null | undefined,
+): string | null {
+  const parts = [firstName?.trim(), lastName?.trim()].filter(
+    (part): part is string => Boolean(part && part.length > 0),
+  )
+  if (parts.length === 0) return null
+  return parts.join(" ")
+}
+
+function cloneNotificationMetadata(value: unknown): NotificationMetadata {
+  if (value === null || value === undefined) {
+    return null
+  }
+
+  try {
+    return JSON.parse(JSON.stringify(value)) as NotificationMetadata
+  } catch (error) {
+    console.error("[notifications] Failed to serialize metadata", {
+      error,
+      value,
+    })
+    return null
+  }
 }
 
 async function resolveSegmentRecipients(
