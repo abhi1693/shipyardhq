@@ -111,9 +111,6 @@ export const memberProductsVerificationPath = (status: string) =>
 export const memberProductPath = (slug: string) =>
   `${MEMBER_PRODUCTS_PATH}/${slug}`
 
-export const memberProductOverviewPath = (slug: string) =>
-  `${memberProductPath(slug)}/overview`
-
 export const memberProductEditPath = (slug: string) =>
   `${memberProductPath(slug)}/edit`
 

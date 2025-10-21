@@ -2,9 +2,8 @@ import prisma from "@/lib/prisma"
 import { registerEventHandler } from "@/lib/server/events"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 import {
-  memberProductOverviewPath,
+  memberProductPath,
   MEMBER_REWARDS_PATH,
-  productPath,
 } from "@/lib/routes"
 import {
   createNotification,
@@ -72,7 +71,7 @@ registerEventHandler({
           productName,
           upvoteId: event.upvoteId,
           occurredAt: event.occurredAt.toISOString(),
-          href: memberProductOverviewPath(product.slug),
+          href: memberProductPath(product.slug),
         },
       })
     } catch (error) {
@@ -122,7 +121,7 @@ registerEventHandler({
           messageLength: event.messageLength,
           createdAt: event.createdAt.toISOString(),
           updatedAt: event.updatedAt.toISOString(),
-          href: memberProductOverviewPath(product.slug),
+          href: memberProductPath(product.slug),
         },
       })
     } catch (error) {
