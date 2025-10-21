@@ -4,7 +4,6 @@ import {
   registerEventHandler,
   type ProductClickMetadata,
 } from "@/lib/server/events"
-import { revalidateProducts } from "@/lib/cache/revalidate"
 import type { DeviceCategory } from "@/types/analytics"
 
 // Register listeners related to product click analytics.
@@ -52,8 +51,6 @@ registerEventHandler({
           select: { productId: true },
         }),
       ])
-      // Keep browse/trending pages reasonably fresh
-      revalidateProducts()
       console.debug("[analytics] product.clicked handler completed", {
         productId,
       })
