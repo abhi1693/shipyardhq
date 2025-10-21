@@ -11,6 +11,7 @@ import "@/lib/server/plans" // register default-plan listeners
 import "@/lib/server/email/productVerificationReminder"
 import "@/lib/server/productInsights/initialPipeline"
 import "@/lib/server/social/twitterBot"
+import "@/lib/server/rewards/listeners"
 import { sendProductPublishedEmail } from "@/lib/server/email/productPublished"
 import { resolvePlanAssignedAt } from "@/lib/server/planAssignment"
 import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
