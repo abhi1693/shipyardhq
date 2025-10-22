@@ -84,8 +84,9 @@ export type ProductPagePayload = {
   structuredData: Record<string, unknown> | null
 }
 
-const PRODUCT_UPDATES_LIMIT = 4
 const PRODUCT_UPDATES_PREVIEW = 3
+// Fetch one extra update to know if more are available beyond the preview.
+const PRODUCT_UPDATES_LIMIT = PRODUCT_UPDATES_PREVIEW + 1
 
 function mapUseCaseProducts(products: UseCaseProduct[]): SimilarProduct[] {
   return products.map((item) => ({
