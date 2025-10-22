@@ -1,6 +1,6 @@
 import MemberFeedback from "@/components/pages/MemberFeedback"
 import { listMyFeedback } from "@/actions/member/feedback/actions"
-import { Skeleton } from "@/components/atoms/skeleton"
+import { CardSkeleton } from "@/components/atoms/card.skeleton"
 
 export async function MemberFeedbackPageContent() {
   const entries = await listMyFeedback(25)
@@ -10,8 +10,20 @@ export async function MemberFeedbackPageContent() {
 export function MemberFeedbackPageSkeleton() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 py-6">
-      <Skeleton className="h-[320px] rounded-3xl" />
-      <Skeleton className="h-[480px] rounded-3xl" />
+      <CardSkeleton
+        tone="soft"
+        radius="lg"
+        lines={4}
+        showFooter
+        className="border border-slate-200/80 bg-white/95 shadow-sm"
+      />
+      <CardSkeleton
+        tone="soft"
+        radius="lg"
+        lines={6}
+        showFooter
+        className="border border-slate-200/80 bg-white/95 shadow-sm"
+      />
     </div>
   )
 }

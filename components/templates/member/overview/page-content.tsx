@@ -16,6 +16,10 @@ import { Button } from "@/components/atoms/button"
 import RangeSelector from "@/components/molecules/RangeSelector"
 import CreateButton from "@/components/molecules/CreateButton"
 import { Skeleton } from "@/components/atoms/skeleton"
+import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
+import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
+import { CardSkeleton } from "@/components/atoms/card.skeleton"
+import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import {
   getUserDashboardStats,
   getUserProducts,
@@ -1076,30 +1080,49 @@ function HeroSectionSkeleton() {
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
-            <Skeleton className="h-6 w-36 rounded-full" />
-            <Skeleton className="h-6 w-24 rounded-full" />
-            <Skeleton className="h-6 w-28 rounded-full" />
+            {[
+              { width: "10rem", withIcon: true },
+              { width: "4.5rem" },
+              { width: "6rem" },
+            ].map((badge, index) => (
+              <BadgeSkeleton
+                // eslint-disable-next-line react/no-array-index-key -- decorative
+                key={index}
+                variant="outline"
+                labelWidth={badge.width}
+                leadingIcon={badge.withIcon}
+                className="h-7"
+              />
+            ))}
           </div>
           <div className="space-y-3">
-            <Skeleton className="h-10 w-72 rounded-lg" />
-            <Skeleton className="h-4 w-96 max-w-full rounded-md" />
+            <HeadingSkeleton lines={2} centered={false} />
+            <Skeleton className="h-3 w-96 max-w-full rounded-full" tone="muted" />
+            <Skeleton className="h-3 w-80 max-w-full rounded-full" tone="muted" />
           </div>
           <div className="flex flex-wrap gap-2">
-            <Skeleton className="h-9 w-32 rounded-full" />
-            <Skeleton className="h-9 w-32 rounded-full" />
+            <ButtonSkeleton size="sm" labelWidth="7rem" />
+            <ButtonSkeleton size="sm" variant="outline" labelWidth="8rem" />
           </div>
         </div>
         <div className="flex w-full flex-col items-start gap-4 sm:w-auto sm:items-end">
-          <Skeleton className="h-10 w-40 rounded-full" />
+          <ButtonSkeleton
+            size="sm"
+            variant="outline"
+            labelWidth="6rem"
+            className="w-40 justify-center"
+          />
           <div className="grid w-full gap-3 sm:min-w-[240px] sm:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
-              <div
+              <CardSkeleton
+                // eslint-disable-next-line react/no-array-index-key -- decorative
                 key={index}
-                className="rounded-lg border border-[color:var(--brand-1)/0.18] bg-white/90 px-3 py-2 text-left shadow-sm"
-              >
-                <Skeleton className="h-3 w-24 rounded-md" />
-                <Skeleton className="mt-2 h-6 w-16 rounded-md" />
-              </div>
+                tone="soft"
+                radius="md"
+                lines={1}
+                showHeader={false}
+                className="gap-3 border-[color:var(--brand-1)/0.18] bg-white/92 p-4"
+              />
             ))}
           </div>
         </div>
@@ -1112,32 +1135,16 @@ function QuickTasksSkeleton() {
   return (
     <section className="grid gap-4 lg:grid-cols-2">
       {Array.from({ length: 4 }).map((_, index) => (
-        <div
+        <CardSkeleton
+          // eslint-disable-next-line react/no-array-index-key -- decorative
           key={index}
-          className="flex h-full flex-col gap-3 rounded-lg border border-slate-200/70 bg-white/85 p-3"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-32 rounded-md" />
-              <Skeleton className="h-3 w-48 rounded-md" />
-            </div>
-            <Skeleton className="h-6 w-16 rounded-full" />
-          </div>
-          <div className="space-y-2">
-            {Array.from({ length: 3 }).map((__, row) => (
-              <div
-                key={row}
-                className="flex items-center justify-between gap-2"
-              >
-                <Skeleton className="h-3 w-36 rounded-md" />
-                <Skeleton className="h-3 w-16 rounded-md" />
-              </div>
-            ))}
-          </div>
-          <div className="mt-auto flex justify-end">
-            <Skeleton className="h-3 w-20 rounded-md" />
-          </div>
-        </div>
+          tone="soft"
+          radius="lg"
+          lines={4}
+          showFooter={false}
+          actionWidth="5rem"
+          className="border-slate-200/70 bg-white/90"
+        />
       ))}
     </section>
   )
@@ -1146,29 +1153,17 @@ function QuickTasksSkeleton() {
 function MomentumSectionSkeleton() {
   return (
     <section className="space-y-4">
-      <Skeleton className="h-5 w-48 rounded-md" />
+      <HeadingSkeleton lines={1} centered={false} />
       <div className="grid gap-4 lg:grid-cols-2">
         {Array.from({ length: 2 }).map((_, index) => (
-          <Card
+          <CardSkeleton
+            // eslint-disable-next-line react/no-array-index-key -- decorative
             key={index}
-            className="border-slate-200/70 bg-white/95 p-4 shadow-sm"
-          >
-            <div className="space-y-3">
-              <Skeleton className="h-5 w-32 rounded-md" />
-              <Skeleton className="h-4 w-64 rounded-md" />
-              <div className="space-y-2">
-                {Array.from({ length: 5 }).map((__, row) => (
-                  <div
-                    key={row}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <Skeleton className="h-4 w-40 rounded-md" />
-                    <Skeleton className="h-4 w-16 rounded-md" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Card>
+            tone="soft"
+            radius="lg"
+            lines={4}
+            className="border-slate-200/70 bg-white/95"
+          />
         ))}
       </div>
     </section>
@@ -1178,29 +1173,17 @@ function MomentumSectionSkeleton() {
 function SignalsSectionSkeleton() {
   return (
     <section className="space-y-4">
-      <Skeleton className="h-5 w-52 rounded-md" />
+      <HeadingSkeleton lines={1} centered={false} />
       <div className="grid gap-4 lg:grid-cols-2">
         {Array.from({ length: 2 }).map((_, index) => (
-          <Card
+          <CardSkeleton
+            // eslint-disable-next-line react/no-array-index-key -- decorative
             key={index}
-            className="border-slate-200/70 bg-white/95 p-4 shadow-sm"
-          >
-            <div className="space-y-3">
-              <Skeleton className="h-5 w-36 rounded-md" />
-              <Skeleton className="h-4 w-60 rounded-md" />
-              <div className="space-y-2">
-                {Array.from({ length: 4 }).map((__, row) => (
-                  <div
-                    key={row}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <Skeleton className="h-4 w-40 rounded-md" />
-                    <Skeleton className="h-4 w-20 rounded-md" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Card>
+            tone="soft"
+            radius="lg"
+            lines={5}
+            className="border-slate-200/70 bg-white/95"
+          />
         ))}
       </div>
     </section>
@@ -1209,92 +1192,53 @@ function SignalsSectionSkeleton() {
 
 function HighlightCardSkeleton() {
   return (
-    <Card className="border-slate-200/70 bg-white/95 shadow-md">
-      <CardHeader>
-        <Skeleton className="h-5 w-40 rounded-md" />
-        <Skeleton className="mt-2 h-4 w-56 rounded-md" />
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <Skeleton className="h-4 w-52 rounded-md" />
-        <Skeleton className="h-4 w-60 rounded-md" />
-      </CardContent>
-      <CardFooter>
-        <Skeleton className="h-4 w-28 rounded-md" />
-      </CardFooter>
-    </Card>
+    <CardSkeleton
+      tone="soft"
+      radius="lg"
+      lines={3}
+      showFooter
+      actionWidth="6rem"
+      className="border-slate-200/70 bg-white/95 shadow-md"
+    />
   )
 }
 
 function RewardsCardSkeleton() {
   return (
-    <Card className="border-slate-200/70 bg-white/95 shadow-sm">
-      <CardHeader>
-        <Skeleton className="h-5 w-44 rounded-md" />
-        <Skeleton className="mt-2 h-4 w-64 rounded-md" />
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-baseline gap-2">
-          <Skeleton className="h-10 w-28 rounded-md" />
-          <Skeleton className="h-4 w-12 rounded-full" />
-        </div>
-        <Skeleton className="h-4 w-48 rounded-md" />
-        <Skeleton className="h-4 w-40 rounded-md" />
-        <Skeleton className="h-4 w-32 rounded-md" />
-      </CardContent>
-      <CardFooter>
-        <Skeleton className="h-4 w-28 rounded-md" />
-      </CardFooter>
-    </Card>
+    <CardSkeleton
+      tone="soft"
+      radius="lg"
+      lines={4}
+      showFooter
+      actionWidth="7rem"
+      className="border-slate-200/70 bg-white/95 shadow-sm"
+    />
   )
 }
 
 function FreshBadgesCardSkeleton() {
   return (
-    <Card className="border-slate-200/70 bg-white/95 shadow-sm">
-      <CardHeader>
-        <Skeleton className="h-5 w-48 rounded-md" />
-        <Skeleton className="mt-2 h-4 w-60 rounded-md" />
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="space-y-2 rounded-md border border-slate-100 p-3">
-            <div className="flex items-center justify-between gap-2">
-              <Skeleton className="h-4 w-44 rounded-md" />
-              <Skeleton className="h-5 w-20 rounded-full" />
-            </div>
-            <Skeleton className="h-3 w-48 rounded-md" />
-          </div>
-        ))}
-      </CardContent>
-      <CardFooter>
-        <Skeleton className="h-4 w-28 rounded-md" />
-      </CardFooter>
-    </Card>
+    <CardSkeleton
+      tone="soft"
+      radius="lg"
+      lines={4}
+      showFooter
+      actionWidth="6rem"
+      className="border-slate-200/70 bg-white/95 shadow-sm"
+    />
   )
 }
 
 function RecentLaunchesCardSkeleton() {
   return (
-    <Card className="border-slate-200/70 bg-white/95 shadow-sm">
-      <CardHeader>
-        <Skeleton className="h-5 w-44 rounded-md" />
-        <Skeleton className="mt-2 h-4 w-64 rounded-md" />
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="space-y-2 rounded-md border border-slate-100 p-3">
-            <div className="flex items-center justify-between gap-3">
-              <Skeleton className="h-4 w-48 rounded-md" />
-              <Skeleton className="h-5 w-16 rounded-full" />
-            </div>
-            <Skeleton className="h-3 w-56 rounded-md" />
-          </div>
-        ))}
-      </CardContent>
-      <CardFooter>
-        <Skeleton className="h-4 w-36 rounded-md" />
-      </CardFooter>
-    </Card>
+    <CardSkeleton
+      tone="soft"
+      radius="lg"
+      lines={4}
+      showFooter
+      actionWidth="7rem"
+      className="border-slate-200/70 bg-white/95 shadow-sm"
+    />
   )
 }
 

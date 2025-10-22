@@ -17,6 +17,9 @@ import {
   memberProductVerificationOptionValues,
 } from "@/lib/member-products/filter-options"
 import { MEMBER_PRODUCTS_ADD_PATH } from "@/lib/routes"
+import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
+import { CardSkeleton } from "@/components/atoms/card.skeleton"
+import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 
 type SearchParams = Record<string, string | string[] | undefined>
@@ -154,8 +157,20 @@ export async function MemberProductsPageContent({
 export function MemberProductsPageSkeleton() {
   return (
     <div className="space-y-6">
-      <Skeleton className="h-[120px] rounded-3xl" />
-      <Skeleton className="h-[560px] rounded-3xl" />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-2">
+          <HeadingSkeleton lines={1} centered={false} />
+          <Skeleton className="h-3 w-72 rounded-full" tone="muted" />
+        </div>
+        <ButtonSkeleton size="sm" labelWidth="7rem" />
+      </div>
+      <CardSkeleton
+        tone="soft"
+        radius="lg"
+        lines={6}
+        showFooter
+        className="border border-slate-200/80 bg-white/95"
+      />
     </div>
   )
 }

@@ -24,6 +24,11 @@ import {
   type LeaderboardPagePayload,
 } from "@/lib/leaderboard/cache"
 import { Skeleton } from "@/components/atoms/skeleton"
+import { CardSkeleton } from "@/components/atoms/card.skeleton"
+import { DirectorySectionHeaderSkeleton } from "@/components/molecules/directory/SectionHeader.skeleton"
+import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdatesFeed.skeleton"
+import DirectoryHeaderSkeleton from "@/components/organisms/directory/DirectoryHeader.skeleton"
+import { LeaderboardSkeleton as LeaderboardSectionSkeleton } from "@/components/organisms/Leaderboard.skeleton"
 
 type LeaderboardProduct = LeaderboardPagePayload["products"][number]
 
@@ -316,16 +321,52 @@ export function LeaderboardPageSkeleton() {
     <main className="relative isolate bg-white">
       <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-12 md:px-8">
         <div className="space-y-12">
-          <Skeleton className="h-[320px] rounded-3xl" />
+          <DirectoryHeaderSkeleton />
+
           <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1.05fr)]">
             <div className="flex flex-col gap-10">
-              <Skeleton className="h-[360px] rounded-3xl" />
-              <Skeleton className="h-[400px] rounded-3xl" />
+              <section className="rounded-3xl border border-border/80 bg-background/75 p-6 shadow-sm shadow-black/5 md:p-8">
+                <DirectorySectionHeaderSkeleton descriptionLines={2} />
+                <div className="mt-8 flex flex-col gap-6">
+                  <CardSkeleton
+                    tone="soft"
+                    radius="lg"
+                    lines={4}
+                    className="border border-border/70 bg-white/90"
+                    showFooter
+                  />
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {Array.from({ length: 2 }).map((_, index) => (
+                      <CardSkeleton
+                        // eslint-disable-next-line react/no-array-index-key -- decorative only
+                        key={index}
+                        tone="soft"
+                        radius="lg"
+                        lines={3}
+                        className="border border-border/70 bg-white/90"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              <LeaderboardSectionSkeleton count={8} />
             </div>
+
             <aside className="flex flex-col gap-6">
-              <Skeleton className="h-[420px] rounded-3xl" />
-              <Skeleton className="h-[360px] rounded-3xl" />
-              <Skeleton className="h-[360px] rounded-3xl" />
+              <CardSkeleton
+                tone="soft"
+                radius="lg"
+                lines={4}
+                className="border border-border/80 bg-white/95"
+              />
+              <CardSkeleton
+                tone="soft"
+                radius="lg"
+                lines={4}
+                className="border border-border/80 bg-white/95"
+              />
+              <ProductUpdatesFeedSkeleton />
             </aside>
           </div>
         </div>

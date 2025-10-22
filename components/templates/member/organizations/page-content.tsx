@@ -22,6 +22,9 @@ import {
   MEMBER_ORGANIZATIONS_ADD_PATH,
   MEMBER_ORGANIZATIONS_PATH,
 } from "@/lib/routes"
+import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
+import { CardSkeleton } from "@/components/atoms/card.skeleton"
+import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 
 type OrgPlan = {
@@ -319,9 +322,27 @@ function OrganizationPlanOptions({
 export function MemberOrganizationsPageSkeleton() {
   return (
     <div className="space-y-6">
-      <Skeleton className="h-[140px] rounded-3xl" />
-      <Skeleton className="h-[520px] rounded-3xl" />
-      <Skeleton className="h-[420px] rounded-3xl" />
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-2">
+          <HeadingSkeleton lines={1} centered={false} />
+          <Skeleton className="h-3 w-3/4 rounded-full" tone="muted" />
+        </div>
+        <ButtonSkeleton size="sm" labelWidth="9rem" />
+      </div>
+      <CardSkeleton
+        tone="soft"
+        radius="lg"
+        lines={6}
+        showFooter
+        className="border border-slate-200/80 bg-white/95"
+      />
+      <CardSkeleton
+        tone="soft"
+        radius="lg"
+        lines={5}
+        showFooter
+        className="border border-slate-200/80 bg-white/95"
+      />
     </div>
   )
 }
