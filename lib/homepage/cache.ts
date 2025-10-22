@@ -89,7 +89,7 @@ export const getHomepagePayload = cached(
     ] = await Promise.all([
       getProducts("featured"),
       getProducts("editor-pick"),
-      getProducts("new"),
+      getProducts("new", 1000),
       getTrendingProducts(6),
       getTopCategories(),
       getHomepageFeatureProducts(12),

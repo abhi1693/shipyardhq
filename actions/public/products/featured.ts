@@ -26,14 +26,17 @@ export type HomepageFeaturePlacement = {
 }
 
 export const getProducts = cached(
-  async (badge: string): Promise<FeaturedProduct[]> => {
+  async (
+    badge: string,
+    limit = 24,
+  ): Promise<FeaturedProduct[]> => {
     const now = new Date()
     const entries = await prisma.productBadge.findMany({
       where: {
         badge,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
-      take: 24,
+      take: limit,
       select: featuredProductSelect,
       orderBy: { createdAt: "asc" },
     })
@@ -44,6 +47,13 @@ export const getProducts = cached(
   {
     ttl: DEFAULT_TTL.fast,
     tags: ([badge]) => [TAGS.products, TAGS.badges, `badge:${badge}`],
+    keyParts: ([badge, limit]) => {
+      const parts = [`badge:${badge}`]
+      if (typeof limit === "number") {
+        parts.push(`limit:${limit}`)
+      }
+      return parts
+    },
   },
 )
 
