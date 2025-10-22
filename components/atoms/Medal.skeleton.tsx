@@ -17,10 +17,7 @@ export function MedalSkeleton({
 
   return (
     <span
-      className={cn(
-        "inline-flex items-center justify-center",
-        className,
-      )}
+      className={cn("inline-flex items-center justify-center", className)}
       data-slot="medal-skeleton"
       style={{ width: dimension, height: dimension }}
       {...props}

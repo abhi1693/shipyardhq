@@ -43,7 +43,11 @@ export function InputSkeleton({
               shimmer
             />
           )}
-          <Skeleton className="h-2.5 flex-1 rounded-full" tone="muted" shimmer />
+          <Skeleton
+            className="h-2.5 flex-1 rounded-full"
+            tone="muted"
+            shimmer
+          />
           {showSuffix && (
             <Skeleton className="size-5 rounded-full" tone="muted" shimmer />
           )}

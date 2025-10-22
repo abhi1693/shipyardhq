@@ -13,7 +13,10 @@ export function LatestLaunchesSkeleton() {
     <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
       <DirectorySectionHeaderSkeleton descriptionLines={2} />
       <div className="mt-8">
-        <ProductCompactGridSkeleton count={4} columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" />
+        <ProductCompactGridSkeleton
+          count={4}
+          columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+        />
       </div>
     </section>
   )

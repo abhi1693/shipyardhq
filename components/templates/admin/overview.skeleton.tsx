@@ -9,25 +9,25 @@ import { cn } from "@/lib/utils"
 
 function MetricTileSkeleton() {
   return (
-        <Skeleton
-          tone="soft"
-          radius="lg"
+    <Skeleton
+      tone="soft"
+      radius="lg"
       shimmer={false}
       inset
       className="space-y-3 border border-white/30 p-5 shadow-sm"
     >
       <Skeleton className="h-2.5 w-24 rounded-full" tone="muted" />
       <Skeleton className="h-6 w-20 rounded-full" />
-      <Skeleton className="h-2 w-16 rounded-full" tone="muted" shimmer={false} />
+      <Skeleton
+        className="h-2 w-16 rounded-full"
+        tone="muted"
+        shimmer={false}
+      />
     </Skeleton>
   )
 }
 
-function ActivityListSkeleton({
-  items = 4,
-}: {
-  items?: number
-}) {
+function ActivityListSkeleton({ items = 4 }: { items?: number }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: items }).map((_, index) => (
@@ -109,9 +109,9 @@ export function AdminOverviewSkeleton({
       <section className="space-y-4">
         <Skeleton className="h-2.5 w-40 rounded-full" tone="muted" />
         <div className="grid gap-4 lg:grid-cols-2">
-        <Skeleton
-          tone="soft"
-          radius="lg"
+          <Skeleton
+            tone="soft"
+            radius="lg"
             shimmer={false}
             inset
             className="space-y-4 border border-white/30 p-6"
@@ -126,8 +126,8 @@ export function AdminOverviewSkeleton({
             />
           </Skeleton>
           <Skeleton
-          tone="soft"
-          radius="lg"
+            tone="soft"
+            radius="lg"
             shimmer={false}
             inset
             className="space-y-4 border border-white/30 p-6"
@@ -143,7 +143,6 @@ export function AdminOverviewSkeleton({
           </Skeleton>
         </div>
       </section>
-
     </div>
   )
 }

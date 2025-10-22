@@ -4,7 +4,8 @@ import { DirectorySectionHeaderSkeleton } from "@/components/molecules/directory
 import { DirectoryProductListSkeleton } from "@/components/organisms/directory/DirectoryProductList.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 
-interface HomepageSpotlightSkeletonProps extends React.ComponentProps<"section"> {
+interface HomepageSpotlightSkeletonProps
+  extends React.ComponentProps<"section"> {
   primaryCount?: number
   secondaryCount?: number
 }

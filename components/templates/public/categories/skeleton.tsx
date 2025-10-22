@@ -25,7 +25,11 @@ export function CategoriesPageSkeleton() {
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                   <ButtonSkeleton size="lg" labelWidth="10rem" />
-                  <ButtonSkeleton size="lg" variant="outline" labelWidth="12rem" />
+                  <ButtonSkeleton
+                    size="lg"
+                    variant="outline"
+                    labelWidth="12rem"
+                  />
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {Array.from({ length: 6 }).map((_, index) => (

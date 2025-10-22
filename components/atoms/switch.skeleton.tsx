@@ -27,7 +27,11 @@ export function SwitchSkeleton({
       data-slot="switch-skeleton"
       {...props}
     >
-      <Skeleton className="h-5 w-9 rounded-full px-1" tone="soft" shimmer={false}>
+      <Skeleton
+        className="h-5 w-9 rounded-full px-1"
+        tone="soft"
+        shimmer={false}
+      >
         <Skeleton className="size-4 rounded-full" tone="brand" />
       </Skeleton>
       {(label || description) && (

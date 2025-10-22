@@ -211,9 +211,7 @@ async function OverviewPageWithStats({
           </Suspense>
 
           <Suspense fallback={<RecentLaunchesCardSkeleton />}>
-            <RecentLaunchesCard
-              recentProductsPromise={recentProductsPromise}
-            />
+            <RecentLaunchesCard recentProductsPromise={recentProductsPromise} />
           </Suspense>
         </aside>
       </div>
@@ -525,10 +523,7 @@ async function SignalsSection({
   activityPromise: ReturnType<typeof getRecentActivity>
   healthPromise: ReturnType<typeof getProductHealthSummary>
 }) {
-  const [activity, health] = await Promise.all([
-    activityPromise,
-    healthPromise,
-  ])
+  const [activity, health] = await Promise.all([activityPromise, healthPromise])
 
   return (
     <section className="space-y-4">
@@ -716,9 +711,7 @@ async function RewardsCard({
     <Card className="border-slate-200/70 bg-white/95 shadow-sm">
       <CardHeader>
         <CardTitle className="text-base">Rewards balance</CardTitle>
-        <CardDescription>
-          Shipyard rewards ready to redeem.
-        </CardDescription>
+        <CardDescription>Shipyard rewards ready to redeem.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-baseline gap-2">
@@ -903,9 +896,7 @@ function OverviewZeroState() {
       <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-2)/0.35] bg-background/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-[color:var(--brand-2)] shadow-sm">
         Member Command Deck
       </span>
-      <h1 className="mt-6 text-3xl font-bold tracking-tight">
-        Welcome aboard
-      </h1>
+      <h1 className="mt-6 text-3xl font-bold tracking-tight">Welcome aboard</h1>
       <p className="mt-3 max-w-md text-sm text-muted-foreground">
         Add your first product to unlock analytics, performance insights, and
         action prompts tailored to your launches.
@@ -1098,8 +1089,14 @@ function HeroSectionSkeleton() {
           </div>
           <div className="space-y-3">
             <HeadingSkeleton lines={2} centered={false} />
-            <Skeleton className="h-3 w-96 max-w-full rounded-full" tone="muted" />
-            <Skeleton className="h-3 w-80 max-w-full rounded-full" tone="muted" />
+            <Skeleton
+              className="h-3 w-96 max-w-full rounded-full"
+              tone="muted"
+            />
+            <Skeleton
+              className="h-3 w-80 max-w-full rounded-full"
+              tone="muted"
+            />
           </div>
           <div className="flex flex-wrap gap-2">
             <ButtonSkeleton size="sm" labelWidth="7rem" />
@@ -1262,7 +1259,7 @@ function formatNumber(value: number) {
 }
 
 function pluralize(count: number, singular: string, plural?: string) {
-  return count === 1 ? singular : plural ?? `${singular}s`
+  return count === 1 ? singular : (plural ?? `${singular}s`)
 }
 
 function formatRelative(date: Date | string) {

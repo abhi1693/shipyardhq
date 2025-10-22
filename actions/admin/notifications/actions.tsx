@@ -398,7 +398,10 @@ export async function getAdminNotifications(
   const rawTake = Math.trunc(options.take ?? DEFAULT_ADMIN_NOTIFICATION_TAKE)
   const take = Math.max(
     1,
-    Math.min(rawTake > 0 ? rawTake : DEFAULT_ADMIN_NOTIFICATION_TAKE, MAX_ADMIN_NOTIFICATION_TAKE),
+    Math.min(
+      rawTake > 0 ? rawTake : DEFAULT_ADMIN_NOTIFICATION_TAKE,
+      MAX_ADMIN_NOTIFICATION_TAKE,
+    ),
   )
   const statusFilter = options.status ?? "all"
   const typeFilter = options.type ?? "all"

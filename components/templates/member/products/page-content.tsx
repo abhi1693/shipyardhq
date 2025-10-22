@@ -4,7 +4,10 @@ import { Card, CardContent } from "@/components/atoms/card"
 import CreateButton from "@/components/molecules/CreateButton"
 import MemberProductFilters from "@/components/molecules/MemberProductFilters"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
-import { columns, type MemberProductRow } from "@/app/(member)/member/products/columns"
+import {
+  columns,
+  type MemberProductRow,
+} from "@/app/(member)/member/products/columns"
 import { getUserProducts } from "@/actions/member/products/actions"
 import {
   MEMBER_PRODUCT_FILTER_ALL,

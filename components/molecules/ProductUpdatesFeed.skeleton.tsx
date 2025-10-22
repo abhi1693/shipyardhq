@@ -7,7 +7,8 @@ import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { cn } from "@/lib/utils"
 
-interface ProductUpdatesFeedSkeletonProps extends React.ComponentProps<"section"> {
+interface ProductUpdatesFeedSkeletonProps
+  extends React.ComponentProps<"section"> {
   count?: number
 }
 

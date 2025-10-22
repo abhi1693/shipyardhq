@@ -3,7 +3,10 @@ import { redirect } from "next/navigation"
 import { auth } from "@clerk/nextjs/server"
 
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
-import { columns, type MemberOrgRow } from "@/app/(member)/member/organizations/columns"
+import {
+  columns,
+  type MemberOrgRow,
+} from "@/app/(member)/member/organizations/columns"
 import { getMyOrganizationsPage } from "@/actions/member/organizations/actions"
 import { memberHasFeature } from "@/lib/memberFeatures"
 import PageContainer from "@/components/layout/page-container"

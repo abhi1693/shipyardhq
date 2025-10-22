@@ -1,4 +1,7 @@
-import { getTopCategories, getTrendingProducts } from "@/actions/public/products/featured"
+import {
+  getTopCategories,
+  getTrendingProducts,
+} from "@/actions/public/products/featured"
 import { getLeaderboardStats } from "@/actions/public/leaderboard/actions"
 import { DirectoryRadarDigest } from "@/components/organisms/directory/RadarDigest"
 import DirectoryRadarDigestSkeleton from "@/components/organisms/directory/RadarDigest.skeleton"
@@ -38,7 +41,10 @@ export async function RadarDigestSection() {
   )
 
   return (
-    <DirectoryRadarDigest metrics={radarData.metrics} totals={radarData.totals} />
+    <DirectoryRadarDigest
+      metrics={radarData.metrics}
+      totals={radarData.totals}
+    />
   )
 }
 

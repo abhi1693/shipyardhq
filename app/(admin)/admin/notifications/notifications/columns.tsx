@@ -17,8 +17,7 @@ function resolveMemberName(notification: AdminNotificationRecord) {
   }
   if (notification.userEmail) {
     return (
-      deriveFirstNameFromEmail(notification.userEmail) ??
-      notification.userEmail
+      deriveFirstNameFromEmail(notification.userEmail) ?? notification.userEmail
     )
   }
   return "Unknown member"
@@ -53,8 +52,7 @@ export const columns: ColumnDef<AdminNotificationRecord>[] = [
     header: "Type",
     cell: ({ row }) => (
       <Badge variant="secondary">
-        {ADMIN_NOTIFICATION_TYPE_LABELS[row.original.type] ??
-          row.original.type}
+        {ADMIN_NOTIFICATION_TYPE_LABELS[row.original.type] ?? row.original.type}
       </Badge>
     ),
   },

@@ -20,9 +20,7 @@ export function LabelSkeleton({
       {...props}
     >
       <Skeleton className="h-2.5 w-24 rounded-full" tone="muted" />
-      {helper && (
-        <Skeleton className="h-2 w-32 rounded-full" tone="muted" />
-      )}
+      {helper && <Skeleton className="h-2 w-32 rounded-full" tone="muted" />}
     </span>
   )
 }

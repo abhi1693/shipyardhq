@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
-import {
-  ProductDetailPageContent,
-} from "@/components/templates/public/products/detail/page-content"
+import { ProductDetailPageContent } from "@/components/templates/public/products/detail/page-content"
 import { ProductDetailSkeleton } from "@/components/templates/public/products/detail/skeleton"
 import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
 import { buildPageMetadata } from "@/lib/metadata"

@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
-import {
-  ProductUpdatesArchivePageContent,
-} from "@/components/templates/public/products/updates/page-content"
+import { ProductUpdatesArchivePageContent } from "@/components/templates/public/products/updates/page-content"
 import { ProductUpdatesArchiveSkeleton } from "@/components/templates/public/products/updates/skeleton"
 import prisma from "@/lib/prisma"
 import { ProductStatus } from "@/lib/vendor/prisma/client"

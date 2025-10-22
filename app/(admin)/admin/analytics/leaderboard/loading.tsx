@@ -4,9 +4,7 @@ export default function Loading() {
   return (
     <AdminAnalyticsPageSkeleton
       metricCount={4}
-      chartSections={[
-        { variant: "bar", legend: true, span: 2 },
-      ]}
+      chartSections={[{ variant: "bar", legend: true, span: 2 }]}
       secondaryCharts={[
         { variant: "line", legend: true },
         { variant: "pie", legend: true },

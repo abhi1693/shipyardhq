@@ -239,7 +239,11 @@ export function TrendsPageSkeleton() {
             labelWidth="8.5rem"
             className="mx-auto md:mx-0"
           />
-          <HeadingSkeleton lines={2} centered={false} className="md:max-w-3xl" />
+          <HeadingSkeleton
+            lines={2}
+            centered={false}
+            className="md:max-w-3xl"
+          />
           <Skeleton
             className="mx-auto h-4 w-3/4 rounded-full md:mx-0 md:w-2/3"
             tone="muted"
@@ -253,7 +257,10 @@ export function TrendsPageSkeleton() {
               className="text-white"
             />
           </div>
-          <Skeleton className="mx-auto h-3 w-64 rounded-full md:mx-0" tone="muted" />
+          <Skeleton
+            className="mx-auto h-3 w-64 rounded-full md:mx-0"
+            tone="muted"
+          />
         </div>
       </section>
 
@@ -278,7 +285,10 @@ export function TrendsPageSkeleton() {
                 <div key={column} className="space-y-4">
                   <div className="space-y-2">
                     <Skeleton className="h-3 w-40 rounded-full" tone="muted" />
-                    <Skeleton className="h-2.5 w-60 rounded-full" tone="muted" />
+                    <Skeleton
+                      className="h-2.5 w-60 rounded-full"
+                      tone="muted"
+                    />
                   </div>
                   <div className="space-y-3">
                     {leaderboardPlaceholders.map((_, row) => (
@@ -290,10 +300,19 @@ export function TrendsPageSkeleton() {
                         className="flex items-center justify-between gap-4 rounded-2xl border border-border/70 bg-white/70 px-4 py-3"
                       >
                         <div className="space-y-2">
-                          <Skeleton className="h-2.5 w-36 rounded-full" tone="muted" />
-                          <Skeleton className="h-2 w-44 rounded-full" tone="muted" />
+                          <Skeleton
+                            className="h-2.5 w-36 rounded-full"
+                            tone="muted"
+                          />
+                          <Skeleton
+                            className="h-2 w-44 rounded-full"
+                            tone="muted"
+                          />
                         </div>
-                        <Skeleton className="h-2.5 w-10 rounded-full" tone="brand" />
+                        <Skeleton
+                          className="h-2.5 w-10 rounded-full"
+                          tone="brand"
+                        />
                       </Skeleton>
                     ))}
                   </div>
@@ -348,7 +367,10 @@ export function TrendsPageSkeleton() {
                     className="rounded-2xl border border-border/70 bg-white/80 p-4"
                   >
                     <Skeleton className="h-2 w-24 rounded-full" tone="muted" />
-                    <Skeleton className="mt-3 h-4 w-20 rounded-full" tone="brand" />
+                    <Skeleton
+                      className="mt-3 h-4 w-20 rounded-full"
+                      tone="brand"
+                    />
                   </Skeleton>
                 ))}
               </div>

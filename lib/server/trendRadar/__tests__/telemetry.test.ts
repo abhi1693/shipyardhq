@@ -46,9 +46,7 @@ describe("trend radar telemetry", () => {
   })
 
   it("namespaces embed counter keys when recording views", async () => {
-    const { buildCacheKey } = await import(
-      "@/lib/server/cache"
-    )
+    const { buildCacheKey } = await import("@/lib/server/cache")
     const { recordTrendRadarEmbedView } = await import(
       "@/lib/server/trendRadar/telemetry"
     )
@@ -74,9 +72,7 @@ describe("trend radar telemetry", () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date("2024-05-10T00:00:00Z"))
 
-    const { buildCacheKey } = await import(
-      "@/lib/server/cache"
-    )
+    const { buildCacheKey } = await import("@/lib/server/cache")
     const { getTrendRadarEmbedStats } = await import(
       "@/lib/server/trendRadar/telemetry"
     )
@@ -92,12 +88,7 @@ describe("trend radar telemetry", () => {
       const target = new Date(reference)
       target.setDate(reference.getDate() - offset)
       expectedDailyKeys.push(
-        buildCacheKey(
-          "trend-radar",
-          "embed",
-          "daily",
-          formatDateKey(target),
-        ),
+        buildCacheKey("trend-radar", "embed", "daily", formatDateKey(target)),
       )
     }
 

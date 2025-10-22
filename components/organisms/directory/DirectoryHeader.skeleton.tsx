@@ -37,24 +37,18 @@ export function DirectoryHeaderSkeleton({
               className="h-8 w-fit bg-white/10 text-white"
             />
             <div className="space-y-3">
-              <HeadingSkeleton lines={2} centered={false} className="text-left" />
-              <Skeleton
-                className="h-3 w-4/5 rounded-full"
-                tone="muted"
+              <HeadingSkeleton
+                lines={2}
+                centered={false}
+                className="text-left"
               />
-              <Skeleton
-                className="h-3 w-3/4 rounded-full"
-                tone="muted"
-              />
+              <Skeleton className="h-3 w-4/5 rounded-full" tone="muted" />
+              <Skeleton className="h-3 w-3/4 rounded-full" tone="muted" />
             </div>
             {(showPrimary || showSecondary) && (
               <div className="flex flex-wrap items-center gap-3">
                 {showPrimary && (
-                  <ButtonSkeleton
-                    size="lg"
-                    labelWidth="9rem"
-                    icon
-                  />
+                  <ButtonSkeleton size="lg" labelWidth="9rem" icon />
                 )}
                 {showSecondary && (
                   <ButtonSkeleton
@@ -80,7 +74,11 @@ export function DirectoryHeaderSkeleton({
           </div>
         </div>
       </section>
-      <Skeleton className="h-16 w-full rounded-2xl" tone="soft" shimmer={false} />
+      <Skeleton
+        className="h-16 w-full rounded-2xl"
+        tone="soft"
+        shimmer={false}
+      />
     </div>
   )
 }

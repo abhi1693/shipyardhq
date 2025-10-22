@@ -1,9 +1,7 @@
 import { revalidateTag, type CacheInvalidationMode } from "./revalidateTag"
 import { TAGS } from "./tags"
 
-export function revalidateHomepage(
-  mode: CacheInvalidationMode = "update",
-) {
+export function revalidateHomepage(mode: CacheInvalidationMode = "update") {
   revalidateTag(TAGS.homepage, mode)
 }
 
@@ -23,15 +21,11 @@ export function revalidateLeaderboardPage(
   revalidateTag(TAGS.leaderboardPage, mode)
 }
 
-export function revalidateTagsPage(
-  mode: CacheInvalidationMode = "update",
-) {
+export function revalidateTagsPage(mode: CacheInvalidationMode = "update") {
   revalidateTag(TAGS.tagsPage, mode)
 }
 
-export function revalidateProducts(
-  mode: CacheInvalidationMode = "update",
-) {
+export function revalidateProducts(mode: CacheInvalidationMode = "update") {
   revalidateTag(TAGS.products, mode)
   revalidateHomepage(mode)
   revalidateBrowse(mode)
@@ -82,9 +76,7 @@ export function revalidateProductReviews(
   revalidateTag(TAGS.productReviews, mode)
 }
 
-export function revalidateCategories(
-  mode: CacheInvalidationMode = "update",
-) {
+export function revalidateCategories(mode: CacheInvalidationMode = "update") {
   revalidateTag(TAGS.categories, mode)
   revalidateHomepage(mode)
   revalidateBrowse(mode)
@@ -101,9 +93,7 @@ export function revalidateCategory(
   revalidateCategories(mode)
 }
 
-export function revalidateLeaderboard(
-  mode: CacheInvalidationMode = "update",
-) {
+export function revalidateLeaderboard(mode: CacheInvalidationMode = "update") {
   revalidateTag(TAGS.leaderboard, mode)
   revalidateTag(TAGS.trending, mode)
   revalidateTag(TAGS.analytics, mode)
@@ -123,9 +113,7 @@ export function revalidateMonthlyLeaderboard(
   revalidateLeaderboardPage(mode)
 }
 
-export function revalidateBadges(
-  mode: CacheInvalidationMode = "update",
-) {
+export function revalidateBadges(mode: CacheInvalidationMode = "update") {
   revalidateTag(TAGS.badges, mode)
   revalidateTag(TAGS.featured, mode)
   revalidateProducts(mode)

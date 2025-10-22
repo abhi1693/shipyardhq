@@ -21,8 +21,7 @@ export default function NotificationStatusFilter({
   status: AdminNotificationStatusFilter
 }) {
   const router = useRouter()
-  const pathname =
-    usePathname() ?? adminPath("notifications", "notifications")
+  const pathname = usePathname() ?? adminPath("notifications", "notifications")
   const searchParams = useSearchParams()
 
   return (

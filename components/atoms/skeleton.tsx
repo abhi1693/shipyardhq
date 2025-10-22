@@ -8,8 +8,7 @@ const skeletonVariants = cva(
   {
     variants: {
       tone: {
-        neutral:
-          "bg-slate-200/70 dark:bg-slate-800/50",
+        neutral: "bg-slate-200/70 dark:bg-slate-800/50",
         soft: "bg-slate-100/70 dark:bg-slate-900/40",
         brand:
           "bg-[color:var(--brand-1,#074e86)/0.18] dark:bg-[color:var(--brand-2,#0ea5e9)/0.22]",

@@ -21,10 +21,7 @@ export function LeaderboardSkeleton({
       data-slot="leaderboard-skeleton"
       {...props}
     >
-      <DirectorySectionHeaderSkeleton
-        descriptionLines={2}
-        withAction
-      />
+      <DirectorySectionHeaderSkeleton descriptionLines={2} withAction />
       <div className="mt-8">
         <DirectoryProductListSkeleton
           count={count}

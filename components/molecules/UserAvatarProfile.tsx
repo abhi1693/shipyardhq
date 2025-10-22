@@ -19,10 +19,7 @@ export function UserAvatarProfile({
 }: UserAvatarProfileProps) {
   return (
     <div className="flex items-center gap-2">
-      <Avatar
-        className={className}
-        style={{ width: size, height: size }}
-      >
+      <Avatar className={className} style={{ width: size, height: size }}>
         <AvatarImage
           src={user?.imageUrl || ""}
           alt={user?.fullName || ""}

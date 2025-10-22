@@ -12,7 +12,9 @@ export const metadata = buildPageMetadata({
     "Monitor the Shipyard leaderboard to see which launches are earning the strongest community momentum right now.",
 })
 
-export default function LeaderboardPage(props: Parameters<typeof LeaderboardPageContent>[0]) {
+export default function LeaderboardPage(
+  props: Parameters<typeof LeaderboardPageContent>[0],
+) {
   return (
     <Suspense fallback={<LeaderboardPageSkeleton />}>
       <LeaderboardPageContent {...props} />

@@ -26,10 +26,7 @@ export type HomepageFeaturePlacement = {
 }
 
 export const getProducts = cached(
-  async (
-    badge: string,
-    limit = 24,
-  ): Promise<FeaturedProduct[]> => {
+  async (badge: string, limit = 24): Promise<FeaturedProduct[]> => {
     const now = new Date()
     const entries = await prisma.productBadge.findMany({
       where: {

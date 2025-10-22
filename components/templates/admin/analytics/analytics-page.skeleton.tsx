@@ -21,8 +21,7 @@ interface TableSectionConfig {
   rows?: number
 }
 
-interface AdminAnalyticsPageSkeletonProps
-  extends React.ComponentProps<"div"> {
+interface AdminAnalyticsPageSkeletonProps extends React.ComponentProps<"div"> {
   metricCount?: number
   chartSections?: ChartSectionConfig[]
   secondaryCharts?: ChartSectionConfig[]

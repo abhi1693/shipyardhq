@@ -31,11 +31,7 @@ export function BreadcrumbSkeleton({
           <Skeleton
             className={cn(
               "h-2.5 rounded-full",
-              index === 0
-                ? "w-20"
-                : index === count - 1
-                  ? "w-24"
-                  : "w-16",
+              index === 0 ? "w-20" : index === count - 1 ? "w-24" : "w-16",
             )}
             tone="muted"
           />
@@ -44,9 +40,7 @@ export function BreadcrumbSkeleton({
           )}
         </React.Fragment>
       ))}
-      {withEllipsis && (
-        <Skeleton className="size-6 rounded-full" tone="soft" />
-      )}
+      {withEllipsis && <Skeleton className="size-6 rounded-full" tone="soft" />}
     </div>
   )
 }

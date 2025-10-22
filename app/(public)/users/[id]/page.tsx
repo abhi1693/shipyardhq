@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
-import {
-  UserProfilePageContent,
-} from "@/components/templates/public/users/detail/page-content"
+import { UserProfilePageContent } from "@/components/templates/public/users/detail/page-content"
 import { UserProfileSkeleton } from "@/components/templates/public/users/detail/skeleton"
 import { getPublicUserMeta } from "@/actions/public/users/actions"
 import { buildPageMetadata } from "@/lib/metadata"

@@ -73,8 +73,14 @@ export function PricingPageSkeleton() {
 
           <section className="rounded-3xl border border-border bg-white p-8 text-center shadow-sm">
             <HeadingSkeleton lines={2} centered />
-            <Skeleton className="mx-auto mt-3 h-3 w-3/4 rounded-full" tone="muted" />
-            <Skeleton className="mx-auto mt-2 h-3 w-2/3 rounded-full" tone="muted" />
+            <Skeleton
+              className="mx-auto mt-3 h-3 w-3/4 rounded-full"
+              tone="muted"
+            />
+            <Skeleton
+              className="mx-auto mt-2 h-3 w-2/3 rounded-full"
+              tone="muted"
+            />
             <div className="mt-6 flex justify-center">
               <ButtonSkeleton size="lg" labelWidth="10rem" />
             </div>

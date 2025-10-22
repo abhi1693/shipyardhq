@@ -8,10 +8,7 @@ export default function Loading() {
         { variant: "line", legend: true, span: 2 },
         { variant: "bar" },
       ]}
-      secondaryCharts={[
-        { variant: "bar" },
-        { variant: "pie", legend: true },
-      ]}
+      secondaryCharts={[{ variant: "bar" }, { variant: "pie", legend: true }]}
       tableSections={[{ columns: 4, rows: 6 }]}
       insightCardCount={1}
     />

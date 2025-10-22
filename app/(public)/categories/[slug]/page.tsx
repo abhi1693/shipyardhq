@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
-import {
-  CategoryDetailPageContent,
-} from "@/components/templates/public/categories/detail/page-content"
+import { CategoryDetailPageContent } from "@/components/templates/public/categories/detail/page-content"
 import { CategoryDetailSkeleton } from "@/components/templates/public/categories/detail/skeleton"
 import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { buildPageMetadata } from "@/lib/metadata"
@@ -22,7 +20,9 @@ export async function generateMetadata(
   })
 }
 
-export default function CategoryPage(props: Parameters<typeof CategoryDetailPageContent>[0]) {
+export default function CategoryPage(
+  props: Parameters<typeof CategoryDetailPageContent>[0],
+) {
   return (
     <Suspense fallback={<CategoryDetailSkeleton />}>
       <CategoryDetailPageContent {...props} />

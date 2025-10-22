@@ -3,7 +3,10 @@ import {
   type AdminFormFieldSkeleton,
 } from "@/components/templates/admin/shared/form-card.skeleton"
 
-const fields: AdminFormFieldSkeleton[] = [{ type: "select" }, { type: "select" }]
+const fields: AdminFormFieldSkeleton[] = [
+  { type: "select" },
+  { type: "select" },
+]
 
 export function AdminUseCaseAssignmentAddFormSkeleton() {
   return (

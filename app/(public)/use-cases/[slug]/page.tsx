@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 
-import {
-  UseCasePageContent,
-} from "@/components/templates/public/use-cases/detail/page-content"
+import { UseCasePageContent } from "@/components/templates/public/use-cases/detail/page-content"
 import { UseCaseDetailSkeleton } from "@/components/templates/public/use-cases/detail/skeleton"
 import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 import { buildPageMetadata } from "@/lib/metadata"

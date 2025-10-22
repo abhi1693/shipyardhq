@@ -32,7 +32,11 @@ export function DropdownMenuSkeleton({
         shimmer={false}
       >
         <Skeleton className="h-2.5 w-20 rounded-full" tone="muted" />
-        <Skeleton className="size-4 rounded-full" tone="muted" shimmer={false} />
+        <Skeleton
+          className="size-4 rounded-full"
+          tone="muted"
+          shimmer={false}
+        />
       </Skeleton>
 
       {isOpen && (
@@ -50,12 +54,21 @@ export function DropdownMenuSkeleton({
                   tone="muted"
                 >
                   <Skeleton className="size-4 rounded-full" tone="soft" />
-                  <Skeleton className="h-2.5 flex-1 rounded-full" tone="muted" />
+                  <Skeleton
+                    className="h-2.5 flex-1 rounded-full"
+                    tone="muted"
+                  />
                   <Skeleton className="h-2 w-10 rounded-full" tone="soft" />
                 </Skeleton>
-                {withSections && (index + 1) % sectionSize === 0 && index < itemCount - 1 && (
-                  <Skeleton className="mx-1 h-px rounded-full" tone="muted" shimmer={false} />
-                )}
+                {withSections &&
+                  (index + 1) % sectionSize === 0 &&
+                  index < itemCount - 1 && (
+                    <Skeleton
+                      className="mx-1 h-px rounded-full"
+                      tone="muted"
+                      shimmer={false}
+                    />
+                  )}
               </React.Fragment>
             ))}
           </div>

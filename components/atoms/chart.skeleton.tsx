@@ -54,7 +54,7 @@ export function ChartSkeleton({
                 className="flex-1 rounded-full"
                 tone="brand"
                 style={{
-                  height: `${40 + ((index + 1) * 45) % 120}px`,
+                  height: `${40 + (((index + 1) * 45) % 120)}px`,
                 }}
               />
             ))}

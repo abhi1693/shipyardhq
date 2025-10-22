@@ -37,7 +37,9 @@ export async function generateMetadata(
   }
 }
 
-export default function BrowsePage(props: Parameters<typeof BrowsePageContent>[0]) {
+export default function BrowsePage(
+  props: Parameters<typeof BrowsePageContent>[0],
+) {
   return (
     <Suspense fallback={<BrowsePageSkeleton />}>
       <BrowsePageContent {...props} />

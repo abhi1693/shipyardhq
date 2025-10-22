@@ -540,12 +540,7 @@ function sanitizeAudienceValue(value?: string | null) {
 }
 
 function buildSubredditCacheKey(productId: string) {
-  return buildCompositeKey(
-    "productInsights",
-    "subreddits",
-    "v1",
-    productId,
-  )
+  return buildCompositeKey("productInsights", "subreddits", "v1", productId)
 }
 
 async function generateSearchQueries({

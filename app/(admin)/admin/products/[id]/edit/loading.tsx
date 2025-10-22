@@ -18,7 +18,11 @@ export default function Loading() {
         <WizardStepperSkeleton />
         <FormSkeleton
           fields={Array.from({ length: 6 }, (_, index) =>
-            index % 3 === 0 ? { type: "input" } : index % 3 === 1 ? { type: "select" } : { type: "textarea" },
+            index % 3 === 0
+              ? { type: "input" }
+              : index % 3 === 1
+                ? { type: "select" }
+                : { type: "textarea" },
           )}
           actions={0}
           columns={2}

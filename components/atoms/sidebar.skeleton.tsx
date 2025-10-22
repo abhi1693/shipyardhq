@@ -92,9 +92,7 @@ export function SidebarSkeleton({
               labelWidth={collapsed ? "0" : "4rem"}
               className={cn(collapsed && "size-8")}
             />
-            {!collapsed && (
-              <ButtonSkeleton size="sm" labelWidth="5rem" />
-            )}
+            {!collapsed && <ButtonSkeleton size="sm" labelWidth="5rem" />}
           </div>
         </div>
       )}

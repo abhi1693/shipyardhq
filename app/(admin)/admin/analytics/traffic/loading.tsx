@@ -13,7 +13,10 @@ export default function Loading() {
         { variant: "bar" },
         { variant: "line" },
       ]}
-      tableSections={[{ columns: 4, rows: 8 }, { columns: 5, rows: 6 }]}
+      tableSections={[
+        { columns: 4, rows: 8 },
+        { columns: 5, rows: 6 },
+      ]}
       insightCardCount={2}
     />
   )

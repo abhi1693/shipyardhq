@@ -14,11 +14,7 @@ export default function Loading() {
       >
         <HeadingSkeleton lines={2} />
         <FormSkeleton
-          fields={[
-            { type: "select" },
-            { type: "input" },
-            { type: "textarea" },
-          ]}
+          fields={[{ type: "select" }, { type: "input" }, { type: "textarea" }]}
           actions={1}
           columns={1}
           className="border border-white/20 bg-white/95"

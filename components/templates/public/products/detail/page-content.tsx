@@ -75,9 +75,7 @@ const PRICING_MODEL_LABELS: Record<string, string> = {
   custom: "Custom",
 }
 
-export async function ProductDetailPageContent({
-  params,
-}: ProductPageProps) {
+export async function ProductDetailPageContent({ params }: ProductPageProps) {
   const { slug } = await params
   const payload = await getProductPagePayload(slug)
   if (!payload) return notFound()

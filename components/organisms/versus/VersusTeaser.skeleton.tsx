@@ -25,10 +25,7 @@ export function VersusTeaserSkeleton({
       </div>
       <div className="relative mt-6 overflow-hidden rounded-[1.5rem] border border-border/60 bg-white/95 px-6 py-6 shadow-[0_28px_90px_-70px_rgba(7,58,104,0.45)] md:px-8 md:py-8">
         <div className="relative z-10 flex flex-col items-center gap-6 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-stretch md:gap-8">
-          <ProductCompactCardSkeleton
-            showCategory
-            withMeta
-          />
+          <ProductCompactCardSkeleton showCategory withMeta />
           <div className="hidden h-full w-16 items-center justify-center md:flex">
             <Skeleton className="h-12 w-12 rounded-full" tone="brand" />
           </div>

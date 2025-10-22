@@ -17,10 +17,7 @@ export function AccordionSkeleton({
   indicator = true,
   ...props
 }: AccordionSkeletonProps) {
-  const expandedSet = React.useMemo(
-    () => new Set(expanded),
-    [expanded],
-  )
+  const expandedSet = React.useMemo(() => new Set(expanded), [expanded])
 
   return (
     <div

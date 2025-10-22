@@ -3,7 +3,8 @@ import * as React from "react"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 
-interface DirectoryRadarDigestSkeletonProps extends React.ComponentProps<"section"> {
+interface DirectoryRadarDigestSkeletonProps
+  extends React.ComponentProps<"section"> {
   momentumCount?: number
 }
 
@@ -55,7 +56,10 @@ export function DirectoryRadarDigestSkeleton({
             className="rounded-2xl bg-muted/50 px-3 py-2"
           >
             <Skeleton className="mx-auto h-2 w-20 rounded-full" tone="muted" />
-            <Skeleton className="mx-auto mt-2 h-5 w-16 rounded-full" tone="brand" />
+            <Skeleton
+              className="mx-auto mt-2 h-5 w-16 rounded-full"
+              tone="brand"
+            />
           </div>
         ))}
       </div>

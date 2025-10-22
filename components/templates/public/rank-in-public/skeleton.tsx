@@ -22,7 +22,11 @@ export function RankInPublicSkeleton() {
               <Skeleton className="h-3 w-2/3 rounded-full" tone="muted" />
               <div className="flex flex-col items-center gap-3 sm:flex-row">
                 <ButtonSkeleton size="lg" labelWidth="9rem" />
-                <ButtonSkeleton size="lg" variant="outline" labelWidth="10rem" />
+                <ButtonSkeleton
+                  size="lg"
+                  variant="outline"
+                  labelWidth="10rem"
+                />
               </div>
             </div>
           </section>

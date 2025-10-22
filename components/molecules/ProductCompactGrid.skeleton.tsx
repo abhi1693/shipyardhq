@@ -28,11 +28,7 @@ export function ProductCompactGridSkeleton({
 
   return (
     <div
-      className={cn(
-        "grid auto-rows-[minmax(0,1fr)] gap-5",
-        columns,
-        className,
-      )}
+      className={cn("grid auto-rows-[minmax(0,1fr)] gap-5", columns, className)}
       data-slot="product-compact-grid-skeleton"
       {...props}
     >

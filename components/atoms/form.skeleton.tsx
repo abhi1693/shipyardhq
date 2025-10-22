@@ -62,7 +62,7 @@ export function FormSkeleton({
       >
         {resolvedFields.map((field, index) => {
           const config = (
-            typeof field === "string" ? { type: field } : field ?? {}
+            typeof field === "string" ? { type: field } : (field ?? {})
           ) as FormSkeletonFieldConfig
           return (
             <FormFieldSkeleton

@@ -7,8 +7,7 @@ import { DataTableSkeleton } from "@/components/atoms/table/data-table-skeleton"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { cn } from "@/lib/utils"
 
-interface AdminListPageSkeletonProps
-  extends React.ComponentProps<"div"> {
+interface AdminListPageSkeletonProps extends React.ComponentProps<"div"> {
   titleLines?: number
   showAddButton?: boolean
   filterCount?: number

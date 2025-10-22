@@ -1,7 +1,10 @@
 import { getEventEnvelopesPaginated } from "@/actions/admin/events/actions"
 import ListPageWrapper from "@/components/pages/admin/shared/ListPageWrapper"
 import { EntityList } from "@/components/pages/admin/shared/EntityList"
-import { coerceEventQueue, type EventQueueName } from "@/lib/server/events/queues"
+import {
+  coerceEventQueue,
+  type EventQueueName,
+} from "@/lib/server/events/queues"
 import type { EventEnvelopeStatus } from "@/lib/vendor/prisma/client"
 import QueueFilter from "./queue-filter"
 import StatusFilter from "./status-filter"

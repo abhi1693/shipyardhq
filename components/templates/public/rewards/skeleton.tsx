@@ -20,11 +20,22 @@ export function RewardsPageSkeleton() {
           />
           <div className="space-y-6 text-balance">
             <HeadingSkeleton lines={3} centered className="text-white" />
-            <Skeleton className="mx-auto h-3 w-11/12 rounded-full md:w-4/5" tone="muted" />
-            <Skeleton className="mx-auto h-3 w-3/4 rounded-full md:w-2/3" tone="muted" />
+            <Skeleton
+              className="mx-auto h-3 w-11/12 rounded-full md:w-4/5"
+              tone="muted"
+            />
+            <Skeleton
+              className="mx-auto h-3 w-3/4 rounded-full md:w-2/3"
+              tone="muted"
+            />
           </div>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
-            <ButtonSkeleton size="lg" labelWidth="9.5rem" icon className="px-8" />
+            <ButtonSkeleton
+              size="lg"
+              labelWidth="9.5rem"
+              icon
+              className="px-8"
+            />
             <ButtonSkeleton size="lg" variant="outline" labelWidth="8.5rem" />
             <ButtonSkeleton
               size="lg"
@@ -52,8 +63,17 @@ export function RewardsPageSkeleton() {
         <section className="rounded-[32px] bg-white/80 p-6 shadow-[0px_40px_120px_-60px_rgba(7,58,104,0.55)] ring-1 ring-[rgba(7,58,104,0.08)] backdrop-blur md:p-10">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2 text-left">
-              <BadgeSkeleton variant="outline" labelWidth="6rem" leadingIcon className="h-7" />
-              <HeadingSkeleton lines={2} centered={false} className="max-w-xl" />
+              <BadgeSkeleton
+                variant="outline"
+                labelWidth="6rem"
+                leadingIcon
+                className="h-7"
+              />
+              <HeadingSkeleton
+                lines={2}
+                centered={false}
+                className="max-w-xl"
+              />
             </div>
             <BadgeSkeleton
               variant="outline"

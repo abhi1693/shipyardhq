@@ -67,10 +67,7 @@ export function DialogContentSkeleton({
       <DialogHeaderSkeleton className="pr-10" />
       <DialogBodySkeleton className="mt-4" />
       {actionCount > 0 && (
-        <DialogFooterSkeleton
-          className="mt-6"
-          actions={actionCount}
-        />
+        <DialogFooterSkeleton className="mt-6" actions={actionCount} />
       )}
     </Skeleton>
   )

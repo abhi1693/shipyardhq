@@ -31,18 +31,8 @@ function normalizeStageSetId(
   return "default"
 }
 
-const QUEUE_KEY = buildCacheKey(
-  "productInsights",
-  "pipeline",
-  "v1",
-  "queue",
-)
-const ACTIVE_KEY = buildCacheKey(
-  "productInsights",
-  "pipeline",
-  "v1",
-  "active",
-)
+const QUEUE_KEY = buildCacheKey("productInsights", "pipeline", "v1", "queue")
+const ACTIVE_KEY = buildCacheKey("productInsights", "pipeline", "v1", "active")
 
 export async function enqueueProductInsightPipelineJob(job: {
   productId: string

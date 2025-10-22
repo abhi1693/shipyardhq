@@ -23,7 +23,12 @@ module.exports = {
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "SFMono-Regular", "Menlo", "monospace"],
+        mono: [
+          "var(--font-geist-mono)",
+          "SFMono-Regular",
+          "Menlo",
+          "monospace",
+        ],
       },
       keyframes: {
         shimmer: {
