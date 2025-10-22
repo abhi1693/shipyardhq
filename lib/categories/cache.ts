@@ -1,7 +1,10 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { getCategoriesWithCounts } from "@/actions/public/categories/actions"
+import { getTopCategories } from "@/actions/public/products/featured"
 
 type CategoriesWithCounts = Awaited<ReturnType<typeof getCategoriesWithCounts>>
+
+const HIGHLIGHT_CATEGORY_LIMIT = 4
 
 export type CategoriesPagePayload = {
   categories: CategoriesWithCounts
@@ -14,7 +17,10 @@ export type CategoriesPagePayload = {
 
 export const getCategoriesPagePayload = cached(
   async (): Promise<CategoriesPagePayload> => {
-    const categories = await getCategoriesWithCounts()
+    const [categories, highlightSource] = await Promise.all([
+      getCategoriesWithCounts(),
+      getTopCategories(HIGHLIGHT_CATEGORY_LIMIT),
+    ])
     const totalProducts = categories.reduce(
       (sum, category) => sum + (category.count ?? 0),
       0,
@@ -24,8 +30,17 @@ export const getCategoriesPagePayload = cached(
       categoryCount > 0
         ? Math.max(1, Math.round(totalProducts / categoryCount))
         : 0
-    const highlightCategories = categories.slice(0, 4)
-    const busiestCategory = categories[0] ?? null
+    const highlightCategories: CategoriesWithCounts = highlightSource.map(
+      (category) => ({
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        icon: category.icon,
+        count: category._count.products,
+      }),
+    )
+    const busiestCategory = highlightCategories[0] ?? null
 
     return {
       categories,

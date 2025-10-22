@@ -41,7 +41,7 @@ export interface TrendRadarResult {
   }
 }
 
-const DEFAULT_LIMIT = 6
+export const TREND_RADAR_CATEGORY_LIMIT = 6
 
 const normalizeScore = (value: number, max: number) => {
   if (max <= 0 || !Number.isFinite(value)) {
@@ -57,7 +57,7 @@ export function computeTrendRadarMetrics(
   trending: TrendRadarTrendingInput[],
   options: ComputeTrendRadarOptions = {},
 ): TrendRadarResult {
-  const { limit = DEFAULT_LIMIT, totalProducts } = options
+  const { limit = TREND_RADAR_CATEGORY_LIMIT, totalProducts } = options
   if (!Array.isArray(categories) || !categories.length) {
     return {
       metrics: [],
@@ -65,10 +65,18 @@ export function computeTrendRadarMetrics(
     }
   }
 
-  const trimmedCategories = categories
+  const filteredCategories = categories
     .filter((category) => (category?.productCount ?? 0) > 0)
     .sort((a, b) => b.productCount - a.productCount)
-    .slice(0, Math.max(1, limit))
+
+  const effectiveLimit =
+    Number.isFinite(limit) && limit > 0
+      ? Math.max(1, Math.trunc(limit))
+      : undefined
+  const trimmedCategories =
+    typeof effectiveLimit === "number"
+      ? filteredCategories.slice(0, effectiveLimit)
+      : filteredCategories
 
   const totalCatalogProducts =
     typeof totalProducts === "number" && totalProducts > 0

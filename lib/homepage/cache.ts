@@ -1,7 +1,10 @@
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { siteConfig } from "@/lib/siteConfig"
 import { BROWSE_PATH } from "@/lib/routes"
-import { computeTrendRadarMetrics } from "@/lib/trend-radar"
+import {
+  computeTrendRadarMetrics,
+  TREND_RADAR_CATEGORY_LIMIT,
+} from "@/lib/trend-radar"
 import { hydrateRewardsLeaderboardEntries } from "@/lib/rewards/display"
 import {
   getProducts,
@@ -16,6 +19,11 @@ import { getLatestPublicProductUpdates } from "@/actions/public/product-updates/
 
 const siteUrl = siteConfig.url.replace(/\/$/, "")
 const homepageTitle = `Launch Faster, Get Discovered. Submit Your Product | ${siteConfig.name}`
+const HOMEPAGE_CATEGORY_RAIL_LIMIT = 8
+const HOMEPAGE_TOP_CATEGORY_LIMIT = Math.max(
+  HOMEPAGE_CATEGORY_RAIL_LIMIT,
+  TREND_RADAR_CATEGORY_LIMIT,
+)
 
 const buildHomepageJsonLd = () =>
   JSON.stringify([
@@ -91,7 +99,7 @@ export const getHomepagePayload = cached(
       getProducts("editor-pick"),
       getProducts("new", 1000),
       getTrendingProducts(6),
-      getTopCategories(),
+      getTopCategories(HOMEPAGE_TOP_CATEGORY_LIMIT),
       getHomepageFeatureProducts(12),
       getLeaderboardStats(),
       getRewardsLeaderboardEntries(3),
@@ -120,6 +128,7 @@ export const getHomepagePayload = cached(
       radarSourceCategories,
       radarTrending,
       {
+        limit: TREND_RADAR_CATEGORY_LIMIT,
         totalProducts: stats.totalProducts,
       },
     )

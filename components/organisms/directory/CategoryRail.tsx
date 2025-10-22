@@ -21,11 +21,10 @@ interface DirectoryCategoryRailProps {
 export function DirectoryCategoryRail({
   categories,
 }: DirectoryCategoryRailProps) {
-  const topCategories = categories
+  const visibleCategories = categories
     .filter((category) => (category?._count?.products ?? 0) > 0)
-    .slice(0, 8)
 
-  if (!topCategories.length) {
+  if (!visibleCategories.length) {
     return null
   }
 
@@ -41,7 +40,7 @@ export function DirectoryCategoryRail({
         </p>
       </div>
       <ul className="space-y-3">
-        {topCategories.map((category) => (
+        {visibleCategories.map((category) => (
           <li key={category.id}>
             <Link
               href={categoryPath(category.slug)}
