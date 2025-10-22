@@ -1,5 +1,9 @@
-import MemberFeedback from "@/components/pages/MemberFeedback"
-import { listMyFeedback } from "@/actions/member/feedback/actions"
+import { Suspense } from "react"
+
+import {
+  MemberFeedbackPageContent,
+  MemberFeedbackPageSkeleton,
+} from "@/components/templates/member/feedback/page-content"
 import { buildPageMetadata } from "@/lib/metadata"
 
 export const metadata = buildPageMetadata({
@@ -7,8 +11,10 @@ export const metadata = buildPageMetadata({
   description: "Share feedback with the Shipyard crew.",
 })
 
-export default async function MemberFeedbackPage() {
-  const entries = await listMyFeedback(25)
-
-  return <MemberFeedback entries={entries} />
+export default function MemberFeedbackPage() {
+  return (
+    <Suspense fallback={<MemberFeedbackPageSkeleton />}>
+      <MemberFeedbackPageContent />
+    </Suspense>
+  )
 }
