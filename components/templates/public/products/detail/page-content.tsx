@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Metadata } from "next"
 import { JSX } from "react"
 
 import { auth } from "@clerk/nextjs/server"
@@ -10,7 +9,6 @@ import {
   resolveVoteState,
 } from "@/lib/server/productVotesStore"
 import { badgeColorMap, TailwindColor } from "@/lib/utils"
-import { getPublicProductMetaBySlug } from "@/actions/public/products/actions"
 import {
   ExternalLink,
   Github,
@@ -30,7 +28,6 @@ import ExternalBadgeLink from "@/components/molecules/ExternalBadgeLink"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
 import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
-import { buildPageMetadata } from "@/lib/metadata"
 import { ScrollReset } from "@/components/atoms/scroll-reset"
 import {
   BROWSE_PATH,
@@ -76,72 +73,6 @@ const PRICING_MODEL_LABELS: Record<string, string> = {
   subscription: "Subscription",
   one_time: "One-time",
   custom: "Custom",
-}
-
-export async function generateMetadata({
-  params,
-}: ProductPageProps): Promise<Metadata> {
-  const { slug } = await params
-  const product = await getPublicProductMetaBySlug(slug)
-  if (!product) return {}
-  const relativeUrl = productPath(product.slug)
-  const desc = product.tagline || product.description || undefined
-  const imageEntries = (
-    [
-      product.bannerImage
-        ? { url: product.bannerImage, alt: `${product.name} banner` }
-        : null,
-      product.logo ? { url: product.logo, alt: `${product.name} logo` } : null,
-    ] as Array<{ url: string; alt: string } | null>
-  )
-    .filter((entry): entry is { url: string; alt: string } => Boolean(entry))
-    .filter(
-      (entry, index, entries) =>
-        entries.findIndex((candidate) => candidate.url === entry.url) === index,
-    )
-  const authorName =
-    [product.user?.firstName || "", product.user?.lastName || ""]
-      .join(" ")
-      .trim() || undefined
-
-  const openGraphExtras = {
-    url: relativeUrl,
-    type: "website" as const,
-    ...(imageEntries.length ? { images: imageEntries } : {}),
-  }
-
-  const twitterExtras = {
-    card: "summary_large_image" as const,
-    ...(imageEntries.length
-      ? {
-          images: imageEntries.map(({ url, alt }) => ({ url, alt })),
-        }
-      : {}),
-  }
-
-  const baseMetadata = buildPageMetadata({
-    title: product.name,
-    section: "Product",
-    description: desc,
-    openGraph: openGraphExtras,
-    twitter: twitterExtras,
-  })
-
-  const robotsConfig =
-    product.status === "published"
-      ? { index: true, follow: true }
-      : { index: false, follow: false }
-
-  const keywords =
-    product.keywords && product.keywords.length ? product.keywords : undefined
-
-  return {
-    ...baseMetadata,
-    alternates: { canonical: relativeUrl },
-    robots: robotsConfig,
-    ...(keywords ? { keywords } : {}),
-    ...(authorName ? { authors: [{ name: authorName }] } : {}),
-  }
 }
 
 export async function ProductDetailPageContent({

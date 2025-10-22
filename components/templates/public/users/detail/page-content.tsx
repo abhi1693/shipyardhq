@@ -1,9 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import type { Metadata } from "next"
 import { format } from "date-fns"
 
-import { getPublicUserMeta } from "@/actions/public/users/actions"
 import CopyButton from "@/components/molecules/CopyButton"
 import ShareProfileButton from "@/components/molecules/ShareProfileButton"
 import { EmptyState } from "@/components/molecules/empty-state"
@@ -14,7 +12,6 @@ import { Badge } from "@/components/atoms/badge"
 import { Rocket } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
-import { buildPageMetadata } from "@/lib/metadata"
 import {
   BROWSE_PATH,
   HOME_PATH,
@@ -28,40 +25,8 @@ import {
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
 import { getUserProfilePayload } from "@/lib/users/page-cache"
 
-export const revalidate = 120
-
 interface PageProps {
   params: Promise<{ id: string }>
-}
-
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const { id } = await params
-  const user = await getPublicUserMeta(id)
-  if (!user) return {}
-
-  const fullName =
-    `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "User"
-  const relativeUrl = userPath(id)
-  const desc = `${fullName}'s published products on Shipyard.`
-  const baseMetadata = buildPageMetadata({
-    title: fullName,
-    section: "Profile",
-    description: desc,
-    openGraph: {
-      url: relativeUrl,
-      type: "profile",
-    },
-    twitter: {
-      card: "summary",
-    },
-  })
-
-  return {
-    ...baseMetadata,
-    alternates: { canonical: relativeUrl },
-  }
 }
 
 export async function UserProfilePageContent({ params }: PageProps) {

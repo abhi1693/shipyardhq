@@ -1,15 +1,10 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import type { Metadata } from "next"
 
-import {
-  getKeywordTagBySlug,
-  TAG_PRODUCTS_PAGE_SIZE,
-} from "@/actions/public/tags/actions"
+import { TAG_PRODUCTS_PAGE_SIZE } from "@/actions/public/tags/actions"
 import ProductCompactGrid from "@/components/molecules/ProductCompactGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
 import KeywordTagCloud from "@/components/molecules/KeywordTagCloud"
-import { buildPageMetadata } from "@/lib/metadata"
 import { resolvePagination } from "@/lib/pagination"
 import { cn } from "@/lib/utils"
 import { getTagDetailPayload } from "@/lib/tags/page-cache"
@@ -18,21 +13,6 @@ import { buildPageHref, formatTagLabel } from "@/app/(public)/tags/_utils"
 interface TagPageProps {
   params: Promise<{ slug: string }>
   searchParams: Promise<{ page?: string | string[] }>
-}
-
-export async function generateMetadata({
-  params,
-}: TagPageProps): Promise<Metadata> {
-  const { slug } = await params
-  const summary = await getKeywordTagBySlug(slug)
-  if (!summary) return {}
-
-  const label = formatTagLabel(summary.canonical || summary.keyword)
-  return buildPageMetadata({
-    title: `${label} Tag`,
-    description: `Discover Shipyard products tagged with “${label}”. Browse the latest launches and tools connected to this keyword.`,
-    section: "Tags",
-  })
 }
 
 export async function TagDetailPageContent({

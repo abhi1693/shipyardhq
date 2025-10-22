@@ -1,36 +1,19 @@
 import { notFound } from "next/navigation"
-import { Metadata } from "next"
 import Link from "next/link"
 
 import FeaturedBanner from "@/components/molecules/FeaturedBanner"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { CategoryIcon } from "@/components/molecules/CategoryIcons"
 import { CategoryProductsClient } from "@/app/(public)/categories/[slug]/client-products"
-import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
 import { MEMBER_PRODUCTS_PATH, PRICING_PATH } from "@/lib/routes"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
-import { getCategoryMeta } from "@/actions/public/categories/actions"
 import { getCategoryDetailPayload } from "@/lib/categories/page-cache"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
-}
-
-export async function generateMetadata({
-  params,
-}: CategoryPageProps): Promise<Metadata> {
-  const { slug } = await params
-  const category = await getCategoryMeta(slug)
-  if (!category) return {}
-
-  return buildPageMetadata({
-    title: category.name,
-    section: "Categories",
-    description: category.description ?? undefined,
-  })
 }
 
 export async function CategoryDetailPageContent({ params }: CategoryPageProps) {

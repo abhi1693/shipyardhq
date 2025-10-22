@@ -1,12 +1,13 @@
 import { Suspense } from "react"
 
-import {
-  PricingPageContent,
-  metadata,
-} from "@/components/templates/public/pricing/page-content"
+import { PricingPageContent } from "@/components/templates/public/pricing/page-content"
 import { PricingPageSkeleton } from "@/components/templates/public/pricing/skeleton"
+import { buildPageMetadata } from "@/lib/metadata"
 
-export { metadata }
+export const metadata = buildPageMetadata({
+  title: "Pricing",
+  description: "Transparent pricing for every stage.",
+})
 
 export default function PricingPage() {
   return (

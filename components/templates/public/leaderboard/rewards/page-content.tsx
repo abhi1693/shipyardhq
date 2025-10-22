@@ -9,10 +9,8 @@ import { RewardLeaderboardLimitSelect } from "@/app/(public)/leaderboard/rewards
 import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
-import { buildPageMetadata } from "@/lib/metadata"
 import {
   LEADERBOARD_PATH,
-  LEADERBOARD_REWARDS_PATH,
   MEMBER_PRODUCTS_PATH,
   MEMBER_REWARDS_PATH,
   REWARDS_PATH,
@@ -27,21 +25,6 @@ import {
   normalizeRewardsLeaderboardLimit,
   REWARDS_LEADERBOARD_DEFAULT_LIMIT,
 } from "@/lib/rewards/leaderboard"
-
-export const revalidate = 120
-
-export const metadata = buildPageMetadata({
-  title: "Rewards Leaderboard — Shipyard",
-  description:
-    "See which Shipyard members have earned the most rewards from community activity, engagement streaks, and launch momentum.",
-  openGraph: {
-    url: LEADERBOARD_REWARDS_PATH,
-    type: "website",
-  },
-  twitter: {
-    card: "summary",
-  },
-})
 
 const numberFormatter = new Intl.NumberFormat("en-US")
 

@@ -6,37 +6,14 @@ import DirectoryHeader from "@/components/organisms/directory/DirectoryHeader"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
 import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { MakerCard } from "@/components/molecules/directory/MakerCard"
-import type { Metadata } from "next"
-import { buildPageMetadata } from "@/lib/metadata"
 import {
   BROWSE_PATH,
   LEADERBOARD_PATH,
   LEADERBOARD_REWARDS_PATH,
   MEMBER_PRODUCTS_PATH,
-  USERS_PATH,
   userPath,
 } from "@/lib/routes"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
-
-export const revalidate = 120
-
-const baseMetadata = buildPageMetadata({
-  title: "Makers — Shipyard",
-  description:
-    "Explore Shipyard makers, see what they have launched, and discover who is building momentum right now.",
-  openGraph: {
-    url: USERS_PATH,
-    type: "website",
-  },
-  twitter: {
-    card: "summary",
-  },
-})
-
-export const metadata: Metadata = {
-  ...baseMetadata,
-  alternates: { canonical: USERS_PATH },
-}
 
 const makerMetrics = [
   {

@@ -1,9 +1,7 @@
 import { notFound } from "next/navigation"
-import { Metadata } from "next"
 import Link from "next/link"
 import { CategoryCard } from "@/components/molecules/CategoryCard"
 import { CategoryProductsClient as UseCaseProductsClient } from "@/app/(public)/categories/[slug]/client-products"
-import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
 import {
   BROWSE_PATH,
@@ -13,14 +11,12 @@ import {
   usecasePath,
 } from "@/lib/routes"
 import { productHasFeature } from "@/lib/features"
-import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 import { NewsletterSignupSection } from "@/components/organisms/NewsletterSignupSection"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 import {
   getUseCasePagePayload,
-  getUseCaseStaticParams,
   type UseCasePagePayload,
 } from "@/lib/useCases/page-cache"
 
@@ -31,29 +27,6 @@ interface UseCasePageProps {
 type UseCaseProduct = NonNullable<UseCasePagePayload>["products"][number]
 
 type UseCaseCategory = NonNullable<UseCasePagePayload>["categories"][number]
-
-export async function generateStaticParams() {
-  return getUseCaseStaticParams()
-}
-
-export async function generateMetadata({
-  params,
-}: UseCasePageProps): Promise<Metadata> {
-  const { slug } = await params
-  const useCase = await getPublicUseCaseMeta(slug)
-  if (!useCase || useCase.productCount === 0) return {}
-
-  const description = `Explore ${useCase.productCount} ${pluralize(
-    useCase.productCount,
-    "product",
-  )} built for ${useCase.label}.`
-
-  return buildPageMetadata({
-    title: `${useCase.label} Use Case`,
-    section: "Use Cases",
-    description,
-  })
-}
 
 export async function UseCasePageContent({ params }: UseCasePageProps) {
   const { slug } = await params

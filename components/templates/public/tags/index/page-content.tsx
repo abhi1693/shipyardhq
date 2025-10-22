@@ -3,21 +3,12 @@ import Link from "next/link"
 import ProductCompactGrid from "@/components/molecules/ProductCompactGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
 import KeywordTagCloud from "@/components/molecules/KeywordTagCloud"
-import { buildPageMetadata } from "@/lib/metadata"
 import { resolvePagination } from "@/lib/pagination"
 import { cn } from "@/lib/utils"
 import { getTagsIndexPayload } from "@/lib/tags/page-cache"
 import { TAG_PRODUCTS_PAGE_SIZE } from "@/actions/public/tags/actions"
 
 import { buildPageHref, formatTagLabel } from "@/app/(public)/tags/_utils"
-
-export const revalidate = 300
-
-export const metadata = buildPageMetadata({
-  title: "Browse Tags",
-  description:
-    "Explore Shipyard products by their top keywords and discover new tools aligned with your interests.",
-})
 
 type TagsSearchParams = {
   page?: string | string[]

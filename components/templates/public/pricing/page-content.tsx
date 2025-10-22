@@ -13,17 +13,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/atoms/accordion"
-import { buildPageMetadata } from "@/lib/metadata"
 import { ANALYTICS_PATH, REWARDS_PATH } from "@/lib/routes"
 import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
 import { brandGradient, gradientTint } from "@/lib/ui/tints"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
-
-export const metadata = buildPageMetadata({
-  title: "Pricing",
-  description: "Transparent pricing for every stage.",
-})
 
 const CORE_PERKS = [
   {

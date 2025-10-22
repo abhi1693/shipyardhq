@@ -3,7 +3,6 @@ import { formatDistanceToNow } from "date-fns"
 
 import { getPublicRewardsData } from "@/actions/public/rewards/actions"
 import { Badge } from "@/components/atoms/badge"
-import { buildPageMetadata } from "@/lib/metadata"
 import {
   LEADERBOARD_REWARDS_PATH,
   MEMBER_REWARDS_PATH,
@@ -53,13 +52,6 @@ const redemptionStatusTone: Record<RedemptionStatus, string> = {
   [RedemptionStatus.failed]: "text-rose-600",
   [RedemptionStatus.refunded]: "text-emerald-600",
 }
-
-export const metadata = buildPageMetadata({
-  title: "Shipyard Rewards",
-  section: "Public",
-  description:
-    "Earn Shipyard rewards by contributing to the community and redeem them for high-visibility placements, analytics, and launch fuel.",
-})
 
 const numberFormatter = new Intl.NumberFormat("en-US")
 const dateFormatter = new Intl.DateTimeFormat("en-US", {

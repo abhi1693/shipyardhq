@@ -5,15 +5,6 @@ import { getTopRankedProducts } from "@/actions/public/leaderboard/actions"
 import { VersusArena } from "@/components/pages/VersusArena"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
 import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
-import { buildPageMetadata } from "@/lib/metadata"
-
-export const dynamic = "force-dynamic"
-
-export const metadata = buildPageMetadata({
-  title: "Live Launch Battles — Head-to-head launch arena",
-  description:
-    "Jump into the live launch arena to upvote competing launches in real time and help rank the community's top products.",
-})
 
 type LeaderboardProduct = Awaited<
   ReturnType<typeof getTopRankedProducts>

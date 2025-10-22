@@ -1,7 +1,6 @@
 import Link from "next/link"
 
 import { Button } from "@/components/atoms/button"
-import { buildPageMetadata } from "@/lib/metadata"
 import {
   LEADERBOARD_PATH,
   LEADERBOARD_MONTHLY_PATH,
@@ -82,12 +81,6 @@ const FAQ = [
     a: "Keep your listing current, re-engage your audience with updates, and encourage happy users to upvote. Featuring your product unlocks additional spotlight placements.",
   },
 ]
-
-export const metadata = buildPageMetadata({
-  title: "How ShipYardHQ leaderboard scoring works",
-  description:
-    "Understand how ShipYardHQ ranks products, how scores are calculated, and what each monthly reset means for your launch strategy.",
-})
 
 export function LeaderboardGuidePageContent() {
   return (

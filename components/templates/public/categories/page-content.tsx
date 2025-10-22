@@ -2,15 +2,9 @@ import Link from "next/link"
 
 import { Button } from "@/components/atoms/button"
 import { CategoryCard } from "@/components/molecules/CategoryCard"
-import { buildPageMetadata } from "@/lib/metadata"
 import { pluralize } from "@/lib/pluralize"
 import { BROWSE_PATH, MEMBER_PRODUCTS_PATH, categoryPath } from "@/lib/routes"
 import { getCategoriesPagePayload } from "@/lib/categories/cache"
-
-export const metadata = buildPageMetadata({
-  title: "Categories",
-  description: "Browse Shipyard by category and discover innovative products.",
-})
 
 export async function CategoriesPageContent() {
   const {

@@ -8,7 +8,6 @@ import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { TopPlacementCard } from "@/components/molecules/LeaderboardTopPlacement"
 import { LeaderboardFilters } from "@/app/(public)/leaderboard/filters"
 import { IconAnchor, IconRadar, IconTargetArrow } from "@tabler/icons-react"
-import { buildPageMetadata } from "@/lib/metadata"
 import { TopCategories } from "@/components/organisms/TopCategories"
 import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
 import {
@@ -25,12 +24,6 @@ import {
   type LeaderboardPagePayload,
 } from "@/lib/leaderboard/cache"
 import { Skeleton } from "@/components/atoms/skeleton"
-
-export const metadata = buildPageMetadata({
-  title: "Shipyard Leaderboard — Track live launch momentum",
-  description:
-    "Monitor the Shipyard leaderboard to see which launches are earning the strongest community momentum right now.",
-})
 
 type LeaderboardProduct = LeaderboardPagePayload["products"][number]
 

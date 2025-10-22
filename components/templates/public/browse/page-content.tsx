@@ -1,4 +1,3 @@
-import type { Metadata } from "next"
 import Link from "next/link"
 
 import { EmptyState } from "@/components/molecules/empty-state"
@@ -10,7 +9,6 @@ import { DirectoryPromoCard } from "@/components/organisms/directory/PromoCard"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 import { BrowseFeaturedCarousel } from "@/components/organisms/BrowseFeaturedCarousel"
 import { ProductUpdatesFeed } from "@/components/molecules/ProductUpdatesFeed"
-import { buildPageMetadata } from "@/lib/metadata"
 import {
   BROWSE_PATH,
   LEADERBOARD_PATH,
@@ -18,43 +16,12 @@ import {
   MEMBER_PRODUCTS_PATH,
   PRICING_PATH,
   RANK_IN_PUBLIC_PATH,
-  usecasePath,
 } from "@/lib/routes"
-import { getPublicUseCaseMeta } from "@/actions/public/use-cases/actions"
 import {
   getBrowsePagePayload,
   type BrowseSort,
   type BrowsePageFilters,
 } from "@/lib/browse/cache"
-
-const baseMetadata = buildPageMetadata({
-  title: "Browse Products",
-  description: "Explore tools, startups, and products by use case or category.",
-})
-
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<BrowseSearchParams>
-}): Promise<Metadata> {
-  const params = await searchParams
-  const useCase = resolveSingle(params.useCase)
-
-  if (useCase && useCase !== "__all__") {
-    const useCaseMeta = await getPublicUseCaseMeta(useCase)
-    if (useCaseMeta && useCaseMeta.productCount > 0) {
-      return {
-        ...baseMetadata,
-        alternates: { canonical: usecasePath(useCaseMeta.slug) },
-      }
-    }
-  }
-
-  return {
-    ...baseMetadata,
-    alternates: { canonical: BROWSE_PATH },
-  }
-}
 
 const browseMetrics = [
   {
