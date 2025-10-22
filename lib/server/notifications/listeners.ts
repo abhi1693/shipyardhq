@@ -203,6 +203,76 @@ registerEventHandler({
 })
 
 registerEventHandler({
+  event: APP_EVENTS.REWARDS_ADJUSTED,
+  id: "notifications.rewards-adjusted-grant",
+  queue: "low",
+  handler: async (event) => {
+    try {
+      if (event.amount <= 0) {
+        return
+      }
+
+      const metadataRecord = toMetadataRecord(event.metadata)
+      const reference =
+        metadataRecord && typeof metadataRecord.reference === "string"
+          ? metadataRecord.reference
+          : null
+      const initiatedBy =
+        metadataRecord && typeof metadataRecord.initiatedBy === "object"
+          ? metadataRecord.initiatedBy
+          : null
+
+      const pointsLabel =
+        event.amount === 1 ? "1 point" : `${event.amount} points`
+      const rawReason =
+        typeof event.notes === "string"
+          ? event.notes.replace(/\s+/g, " ").trim()
+          : ""
+      const hasReason = rawReason.length > 0
+
+      let message = `Shipyard team granted you ${pointsLabel}`
+      if (hasReason) {
+        message += ` — ${rawReason}`
+        if (!/[.!?]$/.test(rawReason)) {
+          message += "."
+        }
+      } else {
+        message += "."
+      }
+
+      const metadata: Prisma.InputJsonValue = {
+        transactionId: event.transactionId,
+        rewardAmount: event.amount,
+        balanceAfter: event.balanceAfter,
+        actorUserId: event.actorUserId ?? null,
+        reason: hasReason ? rawReason : null,
+        reference,
+        initiatedBy,
+        notificationKind: "admin_reward_grant",
+        source:
+          metadataRecord && typeof metadataRecord.source === "string"
+            ? metadataRecord.source
+            : "admin.adjustment",
+        href: MEMBER_REWARDS_PATH,
+        grantedAt: event.createdAt.toISOString(),
+      }
+
+      await createNotification({
+        userId: event.userId,
+        type: NotificationType.reward_awarded,
+        message,
+        metadata,
+      })
+    } catch (error) {
+      console.error("[notifications] failed to handle rewards.adjusted", {
+        error,
+        event,
+      })
+    }
+  },
+})
+
+registerEventHandler({
   event: APP_EVENTS.PRODUCT_UPDATE_PUBLISHED,
   id: "notifications.product-update-published",
   queue: "low",

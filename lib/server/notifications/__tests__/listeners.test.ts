@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { APP_EVENTS } from "@/lib/server/events/constants"
+import { MEMBER_REWARDS_PATH } from "@/lib/routes"
 import { NotificationType } from "@/lib/vendor/prisma/client"
 
 const productUpvoteFindManyMock = vi.hoisted(() => vi.fn())
@@ -28,25 +29,29 @@ vi.mock("@/lib/server/notifications/service", () => ({
 }))
 
 describe("notifications listeners", () => {
-  let handler: ((payload: any) => Promise<void> | void) | undefined
+  type EventsModule = typeof import("@/lib/server/events")
+  let eventsModule: EventsModule | undefined
+  let productUpdateHandler:
+    | ((payload: any) => Promise<void> | void)
+    | undefined
 
   beforeEach(async () => {
     vi.resetModules()
     productUpvoteFindManyMock.mockReset()
     createNotificationMock.mockReset()
 
-    const eventsModule = await import("@/lib/server/events")
+    eventsModule = await import("@/lib/server/events")
     eventsModule.resetEventRegistryForTesting()
     await import("@/lib/server/events/register-handlers")
 
-    handler = eventsModule.resolveRegisteredHandler(
+    productUpdateHandler = eventsModule.resolveRegisteredHandler(
       APP_EVENTS.PRODUCT_UPDATE_PUBLISHED,
       "notifications.product-update-published",
     )?.handler
   })
 
   it("sends notifications to upvoters when a product update is published", async () => {
-    expect(handler).toBeDefined()
+    expect(productUpdateHandler).toBeDefined()
     productUpvoteFindManyMock.mockResolvedValue([
       { userId: "user-1" },
       { userId: "user-2" },
@@ -65,7 +70,7 @@ describe("notifications listeners", () => {
       authorId: "owner-1",
     } as any
 
-    await handler?.(payload)
+    await productUpdateHandler?.(payload)
 
     const expectedType =
       (NotificationType as Record<string, string | undefined>).product_update ??
@@ -87,7 +92,7 @@ describe("notifications listeners", () => {
   })
 
   it("skips notifications when only excluded users have upvoted", async () => {
-    expect(handler).toBeDefined()
+    expect(productUpdateHandler).toBeDefined()
     productUpvoteFindManyMock.mockResolvedValue([
       { userId: "owner-1" },
       { userId: "author-1" },
@@ -105,7 +110,89 @@ describe("notifications listeners", () => {
       authorId: "author-1",
     }
 
-    await handler?.(payload)
+    await productUpdateHandler?.(payload)
+
+    expect(createNotificationMock).not.toHaveBeenCalled()
+  })
+
+  it("notifies users when an admin grants rewards", async () => {
+    expect(eventsModule).toBeDefined()
+
+    const adjustmentHandler = eventsModule
+      ?.resolveRegisteredHandler(
+        APP_EVENTS.REWARDS_ADJUSTED,
+        "notifications.rewards-adjusted-grant",
+      )
+      ?.handler
+
+    expect(adjustmentHandler).toBeDefined()
+
+    createNotificationMock.mockResolvedValue(undefined)
+
+    const grantedAt = new Date("2024-10-02T10:00:00.000Z")
+    const payload = {
+      transactionId: "tx-123",
+      userId: "user-42",
+      amount: 75,
+      balanceAfter: 200,
+      createdAt: grantedAt,
+      actorUserId: "admin-7",
+      notes: "closing the beta feedback loop",
+      metadata: {
+        source: "admin-panel",
+        reference: "case-99",
+        initiatedBy: { id: "admin-7", email: "admin@example.com" },
+      },
+    } as any
+
+    await adjustmentHandler?.(payload)
+
+    expect(createNotificationMock).toHaveBeenCalledTimes(1)
+    const [call] = createNotificationMock.mock.calls
+    expect(call[0]).toMatchObject({
+      userId: "user-42",
+      type: NotificationType.reward_awarded,
+      message:
+        "Shipyard team granted you 75 points — closing the beta feedback loop.",
+    })
+
+    expect(call[0].metadata).toMatchObject({
+      transactionId: "tx-123",
+      rewardAmount: 75,
+      balanceAfter: 200,
+      actorUserId: "admin-7",
+      reason: "closing the beta feedback loop",
+      reference: "case-99",
+      notificationKind: "admin_reward_grant",
+      source: "admin-panel",
+      href: MEMBER_REWARDS_PATH,
+      grantedAt: grantedAt.toISOString(),
+    })
+  })
+
+  it("skips reward notifications for deductions", async () => {
+    expect(eventsModule).toBeDefined()
+
+    const adjustmentHandler = eventsModule
+      ?.resolveRegisteredHandler(
+        APP_EVENTS.REWARDS_ADJUSTED,
+        "notifications.rewards-adjusted-grant",
+      )
+      ?.handler
+
+    expect(adjustmentHandler).toBeDefined()
+
+    const payload = {
+      transactionId: "tx-456",
+      userId: "user-9",
+      amount: -25,
+      balanceAfter: 50,
+      createdAt: new Date("2024-10-02T11:00:00.000Z"),
+      actorUserId: "admin-3",
+      notes: "cleanup",
+    } as any
+
+    await adjustmentHandler?.(payload)
 
     expect(createNotificationMock).not.toHaveBeenCalled()
   })
