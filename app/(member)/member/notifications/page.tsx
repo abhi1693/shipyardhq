@@ -1,8 +1,9 @@
-import { auth } from "@clerk/nextjs/server"
+import { Suspense } from "react"
 
-import NotificationCenter from "@/components/organisms/notifications/NotificationCenter"
-import { listNotificationsForUserCached } from "@/lib/server/notifications/service"
-import { requireActiveUserOrRedirect } from "@/lib/server/userStatus"
+import {
+  MemberNotificationsPageContent,
+  MemberNotificationsPageSkeleton,
+} from "@/components/templates/member/notifications/page-content"
 import { buildPageMetadata } from "@/lib/metadata"
 
 export const dynamic = "force-dynamic"
@@ -12,12 +13,10 @@ export const metadata = buildPageMetadata({
   description: "Stay on top of product activity and reward updates.",
 })
 
-export default async function MemberNotificationsPage() {
-  const { userId: clerkUserId } = await auth()
-  const activeUser = await requireActiveUserOrRedirect(clerkUserId)
-  const initialData = await listNotificationsForUserCached(activeUser.id, {
-    limit: 25,
-  })
-
-  return <NotificationCenter initialData={initialData} />
+export default function MemberNotificationsPage() {
+  return (
+    <Suspense fallback={<MemberNotificationsPageSkeleton />}>
+      <MemberNotificationsPageContent />
+    </Suspense>
+  )
 }

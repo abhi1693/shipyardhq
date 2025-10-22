@@ -254,7 +254,8 @@ export default function AnalyticsPage() {
                           fill
                           className="object-contain"
                           sizes="(min-width: 1280px) 600px, (min-width: 768px) 50vw, 100vw"
-                          priority={Boolean(shot.priority)}
+                          loading={shot.priority ? "eager" : "lazy"}
+                          fetchPriority={shot.priority ? "high" : "auto"}
                         />
                       </span>
                       <span className="block px-6 py-5 text-sm text-muted-foreground">

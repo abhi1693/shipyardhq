@@ -78,6 +78,7 @@ describe("getProductTrafficSummary", () => {
           ipHash: "hash-1",
           path: "/products/example",
           productId: "prod-1",
+          isBot: false,
         },
         {
           createdAt: new Date("2025-01-09T14:00:00Z"),
@@ -91,6 +92,7 @@ describe("getProductTrafficSummary", () => {
           ipHash: null,
           path: "/products/example",
           productId: "prod-1",
+          isBot: false,
         },
         {
           createdAt: new Date("2025-01-09T10:00:00Z"),
@@ -104,6 +106,7 @@ describe("getProductTrafficSummary", () => {
           ipHash: "hash-2",
           path: "/products/example",
           productId: "prod-1",
+          isBot: false,
         },
       ])
       .mockResolvedValueOnce([
@@ -114,6 +117,7 @@ describe("getProductTrafficSummary", () => {
           country: "United States",
           referrer: "https://example.com/path",
           productId: "prod-1",
+          isBot: false,
         },
       ])
       .mockResolvedValueOnce([{ ipHash: "hash-1" }])
@@ -150,6 +154,8 @@ describe("getProductTrafficSummary", () => {
     expect(summary.uniqueVisitors).toEqual(3) // hash-1, hash-2, anonymous
     expect(summary.viewsToday).toEqual(1)
     expect(summary.viewsSevenDays).toEqual(3)
+    expect(summary.botViews).toEqual(0)
+    expect(summary.filters.includeBots).toBe(false)
     expect(summary.deviceBreakdown).toEqual([
       { device: "mobile", label: "Mobile", views: 2 },
       { device: "desktop", label: "Desktop", views: 1 },
@@ -199,6 +205,7 @@ describe("getProductTrafficSummary", () => {
           ipHash: "hash-1",
           path: "/products/example",
           productId: "prod-1",
+          isBot: false,
         },
       ])
       .mockResolvedValueOnce([])
@@ -217,6 +224,8 @@ describe("getProductTrafficSummary", () => {
     expect(prismaMocks.upvoteCount).not.toHaveBeenCalled()
 
     expect(summary.totalViews).toEqual(1)
+    expect(summary.botViews).toEqual(0)
+    expect(summary.filters.includeBots).toBe(false)
     expect(summary.deviceBreakdown).toEqual([])
     expect(summary.countryBreakdown).toEqual([])
     expect(summary.referrerBreakdown).toEqual([])
@@ -228,6 +237,100 @@ describe("getProductTrafficSummary", () => {
       unknownVisitors: 0,
       returningRate: 0,
     })
+  })
+
+  it("tracks bot traffic separately and toggles inclusion", async () => {
+    prismaMocks.findMany
+      .mockResolvedValueOnce([
+        {
+          createdAt: new Date("2025-01-10T08:00:00Z"),
+          device: "desktop",
+          browser: "Chrome",
+          os: "macOS",
+          country: "United States",
+          region: "California",
+          city: "San Francisco",
+          referrer: "https://example.com/path",
+          ipHash: "human-hash",
+          path: "/products/example",
+          productId: "prod-bot",
+          isBot: false,
+        },
+        {
+          createdAt: new Date("2025-01-10T08:01:00Z"),
+          device: "desktop",
+          browser: "Googlebot",
+          os: "Other",
+          country: "United States",
+          region: "California",
+          city: "San Francisco",
+          referrer: null,
+          ipHash: "bot-hash",
+          path: "/products/example",
+          productId: "prod-bot",
+          isBot: true,
+        },
+      ])
+      .mockResolvedValueOnce([])
+
+    const summary = await getProductTrafficSummary("prod-bot", {
+      rangeDays: 1,
+      includeAdvanced: false,
+    })
+
+    expect(summary.totalViews).toEqual(1)
+    expect(summary.botViews).toEqual(1)
+    expect(summary.filters.includeBots).toBe(false)
+
+    prismaMocks.findMany.mockReset()
+    prismaMocks.findMany
+      .mockResolvedValueOnce([
+        {
+          createdAt: new Date("2025-01-10T08:00:00Z"),
+          device: "desktop",
+          browser: "Chrome",
+          os: "macOS",
+          country: "United States",
+          region: "California",
+          city: "San Francisco",
+          referrer: "https://example.com/path",
+          ipHash: "human-hash",
+          path: "/products/example",
+          productId: "prod-bot",
+          isBot: false,
+        },
+        {
+          createdAt: new Date("2025-01-10T08:01:00Z"),
+          device: "desktop",
+          browser: "Googlebot",
+          os: "Other",
+          country: "United States",
+          region: "California",
+          city: "San Francisco",
+          referrer: null,
+          ipHash: "bot-hash",
+          path: "/products/example",
+          productId: "prod-bot",
+          isBot: true,
+        },
+      ])
+      .mockResolvedValueOnce([])
+    cacheHitMock.mockReset()
+    cacheHitMock.mockResolvedValue(null)
+    cacheMissMock.mockReset()
+    cacheMissMock.mockResolvedValue(undefined)
+
+    const summaryWithBots = await getProductTrafficSummary("prod-bot", {
+      rangeDays: 1,
+      includeAdvanced: false,
+      includeBots: true,
+    })
+
+    expect(summaryWithBots.totalViews).toEqual(2)
+    expect(summaryWithBots.botViews).toEqual(1)
+    expect(summaryWithBots.filters.includeBots).toBe(true)
+    expect(prismaMocks.clickFindMany).not.toHaveBeenCalled()
+    expect(prismaMocks.upvoteFindMany).not.toHaveBeenCalled()
   })
 
   it("returns cached traffic summary when available", async () => {
@@ -252,6 +355,8 @@ describe("getProductTrafficSummary", () => {
       upvotesChange: 0,
       upvoteConversionRate: 0,
       upvoteConversionRateChange: 0,
+      botViews: 0,
+      previousBotViews: 0,
       viewsOverTime: [],
       deviceBreakdown: [],
       deviceConversionBreakdown: [],
@@ -277,6 +382,9 @@ describe("getProductTrafficSummary", () => {
           returningRate: 0,
         },
         anomalies: [],
+      },
+      filters: {
+        includeBots: false,
       },
     } as unknown as import("@/types/analytics").ProductTrafficSummary
 

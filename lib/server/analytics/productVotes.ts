@@ -18,8 +18,8 @@ registerEventHandler({
         create: { productId, upvotes: 1, clicks: 0 },
         select: { productId: true },
       })
-      revalidateProduct(productId)
-      revalidateLeaderboard()
+      revalidateProduct(productId, "revalidate")
+      revalidateLeaderboard("revalidate")
     } catch (err) {
       console.error("[analytics] increment upvotes failed:", err)
     }
@@ -38,8 +38,8 @@ registerEventHandler({
         create: { productId, upvotes: 0, clicks: 0 },
         select: { productId: true },
       })
-      revalidateProduct(productId)
-      revalidateLeaderboard()
+      revalidateProduct(productId, "revalidate")
+      revalidateLeaderboard("revalidate")
     } catch (err) {
       console.error("[analytics] decrement upvotes failed:", err)
     }

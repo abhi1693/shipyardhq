@@ -6,6 +6,7 @@ import { z } from "zod"
 import { useRouter } from "next/navigation"
 import { completeOnboarding } from "@/actions/member/onboarding/actions"
 import { toast } from "sonner"
+import { useTransition } from "react"
 
 import {
   Card,
@@ -76,6 +77,7 @@ export function OnboardingForm({
   redirectSource?: string
 }) {
   const router = useRouter()
+  const [isNavigating, startTransition] = useTransition()
 
   const form = useForm<OnboardingFormInput>({
     resolver: zodResolver(onboardingSchema),
@@ -130,14 +132,17 @@ export function OnboardingForm({
       const destination = shouldUseRedirectTarget
         ? (sanitizedRedirectTarget ?? MEMBER_OVERVIEW_PATH)
         : MEMBER_OVERVIEW_PATH
-      router.replace(destination)
-      router.refresh()
+      startTransition(() => {
+        router.replace(destination)
+        router.refresh()
+      })
     } else {
       toast.error(result.error)
     }
   }
 
   const canSubmit = Boolean(roleIntent && heardFrom)
+  const isBusy = isSubmitting || isNavigating
 
   return (
     <div className="flex h-full items-center justify-center py-6">
@@ -267,9 +272,9 @@ export function OnboardingForm({
             <Button
               type="submit"
               className="w-full rounded-full bg-sky-500 px-6 py-3 text-base font-semibold text-white shadow-[0_22px_45px_-25px_rgba(56,189,248,0.65)] transition hover:bg-sky-400 focus-visible:ring-sky-200 disabled:opacity-60"
-              disabled={isSubmitting || !canSubmit}
+              disabled={isBusy || !canSubmit}
             >
-              {isSubmitting ? "Hoisting sails..." : "Complete Onboarding"}
+              {isBusy ? "Hoisting sails..." : "Complete Onboarding"}
             </Button>
           </CardFooter>
         </form>

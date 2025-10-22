@@ -99,7 +99,7 @@ export default function PublicHeader() {
               height={32}
               sizes="(max-width: 768px) 24px, 32px"
               className="h-8 w-8"
-              priority
+              preload
             />
             <span className="flex flex-col leading-tight">
               <span className="text-[10px] font-semibold uppercase tracking-[0.4em] text-muted-foreground">
@@ -117,7 +117,7 @@ export default function PublicHeader() {
                 key={link.href}
                 href={link.href}
                 className={clsx(
-                  "relative rounded-full px-3 py-1.5 text-sm font-medium transition",
+                  "relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition",
                   isActive(link.href)
                     ? "text-foreground after:absolute after:-bottom-1 after:left-1/2 after:h-0.5 after:w-5 after:-translate-x-1/2 after:rounded-full after:bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]"
                     : "text-muted-foreground hover:text-foreground",

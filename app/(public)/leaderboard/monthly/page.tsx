@@ -1,9 +1,10 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { buildPageMetadata } from "@/lib/metadata"
 import { isMonthKey, monthlyLeaderboardArchivePath } from "@/lib/routes"
-
-import { MonthlyLeaderboardView } from "./view"
+import { MonthlyLeaderboardView } from "@/components/templates/public/leaderboard/monthly/view"
+import { MonthlyLeaderboardSkeleton } from "@/components/templates/public/leaderboard/monthly/skeleton"
 
 export const revalidate = 120
 
@@ -26,5 +27,9 @@ export default async function MonthlyLeaderboardPage({
     redirect(monthlyLeaderboardArchivePath(monthParam))
   }
 
-  return <MonthlyLeaderboardView monthParam={monthParam ?? undefined} />
+  return (
+    <Suspense fallback={<MonthlyLeaderboardSkeleton />}>
+      <MonthlyLeaderboardView monthParam={monthParam ?? undefined} />
+    </Suspense>
+  )
 }

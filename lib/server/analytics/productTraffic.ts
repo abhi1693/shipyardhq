@@ -35,6 +35,7 @@ registerEventHandler({
           region: payload.region ?? null,
           city: payload.city ?? null,
           ipHash: payload.ipHash ?? null,
+          isBot: payload.isBot ?? false,
           createdAt,
         },
       })

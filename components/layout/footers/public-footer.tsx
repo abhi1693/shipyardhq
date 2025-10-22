@@ -126,7 +126,7 @@ export default function PublicFooter({ useCases = [] }: PublicFooterProps) {
                 height={28}
                 sizes="(min-width: 768px) 28px, 24px"
                 className="h-7 w-7"
-                priority
+                preload
               />
               <span className="text-lg font-semibold tracking-tight text-[color:var(--brand-1)]">
                 ShipYardHQ

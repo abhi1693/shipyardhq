@@ -129,12 +129,13 @@ export default async function ViewUserPage({
     userId: id,
   }) as Promise<RewardTransactionWithRelationships[]>
 
-  const [user, rewardTransactions, rewardTransactionsTotal] =
-    await Promise.all([
+  const [user, rewardTransactions, rewardTransactionsTotal] = await Promise.all(
+    [
       userPromise,
       rewardTransactionsPromise,
       getRewardTransactionsCount("all", id),
-    ])
+    ],
+  )
 
   if (!user) return notFound()
 

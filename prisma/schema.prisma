@@ -289,6 +289,7 @@ model ProductTrafficEvent {
   region    String?
   city      String?
   ipHash    String?
+  isBot     Boolean        @default(false)
   createdAt DateTime       @default(now())
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -297,6 +298,7 @@ model ProductTrafficEvent {
   @@index([createdAt])
   @@index([country])
   @@index([device])
+  @@index([isBot])
 }
 
 model ProductInsightProfile {

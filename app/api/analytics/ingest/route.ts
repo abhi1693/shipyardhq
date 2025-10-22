@@ -1,10 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse, userAgent } from "next/server"
 
 import {
   hashIpAddress,
-  inferDeviceCategory,
-  parseBrowser,
-  parseOs,
   sanitizePath,
   sanitizeReferrer,
 } from "@/lib/server/analytics/clientMetadata"
@@ -23,9 +20,23 @@ function pickPrimaryIp(header?: string | null) {
 }
 
 function coerceDevice(
-  device: DeviceCategory | null | undefined,
+  deviceType?: string | null,
+  hasUserAgentHeader = false,
+  isBot = false,
 ): DeviceCategory {
-  return device ?? "unknown"
+  if (isBot) {
+    return "unknown"
+  }
+  if (deviceType === "mobile" || deviceType === "tablet") {
+    return deviceType
+  }
+  if (deviceType === "desktop") {
+    return "desktop"
+  }
+  if (hasUserAgentHeader) {
+    return "desktop"
+  }
+  return "unknown"
 }
 
 export async function POST(request: NextRequest) {
@@ -49,14 +60,8 @@ export async function POST(request: NextRequest) {
   }
 
   const headers = request.headers
-  const userAgent = headers.get("user-agent")
-  const secChUaMobile = headers.get("sec-ch-ua-mobile")
-  const secChUa = headers.get("sec-ch-ua")
-  const secChUaPlatform = headers.get("sec-ch-ua-platform")
-
-  const device = coerceDevice(inferDeviceCategory(userAgent, secChUaMobile))
-  const browser = parseBrowser(userAgent, secChUa)
-  const os = parseOs(userAgent, secChUaPlatform)
+  const userAgentHeader = headers.get("user-agent")
+  const { device, browser, os, isBot } = userAgent(request)
 
   const requestGeo =
     (
@@ -97,14 +102,15 @@ export async function POST(request: NextRequest) {
     productId,
     path: path ?? rawPath,
     referrer,
-    userAgent,
-    device,
-    browser,
-    os,
+    userAgent: userAgentHeader,
+    device: coerceDevice(device?.type, Boolean(userAgentHeader), isBot),
+    browser: browser?.name ?? null,
+    os: os?.name ?? null,
     country,
     region,
     city,
     ipHash,
+    isBot,
   }
 
   const productExists = await prisma.product.findUnique({

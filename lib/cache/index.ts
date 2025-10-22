@@ -52,3 +52,4 @@ export function cached<F extends AnyAsyncFn>(
 }
 
 export { TAGS }
+export { REVALIDATE_PROFILE, revalidateTag } from "./revalidateTag"

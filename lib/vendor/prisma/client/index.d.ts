@@ -16955,6 +16955,7 @@ export namespace Prisma {
     region: string | null
     city: string | null
     ipHash: string | null
+    isBot: boolean | null
     createdAt: Date | null
   }
 
@@ -16971,6 +16972,7 @@ export namespace Prisma {
     region: string | null
     city: string | null
     ipHash: string | null
+    isBot: boolean | null
     createdAt: Date | null
   }
 
@@ -16987,6 +16989,7 @@ export namespace Prisma {
     region: number
     city: number
     ipHash: number
+    isBot: number
     createdAt: number
     _all: number
   }
@@ -17005,6 +17008,7 @@ export namespace Prisma {
     region?: true
     city?: true
     ipHash?: true
+    isBot?: true
     createdAt?: true
   }
 
@@ -17021,6 +17025,7 @@ export namespace Prisma {
     region?: true
     city?: true
     ipHash?: true
+    isBot?: true
     createdAt?: true
   }
 
@@ -17037,6 +17042,7 @@ export namespace Prisma {
     region?: true
     city?: true
     ipHash?: true
+    isBot?: true
     createdAt?: true
     _all?: true
   }
@@ -17126,6 +17132,7 @@ export namespace Prisma {
     region: string | null
     city: string | null
     ipHash: string | null
+    isBot: boolean
     createdAt: Date
     _count: ProductTrafficEventCountAggregateOutputType | null
     _min: ProductTrafficEventMinAggregateOutputType | null
@@ -17159,6 +17166,7 @@ export namespace Prisma {
     region?: boolean
     city?: boolean
     ipHash?: boolean
+    isBot?: boolean
     createdAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["productTrafficEvent"]>
@@ -17176,6 +17184,7 @@ export namespace Prisma {
     region?: boolean
     city?: boolean
     ipHash?: boolean
+    isBot?: boolean
     createdAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["productTrafficEvent"]>
@@ -17193,6 +17202,7 @@ export namespace Prisma {
     region?: boolean
     city?: boolean
     ipHash?: boolean
+    isBot?: boolean
     createdAt?: boolean
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["productTrafficEvent"]>
@@ -17210,10 +17220,11 @@ export namespace Prisma {
     region?: boolean
     city?: boolean
     ipHash?: boolean
+    isBot?: boolean
     createdAt?: boolean
   }
 
-  export type ProductTrafficEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "path" | "referrer" | "userAgent" | "device" | "browser" | "os" | "country" | "region" | "city" | "ipHash" | "createdAt", ExtArgs["result"]["productTrafficEvent"]>
+  export type ProductTrafficEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "path" | "referrer" | "userAgent" | "device" | "browser" | "os" | "country" | "region" | "city" | "ipHash" | "isBot" | "createdAt", ExtArgs["result"]["productTrafficEvent"]>
   export type ProductTrafficEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
   }
@@ -17242,6 +17253,7 @@ export namespace Prisma {
       region: string | null
       city: string | null
       ipHash: string | null
+      isBot: boolean
       createdAt: Date
     }, ExtArgs["result"]["productTrafficEvent"]>
     composites: {}
@@ -17679,6 +17691,7 @@ export namespace Prisma {
     readonly region: FieldRef<"ProductTrafficEvent", 'String'>
     readonly city: FieldRef<"ProductTrafficEvent", 'String'>
     readonly ipHash: FieldRef<"ProductTrafficEvent", 'String'>
+    readonly isBot: FieldRef<"ProductTrafficEvent", 'Boolean'>
     readonly createdAt: FieldRef<"ProductTrafficEvent", 'DateTime'>
   }
     
@@ -49134,6 +49147,7 @@ export namespace Prisma {
     region: 'region',
     city: 'city',
     ipHash: 'ipHash',
+    isBot: 'isBot',
     createdAt: 'createdAt'
   };
 
@@ -50870,6 +50884,7 @@ export namespace Prisma {
     region?: StringNullableFilter<"ProductTrafficEvent"> | string | null
     city?: StringNullableFilter<"ProductTrafficEvent"> | string | null
     ipHash?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    isBot?: BoolFilter<"ProductTrafficEvent"> | boolean
     createdAt?: DateTimeFilter<"ProductTrafficEvent"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }
@@ -50887,6 +50902,7 @@ export namespace Prisma {
     region?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
     ipHash?: SortOrderInput | SortOrder
+    isBot?: SortOrder
     createdAt?: SortOrder
     product?: ProductOrderByWithRelationInput
   }
@@ -50907,6 +50923,7 @@ export namespace Prisma {
     region?: StringNullableFilter<"ProductTrafficEvent"> | string | null
     city?: StringNullableFilter<"ProductTrafficEvent"> | string | null
     ipHash?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    isBot?: BoolFilter<"ProductTrafficEvent"> | boolean
     createdAt?: DateTimeFilter<"ProductTrafficEvent"> | Date | string
     product?: XOR<ProductScalarRelationFilter, ProductWhereInput>
   }, "id">
@@ -50924,6 +50941,7 @@ export namespace Prisma {
     region?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
     ipHash?: SortOrderInput | SortOrder
+    isBot?: SortOrder
     createdAt?: SortOrder
     _count?: ProductTrafficEventCountOrderByAggregateInput
     _max?: ProductTrafficEventMaxOrderByAggregateInput
@@ -50946,6 +50964,7 @@ export namespace Prisma {
     region?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
     city?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
     ipHash?: StringNullableWithAggregatesFilter<"ProductTrafficEvent"> | string | null
+    isBot?: BoolWithAggregatesFilter<"ProductTrafficEvent"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"ProductTrafficEvent"> | Date | string
   }
 
@@ -54199,6 +54218,7 @@ export namespace Prisma {
     region?: string | null
     city?: string | null
     ipHash?: string | null
+    isBot?: boolean
     createdAt?: Date | string
     product: ProductCreateNestedOneWithoutTrafficEventsInput
   }
@@ -54216,6 +54236,7 @@ export namespace Prisma {
     region?: string | null
     city?: string | null
     ipHash?: string | null
+    isBot?: boolean
     createdAt?: Date | string
   }
 
@@ -54231,6 +54252,7 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    isBot?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     product?: ProductUpdateOneRequiredWithoutTrafficEventsNestedInput
   }
@@ -54248,6 +54270,7 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    isBot?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -54264,6 +54287,7 @@ export namespace Prisma {
     region?: string | null
     city?: string | null
     ipHash?: string | null
+    isBot?: boolean
     createdAt?: Date | string
   }
 
@@ -54279,6 +54303,7 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    isBot?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -54295,6 +54320,7 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    isBot?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -57772,6 +57798,7 @@ export namespace Prisma {
     region?: SortOrder
     city?: SortOrder
     ipHash?: SortOrder
+    isBot?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -57788,6 +57815,7 @@ export namespace Prisma {
     region?: SortOrder
     city?: SortOrder
     ipHash?: SortOrder
+    isBot?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -57804,6 +57832,7 @@ export namespace Prisma {
     region?: SortOrder
     city?: SortOrder
     ipHash?: SortOrder
+    isBot?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -63572,6 +63601,7 @@ export namespace Prisma {
     region?: string | null
     city?: string | null
     ipHash?: string | null
+    isBot?: boolean
     createdAt?: Date | string
   }
 
@@ -63587,6 +63617,7 @@ export namespace Prisma {
     region?: string | null
     city?: string | null
     ipHash?: string | null
+    isBot?: boolean
     createdAt?: Date | string
   }
 
@@ -64352,6 +64383,7 @@ export namespace Prisma {
     region?: StringNullableFilter<"ProductTrafficEvent"> | string | null
     city?: StringNullableFilter<"ProductTrafficEvent"> | string | null
     ipHash?: StringNullableFilter<"ProductTrafficEvent"> | string | null
+    isBot?: BoolFilter<"ProductTrafficEvent"> | boolean
     createdAt?: DateTimeFilter<"ProductTrafficEvent"> | Date | string
   }
 
@@ -73229,6 +73261,7 @@ export namespace Prisma {
     region?: string | null
     city?: string | null
     ipHash?: string | null
+    isBot?: boolean
     createdAt?: Date | string
   }
 
@@ -73535,6 +73568,7 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    isBot?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -73550,6 +73584,7 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    isBot?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -73565,6 +73600,7 @@ export namespace Prisma {
     region?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     ipHash?: NullableStringFieldUpdateOperationsInput | string | null
+    isBot?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

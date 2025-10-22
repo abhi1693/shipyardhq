@@ -137,7 +137,8 @@ export function ProductBadgeCelebrationDialog({
               alt={`Featured on ${siteConfig.name}`}
               width={400}
               height={130}
-              priority
+              loading="eager"
+              fetchPriority="high"
               className="h-auto w-full max-w-lg"
             />
             <p className="text-xs text-muted-foreground">

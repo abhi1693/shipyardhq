@@ -222,6 +222,7 @@ describe("analytics listeners", () => {
         region: payload.region,
         city: payload.city,
         ipHash: payload.ipHash,
+        isBot: false,
         createdAt: enqueuedAt,
       },
     })

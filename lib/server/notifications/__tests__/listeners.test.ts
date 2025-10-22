@@ -31,9 +31,7 @@ vi.mock("@/lib/server/notifications/service", () => ({
 describe("notifications listeners", () => {
   type EventsModule = typeof import("@/lib/server/events")
   let eventsModule: EventsModule | undefined
-  let productUpdateHandler:
-    | ((payload: any) => Promise<void> | void)
-    | undefined
+  let productUpdateHandler: ((payload: any) => Promise<void> | void) | undefined
 
   beforeEach(async () => {
     vi.resetModules()
@@ -118,12 +116,10 @@ describe("notifications listeners", () => {
   it("notifies users when an admin grants rewards", async () => {
     expect(eventsModule).toBeDefined()
 
-    const adjustmentHandler = eventsModule
-      ?.resolveRegisteredHandler(
-        APP_EVENTS.REWARDS_ADJUSTED,
-        "notifications.rewards-adjusted-grant",
-      )
-      ?.handler
+    const adjustmentHandler = eventsModule?.resolveRegisteredHandler(
+      APP_EVENTS.REWARDS_ADJUSTED,
+      "notifications.rewards-adjusted-grant",
+    )?.handler
 
     expect(adjustmentHandler).toBeDefined()
 
@@ -173,12 +169,10 @@ describe("notifications listeners", () => {
   it("skips reward notifications for deductions", async () => {
     expect(eventsModule).toBeDefined()
 
-    const adjustmentHandler = eventsModule
-      ?.resolveRegisteredHandler(
-        APP_EVENTS.REWARDS_ADJUSTED,
-        "notifications.rewards-adjusted-grant",
-      )
-      ?.handler
+    const adjustmentHandler = eventsModule?.resolveRegisteredHandler(
+      APP_EVENTS.REWARDS_ADJUSTED,
+      "notifications.rewards-adjusted-grant",
+    )?.handler
 
     expect(adjustmentHandler).toBeDefined()
 

@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
-import { revalidateTag } from "next/cache"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { revalidateTag } from "@/lib/cache/revalidateTag"
 import type { NotificationType, Prisma } from "@/lib/vendor/prisma/client"
 import type {
   NotificationItem,
@@ -244,7 +244,7 @@ function invalidateNotificationCache(userId: string) {
     ]
 
     for (const tag of baseTags) {
-      revalidateTag(tag)
+      revalidateTag(tag, "revalidate")
     }
   } catch (error) {
     console.error("[notifications] Failed to revalidate cache", {

@@ -28,6 +28,7 @@ import {
 } from "@/lib/routes"
 import { IS_PROD } from "@/lib/constants"
 import { getClerkUserByIdCached } from "@/lib/server/clerkUsers"
+import { revalidateUser } from "@/lib/cache/revalidate"
 
 const BUILDER_INTENTS = new Set(["launch-product", "manage-team"])
 const WELCOME_EMAIL_SUBJECT = "Welcome aboard ShipYardHQ"
@@ -142,6 +143,7 @@ export async function completeOnboarding(formData: FormData) {
 
     if (firstTimeOnboarding) {
       await invalidateActiveUserCache(userId)
+      revalidateUser(user.id)
     }
 
     return { success: true }

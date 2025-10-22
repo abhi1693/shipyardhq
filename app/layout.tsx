@@ -8,10 +8,6 @@ import { HAS_APP_URL, IS_PROD } from "@/lib/constants"
 import "./theme.css"
 import { buildSiteSeo, siteConfig } from "@/lib/siteConfig"
 
-// Make all routes dynamic to always reflect latest data
-export const dynamic = "force-dynamic"
-export const revalidate = 0
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

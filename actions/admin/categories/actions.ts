@@ -1,7 +1,5 @@
 "use server"
 
-import { revalidateTag } from "next/cache"
-
 import prisma from "@/lib/prisma"
 import { slugify } from "@/lib/utils"
 import { Prisma } from "@/lib/vendor/prisma/client"
@@ -10,6 +8,7 @@ import {
   revalidateCategory,
   revalidateProducts,
 } from "@/lib/cache/revalidate"
+import { revalidateTag } from "@/lib/cache/revalidateTag"
 import { cached } from "@/lib/cache"
 
 export async function getCategories(args: Prisma.CategoryFindManyArgs = {}) {

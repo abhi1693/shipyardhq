@@ -21,8 +21,9 @@ interface DirectoryCategoryRailProps {
 export function DirectoryCategoryRail({
   categories,
 }: DirectoryCategoryRailProps) {
-  const visibleCategories = categories
-    .filter((category) => (category?._count?.products ?? 0) > 0)
+  const visibleCategories = categories.filter(
+    (category) => (category?._count?.products ?? 0) > 0,
+  )
 
   if (!visibleCategories.length) {
     return null

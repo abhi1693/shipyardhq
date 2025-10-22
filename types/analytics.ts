@@ -14,6 +14,7 @@ export interface ProductTrafficPayload {
   region?: string | null
   city?: string | null
   ipHash?: string | null
+  isBot?: boolean
 }
 
 export interface ProductTrafficSummaryPoint {
@@ -202,6 +203,8 @@ export interface ProductTrafficSummary {
   upvotesChange: number
   upvoteConversionRate: number
   upvoteConversionRateChange: number
+  botViews: number
+  previousBotViews: number
   topCountry?: { country: string; views: number }
   topReferrer?: { referrer: string; views: number }
   viewsOverTime: ProductTrafficSummaryPoint[]
@@ -216,6 +219,9 @@ export interface ProductTrafficSummary {
   osConversionBreakdown: ProductTrafficOsConversionItem[]
   engagementOverTime: ProductEngagementSummaryPoint[]
   advanced: ProductTrafficAdvancedInsights
+  filters: {
+    includeBots: boolean
+  }
 }
 
 export type ProductAnalyticsNarrativeConfidence = "low" | "medium" | "high"

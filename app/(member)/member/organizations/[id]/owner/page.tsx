@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/atoms/select"
 import SaveButton from "@/components/molecules/SaveButton"
+import { OrganizationMemberFormSkeleton } from "@/components/templates/member/organizations/OrganizationMemberForm.skeleton"
 
 export default function ChangeOwnerPage() {
   const router = useRouter()
@@ -38,18 +39,33 @@ export default function ChangeOwnerPage() {
   const organizationId = params?.id
   const [members, setMembers] = useState<any[]>([])
   const [ownerId, setOwnerId] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(true)
   const form = useForm<{ owner: string }>({ defaultValues: { owner: "" } })
 
   useEffect(() => {
+    let active = true
+
     ;(async () => {
-      if (!organizationId) return
+      if (!organizationId) {
+        if (active) setIsLoading(false)
+        return
+      }
       const org = (await getMyOrganizationById(organizationId)) as {
         ownerUserId: string | null
       } | null
       const rows = await getMyOrganizationMembers(organizationId)
+      if (!active) return
       setMembers(rows)
-      setOwnerId(org?.ownerUserId || "")
+      const nextOwnerId = org?.ownerUserId || ""
+      setOwnerId(nextOwnerId)
+      form.reset({ owner: nextOwnerId })
+      setIsLoading(false)
     })()
+
+    return () => {
+      active = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId])
 
   async function onSubmit(e: React.FormEvent) {
@@ -58,6 +74,10 @@ export default function ChangeOwnerPage() {
     const res = await updateOrganizationOwnerAction(organizationId, ownerId)
     if ((res as any)?.error) return alert((res as any).error)
     router.push(memberOrganizationPath(organizationId))
+  }
+
+  if (isLoading) {
+    return <OrganizationMemberFormSkeleton actionLabelWidth="6.5rem" />
   }
 
   return (

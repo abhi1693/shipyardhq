@@ -134,7 +134,9 @@ export const getUserProfilePayload = cached(
         earliestLaunchTime = launchTime
         earliestLaunchISO = launchedAt ? launchedAt.toISOString() : null
       }
-      const metaLabel = launchedAt ? format(launchedAt, "MMM d, yyyy") : undefined
+      const metaLabel = launchedAt
+        ? format(launchedAt, "MMM d, yyyy")
+        : undefined
       const directoryItem: DirectoryProductItem = {
         id: product.id,
         slug: product.slug,

@@ -11,13 +11,20 @@ type BrandLogoProps = Omit<ImageProps, "src" | "alt"> & {
 export function BrandLogo({
   className,
   alt = "ShipYardHQ",
-  ...props
+  preload = false,
+  loading,
+  fetchPriority,
+  width,
+  height,
+  ...restProps
 }: BrandLogoProps) {
   const shared = {
-    ...props,
-    width: props.width ?? 32,
-    height: props.height ?? 32,
-    priority: props.priority ?? false,
+    ...restProps,
+    preload,
+    loading: loading ?? (preload ? "eager" : undefined),
+    fetchPriority: fetchPriority ?? (preload ? "high" : undefined),
+    width: width ?? 32,
+    height: height ?? 32,
   }
 
   return (
