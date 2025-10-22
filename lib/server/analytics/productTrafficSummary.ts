@@ -43,6 +43,7 @@ interface SummaryOptions {
   productIds?: string[]
   organizationId?: string
   cacheTier?: CacheTier
+  includeBots?: boolean
 }
 interface TrafficCacheKeyParts {
   context: SummaryOptions["context"]
@@ -55,6 +56,7 @@ interface TrafficCacheKeyParts {
   includeProductBreakdown: boolean
   includeReferrerMatrix: boolean
   cacheTier: CacheTier
+  includeBots: boolean
 }
 
 function hashProductIds(ids: string[]): string {
@@ -75,6 +77,7 @@ function buildTrafficSummaryCacheKey(parts: TrafficCacheKeyParts): string {
     includeProductBreakdown,
     includeReferrerMatrix,
     cacheTier,
+    includeBots,
   } = parts
 
   let scopeToken = "scope:global"
@@ -99,6 +102,7 @@ function buildTrafficSummaryCacheKey(parts: TrafficCacheKeyParts): string {
     `productBreakdown:${includeProductBreakdown ? 1 : 0}`,
     `referrerMatrix:${includeReferrerMatrix ? 1 : 0}`,
     `tier:${cacheTier}`,
+    `bots:${includeBots ? 1 : 0}`,
   )
 }
 
@@ -270,6 +274,7 @@ async function buildTrafficSummary(
     includeAdvanced = true,
     productIds: explicitProductIds,
     organizationId,
+    includeBots = false,
   } = options
 
   const includeAdvancedMetrics = includeAdvanced
@@ -305,6 +310,7 @@ async function buildTrafficSummary(
     includeProductBreakdown,
     includeReferrerMatrix,
     cacheTier,
+    includeBots,
   })
   const cacheTtlSeconds = resolveCacheTtl(cacheTier)
 
@@ -318,6 +324,7 @@ async function buildTrafficSummary(
         organizationId: organizationId ?? null,
         rangeDays: windowDays,
         cacheTier,
+        includeBots,
         error,
       })
     },
@@ -344,6 +351,7 @@ async function buildTrafficSummary(
         ipHash: true,
         path: true,
         productId: true,
+        isBot: true,
       },
     }),
     previousComparison
@@ -362,6 +370,7 @@ async function buildTrafficSummary(
             country: true,
             referrer: true,
             productId: true,
+            isBot: true,
           },
         })
       : Promise.resolve([]),
@@ -410,14 +419,26 @@ async function buildTrafficSummary(
   const previousPathCounts = new Map<string, number>()
   const previousCountryCounts = new Map<string, number>()
 
+  let includedViewCount = 0
+  let botViews = 0
   let anonymousUnique = 0
   let viewsToday = 0
   let viewsSevenDays = 0
+  let previousIncludedViews = 0
+  let previousBotViews = 0
 
   const lastSevenStart = subDays(today, 6)
   const todayKey = formatISO(today, { representation: "date" })
 
   for (const event of events) {
+    if (event.isBot) {
+      botViews += 1
+      if (!includeBots) {
+        continue
+      }
+    }
+
+    includedViewCount += 1
     const dayStart = startOfDay(event.createdAt)
     const dayKey = formatISO(dayStart, { representation: "date" })
     totalsByDay.set(dayKey, (totalsByDay.get(dayKey) ?? 0) + 1)
@@ -538,6 +559,14 @@ async function buildTrafficSummary(
   }
 
   for (const prev of previousEvents) {
+    if (prev.isBot) {
+      previousBotViews += 1
+      if (!includeBots) {
+        continue
+      }
+    }
+
+    previousIncludedViews += 1
     if (prev.path) {
       previousPathCounts.set(
         prev.path,
@@ -551,17 +580,19 @@ async function buildTrafficSummary(
     )
   }
 
-  const totalViews = events.length
+  const totalViews = includedViewCount
   const uniqueVisitors = uniqueHashes.size + anonymousUnique
 
-  let previousViews = 0
+  let previousViews = previousIncludedViews
   let previousUnique = 0
 
   if (previousComparison && previousEvents.length) {
     const prevHashes = new Set<string>()
     let prevAnonymous = 0
     for (const prev of previousEvents) {
-      previousViews += 1
+      if (prev.isBot && !includeBots) {
+        continue
+      }
       if (prev.ipHash) {
         prevHashes.add(prev.ipHash)
       } else {
@@ -1202,6 +1233,8 @@ async function buildTrafficSummary(
     upvotesChange,
     upvoteConversionRate,
     upvoteConversionRateChange,
+    botViews,
+    previousBotViews,
     topCountry: topCountry
       ? { country: topCountry.country, views: topCountry.views }
       : undefined,
@@ -1220,6 +1253,9 @@ async function buildTrafficSummary(
     osConversionBreakdown,
     engagementOverTime,
     advanced,
+    filters: {
+      includeBots,
+    },
   }
 
   await cacheMiss({
@@ -1234,6 +1270,7 @@ async function buildTrafficSummary(
         organizationId: organizationId ?? null,
         rangeDays: windowDays,
         cacheTier,
+        includeBots,
         error,
       })
     },
