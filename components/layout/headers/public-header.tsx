@@ -99,7 +99,7 @@ export default function PublicHeader() {
               height={32}
               sizes="(max-width: 768px) 24px, 32px"
               className="h-8 w-8"
-              priority
+              preload
             />
             <span className="flex flex-col leading-tight">
               <span className="text-[10px] font-semibold uppercase tracking-[0.4em] text-muted-foreground">

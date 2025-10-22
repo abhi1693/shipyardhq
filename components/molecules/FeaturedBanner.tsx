@@ -29,7 +29,9 @@ export default function FeaturedBanner({
             className="object-cover"
             sizes="100vw"
             quality={95}
-            priority
+            preload
+            loading="eager"
+            fetchPriority="high"
           />
         ) : (
           <div className="absolute inset-0 grid place-items-center text-muted-foreground">

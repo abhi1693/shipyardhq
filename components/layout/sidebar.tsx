@@ -120,7 +120,7 @@ export default function AppSidebar(props: SidebarProps) {
             width={28}
             height={28}
             className="h-7 w-7 rounded-sm"
-            priority
+            preload
           />
           <span className="text-base md:text-lg font-bold tracking-tight text-[color:var(--brand-1)] group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none">
             ShipYardHQ

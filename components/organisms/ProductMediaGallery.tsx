@@ -103,7 +103,9 @@ export function ProductMediaGallery({
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1100px"
               quality={95}
               className="object-contain transition-opacity duration-200"
-              priority={currentIndex === 0}
+              preload={currentIndex === 0}
+              loading={currentIndex === 0 ? "eager" : "lazy"}
+              fetchPriority={currentIndex === 0 ? "high" : "auto"}
             />
           </div>
           {totalAssets > 1 ? (
