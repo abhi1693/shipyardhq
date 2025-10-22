@@ -5,7 +5,7 @@ import { Product } from "@/lib/vendor/prisma/client"
 import { formatDate, image, linkify } from "@/lib/ui/formatters"
 import Link from "next/link"
 import { Button } from "@/components/atoms/button"
-import { Eye, Pencil } from "lucide-react"
+import { Pencil } from "lucide-react"
 import DeleteButton from "@/components/molecules/DeleteButton"
 import { adminPath } from "@/lib/routes"
 
@@ -41,10 +41,6 @@ export const columns: ColumnDef<AdminProductRow>[] = [
       }),
   },
   {
-    accessorKey: "status",
-    header: "Status",
-  },
-  {
     id: "price",
     header: "Price",
     cell: ({ row }) => {
@@ -78,20 +74,10 @@ export const columns: ColumnDef<AdminProductRow>[] = [
     cell: ({ row }) => formatDate(row.original.createdAt),
   },
   {
-    accessorKey: "updatedAt",
-    header: "Updated At",
-    cell: ({ row }) => formatDate(row.original.updatedAt),
-  },
-  {
     id: "actions",
     header: () => null,
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-2">
-        <Link href={adminPath("products", row.original.id)}>
-          <Button size="sm" variant="outline">
-            <Eye className="h-4 w-4" /> View
-          </Button>
-        </Link>
         <Link href={adminPath("products", row.original.id, "edit")}>
           <Button size="sm" variant="outline">
             <Pencil className="h-4 w-4" /> Edit

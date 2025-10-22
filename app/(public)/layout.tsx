@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import PublicHeader from "@/components/layout/headers/public-header"
 import PublicFooter from "@/components/layout/footers/public-footer"
 import {
@@ -33,7 +35,9 @@ export default async function PublicLayout({
   return (
     <StickyBannerProvider products={stickyBannerProducts}>
       <div className="min-h-screen flex flex-col bg-white">
-        <PublicHeader />
+        <Suspense fallback={null}>
+          <PublicHeader />
+        </Suspense>
         <StickyBannerRegion priority={0} mode="deferred" />
         <main className="flex-1">{children}</main>
         <PublicFooter useCases={footerUseCases} />
