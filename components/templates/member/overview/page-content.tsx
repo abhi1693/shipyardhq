@@ -411,9 +411,10 @@ async function QuickTasksSection({
 
   return (
     <section className="grid gap-4 lg:grid-cols-2">
-      {taskCards.map((card) => (
-        <TaskCollection key={card.key} {...card} />
-      ))}
+      {taskCards.map((card) => {
+        const { key, ...rest } = card
+        return <TaskCollection key={key} {...rest} />
+      })}
     </section>
   )
 }
