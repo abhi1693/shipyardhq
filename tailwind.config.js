@@ -25,6 +25,16 @@ module.exports = {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "SFMono-Regular", "Menlo", "monospace"],
       },
+      keyframes: {
+        shimmer: {
+          "0%": { transform: "translateX(-100%)" },
+          "50%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 2.2s ease-in-out infinite",
+      },
     },
   },
 }

@@ -1,8 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react"
-import { Skeleton } from "@/components/atoms/skeleton"
 import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
+import { ProductCompactGridSkeleton } from "@/components/molecules/ProductCompactGrid.skeleton"
 
 import { loadMoreProducts } from "@/actions/public/browse/loadMore"
 import type { CompactProductItem } from "@/components/molecules/ProductCompactGrid"
@@ -127,26 +127,7 @@ export default function ProductGridClient({
     <section className="space-y-6">
       <ProductCompactGrid items={products} />
 
-      {isPending && (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={`sk-${i}`}
-              className="rounded-lg border border-[color:var(--brand-1)/0.15] bg-card/60 p-4"
-              data-testid="product-card-skeleton"
-            >
-              <div className="flex items-start gap-3">
-                <Skeleton className="h-10 w-10 rounded-md" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-full" />
-                </div>
-                <Skeleton className="h-5 w-12" />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {isPending && <ProductCompactGridSkeleton count={8} />}
 
       {hasMore ? (
         <div

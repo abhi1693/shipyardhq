@@ -5,6 +5,9 @@ import { Share2, Sparkles } from "lucide-react"
 import CopyButton from "@/components/molecules/CopyButton"
 import InteractiveTrendRadar from "@/components/organisms/InteractiveTrendRadar"
 import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
+import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
+import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
+import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { siteConfig } from "@/lib/siteConfig"
 import { BROWSE_PATH, TRENDS_EMBED_PATH } from "@/lib/routes"
 import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
@@ -223,57 +226,161 @@ export async function TrendsPageContent() {
 }
 
 export function TrendsPageSkeleton() {
+  const leaderboardPlaceholders = Array.from({ length: 5 })
+  const statPlaceholders = Array.from({ length: 4 })
+
   return (
     <main className="relative isolate bg-white">
-      <section className="relative isolate overflow-hidden border border-border/40 py-16 shadow-[0_60px_140px_-60px_rgba(18,66,112,0.2)]">
+      <section className="relative isolate overflow-hidden border border-border/40 bg-[linear-gradient(135deg,rgba(7,78,134,0.08),rgba(14,165,233,0.1))] py-16 shadow-[0_60px_140px_-60px_rgba(18,66,112,0.25)]">
         <div className="relative mx-auto flex max-w-[80rem] flex-col gap-8 px-4 text-center md:px-8 md:text-left">
-          <Skeleton className="mx-auto h-10 w-56 rounded-full md:mx-0" />
-          <div className="space-y-4 md:max-w-3xl">
-            <Skeleton className="h-12 w-3/4" />
-            <Skeleton className="h-4 w-full" />
-          </div>
+          <BadgeSkeleton
+            variant="default"
+            leadingIcon
+            labelWidth="8.5rem"
+            className="mx-auto md:mx-0"
+          />
+          <HeadingSkeleton lines={2} centered={false} className="md:max-w-3xl" />
+          <Skeleton
+            className="mx-auto h-4 w-3/4 rounded-full md:mx-0 md:w-2/3"
+            tone="muted"
+          />
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:justify-start">
-            <Skeleton className="h-11 w-40 rounded-full" />
-            <Skeleton className="h-11 w-48 rounded-full" />
+            <ButtonSkeleton size="lg" labelWidth="8.5rem" />
+            <ButtonSkeleton
+              size="lg"
+              variant="outline"
+              labelWidth="9rem"
+              className="text-white"
+            />
           </div>
-          <Skeleton className="h-4 w-64" />
+          <Skeleton className="mx-auto h-3 w-64 rounded-full md:mx-0" tone="muted" />
         </div>
       </section>
 
       <div className="mx-auto max-w-[84rem] px-4 pb-24 pt-12 md:px-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)]">
           <div className="space-y-8">
-            <Skeleton className="h-[420px] rounded-3xl" />
+            <Skeleton
+              tone="soft"
+              radius="lg"
+              shimmer={false}
+              className="rounded-3xl border border-border bg-white/90 shadow-sm"
+            >
+              <div className="flex h-[420px] flex-col items-center justify-center gap-6 p-8">
+                <Skeleton className="size-28 rounded-full" tone="muted" />
+                <Skeleton className="h-3 w-2/3 rounded-full" tone="muted" />
+                <Skeleton className="h-3 w-40 rounded-full" tone="muted" />
+              </div>
+            </Skeleton>
+
             <section className="grid gap-6 rounded-3xl border border-border bg-white p-6 shadow-sm md:grid-cols-2">
               {Array.from({ length: 2 }).map((_, column) => (
-                <div key={column} className="space-y-3">
-                  <Skeleton className="h-6 w-40" />
-                  <Skeleton className="h-4 w-60" />
+                <div key={column} className="space-y-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 w-40 rounded-full" tone="muted" />
+                    <Skeleton className="h-2.5 w-60 rounded-full" tone="muted" />
+                  </div>
                   <div className="space-y-3">
-                    {Array.from({ length: 5 }).map((_, row) => (
-                      <Skeleton key={row} className="h-16 rounded-2xl" />
+                    {leaderboardPlaceholders.map((_, row) => (
+                      <Skeleton
+                        key={row}
+                        tone="soft"
+                        radius="lg"
+                        shimmer={false}
+                        className="flex items-center justify-between gap-4 rounded-2xl border border-border/70 bg-white/70 px-4 py-3"
+                      >
+                        <div className="space-y-2">
+                          <Skeleton className="h-2.5 w-36 rounded-full" tone="muted" />
+                          <Skeleton className="h-2 w-44 rounded-full" tone="muted" />
+                        </div>
+                        <Skeleton className="h-2.5 w-10 rounded-full" tone="brand" />
+                      </Skeleton>
                     ))}
                   </div>
                 </div>
               ))}
             </section>
-            <section className="rounded-3xl border border-border bg-white p-6 shadow-sm">
-              <Skeleton className="h-6 w-48" />
-              <Skeleton className="mt-2 h-4 w-72" />
-              <Skeleton className="mt-4 h-24 rounded-xl" />
-            </section>
+
+            <Skeleton
+              tone="soft"
+              radius="lg"
+              shimmer={false}
+              className="rounded-3xl border border-border bg-white p-6 shadow-sm"
+            >
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-48 rounded-full" tone="muted" />
+                  <Skeleton className="h-2.5 w-72 rounded-full" tone="muted" />
+                </div>
+                <ButtonSkeleton
+                  size="sm"
+                  variant="secondary"
+                  labelWidth="8rem"
+                  className="w-44"
+                />
+              </div>
+              <Skeleton
+                className="mt-6 h-28 rounded-xl"
+                tone="muted"
+                shimmer={false}
+              />
+            </Skeleton>
           </div>
+
           <aside className="flex flex-col gap-6">
-            <section className="rounded-3xl border border-border bg-white p-6 shadow-sm">
-              <Skeleton className="h-6 w-48" />
-              <Skeleton className="mt-2 h-4 w-64" />
+            <Skeleton
+              tone="soft"
+              radius="lg"
+              shimmer={false}
+              className="rounded-3xl border border-border bg-white p-6 shadow-sm"
+            >
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-48 rounded-full" tone="muted" />
+                <Skeleton className="h-2.5 w-64 rounded-full" tone="muted" />
+              </div>
               <div className="mt-6 grid grid-cols-2 gap-4">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <Skeleton key={index} className="h-24 rounded-2xl" />
+                {statPlaceholders.map((_, index) => (
+                  <Skeleton
+                    key={index}
+                    tone="soft"
+                    shimmer={false}
+                    radius="lg"
+                    className="rounded-2xl border border-border/70 bg-white/80 p-4"
+                  >
+                    <Skeleton className="h-2 w-24 rounded-full" tone="muted" />
+                    <Skeleton className="mt-3 h-4 w-20 rounded-full" tone="brand" />
+                  </Skeleton>
                 ))}
               </div>
-            </section>
-            <Skeleton className="h-[360px] rounded-3xl" />
+            </Skeleton>
+            <Skeleton
+              tone="soft"
+              radius="lg"
+              shimmer={false}
+              className="h-[360px] rounded-3xl border border-border bg-white shadow-sm"
+            >
+              <div className="flex h-full flex-col justify-between p-6">
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-52 rounded-full" tone="muted" />
+                  <Skeleton className="h-2.5 w-40 rounded-full" tone="muted" />
+                </div>
+                <div className="space-y-3">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <Skeleton
+                      key={idx}
+                      className="h-2.5 w-full rounded-full"
+                      tone="muted"
+                    />
+                  ))}
+                </div>
+                <ButtonSkeleton
+                  variant="outline"
+                  size="sm"
+                  labelWidth="7rem"
+                  className="self-end"
+                />
+              </div>
+            </Skeleton>
           </aside>
         </div>
       </div>

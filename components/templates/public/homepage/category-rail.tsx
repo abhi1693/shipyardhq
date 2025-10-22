@@ -1,5 +1,7 @@
 import { getTopCategories } from "@/actions/public/products/featured"
 import { DirectoryCategoryRail } from "@/components/organisms/directory/CategoryRail"
+import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
+import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { Skeleton } from "@/components/atoms/skeleton"
 import { HOMEPAGE_CATEGORY_RAIL_LIMIT } from "./constants"
 
@@ -10,16 +12,26 @@ export async function CategoryRailSection() {
 
 export function CategoryRailSkeleton() {
   return (
-    <section className="rounded-3xl border border-border bg-white p-6 shadow-sm">
-      <Skeleton className="h-6 w-40" />
-      <Skeleton className="mt-2 h-4 w-4/5" />
-      <div className="mt-6 space-y-3">
+    <Skeleton
+      tone="soft"
+      radius="lg"
+      shimmer={false}
+      className="rounded-3xl border border-border bg-white p-6 shadow-sm"
+    >
+      <HeadingSkeleton className="max-w-xl" lines={2} />
+      <div className="mt-6 flex flex-wrap gap-3">
         {Array.from({ length: HOMEPAGE_CATEGORY_RAIL_LIMIT }).map(
           (_, index) => (
-            <Skeleton key={index} className="h-10 rounded-2xl" />
+            <BadgeSkeleton
+              key={index}
+              variant="outline"
+              labelWidth="6rem"
+              leadingIcon
+              className="h-9"
+            />
           ),
         )}
       </div>
-    </section>
+    </Skeleton>
   )
 }
