@@ -22,12 +22,12 @@ type LeaderboardProduct = Awaited<
 export default async function RankInPublicPage() {
   const authResult = await auth()
 
+  const leaderboardLimit = 8
+
   const [initialMatchup, leaderboard] = await Promise.all([
     getVersusMatchup({ clerkUserId: authResult?.userId }),
-    getTopRankedProducts({ limit: 12 }),
+    getTopRankedProducts({ limit: leaderboardLimit }),
   ])
-
-  const topEight = leaderboard.slice(0, 8)
 
   return (
     <main className="relative isolate bg-white">
@@ -43,7 +43,7 @@ export default async function RankInPublicPage() {
             />
             <div className="mt-8">
               <DirectoryProductList
-                items={topEight.map((product: LeaderboardProduct) => {
+                items={leaderboard.map((product: LeaderboardProduct) => {
                   const activeBadges = (product.ProductBadge ?? []).filter(
                     (badge) =>
                       !badge.expiresAt ||
