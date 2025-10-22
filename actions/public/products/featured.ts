@@ -159,7 +159,7 @@ export const getFeaturedByCategorySlug = cached(
 
 // Get products that have the stickyBanner plan feature enabled
 export const getStickyBannerProducts = cached(
-  async (limit = 12) => {
+  async (limit = 100) => {
     const now = new Date()
     const [schedules, planProducts] = await Promise.all([
       prisma.placementSchedule.findMany({

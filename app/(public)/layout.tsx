@@ -17,7 +17,7 @@ export default async function PublicLayout({
 }) {
   const [useCases, stickyBannerProducts] = await Promise.all([
     getPublicUseCasesWithCounts(),
-    getStickyBannerProducts(12),
+    getStickyBannerProducts(),
   ])
 
   const footerUseCases = useCases
