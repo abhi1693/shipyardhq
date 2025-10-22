@@ -1,4 +1,3 @@
-import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { pluralize } from "@/lib/pluralize"
 import { getBrowseProducts } from "@/actions/public/browse/actions"
 import { getProducts } from "@/actions/public/products/featured"
@@ -75,118 +74,95 @@ const normalizeFilters = (filters: BrowsePageFilters): BrowsePageFilters => {
   }
 }
 
-export const getBrowsePagePayload = cached(
-  async (input: BrowsePageFilters): Promise<BrowsePagePayload> => {
-    const filters = normalizeFilters(input)
+export const getBrowsePagePayload = async (
+  input: BrowsePageFilters,
+): Promise<BrowsePagePayload> => {
+  const filters = normalizeFilters(input)
 
-    const [
-      browseResult,
-      featured,
-      useCases,
-      categoriesRaw,
-      stats,
-      latestProductUpdates,
-    ] = await Promise.all([
-      getBrowseProducts({
-        useCaseSlug: filters.useCase,
-        categorySlug: filters.category,
-        verified: filters.verified,
-        sort: filters.sort,
-        page: filters.page,
-        query: filters.query,
-      }),
-      getProducts("featured"),
-      getUseCasesWithCounts(),
-      getCategories(CATEGORY_QUERY) as Promise<CategoryWithProductCount[]>,
-      getLeaderboardStats(),
-      getLatestPublicProductUpdates(6),
-    ])
+  const [
+    browseResult,
+    featured,
+    useCases,
+    categoriesRaw,
+    stats,
+    latestProductUpdates,
+  ] = await Promise.all([
+    getBrowseProducts({
+      useCaseSlug: filters.useCase,
+      categorySlug: filters.category,
+      verified: filters.verified,
+      sort: filters.sort,
+      page: filters.page,
+      query: filters.query,
+    }),
+    getProducts("featured"),
+    getUseCasesWithCounts(),
+    getCategories(CATEGORY_QUERY) as Promise<CategoryWithProductCount[]>,
+    getLeaderboardStats(),
+    getLatestPublicProductUpdates(6),
+  ])
 
-    const categories = categoriesRaw
-    const { products, hasMore } = browseResult
-    const sortLabel = browseSortLabelMap[filters.sort] ?? browseSortLabelMap.new
+  const categories = categoriesRaw
+  const { products, hasMore } = browseResult
+  const sortLabel = browseSortLabelMap[filters.sort] ?? browseSortLabelMap.new
 
-    const selectedUseCaseLabel = filters.useCase
-      ? useCases.find((entry) => entry.slug === filters.useCase)?.label
-      : undefined
+  const selectedUseCaseLabel = filters.useCase
+    ? useCases.find((entry) => entry.slug === filters.useCase)?.label
+    : undefined
 
-    const selectedCategoryLabel = filters.category
-      ? categories.find((entry) => entry.slug === filters.category)?.name
-      : undefined
+  const selectedCategoryLabel = filters.category
+    ? categories.find((entry) => entry.slug === filters.category)?.name
+    : undefined
 
-    const hasActiveFilters = Boolean(
-      filters.useCase ||
-        filters.category ||
-        filters.verified ||
-        (filters.query && filters.query.length > 0) ||
-        filters.sort !== "new",
-    )
+  const hasActiveFilters = Boolean(
+    filters.useCase ||
+      filters.category ||
+      filters.verified ||
+      (filters.query && filters.query.length > 0) ||
+      filters.sort !== "new",
+  )
 
-    const filterSummary: string[] = [
-      `Showing ${products.length} ${pluralize(products.length, "result")}`,
-      `Sorted by ${sortLabel}`,
-    ]
+  const filterSummary: string[] = [
+    `Showing ${products.length} ${pluralize(products.length, "result")}`,
+    `Sorted by ${sortLabel}`,
+  ]
 
-    if (selectedUseCaseLabel) {
-      filterSummary.push(`Use case: ${selectedUseCaseLabel}`)
-    }
+  if (selectedUseCaseLabel) {
+    filterSummary.push(`Use case: ${selectedUseCaseLabel}`)
+  }
 
-    if (selectedCategoryLabel) {
-      filterSummary.push(`Category: ${selectedCategoryLabel}`)
-    }
+  if (selectedCategoryLabel) {
+    filterSummary.push(`Category: ${selectedCategoryLabel}`)
+  }
 
-    if (filters.verified) {
-      filterSummary.push("Verified makers only")
-    }
+  if (filters.verified) {
+    filterSummary.push("Verified makers only")
+  }
 
-    const headline = filters.query
-      ? `Searching “${filters.query}”`
-      : selectedCategoryLabel
-        ? `${selectedCategoryLabel} launches`
-        : selectedUseCaseLabel
-          ? `${selectedUseCaseLabel} playbook`
-          : filters.verified
-            ? "Verified launches"
-            : "Browse every Shipyard launch"
+  const headline = filters.query
+    ? `Searching “${filters.query}”`
+    : selectedCategoryLabel
+      ? `${selectedCategoryLabel} launches`
+      : selectedUseCaseLabel
+        ? `${selectedUseCaseLabel} playbook`
+        : filters.verified
+          ? "Verified launches"
+          : "Browse every Shipyard launch"
 
-    return {
-      filters,
-      products,
-      hasMore,
-      featured,
-      useCases,
-      categories,
-      stats,
-      latestProductUpdates,
-      sortLabel,
-      filterSummary,
-      headline,
-      hasActiveFilters,
-      selectedUseCaseLabel,
-      selectedCategoryLabel,
-    }
-  },
-  "browse:payload",
-  {
-    ttl: DEFAULT_TTL.medium,
-    keyParts: ([filters]) => {
-      const parts = [
-        `useCase:${filters.useCase ?? "all"}`,
-        `category:${filters.category ?? "all"}`,
-        `verified:${filters.verified ? "true" : "false"}`,
-        `sort:${filters.sort}`,
-        `page:${filters.page}`,
-        filters.query ? `q:${filters.query.toLowerCase()}` : null,
-      ].filter((value): value is string => Boolean(value))
-      return parts
-    },
-    tags: () => [
-      TAGS.browse,
-      TAGS.products,
-      TAGS.categories,
-      TAGS.leaderboard,
-      TAGS.productUpdatesLatest,
-      TAGS.useCases,
-    ],
-  },
-)
+  return {
+    filters,
+    products,
+    hasMore,
+    featured,
+    useCases,
+    categories,
+    stats,
+    latestProductUpdates,
+    sortLabel,
+    filterSummary,
+    headline,
+    hasActiveFilters,
+    selectedUseCaseLabel,
+    selectedCategoryLabel,
+  }
+}
