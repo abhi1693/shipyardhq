@@ -19,7 +19,10 @@ export function UseCaseDetailSkeleton() {
                 className="h-7 bg-white/15"
               />
               <HeadingSkeleton lines={2} centered className="text-white" />
-              <Skeleton className="mx-auto h-3 w-3/4 rounded-full" tone="muted" />
+              <Skeleton
+                className="mx-auto h-3 w-3/4 rounded-full"
+                tone="muted"
+              />
             </div>
             <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.28em] text-white/80">
               {Array.from({ length: 3 }).map((_, index) => (
@@ -68,7 +71,12 @@ export function UseCaseDetailSkeleton() {
               count={9}
               columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
             />
-            <ButtonSkeleton size="sm" variant="outline" labelWidth="9rem" className="mx-auto" />
+            <ButtonSkeleton
+              size="sm"
+              variant="outline"
+              labelWidth="9rem"
+              className="mx-auto"
+            />
           </div>
         </section>
 

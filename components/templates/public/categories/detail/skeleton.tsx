@@ -35,7 +35,11 @@ function HeroSkeleton() {
                 className="h-7 bg-white/15"
               />
               <div className="space-y-3">
-                <HeadingSkeleton lines={2} centered={false} className="text-white" />
+                <HeadingSkeleton
+                  lines={2}
+                  centered={false}
+                  className="text-white"
+                />
                 <Skeleton className="h-3 w-3/4 rounded-full" tone="muted" />
               </div>
               <div className="flex flex-wrap gap-2">
@@ -90,10 +94,7 @@ function FeaturedSkeleton() {
           className="rounded-3xl border border-border/70 bg-white/95"
           showHeader={false}
         />
-        <ProductCompactGridSkeleton
-          count={3}
-          columns="grid-cols-1"
-        />
+        <ProductCompactGridSkeleton count={3} columns="grid-cols-1" />
       </div>
     </section>
   )
@@ -109,7 +110,12 @@ function ProductsSkeleton() {
           count={8}
           columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         />
-        <ButtonSkeleton size="sm" variant="outline" labelWidth="8rem" className="mx-auto" />
+        <ButtonSkeleton
+          size="sm"
+          variant="outline"
+          labelWidth="8rem"
+          className="mx-auto"
+        />
       </div>
     </section>
   )

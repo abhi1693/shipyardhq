@@ -27,7 +27,10 @@ export function BrowsePageSkeleton() {
                     />
                     <Skeleton className="h-3 w-60 rounded-full" tone="muted" />
                   </div>
-                  <Skeleton className="h-3 w-28 rounded-full sm:h-2.5" tone="muted" />
+                  <Skeleton
+                    className="h-3 w-28 rounded-full sm:h-2.5"
+                    tone="muted"
+                  />
                 </div>
 
                 <div className="mt-6 space-y-6">
@@ -38,7 +41,10 @@ export function BrowsePageSkeleton() {
                     showBadges
                     showMetaBadge
                   />
-                  <Skeleton className="mx-auto h-10 w-48 rounded-full" tone="soft" />
+                  <Skeleton
+                    className="mx-auto h-10 w-48 rounded-full"
+                    tone="soft"
+                  />
                 </div>
               </section>
             </div>

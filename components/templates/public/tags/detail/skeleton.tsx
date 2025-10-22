@@ -22,7 +22,11 @@ export function TagDetailSkeleton() {
         <div className="space-y-10">
           <section className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-6 sm:px-6">
             <div className="space-y-2">
-              <HeadingSkeleton lines={1} centered={false} className="max-w-sm" />
+              <HeadingSkeleton
+                lines={1}
+                centered={false}
+                className="max-w-sm"
+              />
               <Skeleton className="h-3 w-64 rounded-full" tone="muted" />
             </div>
             <TagCloudSkeleton />
@@ -31,7 +35,11 @@ export function TagDetailSkeleton() {
           <section className="space-y-6 rounded-3xl border border-slate-200 bg-white px-5 py-6 shadow-sm sm:px-6">
             <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-6">
               <div className="space-y-1">
-                <HeadingSkeleton lines={1} centered={false} className="max-w-sm" />
+                <HeadingSkeleton
+                  lines={1}
+                  centered={false}
+                  className="max-w-sm"
+                />
                 <Skeleton className="h-3 w-48 rounded-full" tone="muted" />
               </div>
               <Skeleton className="h-3 w-32 rounded-full" tone="muted" />

@@ -40,7 +40,10 @@ function ProductHeroSkeleton() {
     <section className="space-y-6 rounded-3xl border border-border bg-white px-6 py-7 shadow-sm">
       <header className="flex flex-col gap-6 sm:flex-row sm:items-start">
         <div className="flex gap-5">
-          <Skeleton className="h-20 w-20 shrink-0 rounded-2xl border border-border/70" tone="soft" />
+          <Skeleton
+            className="h-20 w-20 shrink-0 rounded-2xl border border-border/70"
+            tone="soft"
+          />
           <div className="min-w-0 space-y-4">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
@@ -55,7 +58,11 @@ function ProductHeroSkeleton() {
                   className="h-6"
                 />
               </div>
-              <HeadingSkeleton lines={1} centered={false} className="max-w-xl" />
+              <HeadingSkeleton
+                lines={1}
+                centered={false}
+                className="max-w-xl"
+              />
               <Skeleton className="h-3 w-72 rounded-full" tone="muted" />
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -114,7 +121,12 @@ function ProductHeroSkeleton() {
       <div className="rounded-2xl border border-dashed border-border/70 bg-muted/20 p-4">
         <Skeleton className="h-3 w-48 rounded-full" tone="muted" />
         <Skeleton className="mt-2 h-3 w-3/4 rounded-full" tone="muted" />
-        <ButtonSkeleton size="sm" variant="outline" labelWidth="8rem" className="mt-4" />
+        <ButtonSkeleton
+          size="sm"
+          variant="outline"
+          labelWidth="8rem"
+          className="mt-4"
+        />
       </div>
     </section>
   )
@@ -288,7 +300,10 @@ function NewsletterSkeleton() {
       <HeadingSkeleton lines={1} centered className="max-w-xs mx-auto" />
       <Skeleton className="mx-auto mt-3 h-3 w-3/4 rounded-full" tone="muted" />
       <div className="mt-6 space-y-3">
-        <Skeleton className="mx-auto h-10 w-full max-w-xs rounded-full" tone="soft" />
+        <Skeleton
+          className="mx-auto h-10 w-full max-w-xs rounded-full"
+          tone="soft"
+        />
         <ButtonSkeleton size="lg" labelWidth="9rem" />
       </div>
     </section>
@@ -301,12 +316,14 @@ function SimilarVoyagesSkeleton() {
       <HeadingSkeleton lines={1} centered={false} className="max-w-sm" />
       <Skeleton className="mt-2 h-3 w-2/3 rounded-full" tone="muted" />
       <div className="mt-6">
-        <ProductCompactGridSkeleton
-          count={4}
-          columns="grid-cols-1"
-        />
+        <ProductCompactGridSkeleton count={4} columns="grid-cols-1" />
       </div>
-      <ButtonSkeleton size="sm" variant="outline" labelWidth="9rem" className="mt-6" />
+      <ButtonSkeleton
+        size="sm"
+        variant="outline"
+        labelWidth="9rem"
+        className="mt-6"
+      />
     </section>
   )
 }

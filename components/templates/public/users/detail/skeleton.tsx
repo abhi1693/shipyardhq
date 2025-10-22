@@ -22,7 +22,10 @@ export function UserProfileSkeleton() {
                     showMetaBadge
                     showBadges
                   />
-                  <Skeleton className="mx-auto h-10 w-48 rounded-full" tone="soft" />
+                  <Skeleton
+                    className="mx-auto h-10 w-48 rounded-full"
+                    tone="soft"
+                  />
                 </div>
               </section>
             </div>
@@ -133,7 +136,11 @@ function SidebarListSkeleton({
 }) {
   return (
     <section className="rounded-3xl border border-border/70 bg-background/90 p-6 shadow-sm shadow-black/5">
-      <Skeleton className={`h-2.5 rounded-full`} tone="muted" style={{ width: titleWidth }} />
+      <Skeleton
+        className={`h-2.5 rounded-full`}
+        tone="muted"
+        style={{ width: titleWidth }}
+      />
       <div className="mt-4 space-y-2">
         {Array.from({ length: rowCount }).map((_, index) => (
           <div

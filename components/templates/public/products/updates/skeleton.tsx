@@ -11,14 +11,21 @@ export function ProductUpdatesArchiveSkeleton() {
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-10">
           <header className="rounded-3xl border border-border/70 bg-white p-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <Skeleton className="h-16 w-16 rounded-lg border border-border/70" tone="soft" />
+              <Skeleton
+                className="h-16 w-16 rounded-lg border border-border/70"
+                tone="soft"
+              />
               <div className="flex-1 space-y-2">
                 <BadgeSkeleton
                   variant="outline"
                   labelWidth="8rem"
                   className="h-7"
                 />
-                <HeadingSkeleton lines={1} centered={false} className="max-w-sm" />
+                <HeadingSkeleton
+                  lines={1}
+                  centered={false}
+                  className="max-w-sm"
+                />
                 <Skeleton className="h-3 w-3/4 rounded-full" tone="muted" />
                 <ButtonSkeleton size="sm" variant="outline" labelWidth="7rem" />
               </div>

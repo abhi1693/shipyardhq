@@ -17,12 +17,20 @@ export function LeaderboardGuideSkeleton() {
                 leadingIcon
                 className="h-8"
               />
-              <HeadingSkeleton lines={2} centered={false} className="max-w-2xl" />
+              <HeadingSkeleton
+                lines={2}
+                centered={false}
+                className="max-w-2xl"
+              />
               <Skeleton className="h-3 w-3/4 rounded-full" tone="muted" />
               <Skeleton className="h-3 w-2/3 rounded-full" tone="muted" />
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <ButtonSkeleton size="lg" labelWidth="10rem" />
-                <ButtonSkeleton size="lg" variant="outline" labelWidth="14rem" />
+                <ButtonSkeleton
+                  size="lg"
+                  variant="outline"
+                  labelWidth="14rem"
+                />
               </div>
             </div>
 
@@ -46,8 +54,15 @@ export function LeaderboardGuideSkeleton() {
         <div className="mx-auto max-w-[84rem] px-4 md:px-8">
           <div className="mx-auto max-w-5xl space-y-12">
             <div className="space-y-3 text-center">
-              <HeadingSkeleton lines={1} centered className="max-w-xl mx-auto" />
-              <Skeleton className="mx-auto h-3 w-3/4 rounded-full" tone="muted" />
+              <HeadingSkeleton
+                lines={1}
+                centered
+                className="max-w-xl mx-auto"
+              />
+              <Skeleton
+                className="mx-auto h-3 w-3/4 rounded-full"
+                tone="muted"
+              />
             </div>
 
             <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
@@ -78,8 +93,15 @@ export function LeaderboardGuideSkeleton() {
         <div className="mx-auto max-w-[84rem] px-4 md:px-8">
           <div className="space-y-10">
             <div className="space-y-2 text-center">
-              <HeadingSkeleton lines={1} centered className="max-w-2xl mx-auto" />
-              <Skeleton className="mx-auto h-3 w-2/3 rounded-full" tone="muted" />
+              <HeadingSkeleton
+                lines={1}
+                centered
+                className="max-w-2xl mx-auto"
+              />
+              <Skeleton
+                className="mx-auto h-3 w-2/3 rounded-full"
+                tone="muted"
+              />
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
