@@ -1,7 +1,5 @@
 "use server"
 
-import { revalidateTag as nextRevalidateTag } from "next/cache"
-
 import prisma from "@/lib/prisma"
 import { slugify } from "@/lib/utils"
 import { Prisma } from "@/lib/vendor/prisma/client"
@@ -10,13 +8,8 @@ import {
   revalidateCategory,
   revalidateProducts,
 } from "@/lib/cache/revalidate"
+import { revalidateTag } from "@/lib/cache/revalidateTag"
 import { cached } from "@/lib/cache"
-
-const REVALIDATE_PROFILE = "max" as const
-
-function revalidateTag(tag: string) {
-  nextRevalidateTag(tag, REVALIDATE_PROFILE)
-}
 
 export async function getCategories(args: Prisma.CategoryFindManyArgs = {}) {
   try {

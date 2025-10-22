@@ -1,11 +1,5 @@
-import { revalidateTag as nextRevalidateTag } from "next/cache"
+import { revalidateTag } from "./revalidateTag"
 import { TAGS } from "./tags"
-
-const REVALIDATE_PROFILE = "max" as const
-
-function revalidateTag(tag: string) {
-  nextRevalidateTag(tag, REVALIDATE_PROFILE)
-}
 
 export function revalidateHomepage() {
   revalidateTag(TAGS.homepage)

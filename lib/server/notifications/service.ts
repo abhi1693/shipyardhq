@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
-import { revalidateTag as nextRevalidateTag } from "next/cache"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
+import { revalidateTag } from "@/lib/cache/revalidateTag"
 import type { NotificationType, Prisma } from "@/lib/vendor/prisma/client"
 import type {
   NotificationItem,
@@ -11,11 +11,6 @@ import type {
 const DEFAULT_LIST_LIMIT = 20
 const MAX_LIST_LIMIT = 50
 const NOTIFICATIONS_CACHE_KEY = "notifications:list"
-const REVALIDATE_PROFILE = "max" as const
-
-function revalidateTag(tag: string) {
-  nextRevalidateTag(tag, REVALIDATE_PROFILE)
-}
 
 type ResolvedListOptions = {
   limit: number

@@ -22,6 +22,7 @@ import {
   revalidateTagsPage,
   revalidateRewardsLeaderboard,
 } from "@/lib/cache/revalidate"
+import { REVALIDATE_PROFILE } from "@/lib/cache/revalidateTag"
 
 beforeEach(() => {
   revalidateTagMock.mockClear()
@@ -29,7 +30,7 @@ beforeEach(() => {
 
 function expectRevalidateTags(...tags: string[]) {
   expect(revalidateTagMock.mock.calls).toEqual(
-    tags.map((tag) => [tag, "max"]),
+    tags.map((tag) => [tag, REVALIDATE_PROFILE]),
   )
 }
 
