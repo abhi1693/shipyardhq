@@ -21,6 +21,10 @@ module.exports = {
         gray: "#8492a6",
         "gray-light": "#d3dce6",
       },
+      fontFamily: {
+        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "SFMono-Regular", "Menlo", "monospace"],
+      },
     },
   },
 }
