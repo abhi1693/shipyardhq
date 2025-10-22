@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import DeleteButton from "@/components/molecules/DeleteButton"
+import { ConfirmationCardSkeleton } from "@/components/molecules/ConfirmationCard.skeleton"
 
 export default function DeleteOrganizationPage() {
   const router = useRouter()
@@ -22,17 +23,36 @@ export default function DeleteOrganizationPage() {
   const organizationId = params?.id
   const [orgName, setOrgName] = useState<string>("")
   const [orgUrl, setOrgUrl] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
+    let active = true
+
     ;(async () => {
-      if (!organizationId) return
+      if (!organizationId) {
+        if (active) setIsLoading(false)
+        return
+      }
+
       const org = (await getMyOrganizationById(organizationId)) as {
         name: string
         url: string
       } | null
-      if (!org) return router.replace(MEMBER_ORGANIZATIONS_PATH)
+
+      if (!org) {
+        if (active) setIsLoading(false)
+        router.replace(MEMBER_ORGANIZATIONS_PATH)
+        return
+      }
+
+      if (!active) return
       setOrgName(org.name)
       setOrgUrl(org.url)
+      setIsLoading(false)
     })()
+
+    return () => {
+      active = false
+    }
   }, [organizationId, router])
 
   async function onDelete() {
@@ -40,6 +60,10 @@ export default function DeleteOrganizationPage() {
     const res = await deleteMyOrganizationAction(organizationId)
     if ((res as any)?.error) return alert((res as any).error)
     router.push(MEMBER_ORGANIZATIONS_PATH)
+  }
+
+  if (isLoading) {
+    return <ConfirmationCardSkeleton />
   }
 
   return (

@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/atoms/input"
 import SaveButton from "@/components/molecules/SaveButton"
 import { ensureUrlHasSchema } from "@/lib/utils"
+import { OrganizationFormSkeleton } from "@/components/templates/member/organizations/OrganizationForm.skeleton"
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -50,23 +51,42 @@ export default function EditOrganizationPage() {
   const params = useParams<{ id: string }>()
   const organizationId = params?.id
   const [initial, setInitial] = useState<Values | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { name: "", url: "" },
   })
 
   useEffect(() => {
+    let active = true
+
     ;(async () => {
-      if (!organizationId) return
+      if (!organizationId) {
+        if (active) setIsLoading(false)
+        return
+      }
+
       const org = (await getMyOrganizationById(organizationId)) as {
         name: string
         url: string
       } | null
-      if (!org) return router.replace(MEMBER_ORGANIZATIONS_PATH)
+      if (!org) {
+        if (active) setIsLoading(false)
+        router.replace(MEMBER_ORGANIZATIONS_PATH)
+        return
+      }
+
       const normalizedUrl = ensureUrlHasSchema(org.url)
+      if (!active) return
+
       setInitial({ name: org.name, url: normalizedUrl })
       form.reset({ name: org.name, url: normalizedUrl })
+      setIsLoading(false)
     })()
+
+    return () => {
+      active = false
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId])
 
@@ -81,6 +101,10 @@ export default function EditOrganizationPage() {
       return
     }
     router.push(memberOrganizationPath(organizationId))
+  }
+
+  if (isLoading) {
+    return <OrganizationFormSkeleton variant="edit" />
   }
 
   if (!initial) return null

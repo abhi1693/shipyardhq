@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/atoms/card"
 import DeleteButton from "@/components/molecules/DeleteButton"
+import { ConfirmationCardSkeleton } from "@/components/molecules/ConfirmationCard.skeleton"
 
 export default function DeleteMemberPage() {
   const router = useRouter()
@@ -25,15 +26,32 @@ export default function DeleteMemberPage() {
   const organizationId = params?.id
   const organizationMembershipId = params?.membershipId
   const [memberEmail, setMemberEmail] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
+    let active = true
+
     ;(async () => {
-      if (!organizationId || !organizationMembershipId) return
+      if (!organizationId || !organizationMembershipId) {
+        if (active) setIsLoading(false)
+        return
+      }
+
       const rows = await getMyOrganizationMembers(organizationId)
       const found = rows.find((r: any) => r.id === organizationMembershipId)
-      if (!found)
-        return router.replace(memberOrganizationMembersPath(organizationId))
+      if (!found) {
+        if (active) setIsLoading(false)
+        router.replace(memberOrganizationMembersPath(organizationId))
+        return
+      }
+
+      if (!active) return
       setMemberEmail(found.user.email)
+      setIsLoading(false)
     })()
+
+    return () => {
+      active = false
+    }
   }, [organizationId, organizationMembershipId, router])
 
   async function onDelete() {
@@ -41,6 +59,10 @@ export default function DeleteMemberPage() {
     const res = await deleteMyOrganizationMemberAction(organizationMembershipId)
     if ((res as any)?.error) return alert((res as any).error)
     router.push(memberOrganizationPath(organizationId))
+  }
+
+  if (isLoading) {
+    return <ConfirmationCardSkeleton />
   }
 
   return (
