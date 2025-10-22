@@ -221,7 +221,7 @@ export async function awardRewards(
         targetId: result.transaction.targetId,
         productId: result.transaction.productId,
       })
-      revalidateRewardsLeaderboard()
+      revalidateRewardsLeaderboard("revalidate")
     }
 
     return result
@@ -474,7 +474,7 @@ export async function redeem(
       autoActivated: result.redemption.status === RedemptionStatus.active,
       placementScheduleId: result.placementSchedule?.id ?? null,
     })
-    revalidateRewardsLeaderboard()
+    revalidateRewardsLeaderboard("revalidate")
   }
 
   return result
@@ -639,7 +639,7 @@ export async function refundRedemption(
     productId: result.transaction.productId ?? null,
     actorUserId: result.transaction.actedByUserId ?? null,
   })
-  revalidateRewardsLeaderboard()
+  revalidateRewardsLeaderboard("revalidate")
 
   return result
 }
@@ -742,7 +742,7 @@ export async function adjustRewards(
       metadata: result.transaction.metadata,
       notes: result.transaction.notes,
     })
-    revalidateRewardsLeaderboard()
+    revalidateRewardsLeaderboard("revalidate")
   }
 
   return result

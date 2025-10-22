@@ -56,7 +56,7 @@ describe("cron monthly leaderboard route", () => {
 
     expect(res.status).toBe(200)
     expect(generateMock).toHaveBeenCalled()
-    expect(revalidateMock).toHaveBeenCalledWith("30-04-2024")
+    expect(revalidateMock).toHaveBeenCalledWith("30-04-2024", "revalidate")
     expect(notifyMock).toHaveBeenCalled()
     const payload = await res.json()
     expect(payload.notification).toEqual({

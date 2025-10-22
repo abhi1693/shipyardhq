@@ -1,117 +1,169 @@
-import { revalidateTag } from "./revalidateTag"
+import { revalidateTag, type CacheInvalidationMode } from "./revalidateTag"
 import { TAGS } from "./tags"
 
-export function revalidateHomepage() {
-  revalidateTag(TAGS.homepage)
+export function revalidateHomepage(
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.homepage, mode)
 }
 
-export function revalidateBrowse() {
-  revalidateTag(TAGS.browse)
+export function revalidateBrowse(mode: CacheInvalidationMode = "update") {
+  revalidateTag(TAGS.browse, mode)
 }
 
-export function revalidateCategoryDirectory() {
-  revalidateTag(TAGS.categoryDirectory)
+export function revalidateCategoryDirectory(
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.categoryDirectory, mode)
 }
 
-export function revalidateLeaderboardPage() {
-  revalidateTag(TAGS.leaderboardPage)
+export function revalidateLeaderboardPage(
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.leaderboardPage, mode)
 }
 
-export function revalidateTagsPage() {
-  revalidateTag(TAGS.tagsPage)
+export function revalidateTagsPage(
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.tagsPage, mode)
 }
 
-export function revalidateProducts() {
-  revalidateTag(TAGS.products)
-  revalidateHomepage()
-  revalidateBrowse()
-  revalidateCategoryDirectory()
-  revalidateTagsPage()
-  revalidateLeaderboardPage()
+export function revalidateProducts(
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.products, mode)
+  revalidateHomepage(mode)
+  revalidateBrowse(mode)
+  revalidateCategoryDirectory(mode)
+  revalidateTagsPage(mode)
+  revalidateLeaderboardPage(mode)
 }
 
-export function revalidateProduct(idOrSlug: string) {
-  revalidateTag(TAGS.product(idOrSlug))
-  revalidateProducts()
+export function revalidateProduct(
+  idOrSlug: string,
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.product(idOrSlug), mode)
+  revalidateProducts(mode)
 }
 
-export function revalidateProductUpdates(idOrSlug: string) {
-  revalidateTag(TAGS.productUpdates(idOrSlug))
-  revalidateProduct(idOrSlug)
-  revalidateTag(TAGS.productUpdatesLatest)
+export function revalidateProductUpdates(
+  idOrSlug: string,
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.productUpdates(idOrSlug), mode)
+  revalidateProduct(idOrSlug, mode)
+  revalidateTag(TAGS.productUpdatesLatest, mode)
 }
 
 export function revalidateProductUpdate(
   updateId: string,
   productIdOrSlug?: string,
+  mode: CacheInvalidationMode = "update",
 ) {
-  revalidateTag(TAGS.productUpdate(updateId))
+  revalidateTag(TAGS.productUpdate(updateId), mode)
   if (productIdOrSlug) {
-    revalidateProductUpdates(productIdOrSlug)
+    revalidateProductUpdates(productIdOrSlug, mode)
   }
-  revalidateTag(TAGS.productUpdatesLatest)
-  revalidateHomepage()
-  revalidateBrowse()
-  revalidateCategoryDirectory()
-  revalidateTagsPage()
-  revalidateLeaderboardPage()
+  revalidateTag(TAGS.productUpdatesLatest, mode)
+  revalidateHomepage(mode)
+  revalidateBrowse(mode)
+  revalidateCategoryDirectory(mode)
+  revalidateTagsPage(mode)
+  revalidateLeaderboardPage(mode)
 }
 
-export function revalidateProductReviews(idOrSlug: string) {
-  revalidateTag(TAGS.productReview(idOrSlug))
-  revalidateTag(TAGS.productReviews)
+export function revalidateProductReviews(
+  idOrSlug: string,
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.productReview(idOrSlug), mode)
+  revalidateTag(TAGS.productReviews, mode)
 }
 
-export function revalidateCategories() {
-  revalidateTag(TAGS.categories)
-  revalidateHomepage()
-  revalidateBrowse()
-  revalidateCategoryDirectory()
-  revalidateTagsPage()
-  revalidateLeaderboardPage()
+export function revalidateCategories(
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.categories, mode)
+  revalidateHomepage(mode)
+  revalidateBrowse(mode)
+  revalidateCategoryDirectory(mode)
+  revalidateTagsPage(mode)
+  revalidateLeaderboardPage(mode)
 }
 
-export function revalidateCategory(idOrSlug: string) {
-  revalidateTag(TAGS.category(idOrSlug))
-  revalidateCategories()
+export function revalidateCategory(
+  idOrSlug: string,
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.category(idOrSlug), mode)
+  revalidateCategories(mode)
 }
 
-export function revalidateLeaderboard() {
-  revalidateTag(TAGS.leaderboard)
-  revalidateTag(TAGS.trending)
-  revalidateTag(TAGS.analytics)
-  revalidateHomepage()
-  revalidateBrowse()
-  revalidateLeaderboardPage()
+export function revalidateLeaderboard(
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.leaderboard, mode)
+  revalidateTag(TAGS.trending, mode)
+  revalidateTag(TAGS.analytics, mode)
+  revalidateHomepage(mode)
+  revalidateBrowse(mode)
+  revalidateLeaderboardPage(mode)
 }
 
-export function revalidateMonthlyLeaderboard(monthKey?: string) {
-  revalidateTag(TAGS.monthlyLeaderboard)
+export function revalidateMonthlyLeaderboard(
+  monthKey?: string,
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.monthlyLeaderboard, mode)
   if (monthKey) {
-    revalidateTag(TAGS.monthlyLeaderboardMonth(monthKey))
+    revalidateTag(TAGS.monthlyLeaderboardMonth(monthKey), mode)
   }
-  revalidateLeaderboardPage()
+  revalidateLeaderboardPage(mode)
 }
 
-export function revalidateBadges() {
-  revalidateTag(TAGS.badges)
-  revalidateTag(TAGS.featured)
-  revalidateProducts()
+export function revalidateBadges(
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.badges, mode)
+  revalidateTag(TAGS.featured, mode)
+  revalidateProducts(mode)
 }
 
-export function revalidatePlanFeature(key: string) {
-  revalidateTag(TAGS.planFeature(key))
-  revalidateTag(TAGS.plans)
-  revalidateProducts()
+export function revalidatePlanFeature(
+  key: string,
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.planFeature(key), mode)
+  revalidateTag(TAGS.plans, mode)
+  revalidateProducts(mode)
 }
 
-export function revalidatePlacement(featureKey: string) {
-  revalidateTag(TAGS.placement(featureKey))
-  revalidateProducts()
+export function revalidatePlacement(
+  featureKey: string,
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.placement(featureKey), mode)
+  revalidateProducts(mode)
 }
 
-export function revalidateRewardsLeaderboard() {
-  revalidateTag(TAGS.rewardsLeaderboard)
-  revalidateTag(TAGS.rewards)
-  revalidateHomepage()
+export function revalidateUsers(mode: CacheInvalidationMode = "update") {
+  revalidateTag(TAGS.users, mode)
+}
+
+export function revalidateUser(
+  id: string,
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.user(id), mode)
+  revalidateUsers(mode)
+}
+
+export function revalidateRewardsLeaderboard(
+  mode: CacheInvalidationMode = "update",
+) {
+  revalidateTag(TAGS.rewardsLeaderboard, mode)
+  revalidateTag(TAGS.rewards, mode)
+  revalidateHomepage(mode)
 }

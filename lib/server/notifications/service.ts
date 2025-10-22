@@ -244,7 +244,7 @@ function invalidateNotificationCache(userId: string) {
     ]
 
     for (const tag of baseTags) {
-      revalidateTag(tag)
+      revalidateTag(tag, "revalidate")
     }
   } catch (error) {
     console.error("[notifications] Failed to revalidate cache", {

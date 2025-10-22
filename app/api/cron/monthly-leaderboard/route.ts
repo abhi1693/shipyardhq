@@ -38,7 +38,7 @@ export async function GET(request: Request) {
       rankings: result.rankings.length,
       persistedCount: result.count,
     })
-    revalidateMonthlyLeaderboard(result.monthKey)
+    revalidateMonthlyLeaderboard(result.monthKey, "revalidate")
     const notification = await notifyMonthlyWinners(result)
     console.info("[cron.monthly-leaderboard] winner notification", {
       monthKey: result.monthKey,

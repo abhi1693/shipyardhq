@@ -246,16 +246,16 @@ export async function runPlacementScheduler(
   })
 
   for (const productId of activatedProductIds) {
-    revalidateProduct(productId)
+    revalidateProduct(productId, "revalidate")
   }
   for (const productId of expiredProductIds) {
-    revalidateProduct(productId)
+    revalidateProduct(productId, "revalidate")
   }
   if (badgesTouched) {
-    revalidateBadges()
+    revalidateBadges("revalidate")
   }
   for (const featureKey of touchedFeatures) {
-    revalidatePlacement(featureKey)
+    revalidatePlacement(featureKey, "revalidate")
   }
 
   return {
