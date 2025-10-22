@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/atoms/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
+import { LinkPendingIndicator } from "@/components/atoms/link-pending-indicator"
 import { useRouter } from "next/navigation"
 
 const navLinks = [
@@ -117,13 +118,14 @@ export default function PublicHeader() {
                 key={link.href}
                 href={link.href}
                 className={clsx(
-                  "relative rounded-full px-3 py-1.5 text-sm font-medium transition",
+                  "relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition",
                   isActive(link.href)
                     ? "text-foreground after:absolute after:-bottom-1 after:left-1/2 after:h-0.5 after:w-5 after:-translate-x-1/2 after:rounded-full after:bg-[linear-gradient(90deg,var(--brand-1),var(--brand-2),var(--brand-3))]"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {link.label}
+                <span>{link.label}</span>
+                <LinkPendingIndicator className="ml-0.5" />
               </Link>
             ))}
           </nav>
