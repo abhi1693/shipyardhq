@@ -50,6 +50,7 @@ export type UserProfilePayload = {
 
 const RECENT_LIMIT = 5
 const BADGE_SHOWCASE_LIMIT = 6
+const FOCUS_CATEGORY_LIMIT = 4
 
 export const getUserProfilePayload = cached(
   async (id: string): Promise<UserProfilePayload | null> => {
@@ -67,9 +68,33 @@ export const getUserProfilePayload = cached(
     let verifiedCount = 0
 
     const categoryCounts = new Map<string, number>()
-    const badgeSet = new Set<string>()
+    const seenBadges = new Set<string>()
+    const badgeShowcase: string[] = []
+    let badgeOverflow = 0
 
-    const products: DirectoryProductItem[] = profile.products.map((product) => {
+    const recentLaunchCandidates: Array<{
+      time: number
+      item: DirectoryProductItem
+    }> = []
+    const insertRecentLaunch = (item: DirectoryProductItem, time: number) => {
+      let index = 0
+      while (
+        index < recentLaunchCandidates.length &&
+        recentLaunchCandidates[index].time >= time
+      ) {
+        index += 1
+      }
+      recentLaunchCandidates.splice(index, 0, { time, item })
+      if (recentLaunchCandidates.length > RECENT_LIMIT) {
+        recentLaunchCandidates.pop()
+      }
+    }
+
+    const products: DirectoryProductItem[] = []
+    let earliestLaunchISO: string | null = null
+    let earliestLaunchTime = Number.POSITIVE_INFINITY
+
+    for (const product of profile.products) {
       const upvotes = product.analytics?.upvotes ?? 0
       totalUpvotes += upvotes
 
@@ -85,20 +110,32 @@ export const getUserProfilePayload = cached(
         )
       }
 
-      const activeBadges = (product.ProductBadge ?? [])
-        .filter((badge) => !badge.expiresAt || new Date(badge.expiresAt) > now)
-        .map((badge) => {
-          badgeSet.add(badge.badge)
-          return badge.badge
-        })
+      const activeBadges: string[] = []
+      for (const badge of product.ProductBadge ?? []) {
+        if (badge.expiresAt && new Date(badge.expiresAt) <= now) {
+          continue
+        }
+        const badgeName = badge.badge
+        if (!seenBadges.has(badgeName)) {
+          seenBadges.add(badgeName)
+          if (badgeShowcase.length < BADGE_SHOWCASE_LIMIT) {
+            badgeShowcase.push(badgeName)
+          } else {
+            badgeOverflow += 1
+          }
+        }
+        activeBadges.push(badgeName)
+      }
 
       const launchedAtRaw = product.publishedAt ?? product.createdAt ?? null
       const launchedAt = launchedAtRaw ? new Date(launchedAtRaw) : null
-      const metaLabel = launchedAt
-        ? format(launchedAt, "MMM d, yyyy")
-        : undefined
-
-      return {
+      const launchTime = launchedAt ? launchedAt.getTime() : 0
+      if (launchTime <= earliestLaunchTime) {
+        earliestLaunchTime = launchTime
+        earliestLaunchISO = launchedAt ? launchedAt.toISOString() : null
+      }
+      const metaLabel = launchedAt ? format(launchedAt, "MMM d, yyyy") : undefined
+      const directoryItem: DirectoryProductItem = {
         id: product.id,
         slug: product.slug,
         name: product.name,
@@ -113,38 +150,29 @@ export const getUserProfilePayload = cached(
         metaLabel,
         launchedAt: launchedAt?.toISOString() ?? null,
       }
-    })
+
+      products.push(directoryItem)
+      insertRecentLaunch(directoryItem, launchTime)
+    }
 
     const totalProducts = products.length
     const categoryEntries = Array.from(categoryCounts.entries())
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
 
-    const focusCategories = categoryEntries
-      .slice(0, 4)
-      .map((entry) => entry.name)
+    const focusCategories: string[] = []
+    for (const entry of categoryEntries) {
+      if (focusCategories.length >= FOCUS_CATEGORY_LIMIT) {
+        break
+      }
+      focusCategories.push(entry.name)
+    }
     const extraCategoryCount = Math.max(
       categoryEntries.length - focusCategories.length,
       0,
     )
 
-    const uniqueBadges = Array.from(badgeSet)
-    const badgeShowcase = uniqueBadges.slice(0, BADGE_SHOWCASE_LIMIT)
-    const badgeOverflow = Math.max(
-      uniqueBadges.length - badgeShowcase.length,
-      0,
-    )
-
-    const sortedByDate = [...products].sort((a, b) => {
-      const aTime = a.launchedAt ? new Date(a.launchedAt).getTime() : 0
-      const bTime = b.launchedAt ? new Date(b.launchedAt).getTime() : 0
-      return bTime - aTime
-    })
-
-    const recentLaunches = sortedByDate.slice(0, RECENT_LIMIT)
-    const earliestLaunchISO =
-      sortedByDate[sortedByDate.length - 1]?.launchedAt ?? null
-
+    const recentLaunches = recentLaunchCandidates.map(({ item }) => item)
     return {
       profile,
       leaderboardPosition,
