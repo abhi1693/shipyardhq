@@ -37,7 +37,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/atoms/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
-import { LinkPendingIndicator } from "@/components/atoms/link-pending-indicator"
 import { useRouter } from "next/navigation"
 
 const navLinks = [
@@ -124,8 +123,7 @@ export default function PublicHeader() {
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <span>{link.label}</span>
-                <LinkPendingIndicator className="ml-0.5" />
+                {link.label}
               </Link>
             ))}
           </nav>

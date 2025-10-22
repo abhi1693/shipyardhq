@@ -34,7 +34,6 @@ import type {
 import { buildNotificationPresentation } from "@/lib/notifications/format"
 import { MEMBER_NOTIFICATIONS_PATH } from "@/lib/routes"
 import { cn } from "@/lib/utils"
-import { LinkPendingIndicator } from "@/components/atoms/link-pending-indicator"
 
 const PREVIEW_LIMIT = 6
 const POLL_INTERVAL_MS = 20_000
@@ -266,7 +265,6 @@ export default function NotificationBell() {
             className="flex w-full items-center justify-center gap-2 rounded-none px-4 py-3 text-sm font-semibold text-[color:var(--brand-1)] hover:text-[color:var(--brand-1)]"
           >
             View all notifications
-            <LinkPendingIndicator className="ml-1" />
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
