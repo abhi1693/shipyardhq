@@ -6,7 +6,7 @@ import {
 } from "@/lib/server/productVotesStore"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
 
-const VERSUS_POOL_LIMIT = 48
+const VERSUS_POOL_LIMIT = 1000
 
 const versusSelect = {
   id: true,
