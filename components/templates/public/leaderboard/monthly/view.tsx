@@ -8,7 +8,7 @@ import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
 import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import { TopPlacementCard } from "@/components/molecules/LeaderboardTopPlacement"
-import { MonthlyLeaderboardMonthSelect } from "./month-select"
+import { MonthlyLeaderboardMonthSelect } from "@/app/(public)/leaderboard/monthly/month-select"
 import {
   BROWSE_PATH,
   LEADERBOARD_PATH,

@@ -1,54 +1,54 @@
 import { Suspense } from "react"
 
-import { HomepageJsonLd } from "@/components/templates/homepage/json-ld"
+import { HomepageJsonLd } from "@/components/templates/public/homepage/json-ld"
 import {
   DirectoryHeaderSection,
   DirectoryHeaderSkeleton,
-} from "@/components/templates/homepage/directory-header"
+} from "@/components/templates/public/homepage/directory-header"
 import {
   HomepageSpotlightSection,
   HomepageSpotlightSkeleton,
-} from "@/components/templates/homepage/spotlight"
+} from "@/components/templates/public/homepage/spotlight"
 import {
   FeaturedHighlightsSection,
   FeaturedHighlightsSkeleton,
-} from "@/components/templates/homepage/featured-highlights"
+} from "@/components/templates/public/homepage/featured-highlights"
 import {
   VersusTeaserSection,
   VersusTeaserSkeleton,
-} from "@/components/templates/homepage/versus"
+} from "@/components/templates/public/homepage/versus"
 import {
   EditorsPickSection,
   EditorsPickSkeleton,
-} from "@/components/templates/homepage/editors-pick"
+} from "@/components/templates/public/homepage/editors-pick"
 import {
   LatestLaunchesSection,
   LatestLaunchesSkeleton,
-} from "@/components/templates/homepage/latest-launches"
+} from "@/components/templates/public/homepage/latest-launches"
 import {
   LeaderboardSection,
   LeaderboardSkeleton,
-} from "@/components/templates/homepage/leaderboard"
+} from "@/components/templates/public/homepage/leaderboard"
 import {
   RewardsLeaderboardSection,
   RewardsLeaderboardSkeleton,
-} from "@/components/templates/homepage/rewards"
+} from "@/components/templates/public/homepage/rewards"
 import {
   CategoryRailSection,
   CategoryRailSkeleton,
-} from "@/components/templates/homepage/category-rail"
+} from "@/components/templates/public/homepage/category-rail"
 import {
   RadarDigestSection,
   RadarDigestSkeleton,
-} from "@/components/templates/homepage/radar-digest"
+} from "@/components/templates/public/homepage/radar-digest"
 import {
   ProductUpdatesSection,
   ProductUpdatesSkeleton,
-} from "@/components/templates/homepage/product-updates"
+} from "@/components/templates/public/homepage/product-updates"
 import {
   LaunchSpotlightPromo,
   InsightsPromo,
-} from "@/components/templates/homepage/promos"
+} from "@/components/templates/public/homepage/promos"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 
 export default function HomePage() {
