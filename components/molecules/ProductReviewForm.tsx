@@ -1,6 +1,13 @@
 "use client"
 
-import { useActionState, useEffect, useMemo, useState } from "react"
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useOptimistic,
+  useRef,
+  useState,
+} from "react"
 import { useRouter } from "next/navigation"
 import { useFormStatus } from "react-dom"
 import { Star, XCircle } from "lucide-react"
@@ -31,36 +38,59 @@ export default function ProductReviewForm({
   initialMessage,
 }: ProductReviewFormProps) {
   const router = useRouter()
-  const [state, formAction] = useActionState(action, initialState)
-  const [rating, setRating] = useState<number>(
-    typeof initialRating === "number" && initialRating >= 0 ? initialRating : 0,
+  const timeoutRef = useRef<number | null>(null)
+  const normalizedInitialRating =
+    typeof initialRating === "number" && initialRating >= 0 ? initialRating : 0
+  const [rating, setRating] = useOptimistic(
+    normalizedInitialRating,
+    (prev, next: number | ((prevRating: number) => number)) =>
+      typeof next === "function"
+        ? (next as (prevRating: number) => number)(prev)
+        : next,
   )
-  const [message, setMessage] = useState(initialMessage ?? "")
+  const [message, setMessage] = useOptimistic(
+    initialMessage ?? "",
+    (prev, next: string | ((prevMessage: string) => string)) =>
+      typeof next === "function"
+        ? (next as (prevMessage: string) => string)(prev)
+        : next,
+  )
   const [hoverRating, setHoverRating] = useState<number | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [state, formAction] = useActionState(
+    async (previousState: SubmitReviewState, formData: FormData) => {
+      const result = await action(previousState, formData)
+
+      if (result.status === "success") {
+        setShowSuccess(true)
+        if (timeoutRef.current) {
+          window.clearTimeout(timeoutRef.current)
+        }
+        timeoutRef.current = window.setTimeout(() => {
+          setShowSuccess(false)
+          timeoutRef.current = null
+        }, 4000)
+        router.refresh()
+      } else if (result.status === "error") {
+        if (timeoutRef.current) {
+          window.clearTimeout(timeoutRef.current)
+          timeoutRef.current = null
+        }
+        setShowSuccess(false)
+      }
+
+      return result
+    },
+    initialState,
+  )
 
   useEffect(() => {
-    if (state.status === "success") {
-      setShowSuccess(true)
-      const timeout = setTimeout(() => setShowSuccess(false), 4000)
-      router.refresh()
-      return () => clearTimeout(timeout)
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current)
+      }
     }
-    return undefined
-  }, [state.status, router])
-
-  useEffect(() => {
-    if (
-      typeof initialRating === "number" &&
-      initialRating >= 0 &&
-      initialRating <= 5
-    ) {
-      setRating(initialRating)
-    }
-    if (initialMessage !== undefined && initialMessage !== null) {
-      setMessage(initialMessage)
-    }
-  }, [initialRating, initialMessage])
+  }, [])
 
   const displayRating = hoverRating ?? rating
 

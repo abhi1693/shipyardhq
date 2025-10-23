@@ -1,6 +1,12 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react"
+import {
+  useCallback,
+  useEffect,
+  useOptimistic,
+  useRef,
+  useTransition,
+} from "react"
 import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import { ProductCompactGridSkeleton } from "@/components/molecules/ProductCompactGrid.skeleton"
 
@@ -28,22 +34,37 @@ export default function ProductGridClient({
   initialPage,
   searchParams,
 }: ProductGridClientProps) {
-  const [products, setProducts] = useState(initialProducts)
-  const [hasMore, setHasMore] = useState(initialHasMore)
-  const [page, setPage] = useState(initialPage)
+  const [products, setProducts] = useOptimistic(
+    initialProducts,
+    (
+      prev,
+      action:
+        | ProductGridItem[]
+        | ((prevProducts: ProductGridItem[]) => ProductGridItem[]),
+    ) =>
+      typeof action === "function"
+        ? (action as (prevProducts: ProductGridItem[]) => ProductGridItem[])(
+            prev,
+          )
+        : action,
+  )
+  const [hasMore, setHasMore] = useOptimistic(
+    initialHasMore,
+    (_prev, next: boolean) => next,
+  )
+  const [page, setPage] = useOptimistic(
+    initialPage,
+    (prev, action: number | ((prevPage: number) => number)) =>
+      typeof action === "function"
+        ? (action as (prevPage: number) => number)(prev)
+        : action,
+  )
   const [isPending, startTransition] = useTransition()
   const prefetchedRef = useRef<null | {
     products: ProductGridItem[]
     hasMore: boolean
   }>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
-
-  // Reset state when server-provided props change (filters/sort updated)
-  useEffect(() => {
-    setProducts(initialProducts)
-    setHasMore(initialHasMore)
-    setPage(initialPage)
-  }, [initialProducts, initialHasMore, initialPage])
 
   const loadMore = useCallback(() => {
     if (isPending || !hasMore) return
@@ -69,7 +90,16 @@ export default function ProductGridClient({
         setPage((prev) => prev + 1)
       }
     })
-  }, [hasMore, isPending, page, searchParams, startTransition])
+  }, [
+    hasMore,
+    isPending,
+    page,
+    searchParams,
+    setHasMore,
+    setPage,
+    setProducts,
+    startTransition,
+  ])
 
   // Prefetch next page on mount and when search params change
   useEffect(() => {

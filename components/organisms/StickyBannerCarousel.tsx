@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useOptimistic, useState, useId } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -38,27 +38,35 @@ export function StickyBannerCarousel({
   )
 
   const total = items.length
-  const [index, setIndex] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
-  const animationId = useMemo(
-    () => `stickyBannerSlide-${Math.random().toString(36).slice(2)}`,
-    [],
+  const baseActiveId = items[0]?.id ?? null
+  const [activeId, setActiveId] = useOptimistic(
+    baseActiveId,
+    (_current: string | null, next: string | null) => next,
   )
-
-  useEffect(() => {
-    setIndex(0)
-    setIsPaused(false)
-  }, [total])
+  const index = useMemo(() => {
+    if (!activeId) {
+      return 0
+    }
+    const nextIndex = items.findIndex((product) => product.id === activeId)
+    return nextIndex === -1 ? 0 : nextIndex
+  }, [activeId, items])
+  const [isPaused, setIsPaused] = useState(false)
+  const carouselId = useId()
+  const animationId = useMemo(() => {
+    const sanitized = carouselId.replace(/[:]/g, "-")
+    return `stickyBannerSlide-${sanitized}`
+  }, [carouselId])
 
   useEffect(() => {
     if (total <= 1 || isPaused) return
 
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % total)
+      const nextItem = items[(index + 1) % total]
+      setActiveId(nextItem ? nextItem.id : items[0]?.id ?? null)
     }, 5000)
 
     return () => clearInterval(timer)
-  }, [total, isPaused])
+  }, [index, isPaused, items, setActiveId, total])
 
   if (total === 0) {
     return null

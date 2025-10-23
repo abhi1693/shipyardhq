@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useOptimistic } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { productPageCopy } from "@/lib/copy/productPage"
@@ -45,14 +45,18 @@ export function ProductMediaGallery({
     return items
   }, [bannerImage, media, productName])
 
-  const [currentIndex, setCurrentIndex] = useState(0)
-
-  useEffect(() => {
-    if (mediaItems.length === 0) return
-    if (currentIndex >= mediaItems.length) {
-      setCurrentIndex(0)
+  const firstId = mediaItems[0]?.id ?? null
+  const [activeId, setActiveId] = useOptimistic(
+    firstId,
+    (_prev, next: string) => next,
+  )
+  const currentIndex = useMemo(() => {
+    if (!activeId) {
+      return 0
     }
-  }, [currentIndex, mediaItems.length])
+    const idx = mediaItems.findIndex((item) => item.id === activeId)
+    return idx === -1 ? 0 : idx
+  }, [activeId, mediaItems])
 
   const hasMedia = mediaItems.length > 0
 
@@ -65,11 +69,19 @@ export function ProductMediaGallery({
   const totalAssets = mediaItems.length
 
   const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1))
+    setActiveId(
+      mediaItems[
+        currentIndex === 0 ? mediaItems.length - 1 : currentIndex - 1
+      ]?.id ?? mediaItems[0]?.id ?? null,
+    )
   }
 
   const goToNext = () => {
-    setCurrentIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1))
+    setActiveId(
+      mediaItems[
+        currentIndex === mediaItems.length - 1 ? 0 : currentIndex + 1
+      ]?.id ?? mediaItems[0]?.id ?? null,
+    )
   }
 
   return (
@@ -139,7 +151,7 @@ export function ProductMediaGallery({
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setCurrentIndex(index)}
+                onClick={() => setActiveId(item.id)}
                 className={cn(
                   "relative h-20 w-32 shrink-0 overflow-hidden rounded-2xl border bg-muted transition hover:border-border/80",
                   index === currentIndex

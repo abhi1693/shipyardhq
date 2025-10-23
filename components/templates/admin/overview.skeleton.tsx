@@ -54,7 +54,7 @@ function ActivityListSkeleton({ items = 4 }: { items?: number }) {
   )
 }
 
-interface AdminOverviewSkeletonProps extends React.ComponentProps<"div"> {}
+type AdminOverviewSkeletonProps = React.ComponentProps<"div">
 
 export function AdminOverviewSkeleton({
   className,

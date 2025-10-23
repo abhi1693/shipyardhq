@@ -5,8 +5,7 @@ import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
 import { cn } from "@/lib/utils"
 
-interface AdminNotificationCenterSkeletonProps
-  extends React.ComponentProps<"div"> {}
+type AdminNotificationCenterSkeletonProps = React.ComponentProps<"div">
 
 export function AdminNotificationCenterSkeleton({
   className,

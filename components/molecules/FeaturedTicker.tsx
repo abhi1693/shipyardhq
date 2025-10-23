@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Star } from "lucide-react"
-import { useMemo } from "react"
+import { useId, useMemo } from "react"
 import { productPath } from "@/lib/routes"
 
 type Item = {
@@ -14,10 +14,11 @@ type Item = {
 
 export default function FeaturedTicker({ items }: { items: Item[] }) {
   const list = useMemo(() => items.slice(0, 12), [items])
-  const animationId = useMemo(
-    () => `featuredTickerScroll-${Math.random().toString(36).slice(2)}`,
-    [],
-  )
+  const tickerId = useId()
+  const animationId = useMemo(() => {
+    const sanitized = tickerId.replace(/[:]/g, "-")
+    return `featuredTickerScroll-${sanitized}`
+  }, [tickerId])
   if (!list.length) return null
 
   const shouldDuplicate = list.length >= 4

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useOptimistic, useState, useTransition } from "react"
 import {
   Dialog,
   DialogContent,
@@ -25,19 +25,15 @@ export default function AdminFeedbackNoteButton({
   note: string | null
 }) {
   const [open, setOpen] = useState(false)
-  const [displayNote, setDisplayNote] = useState(note ?? "")
-  const [value, setValue] = useState(note ?? "")
+  const baseNote = note ?? ""
+  const [previewNote, setPreviewNote] = useOptimistic(
+    baseNote,
+    (_current, next: string) => next,
+  )
+  const [value, setValue] = useState(baseNote)
   const [isPending, startTransition] = useTransition()
 
-  useEffect(() => {
-    const next = note ?? ""
-    setDisplayNote(next)
-    if (!open) {
-      setValue(next)
-    }
-  }, [note, open])
-
-  const preview = displayNote.trim()
+  const preview = previewNote.trim()
 
   const handleSave = () => {
     const next = value.trim()
@@ -57,7 +53,8 @@ export default function AdminFeedbackNoteButton({
         return
       }
 
-      setDisplayNote(next)
+      setPreviewNote(next)
+      setValue(next)
       toast.success(next.length ? "Saved admin note." : "Cleared admin note.")
       setOpen(false)
     })
@@ -78,7 +75,9 @@ export default function AdminFeedbackNoteButton({
         onOpenChange={(nextOpen) => {
           setOpen(nextOpen)
           if (nextOpen) {
-            setValue(displayNote)
+            setValue(previewNote)
+          } else {
+            setValue(previewNote)
           }
         }}
       >
@@ -114,7 +113,7 @@ export default function AdminFeedbackNoteButton({
               type="button"
               variant="outline"
               onClick={() => {
-                setValue(displayNote)
+                setValue(previewNote)
                 setOpen(false)
               }}
               disabled={isPending}

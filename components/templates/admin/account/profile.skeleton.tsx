@@ -2,8 +2,7 @@ import { Skeleton } from "@/components/atoms/skeleton"
 import { HeadingSkeleton } from "@/components/atoms/heading.skeleton"
 import { cn } from "@/lib/utils"
 
-interface AdminAccountProfileSkeletonProps
-  extends React.ComponentProps<"div"> {}
+type AdminAccountProfileSkeletonProps = React.ComponentProps<"div">
 
 export function AdminAccountProfileSkeleton({
   className,

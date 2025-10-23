@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useFormState, useFormStatus } from "react-dom"
 import { formatDistanceToNow } from "date-fns"
 import { toast } from "sonner"
@@ -110,28 +110,29 @@ export default function RefundRedemptionForm({
   const [selectedRedemptionId, setSelectedRedemptionId] = useState<string>("")
   const [revertPerk, setRevertPerk] = useState(true)
   const [state, formAction] = useFormState<RefundRewardsFormState, FormData>(
-    refundRedemptionAction,
+    async (previousState, formData) => {
+      try {
+        const result = await refundRedemptionAction(previousState, formData)
+        if (result.status === "success") {
+          toast.success(result.message ?? "Refund processed")
+          formRef.current?.reset()
+          setSelectedRedemptionId("")
+          setRevertPerk(true)
+        } else if (result.status === "error" && result.message) {
+          toast.error(result.message)
+        }
+        return result
+      } catch (error) {
+        toast.error("Unable to process refund")
+        throw error
+      }
+    },
     initialRefundRewardsState,
   )
 
   const selected = useSelectedRedemption(redemptions, selectedRedemptionId)
   const disabledSubmit = !selected
   const remainingAmount = selected?.remainingAmount ?? 0
-
-  useEffect(() => {
-    if (state.status === "success") {
-      if (state.message) {
-        toast.success(state.message)
-      } else {
-        toast.success("Refund processed")
-      }
-      formRef.current?.reset()
-      setSelectedRedemptionId("")
-      setRevertPerk(true)
-    } else if (state.status === "error" && state.message) {
-      toast.error(state.message)
-    }
-  }, [state])
 
   const emptyState = redemptions.length === 0
 

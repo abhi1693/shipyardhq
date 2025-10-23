@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import Image from "next/image"
 
 import {
@@ -48,16 +48,15 @@ export function ProductBadgeCelebrationDialog({
   onOpenChange: (open: boolean) => void
   productPublicPath?: string
 }) {
-  const [origin, setOrigin] = useState(() => siteConfig.url)
+  const origin = useMemo(() => {
+    if (typeof window !== "undefined" && window.location?.origin) {
+      return window.location.origin
+    }
+    return siteConfig.url
+  }, [])
   const [activeBadgeId, setActiveBadgeId] = useState<BadgeVariant["id"]>(
     BADGES[0].id,
   )
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setOrigin(window.location.origin)
-    }
-  }, [])
 
   const activeBadge = useMemo(
     () => BADGES.find((badge) => badge.id === activeBadgeId) ?? BADGES[0],

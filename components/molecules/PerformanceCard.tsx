@@ -61,14 +61,6 @@ export default function PerformanceCard({
     reviewer: string
   }[]
 }) {
-  const daysLeft = (d: Date | string | null | undefined) => {
-    if (!d) return null
-    const left = Math.ceil(
-      (new Date(d).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-    )
-    return left
-  }
-
   const statTileClass =
     "rounded-lg border border-slate-200 bg-slate-50 px-4 py-4 text-center"
   const statLabelClass =
@@ -237,10 +229,18 @@ export default function PerformanceCard({
           {badges.length ? (
             <div className="mt-2 flex flex-wrap gap-2">
               {badges.slice(0, 6).map((b) => {
-                const left = daysLeft(b.expiresAt)
-                const expiryText = b.expiresAt
-                  ? `Expires ${new Date(b.expiresAt).toLocaleDateString()}${
-                      left != null ? ` (${left}d left)` : ""
+                const expiryDate = b.expiresAt
+                  ? new Date(b.expiresAt)
+                  : null
+                const isValidExpiry = Boolean(
+                  expiryDate && !Number.isNaN(expiryDate.getTime()),
+                )
+                const relativeExpiry = isValidExpiry && expiryDate
+                  ? formatDistanceToNow(expiryDate, { addSuffix: true })
+                  : null
+                const expiryText = isValidExpiry && expiryDate
+                  ? `Expires ${expiryDate.toLocaleDateString()}${
+                      relativeExpiry ? ` · ${relativeExpiry}` : ""
                     }`
                   : "No expiry"
                 const def = BADGE_OPTIONS.find((o) => o.value === b.badge)
