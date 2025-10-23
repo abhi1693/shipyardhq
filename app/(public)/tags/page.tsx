@@ -21,9 +21,7 @@ export default function TagsIndexPage(
   )
 }
 
-async function TagsShell({ children }: { children: ReactNode }) {
-  'use cache'
-
+function TagsShell({ children }: { children: ReactNode }) {
   return (
     <main className="bg-white">
       <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-10">

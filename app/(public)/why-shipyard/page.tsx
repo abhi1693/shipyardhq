@@ -156,9 +156,7 @@ export const metadata = buildPageMetadata({
     "List your product where builders, investors, and operators gather. Shipyard pairs curated discovery with analytics, insights, and hands-on support so every launch hits with purpose.",
 })
 
-export default async function WhyShipyardPage() {
-  'use cache'
-
+export default function WhyShipyardPage() {
   return (
     <main className="relative isolate overflow-hidden bg-white">
       <section className="relative py-24">

@@ -29,9 +29,7 @@ export const metadata = buildPageMetadata({
   description: "Transparent pricing for every stage.",
 })
 
-export default async function PricingPage() {
-  'use cache'
-
+export default function PricingPage() {
   return (
     <main className="relative isolate overflow-hidden bg-white">
       <section
