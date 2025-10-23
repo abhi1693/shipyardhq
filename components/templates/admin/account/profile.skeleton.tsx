@@ -26,7 +26,7 @@ export function AdminAccountProfileSkeleton({
         <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
+               
               key={index}
               className="h-9 rounded-lg"
               tone="soft"

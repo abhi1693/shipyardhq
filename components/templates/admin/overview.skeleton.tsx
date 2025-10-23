@@ -32,7 +32,7 @@ function ActivityListSkeleton({ items = 4 }: { items?: number }) {
     <div className="space-y-3">
       {Array.from({ length: items }).map((_, index) => (
         <div
-          // eslint-disable-next-line react/no-array-index-key -- decorative
+           
           key={index}
           className="space-y-2 rounded-xl border border-white/25 p-3"
         >
@@ -96,7 +96,7 @@ export function AdminOverviewSkeleton({
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <CardSkeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
+               
               key={index}
               lines={5}
               showFooter={false}

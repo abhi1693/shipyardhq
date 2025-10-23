@@ -43,7 +43,7 @@ export function ConfirmationCardSkeleton({
         <div className="space-y-2">
           {Array.from({ length: lines }).map((_, index) => (
             <Skeleton
-              // eslint-disable-next-line react/no-array-index-key -- skeleton order is decorative
+               
               key={index}
               className="h-2.5 w-full rounded-full"
               tone="muted"

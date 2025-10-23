@@ -31,7 +31,7 @@ export function DirectoryRadarDigestSkeleton({
       <ul className="space-y-4">
         {rows.map((_, index) => (
           <li
-            // eslint-disable-next-line react/no-array-index-key -- decorative order only
+             
             key={index}
             className="rounded-2xl border border-transparent px-3 py-2"
           >
@@ -51,7 +51,7 @@ export function DirectoryRadarDigestSkeleton({
       <div className="mt-6 grid grid-cols-3 gap-3 text-center text-xs">
         {Array.from({ length: 3 }).map((_, index) => (
           <div
-            // eslint-disable-next-line react/no-array-index-key -- decorative order only
+             
             key={index}
             className="rounded-2xl bg-muted/50 px-3 py-2"
           >

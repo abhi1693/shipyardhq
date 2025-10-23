@@ -34,7 +34,7 @@ export function CategoriesPageSkeleton() {
                 <div className="flex flex-wrap gap-2">
                   {Array.from({ length: 6 }).map((_, index) => (
                     <BadgeSkeleton
-                      // eslint-disable-next-line react/no-array-index-key -- decorative only
+                       
                       key={index}
                       variant="outline"
                       labelWidth="7rem"
@@ -46,7 +46,7 @@ export function CategoriesPageSkeleton() {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
                 {Array.from({ length: 3 }).map((_, index) => (
                   <CardSkeleton
-                    // eslint-disable-next-line react/no-array-index-key -- decorative only
+                     
                     key={index}
                     tone="soft"
                     radius="lg"
@@ -74,7 +74,7 @@ export function CategoriesPageSkeleton() {
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {Array.from({ length: 8 }).map((_, index) => (
                 <CardSkeleton
-                  // eslint-disable-next-line react/no-array-index-key -- decorative only
+                   
                   key={index}
                   tone="soft"
                   radius="lg"

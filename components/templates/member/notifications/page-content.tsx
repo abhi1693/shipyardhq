@@ -37,7 +37,7 @@ export function MemberNotificationsPageSkeleton() {
       <div className="space-y-3">
         {Array.from({ length: 5 }).map((_, index) => (
           <CardSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative only
+             
             key={index}
             tone="soft"
             radius="lg"

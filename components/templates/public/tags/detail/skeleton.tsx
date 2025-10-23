@@ -76,7 +76,7 @@ function TagCloudSkeleton() {
     <div className="mt-4 flex flex-wrap gap-3">
       {Array.from({ length: 10 }).map((_, index) => (
         <Skeleton
-          // eslint-disable-next-line react/no-array-index-key -- decorative only
+           
           key={index}
           className="h-9 rounded-full px-5"
           tone={index % 2 === 0 ? "brand" : "soft"}

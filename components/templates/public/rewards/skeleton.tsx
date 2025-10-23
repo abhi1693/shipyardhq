@@ -47,7 +47,7 @@ export function RewardsPageSkeleton() {
           <div className="mt-12 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <CardSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
+                 
                 key={index}
                 lines={2}
                 tone="soft"

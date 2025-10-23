@@ -33,7 +33,7 @@ export function OrganizationFormSkeleton({
         <div className="space-y-4">
           {[0, 1].map((index) => (
             <div
-              // eslint-disable-next-line react/no-array-index-key -- decorative ordering
+               
               key={index}
               className="space-y-2"
             >

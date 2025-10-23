@@ -45,7 +45,7 @@ function HeroSkeleton() {
               <div className="flex flex-wrap gap-2">
                 {Array.from({ length: 3 }).map((_, index) => (
                   <BadgeSkeleton
-                    // eslint-disable-next-line react/no-array-index-key -- decorative
+                     
                     key={index}
                     variant="outline"
                     labelWidth={index === 0 ? "8rem" : "7rem"}
@@ -63,7 +63,7 @@ function HeroSkeleton() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
           {Array.from({ length: 3 }).map((_, index) => (
             <CardSkeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
+               
               key={index}
               lines={3}
               tone="soft"

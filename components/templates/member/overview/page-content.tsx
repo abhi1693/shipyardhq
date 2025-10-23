@@ -1078,7 +1078,7 @@ function HeroSectionSkeleton() {
               { width: "6rem" },
             ].map((badge, index) => (
               <BadgeSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
+                 
                 key={index}
                 variant="outline"
                 labelWidth={badge.width}
@@ -1113,7 +1113,7 @@ function HeroSectionSkeleton() {
           <div className="grid w-full gap-3 sm:min-w-[240px] sm:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
               <CardSkeleton
-                // eslint-disable-next-line react/no-array-index-key -- decorative
+                 
                 key={index}
                 tone="soft"
                 radius="md"
@@ -1134,7 +1134,7 @@ function QuickTasksSkeleton() {
     <section className="grid gap-4 lg:grid-cols-2">
       {Array.from({ length: 4 }).map((_, index) => (
         <CardSkeleton
-          // eslint-disable-next-line react/no-array-index-key -- decorative
+           
           key={index}
           tone="soft"
           radius="lg"
@@ -1155,7 +1155,7 @@ function MomentumSectionSkeleton() {
       <div className="grid gap-4 lg:grid-cols-2">
         {Array.from({ length: 2 }).map((_, index) => (
           <CardSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
+             
             key={index}
             tone="soft"
             radius="lg"
@@ -1175,7 +1175,7 @@ function SignalsSectionSkeleton() {
       <div className="grid gap-4 lg:grid-cols-2">
         {Array.from({ length: 2 }).map((_, index) => (
           <CardSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
+             
             key={index}
             tone="soft"
             radius="lg"

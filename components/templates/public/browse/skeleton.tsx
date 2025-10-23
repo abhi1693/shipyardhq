@@ -70,7 +70,7 @@ function FilterBarSkeleton() {
       <div className="flex flex-wrap items-center gap-3">
         {Array.from({ length: 3 }).map((_, index) => (
           <Skeleton
-            // eslint-disable-next-line react/no-array-index-key -- purely visual
+             
             key={index}
             className="h-9 w-36 rounded-full"
             tone="soft"
@@ -81,7 +81,7 @@ function FilterBarSkeleton() {
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <CardSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
+             
             key={index}
             lines={1}
             tone="soft"
@@ -105,7 +105,7 @@ function FeaturedCarouselSkeleton() {
         <div className="flex items-center gap-1">
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
+               
               key={index}
               className="h-1 w-4 rounded-full"
               tone={index === 0 ? "brand" : "muted"}
@@ -131,7 +131,7 @@ function CategoryRailSkeleton() {
       <ul className="mt-6 space-y-3">
         {Array.from({ length: 5 }).map((_, index) => (
           <li
-            // eslint-disable-next-line react/no-array-index-key -- decorative
+             
             key={index}
             className="flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-muted/20 px-4 py-2"
           >
@@ -188,7 +188,7 @@ function HowItWorksSkeleton() {
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
           <CardSkeleton
-            // eslint-disable-next-line react/no-array-index-key -- decorative
+             
             key={index}
             lines={3}
             tone="soft"

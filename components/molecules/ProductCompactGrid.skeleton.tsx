@@ -34,7 +34,7 @@ export function ProductCompactGridSkeleton({
     >
       {items.map((_, index) => (
         <ProductCompactCardSkeleton
-          // eslint-disable-next-line react/no-array-index-key -- order not semantically important
+           
           key={index}
           showCategory={showCategory}
           showBadges={showBadges}

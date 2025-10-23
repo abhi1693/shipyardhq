@@ -63,7 +63,7 @@ export function DirectoryHeaderSkeleton({
           <div className="grid grid-cols-2 gap-5 sm:grid-cols-4 lg:grid-cols-2">
             {metrics.map((_, index) => (
               <div
-                // eslint-disable-next-line react/no-array-index-key -- decorative order
+                 
                 key={index}
                 className="rounded-2xl border border-border bg-white p-5 shadow-sm"
               >

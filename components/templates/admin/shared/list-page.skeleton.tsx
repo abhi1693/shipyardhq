@@ -58,7 +58,7 @@ export function AdminListPageSkeleton({
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: cards }).map((_, index) => (
             <CardSkeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative
+               
               key={index}
               lines={4}
               showFooter={false}

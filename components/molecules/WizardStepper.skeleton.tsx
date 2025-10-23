@@ -22,7 +22,7 @@ export function WizardStepperSkeleton({
       <div className="flex items-center justify-between gap-2">
         {Array.from({ length: safeSteps }).map((_, index) => (
           <div
-            // eslint-disable-next-line react/no-array-index-key -- purely decorative skeletons
+             
             key={index}
             className="flex flex-1 flex-col items-center gap-2"
           >

@@ -338,7 +338,7 @@ export function LeaderboardPageSkeleton() {
                   <div className="grid gap-6 md:grid-cols-2">
                     {Array.from({ length: 2 }).map((_, index) => (
                       <CardSkeleton
-                        // eslint-disable-next-line react/no-array-index-key -- decorative only
+                         
                         key={index}
                         tone="soft"
                         radius="lg"

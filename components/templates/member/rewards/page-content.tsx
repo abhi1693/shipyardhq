@@ -36,7 +36,7 @@ export function MemberRewardsPageSkeleton() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
             <CardSkeleton
-              // eslint-disable-next-line react/no-array-index-key -- decorative only
+               
               key={index}
               tone="soft"
               radius="lg"
