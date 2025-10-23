@@ -430,6 +430,7 @@ async function MomentumSection({
     topByClicksPromise,
     topByUpvotesPromise,
   ])
+  const momentumWindow = rangeDescriptorForDays(days)
 
   return (
     <section className="space-y-4">
@@ -446,7 +447,7 @@ async function MomentumSection({
           <CardHeader>
             <CardTitle className="text-base">Most clicked</CardTitle>
             <CardDescription>
-              Products winning attention this period.
+              Products winning attention {momentumWindow}.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -481,7 +482,7 @@ async function MomentumSection({
           <CardHeader>
             <CardTitle className="text-base">Most upvoted</CardTitle>
             <CardDescription>
-              Community favorites from the range.
+              Community favorites {momentumWindow}.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -638,19 +639,16 @@ async function HighlightCard({
   topByClicksPromise: ReturnType<typeof getTopProductsByMetric>
   days: number
 }) {
-  const [unverified, drafts, needsMedia, expiringBadges, topByClicks] =
-    await Promise.all([
-      unverifiedPromise,
-      draftsPromise,
-      needsMediaPromise,
-      expiringBadgesPromise,
-      topByClicksPromise,
-    ])
+  const [, , needsMedia, expiringBadges, topByClicks] = await Promise.all([
+    unverifiedPromise,
+    draftsPromise,
+    needsMediaPromise,
+    expiringBadgesPromise,
+    topByClicksPromise,
+  ])
 
   const highlight = buildHighlight({
     stats,
-    unverified: unverified as UnverifiedProduct[],
-    drafts: drafts as DraftProduct[],
     needsMedia: needsMedia as NeedsMediaProduct[],
     expiringBadges: expiringBadges as ExpiringBadge[],
     topByClicks,
@@ -977,16 +975,12 @@ function TaskCollection({
 
 function buildHighlight({
   stats,
-  unverified,
-  drafts,
   needsMedia,
   expiringBadges,
   topByClicks,
   days,
 }: {
   stats: DashboardStats
-  unverified: UnverifiedProduct[]
-  drafts: DraftProduct[]
   needsMedia: NeedsMediaProduct[]
   expiringBadges: ExpiringBadge[]
   topByClicks: Awaited<ReturnType<typeof getTopProductsByMetric>>

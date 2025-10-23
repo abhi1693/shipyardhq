@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -185,11 +185,39 @@ export default function NotificationCenter({
     [segmentCounts],
   )
 
-  const selectedSegment = form.watch("segment")
-  const selectedUserIds = form.watch("selectedUserIds") ?? []
+  const selectedSegmentRaw =
+    useWatch<NotificationFormValues>({
+      control: form.control,
+      name: "segment",
+    }) ?? "registered"
+  const selectedSegment: NotificationSegment = Array.isArray(
+    selectedSegmentRaw,
+  )
+    ? (selectedSegmentRaw[0] as NotificationSegment | undefined) ?? "registered"
+    : (selectedSegmentRaw as NotificationSegment)
+  const selectedUserIdsRaw =
+    useWatch<NotificationFormValues>({
+      control: form.control,
+      name: "selectedUserIds",
+    }) ?? []
+  const selectedUserIds = Array.isArray(selectedUserIdsRaw)
+    ? selectedUserIdsRaw
+    : [selectedUserIdsRaw].filter((value): value is string => Boolean(value))
   const selectedUserKey = selectedUserIds.join(",")
-  const subjectValue = form.watch("subject")
-  const messageValue = form.watch("message")
+  const subjectRaw =
+    useWatch<NotificationFormValues>({
+      control: form.control,
+      name: "subject",
+    }) ?? ""
+  const subjectValue = Array.isArray(subjectRaw)
+    ? subjectRaw[0] ?? ""
+    : subjectRaw
+  const messageRaw =
+    useWatch<NotificationFormValues>({
+      control: form.control,
+      name: "message",
+    }) ?? ""
+  const messageValue = Array.isArray(messageRaw) ? messageRaw[0] ?? "" : messageRaw
 
   useEffect(() => {
     if (!selectedSegment) {

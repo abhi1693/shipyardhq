@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -89,7 +89,11 @@ export default function BuilderOutreachCenter() {
     defaultValues: { emails: "" },
   })
 
-  const emailsValue = form.watch("emails")
+  const emailsValue =
+    useWatch<BuilderOutreachFormValues>({
+      control: form.control,
+      name: "emails",
+    }) ?? ""
   const parsedEmails = useMemo(() => parseEmailList(emailsValue), [emailsValue])
   const firstValidEmail = parsedEmails.valid[0] ?? null
   const previewRecipient = firstValidEmail

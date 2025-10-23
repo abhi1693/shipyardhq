@@ -23,7 +23,6 @@ import {
   getLeaderboardPagePayload,
   type LeaderboardPagePayload,
 } from "@/lib/leaderboard/cache"
-import { Skeleton } from "@/components/atoms/skeleton"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 import { DirectorySectionHeaderSkeleton } from "@/components/molecules/directory/SectionHeader.skeleton"
 import { ProductUpdatesFeedSkeleton } from "@/components/molecules/ProductUpdatesFeed.skeleton"

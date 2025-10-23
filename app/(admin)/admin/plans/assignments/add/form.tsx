@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { z } from "zod"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import {
@@ -95,7 +95,11 @@ export default function AddAssignmentForm({
     },
   })
 
-  const watchedFeatureId = form.watch("featureId")
+  const watchedFeatureId =
+    useWatch<AssignmentFormInput>({
+      control: form.control,
+      name: "featureId",
+    }) ?? ""
   const selectedFeature = useMemo(
     () => features.find((f) => f.id === watchedFeatureId),
     [features, watchedFeatureId],
@@ -104,7 +108,17 @@ export default function AddAssignmentForm({
   const requiresUsageConfig =
     selectedFeature?.key === INSIGHTS_PIPELINE_FEATURE_KEY
 
-  const watchedUsageLimit = form.watch("usageLimit")
+  const watchedUsageLimitRaw =
+    useWatch<AssignmentFormInput>({
+      control: form.control,
+      name: "usageLimit",
+    }) ?? ""
+  const watchedUsageLimit =
+    typeof watchedUsageLimitRaw === "string"
+      ? watchedUsageLimitRaw
+      : watchedUsageLimitRaw
+          ? String(watchedUsageLimitRaw)
+          : ""
 
   const isValidInterval = (value: string | undefined): value is TimeInterval =>
     value ? INSIGHTS_USAGE_INTERVALS.includes(value as TimeInterval) : false
@@ -289,7 +303,7 @@ export default function AddAssignmentForm({
                           <Select
                             onValueChange={field.onChange}
                             value={field.value || ""}
-                            disabled={!form.watch("usageLimit")?.trim()}
+                            disabled={!watchedUsageLimit?.trim()}
                           >
                             <FormControl>
                               <SelectTrigger>

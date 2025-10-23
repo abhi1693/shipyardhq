@@ -1,13 +1,5 @@
 import MemberRewards from "@/components/pages/MemberRewards"
 import { getMemberRewardsSnapshot } from "@/actions/member/rewards/actions"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/atoms/card"
 import { CardSkeleton } from "@/components/atoms/card.skeleton"
 
 export async function MemberRewardsPageContent() {
