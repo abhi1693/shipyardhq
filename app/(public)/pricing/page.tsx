@@ -147,8 +147,7 @@ export default function PricingPage() {
             </h2>
             <p className="mt-3 text-muted-foreground">
               Subscriptions unlock shared organizations, advanced analytics,
-              recurring Insights credits, and dedicated collaboration
-              resources.
+              recurring Insights credits, and dedicated collaboration resources.
             </p>
           </div>
           <Suspense fallback={<SubscriptionPlansSkeleton />}>
