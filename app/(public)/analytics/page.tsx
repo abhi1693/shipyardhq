@@ -141,7 +141,9 @@ export const metadata = buildPageMetadata({
     "Understand how builders engage with your products. Shipyard analytics now includes plan-specific dashboards for free, paid, and team members.",
 })
 
-export default function AnalyticsPage() {
+export default async function AnalyticsPage() {
+  'use cache'
+
   return (
     <main className="relative isolate overflow-hidden bg-white">
       <section

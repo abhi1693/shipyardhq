@@ -1,25 +1,18 @@
-import Link from "next/link"
 import { IconFlag3, IconSparkles, IconTargetArrow } from "@tabler/icons-react"
+import clsx from "clsx"
+
+import { BadgeSkeleton } from "@/components/atoms/badge.skeleton"
+import { ButtonSkeleton } from "@/components/atoms/button.skeleton"
+import { Skeleton } from "@/components/atoms/skeleton"
 
 import { getPublicPlans } from "@/actions/public/plans/actions"
-import { PricingTable } from "@/components/organisms/PricingTable"
 import { getProducts } from "@/actions/public/products/featured"
 import FeaturedProductGrid from "@/components/molecules/FeaturedProductGrid"
 import { SubscriptionPlanCard } from "@/components/molecules/SubscriptionPlanCard"
+import { PricingTable } from "@/components/organisms/PricingTable"
 import { PlanType } from "@/lib/vendor/prisma/client"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/atoms/accordion"
-import { ANALYTICS_PATH, REWARDS_PATH } from "@/lib/routes"
-import { InsightsShowcase } from "@/components/organisms/insights/InsightsShowcase"
-import { launchPrimaryButton, launchSecondaryButton } from "@/lib/ui/buttons"
-import { brandGradient, gradientTint } from "@/lib/ui/tints"
-import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
 
-const CORE_PERKS = [
+export const CORE_PERKS = [
   {
     icon: IconFlag3,
     title: "Launch-ready guidance",
@@ -37,7 +30,7 @@ const CORE_PERKS = [
   },
 ]
 
-const PRICING_FAQS = [
+export const PRICING_FAQS = [
   {
     question: "Can I start for free and upgrade later?",
     answer:
@@ -65,211 +58,224 @@ const PRICING_FAQS = [
   },
 ]
 
-export async function PricingPageContent() {
-  const [plans, subscriptionPlans, featured] = await Promise.all([
-    getPublicPlans({ type: PlanType.one_time_price }),
-    getPublicPlans({ type: PlanType.recurring_price }),
-    getProducts("featured"),
-  ])
+export async function PricingPlansList() {
+  const plans = await getPublicPlans({ type: PlanType.one_time_price })
+  return <PricingTable plans={plans} />
+}
+
+export async function SubscriptionPlansList() {
+  const subscriptionPlans = await getPublicPlans({
+    type: PlanType.recurring_price,
+  })
+
+  if (!subscriptionPlans.length) {
+    return null
+  }
 
   return (
-    <main className="relative isolate overflow-hidden bg-white">
-      <section
-        className={brandGradient(
-          "relative overflow-hidden border border-[color:var(--brand-1)/0.18] py-24 shadow-[0px_60px_140px_-60px_rgba(18,66,112,0.7)]",
-        )}
-      >
-        <div className="relative mx-auto flex max-w-[84rem] flex-col items-center gap-10 px-4 text-center text-white md:px-8">
-          <span
-            className={gradientTint(
-              "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-white/80",
-            )}
+    <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
+      {subscriptionPlans.map((plan) => (
+        <div
+          key={plan.id}
+          className="flex w-full max-w-sm flex-1 basis-full sm:basis-[20rem]"
+        >
+          <SubscriptionPlanCard plan={plan} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export async function FeaturedProductsList() {
+  const featured = await getProducts("featured")
+
+  if (!featured.length) {
+    return null
+  }
+
+  return <FeaturedProductGrid items={featured.slice(0, 6)} />
+}
+
+export function PricingPlansSkeleton() {
+  return (
+    <section className="py-12">
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {[0, 1, 2].map((index) => (
+            <PricingPlanSkeletonCard
+              // eslint-disable-next-line react/no-array-index-key
+              key={index}
+              highlight={index === 1}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export function SubscriptionPlansSkeleton() {
+  return (
+    <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
+      {[...Array(2).keys()].map((index) => (
+        <div
+          // eslint-disable-next-line react/no-array-index-key
+          key={index}
+          className="h-72 w-full max-w-sm flex-1 basis-full animate-pulse rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/80 sm:basis-[20rem]"
+        />
+      ))}
+    </div>
+  )
+}
+
+export function FeaturedProductsSkeleton() {
+  return (
+    <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {[...Array(3).keys()].map((index) => (
+        <div
+          // eslint-disable-next-line react/no-array-index-key
+          key={index}
+          className="aspect-[3/2] animate-pulse rounded-[24px] border border-[color:var(--brand-1)/0.15] bg-background/80"
+        />
+      ))}
+    </div>
+  )
+}
+
+function PricingPlanSkeletonCard({ highlight }: { highlight?: boolean }) {
+  return (
+    <Skeleton
+      tone="soft"
+      radius="lg"
+      border="subtle"
+      className={clsx(
+        "flex h-full min-h-[34rem] flex-col gap-6 border bg-background/95 p-6 shadow-[0px_22px_55px_-38px_rgba(7,58,104,0.6)] backdrop-blur",
+        highlight &&
+          "border-[color:var(--brand-2)/0.22] shadow-[0px_28px_65px_-30px_rgba(7,78,134,0.32)] dark:border-[color:var(--brand-2)/0.28] dark:shadow-[0px_28px_60px_-30px_rgba(56,189,248,0.28)]",
+        !highlight && "border-[color:var(--brand-1)/0.14]",
+      )}
+    >
+      <div className="space-y-6">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-2">
+            <Skeleton
+              className="h-3 w-32 rounded-full"
+              tone="muted"
+              shimmer={false}
+            />
+            <Skeleton
+              className="h-3 w-48 rounded-full"
+              tone="muted"
+              shimmer={false}
+            />
+          </div>
+          {highlight ? (
+            <BadgeSkeleton
+              variant="default"
+              labelWidth="5.75rem"
+              leadingIcon
+              className="h-7"
+              shimmer={false}
+            />
+          ) : (
+            <BadgeSkeleton
+              variant="outline"
+              labelWidth="4.5rem"
+              className="h-7"
+              shimmer={false}
+            />
+          )}
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <Skeleton
+              className="h-3 w-16 rounded-full"
+              tone="muted"
+              shimmer={false}
+            />
+            <Skeleton
+              className="h-10 w-32 rounded-full"
+              tone="brand"
+              border="subtle"
+            />
+            <Skeleton
+              className="h-3 w-24 rounded-full"
+              tone="muted"
+              shimmer={false}
+            />
+          </div>
+          <Skeleton
+            className="h-2.5 w-32 rounded-full"
+            tone="muted"
+            shimmer={false}
+          />
+          <div className="flex items-center gap-2">
+            <Skeleton
+              className="size-5 rounded-full"
+              tone="brand"
+              border="subtle"
+              shimmer={false}
+            />
+            <Skeleton
+              className="h-2.5 w-48 rounded-full"
+              tone="muted"
+              shimmer={false}
+            />
+          </div>
+          <Skeleton
+            className="h-2 w-24 rounded-full"
+            tone="muted"
+            shimmer={false}
+          />
+        </div>
+      </div>
+
+      <div className="flex-1 space-y-3">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Skeleton
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            tone="soft"
+            radius="md"
+            border="muted"
+            shimmer={false}
+            className="flex items-start gap-3 p-3"
           >
-            Pricing
-          </span>
-          <div className="max-w-3xl space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-              Pricing built for every launch plan
-            </h1>
-            <p className="text-lg text-white/85">
-              Pick the placement that fits your launch. Switch plans anytime,
-              keep full control of your product page, and tap Insights for
-              automated research—starting with weekly runs on the free plan.
-            </p>
-          </div>
-          <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Link
-              href="/register"
-              className={launchPrimaryButton({ size: "lg" })}
-            >
-              Start for free
-            </Link>
-            <Link
-              href={REWARDS_PATH}
-              className={launchSecondaryButton({
-                size: "lg",
-                className: "text-white/90 hover:text-white",
-              })}
-            >
-              Explore rewards
-            </Link>
-          </div>
-          <div className="grid gap-4 rounded-2xl border border-white/30 bg-white/10 px-6 py-6 text-left text-white shadow-[0px_25px_60px_-40px_rgba(7,58,104,0.6)] backdrop-blur sm:grid-cols-3">
-            <div>
-              <p className="text-sm font-semibold text-white">
-                Launch playbooks
-              </p>
-              <p className="mt-1 text-xs text-white/80">
-                Step-by-step checklists for every plan.
-              </p>
+            <Skeleton
+              className="mt-1 size-5 flex-none rounded-full"
+              tone="brand"
+              border="subtle"
+              shimmer={false}
+            />
+            <div className="flex-1 space-y-2">
+              <Skeleton
+                className={clsx(
+                  "h-2.5 rounded-full",
+                  index % 2 === 0 ? "w-3/4" : "w-2/3",
+                )}
+                tone="muted"
+                shimmer={false}
+              />
+              <Skeleton
+                className="h-2 w-4/5 rounded-full"
+                tone="muted"
+                shimmer={false}
+              />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-white">
-                Upgrade anytime
-              </p>
-              <p className="mt-1 text-xs text-white/80">
-                Plans stack instantly—no downtime for your listing.
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-white">
-                Analytics & insights
-              </p>
-              <p className="mt-1 text-xs text-white/80">
-                Track signal across every tier and trigger Insights runs for
-                competitive, community, and action reports—free includes one run
-                per week and upgrades add more credits.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+          </Skeleton>
+        ))}
+      </div>
 
-      <HeroStickyBanner
-        wrapperClassName="mt-6"
-        innerClassName="max-w-[84rem]"
-      />
-
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">
-              Choose your promotion tier
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              Every plan includes verified launch tooling. Upgrade for
-              additional visibility across Shipyard.
-            </p>
-          </div>
-          <PricingTable plans={plans} />
-        </div>
-      </section>
-
-      <InsightsShowcase
-        eyebrow="Insights included"
-        title="Insights credits scale with your plan"
-        description="Every plan includes the Insights pipeline. Start with a weekly run on free listings and add more credits with paid placements to keep competitor intel, community sentiment, and prioritized actions fresh."
-        primaryCta={{
-          label: "Unlock insights with Shipyard",
-          href: "/register",
-        }}
-        secondaryCta={{
-          label: "See analytics & insights",
-          href: ANALYTICS_PATH,
-        }}
-      />
-
-      {subscriptionPlans.length > 0 && (
-        <section className="relative py-16">
-          <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-foreground">
-                Keep your team connected
-              </h2>
-              <p className="mt-3 text-muted-foreground">
-                Subscriptions unlock shared organizations, advanced analytics,
-                recurring Insights credits, and dedicated collaboration
-                resources.
-              </p>
-            </div>
-            <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
-              {subscriptionPlans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className="flex w-full max-w-sm flex-1 basis-full sm:basis-[20rem]"
-                >
-                  <SubscriptionPlanCard plan={plan} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="grid gap-6 rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/85 px-8 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.65)] backdrop-blur sm:grid-cols-3">
-            {CORE_PERKS.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="space-y-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[color:var(--brand-1)/0.2] bg-[color:var(--brand-1)/0.1] text-[color:var(--brand-1)]">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <h3 className="text-lg font-semibold text-foreground">
-                  {title}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {featured.length > 0 && (
-        <section className="relative py-16">
-          <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-            <div className="mx-auto max-w-2xl text-center space-y-3">
-              <h2 className="text-3xl font-bold tracking-tight text-foreground">
-                Featured success stories
-              </h2>
-              <p className="text-muted-foreground">
-                Makers who upgraded to featured placements and grew their
-                audience.
-              </p>
-            </div>
-            <div className="mt-10">
-              <FeaturedProductGrid items={featured.slice(0, 6)} />
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section className="relative py-16">
-        <div className="mx-auto max-w-[84rem] px-4 md:px-8">
-          <div className="max-w-3xl">
-            <div className="space-y-8 rounded-3xl border border-[color:var(--brand-1)/0.2] bg-background/85 px-6 py-10 shadow-[0px_30px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
-              <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight">FAQ</h2>
-                <p className="mt-2 text-muted-foreground">
-                  Answers to the questions launch teams ask most.
-                </p>
-              </div>
-              <Accordion type="multiple" className="w-full" id="faq">
-                {PRICING_FAQS.map((faq, index) => (
-                  <AccordionItem
-                    key={faq.question}
-                    value={`pricing-faq-${index}`}
-                  >
-                    <AccordionTrigger>{faq.question}</AccordionTrigger>
-                    <AccordionContent>{faq.answer}</AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+      <div className="mt-4">
+        <ButtonSkeleton
+          size="lg"
+          variant={highlight ? "default" : "outline"}
+          className="w-full"
+          labelWidth="9rem"
+          shimmer={false}
+        />
+      </div>
+    </Skeleton>
   )
 }
