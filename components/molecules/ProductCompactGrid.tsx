@@ -10,6 +10,7 @@ export type CompactProductItem = {
   tagline: string
   analytics?: { upvotes?: number | null } | null
   category?: { name?: string | null } | null
+  badges?: string[]
 }
 
 interface ProductCompactGridProps<T extends CompactProductItem> {
@@ -48,6 +49,7 @@ export function ProductCompactGrid<T extends CompactProductItem>({
           }}
           upvotes={item.analytics?.upvotes ?? 0}
           category={item.category?.name ?? null}
+          badges={item.badges}
           imagePriority={index < imagePriorityFirstN}
           meta={renderMeta?.(item, index)}
           showCategory={showCategory}

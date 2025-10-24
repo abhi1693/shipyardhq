@@ -1,8 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
+import { useCallback, useMemo, useState } from "react"
 import InlineSelect from "@/components/molecules/InlineSelect"
+import InfiniteProductGrid from "@/components/molecules/InfiniteProductGrid"
 import { cn } from "@/lib/utils"
 
 type ProductForCard = {
@@ -27,8 +27,15 @@ type Props = {
 
 type SortKey = "newest" | "upvotes" | "clicks" | "name"
 
+const CATEGORY_GRID_PAGE_SIZE = 12
+
 export function CategoryProductsClient({ products, className }: Props) {
   const [sort, setSort] = useState<SortKey>("newest")
+
+  const productKey = useMemo(
+    () => products.map((product) => product.id).join("|"),
+    [products],
+  )
 
   const sorted = useMemo(() => {
     const items = [...products]
@@ -58,6 +65,31 @@ export function CategoryProductsClient({ products, className }: Props) {
 
     return [...priority, ...regular]
   }, [products, sort])
+
+  const chunks = useMemo(() => {
+    const list: ProductForCard[][] = []
+    const chunkSize = CATEGORY_GRID_PAGE_SIZE
+    for (let index = 0; index < sorted.length; index += chunkSize) {
+      list.push(sorted.slice(index, index + chunkSize))
+    }
+    return list
+  }, [sorted])
+
+  const initialItems = chunks[0] ?? []
+  const initialHasMore = chunks.length > 1
+
+  const loadPage = useCallback(
+    async (page: number) => {
+      const targetIndex = page - 1
+      const nextItems = chunks[targetIndex] ?? []
+      const hasMore = targetIndex + 1 < chunks.length
+      return {
+        items: nextItems,
+        hasMore,
+      }
+    },
+    [chunks],
+  )
 
   return (
     <section
@@ -92,7 +124,21 @@ export function CategoryProductsClient({ products, className }: Props) {
       </div>
 
       <div className="mt-6">
-        <ProductCompactGrid items={sorted} />
+        <InfiniteProductGrid
+          initialItems={initialItems}
+          initialHasMore={initialHasMore}
+          initialPage={2}
+          loadPage={loadPage}
+          resetKey={`${sort}:${productKey}`}
+          loadingSkeletonCount={CATEGORY_GRID_PAGE_SIZE}
+          emptyState={
+            <div className="rounded-2xl border border-dashed border-border/70 bg-muted/20">
+              <p className="px-6 py-12 text-center text-sm text-muted-foreground">
+                No products available for this category yet.
+              </p>
+            </div>
+          }
+        />
       </div>
     </section>
   )

@@ -1,14 +1,11 @@
 import Link from "next/link"
 
-import ProductCompactGrid from "@/components/molecules/ProductCompactGrid"
 import { EmptyState } from "@/components/molecules/empty-state"
 import KeywordTagCloud from "@/components/molecules/KeywordTagCloud"
-import { TAG_PRODUCTS_PAGE_SIZE } from "@/actions/public/tags/actions"
-import { resolvePagination } from "@/lib/pagination"
-import { cn } from "@/lib/utils"
 import { getTagsIndexPayload } from "@/lib/tags/page-cache"
 
-import { buildPageHref, formatTagLabel } from "@/app/(public)/tags/_utils"
+import { formatTagLabel } from "@/app/(public)/tags/_utils"
+import TagProductsClient from "@/app/(public)/tags/[slug]/TagProductsClient"
 
 type TagsSearchParams = {
   page?: string | string[]
@@ -19,14 +16,9 @@ export async function TagsIndexPageContent({
 }: {
   searchParams: Promise<TagsSearchParams>
 }) {
-  const resolvedParams = await searchParams
-  const pagination = resolvePagination(resolvedParams, {
-    defaultPage: 1,
-    defaultPageSize: TAG_PRODUCTS_PAGE_SIZE,
-    maxPageSize: TAG_PRODUCTS_PAGE_SIZE,
-  })
+  await searchParams
 
-  const payload = await getTagsIndexPayload(pagination.page)
+  const payload = await getTagsIndexPayload(1)
   const { summaries, activeSummary, activeProducts } = payload
 
   if (!summaries.length || !activeSummary) {
@@ -49,8 +41,6 @@ export async function TagsIndexPageContent({
   const tagData = activeProducts
 
   const total = tagData?.total ?? activeSummary.productCount
-  const totalPages = Math.max(1, Math.ceil(total / TAG_PRODUCTS_PAGE_SIZE))
-  const basePath = "/tags"
 
   return (
     <div className="space-y-10">
@@ -89,53 +79,21 @@ export async function TagsIndexPageContent({
               {total} product{total === 1 ? "" : "s"} tagged with this keyword.
             </p>
           </div>
-          <div className="text-sm text-slate-500">
-            Page {pagination.page} of {totalPages}
-          </div>
         </div>
 
         {tagData && tagData.products.length > 0 ? (
-          <ProductCompactGrid
-            items={tagData.products}
-            columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          <TagProductsClient
+            slug={tagData.summary.slug}
+            initialItems={tagData.products}
+            initialHasMore={tagData.hasMore}
+            initialPage={2}
+            total={total}
           />
         ) : (
           <EmptyState
             title="No products yet"
             description="Products will appear here once they use this keyword."
           />
-        )}
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-slate-200 pt-6 text-sm text-slate-600">
-            <Link
-              href={buildPageHref(basePath, Math.max(1, pagination.page - 1))}
-              aria-disabled={pagination.page === 1}
-              className={cn(
-                "rounded-full px-3 py-1.5 font-medium transition",
-                pagination.page === 1
-                  ? "cursor-not-allowed text-slate-300"
-                  : "hover:bg-slate-100",
-              )}
-            >
-              Previous
-            </Link>
-            <Link
-              href={buildPageHref(
-                basePath,
-                Math.min(totalPages, pagination.page + 1),
-              )}
-              aria-disabled={pagination.page >= totalPages}
-              className={cn(
-                "rounded-full px-3 py-1.5 font-medium transition",
-                pagination.page >= totalPages
-                  ? "cursor-not-allowed text-slate-300"
-                  : "hover:bg-slate-100",
-              )}
-            >
-              Next
-            </Link>
-          </div>
         )}
       </section>
     </div>

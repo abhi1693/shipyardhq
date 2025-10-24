@@ -1,6 +1,6 @@
 import { FeaturedProduct } from "@/types"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
-import ProductList from "@/components/molecules/ProductList"
+import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 
 function toListItem(entry: FeaturedProduct) {
   const { product } = entry
@@ -28,10 +28,12 @@ export function LatestLaunches({ products }: { products: FeaturedProduct[] }) {
         description="Stay on the bleeding edge with products that just went live. Follow the momentum here, then dig deeper on /browse when you need full filters."
       />
       <div className="mt-8">
-        <ProductList
+        <DirectoryProductList
           items={items}
-          showCategory
           columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+          showCategory
+          pageSize={8}
+          sentinelMargin="-25% 0px 160px 0px"
         />
       </div>
     </section>

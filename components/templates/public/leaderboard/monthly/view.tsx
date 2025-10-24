@@ -6,7 +6,6 @@ import {
 } from "@/actions/public/leaderboard/actions"
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
-import { ProductCompactGrid } from "@/components/molecules/ProductCompactGrid"
 import { TopPlacementCard } from "@/components/molecules/LeaderboardTopPlacement"
 import { MonthlyLeaderboardMonthSelect } from "@/app/(public)/leaderboard/monthly/month-select"
 import {
@@ -24,6 +23,7 @@ import {
   IconUsersGroup,
 } from "@tabler/icons-react"
 import HeroStickyBanner from "@/components/layout/HeroStickyBanner"
+import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 
 const rankLabels = ["Top rank", "Second place", "Third place"]
 
@@ -205,7 +205,7 @@ export async function MonthlyLeaderboardView({
             <section className="relative py-16">
               <div className="mx-auto max-w-[84rem] px-4 md:px-8">
                 <div className="rounded-3xl border border-[color:var(--brand-1)/0.16] bg-background/90 px-5 py-6 shadow-[0px_28px_80px_-55px_rgba(7,58,104,0.6)] backdrop-blur">
-                  <ProductCompactGrid
+                  <DirectoryProductList
                     items={rest.map((entry) => ({
                       id: entry.product.id,
                       slug: entry.product.slug,
@@ -219,20 +219,17 @@ export async function MonthlyLeaderboardView({
                           0,
                       },
                       category: entry.product.category ?? undefined,
-                      rank: entry.rank,
-                      score: entry.score,
+                      metaLabel: `#${entry.rank}`,
                     }))}
                     columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                     className="gap-y-6"
-                    renderMeta={(item) => (
-                      <Badge
-                        variant="secondary"
-                        className="px-2 py-0.5 text-xs"
-                      >
-                        #{item.rank}
-                      </Badge>
-                    )}
                     showCategory
+                    pageSize={9}
+                    metaConfig={{
+                      type: "badge",
+                      badgeVariant: "secondary",
+                      badgeClassName: "px-2 py-0.5 text-xs",
+                    }}
                   />
                 </div>
               </div>

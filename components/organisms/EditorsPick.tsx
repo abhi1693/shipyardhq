@@ -1,6 +1,6 @@
 import { FeaturedProduct } from "@/types"
 import { DirectorySectionHeader } from "@/components/molecules/directory/SectionHeader"
-import ProductList from "@/components/molecules/ProductList"
+import { DirectoryProductList } from "@/components/organisms/directory/DirectoryProductList"
 
 function toListItem(entry: FeaturedProduct) {
   const { product } = entry
@@ -34,10 +34,13 @@ export function EditorsPick({ products }: { products: FeaturedProduct[] }) {
         description="Handpicked by the Shipyard team for narrative, polish, and traction. Use this mix to discover the story-driven products poised for breakout growth."
       />
       <div className="mt-8">
-        <ProductList
+        <DirectoryProductList
           items={items}
-          showCategory
           columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+          showCategory
+          showBadges
+          pageSize={8}
+          sentinelMargin="-25% 0px 160px 0px"
         />
       </div>
     </section>
