@@ -36,22 +36,12 @@ export function HomepageSpotlight({
 }) {
   if (!placements || placements.length === 0) return null
 
-  const scheduled = placements.filter((entry) => entry.origin === "schedule")
-  const reserved = placements.filter((entry) => entry.origin === "plan")
-
-  const sections: Array<{
-    heading: string
-    items: SpotlightListItem[]
-  }> = []
-
-  if (scheduled.length > 0) {
-    sections.push({
-      heading: "Scheduled homepage takeovers",
-      items: scheduled.map(toSpotlightItem),
-    })
-  }
-
-  const remaining = reserved.map(toSpotlightItem)
+  const scheduled = placements
+    .filter((entry) => entry.origin === "schedule")
+    .map(toSpotlightItem)
+  const remaining = placements
+    .filter((entry) => entry.origin === "plan")
+    .map(toSpotlightItem)
 
   return (
     <section className="rounded-3xl border border-border bg-white p-6 shadow-sm md:p-8">
@@ -62,17 +52,14 @@ export function HomepageSpotlight({
       />
 
       <div className="mt-8 space-y-8">
-        {sections.map((section) => (
-          <div key={section.heading} className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2 text-base font-semibold text-foreground">
-              <span>{section.heading}</span>
-            </div>
+        {scheduled.length > 0 ? (
+          <div className="space-y-4">
             <DirectoryProductList
-              items={section.items.map((item) => ({ ...item, badges: [] }))}
+              items={scheduled.map((item) => ({ ...item, badges: [] }))}
               columns="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
             />
           </div>
-        ))}
+        ) : null}
 
         {remaining.length > 0 ? (
           <div className="space-y-4">
