@@ -378,6 +378,11 @@ function hydratePayload(
         ...data,
         updatePublishedAt: reviveDate(data.updatePublishedAt),
       } as AppEvents[keyof AppEvents]
+    case "product.claimed":
+      return {
+        ...data,
+        claimedAt: reviveDate(data.claimedAt),
+      } as AppEvents[keyof AppEvents]
     case "rewards.awarded":
     case "rewards.redeemed":
     case "rewards.adjusted":

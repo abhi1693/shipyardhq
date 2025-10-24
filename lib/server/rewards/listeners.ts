@@ -1,5 +1,7 @@
+import prisma from "@/lib/prisma"
 import { registerEventHandler } from "@/lib/server/events"
 import {
+  adjustRewardsSafely,
   awardRewardsSafely,
   getProductOwnerId,
 } from "@/lib/server/rewards/helpers"
@@ -124,6 +126,72 @@ registerEventHandler({
       )
     } catch (error) {
       console.error("[rewards] product.created listener error", {
+        error,
+        event,
+      })
+    }
+  },
+})
+
+registerEventHandler({
+  event: "product.claimed",
+  id: "rewards.transfer-product-created",
+  queue: "default",
+  handler: async (event) => {
+    const { productId, previousOwnerId, claimedByUserId, claimedAt } = event
+    if (!previousOwnerId || !claimedByUserId) return
+    if (previousOwnerId === claimedByUserId) return
+
+    try {
+      const existing = await prisma.rewardTransaction.findFirst({
+        where: {
+          userId: previousOwnerId,
+          ruleKey: PRODUCT_CREATED_RULE_KEY,
+          eventId: `product.created:${productId}`,
+          type: "earn",
+        },
+        select: { rewardAmount: true },
+      })
+
+      const transferMetadata = {
+        productId,
+        previousOwnerId,
+        claimedByUserId,
+        claimedAt: claimedAt.toISOString?.() ?? new Date(claimedAt).toISOString(),
+        reason: "product.claimed.transfer",
+      }
+
+      if (existing && existing.rewardAmount > 0) {
+        await adjustRewardsSafely(
+          previousOwnerId,
+          -existing.rewardAmount,
+          {
+            actorUserId: claimedByUserId,
+            eventId: `product.claimed:${productId}:deduct:${previousOwnerId}`,
+            metadata: transferMetadata,
+            notes: "Transfer product creation reward to new owner",
+          },
+          "deduct product creation reward after claim",
+        )
+      }
+
+      await awardRewardsSafely(
+        claimedByUserId,
+        PRODUCT_CREATED_RULE_KEY,
+        {
+          eventId: `product.claimed:${productId}`,
+          productId,
+          sourceType: "product",
+          sourceId: productId,
+          targetType: "product",
+          targetId: productId,
+          actorUserId: claimedByUserId,
+          metadata: transferMetadata,
+        },
+        "award product creation rewards after claim",
+      )
+    } catch (error) {
+      console.error("[rewards] product.claimed listener error", {
         error,
         event,
       })

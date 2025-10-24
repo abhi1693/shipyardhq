@@ -19,6 +19,7 @@ type PublicProduct = Prisma.ProductGetPayload<{
         firstName: true
         lastName: true
         email: true
+        role: true
       }
     }
     metadata: true
@@ -74,7 +75,13 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
         },
       },
       user: {
-        select: { id: true, firstName: true, lastName: true, email: true },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          role: true,
+        },
       },
       metadata: true,
       analytics: true,
