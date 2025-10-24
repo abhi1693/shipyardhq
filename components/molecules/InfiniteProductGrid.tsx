@@ -143,7 +143,6 @@ export function InfiniteProductGrid<T extends CompactProductItem>({
     const targetPage = page
 
     prefetchedRef.current = null
-
     ;(async () => {
       try {
         const result = await loadPage(targetPage)

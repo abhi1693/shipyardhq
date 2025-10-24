@@ -51,7 +51,7 @@ import {
 } from "@/components/templates/public/homepage/promos"
 import { DirectoryHowItWorks } from "@/components/organisms/directory/DirectoryHowItWorks"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export default function HomePage() {
   return (

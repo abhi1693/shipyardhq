@@ -86,9 +86,8 @@ export function DirectoryProductList<T extends BaseProductListItem>({
 
   const resetKey = useMemo(
     () =>
-      items
-        .map((item) => `${item.id}:${item.metaLabel ?? ""}`)
-        .join("|") + `:pageSize:${chunkSize}`,
+      items.map((item) => `${item.id}:${item.metaLabel ?? ""}`).join("|") +
+      `:pageSize:${chunkSize}`,
     [chunkSize, items],
   )
 

@@ -57,10 +57,7 @@ export async function adjustRewardsSafely(
   try {
     await adjustRewards(userId, amount, options)
   } catch (error) {
-    if (
-      error instanceof RewardsError &&
-      IGNORED_ERROR_CODES.has(error.code)
-    ) {
+    if (error instanceof RewardsError && IGNORED_ERROR_CODES.has(error.code)) {
       return
     }
     if (error instanceof RewardsInsufficientBalanceError) {

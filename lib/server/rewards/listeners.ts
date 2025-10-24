@@ -157,7 +157,8 @@ registerEventHandler({
         productId,
         previousOwnerId,
         claimedByUserId,
-        claimedAt: claimedAt.toISOString?.() ?? new Date(claimedAt).toISOString(),
+        claimedAt:
+          claimedAt.toISOString?.() ?? new Date(claimedAt).toISOString(),
         reason: "product.claimed.transfer",
       }
 

@@ -4,7 +4,10 @@ import { auth } from "@clerk/nextjs/server"
 
 import { checkDomainTxtAction } from "@/actions/admin/products/actions"
 import prisma from "@/lib/prisma"
-import { evaluateClaimEligibility, isProductClaimableInGeneral } from "@/lib/products/claim"
+import {
+  evaluateClaimEligibility,
+  isProductClaimableInGeneral,
+} from "@/lib/products/claim"
 import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
 import { revalidateProduct, revalidateUser } from "@/lib/cache/revalidate"
 import { dispatchEventAsync } from "@/lib/server/events"
@@ -14,11 +17,11 @@ import {
 } from "@/lib/server/userStatus"
 import { APP_EVENTS } from "@/lib/server/events/constants"
 
-type ClaimOutcome =
-  | { success: true; slug: string }
-  | { error: string }
+type ClaimOutcome = { success: true; slug: string } | { error: string }
 
-export async function claimProductAction(productId: string): Promise<ClaimOutcome> {
+export async function claimProductAction(
+  productId: string,
+): Promise<ClaimOutcome> {
   if (!productId) {
     return { error: "Missing product identifier." }
   }

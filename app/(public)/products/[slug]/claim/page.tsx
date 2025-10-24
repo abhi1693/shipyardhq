@@ -74,9 +74,9 @@ export default async function ClaimProductPage({
           Claiming is not available
         </h1>
         <p className="mt-4 text-sm text-muted-foreground">
-          This listing is not currently eligible for claims. If you believe
-          you should manage {product.name}, please contact support so we can
-          help transfer ownership.
+          This listing is not currently eligible for claims. If you believe you
+          should manage {product.name}, please contact support so we can help
+          transfer ownership.
         </p>
         <div className="mt-6">
           <Button asChild variant="outline">
@@ -92,8 +92,8 @@ export default async function ClaimProductPage({
           Sign in to claim this product
         </h1>
         <p className="mt-4 text-sm text-muted-foreground">
-          You&apos;ll verify ownership of <strong>{domain}</strong> by adding
-          a DNS TXT record. Sign in to continue and we&apos;ll walk you through
+          You&apos;ll verify ownership of <strong>{domain}</strong> by adding a
+          DNS TXT record. Sign in to continue and we&apos;ll walk you through
           the steps.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
@@ -151,9 +151,7 @@ export default async function ClaimProductPage({
               <dd className="font-semibold">TXT</dd>
             </div>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <dt className="font-medium text-muted-foreground">
-                Host / Name
-              </dt>
+              <dt className="font-medium text-muted-foreground">Host / Name</dt>
               <dd className="font-semibold">@</dd>
             </div>
             <div className="flex flex-col gap-1">
