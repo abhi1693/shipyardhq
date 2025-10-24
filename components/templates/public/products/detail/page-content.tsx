@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { JSX } from "react"
 
 import { auth } from "@clerk/nextjs/server"
+import { SignInButton } from "@clerk/nextjs"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import {
   getLiveUpvoteCount,
@@ -29,12 +30,14 @@ import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
 import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"
 import { ScrollReset } from "@/components/atoms/scroll-reset"
+import { Button } from "@/components/atoms/button"
 import {
   BROWSE_PATH,
   categoryPath,
   productPath,
   productUpdatesPath,
   userPath,
+  productClaimPath,
 } from "@/lib/routes"
 import { SupportHeroCard } from "@/components/molecules/SupportHeroCard"
 import { NewsletterSignupSidebarCard } from "@/components/molecules/NewsletterSignupSidebarCard"
@@ -52,6 +55,10 @@ import {
   getProductPagePayload,
   reviewerDisplayName,
 } from "@/lib/products/page-cache"
+import {
+  evaluateClaimEligibility,
+  isProductClaimableInGeneral,
+} from "@/lib/products/claim"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -314,6 +321,51 @@ export async function ProductDetailPageContent({ params }: ProductPageProps) {
   const hasCrewDetails =
     crewRoster.length > 0 || Boolean(product.organization?.name)
 
+  const isClaimable = isProductClaimableInGeneral({
+    isVerified: product.verification?.isVerified ?? false,
+    productStatus: product.status,
+  })
+
+  const claimEligibilityForViewer =
+    viewer && isClaimable
+      ? evaluateClaimEligibility({
+          submitterId: product.user?.id ?? null,
+          viewerId: viewer.id,
+          productStatus: product.status,
+          isVerified: product.verification?.isVerified ?? false,
+        })
+      : null
+  let claimLink: JSX.Element | null = null
+  if (isClaimable) {
+    const claimHref = productClaimPath(product.slug)
+    if (!viewer) {
+      claimLink = (
+        <SignInButton
+          mode="modal"
+          forceRedirectUrl={claimHref}
+          signUpForceRedirectUrl={claimHref}
+        >
+          <Button
+            variant="outline"
+            className="border border-border bg-white text-foreground shadow-sm hover:bg-muted"
+          >
+            Claim this product
+          </Button>
+        </SignInButton>
+      )
+    } else if (claimEligibilityForViewer?.status === "eligible") {
+      claimLink = (
+        <Button
+          asChild
+          variant="outline"
+          className="border border-border bg-white text-foreground shadow-sm hover:bg-muted"
+        >
+          <Link href={claimHref}>Claim this product</Link>
+        </Button>
+      )
+    }
+  }
+
   return (
     <main className="relative isolate bg-white">
       {structuredDataJson ? (
@@ -346,6 +398,7 @@ export async function ProductDetailPageContent({ params }: ProductPageProps) {
               badges={heroBadges}
               isVerified={Boolean(isVerified)}
               primaryLinks={primaryLinks}
+              claimLink={claimLink}
               platforms={heroPlatforms}
               tags={signalTags}
               reviewPrompt={{

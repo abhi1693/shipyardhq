@@ -100,6 +100,8 @@ export const usecasePath = (slug: string) => `${USE_CASES_PATH}/${slug}`
 export const productPath = (slug: string) => `/products/${slug}`
 export const productUpdatesPath = (slug: string) =>
   `${productPath(slug)}/updates`
+export const productClaimPath = (slug: string) =>
+  `${productPath(slug)}/claim`
 export const userPath = (id: string) => `${USERS_PATH}/${id}`
 
 export const memberProductsStatusPath = (status: string) =>

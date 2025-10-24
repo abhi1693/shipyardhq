@@ -71,6 +71,7 @@ interface ProductDetailHeroProps {
   badges: HeroBadge[]
   isVerified: boolean
   primaryLinks: JSX.Element[]
+  claimLink?: JSX.Element | null
   platforms: HeroPlatform[]
   tags: HeroTag[]
   reviewPrompt?: {
@@ -89,6 +90,7 @@ export function ProductDetailHero({
   badges,
   isVerified,
   primaryLinks,
+  claimLink,
   platforms,
   tags,
   reviewPrompt,
@@ -188,6 +190,10 @@ export function ProductDetailHero({
             </span>
           ))}
         </div>
+      ) : null}
+
+      {claimLink ? (
+        <div className="flex justify-end pt-3">{claimLink}</div>
       ) : null}
 
       {hasPlatforms || hasTags ? (

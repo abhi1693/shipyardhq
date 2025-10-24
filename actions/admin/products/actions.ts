@@ -1,7 +1,6 @@
 "use server"
 
 import { Resolver } from "node:dns/promises"
-import { createHash } from "crypto"
 import { auth } from "@clerk/nextjs/server"
 import prisma from "@/lib/prisma"
 import { dispatchEventAsync } from "@/lib/server/events"
@@ -18,6 +17,7 @@ import { ProductType, PricingModel, Prisma } from "@/lib/vendor/prisma/client"
 import { slugify } from "@/lib/utils"
 import { checkRole } from "@/lib/roles"
 import { memberHasFeature } from "@/lib/memberFeatures"
+import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
 import {
   revalidateCategory,
   revalidateCategories,
@@ -29,12 +29,6 @@ import {
   getActiveUserByClerkId,
   INACTIVE_ACCOUNT_MESSAGE,
 } from "@/lib/server/userStatus"
-
-function generateVerificationTxtFromWebsite(websiteUrl: string): string {
-  const norm = websiteUrl.trim().toLowerCase()
-  const hash = createHash("sha256").update(norm).digest("hex").slice(0, 12)
-  return `prod-verif-shipyard-${hash}`
-}
 
 async function generateUniqueSlug(base: string): Promise<string> {
   const clean = slugify(base)
