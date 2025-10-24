@@ -30,7 +30,7 @@ export function ClaimProductButton({
             return
           }
           toast.success("Product claimed successfully.")
-          const targetSlug = outcome.slug || slug
+          const targetSlug = outcome.slug
           router.push(productPath(targetSlug))
         })
       }
