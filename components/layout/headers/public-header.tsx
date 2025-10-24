@@ -13,10 +13,10 @@ import {
   SignOutButton,
   SignedIn,
   SignedOut,
-  SignInButton,
   useUser,
 } from "@clerk/nextjs"
 import { BrandLogo } from "@/components/atoms/brand-logo"
+import SignInButton from "@/components/molecules/SignInButton"
 import {
   ANALYTICS_PATH,
   BROWSE_PATH,

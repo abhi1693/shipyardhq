@@ -3,7 +3,6 @@ import { notFound } from "next/navigation"
 import { JSX } from "react"
 
 import { auth } from "@clerk/nextjs/server"
-import { SignInButton } from "@clerk/nextjs"
 
 import { getPublicProductBySlug } from "@/actions/public/products/actions"
 import { ClaimProductButton } from "@/components/molecules/ClaimProductButton"
@@ -15,6 +14,7 @@ import {
 import { generateVerificationTxtFromWebsite } from "@/lib/products/verification"
 import { productClaimPath, productPath } from "@/lib/routes"
 import { getActiveUserByClerkId } from "@/lib/server/userStatus"
+import SignInButton from "@/components/molecules/SignInButton"
 
 export default async function ClaimProductPage({
   params,

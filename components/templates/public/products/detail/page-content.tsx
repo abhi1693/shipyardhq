@@ -3,7 +3,6 @@ import { notFound } from "next/navigation"
 import { JSX } from "react"
 
 import { auth } from "@clerk/nextjs/server"
-import { SignInButton } from "@clerk/nextjs"
 import { BADGE_OPTIONS } from "@/lib/constants"
 import {
   getLiveUpvoteCount,
@@ -26,6 +25,7 @@ import {
 import { IconBrandFirefox } from "@tabler/icons-react"
 import { productPageCopy } from "@/lib/copy/productPage"
 import ExternalBadgeLink from "@/components/molecules/ExternalBadgeLink"
+import SignInButton from "@/components/molecules/SignInButton"
 import { addUtmParams } from "@/lib/marketing/utm"
 import { hasPlanFeature } from "@/lib/features"
 import ProductMetricsTracker from "@/components/pages/ProductMetricsTracker"

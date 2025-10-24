@@ -2,7 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { JSX } from "react"
 import { CheckCircle, Tag as TagIcon } from "lucide-react"
-import { SignInButton } from "@clerk/nextjs"
+import SignInButton from "@/components/molecules/SignInButton"
 
 import { Badge } from "@/components/atoms/badge"
 import { Button } from "@/components/atoms/button"
@@ -302,13 +302,6 @@ export function ProductDetailHero({
                   forceRedirectUrl={reviewPrompt.redirectUrl}
                   signUpForceRedirectUrl={reviewPrompt.redirectUrl}
                 >
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-white/60 bg-white/90 px-4 text-[color:var(--brand-1)] shadow-none transition hover:bg-white"
-                  >
-                    {reviewCopy.signedOutCta}
-                  </Button>
                 </SignInButton>
               )}
             </div>

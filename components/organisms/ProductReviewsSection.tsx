@@ -1,4 +1,4 @@
-import { SignInButton } from "@clerk/nextjs"
+import SignInButton from "@/components/molecules/SignInButton"
 import { formatDistanceToNow } from "date-fns"
 
 import { Button } from "@/components/atoms/button"

@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { SignInButton, useUser } from "@clerk/nextjs"
+import { useUser } from "@clerk/nextjs"
 import { usePathname, useSearchParams } from "next/navigation"
 import { UpvoteSquare } from "@/components/molecules/UpvoteSquare"
+import SignInButton from "@/components/molecules/SignInButton"
 
 interface Props {
   productId: string
