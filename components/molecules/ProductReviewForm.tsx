@@ -135,9 +135,7 @@ export default function ProductReviewForm({
           </label>
           <button
             type="button"
-            onClick={() => {
-              startTransition(() => setRating(0))
-            }}
+            onClick={() => setRating(0)}
             className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Clear rating
@@ -161,9 +159,7 @@ export default function ProductReviewForm({
                   onMouseLeave={() => setHoverRating(null)}
                   onFocus={() => setHoverRating(value)}
                   onBlur={() => setHoverRating(null)}
-                  onClick={() => {
-                    startTransition(() => setRating(value))
-                  }}
+                  onClick={() => setRating(value)}
                   className="group"
                   aria-label={`${value} star${value === 1 ? "" : "s"}`}
                 >
