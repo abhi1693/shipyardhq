@@ -4,6 +4,14 @@ import { AlternativeProductForm } from "../../_components/AlternativeProductForm
 import { getAlternativeProductById } from "@/actions/admin/alternative-products/actions"
 import { getCategories } from "@/actions/admin/categories/actions"
 import { getProducts } from "@/actions/admin/products/actions"
+import { Prisma } from "@/lib/vendor/prisma/client"
+
+type AlternativeWithRelations = Prisma.AlternativeProductGetPayload<{
+  include: {
+    categories: true
+    products: { select: { id: true } }
+  }
+}>
 
 export default async function EditAlternativeProductPage({
   params,
@@ -28,17 +36,19 @@ export default async function EditAlternativeProductPage({
     return notFound()
   }
 
+  const alternativeWithRelations = alternative as AlternativeWithRelations
+
   return (
     <AlternativeProductForm
       mode="edit"
-      alternativeId={alternative.id}
+      alternativeId={alternativeWithRelations.id}
       defaultValues={{
-        name: alternative.name,
-        description: alternative.description,
-        websiteUrl: alternative.websiteUrl,
-        logoUrl: alternative.logoUrl,
-        categoryIds: alternative.categories.map((category) => category.id),
-        productIds: alternative.products.map((product) => product.id),
+        name: alternativeWithRelations.name,
+        description: alternativeWithRelations.description,
+        websiteUrl: alternativeWithRelations.websiteUrl,
+        logoUrl: alternativeWithRelations.logoUrl,
+        categoryIds: alternativeWithRelations.categories.map((category) => category.id),
+        productIds: alternativeWithRelations.products.map((product) => product.id),
       }}
       categories={categories}
       products={products}

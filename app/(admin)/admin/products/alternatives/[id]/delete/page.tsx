@@ -36,13 +36,13 @@ export default async function DeleteAlternativeProductPage({
   if (!alternative) {
     redirect(adminStatusPath(["products", "alternatives"], "not-found"))
   }
-
-  const linkedProducts = alternative.products.length
+  const { id: alternativeId, name: alternativeName, products } = alternative
+  const linkedProducts = products.length
 
   async function handleDelete() {
     "use server"
 
-    const result = await deleteAlternativeProductAction(alternative.id)
+    const result = await deleteAlternativeProductAction(alternativeId)
 
     if (result && typeof result === "object" && "error" in result) {
       redirect(adminStatusPath(["products", "alternatives"], "error"))
@@ -61,7 +61,7 @@ export default async function DeleteAlternativeProductPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            This will permanently remove <span className="font-medium">{alternative.name}</span>
+            This will permanently remove <span className="font-medium">{alternativeName}</span>
             {linkedProducts > 0 ? (
               <>
                 {" "}and detach it from <span className="font-medium">{linkedProducts}</span>{" "}
@@ -74,7 +74,7 @@ export default async function DeleteAlternativeProductPage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href={adminPath("products", "alternatives", alternative.id)}>
+            <Link href={adminPath("products", "alternatives", alternativeId)}>
               Cancel
             </Link>
           </Button>

@@ -31,6 +31,7 @@ export function getInitialValuesForAdd(): BaseValues {
     demoUrl: "",
     contactEmail: "",
     utmCampaign: "",
+    alternativeIds: [],
     verificationExpectedTxt: "",
     verificationChecked: false,
     verificationSuccess: false,
@@ -62,6 +63,9 @@ export function getInitialValuesFromProduct(product: any): BaseValues {
     demoUrl: product.metadata?.demoUrl ?? "",
     contactEmail: product.metadata?.contactEmail ?? "",
     utmCampaign: product.metadata?.utmCampaign ?? "",
+    alternativeIds: Array.isArray(product.alternatives)
+      ? product.alternatives.map((alt: any) => alt.id)
+      : [],
     status: product.status,
     verificationExpectedTxt: "",
     verificationChecked: false,
@@ -111,6 +115,9 @@ export function toCreateFormData(
   if (v.demoUrl) fd.append("demoUrl", normalizeUrl(v.demoUrl)!)
   if (v.contactEmail) fd.append("contactEmail", v.contactEmail)
   if (v.utmCampaign) fd.append("utmCampaign", v.utmCampaign)
+  if (Array.isArray(v.alternativeIds) && v.alternativeIds.length) {
+    fd.append("alternativeIds", JSON.stringify(v.alternativeIds))
+  }
 
   fd.append("userId", userId)
   if (v.status) fd.append("status", v.status)
@@ -148,5 +155,6 @@ export function toUpdatePayload(values: BaseValues, product: any) {
     demoUrl: v.demoUrl ? normalizeUrl(v.demoUrl) : null,
     contactEmail: v.contactEmail || null,
     utmCampaign: v.utmCampaign || null,
+    alternativeIds: Array.isArray(v.alternativeIds) ? v.alternativeIds : [],
   }
 }

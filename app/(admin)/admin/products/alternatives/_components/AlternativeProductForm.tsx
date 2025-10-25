@@ -47,8 +47,8 @@ const schema = z.object({
     .min(10, "Description should provide a helpful summary"),
   websiteUrl: z.string().url("Enter a valid website URL"),
   logoUrl: z.string().url("Enter a valid logo URL"),
-  categoryIds: z.array(z.string()).default([]),
-  productIds: z.array(z.string()).default([]),
+  categoryIds: z.array(z.string()),
+  productIds: z.array(z.string()),
 })
 
 export type AlternativeProductFormInput = z.infer<typeof schema>

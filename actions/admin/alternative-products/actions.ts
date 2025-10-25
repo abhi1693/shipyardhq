@@ -237,7 +237,7 @@ export async function deleteAlternativeProductAction(id: string) {
       where: { id },
     })
 
-    revalidateAlternativeProduct(id, "invalidate")
+    revalidateAlternativeProduct(id, "revalidate")
     existing.products.forEach((product) => {
       revalidateProduct(product.id)
     })

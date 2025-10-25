@@ -9,6 +9,16 @@ import { ExternalLink } from "lucide-react"
 import { AlternativeProductProductRelationship } from "./relationships/products"
 import { AlternativeProductCategoryRelationship } from "./relationships/categories"
 import { Badge } from "@/components/atoms/badge"
+import { Prisma } from "@/lib/vendor/prisma/client"
+
+type AlternativeWithRelations = Prisma.AlternativeProductGetPayload<{
+  include: {
+    categories: true
+    products: {
+      include: { category: true }
+    }
+  }
+}>
 
 export default async function AlternativeProductDetailPage({
   params,
@@ -22,14 +32,15 @@ export default async function AlternativeProductDetailPage({
     return notFound()
   }
 
-  const categories = alternative.categories
-  const products = alternative.products
+  const alternativeWithRelations = alternative as AlternativeWithRelations
+  const categories = alternativeWithRelations.categories
+  const products = alternativeWithRelations.products
 
   const websiteHost = (() => {
     try {
-      return new URL(alternative.websiteUrl).hostname
+      return new URL(alternativeWithRelations.websiteUrl).hostname
     } catch {
-      return alternative.websiteUrl
+      return alternativeWithRelations.websiteUrl
     }
   })()
 
@@ -38,7 +49,7 @@ export default async function AlternativeProductDetailPage({
       label: "Website",
       value: (
         <Link
-          href={alternative.websiteUrl}
+          href={alternativeWithRelations.websiteUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 text-primary hover:underline"
@@ -50,7 +61,7 @@ export default async function AlternativeProductDetailPage({
     },
     {
       label: "Description",
-      value: <p className="whitespace-pre-wrap text-sm">{alternative.description}</p>,
+      value: <p className="whitespace-pre-wrap text-sm">{alternativeWithRelations.description}</p>,
     },
     {
       label: "Categories",
@@ -78,7 +89,7 @@ export default async function AlternativeProductDetailPage({
     },
     {
       label: "Last updated",
-      value: formatDate(alternative.updatedAt),
+      value: formatDate(alternativeWithRelations.updatedAt),
     },
     {
       label: "Logo",
@@ -87,13 +98,13 @@ export default async function AlternativeProductDetailPage({
           <div className="h-12 w-12 overflow-hidden rounded-lg border">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={alternative.logoUrl}
-              alt={`${alternative.name} logo`}
+              src={alternativeWithRelations.logoUrl}
+              alt={`${alternativeWithRelations.name} logo`}
               className="h-full w-full object-contain bg-white"
             />
           </div>
           <span className="text-sm text-muted-foreground">
-            {alternative.logoUrl}
+            {alternativeWithRelations.logoUrl}
           </span>
         </div>
       ),
@@ -103,10 +114,10 @@ export default async function AlternativeProductDetailPage({
   return (
     <ObjectPageLayout
       heading={{
-        id: alternative.id,
-        title: alternative.name,
-        createdAt: alternative.createdAt,
-        updatedAt: alternative.updatedAt,
+        id: alternativeWithRelations.id,
+        title: alternativeWithRelations.name,
+        createdAt: alternativeWithRelations.createdAt,
+        updatedAt: alternativeWithRelations.updatedAt,
         slug: null,
       }}
       overview={overview}
@@ -115,12 +126,8 @@ export default async function AlternativeProductDetailPage({
       editable
       relationships={
         <>
-          <AlternativeProductProductRelationship
-            rows={products}
-          />
-          <AlternativeProductCategoryRelationship
-            rows={categories}
-          />
+          <AlternativeProductProductRelationship rows={products} />
+          <AlternativeProductCategoryRelationship rows={categories} />
         </>
       }
     />
