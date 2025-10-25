@@ -15,8 +15,10 @@ import {
 } from "@/components/atoms/avatar"
 import { EmptyState } from "@/components/molecules/empty-state"
 import { AlternativeCatalogCard } from "@/components/molecules/AlternativeCatalogCard"
+import { alternativePath, productPath } from "@/lib/routes"
 import { brandGradient } from "@/lib/ui/tints"
 import { cn } from "@/lib/utils"
+import { siteConfig } from "@/lib/siteConfig"
 
 interface AlternativeDetailPageProps {
   params: Promise<{ slug: string }>
@@ -56,8 +58,68 @@ export async function AlternativeDetailPageContent({
   const avatarInitials = getInitials(alternative.name)
   const websiteUrl = alternative.websiteUrl?.trim()
 
+  const alternativeUrl = new URL(
+    alternativePath(alternative.slug),
+    siteConfig.url,
+  ).toString()
+
+  const itemListElements = productsPage.items.map((product, index) => {
+    const productUrl = new URL(productPath(product.slug), siteConfig.url)
+      .toString()
+
+    const productNode: Record<string, unknown> = {
+      "@type": "Product",
+      name: product.name,
+      url: productUrl,
+    }
+
+    if (product.logo) {
+      productNode.image = product.logo
+    }
+
+    const categoryName = product.category?.name
+    if (categoryName) {
+      productNode.category = categoryName
+    }
+
+    if (product.tagline) {
+      productNode.description = product.tagline
+    }
+
+    return {
+      "@type": "ListItem",
+      position: index + 1,
+      url: productUrl,
+      item: productNode,
+    }
+  })
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `Best ${alternative.name} Alternatives`,
+    url: alternativeUrl,
+    description: alternative.description ?? subheading,
+    mainEntity: {
+      "@type": "ItemList",
+      name: `Products like ${alternative.name}`,
+      numberOfItems: productsPage.total,
+      itemListOrder: "https://schema.org/ItemListOrderAscending",
+      itemListElement: itemListElements,
+    },
+  }
+
+  const structuredDataJson = JSON.stringify(structuredData)
+
   return (
     <main className="relative isolate bg-white">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: structuredDataJson,
+        }}
+      />
       <div className="mx-auto w-full max-w-[120rem] px-4 pb-24 pt-16 sm:px-6 lg:px-8">
         <div className="space-y-14">
           <section
@@ -182,13 +244,4 @@ function getInitials(name: string) {
     .slice(0, 2)
 
   return letters || "ALT"
-}
-
-function cleanHost(url: string) {
-  try {
-    const { hostname } = new URL(url)
-    return hostname.replace(/^www\./, "")
-  } catch {
-    return url
-  }
 }
