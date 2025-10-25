@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useOptimistic, useState, useId } from "react"
+import { useEffect, useMemo, useState, useId } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -38,18 +38,7 @@ export function StickyBannerCarousel({
   )
 
   const total = items.length
-  const baseActiveId = items[0]?.id ?? null
-  const [activeId, setActiveId] = useOptimistic(
-    baseActiveId,
-    (_current: string | null, next: string | null) => next,
-  )
-  const index = useMemo(() => {
-    if (!activeId) {
-      return 0
-    }
-    const nextIndex = items.findIndex((product) => product.id === activeId)
-    return nextIndex === -1 ? 0 : nextIndex
-  }, [activeId, items])
+  const [index, setIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const carouselId = useId()
   const animationId = useMemo(() => {
@@ -61,18 +50,18 @@ export function StickyBannerCarousel({
     if (total <= 1 || isPaused) return
 
     const timer = setInterval(() => {
-      const nextItem = items[(index + 1) % total]
-      setActiveId(nextItem ? nextItem.id : items[0]?.id ?? null)
+      setIndex((prev) => (prev + 1) % total)
     }, 5000)
 
     return () => clearInterval(timer)
-  }, [index, isPaused, items, setActiveId, total])
+  }, [total, isPaused])
 
   if (total === 0) {
     return null
   }
 
-  const current = items[index]
+  const safeIndex = total > 0 ? Math.min(index, total - 1) : 0
+  const current = items[safeIndex] ?? items[0]
   const tagline = current.tagline?.trim()
   const categoryName = current.category?.name?.trim() || null
   const makerName = (() => {
