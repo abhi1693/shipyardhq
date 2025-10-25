@@ -2,11 +2,12 @@
 
 import type { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
-import { Eye, Pencil } from "lucide-react"
+import { Pencil } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar"
 import { Button } from "@/components/atoms/button"
-import { formatDate } from "@/lib/ui/formatters"
+import DeleteButton from "@/components/molecules/DeleteButton"
+import { formatDate, linkify } from "@/lib/ui/formatters"
 import { adminPath } from "@/lib/routes"
 import { Prisma } from "@/lib/vendor/prisma/client"
 
@@ -38,10 +39,18 @@ export const columns: ColumnDef<AlternativeProductRow>[] = [
           <AvatarFallback>{getInitials(row.original.name)}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
-          <span className="font-medium">{row.original.name}</span>
-          <span className="text-xs text-muted-foreground">
+          {linkify({
+            label: row.original.name,
+            href: adminPath("products", "alternatives", row.original.id),
+          })}
+          <Link
+            href={row.original.websiteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-muted-foreground hover:underline"
+          >
             {row.original.websiteUrl}
-          </span>
+          </Link>
         </div>
       </div>
     ),
@@ -86,12 +95,6 @@ export const columns: ColumnDef<AlternativeProductRow>[] = [
     },
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <Link href={adminPath("products", "alternatives", row.original.id)}>
-          <Button size="sm" variant="outline">
-            <Eye className="mr-1 h-4 w-4" />
-            View
-          </Button>
-        </Link>
         <Link
           href={adminPath("products", "alternatives", row.original.id, "edit")}
         >
@@ -99,6 +102,11 @@ export const columns: ColumnDef<AlternativeProductRow>[] = [
             <Pencil className="mr-1 h-4 w-4" />
             Edit
           </Button>
+        </Link>
+        <Link
+          href={adminPath("products", "alternatives", row.original.id, "delete")}
+        >
+          <DeleteButton size="sm" />
         </Link>
       </div>
     ),
