@@ -58,7 +58,6 @@ function TagSectionsSkeleton() {
         <div className="flex flex-wrap gap-3 pt-2">
           {Array.from({ length: 14 }).map((_, index) => (
             <div
-               
               key={index}
               className="h-9 w-24 rounded-full bg-slate-200/70 animate-pulse"
             />
@@ -77,7 +76,6 @@ function TagSectionsSkeleton() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
-               
               key={index}
               className="h-48 rounded-3xl border border-slate-200 bg-slate-100/60 animate-pulse"
             />

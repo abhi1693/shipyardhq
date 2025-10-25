@@ -32,11 +32,7 @@ export function OrganizationFormSkeleton({
 
         <div className="space-y-4">
           {[0, 1].map((index) => (
-            <div
-               
-              key={index}
-              className="space-y-2"
-            >
+            <div key={index} className="space-y-2">
               <LabelSkeleton />
               <InputSkeleton />
             </div>

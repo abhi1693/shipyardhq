@@ -44,7 +44,6 @@ export function ProductUpdatesFeedSkeleton({
       <div className="mt-4 space-y-4">
         {items.map((_, index) => (
           <article
-             
             key={index}
             className="flex gap-3 rounded-xl border border-border/70 bg-white/95 p-3 shadow-xs"
           >

@@ -329,12 +329,7 @@ function StageCard({
   const baseOpen = collapsible ? defaultOpen : true
   const [isOpen, setIsOpen] = useOptimistic(
     baseOpen,
-    (
-      prev,
-      action:
-        | boolean
-        | ((previousValue: boolean) => boolean),
-    ) =>
+    (prev, action: boolean | ((previousValue: boolean) => boolean)) =>
       typeof action === "function"
         ? (action as (previousValue: boolean) => boolean)(prev)
         : action,

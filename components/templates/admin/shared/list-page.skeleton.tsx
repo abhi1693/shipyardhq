@@ -58,7 +58,6 @@ export function AdminListPageSkeleton({
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: cards }).map((_, index) => (
             <CardSkeleton
-               
               key={index}
               lines={4}
               showFooter={false}

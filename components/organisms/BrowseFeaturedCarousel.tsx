@@ -29,8 +29,7 @@ export function BrowseFeaturedCarousel({
 
   const total = items.length
   const [index, setIndex] = useState(0)
-  const activeIndex =
-    total > 0 ? ((index % total) + total) % total : 0
+  const activeIndex = total > 0 ? ((index % total) + total) % total : 0
   const [isPaused, setIsPaused] = useState(false)
 
   useEffect(() => {

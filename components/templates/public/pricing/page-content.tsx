@@ -102,11 +102,7 @@ export function PricingPlansSkeleton() {
       <div className="mx-auto max-w-6xl px-4">
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {[0, 1, 2].map((index) => (
-            <PricingPlanSkeletonCard
-               
-              key={index}
-              highlight={index === 1}
-            />
+            <PricingPlanSkeletonCard key={index} highlight={index === 1} />
           ))}
         </div>
       </div>
@@ -119,7 +115,6 @@ export function SubscriptionPlansSkeleton() {
     <div className="mt-10 mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-5 lg:gap-6">
       {[...Array(2).keys()].map((index) => (
         <div
-           
           key={index}
           className="h-72 w-full max-w-sm flex-1 basis-full animate-pulse rounded-3xl border border-[color:var(--brand-1)/0.15] bg-background/80 sm:basis-[20rem]"
         />
@@ -133,7 +128,6 @@ export function FeaturedProductsSkeleton() {
     <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {[...Array(3).keys()].map((index) => (
         <div
-           
           key={index}
           className="aspect-[3/2] animate-pulse rounded-[24px] border border-[color:var(--brand-1)/0.15] bg-background/80"
         />
@@ -234,7 +228,6 @@ function PricingPlanSkeletonCard({ highlight }: { highlight?: boolean }) {
       <div className="flex-1 space-y-3">
         {Array.from({ length: 4 }).map((_, index) => (
           <Skeleton
-             
             key={index}
             tone="soft"
             radius="md"

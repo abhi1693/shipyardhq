@@ -64,7 +64,6 @@ function RunnerUpSkeleton() {
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         {Array.from({ length: 2 }).map((_, index) => (
           <CardSkeleton
-             
             key={index}
             lines={3}
             tone="soft"

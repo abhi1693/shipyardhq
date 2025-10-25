@@ -31,7 +31,6 @@ export function DirectoryRadarDigestSkeleton({
       <ul className="space-y-4">
         {rows.map((_, index) => (
           <li
-             
             key={index}
             className="rounded-2xl border border-transparent px-3 py-2"
           >
@@ -50,11 +49,7 @@ export function DirectoryRadarDigestSkeleton({
       </ul>
       <div className="mt-6 grid grid-cols-3 gap-3 text-center text-xs">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div
-             
-            key={index}
-            className="rounded-2xl bg-muted/50 px-3 py-2"
-          >
+          <div key={index} className="rounded-2xl bg-muted/50 px-3 py-2">
             <Skeleton className="mx-auto h-2 w-20 rounded-full" tone="muted" />
             <Skeleton
               className="mx-auto mt-2 h-5 w-16 rounded-full"

@@ -47,7 +47,6 @@ export function RewardsPageSkeleton() {
           <div className="mt-12 grid w-full grid-cols-1 gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <CardSkeleton
-                 
                 key={index}
                 lines={2}
                 tone="soft"

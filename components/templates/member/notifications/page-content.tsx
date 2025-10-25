@@ -28,7 +28,6 @@ export function MemberNotificationsPageSkeleton() {
       <div className="space-y-3">
         {Array.from({ length: 5 }).map((_, index) => (
           <CardSkeleton
-             
             key={index}
             tone="soft"
             radius="lg"

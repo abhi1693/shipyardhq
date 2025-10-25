@@ -34,7 +34,6 @@ export function CategoriesPageSkeleton() {
                 <div className="flex flex-wrap gap-2">
                   {Array.from({ length: 6 }).map((_, index) => (
                     <BadgeSkeleton
-                       
                       key={index}
                       variant="outline"
                       labelWidth="7rem"
@@ -46,7 +45,6 @@ export function CategoriesPageSkeleton() {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
                 {Array.from({ length: 3 }).map((_, index) => (
                   <CardSkeleton
-                     
                     key={index}
                     tone="soft"
                     radius="lg"
@@ -74,7 +72,6 @@ export function CategoriesPageSkeleton() {
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {Array.from({ length: 8 }).map((_, index) => (
                 <CardSkeleton
-                   
                   key={index}
                   tone="soft"
                   radius="lg"

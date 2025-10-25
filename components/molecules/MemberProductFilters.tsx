@@ -50,7 +50,9 @@ export default function MemberProductFilters() {
   const [q, setQ] = useOptimistic(
     current.q,
     (prev, next: string | ((value: string) => string)) =>
-      typeof next === "function" ? (next as (value: string) => string)(prev) : next,
+      typeof next === "function"
+        ? (next as (value: string) => string)(prev)
+        : next,
   )
 
   // Debounced search push

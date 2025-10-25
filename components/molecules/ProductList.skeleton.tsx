@@ -34,7 +34,6 @@ export function ProductListSkeleton({
     >
       {items.map((_, index) => (
         <ProductCompactCardSkeleton
-           
           key={index}
           showCategory={showCategory}
           showBadges={showBadges}

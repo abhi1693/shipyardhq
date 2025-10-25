@@ -47,7 +47,6 @@ export function RewardsLeaderboardPreviewSkeleton({
       <ul className="mt-8 grid gap-4 sm:grid-cols-3">
         {entries.map((_, index) => (
           <LeaderboardCardSkeleton
-             
             key={index}
             highlight={highlightTop && index === 0}
             rank={index + 1}

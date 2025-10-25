@@ -37,7 +37,6 @@ export function LeaderboardGuideSkeleton() {
             <div className="flex-1 space-y-4">
               {Array.from({ length: 3 }).map((_, index) => (
                 <CardSkeleton
-                   
                   key={index}
                   lines={2}
                   tone="soft"
@@ -75,7 +74,6 @@ export function LeaderboardGuideSkeleton() {
               <div className="space-y-4">
                 {Array.from({ length: 2 }).map((_, index) => (
                   <CardSkeleton
-                     
                     key={index}
                     lines={3}
                     tone="soft"
@@ -107,7 +105,6 @@ export function LeaderboardGuideSkeleton() {
             <div className="grid gap-6 md:grid-cols-3">
               {Array.from({ length: 3 }).map((_, index) => (
                 <CardSkeleton
-                   
                   key={index}
                   lines={4}
                   tone="soft"
@@ -127,7 +124,6 @@ export function LeaderboardGuideSkeleton() {
             <div className="space-y-4">
               {Array.from({ length: 4 }).map((_, index) => (
                 <CardSkeleton
-                   
                   key={index}
                   lines={3}
                   tone="soft"

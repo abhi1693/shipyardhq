@@ -64,7 +64,6 @@ export function DirectorySectionHeaderSkeleton({
           >
             {Array.from({ length: descriptionCount }).map((_, index) => (
               <Skeleton
-                 
                 key={index}
                 className={cn(
                   "h-2.5 rounded-full",

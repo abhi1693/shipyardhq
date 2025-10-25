@@ -43,7 +43,6 @@ export function ConfirmationCardSkeleton({
         <div className="space-y-2">
           {Array.from({ length: lines }).map((_, index) => (
             <Skeleton
-               
               key={index}
               className="h-2.5 w-full rounded-full"
               tone="muted"

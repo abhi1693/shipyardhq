@@ -84,7 +84,6 @@ function TagCloudSkeleton() {
     <div className="flex flex-wrap gap-3 pt-2">
       {Array.from({ length: 14 }).map((_, index) => (
         <Skeleton
-           
           key={index}
           className="h-9 rounded-full px-5"
           tone={index % 3 === 0 ? "brand" : "soft"}

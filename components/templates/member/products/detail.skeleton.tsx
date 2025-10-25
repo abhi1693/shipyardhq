@@ -38,7 +38,6 @@ export function MemberProductDetailSkeleton() {
             <div className="flex flex-wrap items-center gap-2">
               {Array.from({ length: 4 }).map((_, index) => (
                 <Skeleton
-                   
                   key={index}
                   className="h-7 w-28 rounded-full"
                   tone="soft"
@@ -58,7 +57,6 @@ export function MemberProductDetailSkeleton() {
         <div className="flex flex-wrap gap-2">
           {Array.from({ length: 3 }).map((_, index) => (
             <Skeleton
-               
               key={index}
               className="h-6 w-24 rounded-full border border-white/30"
               tone="soft"
@@ -82,7 +80,6 @@ export function MemberProductDetailSkeleton() {
           <div className="grid gap-4 sm:grid-cols-2">
             {Array.from({ length: 6 }).map((_, index) => (
               <div
-                 
                 key={index}
                 className="space-y-2 rounded-xl border border-white/40 p-4"
               >
@@ -107,7 +104,6 @@ export function MemberProductDetailSkeleton() {
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, index) => (
               <Skeleton
-                 
                 key={index}
                 className="h-12 rounded-lg border border-white/30"
                 tone="soft"

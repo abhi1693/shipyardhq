@@ -48,11 +48,7 @@ export function ProductMediaGallery({
   const [selectedIndex, setSelectedIndex] = useState(0)
   const mediaCount = mediaItems.length
   const currentIndex =
-    mediaCount === 0
-      ? 0
-      : selectedIndex >= mediaCount
-        ? 0
-        : selectedIndex
+    mediaCount === 0 ? 0 : selectedIndex >= mediaCount ? 0 : selectedIndex
 
   const hasMedia = mediaItems.length > 0
 

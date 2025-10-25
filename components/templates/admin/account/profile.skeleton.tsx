@@ -25,12 +25,7 @@ export function AdminAccountProfileSkeleton({
         <HeadingSkeleton lines={1} />
         <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton
-               
-              key={index}
-              className="h-9 rounded-lg"
-              tone="soft"
-            />
+            <Skeleton key={index} className="h-9 rounded-lg" tone="soft" />
           ))}
         </div>
         <Skeleton className="h-9 w-36 rounded-full" />

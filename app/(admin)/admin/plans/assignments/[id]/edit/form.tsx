@@ -137,8 +137,8 @@ export default function EditAssignmentForm({
     typeof watchedUsageLimitRaw === "string"
       ? watchedUsageLimitRaw
       : watchedUsageLimitRaw
-          ? String(watchedUsageLimitRaw)
-          : ""
+        ? String(watchedUsageLimitRaw)
+        : ""
 
   const isValidInterval = (value: string | undefined): value is TimeInterval =>
     value ? INSIGHTS_USAGE_INTERVALS.includes(value as TimeInterval) : false
