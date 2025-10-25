@@ -2,21 +2,18 @@ import prisma from "@/lib/prisma"
 import { cached, DEFAULT_TTL, TAGS } from "@/lib/cache"
 import { Prisma } from "@/lib/vendor/prisma/client"
 
-const ALTERNATIVE_CARD_SELECT = {
-  id: true,
-  name: true,
-  description: true,
-  websiteUrl: true,
-  logoUrl: true,
+const ALTERNATIVE_CARD_INCLUDE = Prisma.validator<
+  Prisma.AlternativeProductInclude
+>()({
   _count: {
     select: {
       products: true,
     },
   },
-} satisfies Prisma.AlternativeProductSelect
+})
 
 export type AlternativeCatalogItem = Prisma.AlternativeProductGetPayload<{
-  select: typeof ALTERNATIVE_CARD_SELECT
+  include: typeof ALTERNATIVE_CARD_INCLUDE
 }>
 
 interface GetAlternativeCatalogPageOptions {
@@ -64,7 +61,7 @@ export const getAlternativeCatalogStats = cached(
       }),
       prisma.alternativeProduct.findMany({
         where: activeAlternativeFilter,
-        select: { _count: { select: { products: true } } },
+        include: { _count: { select: { products: true } } },
       }),
     ])
 
@@ -92,7 +89,11 @@ export const getAlternativeCatalogPage = cached(
     page = 1,
     pageSize = DEFAULT_PAGE_SIZE,
     query,
-  }: GetAlternativeCatalogPageOptions = {}) => {
+  }: GetAlternativeCatalogPageOptions = {}): Promise<{
+    items: AlternativeCatalogItem[]
+    hasMore: boolean
+    nextPage: number | null
+  }> => {
     const safePage = Number.isFinite(page) && page && page > 0 ? page : 1
     const clampedPageSize =
       Number.isFinite(pageSize) && pageSize && pageSize > 0
@@ -137,15 +138,19 @@ export const getAlternativeCatalogPage = cached(
       : baseFilter
 
     const records = await prisma.alternativeProduct.findMany({
-      select: ALTERNATIVE_CARD_SELECT,
+      include: ALTERNATIVE_CARD_INCLUDE,
       where,
       orderBy: [{ name: "asc" }],
       skip,
       take,
     })
 
-    const hasMore = records.length > clampedPageSize
-    const items = hasMore ? records.slice(0, clampedPageSize) : records
+    const typedRecords = records as AlternativeCatalogItem[]
+
+    const hasMore = typedRecords.length > clampedPageSize
+    const items = hasMore
+      ? typedRecords.slice(0, clampedPageSize)
+      : typedRecords
 
     return {
       items,

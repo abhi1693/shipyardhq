@@ -29,10 +29,13 @@ export default function Review({
   const alternativeMap = new Map(
     alternatives.map((alt) => [alt.id, alt] as const),
   )
-  const selectedAlternatives = Array.isArray(v.alternativeIds)
+  type AlternativeOption = (typeof alternatives)[number]
+  const selectedAlternatives: AlternativeOption[] = Array.isArray(
+    v.alternativeIds,
+  )
     ? (v.alternativeIds as string[])
         .map((id) => alternativeMap.get(id))
-        .filter(Boolean)
+        .filter((alt): alt is AlternativeOption => Boolean(alt))
     : []
 
   return (

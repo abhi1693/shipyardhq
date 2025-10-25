@@ -34,7 +34,8 @@ export function AlternativeCatalogGridClient({
     </p>
   ),
 }: AlternativeCatalogGridClientProps) {
-  const [items, setItems] = useState(initialItems)
+  const [items, setItems] =
+    useState<AlternativeCatalogItem[]>(initialItems)
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [nextPage, setNextPage] = useState(initialPage)
   const [isPending, startTransition] = useTransition()

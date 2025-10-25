@@ -289,9 +289,15 @@ export async function updateAlternativeProductAction(
   }
 }
 
+type AlternativeProductWithLinkedProducts = {
+  id: string
+  slug: string
+  products: { id: string }[]
+}
+
 export async function deleteAlternativeProductAction(identifier: string) {
   try {
-    const existing = await prisma.alternativeProduct.findFirst({
+    const existing = (await prisma.alternativeProduct.findFirst({
       where: {
         OR: [{ id: identifier }, { slug: identifier }],
       },
@@ -302,7 +308,7 @@ export async function deleteAlternativeProductAction(identifier: string) {
           select: { id: true },
         },
       },
-    })
+    })) as AlternativeProductWithLinkedProducts | null
 
     if (!existing) {
       return { error: "Alternative product not found" }
