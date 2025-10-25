@@ -185,39 +185,27 @@ export default function NotificationCenter({
     [segmentCounts],
   )
 
-  const selectedSegmentRaw =
-    useWatch<NotificationFormValues>({
+  const selectedSegment =
+    useWatch<NotificationFormValues, "segment">({
       control: form.control,
       name: "segment",
     }) ?? "registered"
-  const selectedSegment: NotificationSegment = Array.isArray(
-    selectedSegmentRaw,
-  )
-    ? (selectedSegmentRaw[0] as NotificationSegment | undefined) ?? "registered"
-    : (selectedSegmentRaw as NotificationSegment)
-  const selectedUserIdsRaw =
-    useWatch<NotificationFormValues>({
+  const selectedUserIds =
+    useWatch<NotificationFormValues, "selectedUserIds">({
       control: form.control,
       name: "selectedUserIds",
     }) ?? []
-  const selectedUserIds = Array.isArray(selectedUserIdsRaw)
-    ? selectedUserIdsRaw
-    : [selectedUserIdsRaw].filter((value): value is string => Boolean(value))
   const selectedUserKey = selectedUserIds.join(",")
-  const subjectRaw =
-    useWatch<NotificationFormValues>({
+  const subjectValue =
+    useWatch<NotificationFormValues, "subject">({
       control: form.control,
       name: "subject",
     }) ?? ""
-  const subjectValue = Array.isArray(subjectRaw)
-    ? subjectRaw[0] ?? ""
-    : subjectRaw
-  const messageRaw =
-    useWatch<NotificationFormValues>({
+  const messageValue =
+    useWatch<NotificationFormValues, "message">({
       control: form.control,
       name: "message",
     }) ?? ""
-  const messageValue = Array.isArray(messageRaw) ? messageRaw[0] ?? "" : messageRaw
 
   useEffect(() => {
     if (!selectedSegment) {
