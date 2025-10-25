@@ -25,20 +25,43 @@ export async function generateMetadata(
 
   const linkedCount = productsSummary.total
   const currentYear = new Date().getFullYear()
-  const countPrefix = linkedCount > 0 ? `${linkedCount} ` : ""
-  const title = `${countPrefix}Best ${alternative.name} Alternatives in ${currentYear}`
-  const description =
-    alternative.description?.trim().length
-      ? alternative.description
-      : linkedCount > 0
-        ? `Explore ${linkedCount} Shipyard products positioned as the best alternatives to ${alternative.name} in ${currentYear}.`
-        : `Explore Shipyard products positioned as the best alternatives to ${alternative.name} in ${currentYear}.`
+  const title = linkedCount > 0
+    ? `Top ${linkedCount} ${alternative.name} Alternatives & Competitors in ${currentYear}`
+    : `Best ${alternative.name} Alternatives & Competitors in ${currentYear}`
 
-  return buildPageMetadata({
+  const description = alternative.description?.trim().length
+    ? alternative.description
+    : linkedCount > 0
+      ? `Discover the top ${linkedCount} ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
+      : `Discover the best ${alternative.name} competitors, similar tools, and replacement options trusted by Shipyard founders in ${currentYear}.`
+
+  const keywordPhrases = [
+    `best ${alternative.name} alternatives`,
+    `${alternative.name} competitors`,
+    `top tools like ${alternative.name}`,
+    `${alternative.name} replacement software`,
+    `${alternative.name} alternative platforms`,
+    `${alternative.name} competitor comparison ${currentYear}`,
+  ]
+
+  const metadata = buildPageMetadata({
     title,
     description,
     section: "Alternatives",
+    openGraph: {
+      title,
+      description,
+    },
+    twitter: {
+      title,
+      description,
+    },
   })
+
+  return {
+    ...metadata,
+    keywords: keywordPhrases,
+  }
 }
 
 export default function AlternativeDetailPage(

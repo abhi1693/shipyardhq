@@ -15,7 +15,7 @@ import {
 } from "@/components/atoms/avatar"
 import { EmptyState } from "@/components/molecules/empty-state"
 import { AlternativeCatalogCard } from "@/components/molecules/AlternativeCatalogCard"
-import { alternativePath, productPath } from "@/lib/routes"
+import { ALTERNATIVES_PATH, alternativePath, productPath } from "@/lib/routes"
 import { brandGradient } from "@/lib/ui/tints"
 import { cn } from "@/lib/utils"
 import { siteConfig } from "@/lib/siteConfig"
@@ -57,6 +57,16 @@ export async function AlternativeDetailPageContent({
   const hasFeaturedAlternatives = featuredAlternatives.length > 0
   const avatarInitials = getInitials(alternative.name)
   const websiteUrl = alternative.websiteUrl?.trim()
+  const currentYear = new Date().getFullYear()
+
+  const seoKeywords = [
+    `best ${alternative.name} alternatives`,
+    `top ${alternative.name} competitors`,
+    `tools like ${alternative.name}`,
+    `${alternative.name} replacement software`,
+    `${alternative.name} alternative platforms`,
+    `${alternative.name} similar products ${currentYear}`,
+  ]
 
   const alternativeUrl = new URL(
     alternativePath(alternative.slug),
@@ -94,12 +104,42 @@ export async function AlternativeDetailPageContent({
     }
   })
 
+  const structuredDescription = hasProducts
+    ? `Compare the top ${productsPage.total} ${alternative.name} alternatives, competitors, and similar tools Shipyard makers rely on in ${currentYear}.`
+    : `Explore curated ${alternative.name} competitors, similar tools, and replacement platforms updated for ${currentYear}.`
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: `Best ${alternative.name} Alternatives`,
+    name: hasProducts
+      ? `Top ${productsPage.total} ${alternative.name} Alternatives & Competitors`
+      : `Best ${alternative.name} Alternatives & Competitors`,
     url: alternativeUrl,
-    description: alternative.description ?? subheading,
+    description: structuredDescription,
+    inLanguage: "en-US",
+    keywords: seoKeywords.join(", "),
+    alternateName: `Best ${alternative.name} alternatives and competitors`,
+    about: {
+      "@type": "Product",
+      name: alternative.name,
+      ...(websiteUrl ? { url: websiteUrl } : {}),
+    },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+      logo: {
+        "@type": "ImageObject",
+        url: new URL(siteConfig.ogImage, siteConfig.url).toString(),
+      },
+    },
+    isPartOf: {
+      "@type": "WebSite",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    mainEntityOfPage: alternativeUrl,
+    dateModified: new Date().toISOString(),
     mainEntity: {
       "@type": "ItemList",
       name: `Products like ${alternative.name}`,
@@ -111,6 +151,30 @@ export async function AlternativeDetailPageContent({
 
   const structuredDataJson = JSON.stringify(structuredData)
 
+  const alternativesDirectoryUrl = new URL(ALTERNATIVES_PATH, siteConfig.url)
+    .toString()
+
+  const breadcrumbData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "SaaS Alternatives Directory",
+        item: alternativesDirectoryUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: `${alternative.name} Alternatives`,
+        item: alternativeUrl,
+      },
+    ],
+  }
+
+  const breadcrumbJson = JSON.stringify(breadcrumbData)
+
   return (
     <main className="relative isolate bg-white">
       <script
@@ -118,6 +182,13 @@ export async function AlternativeDetailPageContent({
         suppressHydrationWarning
         dangerouslySetInnerHTML={{
           __html: structuredDataJson,
+        }}
+      />
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: breadcrumbJson,
         }}
       />
       <div className="mx-auto w-full max-w-[120rem] px-4 pb-24 pt-16 sm:px-6 lg:px-8">
