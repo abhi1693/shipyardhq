@@ -113,12 +113,7 @@ export default function AddAssignmentForm({
       control: form.control,
       name: "usageLimit",
     }) ?? ""
-  const watchedUsageLimit =
-    typeof watchedUsageLimitRaw === "string"
-      ? watchedUsageLimitRaw
-      : watchedUsageLimitRaw
-          ? String(watchedUsageLimitRaw)
-          : ""
+  const watchedUsageLimit = String(watchedUsageLimitRaw || "")
 
   const isValidInterval = (value: string | undefined): value is TimeInterval =>
     value ? INSIGHTS_USAGE_INTERVALS.includes(value as TimeInterval) : false

@@ -193,8 +193,6 @@ async function OverviewPageWithStats({
           <Suspense fallback={<HighlightCardSkeleton />}>
             <HighlightCard
               stats={stats}
-              unverifiedPromise={unverifiedPromise}
-              draftsPromise={draftsPromise}
               needsMediaPromise={needsMediaPromise}
               expiringBadgesPromise={expiringBadgesPromise}
               topByClicksPromise={topByClicksPromise}
@@ -624,24 +622,18 @@ async function SignalsSection({
 
 async function HighlightCard({
   stats,
-  unverifiedPromise,
-  draftsPromise,
   needsMediaPromise,
   expiringBadgesPromise,
   topByClicksPromise,
   days,
 }: {
   stats: DashboardStats
-  unverifiedPromise: ReturnType<typeof getUnverifiedProducts>
-  draftsPromise: ReturnType<typeof getUserDrafts>
   needsMediaPromise: ReturnType<typeof getProductsNeedingMedia>
   expiringBadgesPromise: ReturnType<typeof getExpiringBadges>
   topByClicksPromise: ReturnType<typeof getTopProductsByMetric>
   days: number
 }) {
-  const [, , needsMedia, expiringBadges, topByClicks] = await Promise.all([
-    unverifiedPromise,
-    draftsPromise,
+  const [needsMedia, expiringBadges, topByClicks] = await Promise.all([
     needsMediaPromise,
     expiringBadgesPromise,
     topByClicksPromise,

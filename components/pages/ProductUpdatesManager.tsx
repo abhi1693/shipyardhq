@@ -220,17 +220,11 @@ export function ProductUpdatesManager({
   )
 
   const isEditing = editingId !== null
-  const currentStatusRaw =
-    useWatch<ProductUpdateFormValues>({
+  const currentStatus: ProductUpdateFormValues["status"] =
+    useWatch<ProductUpdateFormValues, "status">({
       control: form.control,
       name: "status",
     }) ?? DEFAULT_VALUES.status
-  const currentStatus: ProductUpdateFormValues["status"] = Array.isArray(
-    currentStatusRaw,
-  )
-    ? ((currentStatusRaw[0] as ProductUpdateFormValues["status"]) ??
-        DEFAULT_VALUES.status)
-    : (currentStatusRaw as ProductUpdateFormValues["status"])
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-0">

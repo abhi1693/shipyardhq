@@ -74,11 +74,7 @@ export default function AdminFeedbackNoteButton({
         open={open}
         onOpenChange={(nextOpen) => {
           setOpen(nextOpen)
-          if (nextOpen) {
-            setValue(previewNote)
-          } else {
-            setValue(previewNote)
-          }
+          setValue(previewNote)
         }}
       >
         <DialogTrigger asChild>
