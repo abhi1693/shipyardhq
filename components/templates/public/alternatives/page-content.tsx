@@ -3,7 +3,6 @@ import { Search } from "lucide-react"
 import {
   ALTERNATIVE_CATALOG_PAGE_SIZE,
   getAlternativeCatalogPage,
-  getAlternativeCatalogStats,
 } from "@/actions/public/alternatives/actions"
 import { AlternativeCatalogGridClient } from "@/components/molecules/AlternativeCatalogGridClient"
 import { Input } from "@/components/atoms/input"
@@ -26,50 +25,24 @@ export async function AlternativesPageContent({
   const params = await searchParams
   const query = resolveSingle(params.q)?.trim() || undefined
 
-  const [catalogStats, catalogPage] = await Promise.all([
-    getAlternativeCatalogStats(),
-    getAlternativeCatalogPage({
-      page: 1,
-      pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
-      query,
-    }),
-  ])
-
-  const { items, hasMore } = catalogPage
-
-  const heroStats = {
-    totalProducts: catalogStats.totalAlternatives,
-    totalCreators: catalogStats.linkedProducts,
-    totalUpvotes: catalogStats.categoriesCovered,
-    totalInsights: catalogStats.totalPairings,
-    topScore: catalogStats.totalAlternatives,
-  }
-
-  const heroMetrics = [
-    {
-      key: "totalProducts" as const,
-      label: "Alternatives indexed",
-    },
-    {
-      key: "totalCreators" as const,
-      label: "Shipyard products covered",
-    },
-    {
-      key: "totalUpvotes" as const,
-      label: "Categories mapped",
-    },
-    {
-      key: "totalInsights" as const,
-      label: "Pairings logged",
-    },
-  ]
+  const { items, hasMore } = await getAlternativeCatalogPage({
+    page: 1,
+    pageSize: ALTERNATIVE_CATALOG_PAGE_SIZE,
+    query,
+  })
 
   return (
     <main className="relative isolate bg-white">
-      <div className="relative mx-auto w-full max-w-6xl px-4 pb-24 pt-16 sm:px-6 lg:px-8">
+      <div className="relative mx-auto w-full max-w-[120rem] px-4 pb-24 pt-16 sm:px-6 lg:px-8">
         <div className="space-y-12">
           <DirectoryHeader
-            stats={heroStats}
+            stats={{
+              totalProducts: 0,
+              totalCreators: 0,
+              totalUpvotes: 0,
+              totalInsights: 0,
+              topScore: 0,
+            }}
             eyebrow="Alternatives library"
             title="Browse SaaS Alternatives"
             description="Explore vetted third-party tools that founders benchmark against Shipyard launches. Find adjacent options, compare positioning, and map category coverage."
@@ -82,7 +55,7 @@ export async function AlternativesPageContent({
               href: BROWSE_PATH,
               variant: "outline",
             }}
-            metrics={heroMetrics}
+            metrics={[]}
           />
 
           <section className="rounded-3xl border border-border bg-white/95 shadow-sm">
