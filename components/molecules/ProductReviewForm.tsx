@@ -1,10 +1,10 @@
 "use client"
 
 import {
+  startTransition,
   useActionState,
   useEffect,
   useMemo,
-  useOptimistic,
   useRef,
   useState,
 } from "react"
@@ -41,20 +41,8 @@ export default function ProductReviewForm({
   const timeoutRef = useRef<number | null>(null)
   const normalizedInitialRating =
     typeof initialRating === "number" && initialRating >= 0 ? initialRating : 0
-  const [rating, setRating] = useOptimistic(
-    normalizedInitialRating,
-    (prev, next: number | ((prevRating: number) => number)) =>
-      typeof next === "function"
-        ? (next as (prevRating: number) => number)(prev)
-        : next,
-  )
-  const [message, setMessage] = useOptimistic(
-    initialMessage ?? "",
-    (prev, next: string | ((prevMessage: string) => string)) =>
-      typeof next === "function"
-        ? (next as (prevMessage: string) => string)(prev)
-        : next,
-  )
+  const [rating, setRating] = useState<number>(normalizedInitialRating)
+  const [message, setMessage] = useState(initialMessage ?? "")
   const [hoverRating, setHoverRating] = useState<number | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
   const [state, formAction] = useActionState(
@@ -83,6 +71,37 @@ export default function ProductReviewForm({
     },
     initialState,
   )
+
+  useEffect(() => {
+    if (
+      typeof initialRating === "number" &&
+      initialRating >= 0 &&
+      initialRating <= 5
+    ) {
+      startTransition(() => {
+        setRating(initialRating)
+      })
+      return
+    }
+
+    if (initialRating == null) {
+      startTransition(() => {
+        setRating(0)
+      })
+    }
+  }, [initialRating])
+
+  useEffect(() => {
+    if (typeof initialMessage === "string") {
+      startTransition(() => {
+        setMessage(initialMessage)
+      })
+    } else if (initialMessage == null) {
+      startTransition(() => {
+        setMessage("")
+      })
+    }
+  }, [initialMessage])
 
   useEffect(() => {
     return () => {
@@ -116,7 +135,9 @@ export default function ProductReviewForm({
           </label>
           <button
             type="button"
-            onClick={() => setRating(0)}
+            onClick={() => {
+              startTransition(() => setRating(0))
+            }}
             className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Clear rating
@@ -140,7 +161,9 @@ export default function ProductReviewForm({
                   onMouseLeave={() => setHoverRating(null)}
                   onFocus={() => setHoverRating(value)}
                   onBlur={() => setHoverRating(null)}
-                  onClick={() => setRating(value)}
+                  onClick={() => {
+                    startTransition(() => setRating(value))
+                  }}
                   className="group"
                   aria-label={`${value} star${value === 1 ? "" : "s"}`}
                 >
