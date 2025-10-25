@@ -1,10 +1,8 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import Link from "next/link"
 
 import { Relationship } from "@/components/molecules/Relationship"
-import { Button } from "@/components/atoms/button"
 import { formatDate, linkify } from "@/lib/ui/formatters"
 import { adminPath } from "@/lib/routes"
 import { Prisma } from "@/lib/vendor/prisma/client"
@@ -15,10 +13,9 @@ export type ProductWithCategory = Prisma.ProductGetPayload<{
 
 interface Props {
   rows: ProductWithCategory[]
-  alternativeId: string
 }
 
-export function AlternativeProductProductRelationship({ rows, alternativeId }: Props) {
+export function AlternativeProductProductRelationship({ rows }: Props) {
   const columns: ColumnDef<ProductWithCategory>[] = [
     {
       accessorKey: "name",
@@ -59,15 +56,6 @@ export function AlternativeProductProductRelationship({ rows, alternativeId }: P
       title="Linked Shipyard Products"
       rows={rows}
       columns={columns}
-      action={
-        <Link
-          href={adminPath("products", "alternatives", alternativeId, "edit")}
-        >
-          <Button size="sm" variant="outline">
-            Edit links
-          </Button>
-        </Link>
-      }
       emptyMessage="No products are linked to this alternative yet."
     />
   )

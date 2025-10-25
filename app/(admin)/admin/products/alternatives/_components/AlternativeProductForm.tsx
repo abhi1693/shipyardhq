@@ -419,6 +419,7 @@ export function AlternativeProductForm({
                       name="logoUrl"
                       label="Logo"
                       folder="alternative-logos"
+                      scope="global"
                     />
                     <FormDescription>
                       Prefer transparent PNG or SVG, at least 256×256px. Autofill

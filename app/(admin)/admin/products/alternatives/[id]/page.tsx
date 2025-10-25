@@ -117,11 +117,9 @@ export default async function AlternativeProductDetailPage({
         <>
           <AlternativeProductProductRelationship
             rows={products}
-            alternativeId={alternative.id}
           />
           <AlternativeProductCategoryRelationship
             rows={categories}
-            alternativeId={alternative.id}
           />
         </>
       }

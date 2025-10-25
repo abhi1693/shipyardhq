@@ -21,6 +21,8 @@ export async function POST(req: Request) {
     const file = form.get("file") as File | null
     const folder = (form.get("folder") as string | null) || "assets"
     const productId = (form.get("productId") as string | null) || undefined
+    const scopeValue = (form.get("scope") as string | null) || "user"
+    const scope = scopeValue === "global" ? "global" : "user"
     if (!file) return new Response("Missing file", { status: 400 })
     if (!file.type?.startsWith("image/"))
       return new Response("Only images allowed", { status: 415 })
@@ -28,9 +30,17 @@ export async function POST(req: Request) {
     if (file.size > maxBytes)
       return new Response("File too large (max 5MB)", { status: 413 })
 
-    const prefix = productId
-      ? `${userId}/products/${productId}/${folder}`
-      : `${userId}/${folder}`
+    const trimmedFolder = folder.replace(/^\/+|\/+$/g, "") || "assets"
+    if (scope === "global" && user.role !== "admin") {
+      return new Response("Forbidden", { status: 403 })
+    }
+
+    const prefix =
+      scope === "global"
+        ? `global/${trimmedFolder}`
+        : productId
+          ? `${userId}/products/${productId}/${trimmedFolder}`
+          : `${userId}/${trimmedFolder}`
     const arrayBuf = await file.arrayBuffer()
     const processed = await toWebpIfPossible(arrayBuf, file.type)
     const base = sanitizeFilename(
@@ -73,8 +83,17 @@ export async function DELETE(req: Request) {
     try {
       const u = new URL(url)
       const isVercelHost = u.hostname.includes("vercel-storage.com")
-      const pathOk = u.pathname.startsWith(`/${userId}/`)
-      if (!isVercelHost || !pathOk) {
+      const pathname = u.pathname
+      const userScoped = pathname.startsWith(`/${userId}/`)
+      const globalScoped = pathname.startsWith("/global/")
+      if (!isVercelHost) {
+        return new Response("Forbidden", { status: 403 })
+      }
+      if (globalScoped) {
+        if (user.role !== "admin") {
+          return new Response("Forbidden", { status: 403 })
+        }
+      } else if (!userScoped) {
         return new Response("Forbidden", { status: 403 })
       }
     } catch {
