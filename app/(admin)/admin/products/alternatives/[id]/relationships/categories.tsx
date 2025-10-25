@@ -43,7 +43,9 @@ export function AlternativeProductCategoryRelationship({ rows, alternativeId }: 
       rows={rows}
       columns={columns}
       action={
-        <Link href={adminPath("alternatives", alternativeId, "edit")}>
+        <Link
+          href={adminPath("products", "alternatives", alternativeId, "edit")}
+        >
           <Button size="sm" variant="outline">
             Update categories
           </Button>

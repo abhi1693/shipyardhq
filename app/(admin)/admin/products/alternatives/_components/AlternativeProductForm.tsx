@@ -15,6 +15,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/atoms/card"
@@ -34,6 +35,7 @@ import { Button } from "@/components/atoms/button"
 import PageContainer from "@/components/layout/page-container"
 import { adminPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
+import ImageUploadField from "@/components/molecules/ImageUploadField"
 
 const schema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -132,7 +134,7 @@ export function AlternativeProductForm({
       }
 
       toast.success("Alternative product created")
-      router.push(adminPath("alternatives"))
+      router.push(adminPath("products", "alternatives"))
       return
     }
 
@@ -160,7 +162,7 @@ export function AlternativeProductForm({
     }
 
     toast.success("Alternative product updated")
-    router.push(adminPath("alternatives", alternativeId))
+    router.push(adminPath("products", "alternatives", alternativeId))
   }
 
   const selectedCategoryIds =
@@ -170,22 +172,24 @@ export function AlternativeProductForm({
 
   return (
     <PageContainer>
-      <Card className="mx-auto w-full max-w-4xl">
-        <CardHeader>
-          <CardTitle className="text-left text-2xl font-bold">
-            {mode === "create" ? "Add Alternative Product" : "Edit Alternative"}
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Maintain a curated list of third-party tools customers compare
-            against our featured products.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6"
-            >
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="mx-auto w-full max-w-4xl"
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-left text-2xl font-bold">
+                {mode === "create"
+                  ? "Add Alternative Product"
+                  : "Edit Alternative"}
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Maintain a curated list of third-party tools customers compare
+                against our featured products.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
               <FormField
                 control={form.control}
                 name="name"
@@ -235,12 +239,17 @@ export function AlternativeProductForm({
                 <FormField
                   control={form.control}
                   name="logoUrl"
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem>
-                      <FormLabel>Logo URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://cdn.example.com/logo.png" {...field} />
-                      </FormControl>
+                      <ImageUploadField
+                        name="logoUrl"
+                        label="Logo"
+                        folder="alternative-logos"
+                      />
+                      <FormDescription>
+                        Upload a square PNG or SVG so the catalogue stays visually
+                        consistent.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -396,30 +405,29 @@ export function AlternativeProductForm({
                 )}
               />
 
-              <div className="flex items-center justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push(adminPath("alternatives"))}
-                  disabled={form.formState.isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={form.formState.isSubmitting}
-                >
-                  {form.formState.isSubmitting
-                    ? "Saving..."
-                    : mode === "create"
-                      ? "Create Alternative"
-                      : "Save Changes"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+            </CardContent>
+            <CardFooter className="flex justify-end gap-2 border-t border-border/50 bg-muted/[0.35]">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  router.push(adminPath("products", "alternatives"))
+                }
+                disabled={form.formState.isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting
+                  ? "Saving..."
+                  : mode === "create"
+                    ? "Create Alternative"
+                    : "Save Changes"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
+      </Form>
     </PageContainer>
   )
 }

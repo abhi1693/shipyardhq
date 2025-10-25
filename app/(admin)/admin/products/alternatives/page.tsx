@@ -41,7 +41,7 @@ export default async function AlternativeProductsPage({
     <ListPageWrapper
       title="Alternative Products"
       description="Curate external tools customers consider before choosing our listed products."
-      addLink={adminPath("alternatives", "add")}
+      addLink={adminPath("products", "alternatives", "add")}
     >
       <EntityList columns={columns} data={data} pageCount={pageCount} />
     </ListPageWrapper>

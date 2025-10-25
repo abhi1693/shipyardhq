@@ -21,7 +21,7 @@ export default async function DeleteAlternativeProductPage({
   const { id } = await params
 
   if (!id) {
-    redirect(adminStatusPath(["alternatives"], "invalid"))
+    redirect(adminStatusPath(["products", "alternatives"], "invalid"))
   }
 
   const alternative = await prisma.alternativeProduct.findUnique({
@@ -34,7 +34,7 @@ export default async function DeleteAlternativeProductPage({
   })
 
   if (!alternative) {
-    redirect(adminStatusPath(["alternatives"], "not-found"))
+    redirect(adminStatusPath(["products", "alternatives"], "not-found"))
   }
 
   const linkedProducts = alternative.products.length
@@ -45,10 +45,10 @@ export default async function DeleteAlternativeProductPage({
     const result = await deleteAlternativeProductAction(alternative.id)
 
     if (result && typeof result === "object" && "error" in result) {
-      redirect(adminStatusPath(["alternatives"], "error"))
+      redirect(adminStatusPath(["products", "alternatives"], "error"))
     }
 
-    redirect(adminStatusPath(["alternatives"], "deleted"))
+    redirect(adminStatusPath(["products", "alternatives"], "deleted"))
   }
 
   return (
@@ -74,7 +74,9 @@ export default async function DeleteAlternativeProductPage({
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
           <Button asChild variant="outline">
-            <Link href={adminPath("alternatives", alternative.id)}>Cancel</Link>
+            <Link href={adminPath("products", "alternatives", alternative.id)}>
+              Cancel
+            </Link>
           </Button>
           <form action={handleDelete}>
             <Button type="submit" variant="destructive">

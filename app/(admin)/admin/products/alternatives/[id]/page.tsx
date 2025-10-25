@@ -110,7 +110,7 @@ export default async function AlternativeProductDetailPage({
         slug: null,
       }}
       overview={overview}
-      basePath="admin/alternatives"
+      basePath="admin/products/alternatives"
       deletable
       editable
       relationships={
