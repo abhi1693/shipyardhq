@@ -29,7 +29,7 @@ export default async function AddProductPage() {
     getCategories({ orderBy: { name: "asc" } }).catch(() => []),
     getMyOrganizations().catch(() => []),
     getAlternativeProducts({
-      select: { id: true, name: true, websiteUrl: true },
+      select: { id: true, slug: true, name: true, websiteUrl: true },
       orderBy: { name: "asc" },
     }).catch(() => []),
   ])

@@ -8,6 +8,7 @@ import {
 } from "@/components/atoms/avatar"
 import { cn } from "@/lib/utils"
 import type { AlternativeCatalogItem } from "@/actions/public/alternatives/actions"
+import { alternativePath } from "@/lib/routes"
 
 interface AlternativeCatalogCardProps {
   alternative: AlternativeCatalogItem
@@ -22,6 +23,7 @@ export function AlternativeCatalogCard({
   const countLabel = `${count} alternative${count === 1 ? "" : "s"}`
   const initials = getInitials(alternative.name)
   const websiteUrl = alternative.websiteUrl?.trim()
+  const detailHref = alternativePath(alternative.slug)
 
   const content = (
     <article
@@ -68,20 +70,14 @@ export function AlternativeCatalogCard({
     </article>
   )
 
-  if (websiteUrl) {
-    return (
-      <Link
-        href={websiteUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      >
-        {content}
-      </Link>
-    )
-  }
-
-  return content
+  return (
+    <Link
+      href={detailHref}
+      className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      {content}
+    </Link>
+  )
 }
 
 function getInitials(name: string) {

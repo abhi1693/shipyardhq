@@ -42,6 +42,8 @@ export const ADMIN_ACCOUNT_PROFILE_PATH = adminPath("account", "profile")
 export const adminStatusPath = (segments: string[], status: string) =>
   `${adminPath(...segments)}?status=${status}`
 
+export const ALTERNATIVES_PATH = "/alternatives" as const
+
 export const BROWSE_PATH = "/browse" as const
 export const LEADERBOARD_PATH = "/leaderboard" as const
 export const LEADERBOARD_MONTHLY_PATH = `${LEADERBOARD_PATH}/monthly` as const
@@ -94,6 +96,9 @@ export const USERS_PATH = "/users" as const
 export const REWARDS_PATH = "/rewards" as const
 
 export const SHIPYARD_TWITTER_URL = "https://x.com/shipyardhq" as const
+
+export const alternativePath = (slug: string) =>
+  `${ALTERNATIVES_PATH}/${slug}`
 
 export const categoryPath = (slug: string) => `${CATEGORIES_PATH}/${slug}`
 export const usecasePath = (slug: string) => `${USE_CASES_PATH}/${slug}`

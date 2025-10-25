@@ -40,7 +40,12 @@ export default function EditProductForm({
   categories: { id: string; name: string }[]
   organizations: { id: string; name: string }[]
   canEditCTA: boolean
-  alternatives: { id: string; name: string; websiteUrl?: string | null }[]
+  alternatives: {
+    id: string
+    slug?: string | null
+    name: string
+    websiteUrl?: string | null
+  }[]
 }) {
   const router = useRouter()
 

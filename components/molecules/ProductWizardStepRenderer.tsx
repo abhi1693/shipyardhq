@@ -25,7 +25,12 @@ export function renderStep(
   args: {
     categories: { id: string; name: string }[]
     organizations: { id: string; name: string }[]
-    alternatives?: { id: string; name: string; websiteUrl?: string | null }[]
+    alternatives?: {
+      id: string
+      slug?: string | null
+      name: string
+      websiteUrl?: string | null
+    }[]
     productId?: string
     persistOnVerify?: boolean
     lockWebsiteUrl?: boolean

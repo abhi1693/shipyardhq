@@ -46,7 +46,12 @@ export default function AddProductForm({
   organizations: { id: string; name: string }[]
   userId: string
   canEditCTA: boolean
-  alternatives: { id: string; name: string; websiteUrl?: string | null }[]
+  alternatives: {
+    id: string
+    slug?: string | null
+    name: string
+    websiteUrl?: string | null
+  }[]
 }) {
   const router = useRouter()
   const [newProductId] = useState(() => {

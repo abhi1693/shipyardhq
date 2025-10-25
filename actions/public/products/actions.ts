@@ -17,6 +17,7 @@ type PublicProduct = Prisma.ProductGetPayload<{
       orderBy: { name: "asc" }
       select: {
         id: true
+        slug: true
         name: true
         websiteUrl: true
         logoUrl: true
@@ -87,6 +88,7 @@ async function fetchPublicProduct(where: Prisma.ProductWhereUniqueInput) {
         orderBy: { name: "asc" },
         select: {
           id: true,
+          slug: true,
           name: true,
           websiteUrl: true,
           logoUrl: true,

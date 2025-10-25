@@ -11,6 +11,7 @@ type Props = {
   organizations: { id: string; name: string }[]
   alternatives: {
     id: string
+    slug?: string | null
     name: string
     websiteUrl?: string | null
   }[]

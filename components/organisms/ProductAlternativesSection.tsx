@@ -6,9 +6,11 @@ import {
   AvatarImage,
 } from "@/components/atoms/avatar"
 import { cn } from "@/lib/utils"
+import { alternativePath } from "@/lib/routes"
 
 type Alternative = {
   id: string
+  slug?: string | null
   name: string
   logoUrl?: string | null
   websiteUrl?: string | null
@@ -44,32 +46,38 @@ export function ProductAlternativesSection({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          {alternatives.map((alternative) =>
-            alternative.websiteUrl ? (
+          {alternatives.map((alternative) => {
+            const href = alternative.slug
+              ? alternativePath(alternative.slug)
+              : null
+
+            if (!href) {
+              return (
+                <div
+                  key={alternative.id}
+                  className="flex flex-col items-center gap-2 text-center"
+                >
+                  <AlternativeAvatar alternative={alternative} />
+                  <span className="max-w-[8rem] text-xs font-medium text-muted-foreground">
+                    {alternative.name}
+                  </span>
+                </div>
+              )
+            }
+
+            return (
               <Link
                 key={alternative.id}
-                href={alternative.websiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex flex-col items-center gap-2 text-center"
+                href={href}
+                className="group flex flex-col items-center gap-2 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <AlternativeAvatar alternative={alternative} />
                 <span className="max-w-[8rem] text-xs font-medium text-muted-foreground transition-colors group-hover:text-foreground">
                   {alternative.name}
                 </span>
               </Link>
-            ) : (
-              <div
-                key={alternative.id}
-                className="flex flex-col items-center gap-2 text-center"
-              >
-                <AlternativeAvatar alternative={alternative} />
-                <span className="max-w-[8rem] text-xs font-medium text-muted-foreground">
-                  {alternative.name}
-                </span>
-              </div>
-            ),
-          )}
+            )
+          })}
         </div>
       </div>
     </section>

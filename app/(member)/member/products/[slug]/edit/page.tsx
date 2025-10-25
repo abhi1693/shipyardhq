@@ -25,7 +25,7 @@ export default async function EditProductPage({
     getCategories({ orderBy: { name: "asc" } }),
     getMyOrganizations().catch(() => []),
     getAlternativeProducts({
-      select: { id: true, name: true, websiteUrl: true },
+      select: { id: true, slug: true, name: true, websiteUrl: true },
       orderBy: { name: "asc" },
     }).catch(() => []),
   ])
