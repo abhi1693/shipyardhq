@@ -2,6 +2,7 @@
 CREATE TABLE "AlternativeProduct" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "websiteUrl" TEXT NOT NULL,
     "logoUrl" TEXT NOT NULL,
@@ -26,6 +27,9 @@ CREATE TABLE "_AlternativeProductCategories" (
 
     CONSTRAINT "_AlternativeProductCategories_AB_pkey" PRIMARY KEY ("A","B")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AlternativeProduct_slug_key" ON "AlternativeProduct"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "AlternativeProduct_websiteUrl_key" ON "AlternativeProduct"("websiteUrl");
